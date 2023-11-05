@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { Fragment, useState } from "react";
 import {
   ColumnDef,
   SortingState,
@@ -13,6 +13,13 @@ import {
 } from "@tanstack/react-table";
 import { cn } from "~/utils/styling";
 import { Button } from "./Button";
+import {
+  Combobox,
+  ComboboxButton,
+  ComboboxContent,
+  ComboboxItem,
+  ComboboxItemsContainer,
+} from "./Combobox";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow } from "./Table";
 
 import ChevronDownIcon from "~/assets/chevron_down.svg";
@@ -23,7 +30,7 @@ interface DataTableProps<TData, TValue> {
   meta?: unknown;
   data: TData[];
 
-  pageSize?: number;
+  defaultPageSize?: number;
   enablePagination?: boolean;
   headerSlot?: React.ReactNode;
   colGroupSlot?: React.ReactNode;
@@ -34,9 +41,19 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
-  const { columns, meta, data, headerSlot, colGroupSlot, pageSize = 20, enablePagination } = props;
+  const {
+    columns,
+    meta,
+    data,
+    headerSlot,
+    colGroupSlot,
+    defaultPageSize = 20,
+    enablePagination,
+  } = props;
 
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [pageSize, setPageSize] = useState(defaultPageSize);
+  const [pageIndex, setPageIndex] = useState(0);
 
   const table = useReactTable({
     meta: meta as any,
@@ -46,9 +63,48 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: enablePagination ? getPaginationRowModel() : undefined,
     onSortingChange: setSorting,
-    state: { sorting },
-    initialState: { pagination: { pageIndex: 0, pageSize: enablePagination ? pageSize : 10_000 } },
+    state: {
+      sorting,
+      pagination: {
+        pageIndex,
+        pageSize: enablePagination ? pageSize : 10_000,
+      },
+    },
+    initialState: {
+      pagination: {
+        pageIndex: 0,
+        pageSize: enablePagination ? pageSize : 10_000,
+      },
+    },
   });
+
+  function nextPage() {
+    const nextIndex = pageIndex + 1;
+
+    if (nextIndex >= table.getPageCount()) {
+      return;
+    }
+
+    setPageIndex(nextIndex);
+  }
+
+  function previousPage() {
+    const nextIndex = pageIndex - 1;
+
+    if (nextIndex < 0) {
+      return;
+    }
+
+    setPageIndex(nextIndex);
+  }
+
+  function getCanPreviousPage() {
+    return pageIndex > 0;
+  }
+
+  function getCanNextPage() {
+    return pageIndex < table.getPageCount() - 1;
+  }
 
   return (
     <div>
@@ -74,7 +130,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <React.Fragment key={row.id}>
+                <Fragment key={row.id}>
                   <TableRow
                     data-state={row.getIsSelected() && "selected"}
                     onClick={() => {
@@ -101,7 +157,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
                       </TableCell>
                     </TableRow>
                   )}
-                </React.Fragment>
+                </Fragment>
               ))
             ) : (
               <TableRow>
@@ -113,43 +169,55 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
           </TableBody>
         </Table>
       </TableContainer>
-      {enablePagination && table.getPageCount() > 1 && (
-        <div className="flex items-center justify-end space-x-3 py-4">
-          <span className="mr-3 text-xs text-gray-200">
-            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-          </span>
-          <Button
-            className="px-1"
-            size="sm"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronFirstIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            className="px-1"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronDownIcon className="h-4 w-4 rotate-90" />
-          </Button>
-          <Button
-            className="px-1"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronDownIcon className="h-4 w-4 -rotate-90" />
-          </Button>
-          <Button
-            className="px-1"
-            size="sm"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronFirstIcon className="h-4 w-4 -rotate-180" />
-          </Button>
+      {enablePagination && (pageSize !== defaultPageSize || table.getPageCount() > 1) && (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3 py-4">
+            <span className="mr-1 text-xs text-gray-200">Results per page</span>
+            <Combobox value={String(pageSize)} onValueChanged={(val) => setPageSize(Number(val))}>
+              <ComboboxButton className="gap-x-0">{pageSize}</ComboboxButton>
+              <ComboboxContent align="start">
+                <ComboboxItemsContainer>
+                  <ComboboxItem value="20">20</ComboboxItem>
+                  <ComboboxItem value="50">50</ComboboxItem>
+                  <ComboboxItem value="100">100</ComboboxItem>
+                  <ComboboxItem value="500">500</ComboboxItem>
+                  <ComboboxItem value="1000">1000</ComboboxItem>
+                </ComboboxItemsContainer>
+              </ComboboxContent>
+            </Combobox>
+          </div>
+          <div className="flex items-center justify-end space-x-3 py-4">
+            <span className="mr-3 text-xs text-gray-200">
+              Page {pageIndex + 1} of {table.getPageCount()}
+            </span>
+            <Button
+              className="px-1"
+              size="sm"
+              onClick={() => setPageIndex(0)}
+              disabled={!getCanPreviousPage()}
+            >
+              <ChevronFirstIcon className="h-4 w-4" />
+            </Button>
+            <Button
+              className="px-1"
+              size="sm"
+              onClick={() => previousPage()}
+              disabled={!getCanPreviousPage()}
+            >
+              <ChevronDownIcon className="h-4 w-4 rotate-90" />
+            </Button>
+            <Button className="px-1" size="sm" onClick={() => nextPage()} disabled={!getCanNextPage()}>
+              <ChevronDownIcon className="h-4 w-4 -rotate-90" />
+            </Button>
+            <Button
+              className="px-1"
+              size="sm"
+              onClick={() => setPageIndex(table.getPageCount() - 1)}
+              disabled={!getCanNextPage()}
+            >
+              <ChevronFirstIcon className="h-4 w-4 -rotate-180" />
+            </Button>
+          </div>
         </div>
       )}
     </div>
