@@ -134,14 +134,14 @@ function ProgressTableRow(props: ProgressTableRowProps) {
   const isFullyComplete = achievements.every((a) => !!a.createdAt);
 
   return (
-    <div className="flex flex-col justify-between gap-3 rounded-lg border border-gray-500 bg-gray-800 px-4 py-4 shadow-sm md:flex-row md:py-2">
+    <div className="flex flex-col justify-between gap-3 rounded-lg border border-gray-500 bg-gray-800 p-4 pb-0 shadow-sm sm:pb-4 md:flex-row md:py-2">
       <div className="flex items-center border-b border-gray-600 pb-4 md:border-b-0 md:pb-0">
         <MetricIcon metric={metric} />
         <span className="ml-2 block text-sm text-white">
           {measure === "levels" ? "Base Stats" : MetricProps[metric].name}
         </span>
       </div>
-      <div className="flex grow md:max-w-md lg:max-w-lg xl:max-w-md">
+      <div className="custom-scroll flex grow overflow-x-auto pb-4 sm:pb-0 md:max-w-md lg:max-w-lg xl:max-w-md">
         <div className="z-[1] flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200 shadow-md">
           0
         </div>
