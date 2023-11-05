@@ -1,3 +1,4 @@
+import env from '../../../env';
 import prisma, { Patron } from '../../../prisma';
 import { getPatrons } from '../../services/external/patreon.service';
 import { sendPatreonUpdateMessage } from '../../services/external/discord.service';
@@ -11,6 +12,10 @@ class SyncPatronsJob implements JobDefinition<unknown> {
   }
 
   async execute() {
+    if (!env.PATREON_BEARER_TOKEN) {
+      return;
+    }
+
     const currentPatrons = await prisma.patron.findMany();
 
     const toAdd: Patron[] = [];
