@@ -112,7 +112,7 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
                       height={SIZE}
                       rx={1}
                       className="fill-blue-400"
-                      style={{ opacity: (cell.value || 0) / (maxValue / 3) }}
+                      style={{ opacity: maxValue === 0 ? 0 : (cell.value || 0) / (maxValue / 3) }}
                     />
                   </g>
                 </SVGTooltip>
