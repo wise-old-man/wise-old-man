@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import SVGTooltip from "@uiw/react-tooltip";
 import { cn } from "~/utils/styling";
 import { MONTHS, formatDate } from "~/utils/dates";
 import { FormattedNumber } from "./FormattedNumber";
+import { Tooltip, TooltipContent, TooltipPortal, TooltipTrigger } from "./Tooltip";
 
 const SIZE = 10;
 const GAP = 2;
@@ -79,43 +79,43 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
               const y = rowIndex * (SIZE + GAP);
 
               return (
-                <SVGTooltip
-                  key={`${rowIndex}-${columnIndex}`}
-                  placement="top"
-                  visibleArrow={false}
-                  content={
-                    <div className="flex flex-col p-1">
-                      <span className="text-xs text-gray-100">{formatDate(new Date(cell.date))}</span>
-                      <span className="text-sm font-medium">
-                        {cell.value === null ? (
-                          "No data"
-                        ) : (
-                          <FormattedNumber colored value={cell.value} />
-                        )}
-                      </span>
-                    </div>
-                  }
-                >
-                  <g>
-                    <rect
-                      x={x}
-                      y={y}
-                      width={SIZE}
-                      height={SIZE}
-                      rx={1}
-                      className={cn(cell.value === null ? "fill-gray-700" : "fill-gray-600")}
-                    />
-                    <rect
-                      x={x}
-                      y={y}
-                      width={SIZE}
-                      height={SIZE}
-                      rx={1}
-                      className="fill-blue-400"
-                      style={{ opacity: maxValue === 0 ? 0 : (cell.value || 0) / (maxValue / 3) }}
-                    />
-                  </g>
-                </SVGTooltip>
+                <Tooltip key={`${rowIndex}-${columnIndex}`} delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <g className="stroke stroke-transparent hover:stroke-white">
+                      <rect
+                        x={x}
+                        y={y}
+                        width={SIZE}
+                        height={SIZE}
+                        rx={1}
+                        className={cn(cell.value === null ? "fill-gray-700" : "fill-gray-600")}
+                      />
+                      <rect
+                        x={x}
+                        y={y}
+                        width={SIZE}
+                        height={SIZE}
+                        rx={1}
+                        className="fill-blue-400"
+                        style={{ opacity: maxValue === 0 ? 0 : (cell.value || 0) / (maxValue / 3) }}
+                      />
+                    </g>
+                  </TooltipTrigger>
+                  <TooltipPortal>
+                    <TooltipContent className="z-50">
+                      <div className="flex flex-col p-1">
+                        <span className="text-xs text-gray-100">{formatDate(new Date(cell.date))}</span>
+                        <span className="text-sm font-medium">
+                          {cell.value === null ? (
+                            "No data"
+                          ) : (
+                            <FormattedNumber colored value={cell.value} />
+                          )}
+                        </span>
+                      </div>
+                    </TooltipContent>
+                  </TooltipPortal>
+                </Tooltip>
               );
             })}
           </React.Fragment>
