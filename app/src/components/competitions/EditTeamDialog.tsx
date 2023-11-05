@@ -99,7 +99,7 @@ export function EditTeamDialog(props: EditTeamDialogProps) {
                   </p>
                 </div>
               ) : (
-                <div className="flex flex-wrap gap-2 rounded-md border border-gray-600 bg-gray-900 p-5">
+                <div className="custom-scroll flex max-h-[calc(100vh-30rem)] flex-wrap gap-2 overflow-y-auto rounded-md border border-gray-600 bg-gray-900 p-5">
                   {participants.map((p) => (
                     <Button
                       key={p}
