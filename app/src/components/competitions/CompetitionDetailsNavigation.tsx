@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Tabs, TabsList, TabsTrigger } from "../Tabs";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { CompetitionDetails, CompetitionType } from "@wise-old-man/utils";
 
 interface CompetitionDetailsNavigationProps {
@@ -19,6 +19,9 @@ export function CompetitionDetailsNavigation(props: CompetitionDetailsNavigation
   const { competition } = props;
 
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const previewMetric = searchParams.get("preview");
   const routeSegment = pathname.split("/").at(-1) || "";
 
   let selectedSegment: string;
@@ -39,11 +42,16 @@ export function CompetitionDetailsNavigation(props: CompetitionDetailsNavigation
         <TabsList aria-label="Competition Details Navigation">
           {TABS.filter(
             (t) => t.route !== "/participants" || competition.type === CompetitionType.TEAM
-          ).map((tab) => (
-            <Link href={`/competitions/${competition.id}${tab.route}`} key={tab.route}>
-              <TabsTrigger value={tab.route}>{tab.label}</TabsTrigger>
-            </Link>
-          ))}
+          ).map((tab) => {
+            let url = `/competitions/${competition.id}${tab.route}`;
+            if (previewMetric) url += `?preview=${previewMetric}`;
+
+            return (
+              <Link href={url} key={tab.route}>
+                <TabsTrigger value={tab.route}>{tab.label}</TabsTrigger>
+              </Link>
+            );
+          })}
         </TabsList>
       </Tabs>
     </div>
