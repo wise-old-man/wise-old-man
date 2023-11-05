@@ -172,7 +172,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
       {enablePagination && (pageSize !== defaultPageSize || table.getPageCount() > 1) && (
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 py-4">
-            <span className="mr-1 text-xs text-gray-200">Rows per page</span>
+            <span className="mr-1 text-xs text-gray-200">Results per page</span>
             <Combobox value={String(pageSize)} onValueChanged={(val) => setPageSize(Number(val))}>
               <ComboboxButton className="gap-x-0">{pageSize}</ComboboxButton>
               <ComboboxContent align="start">
