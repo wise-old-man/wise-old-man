@@ -2,9 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
+html {
+  @apply h-full bg-gray-900;
+}
+
 body {
-  overscroll-behavior: none;
+  @apply h-full bg-gray-900 text-white;
 }
 
 textarea {
@@ -22,9 +25,17 @@ textarea {
   scrollbar-color: hsl(220 23% 31%) transparent;
 }
 
+::-webkit-scrollbar {
+  @apply h-2.5 w-2.5 bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply rounded bg-gray-400;
+}
+
 /* body ::-webkit-scrollbar, */
 .custom-scroll::-webkit-scrollbar {
-  @apply h-0.5 w-0.5 md:h-1.5 md:w-1.5;
+  @apply h-1 w-1 md:h-1.5 md:w-1.5;
 }
 
 /* body ::-webkit-scrollbar-track, */

@@ -18,6 +18,7 @@ import { Button } from "../Button";
 import { Container } from "../Container";
 import { QueryLink } from "../QueryLink";
 import { Alert, AlertDescription } from "../Alert";
+import { Tabs, TabsList, TabsTrigger } from "../Tabs";
 import { CompetitionInfoForm } from "./CompetitionInfoForm";
 import { CompetitionTeamsForm } from "./CompetitionTeamsForm";
 import { CompetitionParticipantsForm } from "./CompetitionParticipantsForm";
@@ -38,14 +39,16 @@ export function EditCompetitionForm(props: EditCompetitionFormProps) {
   const [verificationCode, setVerificationCode] = useState<string | undefined>();
 
   return (
-    <Container className="max-w-4xl">
-      <h1 className="mt-3 border-b border-gray-600 pb-7 text-3xl font-bold">{competition.title}</h1>
+    <Container style={{ "--max-width": "56rem" }}>
+      <h1 className="mt-3 border-gray-600 text-xl font-bold md:border-b md:pb-7 md:text-3xl">
+        {competition.title}
+      </h1>
 
-      <div className="grid grid-cols-10 gap-x-12">
-        <div className="col-span-3 border-r border-gray-600 pr-7 pt-7">
+      <div className="grid-cols-10 gap-x-12 md:grid">
+        <div className="col-span-3 border-gray-600 pt-7 md:border-r md:pr-7">
           <SideNavigation type={competition.type} />
         </div>
-        <div className="col-span-7 pt-7">
+        <div className="col-span-7 flex pt-7">
           {section === "teams" ? (
             <TeamsSection {...props} verificationCode={verificationCode ?? ""} />
           ) : (
@@ -83,48 +86,70 @@ function SideNavigation(props: { type: CompetitionType }) {
   const section = searchParams.get("section");
 
   return (
-    <ul>
-      <QueryLink query={{ section: "general" }}>
-        <li
-          className={cn(
-            "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
-            (!section || section === "general") && "bg-gray-700 text-white"
-          )}
-        >
-          {(!section || section === "general") && (
-            <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />
-          )}
-          General
-        </li>
-      </QueryLink>
-      {props.type === CompetitionType.CLASSIC ? (
-        <QueryLink query={{ section: "participants" }}>
+    <>
+      <div className="block md:hidden">
+        <Tabs defaultValue={section || "general"}>
+          <TabsList>
+            <QueryLink query={{ section: "general" }}>
+              <TabsTrigger value="general">General</TabsTrigger>
+            </QueryLink>
+            {props.type === CompetitionType.CLASSIC ? (
+              <QueryLink query={{ section: "participants" }}>
+                <TabsTrigger value="participants">Participants</TabsTrigger>
+              </QueryLink>
+            ) : (
+              <QueryLink query={{ section: "teams" }}>
+                <TabsTrigger value="teams">Teams</TabsTrigger>
+              </QueryLink>
+            )}
+          </TabsList>
+        </Tabs>
+      </div>
+      <ul className="hidden md:block">
+        <QueryLink query={{ section: "general" }}>
           <li
             className={cn(
               "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
-              section === "participants" && "bg-gray-700 text-white"
+              (!section || section === "general") && "bg-gray-700 text-white"
             )}
           >
-            {section === "participants" && (
+            {(!section || section === "general") && (
               <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />
             )}
-            Participants
+            General
           </li>
         </QueryLink>
-      ) : (
-        <QueryLink query={{ section: "teams" }}>
-          <li
-            className={cn(
-              "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
-              section === "teams" && "bg-gray-700 text-white"
-            )}
-          >
-            {section === "teams" && <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />}
-            Teams
-          </li>
-        </QueryLink>
-      )}
-    </ul>
+        {props.type === CompetitionType.CLASSIC ? (
+          <QueryLink query={{ section: "participants" }}>
+            <li
+              className={cn(
+                "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
+                section === "participants" && "bg-gray-700 text-white"
+              )}
+            >
+              {section === "participants" && (
+                <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />
+              )}
+              Participants
+            </li>
+          </QueryLink>
+        ) : (
+          <QueryLink query={{ section: "teams" }}>
+            <li
+              className={cn(
+                "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
+                section === "teams" && "bg-gray-700 text-white"
+              )}
+            >
+              {section === "teams" && (
+                <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />
+              )}
+              Teams
+            </li>
+          </QueryLink>
+        )}
+      </ul>
+    </>
   );
 }
 
@@ -161,40 +186,44 @@ function GeneralSection(props: EditCompetitionFormProps & { verificationCode: st
   });
 
   return (
-    <CompetitionInfoForm
-      timezone={timezone}
-      competition={competition}
-      onTimezoneChanged={(tz) => {
-        setTimezone(tz);
-      }}
-      onCompetitionChanged={(payload) => {
-        const { title, metric, startsAt, endsAt } = payload;
-        editGeneralMutation.mutate({ title, metric, startsAt, endsAt });
-      }}
-      formActions={(disabled, hasUnsavedChanges) => (
-        <div className={cn("flex", hasUnsavedChanges ? "justify-between" : "justify-end")}>
-          {hasUnsavedChanges && (
-            <div className="flex items-center justify-center text-center text-xs text-gray-200">
-              <WarningIcon className="mr-1 h-4 w-4" />
-              You have unsaved changes
-            </div>
-          )}
-          <Button
-            variant="blue"
-            disabled={disabled || !hasUnsavedChanges || isTransitioning || editGeneralMutation.isPending}
-          >
-            {editGeneralMutation.isPending || isTransitioning ? (
-              <>
-                <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>Save</>
+    <div className="w-full">
+      <CompetitionInfoForm
+        timezone={timezone}
+        competition={competition}
+        onTimezoneChanged={(tz) => {
+          setTimezone(tz);
+        }}
+        onCompetitionChanged={(payload) => {
+          const { title, metric, startsAt, endsAt } = payload;
+          editGeneralMutation.mutate({ title, metric, startsAt, endsAt });
+        }}
+        formActions={(disabled, hasUnsavedChanges) => (
+          <div className={cn("flex", hasUnsavedChanges ? "justify-between" : "justify-end")}>
+            {hasUnsavedChanges && (
+              <div className="flex items-center justify-center text-center text-xs text-gray-200">
+                <WarningIcon className="mr-1 h-4 w-4" />
+                You have unsaved changes
+              </div>
             )}
-          </Button>
-        </div>
-      )}
-    />
+            <Button
+              variant="blue"
+              disabled={
+                disabled || !hasUnsavedChanges || isTransitioning || editGeneralMutation.isPending
+              }
+            >
+              {editGeneralMutation.isPending || isTransitioning ? (
+                <>
+                  <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>Save</>
+              )}
+            </Button>
+          </div>
+        )}
+      />
+    </div>
   );
 }
 
@@ -233,7 +262,7 @@ function ParticipantsSection(props: EditCompetitionFormProps & { verificationCod
   });
 
   return (
-    <>
+    <div>
       {competition.group && (
         <Alert className="mb-10">
           <AlertDescription>
@@ -275,7 +304,7 @@ function ParticipantsSection(props: EditCompetitionFormProps & { verificationCod
           </div>
         )}
       />
-    </>
+    </div>
   );
 }
 

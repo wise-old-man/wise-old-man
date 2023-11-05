@@ -36,6 +36,7 @@ import { GroupRoleIcon } from "../Icon";
 import { Label } from "../Label";
 import { PlayerSearch } from "../PlayerSearch";
 import { QueryLink } from "../QueryLink";
+import { Tabs, TabsList, TabsTrigger } from "../Tabs";
 import { GroupInformationForm } from "./GroupInformationForm";
 import { RuneLiteSyncDialog } from "./RuneLiteSyncDialog";
 import { EmptyGroupDialog } from "./EmptyGroupDialog";
@@ -56,14 +57,16 @@ export function EditGroupForm(props: EditGroupFormProps) {
   const [verificationCode, setVerificationCode] = useState<string | undefined>();
 
   return (
-    <Container className="max-w-4xl">
-      <h1 className="mt-3 border-b border-gray-600 pb-7 text-3xl font-bold">{group.name}</h1>
+    <Container style={{ "--max-width": "56rem" }}>
+      <h1 className="mt-3 border-gray-600 text-xl font-bold md:border-b md:pb-7 md:text-3xl">
+        {group.name}
+      </h1>
 
-      <div className="grid grid-cols-10 gap-x-12">
-        <div className="col-span-3 border-r border-gray-600 pr-7 pt-7">
+      <div className="grid-cols-10 gap-x-12 md:grid">
+        <div className="col-span-3 border-gray-600 pt-7 md:border-r md:pr-7">
           <SideNavigation />
         </div>
-        <div className="col-span-7 pt-7">
+        <div className="col-span-7 flex pt-7">
           {section === "members" ? (
             <MembersSection
               {...props}
@@ -316,36 +319,40 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
   });
 
   return (
-    <GroupInformationForm
-      isEditing
-      group={group}
-      onGroupChanged={(name, clanChat, homeworld, description) =>
-        editGeneralMutation.mutate({ name, clanChat, homeworld, description })
-      }
-      formActions={(disabled, hasUnsavedChanges) => (
-        <div className={cn("flex", hasUnsavedChanges ? "justify-between" : "justify-end")}>
-          {hasUnsavedChanges && (
-            <div className="flex items-center justify-center text-center text-xs text-gray-200">
-              <WarningIcon className="mr-1 h-4 w-4" />
-              You have unsaved changes
-            </div>
-          )}
-          <Button
-            variant="blue"
-            disabled={disabled || !hasUnsavedChanges || isTransitioning || editGeneralMutation.isPending}
-          >
-            {editGeneralMutation.isPending || isTransitioning ? (
-              <>
-                <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>Save</>
+    <div className="w-full">
+      <GroupInformationForm
+        isEditing
+        group={group}
+        onGroupChanged={(name, clanChat, homeworld, description) =>
+          editGeneralMutation.mutate({ name, clanChat, homeworld, description })
+        }
+        formActions={(disabled, hasUnsavedChanges) => (
+          <div className={cn("flex", hasUnsavedChanges ? "justify-between" : "justify-end")}>
+            {hasUnsavedChanges && (
+              <div className="flex items-center justify-center text-center text-xs text-gray-200">
+                <WarningIcon className="mr-1 h-4 w-4" />
+                You have unsaved changes
+              </div>
             )}
-          </Button>
-        </div>
-      )}
-    />
+            <Button
+              variant="blue"
+              disabled={
+                disabled || !hasUnsavedChanges || isTransitioning || editGeneralMutation.isPending
+              }
+            >
+              {editGeneralMutation.isPending || isTransitioning ? (
+                <>
+                  <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>Save</>
+              )}
+            </Button>
+          </div>
+        )}
+      />
+    </div>
   );
 }
 
@@ -354,32 +361,48 @@ function SideNavigation() {
   const section = searchParams.get("section");
 
   return (
-    <ul>
-      <QueryLink query={{ section: "general" }}>
-        <li
-          className={cn(
-            "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
-            (!section || section === "general") && "bg-gray-700 text-white"
-          )}
-        >
-          {(!section || section === "general") && (
-            <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />
-          )}
-          General
-        </li>
-      </QueryLink>
-      <QueryLink query={{ section: "members" }}>
-        <li
-          className={cn(
-            "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
-            section === "members" && "bg-gray-700 text-white"
-          )}
-        >
-          {section === "members" && <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />}
-          Members
-        </li>
-      </QueryLink>
-    </ul>
+    <>
+      <div className="block md:hidden">
+        <Tabs defaultValue={section || "general"}>
+          <TabsList>
+            <QueryLink query={{ section: "general" }}>
+              <TabsTrigger value="general">General</TabsTrigger>
+            </QueryLink>
+            <QueryLink query={{ section: "members" }}>
+              <TabsTrigger value="members">Members</TabsTrigger>
+            </QueryLink>
+          </TabsList>
+        </Tabs>
+      </div>
+      <ul className="hidden md:block">
+        <QueryLink query={{ section: "general" }}>
+          <li
+            className={cn(
+              "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
+              (!section || section === "general") && "bg-gray-700 text-white"
+            )}
+          >
+            {(!section || section === "general") && (
+              <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />
+            )}
+            General
+          </li>
+        </QueryLink>
+        <QueryLink query={{ section: "members" }}>
+          <li
+            className={cn(
+              "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
+              section === "members" && "bg-gray-700 text-white"
+            )}
+          >
+            {section === "members" && (
+              <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />
+            )}
+            Members
+          </li>
+        </QueryLink>
+      </ul>
+    </>
   );
 }
 
