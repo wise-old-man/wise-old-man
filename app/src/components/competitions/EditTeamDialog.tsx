@@ -8,6 +8,7 @@ import { Input } from "../Input";
 import { Button } from "../Button";
 import { PlayerSearch } from "../PlayerSearch";
 import { standardizeUsername } from "~/utils/strings";
+import { ImportFromFileDialog } from "../groups/ImportFromFileDialog";
 
 import CloseIcon from "~/assets/close.svg";
 
@@ -22,6 +23,8 @@ interface EditTeamDialogProps {
 
 export function EditTeamDialog(props: EditTeamDialogProps) {
   const { team, isOpen, onClose, onSubmit } = props;
+
+  const [showingImportDialog, setShowingImportDialog] = useState(false);
 
   const [name, setName] = useState(team ? team.name : "");
   const [participants, setParticipants] = useState(team ? team.participants : []);
@@ -71,7 +74,7 @@ export function EditTeamDialog(props: EditTeamDialogProps) {
           }}
         >
           <div>
-            <Label htmlFor="title" className="mb-2 block text-xs text-gray-200">
+            <Label htmlFor="name" className="mb-2 block text-xs text-gray-200">
               Team name
             </Label>
             <Input
@@ -89,7 +92,16 @@ export function EditTeamDialog(props: EditTeamDialogProps) {
             />
           </div>
           <div>
-            <Label className="mb-2 block text-xs text-gray-200">Participants</Label>
+            <div className="mb-2 flex items-center justify-between">
+              <Label className="text-xs text-gray-200">Add participants ({participants.length})</Label>
+              <button
+                type="button"
+                onClick={() => setShowingImportDialog(true)}
+                className="text-xs font-medium text-blue-400 hover:underline"
+              >
+                Import list
+              </button>
+            </div>
             <PlayerSearch mode="select" onPlayerSelected={handleAddPlayers} />
             <div className="mt-3">
               {participants.length === 0 ? (
@@ -125,6 +137,17 @@ export function EditTeamDialog(props: EditTeamDialogProps) {
           </Button>
         </form>
       </DialogContent>
+
+      <ImportFromFileDialog
+        isOpen={showingImportDialog}
+        onClose={() => {
+          setShowingImportDialog(false);
+        }}
+        onSubmit={(usernames) => {
+          handleAddPlayers(usernames.join(","));
+          setShowingImportDialog(false);
+        }}
+      />
     </Dialog>
   );
 }
