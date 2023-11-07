@@ -26,11 +26,11 @@ export function ChartViewSelect(props: ChartViewSelectProps) {
 
   const [isTransitioning, startTransition] = useTransition();
 
-  const view = searchParams.get("view") === "rank" ? "rank" : "value";
+  const view = searchParams.get("view") === "ranks" ? "ranks" : "values";
 
-  function handleChartViewSelected(view: "value" | "rank") {
+  function handleChartViewSelected(view: "values" | "ranks") {
     const nextParams = new URLSearchParams(searchParams);
-    if (view === "value") {
+    if (view === "values") {
       nextParams.delete("view");
     } else {
       nextParams.set("view", view);
@@ -48,22 +48,22 @@ export function ChartViewSelect(props: ChartViewSelectProps) {
       value={view}
       onValueChanged={(val) => {
         if (val === undefined) {
-          handleChartViewSelected("value");
-        } else if (val === "rank" || val === "value") {
+          handleChartViewSelected("values");
+        } else if (val === "ranks" || val === "values") {
           handleChartViewSelected(val);
         }
       }}
     >
       <ComboboxButton className="w-full" isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">
-          {view === "rank" ? "Ranks" : capitalize(MetricProps[metric].measure)}
+          {view === "ranks" ? "Ranks" : capitalize(MetricProps[metric].measure)}
         </div>
       </ComboboxButton>
       <ComboboxContent align="end">
         <ComboboxItemsContainer>
           <ComboboxItemGroup>
-            <ComboboxItem value="value">{capitalize(MetricProps[metric].measure)}</ComboboxItem>
-            <ComboboxItem value="rank">Ranks</ComboboxItem>
+            <ComboboxItem value="values">{capitalize(MetricProps[metric].measure)}</ComboboxItem>
+            <ComboboxItem value="ranks">Ranks</ComboboxItem>
           </ComboboxItemGroup>
         </ComboboxItemsContainer>
       </ComboboxContent>
