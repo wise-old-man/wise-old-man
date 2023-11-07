@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { GroupMemberFragment, GroupRole } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { standardizeUsername } from "~/utils/strings";
 import { Label } from "../Label";
@@ -34,7 +33,7 @@ const DELIMITER_OPTIONS = [
 interface ImportFromFileDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (members: GroupMemberFragment[]) => void;
+  onSubmit: (usernames: string[]) => void;
 }
 
 export function ImportFromFileDialog(props: ImportFromFileDialogProps) {
@@ -70,16 +69,12 @@ function ImportFromFileForm(props: ImportFromFileDialogProps) {
     .split(delimiter)
     .filter((username) => standardizeUsername(username).length > 0);
 
-  function handleSubmit() {
-    onSubmit(usernames.map((username) => ({ username, role: GroupRole.MEMBER })));
-  }
-
   return (
     <form
       className="mt-2 flex flex-col gap-y-2"
       onSubmit={(e) => {
         e.preventDefault();
-        handleSubmit();
+        onSubmit(usernames);
       }}
     >
       <Combobox
@@ -107,7 +102,7 @@ function ImportFromFileForm(props: ImportFromFileDialogProps) {
         onChange={(e) => setInput(e.target.value)}
       />
       {usernames.length > 1 && (
-        <Label className="text-xs text-green-400">Found {usernames.length} members</Label>
+        <Label className="text-xs text-green-400">Found {usernames.length} players</Label>
       )}
       <Button size="lg" variant="blue" disabled={usernames.length < 2} className="mt-4 justify-center">
         Confirm
