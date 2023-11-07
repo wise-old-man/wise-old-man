@@ -189,6 +189,7 @@ Although this type mostly extends from [Achievement](/players-api/player-type-de
 | Field | Type   | Description                                                            |
 | :---- | :----- | :--------------------------------------------------------------------- |
 | value | number | The player's value for a specific metric, at a specific point in time. |
+| rank  | number | The player's rank for a specific metric, at a specific point in time.  |
 | date  | date   | The date at which the datapoint was recorded.                          |
 
 <br />
