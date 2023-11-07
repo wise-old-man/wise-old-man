@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { isTesting } from '../../../../env';
 import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
-import { PlayerBuild, PlayerStatus } from '../../../../utils';
+import { PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
 import { JobType, jobManager } from '../../../jobs';
 import * as jagexService from '../../../services/external/jagex.service';
@@ -45,7 +45,9 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     throw new RateLimitError(`Error: ${username} has been updated recently.`);
   }
 
-  const updatedPlayerFields: UpdatablePlayerFields = {};
+  const updatedPlayerFields: UpdatablePlayerFields = {
+    type: PlayerType.IRONMAN
+  };
 
   // Fetch the previous player stats from the database
   const previousSnapshot = player.latestSnapshot;
