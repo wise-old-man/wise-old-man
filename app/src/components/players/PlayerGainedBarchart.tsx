@@ -10,11 +10,12 @@ const BarChartSSR = dynamicImport(() => import("../BarChart"), {
 
 interface PlayerGainedBarchartProps {
   metric: Metric;
+  view: "values" | "ranks";
   data: Array<{ date: Date; value: number }>;
 }
 
 export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
-  const { data, metric } = props;
+  const { data, view, metric } = props;
 
   const { name, measure } = MetricProps[metric];
 
@@ -27,7 +28,7 @@ export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
     );
   }
 
-  return <BarChartSSR name={`${name} ${measure}`} data={data} />;
+  return <BarChartSSR name={`${name} ${view === "ranks" ? "ranks" : measure}`} data={data} />;
 }
 
 export function PlayerGainedBarchartSkeleton() {

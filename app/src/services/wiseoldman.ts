@@ -10,11 +10,8 @@ import {
   PlayerType,
   PlayerBuild,
   EfficiencyLeaderboardsFilter,
-  NameChange,
-  Player,
   CompetitionType,
   NameChangeStatus,
-  MemberActivityWithPlayer,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 
@@ -96,26 +93,16 @@ export const getGroupDetails = cache((id: number) => {
   return handleNotFound(apiClient.groups.getGroupDetails(id));
 });
 
-export const getGroupGains = cache(
-  (
-    id: number,
-    period: Period | undefined,
-    startDate: Date | undefined,
-    endDate: Date | undefined,
-    metric: Metric,
-    limit: number,
-    offset: number
-  ) => {
-    if (period) {
-      return handleNotFound(apiClient.groups.getGroupGains(id, { period, metric }, { limit, offset }));
-    }
+export const getGroupGainsByPeriod = cache(
+  (id: number, metric: Metric, period: Period, limit: number, offset: number) => {
+    return handleNotFound(apiClient.groups.getGroupGains(id, { period, metric }, { limit, offset }));
+  }
+);
 
-    if (!startDate || !endDate) {
-      throw new Error("Bad Request: Missing startDate or endDate");
-    }
-
+export const getGroupGainsByDates = cache(
+  (id: number, metric: Metric, startDate: Date, endDate: Date, limit: number, offset: number) => {
     return handleNotFound(
-      apiClient.groups.getGroupGains(id, { metric, startDate, endDate }, { limit, offset })
+      apiClient.groups.getGroupGains(id, { startDate, endDate, metric }, { limit, offset })
     );
   }
 );
@@ -154,24 +141,13 @@ export const getPlayerDetails = cache((usernane: string) => {
   return handleNotFound(apiClient.players.getPlayerDetails(usernane));
 });
 
-export const getPlayerGains = cache(
-  (
-    username: string,
-    period: Period | undefined,
-    startDate: Date | undefined,
-    endDate: Date | undefined
-  ) => {
-    if (period) {
-      return handleNotFound(apiClient.players.getPlayerGains(username, { period }));
-    }
+export const getPlayerGainsByPeriod = cache((username: string, period: Period) => {
+  return handleNotFound(apiClient.players.getPlayerGains(username, { period }));
+});
 
-    if (!startDate || !endDate) {
-      throw new Error("Bad Request: Missing startDate or endDate");
-    }
-
-    return handleNotFound(apiClient.players.getPlayerGains(username, { startDate, endDate }));
-  }
-);
+export const getPlayerGainsByDates = cache((username: string, startDate: Date, endDate: Date) => {
+  return handleNotFound(apiClient.players.getPlayerGains(username, { startDate, endDate }));
+});
 
 export const getPlayerGroups = cache((username: string, limit?: number, offset?: number) => {
   return handleNotFound(apiClient.players.getPlayerGroups(username, { limit, offset }));
@@ -185,22 +161,12 @@ export const getPlayerRecords = cache((username: string) => {
   return handleNotFound(apiClient.players.getPlayerRecords(username));
 });
 
-export const getPlayerSnapshotTimeline = cache(
-  (
-    username: string,
-    metric: Metric,
-    period: Period | undefined,
-    startDate?: Date | undefined,
-    endDate?: Date | undefined
-  ) => {
-    if (period) {
-      return handleNotFound(apiClient.players.getPlayerSnapshotTimeline(username, metric, { period }));
-    }
+export const getSnapshotTimelineByPeriod = cache((username: string, metric: Metric, period: Period) => {
+  return handleNotFound(apiClient.players.getPlayerSnapshotTimeline(username, metric, { period }));
+});
 
-    if (!startDate || !endDate) {
-      throw new Error("Bad Request: Missing startDate or endDate");
-    }
-
+export const getSnapshotTimelineByDate = cache(
+  (username: string, metric: Metric, startDate: Date, endDate: Date) => {
     return handleNotFound(
       apiClient.players.getPlayerSnapshotTimeline(username, metric, { startDate, endDate })
     );

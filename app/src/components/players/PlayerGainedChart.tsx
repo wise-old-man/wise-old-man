@@ -12,12 +12,13 @@ const LineChartSSR = dynamicImport(() => import("../LineChart"), {
 
 interface PlayerGainedChartProps {
   metric: Metric;
+  view: "values" | "ranks";
   timeRange: TimeRangeFilter;
-  data: Array<{ date: Date; value: number }>;
+  data: Array<{ date: Date; rank: number; value: number }>;
 }
 
 export async function PlayerGainedChart(props: PlayerGainedChartProps) {
-  const { data, metric, timeRange } = props;
+  const { data, view, metric, timeRange } = props;
 
   if (data.length < 2 || data.every((d) => d.value === -1)) {
     return (
@@ -26,6 +27,8 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
       </div>
     );
   }
+
+  const isShowingRanks = view === "ranks";
 
   const { name, measure } = MetricProps[metric];
 
@@ -40,10 +43,11 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
     <LineChartSSR
       datasets={[
         {
-          name: `${name} ${measure}`,
-          data: data.map((d) => ({ value: d.value, time: d.date.getTime() })),
+          name: `${name} ${isShowingRanks ? "rank" : measure}`,
+          data: data.map((d) => ({ value: isShowingRanks ? d.rank : d.value, time: d.date.getTime() })),
         },
       ]}
+      reversed={isShowingRanks}
       minDate={minDate}
       maxDate={maxDate}
       xAxisLabelFormatter={(timestamp) => {
