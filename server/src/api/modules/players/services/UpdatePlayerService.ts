@@ -12,8 +12,6 @@ import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
 import { PlayerDetails } from '../player.types';
 import { formatPlayerDetails, getBuild, sanitize, standardize, validateUsername } from '../player.utils';
-import { archivePlayer } from './ArchivePlayerService';
-import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
 
 type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
@@ -75,14 +73,6 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   // There has been a significant change in this player's stats, mark it as flagged
   if (!skipFlagChecks && !snapshotUtils.withinRange(previousSnapshot, currentStats)) {
     logger.moderation(`[Player:${username}] Flagged`);
-
-    if (player.status !== PlayerStatus.FLAGGED) {
-      const handled = await handlePlayerFlagged(player, previousSnapshot, currentStats);
-      // If the flag was properly handled (via a player archive),
-      // call this function recursively, so that the new player can be tracked
-      if (handled) return updatePlayer({ username: player.username });
-    }
-
     throw new ServerError('Failed to update: Player is flagged.');
   }
 
@@ -135,25 +125,6 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   const playerDetails = formatPlayerDetails(updatedPlayer, newSnapshot);
 
   return [playerDetails, isNew];
-}
-
-async function handlePlayerFlagged(player: Player, previousStats: Snapshot, rejectedStats: Snapshot) {
-  await prisma.player.update({
-    data: { status: PlayerStatus.FLAGGED },
-    where: { id: player.id }
-  });
-
-  const flaggedContext = reviewFlaggedPlayer(player, previousStats, rejectedStats);
-
-  if (flaggedContext) {
-    playerEvents.onPlayerFlagged(player, flaggedContext);
-    return false;
-  }
-
-  // no context, we know this is a name transfer and can be auto-archived
-  await archivePlayer(player);
-
-  return true;
 }
 
 async function fetchStats(player: Player): Promise<Snapshot> {
