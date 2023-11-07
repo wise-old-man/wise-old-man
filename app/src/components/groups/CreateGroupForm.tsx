@@ -362,8 +362,8 @@ function GroupMembersForm(props: GroupMembersFormProps) {
           setImportSource(undefined);
           setShowingImportDialog(false);
         }}
-        onSubmit={(members) => {
-          setMembers(members);
+        onSubmit={(usernames) => {
+          setMembers(usernames.map((p) => ({ role: GroupRole.MEMBER, username: p })));
           setShowingImportDialog(false);
         }}
       />
