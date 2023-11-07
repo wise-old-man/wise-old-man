@@ -159,7 +159,7 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
   const { player, gains, onRowSelected, selectedMetric } = props;
   const metricType = MetricProps[selectedMetric].type;
 
-  function handleRowSelected(row: Row<SkillDelta | BossDelta | ActivityDelta>) {
+  function handleRowSelected(row: Row<SkillDelta> | Row<BossDelta> | Row<ActivityDelta>) {
     onRowSelected(row.original.metric);
   }
 

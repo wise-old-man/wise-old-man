@@ -10,9 +10,11 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 
 const DEFAULT_BAR_COLOR = "#3b82f6";
+const NEGATIVE_BAR_COLOR = "#dc2626";
 const GRID_STYLE = { stroke: "#1f2937" };
 const AXIS_TICK_STYLE = { fill: "#6b7280", fontSize: "0.75rem" };
 const X_AXIS_TICK_LINE = { stroke: "#6b7280" };
@@ -77,7 +79,14 @@ export default function BarChart(props: BarChartProps) {
             );
           }}
         />
-        <Bar dataKey="value" fill={color || DEFAULT_BAR_COLOR} isAnimationActive={false} />
+        <Bar dataKey="value" isAnimationActive={false}>
+          {data.map((entry, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={entry.value < 0 ? NEGATIVE_BAR_COLOR : color || DEFAULT_BAR_COLOR}
+            />
+          ))}
+        </Bar>
       </RechartsBarChart>
     </ResponsiveContainer>
   );

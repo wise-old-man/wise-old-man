@@ -43,7 +43,7 @@ export function calculateGainBuckets(
     if (!map.has(current.getTime())) {
       map.set(current.getTime(), { count: 0, gained: null });
     }
-    current = normalizeDate(new Date(current.getTime() + PeriodProps[Period.DAY].milliseconds));
+    current = new Date(current.getTime() + PeriodProps[Period.DAY].milliseconds);
   }
 
   const results: { date: Date; count: number; gained: number | null }[] = [];

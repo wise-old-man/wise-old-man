@@ -17,6 +17,10 @@ class ScheduleFlaggedPlayerReviewJob implements JobDefinition<unknown> {
       orderBy: { updatedAt: 'desc' }
     });
 
+    if (!flaggedPlayer) {
+      return;
+    }
+
     // Force-unflag them
     await prisma.player.update({
       data: {

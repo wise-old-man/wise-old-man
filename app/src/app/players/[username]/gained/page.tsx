@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import {
   MeasuredDeltaProgress,
   Metric,
+  MetricMeasure,
   MetricProps,
   Period,
   PeriodProps,
@@ -15,8 +16,10 @@ import { getMetricParam, getTimeRangeFilterParams } from "~/utils/params";
 import {
   TimeRangeFilter,
   getPlayerDetails,
-  getPlayerGains,
-  getPlayerSnapshotTimeline,
+  getSnapshotTimelineByPeriod,
+  getSnapshotTimelineByDate,
+  getPlayerGainsByPeriod,
+  getPlayerGainsByDates,
 } from "~/services/wiseoldman";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { PlayerGainedTable } from "~/components/players/PlayerGainedTable";
@@ -32,6 +35,7 @@ import {
   PlayerGainedHeatmapSkeleton,
 } from "~/components/players/PlayerGainedHeatmap";
 import { Await } from "~/components/Await";
+import { ChartViewSelect } from "~/components/players/ChartViewSelect";
 import { calculateGainBuckets } from "~/utils/calcs";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +49,7 @@ interface PageProps {
     period?: string;
     startDate?: string;
     endDate?: string;
+    view?: string;
   };
 }
 
@@ -62,14 +67,15 @@ export default async function PlayerGainedPage(props: PageProps) {
   const username = decodeURI(params.username);
 
   const metric = getMetricParam(searchParams.metric) || Metric.OVERALL;
+  const view = searchParams.view === "ranks" ? "ranks" : "values";
 
   const timeRange = getTimeRangeFilterParams(new URLSearchParams(searchParams));
 
   const [player, gains] = await Promise.all([
     getPlayerDetails(username),
     "period" in timeRange
-      ? getPlayerGains(username, timeRange.period, undefined, undefined)
-      : getPlayerGains(username, undefined, timeRange.startDate, timeRange.endDate),
+      ? getPlayerGainsByPeriod(username, timeRange.period)
+      : getPlayerGainsByDates(username, timeRange.startDate, timeRange.endDate),
   ]);
 
   return (
@@ -80,10 +86,20 @@ export default async function PlayerGainedPage(props: PageProps) {
       <div className="mt-5">
         <PlayerGainedTable player={player} gains={gains.data} metric={metric} timeRange={timeRange}>
           <div className="divide-y divide-gray-500">
-            <GainedHeader gains={gains.data} metric={metric} />
-            <CumulativeGainsPanel username={username} timeRange={timeRange} metric={metric} />
-            <BucketedDailyGainsPanel username={username} timeRange={timeRange} metric={metric} />
-            <YearlyHeatmapPanel username={username} metric={metric} />
+            <GainedHeader gains={gains.data} metric={metric} view={view} />
+            <CumulativeGainsPanel
+              username={username}
+              view={view}
+              timeRange={timeRange}
+              metric={metric}
+            />
+            <BucketedDailyGainsPanel
+              username={username}
+              view={view}
+              timeRange={timeRange}
+              metric={metric}
+            />
+            <YearlyHeatmapPanel username={username} metric={metric} view={view} />
           </div>
         </PlayerGainedTable>
       </div>
@@ -93,34 +109,38 @@ export default async function PlayerGainedPage(props: PageProps) {
 
 interface CumulativeGainsPanelProps {
   username: string;
-  timeRange: TimeRangeFilter;
   metric: Metric;
+  view: "values" | "ranks";
+  timeRange: TimeRangeFilter;
 }
 
 function CumulativeGainsPanel(props: CumulativeGainsPanelProps) {
-  const { username, timeRange, metric } = props;
+  const { username, view, timeRange, metric } = props;
+
+  const isShowingRanks = view === "ranks";
 
   const promise =
     "period" in timeRange
-      ? getPlayerSnapshotTimeline(username, metric, timeRange.period, undefined, undefined)
-      : getPlayerSnapshotTimeline(username, metric, undefined, timeRange.startDate, timeRange.endDate);
+      ? getSnapshotTimelineByPeriod(username, metric, timeRange.period)
+      : getSnapshotTimelineByDate(username, metric, timeRange.startDate, timeRange.endDate);
 
   return (
     <ExpandableChartPanel
       id="line-chart"
       className="w-[56rem] !max-w-[calc(100vw-4rem)]"
-      titleSlot={<>Cumulative {MetricProps[metric].measure} gained</>}
+      titleSlot={<>Cumulative {isShowingRanks ? "ranks" : MetricProps[metric].measure} gained</>}
       descriptionSlot={
         <>
           {"period" in timeRange ? (
             <>
-              A timeline of {MetricProps[metric].name} {MetricProps[metric].measure} over the past&nbsp;
+              A timeline of {MetricProps[metric].name}{" "}
+              {isShowingRanks ? "rank" : MetricProps[metric].measure} over the past&nbsp;
               <span className="text-white">{PeriodProps[timeRange.period].name.toLowerCase()}</span>
             </>
           ) : (
             <>
-              A timeline of {MetricProps[metric].name} {MetricProps[metric].measure} during the custom
-              period
+              A timeline of {MetricProps[metric].name}{" "}
+              {isShowingRanks ? "rank" : MetricProps[metric].measure} during the custom period
             </>
           )}
         </>
@@ -128,7 +148,7 @@ function CumulativeGainsPanel(props: CumulativeGainsPanelProps) {
     >
       <Suspense fallback={<PlayerGainedChartSkeleton />}>
         <Await promise={promise}>
-          {(data) => <PlayerGainedChart data={data} metric={metric} timeRange={timeRange} />}
+          {(data) => <PlayerGainedChart data={data} view={view} metric={metric} timeRange={timeRange} />}
         </Await>
       </Suspense>
     </ExpandableChartPanel>
@@ -138,11 +158,14 @@ function CumulativeGainsPanel(props: CumulativeGainsPanelProps) {
 interface BucketedDailyGainsPanelProps {
   username: string;
   metric: Metric;
+  view: "values" | "ranks";
   timeRange: TimeRangeFilter;
 }
 
 function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
-  const { username, metric } = props;
+  const { username, view, metric } = props;
+
+  const isShowingRanks = view === "ranks";
 
   let timeRange = { ...props.timeRange };
 
@@ -158,26 +181,27 @@ function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
 
   const promise =
     "period" in timeRange
-      ? getPlayerSnapshotTimeline(username, metric, timeRange.period, undefined, undefined)
-      : getPlayerSnapshotTimeline(username, metric, undefined, timeRange.startDate, timeRange.endDate);
+      ? getSnapshotTimelineByPeriod(username, metric, timeRange.period)
+      : getSnapshotTimelineByDate(username, metric, timeRange.startDate, timeRange.endDate);
 
   return (
     <ExpandableChartPanel
       id="bar-chart"
       className="w-[56rem] !max-w-[calc(100vw-4rem)]"
-      titleSlot={<>Daily {MetricProps[metric].measure} gained</>}
+      titleSlot={<>Daily {isShowingRanks ? "ranks" : MetricProps[metric].measure} gained</>}
       descriptionSlot={
         <>
           {"period" in timeRange ? (
             <>
-              {MetricProps[metric].name} {MetricProps[metric].measure} gains over the past&nbsp;
+              {MetricProps[metric].name} {isShowingRanks ? "ranks" : MetricProps[metric].measure} gains
+              over the past&nbsp;
               <span className="text-white">{PeriodProps[timeRange.period].name.toLowerCase()}</span>,
               bucketed by day
             </>
           ) : (
             <>
-              {MetricProps[metric].name} {MetricProps[metric].measure} gains during the custom period,
-              bucketed by day
+              {MetricProps[metric].name} {isShowingRanks ? "ranks" : MetricProps[metric].measure} gains
+              during the custom period, bucketed by day
             </>
           )}
         </>
@@ -194,12 +218,23 @@ function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
             const maxDate = "period" in timeRange ? new Date() : timeRange.endDate;
 
             // Convert the timeseries data into daily (bucket) gains
-            const bucketedData = calculateGainBuckets([...data].reverse(), minDate, maxDate);
+            const bucketedData = calculateGainBuckets(
+              (isShowingRanks
+                ? data.map((d) => ({ date: d.date, value: d.rank }))
+                : [...data]
+              ).reverse(),
+              minDate,
+              maxDate
+            );
 
             return (
               <PlayerGainedBarchart
+                view={view}
                 metric={metric}
-                data={bucketedData.map((b) => ({ date: b.date, value: b.gained || 0 }))}
+                data={bucketedData.map((b) => ({
+                  date: b.date,
+                  value: b.gained != null ? b.gained * (isShowingRanks ? -1 : 1) : 0,
+                }))}
               />
             );
           }}
@@ -212,12 +247,15 @@ function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
 interface YearlyHeatmapPanelProps {
   username: string;
   metric: Metric;
+  view: "values" | "ranks";
 }
 
 function YearlyHeatmapPanel(props: YearlyHeatmapPanelProps) {
-  const { username, metric } = props;
+  const { username, metric, view } = props;
 
-  const promise = getPlayerSnapshotTimeline(username, metric, Period.YEAR);
+  const isShowingRanks = view === "ranks";
+
+  const promise = getSnapshotTimelineByPeriod(username, metric, Period.YEAR);
 
   return (
     <ExpandableChartPanel
@@ -227,7 +265,7 @@ function YearlyHeatmapPanel(props: YearlyHeatmapPanelProps) {
       descriptionSlot={
         <>
           A heatmap of the past <span className="text-white">year&apos;s</span>&nbsp;
-          {MetricProps[metric].name} {MetricProps[metric].measure} gains
+          {MetricProps[metric].name} {isShowingRanks ? "rank" : MetricProps[metric].measure} gains
         </>
       }
     >
@@ -238,10 +276,22 @@ function YearlyHeatmapPanel(props: YearlyHeatmapPanelProps) {
             const maxDate = new Date();
 
             // Convert the timeseries data into daily (bucket) gains
-            const bucketedData = calculateGainBuckets([...data].reverse(), minDate, maxDate);
+            const bucketedData = calculateGainBuckets(
+              (isShowingRanks
+                ? data.map((d) => ({ date: d.date, value: d.rank }))
+                : [...data]
+              ).reverse(),
+              minDate,
+              maxDate
+            );
 
             return (
-              <PlayerGainedHeatmap data={bucketedData.map((b) => ({ date: b.date, value: b.gained }))} />
+              <PlayerGainedHeatmap
+                data={bucketedData.map((b) => ({
+                  date: b.date,
+                  value: b.gained != null ? b.gained * (isShowingRanks ? -1 : 1) : null,
+                }))}
+              />
             );
           }}
         </Await>
@@ -251,30 +301,35 @@ function YearlyHeatmapPanel(props: YearlyHeatmapPanelProps) {
 }
 
 interface GainedHeaderProps {
-  gains: PlayerDeltasMap;
   metric: Metric;
+  view: "values" | "ranks";
+  gains: PlayerDeltasMap;
 }
 
 function GainedHeader(props: GainedHeaderProps) {
-  const { metric, gains } = props;
+  const { metric, view, gains } = props;
 
-  const measure = MetricProps[metric].measure;
+  const isShowingRanks = view === "ranks";
+
+  let measure = MetricProps[metric].measure as string;
+  if (measure === MetricMeasure.EXPERIENCE) measure = "exp.";
 
   let values: MeasuredDeltaProgress;
 
   if (isBoss(metric)) {
-    values = gains.bosses[metric].kills;
+    values = isShowingRanks ? gains.bosses[metric].rank : gains.bosses[metric].kills;
   } else if (isActivity(metric)) {
-    values = gains.activities[metric].score;
+    values = isShowingRanks ? gains.activities[metric].rank : gains.activities[metric].score;
   } else if (isSkill(metric)) {
-    values = gains.skills[metric].experience;
+    values = isShowingRanks ? gains.skills[metric].rank : gains.skills[metric].experience;
   } else {
-    values = gains.computed[metric].value;
+    values = isShowingRanks ? gains.computed[metric].rank : gains.computed[metric].value;
   }
 
-  const { gained, start, end } = values;
+  const { start, end } = values;
 
-  const gainedPercent = getPercentGained(metric, values);
+  const gained = values.gained * (isShowingRanks ? -1 : 1);
+  const gainedPercent = getPercentGained(metric, values) * (isShowingRanks ? -1 : 1);
 
   return (
     <>
@@ -288,12 +343,16 @@ function GainedHeader(props: GainedHeaderProps) {
                 "text-red-500": gained < 0,
               })}
             >
-              <FormattedNumber value={gained} colored /> {measure} {gained >= 0 ? "gained" : ""}
+              <FormattedNumber value={gained} colored /> {isShowingRanks ? "ranks" : measure}{" "}
+              {gained >= 0 ? "gained" : ""}
             </span>
           </span>
         </div>
+        <div className="w-36">
+          <ChartViewSelect metric={metric} />
+        </div>
       </div>
-      <div className="grid grid-cols-3 divide-x divide-gray-500">
+      <div className="grid grid-cols-3 divide-x divide-gray-500 ">
         <div className="px-5 py-3">
           <span className="text-xs text-gray-200">Start</span>
           <span className="block text-sm text-white">

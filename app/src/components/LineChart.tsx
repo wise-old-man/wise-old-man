@@ -35,6 +35,7 @@ interface LineChartProps {
   showLegend?: boolean;
   minDate?: Date;
   maxDate?: Date;
+  reversed?: boolean;
   yAxisValueFormatter?: (value: number) => string;
   xAxisLabelFormatter?: (label: string, index: number) => string;
   tooltipLabelFormatter?: (label: string) => string;
@@ -47,6 +48,7 @@ export default function LineChart(props: LineChartProps) {
     showLegend,
     minDate,
     maxDate,
+    reversed,
     xAxisLabelFormatter,
     yAxisValueFormatter,
     tooltipLabelFormatter,
@@ -85,6 +87,7 @@ export default function LineChart(props: LineChartProps) {
             dataKey="value"
             axisLine={false}
             tickLine={false}
+            reversed={reversed}
             tick={<LeftAlignedYTick tickFormatter={yAxisValueFormatter || defaultYAxisValueFormatter} />}
             tickMargin={10}
             domain={["dataMin", "dataMax"]}

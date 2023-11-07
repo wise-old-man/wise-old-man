@@ -1,13 +1,15 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import { useState } from "react";
 import Link from "next/link";
+import { ColumnDef } from "@tanstack/react-table";
+import { GroupListItem } from "@wise-old-man/utils";
 import { standardizeUsername } from "~/utils/strings";
 import { Button } from "../Button";
 import { DataTable } from "../DataTable";
 import { Label } from "../Label";
 import { PlayerSearch } from "../PlayerSearch";
-import { GroupListItem } from "@wise-old-man/utils";
+import { ImportFromFileDialog } from "../groups/ImportFromFileDialog";
 
 interface CompetitionParticipantsFormProps {
   group?: GroupListItem;
@@ -18,6 +20,8 @@ interface CompetitionParticipantsFormProps {
 
 export function CompetitionParticipantsForm(props: CompetitionParticipantsFormProps) {
   const { participants, group, onParticipantsChanged, formActions } = props;
+
+  const [showingImportDialog, setShowingImportDialog] = useState(false);
 
   const canSubmit = !!group || participants.length > 0;
 
@@ -83,9 +87,15 @@ export function CompetitionParticipantsForm(props: CompetitionParticipantsFormPr
           </>
         ) : (
           <>
-            <Label className="mb-2 block text-xs text-gray-200">
-              Add participants ({participants.length})
-            </Label>
+            <div className="mb-2 flex items-center justify-between">
+              <Label className="text-xs text-gray-200">Add participants ({participants.length})</Label>
+              <button
+                onClick={() => setShowingImportDialog(true)}
+                className="text-xs font-medium text-blue-400 hover:underline"
+              >
+                Import list
+              </button>
+            </div>
             <PlayerSearch mode="select" onPlayerSelected={handleAddPlayers} />
             <div className="mt-7">
               {participants.length === 0 ? (
@@ -103,6 +113,17 @@ export function CompetitionParticipantsForm(props: CompetitionParticipantsFormPr
       </div>
       {/* Allow the parent pages to render what they need on the actions slot (Previous/Next or Save) */}
       <div className="border-gray-500 py-5">{formActions(!canSubmit)}</div>
+
+      <ImportFromFileDialog
+        isOpen={showingImportDialog}
+        onClose={() => {
+          setShowingImportDialog(false);
+        }}
+        onSubmit={(usernames) => {
+          handleAddPlayers(usernames.join(","));
+          setShowingImportDialog(false);
+        }}
+      />
     </div>
   );
 }

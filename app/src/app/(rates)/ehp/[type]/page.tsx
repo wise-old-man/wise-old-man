@@ -26,7 +26,7 @@ export default async function EHPRatesPage({ params }: PageProps) {
 
   return (
     <div className="mt-10 flex gap-x-12">
-      <div className="w-full grow space-y-24">
+      <div className="w-full grow space-y-24 overflow-x-auto">
         {data.map((config) => (
           <div key={config.skill} id={config.skill} className="flex scroll-mt-44 flex-col gap-y-7">
             <div className="group flex items-center">

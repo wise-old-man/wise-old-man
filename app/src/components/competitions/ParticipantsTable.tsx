@@ -59,7 +59,7 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
       columns={columnDefs}
       data={showOnlyOutdated ? outdatedParticipants : rows}
       enablePagination
-      pageSize={teamName ? 10 : 20}
+      defaultPageSize={teamName ? 10 : 20}
       headerSlot={
         <TableTitle className="flex-col p-0">
           <div className="flex w-full items-center justify-between px-5 py-4">

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma, { PrismaTypes, Snapshot } from '../../../../prisma';
-import { Metric, getMetricValueKey, parsePeriodExpression } from '../../../../utils';
+import { Metric, getMetricRankKey, getMetricValueKey, parsePeriodExpression } from '../../../../utils';
 import { BadRequestError } from '../../../errors';
 
 const inputSchema = z
@@ -22,15 +22,17 @@ type FindPlayerSnapshotTimelineParams = z.infer<typeof inputSchema>;
 
 async function findPlayerSnapshotTimeline(
   payload: FindPlayerSnapshotTimelineParams
-): Promise<Array<{ value: number; date: Date }>> {
+): Promise<Array<{ value: number; rank: number; date: Date }>> {
   const params = inputSchema.parse(payload);
 
   const filterQuery = buildFilterQuery(params);
+  const metricRankKey = getMetricRankKey(params.metric);
   const metricValueKey = getMetricValueKey(params.metric);
 
   const snapshots = (await prisma.snapshot.findMany({
     select: {
       [metricValueKey]: true,
+      [metricRankKey]: true,
       createdAt: true
     },
     where: { playerId: params.id, ...filterQuery },
@@ -41,6 +43,7 @@ async function findPlayerSnapshotTimeline(
   const history = snapshots.map(snapshot => {
     return {
       value: snapshot[metricValueKey],
+      rank: snapshot[metricRankKey],
       date: snapshot.createdAt
     };
   });

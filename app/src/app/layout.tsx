@@ -28,8 +28,8 @@ function RootLayout(props: PropsWithChildren) {
   const { children } = props;
 
   return (
-    <html lang="en" className={cn(inter.variable, "h-full")}>
-      <body className="h-full bg-gray-900 text-white">
+    <html lang="en" className={inter.variable}>
+      <body>
         <NavigationLoadingBar />
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
