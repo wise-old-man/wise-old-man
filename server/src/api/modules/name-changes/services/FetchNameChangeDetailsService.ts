@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PlayerType } from '../../../../utils';
 import prisma, { NameChangeStatus } from '../../../../prisma';
 import { NotFoundError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
@@ -41,10 +40,7 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
   let oldHiscores;
 
   try {
-    // Attempt to fetch hiscores data for the new name
-    // if they can't be found on the regular hiscores, fallback to trying the ironman and FSW hiscores
-    // before asserting that the new name is not on the hiscores at all
-    newHiscores = await fetchHiscoresWithFallback(nameChange.newName);
+    newHiscores = await jagexService.fetchHiscoresData(nameChange.newName);
   } catch (e) {
     // If te hiscores failed to load, abort mission
     if (e instanceof ServerError) throw e;
@@ -94,7 +90,7 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
   });
 
   const newPlayerComputedMetrics = await efficiencyServices.computePlayerMetrics({
-    player: newPlayer || { id: 1, type: oldPlayer.type, build: oldPlayer.build },
+    player: newPlayer || { id: 1, build: oldPlayer.build },
     snapshot: newStats
   });
 
@@ -139,24 +135,6 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
       newStats: snapshotUtils.format(newStats, newPlayerEfficiencyMap)
     }
   };
-}
-
-async function fetchHiscoresWithFallback(username: string) {
-  // Try fetching from the regular hiscores
-  try {
-    return await jagexService.fetchHiscoresData(username);
-  } catch (error) {
-    if (error instanceof ServerError) throw error;
-  }
-
-  // If the regular hiscores failed, try the ironman hiscores
-  try {
-    return await jagexService.fetchHiscoresData(username, PlayerType.IRONMAN);
-  } catch (error) {
-    if (error instanceof ServerError) throw error;
-  }
-
-  return undefined;
 }
 
 export { fetchNameChangeDetails };

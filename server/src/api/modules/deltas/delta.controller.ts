@@ -9,7 +9,6 @@ async function leaderboard(req: Request): Promise<ControllerResponse> {
     metric: getEnum(req.query.metric),
     period: getEnum(req.query.period),
     country: getEnum(req.query.country),
-    playerType: getEnum(req.query.playerType),
     playerBuild: getEnum(req.query.playerBuild)
   });
 

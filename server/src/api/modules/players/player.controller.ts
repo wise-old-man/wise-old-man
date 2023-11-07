@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ForbiddenError, ServerError } from '../../errors';
+import { BadRequestError, ForbiddenError, ServerError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import redisService from '../../services/external/redis.service';
 import * as achievementServices from '../achievements/achievement.services';
@@ -56,44 +56,24 @@ async function track(req: Request, res: Response): Promise<ControllerResponse> {
     throw new ForbiddenError('Incorrect admin password.');
   }
 
-  // Update the player, and create a new snapshot
-  const [playerDetails, isNew] = await playerServices.updatePlayer({
-    username: getString(username),
-    skipFlagChecks: Boolean(force)
-  });
+  // // Update the player, and create a new snapshot
+  // const [playerDetails, isNew] = await playerServices.updatePlayer({
+  //   username: getString(username),
+  //   skipFlagChecks: Boolean(force)
+  // });
 
-  return { statusCode: isNew ? 201 : 200, response: playerDetails };
+  // return { statusCode: isNew ? 201 : 200, response: playerDetails };
+  throw new BadRequestError('Currently disabled until the League starts.');
 }
 
 // POST /players/:username/assert-type
-async function assertType(req: Request): Promise<ControllerResponse> {
-  // Find the player using the username param
-  const player = await playerUtils.resolvePlayer(getString(req.params.username));
-
-  // (Forcefully) Assert the player's account type
-  const [, updatedPlayer, changed] = await playerServices.assertPlayerType(player, true);
-
-  return {
-    statusCode: 200,
-    response: { player: updatedPlayer, changed }
-  };
+async function assertType(): Promise<ControllerResponse> {
+  throw new BadRequestError('This endpoint is disabled for Leagues.');
 }
 
 // POST /players/:username/import-history
-async function importPlayer(req: Request): Promise<ControllerResponse> {
-  if (!adminGuard.checkAdminPermissions(req)) {
-    throw new ForbiddenError('Incorrect admin password.');
-  }
-
-  // Find the player using the username param
-  const player = await playerUtils.resolvePlayer(getString(req.params.username));
-
-  const { count } = await playerServices.importPlayerHistory(player);
-
-  return {
-    statusCode: 200,
-    response: { count, message: `Successfully imported ${count} snapshots from CML.` }
-  };
+async function importPlayer(): Promise<ControllerResponse> {
+  throw new BadRequestError('This endpoint is disabled for Leagues.');
 }
 
 // GET /players/:username

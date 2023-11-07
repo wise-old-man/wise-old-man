@@ -1,12 +1,11 @@
 import { Snapshot, Player } from '../../../prisma';
-import { FlaggedPlayerReviewContext, PlayerType } from '../../../utils';
+import { FlaggedPlayerReviewContext } from '../../../utils';
 import { jobManager, JobType } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
 import * as achievementServices from '../achievements/achievement.services';
 import * as competitionServices from '../competitions/competition.services';
 import * as deltaServices from '../deltas/delta.services';
-import * as playerServices from './player.services';
 
 async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerReviewContext) {
   await metrics.trackEffect(discordService.dispatchPlayerFlaggedReview, player, flaggedContext);
@@ -15,13 +14,6 @@ async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerRevi
 async function onPlayerArchived(player: Player, previousDisplayName: string) {
   const successMessage = `🟢 \`${previousDisplayName}\` has been archived. (\`${player.username}\`)`;
   await metrics.trackEffect(discordService.sendMonitoringMessage, successMessage);
-}
-
-async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
-  if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
-    // Dispatch a "HCIM player died" event to our discord bot API.
-    await metrics.trackEffect(discordService.dispatchHardcoreDied, player);
-  }
 }
 
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
@@ -35,11 +27,6 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
   jobManager.add({
     type: JobType.UPDATE_PLAYER,
     payload: { username: player.username }
-  });
-
-  jobManager.add({
-    type: JobType.ASSERT_PLAYER_TYPE,
-    payload: { playerId: player.id }
   });
 }
 
@@ -60,9 +47,6 @@ async function onPlayerUpdated(
 
   // Update this player's deltas (gains)
   await metrics.trackEffect(deltaServices.syncPlayerDeltas, player, current);
-
-  // Attempt to import this player's history from CML
-  await metrics.trackEffect(playerServices.importPlayerHistory, player);
 }
 
 async function onPlayerImported(playerId: number) {
@@ -70,11 +54,4 @@ async function onPlayerImported(playerId: number) {
   await metrics.trackEffect(achievementServices.reevaluatePlayerAchievements, { id: playerId });
 }
 
-export {
-  onPlayerFlagged,
-  onPlayerArchived,
-  onPlayerTypeChanged,
-  onPlayerNameChanged,
-  onPlayerUpdated,
-  onPlayerImported
-};
+export { onPlayerFlagged, onPlayerArchived, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };

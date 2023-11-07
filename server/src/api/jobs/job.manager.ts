@@ -5,7 +5,6 @@ import logger from '../util/logging';
 import metricsService from '../services/external/metrics.service';
 import redisService from '../services/external/redis.service';
 import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.types';
-import AssertPlayerTypeJob from './instances/AssertPlayerTypeJob';
 import InvalidatePeriodDeltasJob from './instances/InvalidatePeriodDeltasJob';
 import SyncApiKeysJob from './instances/SyncApiKeysJob';
 import ReviewNameChangeJob from './instances/ReviewNameChangeJob';
@@ -26,7 +25,6 @@ import AutoUpdatePatronPlayersJob from './instances/AutoUpdatePatronPlayersJob';
 import AutoUpdatePatronGroupsJob from './instances/AutoUpdatePatronGroupsJob';
 
 const JOBS: JobDefinition<unknown>[] = [
-  AssertPlayerTypeJob,
   AutoUpdatePatronPlayersJob,
   AutoUpdatePatronGroupsJob,
   CheckPlayerBannedJob,
@@ -77,15 +75,7 @@ const CRON_JOBS = [
     interval: '0 */12 * * *' // every 12 hours
   },
   {
-    type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW,
-    interval: '0 * * * *' // every hour
-  },
-  {
     type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
-    interval: '0 8 * * *' // everyday at 8AM
-  },
-  {
-    type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS,
     interval: '0 8 * * *' // everyday at 8AM
   },
   {
@@ -140,9 +130,18 @@ class JobManager {
       const opts = { removeOnComplete: true, removeOnFail: true, ...(job.options?.defaultOptions || {}) };
 
       // Create a new scheduler instance for this job
-      this.schedulers.push(new QueueScheduler(job.type, { connection: redisConfig }));
+      this.schedulers.push(
+        new QueueScheduler(job.type, {
+          prefix: 'league_job',
+          connection: redisConfig
+        })
+      );
 
-      return new Queue(job.type, { connection: redisConfig, defaultJobOptions: opts });
+      return new Queue(job.type, {
+        prefix: 'league_job',
+        connection: redisConfig,
+        defaultJobOptions: opts
+      });
     });
   }
 
@@ -159,6 +158,7 @@ class JobManager {
           });
         },
         {
+          prefix: 'league_job',
           limiter: job.options?.rateLimiter,
           connection: redisConfig,
           autorun: false

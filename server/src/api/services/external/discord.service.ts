@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import env, { isTesting } from '../../../env';
 import prisma, { Achievement, Competition, Player } from '../../../prisma';
@@ -44,16 +43,7 @@ function sendPatreonUpdateMessage(text: string) {
  * Dispatch an event to our Discord Bot API.
  */
 function dispatch(type: string, payload: unknown) {
-  if (isTesting()) return;
-
-  if (!env.DISCORD_BOT_API_URL) {
-    logger.error('Missing Discord Bot API URL.');
-    return;
-  }
-
-  axios.post(env.DISCORD_BOT_API_URL, { type, data: payload }).catch(e => {
-    logger.error('Error sending discord event.', e);
-  });
+  console.log('Cannot dispatch discord events in the Leagues Edition.', type, payload);
 }
 
 /**

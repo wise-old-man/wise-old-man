@@ -1,5 +1,4 @@
 import { JobsOptions as BullJobOptions, RateLimiterOptions } from 'bullmq';
-import { AssertPlayerTypePayload } from './instances/AssertPlayerTypeJob';
 import { CheckPlayerBannedPayload } from './instances/CheckPlayerBannedJob';
 import { CheckPlayerRankedPayload } from './instances/CheckPlayerRankedJob';
 import { InvalidatePeriodDeltasPayload } from './instances/InvalidatePeriodDeltasJob';
@@ -9,7 +8,6 @@ import { UpdateGroupScorePayload } from './instances/UpdateGroupScoreJob';
 import { UpdatePlayerJobPayload } from './instances/UpdatePlayerJob';
 
 export enum JobType {
-  ASSERT_PLAYER_TYPE = 'ASSERT_PLAYER_TYPE',
   AUTO_UPDATE_PATRON_GROUPS = 'AUTO_UPDATE_PATRON_GROUPS',
   AUTO_UPDATE_PATRON_PLAYERS = 'AUTO_UPDATE_PATRON_PLAYERS',
   CHECK_PLAYER_BANNED = 'CHECK_PLAYER_BANNED',
@@ -31,7 +29,6 @@ export enum JobType {
 }
 
 export type JobPayload = {
-  [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypePayload;
   [JobType.CHECK_PLAYER_BANNED]: CheckPlayerBannedPayload;
   [JobType.CHECK_PLAYER_RANKED]: CheckPlayerRankedPayload;
   [JobType.INVALIDATE_PERIOD_DELTAS]: InvalidatePeriodDeltasPayload;

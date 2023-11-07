@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma, { Player, PrismaTypes } from '../../../../prisma';
-import { PlayerType, PlayerBuild, Metric, Country, PlayerStatus } from '../../../../utils';
+import { PlayerBuild, Metric, Country, PlayerStatus } from '../../../../utils';
 import { omit } from '../../../util/objects';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 
@@ -10,7 +10,6 @@ const inputSchema = z
   .object({
     metric: z.enum([Metric.EHP, Metric.EHB, COMBINED_METRIC]),
     country: z.nativeEnum(Country).optional(),
-    playerType: z.nativeEnum(PlayerType).optional().default(PlayerType.REGULAR),
     playerBuild: z.nativeEnum(PlayerBuild).optional().default(PlayerBuild.MAIN)
   })
   .merge(PAGINATION_SCHEMA);
@@ -44,15 +43,9 @@ async function findEfficiencyLeaderboards(payload: FindEfficiencyLeaderboardsPar
 
 async function fetchSortedPlayersList(params: FindEfficiencyLeaderboardsParams) {
   const playerQuery: PrismaTypes.PlayerWhereInput = {
-    type: params.playerType,
     build: params.playerBuild,
     status: { not: PlayerStatus.ARCHIVED }
   };
-
-  // When filtering by player type, the ironman filter should include UIM and HCIM
-  if (playerQuery.type === PlayerType.IRONMAN) {
-    playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
-  }
 
   if (params.country) playerQuery.country = params.country;
 
@@ -72,15 +65,9 @@ async function fetchSortedPlayersList(params: FindEfficiencyLeaderboardsParams) 
 async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
   if (params.metric !== COMBINED_METRIC) {
     const playerQuery: PrismaTypes.PlayerWhereInput = {
-      type: params.playerType,
       build: params.playerBuild,
       status: { not: PlayerStatus.ARCHIVED }
     };
-
-    // When filtering by player type, the ironman filter should include UIM and HCIM
-    if (playerQuery.type === PlayerType.IRONMAN) {
-      playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
-    }
 
     if (params.country) playerQuery.country = params.country;
 
@@ -95,10 +82,7 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
   }
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
-  let playerQuery =
-    params.playerType !== PlayerType.IRONMAN
-      ? `"type" = '${params.playerType}'`
-      : `("type" = '${PlayerType.IRONMAN}' OR "type" = '${PlayerType.HARDCORE}' OR "type" = '${PlayerType.ULTIMATE}')`;
+  let playerQuery = '1=1';
 
   if (params.country) playerQuery += ` AND "country" = '${params.country}'`;
   if (params.playerBuild) playerQuery += ` AND "build" = '${params.playerBuild}'`;
