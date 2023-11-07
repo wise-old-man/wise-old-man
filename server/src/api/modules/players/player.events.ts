@@ -36,11 +36,6 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
     type: JobType.UPDATE_PLAYER,
     payload: { username: player.username }
   });
-
-  jobManager.add({
-    type: JobType.ASSERT_PLAYER_TYPE,
-    payload: { playerId: player.id }
-  });
 }
 
 async function onPlayerUpdated(

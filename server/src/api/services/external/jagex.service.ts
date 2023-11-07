@@ -1,16 +1,10 @@
 import axios from 'axios';
-import { PlayerType } from '../../../utils';
 import { BadRequestError, ServerError } from '../../errors';
 import proxiesService from './proxies.service';
 
 const RUNEMETRICS_URL = 'https://apps.runescape.com/runemetrics/profile/profile';
 
-export const OSRS_HISCORES_URLS = {
-  [PlayerType.REGULAR]: 'https://services.runescape.com/m=hiscore_oldschool/index_lite.ws',
-  [PlayerType.IRONMAN]: 'https://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws',
-  [PlayerType.HARDCORE]: 'https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
-  [PlayerType.ULTIMATE]: 'https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws'
-};
+const OSRS_LEAGUE_HISCORES_URL = 'https://services.runescape.com/m=hiscore_oldschool_seasonal/index_lite.ws';
 
 async function checkIsBanned(username: string) {
   const proxy = proxiesService.getNextProxy();
@@ -31,9 +25,9 @@ async function checkIsBanned(username: string) {
 /**
  * Fetches the player data from the Hiscores API.
  */
-async function fetchHiscoresData(username: string, type: PlayerType = PlayerType.REGULAR): Promise<string> {
+async function fetchHiscoresData(username: string): Promise<string> {
   const proxy = proxiesService.getNextProxy();
-  const url = `${OSRS_HISCORES_URLS[type]}?player=${username}`;
+  const url = `${OSRS_LEAGUE_HISCORES_URL}?player=${username}`;
 
   try {
     const { data } = await axios({

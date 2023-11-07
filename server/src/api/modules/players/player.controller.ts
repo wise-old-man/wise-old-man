@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ForbiddenError, ServerError } from '../../errors';
+import { BadRequestError, ForbiddenError, ServerError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import redisService from '../../services/external/redis.service';
 import * as achievementServices from '../achievements/achievement.services';
@@ -66,17 +66,8 @@ async function track(req: Request, res: Response): Promise<ControllerResponse> {
 }
 
 // POST /players/:username/assert-type
-async function assertType(req: Request): Promise<ControllerResponse> {
-  // Find the player using the username param
-  const player = await playerUtils.resolvePlayer(getString(req.params.username));
-
-  // (Forcefully) Assert the player's account type
-  const [, updatedPlayer, changed] = await playerServices.assertPlayerType(player, true);
-
-  return {
-    statusCode: 200,
-    response: { player: updatedPlayer, changed }
-  };
+async function assertType(): Promise<ControllerResponse> {
+  throw new BadRequestError('This endpoint is disabled for Leagues.');
 }
 
 // POST /players/:username/import-history

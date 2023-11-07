@@ -5,7 +5,6 @@ import logger from '../util/logging';
 import metricsService from '../services/external/metrics.service';
 import redisService from '../services/external/redis.service';
 import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.types';
-import AssertPlayerTypeJob from './instances/AssertPlayerTypeJob';
 import InvalidatePeriodDeltasJob from './instances/InvalidatePeriodDeltasJob';
 import SyncApiKeysJob from './instances/SyncApiKeysJob';
 import ReviewNameChangeJob from './instances/ReviewNameChangeJob';
@@ -26,7 +25,6 @@ import AutoUpdatePatronPlayersJob from './instances/AutoUpdatePatronPlayersJob';
 import AutoUpdatePatronGroupsJob from './instances/AutoUpdatePatronGroupsJob';
 
 const JOBS: JobDefinition<unknown>[] = [
-  AssertPlayerTypeJob,
   AutoUpdatePatronPlayersJob,
   AutoUpdatePatronGroupsJob,
   CheckPlayerBannedJob,
