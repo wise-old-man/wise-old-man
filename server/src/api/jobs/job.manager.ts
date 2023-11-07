@@ -130,9 +130,18 @@ class JobManager {
       const opts = { removeOnComplete: true, removeOnFail: true, ...(job.options?.defaultOptions || {}) };
 
       // Create a new scheduler instance for this job
-      this.schedulers.push(new QueueScheduler(job.type, { connection: redisConfig }));
+      this.schedulers.push(
+        new QueueScheduler(job.type, {
+          prefix: 'league_job',
+          connection: redisConfig
+        })
+      );
 
-      return new Queue(job.type, { connection: redisConfig, defaultJobOptions: opts });
+      return new Queue(job.type, {
+        prefix: 'league_job',
+        connection: redisConfig,
+        defaultJobOptions: opts
+      });
     });
   }
 
@@ -149,6 +158,7 @@ class JobManager {
           });
         },
         {
+          prefix: 'league_job',
           limiter: job.options?.rateLimiter,
           connection: redisConfig,
           autorun: false
