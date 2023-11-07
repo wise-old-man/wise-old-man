@@ -6,7 +6,7 @@ import { BadRequestError, NotFoundError } from '../../../errors';
 import * as playerServices from '../../players/player.services';
 
 const inputSchema = z.object({
-  id: z.number().positive(),
+  id: z.number().int().positive(),
   participants: z
     .array(z.string(), {
       invalid_type_error: "Parameter 'participants' is not a valid array.",

@@ -13,7 +13,7 @@ const PRIORITY_COOLDOWN = 1;
 const DEFAULT_COOLDOWN = 24;
 
 const inputSchema = z.object({
-  competitionId: z.number().positive(),
+  competitionId: z.number().int().positive(),
   forcedUpdate: z.boolean().optional().default(false)
 });
 

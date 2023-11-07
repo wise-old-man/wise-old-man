@@ -6,7 +6,7 @@ import { NotFoundError } from '../../../errors';
 
 const inputSchema = z
   .object({
-    groupId: z.number().positive()
+    groupId: z.number().int().positive()
   })
   .merge(PAGINATION_SCHEMA);
 

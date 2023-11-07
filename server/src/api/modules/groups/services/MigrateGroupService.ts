@@ -4,7 +4,7 @@ import * as templeService from '../../../services/external/temple.service';
 import { MigrationDataSource } from '../group.types';
 
 const inputSchema = z.object({
-  externalId: z.number().positive(),
+  externalId: z.number().int().positive(),
   externalSource: z.nativeEnum(MigrationDataSource)
 });
 

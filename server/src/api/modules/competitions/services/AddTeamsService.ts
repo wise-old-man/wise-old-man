@@ -37,7 +37,7 @@ const TEAM_INPUT_SCHEMA = z.object(
 );
 
 const inputSchema = z.object({
-  id: z.number().positive(),
+  id: z.number().int().positive(),
   teams: z
     .array(TEAM_INPUT_SCHEMA, {
       invalid_type_error: "Parameter 'teams' is not a valid array.",

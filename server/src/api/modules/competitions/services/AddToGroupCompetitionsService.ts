@@ -3,8 +3,8 @@ import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
 
 const inputSchema = z.object({
-  groupId: z.number().positive(),
-  playerIds: z.number().positive().array()
+  groupId: z.number().int().positive(),
+  playerIds: z.number().int().positive().array()
 });
 
 type AddToGroupCompetitionsParams = z.infer<typeof inputSchema>;

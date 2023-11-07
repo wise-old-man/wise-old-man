@@ -5,7 +5,7 @@ import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
 const inputSchema = z.object({
-  id: z.number().positive()
+  id: z.number().int().positive()
 });
 
 type ResetCompetitionCodeParams = z.infer<typeof inputSchema>;

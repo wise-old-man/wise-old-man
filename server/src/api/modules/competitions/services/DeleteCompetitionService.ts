@@ -4,7 +4,7 @@ import { ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 
 const inputSchema = z.object({
-  id: z.number().positive()
+  id: z.number().int().positive()
 });
 
 type DeleteCompetitionParams = z.infer<typeof inputSchema>;

@@ -15,7 +15,7 @@ import {
 import { GroupStatistics } from '../group.types';
 
 const inputSchema = z.object({
-  id: z.number().positive()
+  id: z.number().int().positive()
 });
 
 type FetchGroupStatisticsParams = z.infer<typeof inputSchema>;

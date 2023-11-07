@@ -9,7 +9,7 @@ const ERROR_MESSAGE = "Parameter 'country' is undefined.";
 
 const inputSchema = z
   .object({
-    id: z.number().positive().optional(),
+    id: z.number().int().positive().optional(),
     username: z.string().optional(),
     // This service accepts country codes, and country names (will attempt to parse these into country codes)
     country: z.string({ required_error: ERROR_MESSAGE }).min(1, { message: ERROR_MESSAGE })

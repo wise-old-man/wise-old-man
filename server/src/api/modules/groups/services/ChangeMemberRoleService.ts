@@ -9,7 +9,7 @@ import { standardize } from '../../players/player.utils';
 import * as groupEvents from '../group.events';
 
 const inputSchema = z.object({
-  id: z.number().positive(),
+  id: z.number().int().positive(),
   username: z.string(),
   role: z.nativeEnum(GroupRole)
 });
