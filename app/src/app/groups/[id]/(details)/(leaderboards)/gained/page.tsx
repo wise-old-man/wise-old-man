@@ -3,7 +3,7 @@ import { Pagination } from "~/components/Pagination";
 import { GroupGainedCustomPeriodDialog } from "~/components/groups/GroupGainedCustomPeriodDialog";
 import { GroupGainedTable } from "~/components/groups/GroupGainedTable";
 import { GroupLeaderboardsNavigation } from "~/components/groups/GroupLeaderboardsNavigation";
-import { getGroupDetails, getGroupGains } from "~/services/wiseoldman";
+import { getGroupDetails, getGroupGainsByDates, getGroupGainsByPeriod } from "~/services/wiseoldman";
 import { getMetricParam, getPageParam, getTimeRangeFilterParams } from "~/utils/params";
 
 export const dynamic = "force-dynamic";
@@ -42,23 +42,19 @@ export default async function GroupGainedPage(props: PageProps) {
 
   const [group, gains] = await Promise.all([
     getGroupDetails(id),
-
     "period" in timeRange
-      ? getGroupGains(
+      ? getGroupGainsByPeriod(
           id,
-          timeRange.period,
-          undefined,
-          undefined,
           metric,
+          timeRange.period,
           RESULTS_PER_PAGE,
           (page - 1) * RESULTS_PER_PAGE
         )
-      : getGroupGains(
+      : getGroupGainsByDates(
           id,
-          undefined,
+          metric,
           timeRange.startDate,
           timeRange.endDate,
-          metric,
           RESULTS_PER_PAGE,
           (page - 1) * RESULTS_PER_PAGE
         ),

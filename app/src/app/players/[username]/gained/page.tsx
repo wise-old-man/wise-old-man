@@ -16,8 +16,10 @@ import { getMetricParam, getTimeRangeFilterParams } from "~/utils/params";
 import {
   TimeRangeFilter,
   getPlayerDetails,
-  getPlayerGains,
-  getPlayerSnapshotTimeline,
+  getSnapshotTimelineByPeriod,
+  getSnapshotTimelineByDate,
+  getPlayerGainsByPeriod,
+  getPlayerGainsByDates,
 } from "~/services/wiseoldman";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { PlayerGainedTable } from "~/components/players/PlayerGainedTable";
@@ -70,8 +72,8 @@ export default async function PlayerGainedPage(props: PageProps) {
   const [player, gains] = await Promise.all([
     getPlayerDetails(username),
     "period" in timeRange
-      ? getPlayerGains(username, timeRange.period, undefined, undefined)
-      : getPlayerGains(username, undefined, timeRange.startDate, timeRange.endDate),
+      ? getPlayerGainsByPeriod(username, timeRange.period)
+      : getPlayerGainsByDates(username, timeRange.startDate, timeRange.endDate),
   ]);
 
   return (
@@ -104,8 +106,8 @@ function CumulativeGainsPanel(props: CumulativeGainsPanelProps) {
 
   const promise =
     "period" in timeRange
-      ? getPlayerSnapshotTimeline(username, metric, timeRange.period, undefined, undefined)
-      : getPlayerSnapshotTimeline(username, metric, undefined, timeRange.startDate, timeRange.endDate);
+      ? getSnapshotTimelineByPeriod(username, metric, timeRange.period)
+      : getSnapshotTimelineByDate(username, metric, timeRange.startDate, timeRange.endDate);
 
   return (
     <ExpandableChartPanel
@@ -160,8 +162,8 @@ function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
 
   const promise =
     "period" in timeRange
-      ? getPlayerSnapshotTimeline(username, metric, timeRange.period, undefined, undefined)
-      : getPlayerSnapshotTimeline(username, metric, undefined, timeRange.startDate, timeRange.endDate);
+      ? getSnapshotTimelineByPeriod(username, metric, timeRange.period)
+      : getSnapshotTimelineByDate(username, metric, timeRange.startDate, timeRange.endDate);
 
   return (
     <ExpandableChartPanel
@@ -219,7 +221,7 @@ interface YearlyHeatmapPanelProps {
 function YearlyHeatmapPanel(props: YearlyHeatmapPanelProps) {
   const { username, metric } = props;
 
-  const promise = getPlayerSnapshotTimeline(username, metric, Period.YEAR);
+  const promise = getSnapshotTimelineByPeriod(username, metric, Period.YEAR);
 
   return (
     <ExpandableChartPanel
