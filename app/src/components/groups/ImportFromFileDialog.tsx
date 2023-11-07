@@ -104,7 +104,12 @@ function ImportFromFileForm(props: ImportFromFileDialogProps) {
       {usernames.length > 1 && (
         <Label className="text-xs text-green-400">Found {usernames.length} players</Label>
       )}
-      <Button size="lg" variant="blue" disabled={usernames.length < 2} className="mt-4 justify-center">
+      <Button
+        size="lg"
+        variant="primary"
+        disabled={usernames.length < 2}
+        className="mt-4 justify-center"
+      >
         Confirm
       </Button>
     </form>

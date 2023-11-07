@@ -46,7 +46,7 @@ export default function PlayerNotFound() {
           updateMutation.mutate();
         }}
       >
-        <Button variant="blue" disabled={isTransitioning || updateMutation.isPending}>
+        <Button variant="primary" disabled={isTransitioning || updateMutation.isPending}>
           {isTransitioning || updateMutation.isPending ? (
             <>
               Tracking

@@ -90,17 +90,17 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
     <Container className="mt-8" style={{ "--max-width": "42rem" }}>
       <h1 className="text-3xl font-bold">Create a new competition</h1>
       <div className="mt-5 flex gap-x-2">
-        <div className="h-1 w-12 rounded-full bg-blue-500" />
+        <div className="h-1 w-12 rounded-full bg-primary-500" />
         <div
           className={cn(
             "h-1 w-12 rounded-full transition-colors duration-300",
-            step === "info" ? "bg-gray-500" : "bg-blue-500"
+            step === "info" ? "bg-gray-500" : "bg-primary-500"
           )}
         />
         <div
           className={cn(
             "h-1 w-12 rounded-full transition-colors duration-300",
-            step !== "participants" ? "bg-gray-500" : "bg-blue-500"
+            step !== "participants" ? "bg-gray-500" : "bg-primary-500"
           )}
         />
       </div>
@@ -119,7 +119,7 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
             }}
             formActions={(disabled) => (
               <div className="flex justify-end">
-                <Button variant="blue" disabled={disabled}>
+                <Button variant="primary" disabled={disabled}>
                   Next
                 </Button>
               </div>
@@ -146,7 +146,7 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
                   <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
                   Previous
                 </Button>
-                <Button variant="blue" disabled={disabled || loading}>
+                <Button variant="primary" disabled={disabled || loading}>
                   {loading ? "Checking..." : "Next"}
                   <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
                 </Button>
@@ -190,7 +190,7 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
                       Previous
                     </Button>
                     <Button
-                      variant="blue"
+                      variant="primary"
                       disabled={disabled}
                       onClick={() => createMutation.mutate(competition)}
                     >
@@ -213,7 +213,7 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
                       Previous
                     </Button>
                     <Button
-                      variant="blue"
+                      variant="primary"
                       disabled={disabled}
                       onClick={() => createMutation.mutate(competition)}
                     >

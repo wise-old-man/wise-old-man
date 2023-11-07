@@ -73,7 +73,7 @@ function Header(props: GroupDetails) {
         </div>
         <div className="flex shrink-0 items-center gap-x-2">
           <QueryLink query={{ dialog: "update-all" }}>
-            <Button variant="blue">Update all</Button>
+            <Button variant="primary">Update all</Button>
           </QueryLink>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

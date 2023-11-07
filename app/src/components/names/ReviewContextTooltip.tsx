@@ -24,7 +24,7 @@ export function ReviewContextTooltip(props: PropsWithChildren<NameChange>) {
             href="https://wiseoldman.net/discord"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-blue-400 hover:underline"
+            className="font-medium text-primary-400 hover:underline"
           >
             Join our Discord
           </a>

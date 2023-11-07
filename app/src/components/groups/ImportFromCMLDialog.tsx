@@ -95,7 +95,7 @@ function ImportFromCMLForm(props: ImportFromCMLDialogProps) {
           {data.members.join("\n")}
         </pre>
       )}
-      <Button size="lg" disabled={!data} variant="blue" className="mt-4 justify-center">
+      <Button size="lg" disabled={!data} variant="primary" className="mt-4 justify-center">
         Confirm
       </Button>
     </form>

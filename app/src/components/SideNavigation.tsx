@@ -148,7 +148,7 @@ function SideBar(props: SideBarProps) {
               className={cn(
                 "flex items-center px-7 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700",
                 currentRouteHref === link.href &&
-                  "border-l-2 border-blue-500 bg-gray-700/50 px-[1.625rem] text-white hover:bg-gray-700/50"
+                  "border-l-2 border-primary-500 bg-gray-700/50 px-[1.625rem] text-white hover:bg-gray-700/50"
               )}
               onClick={onRouteSelected}
             >
@@ -172,7 +172,7 @@ function SideBar(props: SideBarProps) {
               <div className="relative mr-2">
                 <NewspaperIcon className="h-5 w-5" />
                 {hasUnreadChangelog && (
-                  <div className="absolute right-0 top-0 h-2 w-2 rounded-full bg-blue-600" />
+                  <div className="absolute right-0 top-0 h-2 w-2 rounded-full bg-primary-600" />
                 )}
               </div>
               Changelog

@@ -28,7 +28,7 @@ interface LineChartDataset {
   }>;
 }
 
-const COLORS = ["#3b82f6", "#f87171", "#fbbf24", "#a3e635", "#c084fc"];
+const COLORS = ["#E6572A", "#3b82f6", "#f87171", "#fbbf24", "#a3e635", "#c084fc"];
 
 interface LineChartProps {
   datasets: Array<LineChartDataset>;

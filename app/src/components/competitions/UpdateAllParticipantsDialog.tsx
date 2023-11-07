@@ -137,7 +137,7 @@ function UpdateAllParticipantsForm(props: UpdateAllParticipantsDialogProps) {
       <Button
         type="submit"
         size="lg"
-        variant="blue"
+        variant="primary"
         className="mt-4 justify-center"
         disabled={verificationCode.length === 0 || updateMutation.isPending}
       >

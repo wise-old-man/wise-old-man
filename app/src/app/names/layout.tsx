@@ -13,7 +13,7 @@ export default function NameChangesLayout(props: PropsWithChildren) {
         <h1 className="text-h1 font-bold">Name changes</h1>
         <QueryLink
           query={{ dialog: "submit-name" }}
-          className="mt-8 text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline lg:mt-0"
+          className="mt-8 text-sm font-medium text-primary-400 hover:text-primary-300 hover:underline lg:mt-0"
         >
           + Submit new
         </QueryLink>

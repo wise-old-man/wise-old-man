@@ -252,7 +252,7 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
         )}
         <div className="flex grow justify-end">
           <Button
-            variant="blue"
+            variant="primary"
             disabled={editMembersMutation.isPending || isTransitioning || !hasUnsavedChanges}
             onClick={handleSubmit}
           >
@@ -335,7 +335,7 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
               </div>
             )}
             <Button
-              variant="blue"
+              variant="primary"
               disabled={
                 disabled || !hasUnsavedChanges || isTransitioning || editGeneralMutation.isPending
               }
@@ -383,7 +383,7 @@ function SideNavigation() {
             )}
           >
             {(!section || section === "general") && (
-              <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />
+              <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-primary-500" />
             )}
             General
           </li>
@@ -396,7 +396,7 @@ function SideNavigation() {
             )}
           >
             {section === "members" && (
-              <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />
+              <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-primary-500" />
             )}
             Members
           </li>
@@ -418,7 +418,7 @@ function RuneLiteSyncInfo() {
 
         <QueryLink
           query={{ dialog: "runelite-sync" }}
-          className="mt-5 block text-blue-400 hover:underline"
+          className="mt-5 block text-primary-400 hover:underline"
         >
           Find out more
         </QueryLink>

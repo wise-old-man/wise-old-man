@@ -114,7 +114,7 @@ function SideNavigation(props: { type: CompetitionType }) {
             )}
           >
             {(!section || section === "general") && (
-              <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />
+              <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-primary-500" />
             )}
             General
           </li>
@@ -128,7 +128,7 @@ function SideNavigation(props: { type: CompetitionType }) {
               )}
             >
               {section === "participants" && (
-                <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />
+                <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-primary-500" />
               )}
               Participants
             </li>
@@ -142,7 +142,7 @@ function SideNavigation(props: { type: CompetitionType }) {
               )}
             >
               {section === "teams" && (
-                <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />
+                <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-primary-500" />
               )}
               Teams
             </li>
@@ -206,7 +206,7 @@ function GeneralSection(props: EditCompetitionFormProps & { verificationCode: st
               </div>
             )}
             <Button
-              variant="blue"
+              variant="primary"
               disabled={
                 disabled || !hasUnsavedChanges || isTransitioning || editGeneralMutation.isPending
               }
@@ -286,7 +286,7 @@ function ParticipantsSection(props: EditCompetitionFormProps & { verificationCod
               </div>
             )}
             <Button
-              variant="blue"
+              variant="primary"
               onClick={() => editParticipantsMutation.mutate({ participants })}
               disabled={
                 disabled || !hasUnsavedChanges || isTransitioning || editParticipantsMutation.isPending
@@ -355,7 +355,7 @@ function TeamsSection(props: EditCompetitionFormProps & { verificationCode: stri
             </div>
           )}
           <Button
-            variant="blue"
+            variant="primary"
             onClick={() => editParticipantsMutation.mutate({ teams })}
             disabled={
               disabled || !hasUnsavedChanges || isTransitioning || editParticipantsMutation.isPending

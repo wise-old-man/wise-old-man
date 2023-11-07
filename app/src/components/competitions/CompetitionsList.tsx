@@ -133,7 +133,7 @@ function CompetitionAttributes(props: { competition: CompetitionListItem; showHo
           Hosted by&nbsp;
           <Link
             href={`/groups/${competition.group.id}`}
-            className="font-medium text-blue-400 hover:underline"
+            className="font-medium text-primary-400 hover:underline"
           >
             {competition.group.name}
           </Link>

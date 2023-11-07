@@ -84,7 +84,7 @@ export function PreviewMetricDialog(props: PreviewMetricDialogProps) {
         >
           <Label className="text-xs font-normal text-gray-200">Preview metric</Label>
           <MetricSelect metric={selectedMetric} onMetricSelected={setSelectedMetric} />
-          <Button type="submit" size="lg" variant="blue" className="mt-4 justify-center">
+          <Button type="submit" size="lg" variant="primary" className="mt-4 justify-center">
             Confirm
           </Button>
           <button type="button" className="text-medium mt-1 text-sm text-gray-200" onClick={handleReset}>
