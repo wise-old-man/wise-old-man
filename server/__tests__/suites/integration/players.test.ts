@@ -964,6 +964,7 @@ describe('Player API', () => {
         expect(snapshotsTimelineResponse.body[i].value).toBe(
           snapshotsResponse.body[i].data.skills.magic.experience
         );
+        expect(snapshotsTimelineResponse.body[i].rank).toBe(snapshotsResponse.body[i].data.skills.magic.rank);
         expect(snapshotsTimelineResponse.body[i].date).toBe(snapshotsResponse.body[i].createdAt);
       }
 
