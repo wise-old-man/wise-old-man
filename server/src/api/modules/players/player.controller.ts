@@ -56,13 +56,14 @@ async function track(req: Request, res: Response): Promise<ControllerResponse> {
     throw new ForbiddenError('Incorrect admin password.');
   }
 
-  // Update the player, and create a new snapshot
-  const [playerDetails, isNew] = await playerServices.updatePlayer({
-    username: getString(username),
-    skipFlagChecks: Boolean(force)
-  });
+  // // Update the player, and create a new snapshot
+  // const [playerDetails, isNew] = await playerServices.updatePlayer({
+  //   username: getString(username),
+  //   skipFlagChecks: Boolean(force)
+  // });
 
-  return { statusCode: isNew ? 201 : 200, response: playerDetails };
+  // return { statusCode: isNew ? 201 : 200, response: playerDetails };
+  throw new BadRequestError('Currently disabled until the League starts.');
 }
 
 // POST /players/:username/assert-type

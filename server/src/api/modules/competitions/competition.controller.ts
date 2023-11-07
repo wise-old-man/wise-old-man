@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { ForbiddenError } from '../../errors';
+import { BadRequestError, ForbiddenError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import * as verificationGuard from '../../guards/verification.guard';
 import { getNumber, getEnum, getString, getDate } from '../../util/validation';
@@ -201,20 +201,21 @@ async function removeTeams(req: Request): Promise<ControllerResponse> {
 }
 
 // POST /competitions/:id/update-all
-async function updateAllParticipants(req: Request): Promise<ControllerResponse> {
-  const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
+async function updateAllParticipants(_req: Request): Promise<ControllerResponse> {
+  throw new BadRequestError('Currently disabled until the League starts.');
+  // const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
-  if (!isVerifiedCode) {
-    throw new ForbiddenError('Incorrect verification code.');
-  }
+  // if (!isVerifiedCode) {
+  //   throw new ForbiddenError('Incorrect verification code.');
+  // }
 
-  const { outdatedCount, cooldownDuration } = await competitionServices.updateAllParticipants({
-    competitionId: getNumber(req.params.id)
-  });
+  // const { outdatedCount, cooldownDuration } = await competitionServices.updateAllParticipants({
+  //   competitionId: getNumber(req.params.id)
+  // });
 
-  const message = `${outdatedCount} outdated (updated > ${cooldownDuration}h ago) players are being updated. This can take up to a few minutes.`;
+  // const message = `${outdatedCount} outdated (updated > ${cooldownDuration}h ago) players are being updated. This can take up to a few minutes.`;
 
-  return { statusCode: 200, response: { message } };
+  // return { statusCode: 200, response: { message } };
 }
 
 export {
