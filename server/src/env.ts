@@ -27,5 +27,6 @@ function parseTemplate(originTemplate: string) {
 }
 
 process.env.CORE_DATABASE_URL = parseTemplate(process.env.CORE_DATABASE_URL);
+process.env.LEAGUE_DATABASE_URL = parseTemplate(process.env.LEAGUE_DATABASE_URL);
 
 export default process.env;
