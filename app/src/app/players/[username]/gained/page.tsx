@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import {
   MeasuredDeltaProgress,
   Metric,
+  MetricMeasure,
   MetricProps,
   Period,
   PeriodProps,
@@ -32,6 +33,7 @@ import {
   PlayerGainedHeatmapSkeleton,
 } from "~/components/players/PlayerGainedHeatmap";
 import { Await } from "~/components/Await";
+import { ChartViewSelect } from "~/components/players/ChartViewSelect";
 import { calculateGainBuckets } from "~/utils/calcs";
 
 export const dynamic = "force-dynamic";
@@ -258,7 +260,8 @@ interface GainedHeaderProps {
 function GainedHeader(props: GainedHeaderProps) {
   const { metric, gains } = props;
 
-  const measure = MetricProps[metric].measure;
+  let measure = MetricProps[metric].measure as string;
+  if (measure === MetricMeasure.EXPERIENCE) measure = "exp.";
 
   let values: MeasuredDeltaProgress;
 
@@ -292,8 +295,11 @@ function GainedHeader(props: GainedHeaderProps) {
             </span>
           </span>
         </div>
+        <div className="w-36">
+          <ChartViewSelect metric={metric} />
+        </div>
       </div>
-      <div className="grid grid-cols-3 divide-x divide-gray-500">
+      <div className="grid grid-cols-3 divide-x divide-gray-500 ">
         <div className="px-5 py-3">
           <span className="text-xs text-gray-200">Start</span>
           <span className="block text-sm text-white">
