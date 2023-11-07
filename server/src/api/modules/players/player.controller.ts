@@ -71,20 +71,8 @@ async function assertType(): Promise<ControllerResponse> {
 }
 
 // POST /players/:username/import-history
-async function importPlayer(req: Request): Promise<ControllerResponse> {
-  if (!adminGuard.checkAdminPermissions(req)) {
-    throw new ForbiddenError('Incorrect admin password.');
-  }
-
-  // Find the player using the username param
-  const player = await playerUtils.resolvePlayer(getString(req.params.username));
-
-  const { count } = await playerServices.importPlayerHistory(player);
-
-  return {
-    statusCode: 200,
-    response: { count, message: `Successfully imported ${count} snapshots from CML.` }
-  };
+async function importPlayer(): Promise<ControllerResponse> {
+  throw new BadRequestError('This endpoint is disabled for Leagues.');
 }
 
 // GET /players/:username

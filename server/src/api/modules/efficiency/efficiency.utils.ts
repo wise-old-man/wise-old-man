@@ -8,7 +8,6 @@ import {
   ComputedMetric,
   Metric,
   getMetricValueKey,
-  PlayerType,
   PlayerBuild,
   MAX_SKILL_EXP,
   SKILL_EXP_AT_99,
@@ -116,41 +115,18 @@ export function getRates(metric: ComputedMetric, type: EfficiencyAlgorithmType) 
   return metric === Metric.EHB ? algorithm.bossMetas : algorithm.skillMetas;
 }
 
-export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>): EfficiencyAlgorithm {
-  const { type = PlayerType.REGULAR, build = PlayerBuild.MAIN } = player || {};
+export function getAlgorithm(player?: Pick<Player, 'build'>): EfficiencyAlgorithm {
+  const { build = PlayerBuild.MAIN } = player || {};
 
-  if (
-    build === PlayerBuild.F2P &&
-    (type === PlayerType.ULTIMATE || type === PlayerType.IRONMAN || type === PlayerType.HARDCORE)
-  ) {
+  if (build === PlayerBuild.F2P) {
     return ALGORITHMS.get(EfficiencyAlgorithmType.F2P_IRONMAN);
   }
 
-  if (
-    build === PlayerBuild.F2P_LVL3 &&
-    (type === PlayerType.ULTIMATE || type === PlayerType.IRONMAN || type === PlayerType.HARDCORE)
-  ) {
+  if (build === PlayerBuild.F2P_LVL3) {
     return ALGORITHMS.get(EfficiencyAlgorithmType.F2P_LVL3_IRONMAN);
   }
 
-  if (type === PlayerType.ULTIMATE) {
-    return ALGORITHMS.get(EfficiencyAlgorithmType.ULTIMATE);
-  }
-
-  if (type === PlayerType.IRONMAN || type === PlayerType.HARDCORE) {
-    return ALGORITHMS.get(EfficiencyAlgorithmType.IRONMAN);
-  }
-
-  switch (build) {
-    case PlayerBuild.F2P_LVL3:
-      return ALGORITHMS.get(EfficiencyAlgorithmType.F2P_LVL3);
-    case PlayerBuild.F2P:
-      return ALGORITHMS.get(EfficiencyAlgorithmType.F2P);
-    case PlayerBuild.LVL3:
-      return ALGORITHMS.get(EfficiencyAlgorithmType.LVL3);
-    default:
-      return ALGORITHMS.get(EfficiencyAlgorithmType.MAIN);
-  }
+  return ALGORITHMS.get(EfficiencyAlgorithmType.IRONMAN);
 }
 
 function getBonuses(metas: SkillMetaConfig[], type?: BonusType): Bonus[] {

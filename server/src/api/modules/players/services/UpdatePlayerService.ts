@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { isTesting } from '../../../../env';
 import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
-import { PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
+import { PlayerBuild, PlayerStatus } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
 import { JobType, jobManager } from '../../../jobs';
 import * as jagexService from '../../../services/external/jagex.service';
@@ -94,7 +94,6 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   const computedMetrics = await efficiencyServices.computePlayerMetrics({
     player: {
       id: player.id,
-      type: (updatedPlayerFields.type as PlayerType) || player.type,
       build: (updatedPlayerFields.build as PlayerBuild) || player.build
     },
     snapshot: currentStats

@@ -1,13 +1,12 @@
 import { z } from 'zod';
 import { Snapshot } from '../../../../prisma';
-import { PlayerType, PlayerBuild, Metric } from '../../../../utils';
+import { PlayerBuild, Metric } from '../../../../utils';
 import * as efficiencyUtils from '../efficiency.utils';
 import * as efficiencyServices from '../efficiency.services';
 
 const inputSchema = z.object({
   player: z.object({
     id: z.number().int().positive(),
-    type: z.nativeEnum(PlayerType),
     build: z.nativeEnum(PlayerBuild)
   })
 });
@@ -31,7 +30,7 @@ async function computePlayerMetrics(payload: ComputePlayerMetricsParams) {
   const killcountMap = efficiencyUtils.getKillcountMap(snapshot);
   const experienceMap = efficiencyUtils.getExperienceMap(snapshot);
 
-  const algorithm = efficiencyUtils.getAlgorithm({ type: player.type, build: player.build });
+  const algorithm = efficiencyUtils.getAlgorithm({ build: player.build });
 
   const ehpValue = Math.max(0, algorithm.calculateEHP(experienceMap));
   const ehbValue = Math.max(0, algorithm.calculateEHB(killcountMap));

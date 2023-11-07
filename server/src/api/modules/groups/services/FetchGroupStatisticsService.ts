@@ -69,7 +69,7 @@ async function fetchGroupStatistics(payload: FetchGroupStatisticsParams): Promis
   const averageSnapshot = average(players.map(p => p.latestSnapshot));
 
   const averageEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(averageSnapshot, {
-    type: PlayerType.REGULAR,
+    type: PlayerType.IRONMAN,
     build: PlayerBuild.MAIN
   });
 

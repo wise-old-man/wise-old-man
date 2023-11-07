@@ -1,5 +1,5 @@
 import { Snapshot, Player } from '../../../prisma';
-import { FlaggedPlayerReviewContext, PlayerType } from '../../../utils';
+import { FlaggedPlayerReviewContext } from '../../../utils';
 import { jobManager, JobType } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
@@ -15,13 +15,6 @@ async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerRevi
 async function onPlayerArchived(player: Player, previousDisplayName: string) {
   const successMessage = `🟢 \`${previousDisplayName}\` has been archived. (\`${player.username}\`)`;
   await metrics.trackEffect(discordService.sendMonitoringMessage, successMessage);
-}
-
-async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
-  if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
-    // Dispatch a "HCIM player died" event to our discord bot API.
-    await metrics.trackEffect(discordService.dispatchHardcoreDied, player);
-  }
 }
 
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
@@ -65,11 +58,4 @@ async function onPlayerImported(playerId: number) {
   await metrics.trackEffect(achievementServices.reevaluatePlayerAchievements, { id: playerId });
 }
 
-export {
-  onPlayerFlagged,
-  onPlayerArchived,
-  onPlayerTypeChanged,
-  onPlayerNameChanged,
-  onPlayerUpdated,
-  onPlayerImported
-};
+export { onPlayerFlagged, onPlayerArchived, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };

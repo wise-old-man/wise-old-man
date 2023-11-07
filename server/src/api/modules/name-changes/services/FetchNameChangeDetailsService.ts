@@ -90,7 +90,7 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
   });
 
   const newPlayerComputedMetrics = await efficiencyServices.computePlayerMetrics({
-    player: newPlayer || { id: 1, type: oldPlayer.type, build: oldPlayer.build },
+    player: newPlayer || { id: 1, build: oldPlayer.build },
     snapshot: newStats
   });
 

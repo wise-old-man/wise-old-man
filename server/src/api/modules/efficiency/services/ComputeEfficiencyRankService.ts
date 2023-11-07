@@ -1,11 +1,10 @@
 import { z } from 'zod';
-import { ComputedMetric, PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
+import { ComputedMetric, PlayerBuild, PlayerStatus } from '../../../../utils';
 import prisma from '../../../../prisma';
 
 const inputSchema = z.object({
   player: z.object({
     id: z.number().int().positive(),
-    type: z.nativeEnum(PlayerType),
     build: z.nativeEnum(PlayerBuild)
   }),
   metric: z.nativeEnum(ComputedMetric),
@@ -19,7 +18,6 @@ async function computeEfficiencyRank(payload: ComputeEfficiencyRankParams): Prom
 
   const rank = await prisma.player.count({
     where: {
-      type: params.player.type,
       build: params.player.build,
       [params.metric]: { gte: params.value }
     }
@@ -33,7 +31,6 @@ async function computeEfficiencyRank(payload: ComputeEfficiencyRankParams): Prom
   const topPlayers = await prisma.player.findMany({
     where: {
       [params.metric]: { gte: params.value },
-      type: params.player.type,
       build: params.player.build,
       status: { not: PlayerStatus.ARCHIVED }
     },

@@ -11,7 +11,6 @@ async function leaderboard(req: Request): Promise<ControllerResponse> {
   const results = await efficiencyServices.findEfficiencyLeaderboards({
     metric: getEnum(req.query.metric),
     country: getEnum(req.query.country),
-    playerType: getEnum(req.query.playerType),
     playerBuild: getEnum(req.query.playerBuild),
     limit: getNumber(req.query.limit),
     offset: getNumber(req.query.offset)
