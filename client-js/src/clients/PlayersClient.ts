@@ -147,13 +147,13 @@ export default class PlayersClient extends BaseAPIClient {
 
   /**
    * Fetches all of the player's past snapshots' timeline.
-   * @returns A list of timeseries data (value, date)
+   * @returns A list of timeseries data (value, rank, date)
    */
   getPlayerSnapshotTimeline(username: string, metric: Metric, options?: TimeRangeFilter) {
-    return this.getRequest<{ value: number; date: Date }[]>(`/players/${username}/snapshots/timeline`, {
-      ...options,
-      metric
-    });
+    return this.getRequest<{ value: number; rank: number; date: Date }[]>(
+      `/players/${username}/snapshots/timeline`,
+      { ...options, metric }
+    );
   }
 
   /**
