@@ -1,4 +1,11 @@
-import { DeltaLeaderboardFilter, Metric, MetricProps, Period, PeriodProps } from "@wise-old-man/utils";
+import {
+  DeltaLeaderboardFilter,
+  Metric,
+  MetricProps,
+  Period,
+  PeriodProps,
+  PlayerType,
+} from "@wise-old-man/utils";
 import { getDeltaLeaderboard } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
@@ -15,7 +22,6 @@ export const dynamic = "force-dynamic";
 interface PageProps {
   searchParams: {
     metric?: string;
-    playerType?: string;
     playerBuild?: string;
     country?: string;
   };
@@ -37,7 +43,6 @@ export default async function TopLeaderboardsPage(props: PageProps) {
   const filters = {
     metric: getMetricParam(searchParams.metric) || Metric.OVERALL,
     country: getCountryParam(searchParams.country),
-    playerType: getPlayerTypeParam(searchParams.playerType),
     playerBuild: getPlayerBuildParam(searchParams.playerBuild),
   };
 
@@ -62,7 +67,7 @@ async function TopLeaderboard(props: TopLeaderboardProps) {
     filters.metric,
     period,
     filters.country,
-    filters.playerType,
+    undefined,
     filters.playerBuild
   );
 
