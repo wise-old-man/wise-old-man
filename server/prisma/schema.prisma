@@ -275,6 +275,7 @@ model Player {
   country          Country?
   patron           Boolean      @default(false)
   exp              BigInt       @default(0)
+  leaguePoints     Int          @default(0)
   ehp              Float        @default(0)
   ehb              Float        @default(0)
   ttm              Float        @default(0)
