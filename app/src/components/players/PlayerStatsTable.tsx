@@ -10,12 +10,7 @@ import {
   Metric,
   MetricProps,
   MetricType,
-  Player,
-  PlayerBuild,
-  PlayerBuildProps,
   PlayerDetails,
-  PlayerType,
-  PlayerTypeProps,
   Skill,
   SkillValue,
   getLevel,
@@ -177,10 +172,7 @@ function PlayerSkillsTable(
   const hiddenMetrics = getBuildHiddenMetrics(player.build);
   const filteredRows = rows.filter((row) => !hiddenMetrics.includes(row.metric));
 
-  const columnDefs = useMemo(
-    () => getSkillColumnDefinitions(player, showVirtualLevels),
-    [player, showVirtualLevels]
-  );
+  const columnDefs = useMemo(() => getSkillColumnDefinitions(showVirtualLevels), [showVirtualLevels]);
 
   return (
     <DataTable
@@ -191,7 +183,7 @@ function PlayerSkillsTable(
   );
 }
 
-function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): ColumnDef<SkillValue>[] {
+function getSkillColumnDefinitions(showVirtualLevels: boolean): ColumnDef<SkillValue>[] {
   return [
     {
       accessorKey: "skill",
@@ -199,20 +191,10 @@ function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): 
         return <TableSortButton column={column}>Skill</TableSortButton>;
       },
       cell: ({ row }) => {
-        const isSpecialEHP = player.type !== PlayerType.REGULAR || player.build !== PlayerBuild.MAIN;
-
         return (
           <div className="flex items-center gap-x-2">
             <MetricIconSmall metric={row.original.metric} />
             {MetricProps[row.original.metric].name}
-            {(row.original.metric as Metric) === Metric.EHP && isSpecialEHP && (
-              <Tooltip>
-                <TooltipTrigger>
-                  <span>(Special)</span>
-                </TooltipTrigger>
-                <TooltipContent>{getSpecialEHPRatesLabel(player)}</TooltipContent>
-              </Tooltip>
-            )}
           </div>
         );
       },
@@ -335,12 +317,12 @@ function PlayerBossesTable(props: PropsWithChildren<{ player: PlayerDetails }>) 
     ...Object.values(player.latestSnapshot.data.bosses),
   ];
 
-  const columnDefs = useMemo(() => getBossColumnDefinitions(player), [player]);
+  const columnDefs = useMemo(() => getBossColumnDefinitions(), []);
 
   return <DataTable columns={columnDefs} data={rows} headerSlot={<TableTitle>{children}</TableTitle>} />;
 }
 
-function getBossColumnDefinitions(player: Player): ColumnDef<BossValue>[] {
+function getBossColumnDefinitions(): ColumnDef<BossValue>[] {
   return [
     {
       accessorKey: "boss",
@@ -348,20 +330,10 @@ function getBossColumnDefinitions(player: Player): ColumnDef<BossValue>[] {
         return <TableSortButton column={column}>Boss</TableSortButton>;
       },
       cell: ({ row }) => {
-        const isSpecialEHB = player.type !== PlayerType.REGULAR;
-
         return (
           <div className="flex items-center gap-x-2">
             <MetricIconSmall metric={row.original.metric} />
             {MetricProps[row.original.metric].name}
-            {(row.original.metric as Metric) === Metric.EHB && isSpecialEHB && (
-              <Tooltip>
-                <TooltipTrigger>
-                  <span>(Special)</span>
-                </TooltipTrigger>
-                <TooltipContent>{PlayerTypeProps[player.type].name}</TooltipContent>
-              </Tooltip>
-            )}
           </div>
         );
       },
@@ -603,16 +575,4 @@ function TableOptionsMenu(props: TableOptionsMenuProps) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
-
-function getSpecialEHPRatesLabel(player: Player) {
-  if (player.type === PlayerType.REGULAR) {
-    return PlayerBuildProps[player.build].name;
-  }
-
-  if (player.build === PlayerBuild.MAIN) {
-    return PlayerTypeProps[player.type].name;
-  }
-
-  return `${PlayerTypeProps[player.type].name}  ·  ${PlayerBuildProps[player.build].name}`;
 }

@@ -1,21 +1,9 @@
-import {
-  DeltaLeaderboardFilter,
-  Metric,
-  MetricProps,
-  Period,
-  PeriodProps,
-  PlayerType,
-} from "@wise-old-man/utils";
+import { DeltaLeaderboardFilter, Metric, MetricProps, Period, PeriodProps } from "@wise-old-man/utils";
 import { getDeltaLeaderboard } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
-import {
-  getMetricParam,
-  getCountryParam,
-  getPlayerTypeParam,
-  getPlayerBuildParam,
-} from "~/utils/params";
+import { getMetricParam, getCountryParam, getPlayerBuildParam } from "~/utils/params";
 
 export const dynamic = "force-dynamic";
 

@@ -1,6 +1,5 @@
 import {
   isMetric,
-  isPlayerType,
   isPlayerBuild,
   isCountry,
   isComputedMetric,
@@ -16,11 +15,6 @@ import { isValidDate } from "./dates";
 
 export function getMetricParam(param: string | undefined | null) {
   if (!param || !isMetric(param)) return undefined;
-  return param;
-}
-
-export function getPlayerTypeParam(param: string | undefined | null) {
-  if (!param || !isPlayerType(param)) return undefined;
   return param;
 }
 
