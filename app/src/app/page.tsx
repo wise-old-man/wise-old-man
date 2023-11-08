@@ -17,6 +17,7 @@ import PlayersLeaderboardSVG from "../../public/img/homepage_players_leaderboard
 
 import WomPhatImage from "../../public/img/wom_phat.png";
 import WomCharacterImage from "../../public/img/homepage_wom.png";
+import WomLeagueMapImage from "../../public/img/homepage_league_map.png";
 
 import HowToStep1Image from "../../public/img/homepage_howto_step1.png";
 import HowToStep2Image from "../../public/img/homepage_howto_step2.png";
@@ -53,6 +54,11 @@ export default async function LandingPage() {
 async function HeroSection() {
   return (
     <section className="relative flex w-full items-center justify-center bg-[#24100A] py-10 md:py-0">
+      <Image
+        src={WomLeagueMapImage}
+        alt="OSRS Leagues Map"
+        className="absolute inset-0 top-10 mx-auto max-w-[100vw] opacity-5 lg:max-w-7xl"
+      />
       <div className="absolute inset-0 mx-auto max-w-[100vw] bg-hero-gradient lg:max-w-7xl" />
       <div className="flex items-center">
         <div className="flex w-auto flex-col items-start">
