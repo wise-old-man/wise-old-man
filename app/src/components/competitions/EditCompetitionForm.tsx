@@ -7,11 +7,11 @@ import {
   Metric,
   ParticipationWithPlayerAndProgress,
   Team,
-  WOMClient,
 } from "@wise-old-man/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { standardizeUsername } from "~/utils/strings";
 import { cn } from "~/utils/styling";
 import { Button } from "../Button";
@@ -159,6 +159,7 @@ function GeneralSection(props: EditCompetitionFormProps & { verificationCode: st
   const { competition, verificationCode } = props;
 
   const toast = useToast();
+  const client = useWOMClient();
   const router = useRouter();
   const [isTransitioning, startTransition] = useTransition();
 
@@ -166,10 +167,6 @@ function GeneralSection(props: EditCompetitionFormProps & { verificationCode: st
 
   const editGeneralMutation = useMutation({
     mutationFn: (payload: { title: string; metric: Metric; startsAt: Date; endsAt: Date }) => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       return client.competitions.editCompetition(competition.id, payload, verificationCode);
     },
     onSuccess: () => {
@@ -231,6 +228,7 @@ function ParticipantsSection(props: EditCompetitionFormProps & { verificationCod
   const { competition, verificationCode } = props;
 
   const toast = useToast();
+  const client = useWOMClient();
   const router = useRouter();
   const [isTransitioning, startTransition] = useTransition();
 
@@ -242,10 +240,6 @@ function ParticipantsSection(props: EditCompetitionFormProps & { verificationCod
 
   const editParticipantsMutation = useMutation({
     mutationFn: (payload: { participants: string[] }) => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       return client.competitions.editCompetition(competition.id, payload, verificationCode);
     },
     onSuccess: () => {
@@ -312,6 +306,7 @@ function TeamsSection(props: EditCompetitionFormProps & { verificationCode: stri
   const { competition, verificationCode } = props;
 
   const toast = useToast();
+  const client = useWOMClient();
   const router = useRouter();
   const [isTransitioning, startTransition] = useTransition();
 
@@ -323,10 +318,6 @@ function TeamsSection(props: EditCompetitionFormProps & { verificationCode: stri
 
   const editParticipantsMutation = useMutation({
     mutationFn: (payload: { teams: Team[] }) => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       return client.competitions.editCompetition(competition.id, payload, verificationCode);
     },
     onSuccess: () => {

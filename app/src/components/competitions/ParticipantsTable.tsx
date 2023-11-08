@@ -11,7 +11,6 @@ import {
   ParticipationWithPlayerAndProgress,
   Player,
   PlayerStatus,
-  WOMClient,
   getLevel,
   isActivity,
   isBoss,
@@ -20,6 +19,7 @@ import {
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
 import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { Button } from "../Button";
 import { DataTable } from "../DataTable";
 import { QueryLink } from "../QueryLink";
@@ -382,14 +382,11 @@ function UpdateParticipantCell(props: { player: Player; competition: Competition
   const { player, competition } = props;
 
   const toast = useToast();
+  const client = useWOMClient();
   const [hasUpdated, setHasUpdated] = useState(false);
 
   const updateMutation = useMutation({
     mutationFn: () => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       return client.players.updatePlayer(player.username);
     },
     onSuccess: () => {
