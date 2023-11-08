@@ -89,7 +89,10 @@ function Header(props: CompetitionDetails) {
             {group && (
               <span>
                 {` · Hosted by `}
-                <Link href={`/groups/${group.id}`} className="font-medium text-blue-400 hover:underline">
+                <Link
+                  href={`/groups/${group.id}`}
+                  className="font-medium text-primary-400 hover:underline"
+                >
                   {group.name}
                 </Link>
               </span>
@@ -99,7 +102,7 @@ function Header(props: CompetitionDetails) {
       </div>
       <div className="flex shrink-0 items-center gap-x-2">
         <QueryLink query={{ dialog: "update-all" }}>
-          <Button variant="blue">Update all</Button>
+          <Button variant="primary">Update all</Button>
         </QueryLink>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

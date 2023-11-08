@@ -116,7 +116,7 @@ export function CompetitionVerificationCodeCheckDialog(
           <div className="flex">
             <Button
               size="lg"
-              variant="blue"
+              variant="primary"
               className="mt-4 grow justify-center"
               disabled={verificationCode.length === 0 || checkMutation.isPending || hasValidated}
             >

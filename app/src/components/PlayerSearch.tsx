@@ -188,7 +188,7 @@ function RecentSearches() {
     <div className="relative cursor-default">
       <div className="flex items-center justify-between p-2">
         <span className="select-none text-xs text-gray-100">Recent searches</span>
-        <button className="text-xs text-blue-400 hover:underline" onClick={() => clearSearchTerms()}>
+        <button className="text-xs text-primary-400 hover:underline" onClick={() => clearSearchTerms()}>
           Clear
         </button>
       </div>

@@ -23,13 +23,13 @@ export function MetricIconSmall(props: { metric: Metric | "ehp+ehb" | "combat" }
 }
 
 export function PlayerTypeIcon(props: { playerType: PlayerType; className?: string }) {
-  const { playerType, className } = props;
+  const { className } = props;
   return (
     <Image
-      width={10}
-      height={13}
-      alt={playerType}
-      src={`/img/player_types/${playerType}.png`}
+      width={18}
+      height={18}
+      alt="League - Trailblazer Reloaded"
+      src={`/img/player_types/league.png`}
       className={cn("shrink-0", className)}
       style={{ imageRendering: "pixelated" }}
     />

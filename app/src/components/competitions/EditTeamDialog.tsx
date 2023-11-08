@@ -97,7 +97,7 @@ export function EditTeamDialog(props: EditTeamDialogProps) {
               <button
                 type="button"
                 onClick={() => setShowingImportDialog(true)}
-                className="text-xs font-medium text-blue-400 hover:underline"
+                className="text-xs font-medium text-primary-400 hover:underline"
               >
                 Import list
               </button>
@@ -129,7 +129,7 @@ export function EditTeamDialog(props: EditTeamDialogProps) {
           </div>
           <Button
             size="lg"
-            variant="blue"
+            variant="primary"
             className="justify-center"
             disabled={name.length === 0 || participants.length === 0}
           >

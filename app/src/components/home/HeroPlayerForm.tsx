@@ -63,7 +63,7 @@ export function HeroPlayerForm() {
           <Button
             className="-mr-1 h-8"
             disabled={submitMutation.isPending || isTransitioning || username.length === 0}
-            variant="blue"
+            variant="primary"
           >
             Track
             {submitMutation.isPending || isTransitioning ? (

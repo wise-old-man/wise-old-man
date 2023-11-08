@@ -6,7 +6,6 @@ import {
   PlayerBuildProps,
   PlayerDetails,
   PlayerStatus,
-  PlayerTypeProps,
 } from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
 import { getPlayerDetails } from "~/services/wiseoldman";
@@ -18,7 +17,6 @@ import { PlayerNavigation } from "~/components/players/PlayerNavigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { UpdatePlayerForm } from "~/components/players/UpdatePlayerForm";
 import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
-import { AssertPlayerTypeForm } from "~/components/players/AssertPlayerTypeForm";
 import { NameChangeSubmissionDialog } from "~/components/NameChangeSubmissionDialog";
 import { PlayerGainedCustomPeriodDialog } from "~/components/players/PlayerGainedCustomPeriodDialog";
 import {
@@ -110,7 +108,6 @@ function Header(props: PlayerDetails) {
             <QueryLink query={{ dialog: "submit-name" }}>
               <DropdownMenuItem>Submit name change</DropdownMenuItem>
             </QueryLink>
-            <AssertPlayerTypeForm player={props} />
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -253,7 +250,7 @@ function PlayerStatusAlert(props: { player: Player }) {
 }
 
 function PlayerAttributes(props: PlayerDetails) {
-  const { status, type, build, latestSnapshot } = props;
+  const { status, build, latestSnapshot } = props;
 
   const elements: React.ReactNode[] = [];
 
@@ -266,8 +263,6 @@ function PlayerAttributes(props: PlayerDetails) {
   } else if (status === PlayerStatus.ARCHIVED) {
     elements.push(<span className="text-red-400">Archived</span>);
   }
-
-  elements.push(<span>{PlayerTypeProps[type].name}</span>);
 
   if (build !== PlayerBuild.MAIN) {
     elements.push(<span>{PlayerBuildProps[build].name}</span>);

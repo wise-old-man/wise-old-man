@@ -80,7 +80,12 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
             </div>
           </div>
           <div className="mt-5 w-full grow border-t border-gray-700">
-            <Button disabled={isPending} size="lg" variant="blue" className="mt-5 w-full justify-center">
+            <Button
+              disabled={isPending}
+              size="lg"
+              variant="primary"
+              className="mt-5 w-full justify-center"
+            >
               {isPending ? (
                 <>
                   <LoadingIcon className="-ml-2 mr-2 h-5 w-5 animate-spin" />

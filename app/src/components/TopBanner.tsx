@@ -5,7 +5,7 @@ interface TopBannerProps {
 
 export function TopBanner(props: TopBannerProps) {
   return (
-    <div className="flex items-center justify-between gap-x-4 bg-blue-600 p-3">
+    <div className="flex items-center justify-between gap-x-4 bg-primary-600 p-3">
       <span className="text-sm">{props.body}</span>
       {props.cta}
     </div>

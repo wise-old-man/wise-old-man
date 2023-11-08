@@ -88,7 +88,7 @@ export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
           </p>
           <p className="mt-5">
             Dont&apos;t have a group yet?{" "}
-            <Link href="/groups/create" className="text-blue-400">
+            <Link href="/groups/create" className="text-primary-400">
               Create one here
             </Link>
           </p>

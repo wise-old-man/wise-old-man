@@ -91,7 +91,7 @@ export function CompetitionParticipantsForm(props: CompetitionParticipantsFormPr
               <Label className="text-xs text-gray-200">Add participants ({participants.length})</Label>
               <button
                 onClick={() => setShowingImportDialog(true)}
-                className="text-xs font-medium text-blue-400 hover:underline"
+                className="text-xs font-medium text-primary-400 hover:underline"
               >
                 Import list
               </button>

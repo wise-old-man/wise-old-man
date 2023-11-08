@@ -21,6 +21,7 @@ import DiscordIcon from "~/assets/discord.svg";
 import PatreonIcon from "~/assets/patreon.svg";
 import RuneliteIcon from "~/assets/runelite.svg";
 import NewspaperIcon from "~/assets/newspaper.svg";
+import ArrowRightIcon from "~/assets/arrow_right.svg";
 import LeaderboardsIcon from "~/assets/leaderboards.svg";
 
 const ROUTES = [
@@ -32,7 +33,6 @@ const ROUTES = [
 ];
 
 const EXTERNAL_LINKS = [
-  { label: "Discord Bot", href: "https://bot.wiseoldman.net/", icon: DiscordIcon },
   {
     label: "RuneLite Plugin",
     href: "https://runelite.net/plugin-hub/show/wom-utils",
@@ -148,7 +148,7 @@ function SideBar(props: SideBarProps) {
               className={cn(
                 "flex items-center px-7 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700",
                 currentRouteHref === link.href &&
-                  "border-l-2 border-blue-500 bg-gray-700/50 px-[1.625rem] text-white hover:bg-gray-700/50"
+                  "border-l-2 border-primary-500 bg-gray-700/50 px-[1.625rem] text-white hover:bg-gray-700/50"
               )}
               onClick={onRouteSelected}
             >
@@ -172,7 +172,7 @@ function SideBar(props: SideBarProps) {
               <div className="relative mr-2">
                 <NewspaperIcon className="h-5 w-5" />
                 {hasUnreadChangelog && (
-                  <div className="absolute right-0 top-0 h-2 w-2 rounded-full bg-blue-600" />
+                  <div className="absolute right-0 top-0 h-2 w-2 rounded-full bg-primary-600" />
                 )}
               </div>
               Changelog
@@ -202,26 +202,37 @@ function SideBar(props: SideBarProps) {
 
 function SocialLinks() {
   return (
-    <ul className="mx-5 mb-5 flex justify-between pt-10">
-      {SOCIAL_LINKS.map((link) => (
-        <li key={link.href}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <a
-                aria-label={link.label}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block rounded-lg bg-gray-700 p-3 shadow-inner-border hover:bg-gray-600"
-              >
-                <link.icon alt={link.label} className="h-5 w-5" />
-              </a>
-            </TooltipTrigger>
-            <TooltipContent>{link.label}</TooltipContent>
-          </Tooltip>
-        </li>
-      ))}
-    </ul>
+    <div className="mx-5 mb-5 flex flex-col pt-10">
+      <a
+        href="https://wiseoldman.net"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mb-4 flex w-full items-center justify-between rounded-md border border-gray-400 bg-gray-700 px-3 py-2 text-sm font-medium text-gray-200 shadow-sm hover:border-gray-300 hover:bg-gray-600 hover:text-gray-100"
+      >
+        Main website
+        <ArrowRightIcon className="h-5 w-5" />
+      </a>
+      <ul className="flex justify-between">
+        {SOCIAL_LINKS.map((link) => (
+          <li key={link.href}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a
+                  aria-label={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-lg bg-gray-700 p-3 shadow-inner-border hover:bg-gray-600"
+                >
+                  <link.icon alt={link.label} className="h-5 w-5" />
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>{link.label}</TooltipContent>
+            </Tooltip>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

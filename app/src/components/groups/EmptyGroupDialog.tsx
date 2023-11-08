@@ -28,7 +28,7 @@ export function EmptyGroupDialog(props: EmptyGroupDialogProps) {
         </DialogHeader>
         <div className="mt-3 flex justify-end gap-x-3">
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={onConfirm} variant="blue">
+          <Button onClick={onConfirm} variant="primary">
             Confirm
           </Button>
         </div>

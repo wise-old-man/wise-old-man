@@ -13,7 +13,7 @@ import {
   Cell,
 } from "recharts";
 
-const DEFAULT_BAR_COLOR = "#3b82f6";
+const DEFAULT_BAR_COLOR = "#E66F2A";
 const NEGATIVE_BAR_COLOR = "#dc2626";
 const GRID_STYLE = { stroke: "#1f2937" };
 const AXIS_TICK_STYLE = { fill: "#6b7280", fontSize: "0.75rem" };

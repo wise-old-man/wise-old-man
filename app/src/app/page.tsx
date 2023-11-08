@@ -17,6 +17,7 @@ import PlayersLeaderboardSVG from "../../public/img/homepage_players_leaderboard
 
 import WomPhatImage from "../../public/img/wom_phat.png";
 import WomCharacterImage from "../../public/img/homepage_wom.png";
+import WomLeagueMapImage from "../../public/img/homepage_league_map.png";
 
 import HowToStep1Image from "../../public/img/homepage_howto_step1.png";
 import HowToStep2Image from "../../public/img/homepage_howto_step2.png";
@@ -34,6 +35,7 @@ import PatreonIcon from "~/assets/patreon.svg";
 import DiscordIcon from "~/assets/discord.svg";
 import BullhornIcon from "~/assets/bullhorn.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
+import TrailblazerBadge from "../../public/img/trailblazer_edition_badge.svg";
 
 export default async function LandingPage() {
   return (
@@ -51,17 +53,22 @@ export default async function LandingPage() {
 
 async function HeroSection() {
   return (
-    <section className="relative flex w-full items-center justify-center bg-[#10141f] py-10 md:py-0">
+    <section className="relative flex w-full items-center justify-center bg-[#24100A] py-10 md:py-0">
+      <Image
+        src={WomLeagueMapImage}
+        alt="OSRS Leagues Map"
+        className="absolute inset-0 top-10 mx-auto max-w-[100vw] opacity-5 lg:max-w-7xl"
+      />
       <div className="absolute inset-0 mx-auto max-w-[100vw] bg-hero-gradient lg:max-w-7xl" />
       <div className="flex items-center">
         <div className="flex w-auto flex-col items-start">
           <div className="z-10 flex flex-col px-5 pb-12 pt-14 md:px-14">
-            <span className="text-xs">Hi, meet the</span>
-            <h1 className="my-0.5 bg-gradient-to-t from-blue-700 to-blue-500 bg-clip-text text-4xl font-bold uppercase text-transparent md:my-1 lg:text-3xl xl:text-5xl">
+            <TrailblazerBadge className="mb-2" />
+            <h1 className="my-0.5 bg-gradient-to-t from-primary-700 to-primary-500 bg-clip-text text-4xl font-bold uppercase text-transparent md:my-1 lg:text-3xl xl:text-5xl">
               Wise Old Man
             </h1>
             <p className="relative mt-2 text-body text-gray-100">
-              The <span className="text-blue-400">open source</span> Old School Runescape
+              The <span className="text-primary-400">open source</span> Old School Runescape
               <br />
               player progress tracker.
             </p>
@@ -71,8 +78,8 @@ async function HeroSection() {
         <div className="hidden overflow-hidden pt-20 md:block">
           <Image
             src={WomCharacterImage}
-            width={359}
-            height={441}
+            width={341}
+            height={471}
             alt="Wise Old Man - In-game NPC"
             className="translate-y-[2rem]"
           />
@@ -131,7 +138,7 @@ function PlayersSection() {
         allows you to:
       </p>
       <div className="mt-16 grid w-full grid-cols-1 gap-5 md:grid-cols-2">
-        <div className="flex flex-col items-center overflow-hidden rounded-xl border border-gray-600 bg-gradient-to-b from-[#0B1120]/50 to-gray-900 p-10 xl:overflow-visible">
+        <div className="flex flex-col items-center overflow-hidden rounded-xl border border-gray-600 bg-gradient-to-b from-[#20100B]/50 to-gray-900 p-10 xl:overflow-visible">
           <h3 className="text-center text-xl font-medium leading-8 text-gray-100 md:text-left lg:max-w-[23rem]">
             Check your gains, all-time records and collect achievements
           </h3>
@@ -150,7 +157,7 @@ function PlayersSection() {
           </div>
         </div>
         <div className="flex flex-col gap-y-5">
-          <div className="flex grow flex-col justify-between gap-y-7 rounded-xl border border-gray-600 bg-gradient-to-b from-[#0B1120]/50 to-gray-900 px-10 pt-7 md:gap-y-0">
+          <div className="flex grow flex-col justify-between gap-y-7 rounded-xl border border-gray-600 bg-gradient-to-b from-[#20100B]/50 to-gray-900 px-10 pt-7 md:gap-y-0">
             <h3 className="mx-auto max-w-[10rem] text-center text-xl font-medium leading-8 text-gray-100">
               Visualise your in-game activity
             </h3>
@@ -159,7 +166,7 @@ function PlayersSection() {
               <div className="absolute inset-0 bg-gradient-to-b from-gray-900/0 to-gray-900" />
             </div>
           </div>
-          <div className="flex grow flex-col justify-between gap-y-7 rounded-xl border border-gray-600 bg-gradient-to-b from-[#0B1120]/50 to-gray-900 px-10 pt-7 md:gap-y-0">
+          <div className="flex grow flex-col justify-between gap-y-7 rounded-xl border border-gray-600 bg-gradient-to-b from-[#20100B]/50 to-gray-900 px-10 pt-7 md:gap-y-0">
             <h3 className="mx-auto max-w-[12rem] text-center text-xl font-medium leading-8 text-gray-100">
               Compete for ranks in the leaderboards
             </h3>
@@ -358,10 +365,10 @@ function HowItWorksSection() {
       <div className="mt-16 flex max-w-2xl flex-col md:w-full">
         <div className="flex w-full gap-x-8">
           <div className="relative mt-10">
-            <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-blue-500 bg-gray-900 text-base">
+            <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-primary-500 bg-gray-900 text-base">
               1
             </div>
-            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-blue-500" />
+            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-primary-500" />
           </div>
           <HowToStep
             title="You update your profile"
@@ -371,10 +378,10 @@ function HowItWorksSection() {
         </div>
         <div className="flex w-full gap-x-8">
           <div className="relative">
-            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-blue-500 bg-gray-900 text-base">
+            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-primary-500 bg-gray-900 text-base">
               2
             </div>
-            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-blue-500" />
+            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-primary-500" />
           </div>
           <HowToStep
             title="We save your current stats"
@@ -384,10 +391,10 @@ function HowItWorksSection() {
         </div>
         <div className="flex w-full gap-x-8">
           <div className="relative">
-            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-blue-500 bg-gray-900 text-base">
+            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-primary-500 bg-gray-900 text-base">
               3
             </div>
-            <div className="absolute left-[1.125rem] top-0 h-12 w-px grow bg-blue-500" />
+            <div className="absolute left-[1.125rem] top-0 h-12 w-px grow bg-primary-500" />
           </div>
           <HowToStep
             title="We calculate your progress"
