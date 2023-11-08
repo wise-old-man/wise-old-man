@@ -13,6 +13,7 @@ import {
 } from "@wise-old-man/utils";
 import { useState } from "react";
 import { DateValue, TimeValue } from "react-aria";
+import { cn } from "~/utils/styling";
 import { useHasMounted } from "~/hooks/useHasMounted";
 import {
   Combobox,
@@ -26,6 +27,7 @@ import {
   ComboboxSeparator,
   ComboboxTrigger,
 } from "../Combobox";
+import { Alert, AlertDescription, AlertTitle } from "../Alert";
 import { DateTimePicker, TimeField, toCalendarDate, toDate } from "../DatePicker";
 import { MetricIconSmall } from "../Icon";
 import { Input } from "../Input";
@@ -213,63 +215,84 @@ function MetricSelect(props: MetricSelectProps) {
   const { metric, onMetricSelected } = props;
 
   return (
-    <Combobox
-      value={metric}
-      onValueChanged={(val) => {
-        if (val === undefined) {
-          onMetricSelected(Metric.OVERALL);
-        } else if (isMetric(val)) {
-          onMetricSelected(val);
-        }
-      }}
-    >
-      <ComboboxButton className="w-full bg-gray-800 hover:bg-gray-700">
-        <div className="flex items-center gap-x-2">
-          <MetricIconSmall metric={metric} />
-          <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
-        </div>
-      </ComboboxButton>
-      <ComboboxContent className="max-h-64">
-        <ComboboxInput placeholder="Search metrics..." />
-        <ComboboxEmpty>No results were found</ComboboxEmpty>
-        <ComboboxItemsContainer>
-          <ComboboxItemGroup label="Skills">
-            {SKILLS.map((skill) => (
-              <ComboboxItem key={skill} value={skill}>
-                <MetricIconSmall metric={skill} />
-                {MetricProps[skill].name}
-              </ComboboxItem>
-            ))}
-          </ComboboxItemGroup>
-          <ComboboxSeparator />
-          <ComboboxItemGroup label="Bosses">
-            {BOSSES.map((boss) => (
-              <ComboboxItem key={boss} value={boss}>
-                <MetricIconSmall metric={boss} />
-                {MetricProps[boss].name}
-              </ComboboxItem>
-            ))}
-          </ComboboxItemGroup>
-          <ComboboxSeparator />
-          <ComboboxItemGroup label="Activities">
-            {ACTIVITIES.map((activity) => (
-              <ComboboxItem key={activity} value={activity}>
-                <MetricIconSmall metric={activity} />
-                {MetricProps[activity].name}
-              </ComboboxItem>
-            ))}
-          </ComboboxItemGroup>
-          <ComboboxItemGroup label="Computed">
-            {COMPUTED_METRICS.map((computed) => (
-              <ComboboxItem key={computed} value={computed}>
-                <MetricIconSmall metric={computed} />
-                {MetricProps[computed].name}
-              </ComboboxItem>
-            ))}
-          </ComboboxItemGroup>
-        </ComboboxItemsContainer>
-      </ComboboxContent>
-    </Combobox>
+    <>
+      <Combobox
+        value={metric}
+        onValueChanged={(val) => {
+          if (val === undefined) {
+            onMetricSelected(Metric.OVERALL);
+          } else if (isMetric(val)) {
+            onMetricSelected(val);
+          }
+        }}
+      >
+        <ComboboxButton
+          className={cn(
+            "w-full bg-gray-800 hover:bg-gray-700",
+            metric === Metric.LEAGUE_POINTS && "border border-red-800"
+          )}
+        >
+          <div className="flex items-center gap-x-2">
+            <MetricIconSmall metric={metric} />
+            <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
+          </div>
+        </ComboboxButton>
+        <ComboboxContent className="max-h-64">
+          <ComboboxInput placeholder="Search metrics..." />
+          <ComboboxEmpty>No results were found</ComboboxEmpty>
+          <ComboboxItemsContainer>
+            <ComboboxItemGroup label="Skills">
+              {SKILLS.map((skill) => (
+                <ComboboxItem key={skill} value={skill}>
+                  <MetricIconSmall metric={skill} />
+                  {MetricProps[skill].name}
+                </ComboboxItem>
+              ))}
+            </ComboboxItemGroup>
+            <ComboboxSeparator />
+            <ComboboxItemGroup label="Bosses">
+              {BOSSES.map((boss) => (
+                <ComboboxItem key={boss} value={boss}>
+                  <MetricIconSmall metric={boss} />
+                  {MetricProps[boss].name}
+                </ComboboxItem>
+              ))}
+            </ComboboxItemGroup>
+            <ComboboxSeparator />
+            <ComboboxItemGroup label="Activities">
+              {ACTIVITIES.map((activity) => (
+                <ComboboxItem key={activity} value={activity}>
+                  <MetricIconSmall metric={activity} />
+                  {MetricProps[activity].name}
+                </ComboboxItem>
+              ))}
+            </ComboboxItemGroup>
+            <ComboboxItemGroup label="Computed">
+              {COMPUTED_METRICS.map((computed) => (
+                <ComboboxItem key={computed} value={computed}>
+                  <MetricIconSmall metric={computed} />
+                  {MetricProps[computed].name}
+                </ComboboxItem>
+              ))}
+            </ComboboxItemGroup>
+          </ComboboxItemsContainer>
+        </ComboboxContent>
+      </Combobox>
+      {metric === Metric.LEAGUE_POINTS && (
+        <Alert className="mt-6 pb-4" variant="error">
+          <AlertTitle>League Points competitions are not supported on this website.</AlertTitle>
+          <AlertDescription>
+            <p className="mb-3">{`You might want to use the "Trailblazer Reloaded" version of our website that does allow you to create League-specific competitions.`}</p>
+            <a
+              href="https://league.wiseoldman.net"
+              className="font-medium text-blue-400 hover:text-blue-400"
+            >
+              Go to Trailblazer Reloaded Website
+            </a>
+          </AlertDescription>
+        </Alert>
+      )}
+    </>
   );
 }
 
