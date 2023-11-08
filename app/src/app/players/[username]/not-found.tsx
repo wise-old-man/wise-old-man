@@ -1,10 +1,10 @@
 "use client";
 
 import { useTransition } from "react";
-import { WOMClient } from "@wise-old-man/utils";
 import { useMutation } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { Button } from "~/components/Button";
 
 import LoadingIcon from "~/assets/loading.svg";
@@ -15,12 +15,12 @@ export default function PlayerNotFound() {
 
   const toast = useToast();
   const router = useRouter();
+  const client = useWOMClient();
 
   const [isTransitioning, startTransition] = useTransition();
 
   const updateMutation = useMutation({
     mutationFn: () => {
-      const client = new WOMClient({ userAgent: "WiseOldMan - App v2 (Client Side)" });
       return client.players.updatePlayer(username);
     },
     onSuccess: (player) => {

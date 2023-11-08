@@ -3,8 +3,8 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { WOMClient } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { cn } from "~/utils/styling";
 import { Input } from "./Input";
 import { Label } from "./Label";
@@ -54,6 +54,7 @@ export function NameChangeSubmissionDialog(props: NameChangeSubmissionDialogProp
 function SubmitNameChangeForm(props: NameChangeSubmissionDialogProps) {
   const toast = useToast();
   const router = useRouter();
+  const client = useWOMClient();
 
   const [isTransitioning, startTransition] = useTransition();
 
@@ -65,10 +66,6 @@ function SubmitNameChangeForm(props: NameChangeSubmissionDialogProps) {
 
   const submitMutation = useMutation({
     mutationFn: (params: { oldName: string; newName: string }) => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       return client.nameChanges.submitNameChange(params.oldName, params.newName);
     },
     onSuccess: () => {

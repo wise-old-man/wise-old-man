@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { GroupListItem, WOMClient } from "@wise-old-man/utils";
+import { GroupListItem } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { cn } from "~/utils/styling";
 import { Alert, AlertDescription } from "../Alert";
 import { Input } from "../Input";
@@ -28,6 +29,7 @@ interface CompetitionGroupFormProps {
 
 export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
   const toast = useToast();
+  const client = useWOMClient();
 
   const { group, onSkip, onGroupSelected, onCodeConfirmed } = props;
 
@@ -40,10 +42,6 @@ export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
   const checkMutation = useMutation({
     mutationFn: async () => {
       if (!group || !groupVerificationCode) return;
-
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
 
       try {
         await client.groups.editGroup(group.id, {}, groupVerificationCode);

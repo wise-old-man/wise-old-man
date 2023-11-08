@@ -3,8 +3,9 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { Player, PlayerTypeProps, WOMClient } from "@wise-old-man/utils";
+import { Player, PlayerTypeProps } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { DropdownMenuItem } from "../Dropdown";
 
 import LoadingIcon from "~/assets/loading.svg";
@@ -13,16 +14,13 @@ export function AssertPlayerTypeForm(props: { player: Player }) {
   const { player } = props;
 
   const toast = useToast();
+  const client = useWOMClient();
   const router = useRouter();
 
   const [isTransitioning, startTransition] = useTransition();
 
   const assertMutation = useMutation({
     mutationFn: () => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       return client.players.assertPlayerType(player.username);
     },
     onSuccess: (result) => {

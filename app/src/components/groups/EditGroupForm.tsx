@@ -9,7 +9,6 @@ import {
   GroupRole,
   GroupRoleProps,
   MembershipWithPlayer,
-  WOMClient,
 } from "@wise-old-man/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -45,6 +44,7 @@ import { GroupVerificationCodeCheckDialog } from "./GroupVerificationCodeCheckDi
 import WarningIcon from "~/assets/warning.svg";
 import LoadingIcon from "~/assets/loading.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
+import { useWOMClient } from "~/hooks/useWOMClient";
 
 interface EditGroupFormProps {
   group: GroupDetails;
@@ -99,6 +99,7 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
 
   const toast = useToast();
   const router = useRouter();
+  const client = useWOMClient();
 
   const [isTransitioning, startTransition] = useTransition();
 
@@ -114,10 +115,6 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
 
   const editMembersMutation = useMutation({
     mutationFn: (members: GroupMemberFragment[]) => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       return client.groups.editGroup(group.id, { members }, verificationCode);
     },
     onSuccess: () => {
@@ -289,6 +286,7 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
 
   const toast = useToast();
   const router = useRouter();
+  const client = useWOMClient();
 
   const [isTransitioning, startTransition] = useTransition();
 
@@ -299,10 +297,6 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
       homeworld: number | undefined;
       description: string | undefined;
     }) => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       return client.groups.editGroup(group.id, payload, verificationCode);
     },
     onSuccess: () => {
