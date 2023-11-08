@@ -34,6 +34,7 @@ import PatreonIcon from "~/assets/patreon.svg";
 import DiscordIcon from "~/assets/discord.svg";
 import BullhornIcon from "~/assets/bullhorn.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
+import TrailblazerBadge from "../../public/img/trailblazer_edition_badge.svg";
 
 export default async function LandingPage() {
   return (
@@ -56,7 +57,7 @@ async function HeroSection() {
       <div className="flex items-center">
         <div className="flex w-auto flex-col items-start">
           <div className="z-10 flex flex-col px-5 pb-12 pt-14 md:px-14">
-            <span className="text-xs">Hi, meet the</span>
+            <TrailblazerBadge className="mb-2" />
             <h1 className="my-0.5 bg-gradient-to-t from-primary-700 to-primary-500 bg-clip-text text-4xl font-bold uppercase text-transparent md:my-1 lg:text-3xl xl:text-5xl">
               Wise Old Man
             </h1>
