@@ -5,7 +5,7 @@ import { NotFoundError, BadRequestError } from '../../../errors';
 import { jobManager, JobType } from '../../../jobs';
 
 const inputSchema = z.object({
-  groupId: z.number().positive()
+  groupId: z.number().int().positive()
 });
 
 type UpdateAllMembersParams = z.infer<typeof inputSchema>;

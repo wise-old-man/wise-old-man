@@ -17,7 +17,7 @@ const MEMBER_INPUT_SCHEMA = z.object(
 );
 
 const inputSchema = z.object({
-  id: z.number().positive(),
+  id: z.number().int().positive(),
   members: z
     .array(MEMBER_INPUT_SCHEMA, { invalid_type_error: "Parameter 'members' is not a valid array." })
     .nonempty({ message: 'Empty members list.' })

@@ -6,7 +6,7 @@ import { BadRequestError, NotFoundError } from '../../../errors';
 import { sanitizeTitle } from '../competition.utils';
 
 const inputSchema = z.object({
-  id: z.number().positive(),
+  id: z.number().int().positive(),
   teamNames: z
     .array(z.string({ invalid_type_error: 'All team names must be non-empty strings.' }), {
       invalid_type_error: "Parameter 'teamNames' is not a valid array.",

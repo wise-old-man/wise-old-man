@@ -2,8 +2,8 @@ import { z } from 'zod';
 import prisma from '../../../../prisma';
 
 const inputSchema = z.object({
-  groupId: z.number().positive(),
-  playerIds: z.number().positive().array()
+  groupId: z.number().int().positive(),
+  playerIds: z.number().int().positive().array()
 });
 
 type RemoveFromGroupCompetitionsParams = z.infer<typeof inputSchema>;

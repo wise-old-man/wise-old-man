@@ -3,7 +3,7 @@ import prisma from '../../../../prisma';
 import { ServerError } from '../../../errors';
 
 const inputSchema = z.object({
-  playerId: z.number().positive(),
+  playerId: z.number().int().positive(),
   deleteAllSince: z.date().optional()
 });
 

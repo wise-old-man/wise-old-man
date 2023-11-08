@@ -11,7 +11,7 @@ import { SnapshotDataSource, SnapshotFragment } from '../../snapshots/snapshot.t
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 
 const inputSchema = z.object({
-  id: z.number().positive(),
+  id: z.number().int().positive(),
   username: z.string(),
   lastImportedAt: z.date().or(z.null())
 });

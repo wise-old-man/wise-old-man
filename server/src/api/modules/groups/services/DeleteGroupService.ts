@@ -4,7 +4,7 @@ import { ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 
 const inputSchema = z.object({
-  id: z.number().positive()
+  id: z.number().int().positive()
 });
 
 type DeleteGroupParams = z.infer<typeof inputSchema>;

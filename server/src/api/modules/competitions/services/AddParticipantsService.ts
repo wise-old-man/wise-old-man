@@ -7,7 +7,7 @@ import * as playerServices from '../../players/player.services';
 import { validateInvalidParticipants, validateParticipantDuplicates } from '../competition.utils';
 
 const inputSchema = z.object({
-  id: z.number().positive(),
+  id: z.number().int().positive(),
   participants: z
     // Allowing "any" so that we could do better error messages below
     .array(z.string().or(z.any()).optional(), {

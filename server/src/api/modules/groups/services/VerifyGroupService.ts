@@ -6,7 +6,7 @@ import logger from '../../../util/logging';
 import { GroupListItem } from '../group.types';
 
 const inputSchema = z.object({
-  id: z.number().positive()
+  id: z.number().int().positive()
 });
 
 type VerifyGroupService = z.infer<typeof inputSchema>;

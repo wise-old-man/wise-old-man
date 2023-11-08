@@ -6,7 +6,7 @@ import { NotFoundError } from '../../../errors';
 import { GroupDetails } from '../group.types';
 
 const inputSchema = z.object({
-  id: z.number().positive()
+  id: z.number().int().positive()
 });
 
 type FetchGroupDetailsParams = z.infer<typeof inputSchema>;

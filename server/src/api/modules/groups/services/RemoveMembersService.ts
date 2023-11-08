@@ -8,7 +8,7 @@ import { ActivityType } from '../group.types';
 import { fetchGroupDetails } from './FetchGroupDetailsService';
 
 const inputSchema = z.object({
-  id: z.number().positive(),
+  id: z.number().int().positive(),
   usernames: z
     .array(z.string(), { invalid_type_error: "Parameter 'members' is not a valid array." })
     .nonempty({ message: 'Empty members list.' })

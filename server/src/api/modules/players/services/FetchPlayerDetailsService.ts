@@ -8,7 +8,7 @@ import { formatPlayerDetails, standardize } from '../player.utils';
 
 const inputSchema = z
   .object({
-    id: z.number().positive().optional(),
+    id: z.number().int().positive().optional(),
     username: z.string().optional()
   })
   .refine(s => s.id || s.username, {
