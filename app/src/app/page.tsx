@@ -72,8 +72,8 @@ async function HeroSection() {
         <div className="hidden overflow-hidden pt-20 md:block">
           <Image
             src={WomCharacterImage}
-            width={359}
-            height={441}
+            width={341}
+            height={471}
             alt="Wise Old Man - In-game NPC"
             className="translate-y-[2rem]"
           />
