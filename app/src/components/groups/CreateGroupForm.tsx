@@ -15,7 +15,7 @@ import { cn } from "~/utils/styling";
 import { useToast } from "~/hooks/useToast";
 import { useWOMClient } from "~/hooks/useWOMClient";
 import { createContext, useContext, useState } from "react";
-import { Button } from "~/components/Button";
+import { Button } from "../Button";
 import {
   Combobox,
   ComboboxContent,
@@ -25,18 +25,21 @@ import {
   ComboboxItemGroup,
   ComboboxItemsContainer,
   ComboboxTrigger,
-} from "~/components/Combobox";
-import { Container } from "~/components/Container";
-import { DataTable } from "~/components/DataTable";
-import { GroupRoleIcon } from "~/components/Icon";
-import { Label } from "~/components/Label";
-import { PlayerSearch } from "~/components/PlayerSearch";
-import { GroupInformationForm } from "~/components/groups/GroupInformationForm";
-import { ImportFromCMLDialog } from "~/components/groups/ImportFromCMLDialog";
-import { ImportFromTempleDialog } from "~/components/groups/ImportFromTempleDialog";
-import { ImportFromFileDialog } from "~/components/groups/ImportFromFileDialog";
-import { EmptyGroupDialog } from "~/components/groups/EmptyGroupDialog";
-import { SaveGroupVerificationCodeDialog } from "~/components/groups/SaveGroupVerificationCodeDialog";
+} from "../Combobox";
+import { Container } from "../Container";
+import { DataTable } from "../DataTable";
+import { GroupRoleIcon } from "../Icon";
+import { Label } from "../Label";
+import { PlayerSearch } from "../PlayerSearch";
+import { Alert, AlertDescription, AlertTitle } from "../Alert";
+import { QueryLink } from "../QueryLink";
+import { CloneGroupDialog } from "./CloneGroupDialog";
+import { GroupInformationForm } from "../groups/GroupInformationForm";
+import { ImportFromCMLDialog } from "../groups/ImportFromCMLDialog";
+import { ImportFromTempleDialog } from "../groups/ImportFromTempleDialog";
+import { ImportFromFileDialog } from "../groups/ImportFromFileDialog";
+import { EmptyGroupDialog } from "../groups/EmptyGroupDialog";
+import { SaveGroupVerificationCodeDialog } from "../groups/SaveGroupVerificationCodeDialog";
 import { standardizeUsername } from "~/utils/strings";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
@@ -129,6 +132,24 @@ export function CreateGroupForm() {
           />
         </div>
         <h2 className="mt-3 text-sm text-white">{stepLabel}</h2>
+
+        <Alert className="my-10">
+          <AlertTitle>Already have a group in the main website?</AlertTitle>
+          <AlertDescription>
+            <p>You can easily clone that group on this League website.</p>
+            <p className="mb-5 mt-3 underline">
+              Please keep in mind that these two groups will not be linked, and any changes in one will
+              not be reflected in the other.
+            </p>
+            <QueryLink
+              className="font-medium text-primary-400 hover:text-primary-300 hover:underline"
+              query={{ dialog: "clone-group" }}
+            >
+              Clone existing group
+            </QueryLink>
+          </AlertDescription>
+        </Alert>
+
         <div className="mt-10">
           {step === "info" && (
             <GroupInformationForm
@@ -205,6 +226,13 @@ export function CreateGroupForm() {
             setShowingEmptyGroupDialog(false);
           }}
         />
+        {!createMutation.data && (
+          <CloneGroupDialog
+            onSubmit={(payload) => {
+              createMutation.mutate(payload);
+            }}
+          />
+        )}
       </Container>
     </CreateGroupContext.Provider>
   );
