@@ -16,7 +16,7 @@ class MetricsService {
 
   constructor() {
     this.registry = new prometheus.Registry();
-    this.registry.setDefaultLabels({ app: 'wise-old-man', threadIndex: getThreadIndex() });
+    this.registry.setDefaultLabels({ app: 'league-wise-old-man', threadIndex: getThreadIndex() });
 
     prometheus.collectDefaultMetrics({ register: this.registry });
 
