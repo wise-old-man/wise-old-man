@@ -1,7 +1,6 @@
 import env from '../../../env';
 import prisma, { Patron } from '../../../prisma';
 import { getPatrons } from '../../services/external/patreon.service';
-import { sendPatreonUpdateMessage } from '../../services/external/discord.service';
 import { JobType, JobDefinition } from '../job.types';
 
 class SyncPatronsJob implements JobDefinition<unknown> {
@@ -117,16 +116,6 @@ class SyncPatronsJob implements JobDefinition<unknown> {
           patron: false
         }
       });
-    });
-
-    toAdd.forEach(p => {
-      const discordTag = p.discordId ? `<@${p.discordId}>` : '';
-      sendPatreonUpdateMessage(`**🎉 New Patron:** ${p.name} (T${p.tier}) - ${discordTag}`);
-    });
-
-    toDelete.forEach(p => {
-      const discordTag = p.discordId ? `<@${p.discordId}>` : '';
-      sendPatreonUpdateMessage(`**😢 Patron canceled:** ${p.name} (T${p.tier}) - ${discordTag}`);
     });
   }
 }
