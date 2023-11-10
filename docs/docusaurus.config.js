@@ -47,18 +47,12 @@ const config = {
         respectPrefersColorScheme: false
       },
       navbar: {
-        title: 'Wise Old Man',
+        title: 'Wise Old Man (API docs)',
         logo: {
           alt: 'Wise Old Man Logo',
           src: 'img/logo.png'
         },
         items: [
-          {
-            type: 'doc',
-            docId: 'intro',
-            position: 'left',
-            label: 'API Docs (v2)'
-          },
           {
             href: 'https://github.com/wise-old-man/wise-old-man',
             label: 'GitHub',

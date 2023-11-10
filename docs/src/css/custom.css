@@ -54,3 +54,7 @@ table {
 .token.constant {
   color: inherit !important;
 }
+
+.theme-code-block-highlighted-line {
+  filter: none !important;
+}
