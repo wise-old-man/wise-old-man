@@ -6,7 +6,6 @@ import metricsService from '../services/external/metrics.service';
 import redisService from '../services/external/redis.service';
 import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.types';
 import InvalidatePeriodDeltasJob from './instances/InvalidatePeriodDeltasJob';
-import SyncApiKeysJob from './instances/SyncApiKeysJob';
 import ReviewNameChangeJob from './instances/ReviewNameChangeJob';
 import ScheduleNameChangeReviewsJob from './instances/ScheduleNameChangeReviewsJob';
 import ScheduleCompetitionEventsJob from './instances/ScheduleCompetitionEventsJob';
@@ -30,7 +29,6 @@ const JOBS: JobDefinition<unknown>[] = [
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
   InvalidatePeriodDeltasJob,
-  SyncApiKeysJob,
   SyncPatronsJob,
   ReviewNameChangeJob,
   ScheduleCompetitionEventsJob,
@@ -48,10 +46,6 @@ const JOBS: JobDefinition<unknown>[] = [
 const CRON_JOBS = [
   {
     type: JobType.SCHEDULE_COMPETITION_EVENTS,
-    interval: '* * * * *' // every 1 min
-  },
-  {
-    type: JobType.SYNC_API_KEYS,
     interval: '* * * * *' // every 1 min
   },
   {

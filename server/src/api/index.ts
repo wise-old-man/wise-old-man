@@ -68,7 +68,7 @@ class API {
       let isTrustedOrigin = false;
 
       if (apiKey) {
-        const activeKey = await redisService.getValue('api-key', apiKey);
+        const activeKey = await redisService.getValue('api-key', apiKey, true);
 
         if (activeKey === null) {
           return res.status(403).json({
