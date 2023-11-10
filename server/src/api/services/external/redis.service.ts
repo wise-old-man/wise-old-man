@@ -8,7 +8,11 @@ class RedisService {
     this.redisClient = new IORedis(redisConfig);
   }
 
-  async getValue(baseKey: string, paramKey: string) {
+  async getValue(baseKey: string, paramKey: string, skipPrefix = false) {
+    if (skipPrefix) {
+      return await this.redisClient.get(`${baseKey}:${paramKey}`);
+    }
+
     return await this.redisClient.get(`league_key:${baseKey}:${paramKey}`);
   }
 
