@@ -33,6 +33,16 @@ sidebar_position: 1
 
 <br />
 
+### `(Object)` Competition Levels Progress
+
+| Field  | Type    | Description                                            |
+| :----- | :------ | :----------------------------------------------------- |
+| start  | integer | A player's start level for the competition's metric.   |
+| end    | integer | A player's end level for the competition's metric.     |
+| gained | integer | A player's gained levels for the competition's metric. |
+
+<br />
+
 ### `(Object)` Competition
 
 | Field            | Type                                                                                    | Description                                     |
@@ -92,18 +102,20 @@ Returned in player-centric endpoints.
 
 > extends [PlayerParticipation](/competitions-api/competition-type-definitions#object-player-participation)
 
-| Field    | Type                                                                                                     | Description                               |
-| :------- | :------------------------------------------------------------------------------------------------------- | :---------------------------------------- |
-| progress | [CompetitionProgress](/competitions-api/competition-type-definitions#object-competition-player-progress) | The player's progress in the competition. |
-| rank     | number                                                                                                   | The player's rank in the competition.     |
+| Field    | Type                                                                                                           | Description                                                                             |
+| :------- | :------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
+| progress | [CompetitionProgress](/competitions-api/competition-type-definitions#object-competition-player-progress)       | The player's progress in the competition.                                               |
+| levels   | [CompetitionLevelProgress](/competitions-api/competition-type-definitions#object-competition-levels-progress)? | The player's levels progress in the competition. (Only exists in skilling competitions) |
+| rank     | number                                                                                                         | The player's rank in the competition.                                                   |
 
 ### `(Object)` Competition Participation Details
 
 > extends [CompetitionParticipation](/competitions-api/competition-type-definitions#object-competition-participation)
 
-| Field    | Type                                                                                                     | Description                               |
-| :------- | :------------------------------------------------------------------------------------------------------- | :---------------------------------------- |
-| progress | [CompetitionProgress](/competitions-api/competition-type-definitions#object-competition-player-progress) | The player's progress in the competition. |
+| Field    | Type                                                                                                           | Description                                                                             |
+| :------- | :------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
+| progress | [CompetitionProgress](/competitions-api/competition-type-definitions#object-competition-player-progress)       | The player's progress in the competition.                                               |
+| levels   | [CompetitionLevelProgress](/competitions-api/competition-type-definitions#object-competition-levels-progress)? | The player's levels progress in the competition. (Only exists in skilling competitions) |
 
 <br />
 
