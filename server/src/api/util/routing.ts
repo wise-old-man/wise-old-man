@@ -7,7 +7,7 @@ interface ControllerResponse {
 }
 
 interface ControllerOptions {
-  logErrors?: false;
+  logErrors?: boolean;
   returnAsText?: boolean;
 }
 

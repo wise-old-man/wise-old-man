@@ -31,10 +31,12 @@ export interface ParticipationWithPlayer extends CleanParticipation {
 
 export interface ParticipationWithPlayerAndProgress extends ParticipationWithPlayer {
   progress: MeasuredDeltaProgress;
+  levels?: MeasuredDeltaProgress;
 }
 
 export interface ParticipationWithCompetitionAndStandings extends ParticipationWithCompetition {
   progress: MeasuredDeltaProgress;
+  levels?: MeasuredDeltaProgress;
   rank: number;
 }
 

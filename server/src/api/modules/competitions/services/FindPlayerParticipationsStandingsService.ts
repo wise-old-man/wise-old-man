@@ -44,7 +44,8 @@ async function findPlayerParticipationsStandings(
       ...omit(participation, 'player'),
       competition: c.competition,
       rank: playerIndex + 1,
-      progress: participation.progress
+      progress: participation.progress,
+      levels: participation.levels
     };
   });
 
