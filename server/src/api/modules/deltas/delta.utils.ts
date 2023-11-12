@@ -161,7 +161,7 @@ function calculateEHBDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player
  * If the given skill is "overall", then it will calculate total levels from both snapshots,
  * by summing the levels of each individual skill.
  */
-function calculateLevelDiff(
+export function calculateLevelDiff(
   metric: Metric,
   startSnapshot: Snapshot,
   endSnapshot: Snapshot,
