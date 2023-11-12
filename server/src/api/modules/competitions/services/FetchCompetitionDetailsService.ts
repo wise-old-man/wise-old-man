@@ -1,7 +1,14 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { omit } from '../../../util/objects';
-import { getMetricValueKey, isComputedMetric, Metric } from '../../../../utils';
+import {
+  getMetricValueKey,
+  isComputedMetric,
+  isSkill,
+  MeasuredDeltaProgress,
+  Metric,
+  Skill
+} from '../../../../utils';
 import { NotFoundError } from '../../../errors';
 import { CompetitionDetails } from '../competition.types';
 import * as deltaUtils from '../../deltas/delta.utils';
@@ -54,9 +61,10 @@ async function fetchCompetitionDetails(payload: FetchCompetitionDetailsParams): 
 
 async function calculateParticipantsStandings(competitionId: number, metric: Metric) {
   const metricKey = getMetricValueKey(metric);
-  const isComputed = isComputedMetric(metric);
 
-  const requiredSnapshotFields = isComputed ? true : { select: { [metricKey]: true } };
+  // Overall (levels) and EHP/EHB require other stats to be fetched from the database to be computed
+  const requiredSnapshotFields =
+    isComputedMetric(metric) || metric === Skill.OVERALL ? true : { select: { [metricKey]: true } };
 
   const participations = await prisma.participation.findMany({
     where: { competitionId },
@@ -73,10 +81,17 @@ async function calculateParticipantsStandings(competitionId: number, metric: Met
 
       const diff = deltaUtils.calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
 
-      return {
+      const standing = {
         ...omit(p, 'startSnapshotId', 'endSnapshotId', 'startSnapshot', 'endSnapshot'),
-        progress: diff
+        progress: diff,
+        levels: undefined as MeasuredDeltaProgress | undefined
       };
+
+      if (isSkill(metric) && startSnapshot && endSnapshot) {
+        standing.levels = deltaUtils.calculateLevelDiff(metric, startSnapshot, endSnapshot, diff);
+      }
+
+      return standing;
     })
     .sort((a, b) => b.progress.gained - a.progress.gained || b.progress.start - a.progress.start);
 }

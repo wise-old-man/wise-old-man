@@ -2421,26 +2421,31 @@ describe('Competition API', () => {
         player: { username: 'rorro' },
         progress: { start: 500, end: 557, gained: 57 }
       });
+      expect(response.body.participations[0].levels).toBeUndefined(); // shouldn't exist on a zulrah competition
 
       expect(response.body.participations[1]).toMatchObject({
         player: { username: 'usbc' },
         progress: { start: -1, end: 60, gained: 56 } // we start counting at 4 kc (min kc is 5)
       });
+      expect(response.body.participations[1].levels).toBeUndefined(); // shouldn't exist on a zulrah competition
 
       expect(response.body.participations[2]).toMatchObject({
         player: { username: 'lynx titan' },
         progress: { start: 1646, end: 1646, gained: 0 }
       });
+      expect(response.body.participations[2].levels).toBeUndefined(); // shouldn't exist on a zulrah competition
 
       expect(response.body.participations[3]).toMatchObject({
         player: { username: 'psikoi' },
         progress: { start: 1000, end: 1000, gained: 0 }
       });
+      expect(response.body.participations[3].levels).toBeUndefined(); // shouldn't exist on a zulrah competition
 
       expect(response.body.participations[4]).toMatchObject({
         player: { username: 'zulu' },
         progress: { start: -1, end: -1, gained: 0 }
       });
+      expect(response.body.participations[4].levels).toBeUndefined(); // shouldn't exist on a zulrah competition
     });
 
     it('should view details (other metric)', async () => {
@@ -2462,22 +2467,26 @@ describe('Competition API', () => {
 
       expect(response.body.participations[0]).toMatchObject({
         player: { username: 'psikoi' },
-        progress: { start: 500_000, end: 750_000, gained: 250_000 }
+        progress: { start: 500_000, end: 750_000, gained: 250_000 },
+        levels: { start: 66, end: 70, gained: 4 }
       });
 
       expect(response.body.participations[1]).toMatchObject({
         player: { username: 'rorro' },
-        progress: { start: 100_000, end: 110_000, gained: 10_000 }
+        progress: { start: 100_000, end: 110_000, gained: 10_000 },
+        levels: { start: 49, end: 50, gained: 1 }
       });
 
       expect(response.body.participations[2]).toMatchObject({
         player: { username: 'lynx titan' },
-        progress: { start: 5346679, end: 5346679, gained: 0 }
+        progress: { start: 5346679, end: 5346679, gained: 0 },
+        levels: { start: 90, end: 90, gained: 0 }
       });
 
       expect(response.body.participations[3]).toMatchObject({
         player: { username: 'usbc' },
-        progress: { start: 50_000, end: 50_000, gained: 0 }
+        progress: { start: 50_000, end: 50_000, gained: 0 },
+        levels: { start: 42, end: 42, gained: 0 }
       });
 
       expect(response.body.participations[4]).toMatchObject({
