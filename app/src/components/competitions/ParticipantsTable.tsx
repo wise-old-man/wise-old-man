@@ -11,7 +11,6 @@ import {
   ParticipationWithPlayerAndProgress,
   Player,
   PlayerStatus,
-  getLevel,
   isActivity,
   isBoss,
   isSkill,
@@ -189,38 +188,30 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
     },
   ];
 
-  if (isSkill(metric) && metric !== Metric.OVERALL) {
+  if (isSkill(metric)) {
     columns.splice(3, 0, {
       id: "levels",
       header: ({ column }) => {
         return <TableSortButton column={column}>Levels</TableSortButton>;
       },
-      accessorFn: ({ progress }) => {
-        // need to calculate it here as well for sorting
-        const { start, end } = progress;
-        if (start === -1 || end === -1) return 0;
-
-        return getLevel(end) - getLevel(start);
+      accessorFn: ({ levels }) => {
+        return levels?.gained;
       },
       cell: ({ row }) => {
-        const { start, end } = row.original.progress;
+        if (!row.original.levels) return null;
+        const { start, end, gained } = row.original.levels;
 
         if (start === -1 || end === -1) return "---";
 
-        const startLevel = getLevel(start);
-        const endLevel = getLevel(end);
-
-        const diff = endLevel - startLevel;
-
         return (
-          <span className={cn(diff > 0 && "text-green-500")}>
-            {diff > 0 ? "+" : ""}
+          <span className={cn(gained > 0 && "text-green-500")}>
+            {gained > 0 ? "+" : ""}
             <Tooltip>
               <TooltipTrigger asChild>
-                <span>{diff}</span>
+                <span>{gained}</span>
               </TooltipTrigger>
               <TooltipContent>
-                Gained {diff} levels {diff > 0 ? `(from ${startLevel} to ${endLevel})` : ""}
+                Gained {gained} levels {gained > 0 ? `(from ${start} to ${end})` : ""}
               </TooltipContent>
             </Tooltip>
           </span>
