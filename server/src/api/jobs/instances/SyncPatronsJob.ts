@@ -30,6 +30,8 @@ async function syncPatrons() {
   const patrons = await getPatrons();
   const newPatronIds = patrons.map(p => p.id);
 
+  const updatedFieldsMap = new Map<string, string>();
+
   patrons.forEach(p => {
     const match = currentPatrons.find(cp => cp.id === p.id);
 
@@ -37,6 +39,13 @@ async function syncPatrons() {
       toAdd.push(p);
     } else if (needsUpdate(p, match)) {
       toUpdate.push(p);
+
+      // Keep track of which of these fields was updated (we only care about notifications for these)
+      if (p.tier !== match.tier) {
+        updatedFieldsMap.set(p.id, 'tier');
+      } else if (p.discordId !== match.discordId) {
+        updatedFieldsMap.set(p.id, 'discordId');
+      }
     }
   });
 

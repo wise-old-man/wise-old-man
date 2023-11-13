@@ -27,6 +27,7 @@ sidebar_position: 1
 
 | Field   | Type    | Description             |
 | :------ | :------ | :---------------------- |
+| website | string? | The group's website URL |
 | discord | string? | The group's Discord URL |
 | twitter | string? | The group's Twitter URL |
 | youtube | string? | The group's Youtube URL |
