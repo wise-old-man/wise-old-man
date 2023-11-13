@@ -143,6 +143,7 @@ async function updateAll(_req: Request): Promise<ControllerResponse> {
   // const message = `${outdatedCount} outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.`;
 
   // return { statusCode: 200, response: { message } };
+  // TODO:
   throw new BadRequestError('Currently disabled until the League starts.');
 }
 

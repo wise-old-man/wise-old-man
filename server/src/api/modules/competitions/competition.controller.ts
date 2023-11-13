@@ -202,6 +202,7 @@ async function removeTeams(req: Request): Promise<ControllerResponse> {
 
 // POST /competitions/:id/update-all
 async function updateAllParticipants(_req: Request): Promise<ControllerResponse> {
+  // TODO:
   throw new BadRequestError('Currently disabled until the League starts.');
   // const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 

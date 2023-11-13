@@ -63,6 +63,7 @@ async function track(req: Request, res: Response): Promise<ControllerResponse> {
   // });
 
   // return { statusCode: isNew ? 201 : 200, response: playerDetails };
+  // TODO:
   throw new BadRequestError('Currently disabled until the League starts.');
 }
 
