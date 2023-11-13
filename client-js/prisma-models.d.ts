@@ -19,6 +19,17 @@ export type MemberActivity = {
   createdAt: Date;
 };
 
+type Prisma_Base_GroupSocialLinks = {
+  id: number;
+  groupId: number;
+  discord: string | null;
+  twitter: string | null;
+  youtube: string | null;
+  twitch: string | null;
+  updatedAt: Date;
+  createdAt: Date;
+};
+
 export type Membership = {
   playerId: number;
   groupId: number;
