@@ -225,6 +225,7 @@ model Membership {
 model GroupSocialLinks {
   id        Int      @id @default(autoincrement())
   groupId   Int
+  website   String?
   discord   String?
   twitter   String?
   youtube   String?

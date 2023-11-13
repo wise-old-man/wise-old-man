@@ -31,6 +31,8 @@ async function syncPatrons() {
   const patrons = await getPatrons();
   const newPatronIds = patrons.map(p => p.id);
 
+  const updatedFieldsMap = new Map<string, string>();
+
   patrons.forEach(p => {
     const match = currentPatrons.find(cp => cp.id === p.id);
 
@@ -38,6 +40,13 @@ async function syncPatrons() {
       toAdd.push(p);
     } else if (needsUpdate(p, match)) {
       toUpdate.push(p);
+
+      // Keep track of which of these fields was updated (we only care about notifications for these)
+      if (p.tier !== match.tier) {
+        updatedFieldsMap.set(p.id, 'tier');
+      } else if (p.discordId !== match.discordId) {
+        updatedFieldsMap.set(p.id, 'discordId');
+      }
     }
   });
 
@@ -82,6 +91,19 @@ async function syncPatrons() {
   toDelete.forEach(p => {
     const discordTag = p.discordId ? `<@${p.discordId}>` : '';
     sendPatreonUpdateMessage(`**😢 Patron canceled:** ${p.name} (T${p.tier}) - ${discordTag}`);
+  });
+
+  Array.from(updatedFieldsMap.entries()).forEach(([patronId, field]) => {
+    const p = patrons.find(patron => patron.id === patronId);
+    if (!p) return;
+
+    const discordTag = p.discordId ? `<@${p.discordId}>` : '';
+
+    if (field === 'tier') {
+      sendPatreonUpdateMessage(`**🔔 Patron tier changed:** ${p.name} (T${p.tier}) - ${discordTag}`);
+    } else if (field === 'discordId') {
+      sendPatreonUpdateMessage(`**🔔 Patron Discord changed:** ${p.name} (T${p.tier}) - ${discordTag}`);
+    }
   });
 }
 
