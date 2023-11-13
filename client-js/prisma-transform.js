@@ -6,7 +6,15 @@ const fs = require('fs');
  * I can't simply bundle up all type declarations with rollup because the dts plugin doesn't support namespaces.
  */
 
-const PRIVATE_MODEL_NAMES = ['Achievement', 'Record', 'Delta', 'Snapshot', 'Player', 'NameChange'];
+const PRIVATE_MODEL_NAMES = [
+  'Achievement',
+  'Record',
+  'Delta',
+  'Snapshot',
+  'Player',
+  'NameChange',
+  'GroupSocialLinks'
+];
 
 const PRISMA_TYPES_DECLARATION_FILE_PATH = './prisma-models.d.ts';
 const BUILD_DECLARATION_FILE_PATH = './dist/index.d.ts';
