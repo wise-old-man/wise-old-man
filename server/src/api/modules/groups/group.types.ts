@@ -1,5 +1,5 @@
 import { GroupRole } from '../../../utils';
-import { Group, Membership, Player, MemberActivity } from '../../../prisma';
+import { Group, Membership, Player, MemberActivity, GroupSocialLinks } from '../../../prisma';
 import { MetricLeaders, FormattedSnapshot } from '../snapshots/snapshot.types';
 
 export { ActivityType } from '../../../prisma/enum-adapter';
@@ -9,6 +9,7 @@ export interface GroupListItem extends Omit<Group, 'verificationHash'> {
 }
 
 export interface GroupDetails extends GroupListItem {
+  socialLinks?: GroupSocialLinks;
   memberships: MembershipWithPlayer[];
 }
 

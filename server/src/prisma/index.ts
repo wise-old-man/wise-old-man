@@ -14,7 +14,8 @@ import {
   Membership,
   Prisma,
   Country,
-  MemberActivity
+  MemberActivity,
+  GroupSocialLinks as PrismaGroupSocialLinks
 } from '@prisma/client';
 import { DenyContext, SkipContext, isComputedMetric } from '../utils';
 import { NameChangeStatus } from './enum-adapter';
@@ -73,7 +74,29 @@ const extendedClient = prisma.$extends({
         }
       },
       latestSnapshotId: {
-        meeds: {},
+        needs: {},
+        compute() {
+          return undefined;
+        }
+      }
+    },
+    groupSocialLinks: {
+      id: {
+        compute() {
+          return undefined;
+        }
+      },
+      groupId: {
+        compute() {
+          return undefined;
+        }
+      },
+      createdAt: {
+        compute() {
+          return undefined;
+        }
+      },
+      updatedAt: {
         compute() {
           return undefined;
         }
@@ -121,6 +144,8 @@ type NameChange = Omit<PrismaNameChange, 'reviewContext'> & {
   reviewContext: SkipContext | DenyContext | null;
 };
 
+type GroupSocialLinks = Omit<PrismaGroupSocialLinks, 'id' | 'groupId' | 'createdAt' | 'updatedAt'>;
+
 export {
   Prisma as PrismaTypes,
   PrismaPromise,
@@ -137,6 +162,7 @@ export {
   Snapshot,
   Achievement,
   MemberActivity,
+  GroupSocialLinks,
   // Enums
   Country,
   NameChangeStatus,
