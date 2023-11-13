@@ -112,25 +112,26 @@ async function syncBenefits() {
       }
     });
 
-      // Every group who was a patron and shouldn't be, is no longer a patron
-      await transaction.group.updateMany({
-        where: {
-          id: { notIn: patronGroupIds },
-          patron: true
-        },
-        data: {
-          patron: false,
-          bannerImage: null,
-          profileImage: null
-        }
-      });
+    // Every player who was a patron and shouldn't be, is no longer a patron
+    await transaction.player.updateMany({
+      where: {
+        id: { notIn: patronPlayerIds },
+        patron: true
+      },
+      data: {
+        patron: false
+      }
+    });
 
-      // Delete any social links from non-patron groups
-      await transaction.groupSocialLinks.deleteMany({
-        where: {
-          groupId: { notIn: patronGroupIds }
-        }
-      });
+    // Every group who wasn't a patron and should be, becomes a patron
+    await transaction.group.updateMany({
+      where: {
+        id: { in: patronGroupIds },
+        patron: false
+      },
+      data: {
+        patron: true
+      }
     });
 
     // Every group who was a patron and shouldn't be, is no longer a patron
