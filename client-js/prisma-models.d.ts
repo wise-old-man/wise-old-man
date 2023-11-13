@@ -46,6 +46,8 @@ export type Group = {
   homeworld: number | null;
   verified: boolean;
   patron: boolean;
+  profileImage: string | null;
+  bannerImage: string | null;
   score: number;
   verificationHash: string;
   createdAt: Date;
