@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/Dropdown";
 
+import WebIcon from "~/assets/web.svg";
 import ChatIcon from "~/assets/chat.svg";
 import GlobeIcon from "~/assets/globe.svg";
 import TwitchIcon from "~/assets/twitch.svg";
@@ -211,10 +212,22 @@ function Header(props: GroupDetails) {
 }
 
 function GroupSocialLinks(props: NonNullable<GroupDetails["socialLinks"]>) {
-  const { discord, twitch, twitter, youtube } = props;
+  const { website, discord, twitch, twitter, youtube } = props;
 
   return (
     <div className="flex items-center gap-x-2">
+      {website && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <a href={website} target="_blank" rel="noopener noreferrer">
+              <Button className="rounded-lg p-2" size="sm">
+                <WebIcon className="h-4 w-4 text-gray-100" />
+              </Button>
+            </a>
+          </TooltipTrigger>
+          <TooltipContent>Website</TooltipContent>
+        </Tooltip>
+      )}
       {discord && (
         <Tooltip>
           <TooltipTrigger asChild>
