@@ -1,7 +1,7 @@
-import prisma from '../../../prisma';
-import { PlayerStatus } from '../../../utils';
-import { checkIsBanned } from '../../services/external/jagex.service';
-import { standardize } from '../../modules/players/player.utils';
+// import prisma from '../../../prisma';
+// import { PlayerStatus } from '../../../utils';
+// import { checkIsBanned } from '../../services/external/jagex.service';
+// import { standardize } from '../../modules/players/player.utils';
 import { JobType, JobDefinition, JobOptions } from '../job.types';
 
 export interface CheckPlayerBannedPayload {
@@ -17,28 +17,25 @@ class CheckPlayerBannedJob implements JobDefinition<CheckPlayerBannedPayload> {
     this.options = { rateLimiter: { max: 1, duration: 5_000 } };
   }
 
-  async execute(data: CheckPlayerBannedPayload) {
-    const username = standardize(data.username);
-
-    const player = await prisma.player.findFirst({
-      where: { username }
-    });
-
-    if (!player) return;
-
-    const isBanned = await checkIsBanned(username);
-
-    if (player.status === PlayerStatus.UNRANKED && isBanned) {
-      await prisma.player.update({
-        where: { username },
-        data: { status: PlayerStatus.BANNED }
-      });
-    } else if (player.status === PlayerStatus.BANNED && !isBanned) {
-      await prisma.player.update({
-        where: { username },
-        data: { status: PlayerStatus.UNRANKED }
-      });
-    }
+  async execute(_data: CheckPlayerBannedPayload) {
+    // TODO: Disabled until League starts
+    // const username = standardize(data.username);
+    // const player = await prisma.player.findFirst({
+    //   where: { username }
+    // });
+    // if (!player) return;
+    // const isBanned = await checkIsBanned(username);
+    // if (player.status === PlayerStatus.UNRANKED && isBanned) {
+    //   await prisma.player.update({
+    //     where: { username },
+    //     data: { status: PlayerStatus.BANNED }
+    //   });
+    // } else if (player.status === PlayerStatus.BANNED && !isBanned) {
+    //   await prisma.player.update({
+    //     where: { username },
+    //     data: { status: PlayerStatus.UNRANKED }
+    //   });
+    // }
   }
 }
 
