@@ -21,6 +21,10 @@ import {
 
 import ChatIcon from "~/assets/chat.svg";
 import GlobeIcon from "~/assets/globe.svg";
+import TwitchIcon from "~/assets/twitch.svg";
+import TwitterIcon from "~/assets/twitter.svg";
+import DiscordIcon from "~/assets/discord.svg";
+import YoutubeIcon from "~/assets/youtube.svg";
 import PeopleIcon from "~/assets/people-2.svg";
 import OverflowIcon from "~/assets/overflow.svg";
 import VerifiedIcon from "~/assets/verified.svg";
@@ -51,12 +55,23 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
                 className="absolute inset-0 object-cover object-center"
                 fill
               />
-              <div className="absolute inset-0 hidden bg-gradient-to-tl from-black/30 to-black/0 md:block" />
+              <div className="absolute inset-0 bg-gradient-to-tl from-black/50 to-black/0" />
+              {group.socialLinks && (
+                <div className="absolute bottom-3 right-3 z-10">
+                  <GroupSocialLinks {...group.socialLinks} />
+                </div>
+              )}
             </div>
           ) : (
             <>
               {(group.socialLinks || group.profileImage) && (
-                <div className="mb-5 hidden h-24 w-full bg-gray-700 md:block" />
+                <div className="relative mb-5 hidden h-24 w-full bg-gray-800 md:block">
+                  {group.socialLinks && (
+                    <div className="absolute bottom-3 right-3 z-10">
+                      <GroupSocialLinks {...group.socialLinks} />
+                    </div>
+                  )}
+                </div>
               )}
             </>
           )}
@@ -191,6 +206,63 @@ function Header(props: GroupDetails) {
           </Tooltip>
         </div>
       </div>
+    </div>
+  );
+}
+
+function GroupSocialLinks(props: NonNullable<GroupDetails["socialLinks"]>) {
+  const { discord, twitch, twitter, youtube } = props;
+
+  return (
+    <div className="flex items-center gap-x-2">
+      {discord && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <a href={discord} target="_blank" rel="noopener noreferrer">
+              <Button className="rounded-lg p-2" size="sm">
+                <DiscordIcon className="h-4 w-4 text-gray-100" />
+              </Button>
+            </a>
+          </TooltipTrigger>
+          <TooltipContent>Discord</TooltipContent>
+        </Tooltip>
+      )}
+      {twitter && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <a href={twitter} target="_blank" rel="noopener noreferrer">
+              <Button className="rounded-lg p-2" size="sm">
+                <TwitterIcon className="h-4 w-4 text-gray-100" />
+              </Button>
+            </a>
+          </TooltipTrigger>
+          <TooltipContent>Twitter</TooltipContent>
+        </Tooltip>
+      )}
+      {twitch && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <a href={twitch} target="_blank" rel="noopener noreferrer">
+              <Button className="rounded-lg p-2" size="sm">
+                <TwitchIcon className="h-4 w-4 text-gray-100" />
+              </Button>
+            </a>
+          </TooltipTrigger>
+          <TooltipContent>Twitch</TooltipContent>
+        </Tooltip>
+      )}
+      {youtube && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <a href={youtube} target="_blank" rel="noopener noreferrer">
+              <Button className="rounded-lg p-2" size="sm">
+                <YoutubeIcon className="h-4 w-4 text-gray-100" />
+              </Button>
+            </a>
+          </TooltipTrigger>
+          <TooltipContent>Youtube</TooltipContent>
+        </Tooltip>
+      )}
     </div>
   );
 }
