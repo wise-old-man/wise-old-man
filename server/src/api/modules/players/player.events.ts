@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { Snapshot, Player } from '../../../prisma';
 import { FlaggedPlayerReviewContext } from '../../../utils';
 import { jobManager, JobType } from '../../jobs';
@@ -49,9 +50,21 @@ async function onPlayerUpdated(
   await metrics.trackEffect(deltaServices.syncPlayerDeltas, player, current);
 }
 
+async function onPlayerRegistered(player: Player) {
+  // Track this player on the regular API too (useful for name change and flagged checks)
+  await axios.post(`https://api.wiseoldman.net/v2/players/${player.displayName}`);
+}
+
 async function onPlayerImported(playerId: number) {
   // Reevaluate this player's achievements to try and find earlier completion dates
   await metrics.trackEffect(achievementServices.reevaluatePlayerAchievements, { id: playerId });
 }
 
-export { onPlayerFlagged, onPlayerArchived, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };
+export {
+  onPlayerRegistered,
+  onPlayerFlagged,
+  onPlayerArchived,
+  onPlayerNameChanged,
+  onPlayerUpdated,
+  onPlayerImported
+};

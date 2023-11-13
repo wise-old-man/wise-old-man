@@ -34,6 +34,10 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findOrCreate(username);
 
+  if (isNew) {
+    playerEvents.onPlayerRegistered(player);
+  }
+
   if (player.status === PlayerStatus.ARCHIVED) {
     throw new BadRequestError('Failed to update: Player is archived.');
   }
