@@ -142,12 +142,19 @@ function Header(props: GroupDetails) {
               profileImage ? "w-[6.25rem] pr-5 md:w-[9.75rem]" : "pr-7"
             )}
           >
-            <Badge variant="gold" className="hidden px-2 md:inline-block">
-              Patreon Supporters
-            </Badge>
-            <Badge variant="gold" className="inline-block md:hidden">
-              Patrons
-            </Badge>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a href="https://wiseoldman.net/patreon" target="_blank" rel="noopener noreferrer">
+                  <Badge variant="gold" className="hidden px-2 md:inline-block">
+                    Patreon Supporters
+                  </Badge>
+                  <Badge variant="gold" className="inline-block md:hidden">
+                    Patrons
+                  </Badge>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>Check our Patreon benefits</TooltipContent>
+            </Tooltip>
           </div>
         )}
         <div className="flex items-center gap-x-7">
