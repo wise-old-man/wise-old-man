@@ -19,7 +19,8 @@ async function fetchGroupDetails(payload: FetchGroupDetailsParams): Promise<Grou
     include: {
       memberships: {
         include: { player: true }
-      }
+      },
+      socialLinks: true
     }
   });
 
@@ -31,6 +32,7 @@ async function fetchGroupDetails(payload: FetchGroupDetailsParams): Promise<Grou
 
   return {
     ...omit(group, 'verificationHash'),
+    socialLinks: group.socialLinks?.length > 0 ? group.socialLinks[0] : undefined,
     memberCount: group.memberships.length,
     // Sort the members list by role
     memberships: group.memberships.sort(

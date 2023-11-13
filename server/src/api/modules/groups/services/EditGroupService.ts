@@ -107,7 +107,8 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
     include: {
       memberships: {
         include: { player: true }
-      }
+      },
+      socialLinks: true
     }
   });
 
@@ -125,6 +126,7 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
 
   return {
     ...omit(updatedGroup, 'verificationHash'),
+    socialLinks: updatedGroup.socialLinks?.length > 0 ? updatedGroup.socialLinks[0] : undefined,
     memberCount: sortedMemberships.length,
     memberships: sortedMemberships
   };

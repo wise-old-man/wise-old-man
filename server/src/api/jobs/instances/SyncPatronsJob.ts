@@ -114,7 +114,16 @@ class SyncPatronsJob implements JobDefinition<unknown> {
           patron: true
         },
         data: {
-          patron: false
+          patron: false,
+          bannerImage: null,
+          profileImage: null
+        }
+      });
+
+      // Delete any social links from non-patron groups
+      await transaction.groupSocialLinks.deleteMany({
+        where: {
+          groupId: { notIn: patronGroupIds }
         }
       });
     });
