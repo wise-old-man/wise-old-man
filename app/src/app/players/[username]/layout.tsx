@@ -250,9 +250,22 @@ function PlayerStatusAlert(props: { player: Player }) {
 }
 
 function PlayerAttributes(props: PlayerDetails) {
-  const { status, build, latestSnapshot } = props;
+  const { status, build, latestSnapshot, patron } = props;
 
   const elements: React.ReactNode[] = [];
+
+  if (patron) {
+    elements.push(
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <a href="https://wiseoldman.net/patreon" target="_blank" rel="noopener noreferrer">
+            <span className="text-amber-300">Patreon Supporter</span>
+          </a>
+        </TooltipTrigger>
+        <TooltipContent>Check our Patreon benefits</TooltipContent>
+      </Tooltip>
+    );
+  }
 
   if (status === PlayerStatus.FLAGGED) {
     elements.push(<span className="text-orange-400">Flagged</span>);

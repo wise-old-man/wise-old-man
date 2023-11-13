@@ -14,6 +14,14 @@ const nextConfig = withBundleAnalyzer(
         fullUrl: true,
       },
     },
+    images: {
+      remotePatterns: [
+        {
+          protocol: "https",
+          hostname: "wiseoldman.ams3.cdn.digitaloceanspaces.com",
+        },
+      ],
+    },
     async redirects() {
       return [
         // Redirects to external websites

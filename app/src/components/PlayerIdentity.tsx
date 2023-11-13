@@ -9,8 +9,10 @@ import {
   PlayerTypeProps,
 } from "@wise-old-man/utils";
 import Link from "next/link";
+import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
 import { Flag, PlayerTypeIcon } from "./Icon";
+import { Badge } from "./Badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 import WarningFilledIcon from "~/assets/warning_filled.svg";
@@ -58,7 +60,10 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
           <TooltipTrigger asChild>
             <Link
               href={href || `/players/${player.username}`}
-              className="line-clamp-1 text-sm font-medium hover:underline"
+              className={cn(
+                "line-clamp-1 text-sm font-medium hover:underline",
+                player.patron && "text-amber-300"
+              )}
             >
               {player.displayName}
             </Link>
@@ -112,6 +117,13 @@ export function PlayerIdentityTooltip(props: { player: Player }) {
         )}
       </div>
       <div className="flex divide-x divide-gray-500">
+        {player.patron && (
+          <div className="flex items-center px-4">
+            <a href="https://wiseoldman.net/patreon" target="_blank" rel="noopener noreferrer">
+              <Badge variant="gold">Patreon Supporter</Badge>
+            </a>
+          </div>
+        )}
         <div className="flex min-w-[5rem] flex-col px-4 py-3">
           <span className="mb-1 text-xs text-gray-200">League points</span>
           <span>0</span>
