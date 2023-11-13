@@ -23,21 +23,34 @@ sidebar_position: 1
 
 <br />
 
+### `(Object)` GroupSocialLinks
+
+| Field   | Type    | Description             |
+| :------ | :------ | :---------------------- |
+| discord | string? | The group's Discord URL |
+| twitter | string? | The group's Twitter URL |
+| youtube | string? | The group's Youtube URL |
+| twitch  | string? | The group's Twitch URL  |
+
+<br />
+
 ### `(Object)` Group
 
-| Field       | Type    | Description                                               |
-| :---------- | :------ | :-------------------------------------------------------- |
-| id          | integer | The group's ID.                                           |
-| name        | string  | The group's name.                                         |
-| clanChat    | string  | The group's clan chat (1-12 characters).                  |
-| description | string? | The group's description.                                  |
-| homeworld   | number? | The group's homeworld.                                    |
-| verified    | boolean | The group's verified status.                              |
-| patron      | boolean | The groups's patronage status (subscribed to our Patreon) |
-| score       | integer | The group's global ranking score.                         |
-| createdAt   | date    | The group's creation date.                                |
-| updatedAt   | date    | The group's last modification date.                       |
-| memberCount | integer | The group's total number of members.                      |
+| Field        | Type    | Description                                               |
+| :----------- | :------ | :-------------------------------------------------------- |
+| id           | integer | The group's ID.                                           |
+| name         | string  | The group's name.                                         |
+| clanChat     | string  | The group's clan chat (1-12 characters).                  |
+| description  | string? | The group's description.                                  |
+| homeworld    | number? | The group's homeworld.                                    |
+| verified     | boolean | The group's verified status.                              |
+| patron       | boolean | The groups's patronage status (subscribed to our Patreon) |
+| profileImage | string? | The groups's profile image (Patreon exclusive)            |
+| bannerImage  | string? | The groups's banner image (Patreon exclusive)             |
+| score        | integer | The group's global ranking score.                         |
+| createdAt    | date    | The group's creation date.                                |
+| updatedAt    | date    | The group's last modification date.                       |
+| memberCount  | integer | The group's total number of members.                      |
 
 <br />
 
@@ -45,9 +58,10 @@ sidebar_position: 1
 
 > extends [Group](/groups-api/group-type-definitions#object-group)
 
-| Field       | Type                                                                            | Description              |
-| :---------- | :------------------------------------------------------------------------------ | :----------------------- |
-| memberships | [GroupMembership](/groups-api/group-type-definitions#object-group-membership)[] | The group's memberships. |
+| Field       | Type                                                                                  | Description                                   |
+| :---------- | :------------------------------------------------------------------------------------ | :-------------------------------------------- |
+| memberships | [GroupMembership](/groups-api/group-type-definitions#object-group-membership)[]       | The group's memberships.                      |
+| socialLinks | [GroupSocialLinks](/groups-api/group-type-definitions#object-group-groupsociallinks)? | The group's social links (Patreon exclusive). |
 
 <br />
 
