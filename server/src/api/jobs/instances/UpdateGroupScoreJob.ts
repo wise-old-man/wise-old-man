@@ -88,6 +88,19 @@ async function calculateScore(group: GroupDetails): Promise<number> {
     score += 100;
   }
 
+  // If is a patreon supporter
+  if (group.patron) {
+    score += 50;
+
+    if (group.profileImage) {
+      score += 20;
+    }
+
+    if (group.bannerImage) {
+      score += 10;
+    }
+  }
+
   // If has atleast one ongoing competition
   if (competitions.filter(c => c.startsAt <= now && c.endsAt >= now).length >= 1) {
     score += 50;
