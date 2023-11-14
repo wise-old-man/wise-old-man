@@ -313,21 +313,14 @@ function PlayerAttributes(props: PlayerDetails) {
 }
 
 function getHiscoresURL(displayName: string, playerType: PlayerType) {
-  let url: string;
-
   switch (playerType) {
     case PlayerType.HARDCORE:
-      url = `https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal.ws?user1=${displayName}`;
-      break;
+      return `https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal.ws?user1=${displayName}`;
     case PlayerType.IRONMAN:
-      url = `https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal.ws?user1=${displayName}`;
-      break;
+      return `https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal.ws?user1=${displayName}`;
     case PlayerType.ULTIMATE:
-      url = `https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal.ws?user1=${displayName}`;
-      break;
+      return `https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal.ws?user1=${displayName}`;
     default:
-      url = `https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${displayName}`;
+      return `https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${displayName}`;
   }
-
-  return url;
 }
