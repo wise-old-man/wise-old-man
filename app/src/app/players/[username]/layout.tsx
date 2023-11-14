@@ -88,22 +88,6 @@ function Header(props: PlayerDetails) {
     icon = <PlayerTypeIcon playerType={type} className="scale-150 md:scale-[2]" />;
   }
 
-  let officialHiscoreUrl: string;
-
-  switch (type) {
-    case PlayerType.HARDCORE:
-      officialHiscoreUrl = `https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal.ws?user1=${displayName}`;
-      break;
-    case PlayerType.IRONMAN:
-      officialHiscoreUrl = `https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal.ws?user1=${displayName}`;
-      break;
-    case PlayerType.ULTIMATE:
-      officialHiscoreUrl = `https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal.ws?user1=${displayName}`;
-      break;
-    default:
-      officialHiscoreUrl = `https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${displayName}`;
-  }
-
   return (
     <div className="flex flex-col justify-between gap-y-7 md:flex-row-reverse md:items-end">
       <div className="flex shrink-0 items-center gap-x-2">
@@ -118,7 +102,7 @@ function Header(props: PlayerDetails) {
             <a
               target="_blank"
               rel="noopener noreferrer"
-              href={officialHiscoreUrl}
+              href={getHiscoresURL(displayName, type)}
             >
               <DropdownMenuItem>
                 Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
@@ -326,4 +310,24 @@ function PlayerAttributes(props: PlayerDetails) {
       })}
     </>
   );
+}
+
+function getHiscoresURL(displayName: string, playerType: PlayerType) {
+  let url: string;
+
+  switch (playerType) {
+    case PlayerType.HARDCORE:
+      url = `https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal.ws?user1=${displayName}`;
+      break;
+    case PlayerType.IRONMAN:
+      url = `https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal.ws?user1=${displayName}`;
+      break;
+    case PlayerType.ULTIMATE:
+      url = `https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal.ws?user1=${displayName}`;
+      break;
+    default:
+      url = `https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${displayName}`;
+  }
+
+  return url;
 }
