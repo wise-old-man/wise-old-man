@@ -25,7 +25,7 @@ import { notFound } from "next/navigation";
 export const apiClient = new WOMClient({
   userAgent: "(League) Wise Old Man - App v2",
   apiKey: process.env.APP_API_KEY,
-  baseAPIUrl: process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/v2",
+  baseAPIUrl: process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/league",
 });
 
 export type TimeRangeFilter = { period: Period } | { startDate: Date; endDate: Date };
