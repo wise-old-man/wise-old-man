@@ -183,6 +183,8 @@ model Group {
   homeworld        Int?
   verified         Boolean  @default(false)
   patron           Boolean  @default(false)
+  profileImage     String?  @db.VarChar(255)
+  bannerImage      String?  @db.VarChar(255)
   score            Int      @default(0)
   verificationHash String   @db.VarChar(255)
   createdAt        DateTime @default(now()) @db.Timestamptz(6)
@@ -193,6 +195,7 @@ model Group {
   memberships    Membership[]
   memberActivity MemberActivity[]
   patronages     Patron[]
+  socialLinks    GroupSocialLinks[]
 
   // Constraints
   @@unique([name], map: "groups_name_key")
@@ -217,6 +220,26 @@ model Membership {
   @@index([groupId], map: "memberships_group_id")
   // Map
   @@map("memberships")
+}
+
+model GroupSocialLinks {
+  id        Int      @id @default(autoincrement())
+  groupId   Int
+  website   String?
+  discord   String?
+  twitter   String?
+  youtube   String?
+  twitch    String?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  // Indices
+  @@index([groupId], map: "group_social_links_group_id")
+  // Map
+  @@map("groupSocialLinks")
 }
 
 model NameChange {

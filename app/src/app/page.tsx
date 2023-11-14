@@ -97,11 +97,18 @@ async function StatsDisplay() {
 
   const { players, snapshots, groups, competitions } = stats;
 
-  const playerCount = players > 0 ? `${(players / 1_000).toFixed(2)}k` : 0;
-  const snapshotsCount = snapshots > 0 ? `${(snapshots / 1_000_000).toFixed(2)}m` : 0;
-  const groupsCount = groups > 0 ? `${(groups / 1_000).toFixed(1)}k`.replace(".0k", "k") : 0;
+  const playerCount = players > 1000 ? `${(players / 1_000).toFixed(2)}k` : Math.max(0, players);
+
+  const snapshotsCount =
+    snapshots > 10_000 ? `${(snapshots / 1_000_000).toFixed(2)}m` : Math.max(0, snapshots);
+
+  const groupsCount =
+    groups > 1000 ? `${(groups / 1_000).toFixed(1)}k`.replace(".0k", "k") : Math.max(0, groups);
+
   const competitionsCount =
-    competitions > 0 ? `${(competitions / 1_000).toFixed(1)}k`.replace(".0k", "k") : 0;
+    competitions > 1000
+      ? `${(competitions / 1_000).toFixed(1)}k`.replace(".0k", "k")
+      : Math.max(0, competitions);
 
   return (
     <div className="relative z-20 -mt-5 flex w-full items-center">

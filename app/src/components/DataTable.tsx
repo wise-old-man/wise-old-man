@@ -170,8 +170,8 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
         </Table>
       </TableContainer>
       {enablePagination && (pageSize !== defaultPageSize || table.getPageCount() > 1) && (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 py-4">
+        <div className="flex flex-col items-start justify-between pb-4 sm:flex-row sm:items-center">
+          <div className="flex items-center space-x-3 pt-4">
             <span className="mr-1 text-xs text-gray-200">Results per page</span>
             <Combobox value={String(pageSize)} onValueChanged={(val) => setPageSize(Number(val))}>
               <ComboboxButton className="gap-x-0">{pageSize}</ComboboxButton>
@@ -186,7 +186,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
               </ComboboxContent>
             </Combobox>
           </div>
-          <div className="flex items-center justify-end space-x-3 py-4">
+          <div className="flex items-center justify-end space-x-3 pt-4">
             <span className="mr-3 text-xs text-gray-200">
               Page {pageIndex + 1} of {table.getPageCount()}
             </span>
