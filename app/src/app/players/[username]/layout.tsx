@@ -99,7 +99,7 @@ function Header(props: PlayerDetails) {
             <a
               target="_blank"
               rel="noopener noreferrer"
-              href={`https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${props.displayName}`}
+              href={`https://secure.runescape.com/m=hiscore_oldschool_seasonal/hiscorepersonal.ws?user1=${props.displayName}`}
             >
               <DropdownMenuItem>
                 Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
