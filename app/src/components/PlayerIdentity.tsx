@@ -1,17 +1,17 @@
 import React from "react";
 import {
-  CountryProps,
   Player,
   PlayerBuild,
   PlayerBuildProps,
   PlayerStatus,
   PlayerType,
-  PlayerTypeProps,
+  formatNumber,
 } from "@wise-old-man/utils";
 import Link from "next/link";
+import { getLeagueTier } from "~/services/wiseoldman";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
-import { Flag, PlayerTypeIcon } from "./Icon";
+import { LeagueTierIcon, PlayerTypeIcon } from "./Icon";
 import { Badge } from "./Badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
@@ -26,6 +26,10 @@ interface PlayerIdentityProps {
 
 export function PlayerIdentity(props: PlayerIdentityProps) {
   const { player, caption, href, renderTooltip = true } = props;
+
+  // @ts-ignore
+  const leaguePoints = Math.max(0, player.leaguePoints);
+  const tier = getLeagueTier(leaguePoints);
 
   let icon: React.ReactNode;
 
@@ -44,13 +48,9 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
       <div className="flex items-center text-sm text-white">
         <TooltipTrigger asChild>
           <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50">
-            {player.country && (
-              <div className="absolute -right-1 bottom-0">
-                <Flag
-                  size="sm"
-                  country={player.country}
-                  className="h-3.5 w-3.5 rounded-full border-2 border-gray-900"
-                />
+            {tier && (
+              <div className="absolute -bottom-0.5 -right-1 rounded-full border-2 border-gray-900">
+                <LeagueTierIcon tier={tier} />
               </div>
             )}
             {icon}
@@ -84,6 +84,10 @@ export function PlayerIdentityTooltip(props: { player: Player }) {
   const { player } = props;
 
   const updatedTimeago = `Updated ${timeago.format(player.updatedAt || new Date())}`;
+
+  // @ts-ignore
+  const leaguePoints = Math.max(0, player.leaguePoints);
+  const tier = getLeagueTier(leaguePoints);
 
   return (
     <>
@@ -126,27 +130,20 @@ export function PlayerIdentityTooltip(props: { player: Player }) {
         )}
         <div className="flex min-w-[5rem] flex-col px-4 py-3">
           <span className="mb-1 text-xs text-gray-200">League points</span>
-          <span>0</span>
+          <div className="flex gap-x-2">
+            <span>{formatNumber(leaguePoints, false)}</span>
+            {tier && (
+              <span className="flex items-center">
+                (<LeagueTierIcon tier={tier} />
+                &nbsp;{tier})
+              </span>
+            )}
+          </div>
         </div>
         {player.build !== PlayerBuild.MAIN && (
           <div className="flex min-w-[5rem] flex-col px-4 py-3">
             <span className="mb-1 text-xs text-gray-200">Build</span>
             <span>{PlayerBuildProps[player.build].name}</span>
-          </div>
-        )}
-        {player.country && (
-          <div className="flex min-w-[5rem] flex-col px-4 py-3">
-            <span className="mb-1 text-xs text-gray-200">Country</span>
-            <a
-              className="flex items-center gap-x-1 hover:underline"
-              href="https://wiseoldman.net/flags"
-              title="How to setup?"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Flag size="sm" country={player.country} className="h-3 w-3" />
-              <span className="line-clamp-1">{CountryProps[player.country].name}</span>
-            </a>
           </div>
         )}
       </div>

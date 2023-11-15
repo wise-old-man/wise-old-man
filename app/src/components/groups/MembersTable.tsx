@@ -73,13 +73,15 @@ const COLUMN_DEFS: ColumnDef<MembershipWithPlayer>[] = [
     },
   },
   {
-    id: "exp",
-    accessorFn: (row) => row.player.exp,
+    id: "points",
+    // @ts-ignore - Ignore for league
+    accessorFn: (row) => row.player.leaguePoints,
     header: ({ column }) => {
-      return <TableSortButton column={column}>Experience</TableSortButton>;
+      return <TableSortButton column={column}>League points</TableSortButton>;
     },
     cell: ({ row }) => {
-      return <FormattedNumber value={row.original.player.exp} />;
+      // @ts-ignore - Ignore for league
+      return <FormattedNumber value={row.original.player.leaguePoints} />;
     },
   },
   {

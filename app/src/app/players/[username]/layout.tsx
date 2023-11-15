@@ -1,18 +1,18 @@
 import React, { PropsWithChildren } from "react";
 import {
-  CountryProps,
   Player,
   PlayerBuild,
   PlayerBuildProps,
   PlayerDetails,
   PlayerStatus,
+  formatNumber,
 } from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
-import { getPlayerDetails } from "~/services/wiseoldman";
+import { getLeagueTier, getPlayerDetails } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { QueryLink } from "~/components/QueryLink";
 import { Container } from "~/components/Container";
-import { Flag, PlayerTypeIcon } from "~/components/Icon";
+import { LeagueTierIcon, PlayerTypeIcon } from "~/components/Icon";
 import { PlayerNavigation } from "~/components/players/PlayerNavigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { UpdatePlayerForm } from "~/components/players/UpdatePlayerForm";
@@ -71,7 +71,11 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
 }
 
 function Header(props: PlayerDetails) {
-  const { status, type, country, displayName } = props;
+  const { status, type, displayName } = props;
+
+  // @ts-ignore
+  const leaguePoints = Math.max(0, props.leaguePoints);
+  const tier = getLeagueTier(leaguePoints);
 
   let icon: React.ReactNode;
 
@@ -113,30 +117,9 @@ function Header(props: PlayerDetails) {
       </div>
       <div className="flex items-center gap-x-5">
         <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50 md:h-16 md:w-16">
-          {country && (
+          {tier && (
             <div className="absolute -right-2 bottom-0 md:-right-1 md:bottom-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Flag
-                    size="lg"
-                    country={country}
-                    className="h-5 w-5 rounded-full border-2 border-gray-900"
-                  />
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="flex min-w-[5rem] flex-col px-4 py-3">
-                  <span className="mb-1 text-xs text-gray-200">Country</span>
-                  <a
-                    className="flex items-center gap-x-2 hover:underline"
-                    href="https://wiseoldman.net/flags"
-                    title="How to setup?"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Flag size="sm" country={country} className="h-3 w-3" />
-                    <span className="line-clamp-1">{CountryProps[country].name}</span>
-                  </a>
-                </TooltipContent>
-              </Tooltip>
+              <LeagueTierIcon tier={tier} size="lg" />
             </div>
           )}
           {icon}
@@ -252,6 +235,10 @@ function PlayerStatusAlert(props: { player: Player }) {
 function PlayerAttributes(props: PlayerDetails) {
   const { status, build, latestSnapshot, patron } = props;
 
+  // @ts-ignore
+  const leaguePoints = Math.max(0, props.leaguePoints);
+  const tier = getLeagueTier(leaguePoints);
+
   const elements: React.ReactNode[] = [];
 
   if (patron) {
@@ -266,6 +253,12 @@ function PlayerAttributes(props: PlayerDetails) {
       </Tooltip>
     );
   }
+
+  elements.push(
+    <span>
+      {formatNumber(leaguePoints, false)} League points {tier ? `(${tier})` : ""}
+    </span>
+  );
 
   if (status === PlayerStatus.FLAGGED) {
     elements.push(<span className="text-orange-400">Flagged</span>);

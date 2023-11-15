@@ -1,16 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import { useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ACTIVITIES,
   BOSSES,
   COMPUTED_METRICS,
-  COUNTRY_CODES,
   ComputedMetric,
-  Country,
-  CountryProps,
   Metric,
   MetricProps,
   PLAYER_BUILDS,
@@ -18,7 +14,6 @@ import {
   PlayerBuildProps,
   SKILLS,
   isComputedMetric,
-  isCountry,
   isMetric,
   isPlayerBuild,
 } from "@wise-old-man/utils";
@@ -34,12 +29,7 @@ import {
   ComboboxSeparator,
 } from "~/components/Combobox";
 import { cn } from "~/utils/styling";
-import {
-  getComputedMetricParam,
-  getCountryParam,
-  getMetricParam,
-  getPlayerBuildParam,
-} from "~/utils/params";
+import { getComputedMetricParam, getMetricParam, getPlayerBuildParam } from "~/utils/params";
 import { MetricIconSmall } from "../Icon";
 
 export function LeaderboardsFilters() {
@@ -50,7 +40,6 @@ export function LeaderboardsFilters() {
   const isEfficiencyLeaderboard = pathname.includes("efficiency");
 
   const metric = getMetricParam(searchParams.get("metric")) || Metric.OVERALL;
-  const country = getCountryParam(searchParams.get("country"));
 
   let playerBuild = getPlayerBuildParam(searchParams.get("playerBuild"));
 
@@ -89,10 +78,6 @@ export function LeaderboardsFilters() {
       <PlayerBuildSelect
         playerBuild={playerBuild}
         onPlayerBuildSelected={(newPlayerBuild) => handleParamChanged("playerBuild", newPlayerBuild)}
-      />
-      <CountrySelect
-        country={country}
-        onCountrySelected={(newCountry) => handleParamChanged("country", newCountry)}
       />
     </div>
   );
@@ -269,58 +254,4 @@ function PlayerBuildSelect(props: PlayerBuildSelectProps) {
       </ComboboxContent>
     </Combobox>
   );
-}
-
-interface CountrySelectProps {
-  country: Country | undefined;
-  onCountrySelected: (country: Country | undefined) => void;
-}
-
-function CountrySelect(props: CountrySelectProps) {
-  const { country, onCountrySelected } = props;
-
-  const [isTransitioning, startTransition] = useTransition();
-
-  return (
-    <Combobox
-      value={country}
-      onValueChanged={(val) => {
-        startTransition(() => {
-          if (!val) return onCountrySelected(undefined);
-
-          const [code] = val.split("_");
-          if (code && isCountry(code)) onCountrySelected(code);
-        });
-      }}
-    >
-      <ComboboxButton isPending={isTransitioning}>
-        <div className={cn("flex items-center gap-x-2", !country && "text-gray-200")}>
-          {country && <CountryIcon country={country} />}
-          <span className="line-clamp-1 text-left">
-            {country ? CountryProps[country].name : "Country"}
-          </span>
-        </div>
-      </ComboboxButton>
-      <ComboboxContent className="w-80" align="end">
-        <ComboboxInput placeholder="Search countries..." />
-        <ComboboxEmpty>No results were found</ComboboxEmpty>
-        <ComboboxItemsContainer>
-          <ComboboxItemGroup label="Countries">
-            <ComboboxItem>Any country</ComboboxItem>
-            {COUNTRY_CODES.map((c) => (
-              <ComboboxItem key={c} value={`${c}_${CountryProps[c].name}`}>
-                <CountryIcon country={c} />
-                <span className="line-clamp-1">{CountryProps[c].name}</span>
-              </ComboboxItem>
-            ))}
-          </ComboboxItemGroup>
-        </ComboboxItemsContainer>
-      </ComboboxContent>
-    </Combobox>
-  );
-}
-
-function CountryIcon(props: { country: Country }) {
-  const { country } = props;
-  return <Image width={12} height={12} alt={country} src={`/img/flags/${country}.svg`} />;
 }
