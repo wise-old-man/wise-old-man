@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { BadRequestError, ForbiddenError } from '../../errors';
+import { ForbiddenError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import * as verificationGuard from '../../guards/verification.guard';
 import * as nameChangeServices from '../name-changes/name-change.services';
@@ -129,22 +129,20 @@ async function changeRole(req: Request): Promise<ControllerResponse> {
 }
 
 // POST /groups/:id/update-all
-async function updateAll(_req: Request): Promise<ControllerResponse> {
-  // const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
+async function updateAll(req: Request): Promise<ControllerResponse> {
+  const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 
-  // if (!isVerifiedCode) {
-  //   throw new ForbiddenError('Incorrect verification code.');
-  // }
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
+  }
 
-  // const outdatedCount = await groupServices.updateAllMembers({
-  //   groupId: getNumber(req.params.id)
-  // });
+  const outdatedCount = await groupServices.updateAllMembers({
+    groupId: getNumber(req.params.id)
+  });
 
-  // const message = `${outdatedCount} outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.`;
+  const message = `${outdatedCount} outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.`;
 
-  // return { statusCode: 200, response: { message } };
-  // TODO:
-  throw new BadRequestError('Currently disabled until the League starts.');
+  return { statusCode: 200, response: { message } };
 }
 
 // POST /groups/:id/members
