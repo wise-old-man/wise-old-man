@@ -1,7 +1,7 @@
 import prisma from '../../../prisma';
 import { PlayerStatus } from '../../../utils';
 import { BadRequestError } from '../../errors';
-// import * as jagexService from '../../services/external/jagex.service';
+import * as jagexService from '../../services/external/jagex.service';
 import jobManager from '../job.manager';
 import { JobType, JobDefinition, JobOptions } from '../job.types';
 
@@ -25,16 +25,17 @@ class CheckPlayerRankedJob implements JobDefinition<CheckPlayerRankedPayload> {
     };
   }
 
-  async execute(_data: CheckPlayerRankedPayload) {
-    // const { username } = data;
+  async execute(data: CheckPlayerRankedPayload) {
+    const { username } = data;
+
     // Since the hiscores are unstable, we can't assume that a 404 error from them is 100% accurate.
     // So, to make sure a player is no longer ranked on the hiscores, we need to make a few attempts,
     // and if all of them fail, then we can be pretty sure that the player is no longer ranked.
     // To avoid false positives due to a hiscores outage, this job has a exponential backoff strategy,
     // meaning that it will retry a few times, with a longer delay between each attempt.
     // Try to fetch stats for this player, let it throw an error if it fails.
-    // TODO: Disabled until League starts
-    // await jagexService.fetchHiscoresData(username);
+
+    await jagexService.fetchHiscoresData(username);
   }
 
   async onFailedAllAttempts(data: CheckPlayerRankedPayload, error: Error) {
