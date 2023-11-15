@@ -62,3 +62,42 @@ export function Flag(props: { country: Country; className?: string; size: "sm" |
     />
   );
 }
+
+export function LeagueTierIcon(props: { tier: string; size?: "sm" | "lg" }) {
+  const { tier, size = "sm" } = props;
+
+  let bgColor = "";
+
+  switch (tier) {
+    case "Bronze":
+      bgColor = "#6a512e";
+      break;
+    case "Iron":
+      bgColor = "#6c5f5d";
+      break;
+    case "Steel":
+      bgColor = "#aaa4a4";
+      break;
+    case "Mithril":
+      bgColor = "#51517c";
+      break;
+    case "Adamant":
+      bgColor = "#476547";
+      break;
+    case "Rune":
+      bgColor = "#577987";
+      break;
+    case "Dragon":
+      bgColor = "#ab3424";
+      break;
+  }
+
+  return (
+    <div
+      className={cn("rounded-full", size === "sm" ? "h-3 w-3" : "h-[1.125rem] w-[1.125rem]")}
+      style={{
+        background: bgColor,
+      }}
+    />
+  );
+}

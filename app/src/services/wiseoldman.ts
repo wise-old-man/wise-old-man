@@ -215,3 +215,14 @@ export const searchNameChanges = cache(
     return apiClient.nameChanges.searchNameChanges({ username, status }, { limit, offset });
   }
 );
+
+export function getLeagueTier(points: number) {
+  if (points < 2500) return null;
+  if (points < 5000) return "Bronze";
+  if (points < 10_000) return "Iron";
+  if (points < 18_000) return "Steel";
+  if (points < 28_000) return "Mithril";
+  if (points < 42_000) return "Adamant";
+  if (points < 56_000) return "Rune";
+  return "Dragon";
+}
