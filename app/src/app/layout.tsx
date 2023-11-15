@@ -7,7 +7,6 @@ import { ToastManager } from "~/components/ToastManager";
 import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { ReactQueryProvider } from "~/components/ReactQueryProvider";
 import { NavigationLoadingBar } from "~/components/NavigationLoadingBar";
-import { LeagueCountdownBanner } from "~/components/LeagueCountdownBanner";
 import "../globals.css";
 
 const inter = Inter({
@@ -31,7 +30,6 @@ function RootLayout(props: PropsWithChildren) {
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        <LeagueCountdownBanner />
         <NavigationLoadingBar />
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
