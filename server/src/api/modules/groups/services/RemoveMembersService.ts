@@ -68,6 +68,7 @@ async function removeMembers(payload: RemoveMembersService): Promise<{ count: nu
       throw new ServerError('Failed to remove members');
     });
 
+  groupEvents.onGroupUpdated(params.id);
   groupEvents.onMembersLeft(newActivites);
 
   logger.moderation(`[Group:${params.id}] (${toRemovePlayerIds}) removed`);

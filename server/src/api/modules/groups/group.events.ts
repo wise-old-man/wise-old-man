@@ -5,6 +5,14 @@ import * as discordService from '../../services/external/discord.service';
 import * as playerServices from '../players/player.services';
 import * as competitionServices from '../competitions/competition.services';
 
+function onGroupUpdated(groupId: number) {
+  jobManager.add({ type: JobType.UPDATE_GROUP_SCORE, payload: { groupId } });
+}
+
+function onGroupCreated(groupId: number) {
+  jobManager.add({ type: JobType.UPDATE_GROUP_SCORE, payload: { groupId } });
+}
+
 async function onMembersRolesChanged(events: MemberRoleChangeEvent[]) {
   await metrics.trackEffect(discordService.dispatchMembersRolesChanged, events);
 }
@@ -43,4 +51,4 @@ async function onMembersLeft(events: MemberLeftEvent[]) {
   await metrics.trackEffect(discordService.dispatchMembersLeft, groupId, playerIds);
 }
 
-export { onMembersJoined, onMembersLeft, onMembersRolesChanged };
+export { onGroupCreated, onGroupUpdated, onMembersJoined, onMembersLeft, onMembersRolesChanged };
