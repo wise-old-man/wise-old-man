@@ -103,6 +103,8 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
       throw new ServerError('Failed to add members.');
     });
 
+  groupEvents.onGroupUpdated(params.id);
+
   logger.moderation(`[Group:${params.id}] (${newMemberships.map(m => m.playerId)}) joined`);
 
   return { count: addedCount };

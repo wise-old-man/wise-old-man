@@ -8,6 +8,7 @@ import { GroupDetails } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
 import { sanitizeName } from '../group.utils';
+import { onGroupCreated } from '../group.events';
 
 const MIN_NAME_ERROR = 'Group name must have at least one character.';
 
@@ -97,6 +98,8 @@ async function createGroup(payload: CreateGroupParams): Promise<CreateGroupResul
       }
     }
   });
+
+  onGroupCreated(createdGroup.id);
 
   const priorities = PRIVELEGED_GROUP_ROLES.reverse();
 

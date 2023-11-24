@@ -4,6 +4,7 @@ import { NotFoundError } from '../../../errors';
 import { omit } from '../../../util/objects';
 import logger from '../../../util/logging';
 import { GroupListItem } from '../group.types';
+import { onGroupUpdated } from '../group.events';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -28,6 +29,8 @@ async function verifyGroup(payload: VerifyGroupService): Promise<GroupListItem> 
     });
 
     logger.moderation(`[Group:${params.id}] Verified`);
+
+    onGroupUpdated(params.id);
 
     return {
       ...omit(updatedGroup, '_count', 'verificationHash'),

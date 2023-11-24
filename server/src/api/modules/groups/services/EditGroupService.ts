@@ -14,7 +14,7 @@ import {
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
 import { sanitizeName } from '../group.utils';
-import { onMembersRolesChanged, onMembersJoined, onMembersLeft } from '../group.events';
+import { onMembersRolesChanged, onMembersJoined, onMembersLeft, onGroupUpdated } from '../group.events';
 
 const MIN_NAME_ERROR = 'Group name must have at least one character.';
 
@@ -111,6 +111,8 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
       socialLinks: true
     }
   });
+
+  onGroupUpdated(params.id);
 
   if (!updatedGroup) {
     throw new ServerError('Failed to edit group. (EditGroupService)');
