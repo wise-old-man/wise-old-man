@@ -17,18 +17,14 @@ import { sanitizeName } from '../group.utils';
 import { onMembersRolesChanged, onMembersJoined, onMembersLeft, onGroupUpdated } from '../group.events';
 
 const MIN_NAME_ERROR = 'Group name must have at least one character.';
-
 const MAX_NAME_ERROR = 'Group name cannot be longer than 30 characters.';
-
 const MAX_DESCRIPTION_ERROR = 'Description cannot be longer than 100 characters.';
+const MAX_URL_LENGTH_ERROR = "Image URL can't be longer than 255 characters.";
 
+const INVALID_IMAGE_URL_ERROR = `Invalid image URL.`;
+const INVALID_CLAN_CHAT_ERROR = `Invalid 'clanChat'. Must be 1-12 character long, contain no special characters and/or contain no space at the beginning or end of the name.`;
 const INVALID_MEMBERS_ARRAY_ERROR = "Parameter 'members' is not a valid array.";
-
-const INVALID_MEMBER_OBJECT_ERROR =
-  'Invalid members list. Must be an array of { username: string; role?: string; }.';
-
-const INVALID_CLAN_CHAT_ERROR =
-  "Invalid 'clanChat'. Must be 1-12 character long, contain no special characters and/or contain no space at the beginning or end of the name.";
+const INVALID_MEMBER_OBJECT_ERROR = `Invalid members list. Must be an array of { username: string; role?: string; }.`;
 
 const MEMBER_INPUT_SCHEMA = z.object(
   {
@@ -45,6 +41,8 @@ const inputSchema = z
     clanChat: z.string().optional(),
     homeworld: z.number().int().positive().optional(),
     description: z.string().max(100, MAX_DESCRIPTION_ERROR).optional(),
+    bannerImage: z.string().max(255, MAX_URL_LENGTH_ERROR).url(INVALID_IMAGE_URL_ERROR).optional(),
+    profileImage: z.string().max(255, MAX_URL_LENGTH_ERROR).url(INVALID_IMAGE_URL_ERROR).optional(),
     members: z.array(MEMBER_INPUT_SCHEMA, { invalid_type_error: INVALID_MEMBERS_ARRAY_ERROR }).optional()
   })
   .refine(s => !s.clanChat || isValidUsername(s.clanChat), {
@@ -57,8 +55,36 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
   const params = inputSchema.parse(payload);
   const updatedGroupFields: PrismaTypes.GroupUpdateInput = {};
 
-  if (!params.name && !params.clanChat && !params.homeworld && !params.description && !params.members) {
+  if (
+    !params.name &&
+    !params.clanChat &&
+    !params.homeworld &&
+    !params.description &&
+    !params.members &&
+    !params.bannerImage &&
+    !params.profileImage
+  ) {
     throw new BadRequestError('Nothing to update.');
+  }
+
+  const group = await prisma.group.findFirst({
+    where: { id: params.id }
+  });
+
+  if (!group) {
+    throw new BadRequestError('Group not found.');
+  }
+
+  if ((params.bannerImage || params.profileImage) && !group.patron) {
+    throw new BadRequestError('Banner or profile images can only be uploaded by patron groups.');
+  }
+
+  if (params.bannerImage) {
+    updatedGroupFields.bannerImage = params.bannerImage;
+  }
+
+  if (params.profileImage) {
+    updatedGroupFields.profileImage = params.profileImage;
   }
 
   if (params.members) {

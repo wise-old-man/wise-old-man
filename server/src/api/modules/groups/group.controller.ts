@@ -50,6 +50,8 @@ async function edit(req: Request): Promise<ControllerResponse> {
     clanChat: getString(req.body.clanChat),
     description: getString(req.body.description),
     homeworld: getNumber(req.body.homeworld),
+    bannerImage: getString(req.body.bannerImage),
+    profileImage: getString(req.body.profileImage),
     members: req.body.members
   });
 
