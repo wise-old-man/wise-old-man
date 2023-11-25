@@ -22,6 +22,7 @@ const MAX_DESCRIPTION_ERROR = 'Description cannot be longer than 100 characters.
 const MAX_URL_LENGTH_ERROR = "Image URL can't be longer than 255 characters.";
 
 const INVALID_IMAGE_URL_ERROR = `Invalid image URL.`;
+const INVALID_SOCIAL_LINK_URL_ERROR = `Invalid social link URL.`;
 const INVALID_CLAN_CHAT_ERROR = `Invalid 'clanChat'. Must be 1-12 character long, contain no special characters and/or contain no space at the beginning or end of the name.`;
 const INVALID_MEMBERS_ARRAY_ERROR = "Parameter 'members' is not a valid array.";
 const INVALID_MEMBER_OBJECT_ERROR = `Invalid members list. Must be an array of { username: string; role?: string; }.`;
@@ -34,6 +35,14 @@ const MEMBER_INPUT_SCHEMA = z.object(
   { invalid_type_error: INVALID_MEMBER_OBJECT_ERROR }
 );
 
+const SOCIAL_LINKS_SCHEMA = z.object({
+  website: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional(),
+  discord: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional(),
+  twitter: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional(),
+  twitch: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional(),
+  youtube: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional()
+});
+
 const inputSchema = z
   .object({
     id: z.number().int().positive(),
@@ -43,6 +52,7 @@ const inputSchema = z
     description: z.string().max(100, MAX_DESCRIPTION_ERROR).optional(),
     bannerImage: z.string().max(255, MAX_URL_LENGTH_ERROR).url(INVALID_IMAGE_URL_ERROR).optional(),
     profileImage: z.string().max(255, MAX_URL_LENGTH_ERROR).url(INVALID_IMAGE_URL_ERROR).optional(),
+    socialLinks: SOCIAL_LINKS_SCHEMA.optional(),
     members: z.array(MEMBER_INPUT_SCHEMA, { invalid_type_error: INVALID_MEMBERS_ARRAY_ERROR }).optional()
   })
   .refine(s => !s.clanChat || isValidUsername(s.clanChat), {
@@ -62,7 +72,8 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
     !params.description &&
     !params.members &&
     !params.bannerImage &&
-    !params.profileImage
+    !params.profileImage &&
+    !params.socialLinks
   ) {
     throw new BadRequestError('Nothing to update.');
   }
@@ -77,6 +88,10 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
 
   if ((params.bannerImage || params.profileImage) && !group.patron) {
     throw new BadRequestError('Banner or profile images can only be uploaded by patron groups.');
+  }
+
+  if (params.socialLinks && !group.patron) {
+    throw new BadRequestError('Social links can only be added to patron groups.');
   }
 
   if (params.bannerImage) {
@@ -160,21 +175,7 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
   };
 }
 
-async function executeUpdate(params: EditGroupParams, updatedGroupFields: PrismaTypes.GroupUpdateInput) {
-  if (!params.members) {
-    await prisma.group.update({
-      where: {
-        id: params.id
-      },
-      data: {
-        ...updatedGroupFields,
-        updatedAt: new Date() // Force update the "updatedAt" field
-      }
-    });
-
-    return;
-  }
-
+async function updateMembers(params: EditGroupParams) {
   const memberships = await prisma.membership.findMany({
     where: { groupId: params.id },
     include: { player: true }
@@ -307,6 +308,49 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
           ...changedRoleEvents.map(p => omit(p, 'previousRole'))
         ]
       });
+    })
+    .catch(error => {
+      logger.error('Failed to edit group', error);
+      throw new ServerError('Failed to edit group');
+    });
+
+  // If no error was thrown by this point, dispatch all events
+  if (leftEvents.length > 0) onMembersLeft(leftEvents);
+  if (joinedEvents.length > 0) onMembersJoined(joinedEvents);
+  if (changedRoleEvents.length > 0) onMembersRolesChanged(changedRoleEvents);
+}
+
+async function updateSocialLinks(params: EditGroupParams, transaction: PrismaTypes.TransactionClient) {
+  const existingId = await prisma.$queryRaw`
+    SELECT "id" FROM public."groupSocialLinks" WHERE "groupId" = ${params.id} LIMIT 1
+  `.then(rows => {
+    return rows && Array.isArray(rows) && rows.length > 0 ? rows[0].id : null;
+  });
+
+  if (!existingId) {
+    await transaction.groupSocialLinks.create({
+      data: { ...params.socialLinks, groupId: params.id }
+    });
+
+    return;
+  }
+
+  await transaction.groupSocialLinks.update({
+    where: { id: existingId },
+    data: params.socialLinks
+  });
+}
+
+async function executeUpdate(params: EditGroupParams, updatedGroupFields: PrismaTypes.GroupUpdateInput) {
+  if (params.members) {
+    await updateMembers(params);
+  }
+
+  await prisma
+    .$transaction(async transaction => {
+      if (params.socialLinks) {
+        await updateSocialLinks(params, transaction as unknown as PrismaTypes.TransactionClient);
+      }
 
       await transaction.group.update({
         where: {
@@ -322,11 +366,6 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
       logger.error('Failed to edit group', error);
       throw new ServerError('Failed to edit group');
     });
-
-  // If no error was thrown by this point, dispatch all events
-  if (leftEvents.length > 0) onMembersLeft(leftEvents);
-  if (joinedEvents.length > 0) onMembersJoined(joinedEvents);
-  if (changedRoleEvents.length > 0) onMembersRolesChanged(changedRoleEvents);
 }
 
 async function removeExcessMemberships(

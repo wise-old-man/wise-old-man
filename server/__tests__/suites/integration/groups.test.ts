@@ -551,6 +551,36 @@ describe('Group API', () => {
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
+    it('should not edit (invalid social link url)', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
+        verificationCode: globalData.testGroupNoMembers.verificationCode,
+        socialLinks: {
+          twitter: 'wrong'
+        }
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid social link URL.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit banner image (not a patron)', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
+        verificationCode: globalData.testGroupNoMembers.verificationCode,
+        socialLinks: {
+          twitter: 'https://twitter.com/RubenPsikoi'
+        }
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Social links can only be added to patron groups.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
     it('should not edit (invalid member name)', async () => {
       const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
         verificationCode: globalData.testGroupNoMembers.verificationCode,
@@ -1054,6 +1084,51 @@ describe('Group API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.bannerImage).toBe('https://avatars.githubusercontent.com/u/65183441?s=200&v=4');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should edit social links', async () => {
+      // Force this group to be a patron
+      await prisma.group.update({
+        where: {
+          id: globalData.testGroupOneLeader.id
+        },
+        data: {
+          patron: true
+        }
+      });
+
+      const firstResponse = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        socialLinks: {
+          twitter: 'https://twitter.com/RubenPsikoi',
+          youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+        }
+      });
+
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body.socialLinks).toMatchObject({
+        twitter: 'https://twitter.com/RubenPsikoi',
+        youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+      });
+
+      // Try again, but now override the existing twitter link, youtube shouldn't change
+
+      const secondResponse = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        socialLinks: {
+          twitter: 'https://twitter.com/OldSchoolRS'
+        }
+      });
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.socialLinks).toMatchObject({
+        twitter: 'https://twitter.com/OldSchoolRS',
+        youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+      });
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
