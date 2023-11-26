@@ -1161,14 +1161,16 @@ describe('Group API', () => {
         verificationCode: globalData.testGroupOneLeader.verificationCode,
         socialLinks: {
           twitter: 'https://twitter.com/RubenPsikoi',
-          youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+          youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+          twitch: '' // Accept empty string (to un-set links)
         }
       });
 
       expect(firstResponse.status).toBe(200);
       expect(firstResponse.body.socialLinks).toMatchObject({
         twitter: 'https://twitter.com/RubenPsikoi',
-        youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+        youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        twitch: ''
       });
 
       // Try again, but now override the existing twitter link, youtube shouldn't change
