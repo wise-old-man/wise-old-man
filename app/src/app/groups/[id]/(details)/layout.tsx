@@ -216,7 +216,7 @@ function GroupSocialLinks(props: NonNullable<GroupDetails["socialLinks"]>) {
 
   return (
     <div className="flex items-center gap-x-2">
-      {website && (
+      {website && website.trim().length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
             <a href={website} target="_blank" rel="noopener noreferrer">
@@ -228,7 +228,7 @@ function GroupSocialLinks(props: NonNullable<GroupDetails["socialLinks"]>) {
           <TooltipContent>Website</TooltipContent>
         </Tooltip>
       )}
-      {discord && (
+      {discord && discord.trim().length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
             <a href={discord} target="_blank" rel="noopener noreferrer">
@@ -240,7 +240,7 @@ function GroupSocialLinks(props: NonNullable<GroupDetails["socialLinks"]>) {
           <TooltipContent>Discord</TooltipContent>
         </Tooltip>
       )}
-      {twitter && (
+      {twitter && twitter.trim().length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
             <a href={twitter} target="_blank" rel="noopener noreferrer">
@@ -252,7 +252,7 @@ function GroupSocialLinks(props: NonNullable<GroupDetails["socialLinks"]>) {
           <TooltipContent>Twitter</TooltipContent>
         </Tooltip>
       )}
-      {twitch && (
+      {twitch && twitch.trim().length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
             <a href={twitch} target="_blank" rel="noopener noreferrer">
@@ -264,7 +264,7 @@ function GroupSocialLinks(props: NonNullable<GroupDetails["socialLinks"]>) {
           <TooltipContent>Twitch</TooltipContent>
         </Tooltip>
       )}
-      {youtube && (
+      {youtube && youtube.trim().length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
             <a href={youtube} target="_blank" rel="noopener noreferrer">
