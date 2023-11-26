@@ -27,6 +27,10 @@ const INVALID_CLAN_CHAT_ERROR = `Invalid 'clanChat'. Must be 1-12 character long
 const INVALID_MEMBERS_ARRAY_ERROR = "Parameter 'members' is not a valid array.";
 const INVALID_MEMBER_OBJECT_ERROR = `Invalid members list. Must be an array of { username: string; role?: string; }.`;
 
+// Only allow images from our DigitalOcean bucket CDN, to make sure people don't
+// upload unresize, or uncompressed images. They must edit images on the website.
+const ALLOWED_IMAGE_PATH = 'https://wiseoldman.ams3.cdn.digitaloceanspaces.com';
+
 const MEMBER_INPUT_SCHEMA = z.object(
   {
     username: z.string(),
@@ -92,6 +96,15 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
 
   if (params.socialLinks && !group.patron) {
     throw new BadRequestError('Social links can only be added to patron groups.');
+  }
+
+  if (
+    (params.bannerImage && !params.bannerImage.startsWith(ALLOWED_IMAGE_PATH)) ||
+    (params.profileImage && !params.profileImage.startsWith(ALLOWED_IMAGE_PATH))
+  ) {
+    throw new BadRequestError(
+      'Cannot upload images from external sources. Please upload an image via the website.'
+    );
   }
 
   if (params.bannerImage) {

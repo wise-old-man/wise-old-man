@@ -600,6 +600,58 @@ describe('Group API', () => {
       expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
+    it('should not edit profile image (unauthorized image source)', async () => {
+      // Force this group to be a patron
+      await prisma.group.update({
+        where: {
+          id: globalData.testGroupOneLeader.id
+        },
+        data: {
+          patron: true
+        }
+      });
+
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        profileImage: 'https://avatars.githubusercontent.com/u/65183441?s=200&v=4'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe(
+        'Cannot upload images from external sources. Please upload an image via the website.'
+      );
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit banner image (unauthorized image source)', async () => {
+      // Force this group to be a patron
+      await prisma.group.update({
+        where: {
+          id: globalData.testGroupOneLeader.id
+        },
+        data: {
+          patron: true
+        }
+      });
+
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        bannerImage: 'https://avatars.githubusercontent.com/u/65183441?s=200&v=4'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe(
+        'Cannot upload images from external sources. Please upload an image via the website.'
+      );
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+    });
+
     it('should edit members list', async () => {
       const before = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(before.status).toBe(200);
@@ -1055,11 +1107,13 @@ describe('Group API', () => {
 
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
-        profileImage: 'https://avatars.githubusercontent.com/u/65183441?s=200&v=4'
+        profileImage: 'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_profile_image.png'
       });
 
       expect(response.status).toBe(200);
-      expect(response.body.profileImage).toBe('https://avatars.githubusercontent.com/u/65183441?s=200&v=4');
+      expect(response.body.profileImage).toBe(
+        'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_profile_image.png'
+      );
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -1079,11 +1133,13 @@ describe('Group API', () => {
 
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
-        bannerImage: 'https://avatars.githubusercontent.com/u/65183441?s=200&v=4'
+        bannerImage: 'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_banner_image.png'
       });
 
       expect(response.status).toBe(200);
-      expect(response.body.bannerImage).toBe('https://avatars.githubusercontent.com/u/65183441?s=200&v=4');
+      expect(response.body.bannerImage).toBe(
+        'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_banner_image.png'
+      );
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
