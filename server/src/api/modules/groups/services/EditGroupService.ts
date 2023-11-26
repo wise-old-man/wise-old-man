@@ -28,7 +28,7 @@ const INVALID_MEMBERS_ARRAY_ERROR = "Parameter 'members' is not a valid array.";
 const INVALID_MEMBER_OBJECT_ERROR = `Invalid members list. Must be an array of { username: string; role?: string; }.`;
 
 // Only allow images from our DigitalOcean bucket CDN, to make sure people don't
-// upload unresize, or uncompressed images. They must edit images on the website.
+// upload unresize, or uncompressed images. They musgt edit images on the website.
 const ALLOWED_IMAGE_PATH = 'https://wiseoldman.ams3.cdn.digitaloceanspaces.com';
 
 const MEMBER_INPUT_SCHEMA = z.object(
@@ -40,11 +40,11 @@ const MEMBER_INPUT_SCHEMA = z.object(
 );
 
 const SOCIAL_LINKS_SCHEMA = z.object({
-  website: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional(),
-  discord: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional(),
-  twitter: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional(),
-  twitch: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional(),
-  youtube: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional()
+  website: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional().or(z.literal('')),
+  discord: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional().or(z.literal('')),
+  twitter: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional().or(z.literal('')),
+  twitch: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional().or(z.literal('')),
+  youtube: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional().or(z.literal(''))
 });
 
 const inputSchema = z
