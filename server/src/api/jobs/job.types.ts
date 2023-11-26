@@ -39,6 +39,7 @@ export type JobPayload = {
   [JobType.UPDATE_COMPETITION_SCORE]: UpdateCompetitionScorePayload;
   [JobType.UPDATE_GROUP_SCORE]: UpdateGroupScorePayload;
   [JobType.UPDATE_PLAYER]: UpdatePlayerJobPayload;
+  [JobType.SYNC_PATRONS]: undefined;
 };
 
 export enum JobPriority {
