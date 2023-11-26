@@ -41,6 +41,7 @@ import { GroupInformationForm } from "./GroupInformationForm";
 import { RuneLiteSyncDialog } from "./RuneLiteSyncDialog";
 import { EmptyGroupDialog } from "./EmptyGroupDialog";
 import { Input } from "../Input";
+import { BannerImageUpload, ProfileImageUpload } from "../ImageUpload";
 import { GroupVerificationCodeCheckDialog } from "./GroupVerificationCodeCheckDialog";
 
 import WebIcon from "~/assets/web.svg";
@@ -87,6 +88,13 @@ export function EditGroupForm(props: EditGroupFormProps) {
               verificationCode={verificationCode || ""}
             />
           )}
+          {section === "images" && (
+            <ImagesSection
+              {...props}
+              key={group.updatedAt.toString()}
+              verificationCode={verificationCode || ""}
+            />
+          )}
           {section === "links" && (
             <SocialLinksSection
               {...props}
@@ -103,6 +111,100 @@ export function EditGroupForm(props: EditGroupFormProps) {
         onValidated={setVerificationCode}
       />
     </Container>
+  );
+}
+
+function ImagesSection(props: EditGroupFormProps & { verificationCode: string }) {
+  const { group, verificationCode } = props;
+
+  const toast = useToast();
+  const router = useRouter();
+  const client = useWOMClient();
+
+  const [bannerImage, setBannerImage] = useState(group.bannerImage ?? undefined);
+  const [profileImage, setProfileImage] = useState(group.profileImage ?? undefined);
+
+  const [isTransitioning, startTransition] = useTransition();
+
+  const hasEditedProfileImage = group.profileImage
+    ? profileImage !== group.profileImage
+    : profileImage && profileImage !== "";
+
+  const hasEditedBannerImage = group.bannerImage
+    ? bannerImage !== group.bannerImage
+    : bannerImage && bannerImage !== "";
+
+  const hasUnsavedChanges = hasEditedProfileImage || hasEditedBannerImage;
+
+  const editImagesMutation = useMutation({
+    mutationFn: (params: { profileImage: string | undefined; bannerImage: string | undefined }) => {
+      return client.groups.editGroup(group.id, params, verificationCode);
+    },
+    onSuccess: () => {
+      startTransition(() => {
+        router.refresh();
+        toast.toast({ variant: "success", title: "Group edited successfully!" });
+      });
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.toast({ variant: "error", title: error.message });
+      }
+    },
+  });
+
+  return (
+    <div className="flex w-full flex-col gap-y-7">
+      <div>
+        <Label className="text-xs text-gray-200">Banner Image (1184x144)</Label>
+        <span className="mb-3 mt-2 block text-xs text-gray-100">
+          Note: The actual banner size that will be displayed on the group page is 1184x144. This is a
+          smaller preview, but still maintains the same aspect ratio.
+        </span>
+        <BannerImageUpload bannerImage={bannerImage ?? undefined} onImageUploaded={setBannerImage} />
+      </div>
+      <div>
+        <Label className="mb-2 block text-xs text-gray-200">Profile Image (120x120)</Label>
+        <ProfileImageUpload profileImage={profileImage ?? undefined} onImageUploaded={setProfileImage} />
+      </div>
+
+      <Alert>
+        <AlertDescription>
+          Need some help? Check out the{" "}
+          <a
+            href="https://www.figma.com/file/6jj3KGb5JxUXgTMQ7JmDjD/Group-Images-Size-Guide?type=design&node-id=0%3A1&mode=design&t=HMUEQitwRc5ijMZb-1"
+            className="text-medium text-xs text-blue-400"
+          >
+            official image size guide
+          </a>
+        </AlertDescription>
+      </Alert>
+
+      <div className="flex">
+        {hasUnsavedChanges && (
+          <div className="flex items-center justify-center text-center text-xs text-gray-200">
+            <WarningIcon className="mr-1 h-4 w-4" />
+            You have unsaved changes
+          </div>
+        )}
+        <div className="flex grow justify-end">
+          <Button
+            variant="blue"
+            onClick={() => editImagesMutation.mutate({ profileImage, bannerImage })}
+            disabled={editImagesMutation.isPending || isTransitioning || !hasUnsavedChanges}
+          >
+            {isTransitioning || editImagesMutation.isPending ? (
+              <>
+                <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>Save</>
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
 
