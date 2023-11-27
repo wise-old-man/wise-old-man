@@ -62,7 +62,7 @@ sidebar_position: 1
 | Field       | Type                                                                            | Description                                   |
 | :---------- | :------------------------------------------------------------------------------ | :-------------------------------------------- |
 | memberships | [GroupMembership](/groups-api/group-type-definitions#object-group-membership)[] | The group's memberships.                      |
-| socialLinks | [GroupSocialLinks](/groups-api/group-type-definitions#object-groupsociallinks)? | The group's social links (Patreon exclusive). |
+| socialLinks | [GroupSocialLinks](/groups-api/group-type-definitions#object-groupsociallinks)  | The group's social links (Patreon exclusive). |
 
 <br />
 
