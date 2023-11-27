@@ -120,17 +120,6 @@ async function syncBenefits() {
       }
     });
 
-    // Every player who was a patron and shouldn't be, is no longer a patron
-    await transaction.player.updateMany({
-      where: {
-        id: { notIn: patronPlayerIds },
-        patron: true
-      },
-      data: {
-        patron: false
-      }
-    });
-
     // Every group who wasn't a patron and should be, becomes a patron
     await transaction.group.updateMany({
       where: {
