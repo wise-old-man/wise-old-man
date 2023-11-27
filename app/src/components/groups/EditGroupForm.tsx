@@ -16,6 +16,7 @@ import { useState, useTransition } from "react";
 import { useToast } from "~/hooks/useToast";
 import { standardizeUsername } from "~/utils/strings";
 import { cn } from "~/utils/styling";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { Alert, AlertDescription, AlertTitle } from "../Alert";
 import { Badge } from "../Badge";
 import { Button } from "../Button";
@@ -39,12 +40,18 @@ import { Tabs, TabsList, TabsTrigger } from "../Tabs";
 import { GroupInformationForm } from "./GroupInformationForm";
 import { RuneLiteSyncDialog } from "./RuneLiteSyncDialog";
 import { EmptyGroupDialog } from "./EmptyGroupDialog";
+import { Input } from "../Input";
+import { BannerImageUpload, ProfileImageUpload } from "../ImageUpload";
 import { GroupVerificationCodeCheckDialog } from "./GroupVerificationCodeCheckDialog";
 
+import WebIcon from "~/assets/web.svg";
+import TwitchIcon from "~/assets/twitch.svg";
 import WarningIcon from "~/assets/warning.svg";
 import LoadingIcon from "~/assets/loading.svg";
+import TwitterIcon from "~/assets/twitter.svg";
+import DiscordIcon from "~/assets/discord.svg";
+import YoutubeIcon from "~/assets/youtube.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
-import { useWOMClient } from "~/hooks/useWOMClient";
 
 interface EditGroupFormProps {
   group: GroupDetails;
@@ -57,24 +64,39 @@ export function EditGroupForm(props: EditGroupFormProps) {
   const [verificationCode, setVerificationCode] = useState<string | undefined>();
 
   return (
-    <Container style={{ "--max-width": "56rem" }}>
+    <Container style={{ "--max-width": "64rem" }}>
       <h1 className="mt-3 border-gray-600 text-xl font-bold md:border-b md:pb-7 md:text-3xl">
         {group.name}
       </h1>
 
       <div className="grid-cols-10 gap-x-12 md:grid">
         <div className="col-span-3 border-gray-600 pt-7 md:border-r md:pr-7">
-          <SideNavigation />
+          <SideNavigation showPatronTabs={group.patron} />
         </div>
         <div className="col-span-7 flex pt-7">
-          {section === "members" ? (
+          {(!section || section === "general") && (
+            <GeneralSection
+              {...props}
+              key={group.updatedAt.toString()}
+              verificationCode={verificationCode || ""}
+            />
+          )}
+          {section === "members" && (
             <MembersSection
               {...props}
               key={group.updatedAt.toString()}
               verificationCode={verificationCode || ""}
             />
-          ) : (
-            <GeneralSection
+          )}
+          {section === "images" && (
+            <ImagesSection
+              {...props}
+              key={group.updatedAt.toString()}
+              verificationCode={verificationCode || ""}
+            />
+          )}
+          {section === "links" && (
+            <SocialLinksSection
               {...props}
               key={group.updatedAt.toString()}
               verificationCode={verificationCode || ""}
@@ -89,6 +111,255 @@ export function EditGroupForm(props: EditGroupFormProps) {
         onValidated={setVerificationCode}
       />
     </Container>
+  );
+}
+
+function ImagesSection(props: EditGroupFormProps & { verificationCode: string }) {
+  const { group, verificationCode } = props;
+
+  const toast = useToast();
+  const router = useRouter();
+  const client = useWOMClient();
+
+  const [bannerImage, setBannerImage] = useState(group.bannerImage ?? undefined);
+  const [profileImage, setProfileImage] = useState(group.profileImage ?? undefined);
+
+  const [isTransitioning, startTransition] = useTransition();
+
+  const hasEditedProfileImage = group.profileImage
+    ? profileImage !== group.profileImage
+    : profileImage && profileImage !== "";
+
+  const hasEditedBannerImage = group.bannerImage
+    ? bannerImage !== group.bannerImage
+    : bannerImage && bannerImage !== "";
+
+  const hasUnsavedChanges = hasEditedProfileImage || hasEditedBannerImage;
+
+  const editImagesMutation = useMutation({
+    mutationFn: (params: { profileImage: string | undefined; bannerImage: string | undefined }) => {
+      return client.groups.editGroup(group.id, params, verificationCode);
+    },
+    onSuccess: () => {
+      startTransition(() => {
+        router.refresh();
+        toast.toast({ variant: "success", title: "Group edited successfully!" });
+      });
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.toast({ variant: "error", title: error.message });
+      }
+    },
+  });
+
+  return (
+    <div className="flex w-full flex-col gap-y-7">
+      <div>
+        <Label className="text-xs text-gray-200">Banner Image (1184x144)</Label>
+        <span className="mb-3 mt-2 block text-xs text-gray-100">
+          Note: The actual banner size that will be displayed on the group page is 1184x144. This is a
+          smaller preview, but still maintains the same aspect ratio.
+        </span>
+        <BannerImageUpload bannerImage={bannerImage ?? undefined} onImageUploaded={setBannerImage} />
+      </div>
+      <div>
+        <Label className="mb-2 block text-xs text-gray-200">Profile Image (120x120)</Label>
+        <ProfileImageUpload profileImage={profileImage ?? undefined} onImageUploaded={setProfileImage} />
+      </div>
+
+      <Alert>
+        <AlertDescription>
+          Need some help? Check out the{" "}
+          <a
+            href="https://www.figma.com/file/6jj3KGb5JxUXgTMQ7JmDjD/Group-Images-Size-Guide?type=design&node-id=0%3A1&mode=design&t=HMUEQitwRc5ijMZb-1"
+            className="text-medium text-xs text-primary-400"
+          >
+            official image size guide
+          </a>
+        </AlertDescription>
+      </Alert>
+
+      <div className="flex">
+        {hasUnsavedChanges && (
+          <div className="flex items-center justify-center text-center text-xs text-gray-200">
+            <WarningIcon className="mr-1 h-4 w-4" />
+            You have unsaved changes
+          </div>
+        )}
+        <div className="flex grow justify-end">
+          <Button
+            variant="primary"
+            onClick={() => editImagesMutation.mutate({ profileImage, bannerImage })}
+            disabled={editImagesMutation.isPending || isTransitioning || !hasUnsavedChanges}
+          >
+            {isTransitioning || editImagesMutation.isPending ? (
+              <>
+                <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>Save</>
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type GroupSocialLinks = GroupDetails["socialLinks"];
+
+function SocialLinksSection(props: EditGroupFormProps & { verificationCode: string }) {
+  const { group, verificationCode } = props;
+  const socialLinks = group.socialLinks ?? ({} as GroupSocialLinks);
+
+  const toast = useToast();
+  const router = useRouter();
+  const client = useWOMClient();
+
+  const [website, setWebsite] = useState(socialLinks?.website ?? "");
+  const [discord, setDiscord] = useState(socialLinks?.discord ?? "");
+  const [twitter, setTwitter] = useState(socialLinks?.twitter ?? "");
+  const [youtube, setYoutube] = useState(socialLinks?.youtube ?? "");
+  const [twitch, setTwitch] = useState(socialLinks?.twitch ?? "");
+
+  const [isTransitioning, startTransition] = useTransition();
+
+  const hasEditedWebsite = socialLinks?.website ? website !== socialLinks.website : website !== "";
+  const hasEditedDiscord = socialLinks?.discord ? discord !== socialLinks.discord : discord !== "";
+  const hasEditedTwitch = socialLinks?.twitch ? twitch !== socialLinks.twitch : twitch !== "";
+  const hasEditedTwitter = socialLinks?.twitter ? twitter !== socialLinks.twitter : twitter !== "";
+  const hasEditedYoutube = socialLinks?.youtube ? youtube !== socialLinks.youtube : youtube !== "";
+
+  const hasUnsavedChanges =
+    hasEditedWebsite || hasEditedDiscord || hasEditedTwitch || hasEditedTwitter || hasEditedYoutube;
+
+  const editSocialLinksMutation = useMutation({
+    mutationFn: (socialLinks: Required<GroupSocialLinks>) => {
+      if (!socialLinks) throw Error();
+
+      const payload = {
+        socialLinks: {
+          website: socialLinks.website ? socialLinks.website.trim() : "",
+          discord: socialLinks.discord ? socialLinks.discord.trim() : "",
+          twitter: socialLinks.twitter ? socialLinks.twitter.trim() : "",
+          youtube: socialLinks.youtube ? socialLinks.youtube.trim() : "",
+          twitch: socialLinks.twitch ? socialLinks.twitch.trim() : "",
+        },
+      };
+
+      return client.groups.editGroup(group.id, payload, verificationCode);
+    },
+    onSuccess: () => {
+      startTransition(() => {
+        router.refresh();
+        toast.toast({ variant: "success", title: "Group edited successfully!" });
+      });
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.toast({ variant: "error", title: error.message });
+      }
+    },
+  });
+
+  return (
+    <div className="w-full">
+      <form
+        className="flex flex-col gap-y-7"
+        onSubmit={(e) => {
+          e.preventDefault();
+          editSocialLinksMutation.mutate({ website, discord, twitter, youtube, twitch });
+        }}
+      >
+        <div>
+          <Label htmlFor="website" className="mb-2 block text-xs text-gray-200">
+            Website URL
+          </Label>
+          <Input
+            id="website"
+            placeholder="Your group's website (or RS forums) URL."
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            leftElement={<WebIcon className="mt-px h-4 w-4 text-gray-200" />}
+            autoFocus
+          />
+        </div>
+        <div>
+          <Label htmlFor="discord" className="mb-2 block text-xs text-gray-200">
+            Discord URL
+          </Label>
+          <Input
+            id="discord"
+            placeholder="Your group's Discord URL."
+            value={discord}
+            onChange={(e) => setDiscord(e.target.value)}
+            leftElement={<DiscordIcon className="mt-px h-4 w-4 text-gray-200" />}
+          />
+        </div>
+        <div>
+          <Label htmlFor="twitter" className="mb-2 block text-xs text-gray-200">
+            Twitter URL
+          </Label>
+          <Input
+            id="twitter"
+            placeholder="Your group's Twitter URL."
+            value={twitter}
+            onChange={(e) => setTwitter(e.target.value)}
+            leftElement={<TwitterIcon className="mt-px h-4 w-4 text-gray-200" />}
+          />
+        </div>
+        <div>
+          <Label htmlFor="youtube" className="mb-2 block text-xs text-gray-200">
+            Youtube URL
+          </Label>
+          <Input
+            id="youtube"
+            placeholder="Your group's youtube URL."
+            value={youtube}
+            onChange={(e) => setYoutube(e.target.value)}
+            leftElement={<YoutubeIcon className="mt-px h-4 w-4 text-gray-200" />}
+          />
+        </div>
+        <div>
+          <Label htmlFor="twitch" className="mb-2 block text-xs text-gray-200">
+            Twitch URL
+          </Label>
+          <Input
+            id="twitch"
+            placeholder="Your group's Twitch URL."
+            value={twitch}
+            onChange={(e) => setTwitch(e.target.value)}
+            leftElement={<TwitchIcon className="mt-px h-4 w-4 text-gray-200" />}
+          />
+        </div>
+
+        <div className="flex">
+          {hasUnsavedChanges && (
+            <div className="flex items-center justify-center text-center text-xs text-gray-200">
+              <WarningIcon className="mr-1 h-4 w-4" />
+              You have unsaved changes
+            </div>
+          )}
+          <div className="flex grow justify-end">
+            <Button
+              variant="primary"
+              disabled={editSocialLinksMutation.isPending || isTransitioning || !hasUnsavedChanges}
+            >
+              {isTransitioning || editSocialLinksMutation.isPending ? (
+                <>
+                  <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>Save</>
+              )}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </div>
   );
 }
 
@@ -350,51 +621,55 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
   );
 }
 
-function SideNavigation() {
+interface SideNavigationProps {
+  showPatronTabs: boolean;
+}
+
+function SideNavigation(props: SideNavigationProps) {
   const searchParams = useSearchParams();
   const section = searchParams.get("section");
 
+  const sections = [
+    { name: "General", value: "general" },
+    { name: "Members", value: "members" },
+  ];
+
+  if (props.showPatronTabs) {
+    sections.push({ name: "Profile & Banner images", value: "images" });
+    sections.push({ name: "Social links", value: "links" });
+  }
+
   return (
     <>
-      <div className="block md:hidden">
+      <div className="custom-scroll block overflow-x-auto md:hidden">
         <Tabs defaultValue={section || "general"}>
           <TabsList>
-            <QueryLink query={{ section: "general" }}>
-              <TabsTrigger value="general">General</TabsTrigger>
-            </QueryLink>
-            <QueryLink query={{ section: "members" }}>
-              <TabsTrigger value="members">Members</TabsTrigger>
-            </QueryLink>
+            {sections.map((s) => (
+              <QueryLink key={s.value} query={{ section: s.value }}>
+                <TabsTrigger value={s.value}>{s.name}</TabsTrigger>
+              </QueryLink>
+            ))}
           </TabsList>
         </Tabs>
       </div>
       <ul className="hidden md:block">
-        <QueryLink query={{ section: "general" }}>
-          <li
-            className={cn(
-              "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
-              (!section || section === "general") && "bg-gray-700 text-white"
-            )}
-          >
-            {(!section || section === "general") && (
-              <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-primary-500" />
-            )}
-            General
-          </li>
-        </QueryLink>
-        <QueryLink query={{ section: "members" }}>
-          <li
-            className={cn(
-              "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
-              section === "members" && "bg-gray-700 text-white"
-            )}
-          >
-            {section === "members" && (
-              <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-primary-500" />
-            )}
-            Members
-          </li>
-        </QueryLink>
+        {sections.map((s) => {
+          const isSelected = s.value === section || (s.value === "general" && !section);
+
+          return (
+            <QueryLink key={s.value} query={{ section: s.value }}>
+              <li
+                className={cn(
+                  "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
+                  isSelected && "bg-gray-700 text-white"
+                )}
+              >
+                {isSelected && <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-primary-500" />}
+                {s.name}
+              </li>
+            </QueryLink>
+          );
+        })}
       </ul>
     </>
   );

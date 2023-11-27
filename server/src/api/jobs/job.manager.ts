@@ -114,7 +114,7 @@ class JobManager {
     const priority = (options && options.priority) || JobPriority.MEDIUM;
     const payload = 'payload' in job ? job.payload : {};
 
-    logger.info(`Added job: ${job.type}`, job.payload, true);
+    logger.info(`Added job: ${job.type}`, 'payload' in job ? job.payload : {}, true);
 
     matchingQueue.add(job.type, payload, { ...options, priority });
   }

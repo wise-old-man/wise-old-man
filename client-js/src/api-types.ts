@@ -1,3 +1,4 @@
+import { GroupSocialLinks } from '../../server/src/prisma';
 import {
   PlayerDeltasArray,
   PlayerDeltasMap,
@@ -58,7 +59,11 @@ export interface CreateGroupPayload {
   members: Array<GroupMemberFragment>;
 }
 
-export type EditGroupPayload = Partial<CreateGroupPayload>;
+export type EditGroupPayload = Partial<CreateGroupPayload> & {
+  bannerImage?: string;
+  profileImage?: string;
+  socialLinks?: Partial<GroupSocialLinks>;
+};
 
 export interface CreateGroupResponse {
   group: GroupDetails;

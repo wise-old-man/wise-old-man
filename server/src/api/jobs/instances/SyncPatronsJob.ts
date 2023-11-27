@@ -1,7 +1,8 @@
-import env from '../../../env';
+import env, { isDevelopment } from '../../../env';
 import prisma, { Patron } from '../../../prisma';
 import { getPatrons } from '../../services/external/patreon.service';
 import { JobType, JobDefinition } from '../job.types';
+import { onGroupUpdated } from '../../modules/groups/group.events';
 
 class SyncPatronsJob implements JobDefinition<unknown> {
   type: JobType;
@@ -11,7 +12,7 @@ class SyncPatronsJob implements JobDefinition<unknown> {
   }
 
   async execute() {
-    if (!env.PATREON_BEARER_TOKEN) {
+    if (!env.PATREON_BEARER_TOKEN || isDevelopment()) {
       return;
     }
 
@@ -89,6 +90,13 @@ async function syncBenefits() {
   const patronGroupIds = updatedPatrons.map(p => p.groupId).filter((id): id is number => id !== null);
   const patronPlayerIds = updatedPatrons.map(p => p.playerId).filter((id): id is number => id !== null);
 
+  const newPatronGroups = await prisma.group.findMany({
+    where: {
+      id: { in: patronGroupIds },
+      patron: false
+    }
+  });
+
   await prisma.$transaction(async transaction => {
     // Every player who wasn't a patron and should be, becomes a patron
     await transaction.player.updateMany({
@@ -142,6 +150,10 @@ async function syncBenefits() {
         groupId: { notIn: patronGroupIds }
       }
     });
+  });
+
+  newPatronGroups.forEach(group => {
+    onGroupUpdated(group.id);
   });
 }
 

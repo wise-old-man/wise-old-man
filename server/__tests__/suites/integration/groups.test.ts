@@ -459,6 +459,128 @@ describe('Group API', () => {
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
+    it('should not edit (invalid banner image url)', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
+        verificationCode: globalData.testGroupNoMembers.verificationCode,
+        bannerImage: 'wrong'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid image URL.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit (over max length for banner image url)', async () => {
+      let str = '';
+      for (let i = 0; i < 300; i++) {
+        str += '.';
+      }
+
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
+        verificationCode: globalData.testGroupNoMembers.verificationCode,
+        bannerImage: str
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Image URL can't be longer than 255 characters.");
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit (invalid profile image url)', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
+        verificationCode: globalData.testGroupNoMembers.verificationCode,
+        profileImage: 'wrong'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid image URL.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit (over max length for profile image url)', async () => {
+      let str = '';
+      for (let i = 0; i < 300; i++) {
+        str += '.';
+      }
+
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
+        verificationCode: globalData.testGroupNoMembers.verificationCode,
+        profileImage: str
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Image URL can't be longer than 255 characters.");
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit profile image (not a patron)', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
+        verificationCode: globalData.testGroupNoMembers.verificationCode,
+        profileImage: 'https://avatars.githubusercontent.com/u/65183441?s=200&v=4'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        'Banner or profile images can only be uploaded by patron groups.'
+      );
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit banner image (not a patron)', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
+        verificationCode: globalData.testGroupNoMembers.verificationCode,
+        bannerImage: 'https://avatars.githubusercontent.com/u/65183441?s=200&v=4'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        'Banner or profile images can only be uploaded by patron groups.'
+      );
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit (invalid social link url)', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
+        verificationCode: globalData.testGroupNoMembers.verificationCode,
+        socialLinks: {
+          twitter: 'wrong'
+        }
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid social link URL.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit social links (not a patron)', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
+        verificationCode: globalData.testGroupNoMembers.verificationCode,
+        socialLinks: {
+          twitter: 'https://twitter.com/RubenPsikoi'
+        }
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Social links can only be added to patron groups.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
     it('should not edit (invalid member name)', async () => {
       const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
         verificationCode: globalData.testGroupNoMembers.verificationCode,
@@ -472,6 +594,58 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found 1 invalid usernames');
       expect(response.body.data).toEqual(['Some really long username']);
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit profile image (unauthorized image source)', async () => {
+      // Force this group to be a patron
+      await prisma.group.update({
+        where: {
+          id: globalData.testGroupOneLeader.id
+        },
+        data: {
+          patron: true
+        }
+      });
+
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        profileImage: 'https://avatars.githubusercontent.com/u/65183441?s=200&v=4'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe(
+        'Cannot upload images from external sources. Please upload an image via the website.'
+      );
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit banner image (unauthorized image source)', async () => {
+      // Force this group to be a patron
+      await prisma.group.update({
+        where: {
+          id: globalData.testGroupOneLeader.id
+        },
+        data: {
+          patron: true
+        }
+      });
+
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        bannerImage: 'https://avatars.githubusercontent.com/u/65183441?s=200&v=4'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe(
+        'Cannot upload images from external sources. Please upload an image via the website.'
+      );
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -918,6 +1092,109 @@ describe('Group API', () => {
         verificationCode: createResponse.body.verificationCode
       });
       expect(deleteResponse.status).toBe(200);
+    });
+
+    it('should edit profile image', async () => {
+      // Force this group to be a patron
+      await prisma.group.update({
+        where: {
+          id: globalData.testGroupOneLeader.id
+        },
+        data: {
+          patron: true
+        }
+      });
+
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        profileImage: 'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_profile_image.png'
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.profileImage).toBe(
+        'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_profile_image.png'
+      );
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should edit banner image', async () => {
+      // Force this group to be a patron
+      await prisma.group.update({
+        where: {
+          id: globalData.testGroupOneLeader.id
+        },
+        data: {
+          patron: true
+        }
+      });
+
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        bannerImage: 'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_banner_image.png'
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.bannerImage).toBe(
+        'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_banner_image.png'
+      );
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should edit social links', async () => {
+      // Force this group to be a patron
+      await prisma.group.update({
+        where: {
+          id: globalData.testGroupOneLeader.id
+        },
+        data: {
+          patron: true
+        }
+      });
+
+      const firstResponse = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        socialLinks: {
+          twitter: 'https://twitter.com/RubenPsikoi',
+          youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+          twitch: 'https://www.twitch.tv/oldschoolrs',
+          discord: 'https://discord.gg/wiseoldman'
+        }
+      });
+
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body.socialLinks).toMatchObject({
+        twitter: 'https://twitter.com/RubenPsikoi',
+        youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        twitch: 'https://www.twitch.tv/oldschoolrs'
+      });
+
+      // Try again, but now override the existing twitter link, unset twitch, youtube shouldn't change
+
+      const secondResponse = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        socialLinks: {
+          twitter: 'https://twitter.com/OldSchoolRS',
+          twitch: null, // unset the twitch link,
+          discord: '' // unset the discord link (empty strings get converted to null values)
+        }
+      });
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.socialLinks).toMatchObject({
+        twitter: 'https://twitter.com/OldSchoolRS',
+        youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        twitch: null
+      });
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
   });
 

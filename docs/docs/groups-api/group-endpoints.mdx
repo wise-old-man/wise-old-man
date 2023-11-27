@@ -401,17 +401,24 @@ Edit an existing group. Returns the updated [GroupDetails](/groups-api/group-typ
 
 **Body Params**
 
-| Field            | Type                                                                                       | Required | Description                    |
-| ---------------- | ------------------------------------------------------------------------------------------ | -------- | ------------------------------ |
-| name             | string?                                                                                    | `false`  | The group's name.              |
-| clanChat         | string?                                                                                    | `false`  | The group's clanChat.          |
-| description      | string?                                                                                    | `false`  | The group's description.       |
-| homeworld        | number?                                                                                    | `false`  | The group's homeworld.         |
-| members          | [GroupMemberFragment](/groups-api/group-type-definitions#object-group-member-fragment)[] ? | `false`  | The group's new members list.  |
-| verificationCode | string                                                                                     | `true`   | The group's verification code. |
+| Field            | Type                                                                                       | Required | Description                                             |
+| ---------------- | ------------------------------------------------------------------------------------------ | -------- | ------------------------------------------------------- |
+| name             | string?                                                                                    | `false`  | The group's name.                                       |
+| clanChat         | string?                                                                                    | `false`  | The group's clanChat.                                   |
+| description      | string?                                                                                    | `false`  | The group's description.                                |
+| homeworld        | number?                                                                                    | `false`  | The group's homeworld.                                  |
+| members          | [GroupMemberFragment](/groups-api/group-type-definitions#object-group-member-fragment)[] ? | `false`  | The group's new members list.                           |
+| bannerImage      | string?                                                                                    | `false`  | The group's banner image URL **(only patron groups)**.  |
+| profileImage     | string?                                                                                    | `false`  | The group's profile image URL **(only patron groups)**. |
+| socialLinks      | [GroupSocialLinks](/groups-api/group-type-definitions#object-groupsociallinks)?            | `false`  | The group's social links **(only patron groups)**.      |
+| verificationCode | string                                                                                     | `true`   | The group's verification code.                          |
 
 :::info
 Only the fields provided in the body params are updated.
+:::
+
+:::info
+Image urls (for `bannerImage` and `profileImage`) must be uploaded to WOM's image server first. We highly recommend editing images on the website instead.
 :::
 
 :::caution

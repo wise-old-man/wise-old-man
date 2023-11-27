@@ -7,7 +7,8 @@ import { BadRequestError, ServerError } from '../../../errors';
 import { GroupDetails } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
-import { sanitizeName } from '../group.utils';
+import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
+import { onGroupCreated } from '../group.events';
 
 const MIN_NAME_ERROR = 'Group name must have at least one character.';
 
@@ -98,6 +99,8 @@ async function createGroup(payload: CreateGroupParams): Promise<CreateGroupResul
     }
   });
 
+  onGroupCreated(createdGroup.id);
+
   const priorities = PRIVELEGED_GROUP_ROLES.reverse();
 
   const sortedMemberships = createdGroup.memberships.sort(
@@ -107,6 +110,7 @@ async function createGroup(payload: CreateGroupParams): Promise<CreateGroupResul
   return {
     group: {
       ...omit(createdGroup, 'verificationHash'),
+      socialLinks: buildDefaultSocialLinks(),
       memberCount: sortedMemberships.length,
       memberships: sortedMemberships
     },

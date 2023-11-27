@@ -9,9 +9,9 @@ import {
 } from "@wise-old-man/utils";
 import Link from "next/link";
 import { getLeagueTier } from "~/services/wiseoldman";
+import { LeagueTierIcon, PlayerTypeIcon } from "./Icon";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
-import { LeagueTierIcon, PlayerTypeIcon } from "./Icon";
 import { Badge } from "./Badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
