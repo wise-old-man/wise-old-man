@@ -2,6 +2,7 @@ import { z } from 'zod';
 import prisma, { Patron } from '../../../../prisma';
 import { JobType, jobManager } from '../../../jobs';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
+import { standardize } from '../../players/player.utils';
 
 const inputSchema = z.object({
   discordId: z.string(),
@@ -36,7 +37,7 @@ async function claimPatreonBenefits(payload: ClaimPatreonBenefitsServiceParams):
 
   if (username) {
     const player = await prisma.player.findFirst({
-      where: { username }
+      where: { username: standardize(username) }
     });
 
     if (!player) {
