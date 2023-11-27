@@ -6,4 +6,14 @@ function sanitizeName(name: string): string {
     .trim();
 }
 
-export { sanitizeName };
+function buildDefaultSocialLinks() {
+  return {
+    website: null,
+    discord: null,
+    twitter: null,
+    youtube: null,
+    twitch: null
+  };
+}
+
+export { sanitizeName, buildDefaultSocialLinks };

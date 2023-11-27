@@ -2421,31 +2421,31 @@ describe('Competition API', () => {
         player: { username: 'rorro' },
         progress: { start: 500, end: 557, gained: 57 }
       });
-      expect(response.body.participations[0].levels).toBeUndefined(); // shouldn't exist on a zulrah competition
+      expect(response.body.participations[0].levels).toMatchObject({ start: -1, end: -1, gained: 0 }); // should be the default for non-skill competitions
 
       expect(response.body.participations[1]).toMatchObject({
         player: { username: 'usbc' },
         progress: { start: -1, end: 60, gained: 56 } // we start counting at 4 kc (min kc is 5)
       });
-      expect(response.body.participations[1].levels).toBeUndefined(); // shouldn't exist on a zulrah competition
+      expect(response.body.participations[1].levels).toMatchObject({ start: -1, end: -1, gained: 0 }); // should be the default for non-skill competitions
 
       expect(response.body.participations[2]).toMatchObject({
         player: { username: 'lynx titan' },
         progress: { start: 1646, end: 1646, gained: 0 }
       });
-      expect(response.body.participations[2].levels).toBeUndefined(); // shouldn't exist on a zulrah competition
+      expect(response.body.participations[2].levels).toMatchObject({ start: -1, end: -1, gained: 0 }); // should be the default for non-skill competitions
 
       expect(response.body.participations[3]).toMatchObject({
         player: { username: 'psikoi' },
         progress: { start: 1000, end: 1000, gained: 0 }
       });
-      expect(response.body.participations[3].levels).toBeUndefined(); // shouldn't exist on a zulrah competition
+      expect(response.body.participations[3].levels).toMatchObject({ start: -1, end: -1, gained: 0 }); // should be the default for non-skill competitions
 
       expect(response.body.participations[4]).toMatchObject({
         player: { username: 'zulu' },
         progress: { start: -1, end: -1, gained: 0 }
       });
-      expect(response.body.participations[4].levels).toBeUndefined(); // shouldn't exist on a zulrah competition
+      expect(response.body.participations[4].levels).toMatchObject({ start: -1, end: -1, gained: 0 }); // should be the default for non-skill competitions
     });
 
     it('should view details (other metric)', async () => {
