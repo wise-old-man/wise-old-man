@@ -40,11 +40,21 @@ const MEMBER_INPUT_SCHEMA = z.object(
 );
 
 const SOCIAL_LINKS_SCHEMA = z.object({
-  website: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional().or(z.literal('')),
-  discord: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional().or(z.literal('')),
-  twitter: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional().or(z.literal('')),
-  twitch: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional().or(z.literal('')),
-  youtube: z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).optional().or(z.literal(''))
+  website: z.optional(
+    z.preprocess(str => (str === '' ? null : str), z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).or(z.null()))
+  ),
+  discord: z.optional(
+    z.preprocess(str => (str === '' ? null : str), z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).or(z.null()))
+  ),
+  twitter: z.optional(
+    z.preprocess(str => (str === '' ? null : str), z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).or(z.null()))
+  ),
+  twitch: z.optional(
+    z.preprocess(str => (str === '' ? null : str), z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).or(z.null()))
+  ),
+  youtube: z.optional(
+    z.preprocess(str => (str === '' ? null : str), z.string().url(INVALID_SOCIAL_LINK_URL_ERROR).or(z.null()))
+  )
 });
 
 const inputSchema = z
