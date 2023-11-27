@@ -145,8 +145,8 @@ export const getPlayerCompetitions = cache((username: string) => {
   return handleNotFound(apiClient.players.getPlayerCompetitions(username));
 });
 
-export const getPlayerDetails = cache((usernane: string) => {
-  return handleNotFound(apiClient.players.getPlayerDetails(usernane));
+export const getPlayerDetails = cache((username: string) => {
+  return handleNotFound(apiClient.players.getPlayerDetails(username));
 });
 
 export const getPlayerGainsByPeriod = cache((username: string, period: Period) => {
