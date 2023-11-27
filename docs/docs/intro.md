@@ -42,8 +42,10 @@ This documentation website will provide examples for each request using **cURL**
 | `wom.py` | Python3  | `@jonxslays` | [Docs](https://jonxslays.github.io/wom.py/stable) \| [Repo](https://github.com/jonxslays/wom.py) |
 
 :::caution
-**Little to no support** may be provided for 3rd party libraries in the Wise Old Man discord server.
-If you are having issues or have questions, feel free to ask - but understand you may need to inquire with the maintainer of the library, or on the github repository directly.
+Support for 3rd party libraries **may be limited** depending on the availability of the maintainer.
+
+For the most part you can receive help in the Wise Old Man discord server. Alternatively, feel free to
+create an issue on the associated github repository or inquire with the maintainer of the library directly.
 :::
 
 ## Getting started
