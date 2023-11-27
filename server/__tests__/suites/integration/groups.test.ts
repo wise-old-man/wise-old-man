@@ -566,7 +566,7 @@ describe('Group API', () => {
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
-    it('should not edit banner image (not a patron)', async () => {
+    it('should not edit social links (not a patron)', async () => {
       const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
         verificationCode: globalData.testGroupNoMembers.verificationCode,
         socialLinks: {
@@ -1162,7 +1162,8 @@ describe('Group API', () => {
         socialLinks: {
           twitter: 'https://twitter.com/RubenPsikoi',
           youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-          twitch: '' // Accept empty string (to un-set links)
+          twitch: 'https://www.twitch.tv/oldschoolrs',
+          discord: 'https://discord.gg/wiseoldman'
         }
       });
 
@@ -1170,22 +1171,25 @@ describe('Group API', () => {
       expect(firstResponse.body.socialLinks).toMatchObject({
         twitter: 'https://twitter.com/RubenPsikoi',
         youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        twitch: ''
+        twitch: 'https://www.twitch.tv/oldschoolrs'
       });
 
-      // Try again, but now override the existing twitter link, youtube shouldn't change
+      // Try again, but now override the existing twitter link, unset twitch, youtube shouldn't change
 
       const secondResponse = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
         socialLinks: {
-          twitter: 'https://twitter.com/OldSchoolRS'
+          twitter: 'https://twitter.com/OldSchoolRS',
+          twitch: null, // unset the twitch link,
+          discord: '' // unset the discord link (empty strings get converted to null values)
         }
       });
 
       expect(secondResponse.status).toBe(200);
       expect(secondResponse.body.socialLinks).toMatchObject({
         twitter: 'https://twitter.com/OldSchoolRS',
-        youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+        youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        twitch: null
       });
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();

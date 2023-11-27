@@ -123,7 +123,7 @@ describe('Patrons API', () => {
 
       const response = await api
         .put(`/patrons/claim/some-discord-id`)
-        .send({ adminPassword: env.ADMIN_PASSWORD, username: 'katara' });
+        .send({ adminPassword: env.ADMIN_PASSWORD, username: 'Katara' });
 
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({

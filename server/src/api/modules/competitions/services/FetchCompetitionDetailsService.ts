@@ -89,6 +89,8 @@ async function calculateParticipantsStandings(competitionId: number, metric: Met
 
       if (isSkill(metric) && startSnapshot && endSnapshot) {
         standing.levels = deltaUtils.calculateLevelDiff(metric, startSnapshot, endSnapshot, diff);
+      } else {
+        standing.levels = { gained: 0, start: -1, end: -1 };
       }
 
       return standing;
