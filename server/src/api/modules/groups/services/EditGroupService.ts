@@ -13,7 +13,7 @@ import {
 } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
-import { sanitizeName } from '../group.utils';
+import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
 import { onMembersRolesChanged, onMembersJoined, onMembersLeft, onGroupUpdated } from '../group.events';
 
 const MIN_NAME_ERROR = 'Group name must have at least one character.';
@@ -192,7 +192,7 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
 
   return {
     ...omit(updatedGroup, 'verificationHash'),
-    socialLinks: updatedGroup.socialLinks?.length > 0 ? updatedGroup.socialLinks[0] : undefined,
+    socialLinks: updatedGroup.socialLinks[0] ?? buildDefaultSocialLinks(),
     memberCount: sortedMemberships.length,
     memberships: sortedMemberships
   };
