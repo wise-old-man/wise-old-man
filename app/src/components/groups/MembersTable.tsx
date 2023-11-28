@@ -10,6 +10,10 @@ import { PlayerIdentity } from "../PlayerIdentity";
 import { FormattedNumber } from "../FormattedNumber";
 import { TableSortButton, TableTitle } from "../Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
+import { QueryLink } from "../QueryLink";
+import { Button } from "../Button";
+
+import ExportIcon from "~/assets/export.svg";
 
 interface MembersTableProps {
   group: GroupDetails;
@@ -36,8 +40,20 @@ export function MembersTable(props: MembersTableProps) {
                   {getCaptionLabel(group.name, rows.length, filter)}
                 </p>
               </div>
-              <div className="@lg:w-48">
-                <MembersFilter groupId={group.id} filter={filter} />
+              <div className="flex items-center gap-x-2">
+                <div className="@lg:w-48">
+                  <MembersFilter groupId={group.id} filter={filter} />
+                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <QueryLink query={{ dialog: "export" }}>
+                      <Button className="flex w-9 justify-center" iconButton>
+                        <ExportIcon className="h-4 w-4 text-gray-100" />
+                      </Button>
+                    </QueryLink>
+                  </TooltipTrigger>
+                  <TooltipContent>Export group members table.</TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </div>

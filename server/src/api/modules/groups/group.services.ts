@@ -3,6 +3,7 @@ export * from './services/ChangeMemberRoleService';
 export * from './services/CreateGroupService';
 export * from './services/DeleteGroupService';
 export * from './services/EditGroupService';
+export * from './services/FetchMembersCSVService';
 export * from './services/FetchGroupDetailsService';
 export * from './services/FetchGroupHiscoresService';
 export * from './services/FetchGroupStatisticsService';

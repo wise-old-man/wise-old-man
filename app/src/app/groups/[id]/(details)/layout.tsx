@@ -12,6 +12,7 @@ import { DeleteGroupDialog } from "~/components/groups/DeleteGroupDialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { UpdateAllMembersDialog } from "~/components/groups/UpdateAllMembersDialog";
 import { GroupDetailsNavigation } from "~/components/groups/GroupDetailsNavigation";
+import { ExportGroupMembersDialog } from "~/components/groups/ExportGroupMembersDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,6 +90,7 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
       {/* Dialogs */}
       <DeleteGroupDialog groupId={id} />
       <UpdateAllMembersDialog groupId={id} />
+      <ExportGroupMembersDialog groupId={id} />
     </Container>
   );
 }

@@ -68,6 +68,15 @@ async function details(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: result };
 }
 
+// GET /groups/:id/csv
+async function membersCSV(req: Request): Promise<ControllerResponse> {
+  const result = await groupServices.fetchGroupMembersCSV({
+    id: getNumber(req.params.id)
+  });
+
+  return { statusCode: 200, response: result };
+}
+
 // DELETE /groups/:id
 async function remove(req: Request): Promise<ControllerResponse> {
   if (!('adminPassword' in req.body) || !adminGuard.checkAdminPermissions(req)) {
@@ -309,6 +318,7 @@ export {
   changeRole,
   updateAll,
   details,
+  membersCSV,
   gained,
   achievements,
   records,
