@@ -2098,7 +2098,41 @@ describe('Group API', () => {
     });
   });
 
-  describe('10 - View Hiscores', () => {
+  describe('10 - View Members CSV', () => {
+    it('should not view members CSV (group not found)', async () => {
+      const response = await api.get('/groups/9999/csv');
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Group not found.');
+    });
+
+    it('should not view members CSV (empty group)', async () => {
+      const response = await api.get(`/groups/${globalData.testGroupNoMembers.id}/csv`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Group has no members.');
+    });
+
+    it('should view members CSV', async () => {
+      const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}/csv`);
+      expect(response.status).toBe(200);
+
+      const rows = response.text.split('\n');
+      expect(rows.length).toBe(6);
+
+      // Check the table header
+      expect(rows[0]).toBe('Player,Role');
+
+      // Check the table body
+      expect(rows[1]).toMatch('alexsuperfly,leader');
+      expect(rows[2]).toMatch('psikoi,achiever');
+      expect(rows[3]).toMatch('swampletics,artisan');
+      expect(rows[4]).toMatch('zezima,firemaker');
+      expect(rows[5]).toMatch('rorro,member');
+    });
+  });
+
+  describe('11 - View Hiscores', () => {
     it('should not view hiscores (undefined metric)', async () => {
       const response = await api.get(`/groups/100000/hiscores`);
 
@@ -2270,7 +2304,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('11 - View Group Activity', () => {
+  describe('12 - View Group Activity', () => {
     it('should not view group activity (group not found)', async () => {
       const response = await api.get(`/groups/100000/activity`);
 
@@ -2360,7 +2394,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('12 - View Statistics', () => {
+  describe('13 - View Statistics', () => {
     it('should not view statistics (group not found)', async () => {
       const response = await api.get(`/groups/100000/statistics`);
 
@@ -2452,7 +2486,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('13 - Update All', () => {
+  describe('14 - Update All', () => {
     it('should not update all (invalid verification code)', async () => {
       const response = await api.post(`/groups/123456789/update-all`);
 
@@ -2507,7 +2541,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('14 - Reset Verification Code', () => {
+  describe('15 - Reset Verification Code', () => {
     it('should not reset code (invalid admin password)', async () => {
       const response = await api.put(`/groups/100000/reset-code`);
 
@@ -2561,7 +2595,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('15 - Verify', () => {
+  describe('16 - Verify', () => {
     it('should not verify group (invalid admin password)', async () => {
       const response = await api.put(`/groups/100000/verify`);
 
@@ -2601,7 +2635,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('16 - Migrate from Temple', () => {
+  describe('17 - Migrate from Temple', () => {
     it('should not migrate from temple (404 error)', async () => {
       // Setup the TempleOSRS request to return our mock raw data
       registerTempleMock(axiosMock, 404);
@@ -2633,7 +2667,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('17 - Migrate from CML', () => {
+  describe('18 - Migrate from CML', () => {
     it('should not migrate from cml (404 error)', async () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 404);
