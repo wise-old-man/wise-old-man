@@ -2121,10 +2121,12 @@ describe('Group API', () => {
       expect(rows.length).toBe(6);
 
       // Check the table header
-      expect(rows[0]).toBe('Player,Role');
+      expect(rows[0]).toBe('Player,Role,Experience,Last progressed,Last updated');
+
+      expect(rows[0].split(',').length).toBe(5);
 
       // Check the table body
-      expect(rows[1]).toMatch('alexsuperfly,leader');
+      expect(rows[1]).toMatch('alexsuperfly,leader,');
       expect(rows[2]).toMatch('psikoi,achiever');
       expect(rows[3]).toMatch('swampletics,artisan');
       expect(rows[4]).toMatch('zezima,firemaker');

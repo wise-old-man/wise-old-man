@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
+import { formatDate } from '../../../util/dates';
 import { PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
@@ -35,11 +36,19 @@ async function fetchGroupMembersCSV(payload: FetchMembersCSVParams): Promise<str
 
   const priorities = PRIVELEGED_GROUP_ROLES.reverse();
 
-  const headers = ['Player', 'Role'].join(',');
+  const headers = ['Player', 'Role', 'Experience', 'Last progressed', 'Last updated'].join(',');
 
   const rows = memberships
     .sort((a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role))
-    .map(membership => [membership.player.displayName, membership.role].join(','));
+    .map(membership => {
+      return [
+        membership.player.displayName,
+        membership.role,
+        membership.player.exp,
+        formatDate(membership.player.lastChangedAt),
+        formatDate(membership.player.updatedAt)
+      ].join(',');
+    });
 
   return [headers, ...rows].join('\n');
 }
