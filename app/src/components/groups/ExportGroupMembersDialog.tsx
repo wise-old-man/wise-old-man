@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { isMetric } from "@wise-old-man/utils";
 import { Input } from "../Input";
 import { Button } from "../Button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../Accordion";
@@ -10,37 +9,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 import CheckIcon from "~/assets/check.svg";
 
-interface ExportCompetitionDialogProps {
-  competitionId: number;
+interface ExportGroupMembersDialogProps {
+  groupId: number;
 }
 
-function buildExportUrl(competitionId: number, searchParams: URLSearchParams) {
-  const team = searchParams.get("team");
-  const table = searchParams.get("table");
-  const preview = searchParams.get("preview");
-
-  const params = new URLSearchParams();
-
-  if (table === "teams") {
-    params.set("table", "teams");
-  } else if (team) {
-    params.set("table", "team");
-    params.set("teamName", decodeURIComponent(team || ""));
-  } else {
-    params.set("table", "participants");
-  }
-
-  if (!!preview && isMetric(preview)) {
-    params.set("metric", preview);
-  }
-
-  const basePath = process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/v2";
-
-  return `${basePath}/competitions/${competitionId}/csv?${params.toString()}`;
-}
-
-export function ExportCompetitionDialog(props: ExportCompetitionDialogProps) {
-  const { competitionId } = props;
+export function ExportGroupMembersDialog(props: ExportGroupMembersDialogProps) {
+  const { groupId } = props;
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -48,8 +22,9 @@ export function ExportCompetitionDialog(props: ExportCompetitionDialogProps) {
   const [hasCopied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const url = buildExportUrl(competitionId, new URLSearchParams(searchParams));
+  const basePath = process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/v2";
 
+  const url = `${basePath}/groups/${groupId}/csv`;
   const importFormula = `=IMPORTDATA("${url}")`;
 
   return (
@@ -64,9 +39,9 @@ export function ExportCompetitionDialog(props: ExportCompetitionDialogProps) {
     >
       <DialogContent className="!max-w-md">
         <DialogHeader>
-          <DialogTitle>Export competition table</DialogTitle>
+          <DialogTitle>Export group members</DialogTitle>
           <DialogDescription>
-            You can import this competition&apos;s data into a Google Sheets document by using the
+            You can import this group&apos;s member data into a Google Sheets document by using the
             following function:
           </DialogDescription>
         </DialogHeader>

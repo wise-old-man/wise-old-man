@@ -2631,6 +2631,8 @@ describe('Competition API', () => {
       // Check the table header
       expect(rows[0]).toBe('Rank,Username,Start,End,Gained,Last Updated');
 
+      expect(rows[0].split(',').length).toBe(6);
+
       // Check the table body
       expect(rows[1]).toMatch('1,rorro,500,557,57,');
       expect(rows[2]).toMatch('2,usbc,-1,60,56,');

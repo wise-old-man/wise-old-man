@@ -8,6 +8,7 @@ api.get('/', setupController(controller.search));
 api.post('/', setupController(controller.create));
 
 api.get('/:id', setupController(controller.details));
+api.get('/:id/csv', setupController(controller.membersCSV, { returnAsText: true }));
 api.put('/:id', setupController(controller.edit));
 api.delete('/:id', setupController(controller.remove));
 
