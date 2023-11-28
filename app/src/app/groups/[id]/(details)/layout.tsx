@@ -43,9 +43,10 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
   const { id } = params;
 
   const group = await getGroupDetails(id);
+  const hasSocialLinks = group.socialLinks && Object.values(group.socialLinks).some(Boolean);
 
   return (
-    <Container className={cn((group.socialLinks || group.profileImage) && "md:!pt-0")}>
+    <Container className={cn((hasSocialLinks || group.profileImage) && "md:!pt-0")}>
       {group.patron && (
         <>
           {group.bannerImage ? (
@@ -57,7 +58,7 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
                 fill
               />
               <div className="absolute inset-0 bg-gradient-to-tl from-black/50 to-black/0" />
-              {group.socialLinks && (
+              {group.socialLinks && hasSocialLinks && (
                 <div className="absolute bottom-3 right-3 z-10">
                   <GroupSocialLinks {...group.socialLinks} />
                 </div>
@@ -65,7 +66,7 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
             </div>
           ) : (
             <>
-              {(group.socialLinks || group.profileImage) && (
+              {(hasSocialLinks || group.profileImage) && (
                 <div className="relative mb-5 hidden h-24 w-full bg-gray-800 md:block">
                   {group.socialLinks && (
                     <div className="absolute bottom-3 right-3 z-10">
