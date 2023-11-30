@@ -1,3 +1,4 @@
+import { isDevelopment } from '../../../env';
 import prisma from '../../../prisma';
 import { Period, PeriodProps } from '../../../utils';
 import { JobDefinition, JobPriority, JobType } from '../job.types';
@@ -11,6 +12,10 @@ class AutoUpdatePatronGroupsJob implements JobDefinition<unknown> {
   }
 
   async execute() {
+    if (isDevelopment()) {
+      return;
+    }
+
     const patronGroupIds = (
       await prisma.patron.findMany({
         where: { groupId: { not: null } },

@@ -5,7 +5,7 @@ import { JobType, JobDefinition } from '../job.types';
 import jobManager from '../job.manager';
 
 // The minimum date to gather data from
-const MIN_DATE = normalizeDate(new Date('2023-11-01'));
+const MIN_DATE = normalizeDate(new Date('2023-11-16'));
 
 /**
  * This job checks if there is any missing limit data for trend datapoints.
@@ -23,8 +23,8 @@ class ScheduleRankLimitsCalcsJob implements JobDefinition<unknown> {
   }
 
   async execute() {
-    const today = normalizeDate(new Date());
-    const datesInBetween = getDatesInBetween(MIN_DATE, today);
+    const yesterday = normalizeDate(new Date(Date.now() - 1000 * 60 * 60 * 24));
+    const datesInBetween = getDatesInBetween(MIN_DATE, yesterday);
 
     const expectedCount = datesInBetween.length * REAL_METRICS.length;
     const totalDatapointsCount = await prisma.trendDatapoint.count();

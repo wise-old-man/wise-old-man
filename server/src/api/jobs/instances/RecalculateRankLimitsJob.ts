@@ -38,9 +38,17 @@ class RecalculateRankLimitsJob implements JobDefinition<unknown> {
 
     // Pre-populate the maps with the previous day's limits
     previousDayDatapoints.forEach(datapoint => {
-      maximumRankMap.set(datapoint.metric, datapoint.maxRank);
-      minimumValueMap.set(datapoint.metric, datapoint.minValue);
-      maximumValueMap.set(datapoint.metric, datapoint.maxValue);
+      if (datapoint.maxRank > -1) {
+        maximumRankMap.set(datapoint.metric, datapoint.maxRank);
+      }
+
+      if (datapoint.minValue > -1) {
+        minimumValueMap.set(datapoint.metric, datapoint.minValue);
+      }
+
+      if (datapoint.maxValue > -1) {
+        maximumValueMap.set(datapoint.metric, datapoint.maxValue);
+      }
     });
 
     // Fetch one snapshots from each player for the given date
@@ -65,16 +73,22 @@ class RecalculateRankLimitsJob implements JobDefinition<unknown> {
         const rank = snapshot[getMetricRankKey(metric)];
         const value = snapshot[getMetricValueKey(metric)];
 
-        if ((!maximumRankMap.has(metric) || maximumRankMap.get(metric) < rank) && rank > -1) {
+        if (rank === -1 || value === -1) return;
+
+        const maxRank = maximumRankMap.get(metric);
+        const minValue = minimumValueMap.get(metric);
+        const maxValue = maximumValueMap.get(metric);
+
+        if (maxRank === undefined || maxRank < rank) {
           maximumRankMap.set(metric, rank);
         }
 
-        if ((!minimumValueMap.has(metric) || minimumValueMap.get(metric) > value) && value > -1) {
-          minimumValueMap.set(metric, value);
+        if (maxValue === undefined || maxValue < value) {
+          maximumValueMap.set(metric, value);
         }
 
-        if ((!maximumValueMap.has(metric) || maximumValueMap.get(metric) < value) && value > -1) {
-          maximumValueMap.set(metric, value);
+        if (minValue === undefined || minValue > value) {
+          minimumValueMap.set(metric, value > 2147483647 ? 2147483647 : Number(value));
         }
       });
     });
@@ -88,14 +102,11 @@ class RecalculateRankLimitsJob implements JobDefinition<unknown> {
       // Re-create the datapoints for the given date
       await tx.trendDatapoint.createMany({
         data: REAL_METRICS.map(metric => {
-          return {
-            metric,
-            date,
-            sum: -1,
-            maxValue: maximumValueMap.get(metric) ?? 0,
-            minValue: Math.min(minimumValueMap.get(metric) ?? 0, 2147483647), // Ensure this doesn't go over the max int value (it shouldn't in production)
-            maxRank: maximumRankMap.get(metric) ?? 0
-          };
+          const maxRank = maximumRankMap.get(metric) ?? -1;
+          const maxValue = maximumValueMap.get(metric) ?? -1;
+          const minValue = minimumValueMap.get(metric) ?? -1;
+
+          return { metric, date, sum: -1, maxValue, minValue, maxRank };
         })
       });
     });

@@ -22,6 +22,8 @@ import SchedulePlayerBannedChecks from './instances/SchedulePlayerBannedChecksJo
 import SyncPatronsJob from './instances/SyncPatronsJob';
 import AutoUpdatePatronPlayersJob from './instances/AutoUpdatePatronPlayersJob';
 import AutoUpdatePatronGroupsJob from './instances/AutoUpdatePatronGroupsJob';
+import RecalculateRankLimitsJob from './instances/RecalculateRankLimitsJob';
+import ScheduleRankLimitsCalcsJob from './instances/ScheduleRankLimitsCalcsJob';
 
 const JOBS: JobDefinition<unknown>[] = [
   AutoUpdatePatronPlayersJob,
@@ -31,12 +33,14 @@ const JOBS: JobDefinition<unknown>[] = [
   InvalidatePeriodDeltasJob,
   SyncPatronsJob,
   ReviewNameChangeJob,
+  RecalculateRankLimitsJob,
   ScheduleCompetitionEventsJob,
   ScheduleCompetitionScoreUpdatesJob,
   ScheduleDeltaInvalidationsJob,
   ScheduleFlaggedPlayerReview,
   ScheduleGroupScoreUpdatesJob,
   ScheduleNameChangeReviewsJob,
+  ScheduleRankLimitsCalcsJob,
   SchedulePlayerBannedChecks,
   UpdateCompetitionScoreJob,
   UpdateGroupScoreJob,
@@ -75,6 +79,10 @@ const CRON_JOBS = [
   {
     type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS,
     interval: '0 8 * * *' // everyday at 8AM
+  },
+  {
+    type: JobType.SCHEDULE_RANK_LIMIT_CALCS,
+    interval: '0 * * * *' // every hour (reduce to every 24h at 8AM later)
   }
 ];
 
