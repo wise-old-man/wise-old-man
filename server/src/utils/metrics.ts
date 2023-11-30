@@ -153,7 +153,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
 
 const ActivityProps: MapOf<Activity, ActivityProperties> = mapValues(
   {
-    [Activity.LEAGUE_POINTS]: { name: 'League Points' },
+    [Activity.LEAGUE_POINTS]: { name: 'League Points', minimumValue: 100 },
     [Activity.BOUNTY_HUNTER_HUNTER]: { name: 'Bounty Hunter (Hunter)', minimumValue: 2 },
     [Activity.BOUNTY_HUNTER_ROGUE]: { name: 'Bounty Hunter (Rogue)', minimumValue: 2 },
     [Activity.CLUE_SCROLLS_ALL]: { name: 'Clue Scrolls (All)' },
@@ -201,6 +201,7 @@ const REAL_SKILLS = SKILLS.filter(s => s !== Skill.OVERALL);
 const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers);
 const MEMBER_SKILLS = SKILLS.filter(s => MetricProps[s].isMembers);
 const COMBAT_SKILLS = SKILLS.filter(s => MetricProps[s].isCombat);
+const REAL_METRICS = [...SKILLS, ...BOSSES, ...ACTIVITIES];
 
 function findMetric(metricName: string): Metric | null {
   for (const [key, value] of Object.entries(MetricProps)) {
@@ -622,6 +623,7 @@ export {
   REAL_SKILLS,
   MEMBER_SKILLS,
   COMBAT_SKILLS,
+  REAL_METRICS,
   // Functions
   findMetric,
   parseMetricAbbreviation,
