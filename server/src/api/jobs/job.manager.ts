@@ -22,18 +22,21 @@ import SchedulePlayerBannedChecks from './instances/SchedulePlayerBannedChecksJo
 import SyncPatronsJob from './instances/SyncPatronsJob';
 import AutoUpdatePatronPlayersJob from './instances/AutoUpdatePatronPlayersJob';
 import AutoUpdatePatronGroupsJob from './instances/AutoUpdatePatronGroupsJob';
-import RecalculateRankLimitsJob from './instances/RecalculateRankLimitsJob';
+import CalculateRankLimitsJob from './instances/CalculateRankLimitsJob';
 import ScheduleRankLimitsCalcsJob from './instances/ScheduleRankLimitsCalcsJob';
+import ScheduleSumCalcsJob from './instances/ScheduleSumCalcsJob';
+import CalculateSumsJob from './instances/CalculateSumsJob';
 
 const JOBS: JobDefinition<unknown>[] = [
   AutoUpdatePatronPlayersJob,
   AutoUpdatePatronGroupsJob,
+  CalculateSumsJob,
+  CalculateRankLimitsJob,
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
   InvalidatePeriodDeltasJob,
   SyncPatronsJob,
   ReviewNameChangeJob,
-  RecalculateRankLimitsJob,
   ScheduleCompetitionEventsJob,
   ScheduleCompetitionScoreUpdatesJob,
   ScheduleDeltaInvalidationsJob,
@@ -41,6 +44,7 @@ const JOBS: JobDefinition<unknown>[] = [
   ScheduleGroupScoreUpdatesJob,
   ScheduleNameChangeReviewsJob,
   ScheduleRankLimitsCalcsJob,
+  ScheduleSumCalcsJob,
   SchedulePlayerBannedChecks,
   UpdateCompetitionScoreJob,
   UpdateGroupScoreJob,

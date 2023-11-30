@@ -153,7 +153,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
 
 const ActivityProps: MapOf<Activity, ActivityProperties> = mapValues(
   {
-    [Activity.LEAGUE_POINTS]: { name: 'League Points' },
+    [Activity.LEAGUE_POINTS]: { name: 'League Points', minimumValue: 100 },
     [Activity.BOUNTY_HUNTER_HUNTER]: { name: 'Bounty Hunter (Hunter)', minimumValue: 2 },
     [Activity.BOUNTY_HUNTER_ROGUE]: { name: 'Bounty Hunter (Rogue)', minimumValue: 2 },
     [Activity.CLUE_SCROLLS_ALL]: { name: 'Clue Scrolls (All)' },

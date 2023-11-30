@@ -48,7 +48,7 @@ class ScheduleRankLimitsCalcsJob implements JobDefinition<unknown> {
 
     incompleteDates.forEach((date, index) => {
       jobManager.add(
-        { type: JobType.RECALCULATE_RANK_LIMITS, payload: { dateISO: date.toISOString() } },
+        { type: JobType.CALCULATE_RANK_LIMITS, payload: { dateISO: date.toISOString() } },
         { delay: index * (1000 * 60) } // Delay each recalc by 60 seconds
       );
     });

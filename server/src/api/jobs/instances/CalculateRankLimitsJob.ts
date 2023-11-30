@@ -1,27 +1,37 @@
 import prisma from '../../../prisma';
-import { Metric, REAL_METRICS, Snapshot, getMetricRankKey, getMetricValueKey } from '../../../utils';
+import {
+  ACTIVITIES,
+  BOSSES,
+  Metric,
+  MetricProps,
+  REAL_METRICS,
+  Snapshot,
+  getMetricRankKey,
+  getMetricValueKey
+} from '../../../utils';
+import jobManager from '../job.manager';
 import { JobType, JobDefinition } from '../job.types';
 
-export interface RecalculateRankLimitsPayload {
+export interface CalculateRankLimitsPayload {
   dateISO: string;
 }
 
 /**
- * This recalculates the rank limits for a given date.
+ * This calculates the rank limits for a given date.
  *
  * In order to accurately calculate the exp sum for any given metric on any given date,
  * we should have the first and last ranked player's value and rank.
  *
  * To achieve this, we need to query our own data to find the limits for each metric for each day.
  */
-class RecalculateRankLimitsJob implements JobDefinition<unknown> {
+class CalculateRankLimitsJob implements JobDefinition<unknown> {
   type: JobType;
 
   constructor() {
-    this.type = JobType.RECALCULATE_RANK_LIMITS;
+    this.type = JobType.CALCULATE_RANK_LIMITS;
   }
 
-  async execute(payload: RecalculateRankLimitsPayload) {
+  async execute(payload: CalculateRankLimitsPayload) {
     const { dateISO } = payload;
 
     const date = new Date(dateISO);
@@ -49,6 +59,16 @@ class RecalculateRankLimitsJob implements JobDefinition<unknown> {
       if (datapoint.maxValue > -1) {
         maximumValueMap.set(datapoint.metric, datapoint.maxValue);
       }
+    });
+
+    // A boss's minimum kc to be ranked is known, so pre-populate the maps with those values
+    BOSSES.forEach(boss => {
+      minimumValueMap.set(boss, MetricProps[boss].minimumValue);
+    });
+
+    // An activity's minimum score to be ranked is known, so pre-populate the maps with those values
+    ACTIVITIES.forEach(activity => {
+      minimumValueMap.set(activity, MetricProps[activity].minimumValue);
     });
 
     // Fetch one snapshots from each player for the given date
@@ -110,7 +130,12 @@ class RecalculateRankLimitsJob implements JobDefinition<unknown> {
         })
       });
     });
+
+    jobManager.add({
+      type: JobType.CALCULATE_SUMS,
+      payload: { dateISO: date.toISOString() }
+    });
   }
 }
 
-export default new RecalculateRankLimitsJob();
+export default new CalculateRankLimitsJob();
