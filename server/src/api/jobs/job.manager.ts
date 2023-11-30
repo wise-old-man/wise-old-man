@@ -24,17 +24,17 @@ import SchedulePlayerBannedChecks from './instances/SchedulePlayerBannedChecksJo
 import SyncPatronsJob from './instances/SyncPatronsJob';
 import AutoUpdatePatronPlayersJob from './instances/AutoUpdatePatronPlayersJob';
 import AutoUpdatePatronGroupsJob from './instances/AutoUpdatePatronGroupsJob';
-import CalculateRankLimitsJob from './instances/CalculateRankLimitsJob';
-import ScheduleRankLimitsCalcsJob from './instances/ScheduleRankLimitsCalcsJob';
-import ScheduleSumCalcsJob from './instances/ScheduleSumCalcsJob';
-import CalculateSumsJob from './instances/CalculateSumsJob';
+// import CalculateRankLimitsJob from './instances/CalculateRankLimitsJob';
+// import ScheduleRankLimitsCalcsJob from './instances/ScheduleRankLimitsCalcsJob';
+// import ScheduleSumCalcsJob from './instances/ScheduleSumCalcsJob';
+// import CalculateSumsJob from './instances/CalculateSumsJob';
 
 const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
   AutoUpdatePatronPlayersJob,
   AutoUpdatePatronGroupsJob,
-  CalculateSumsJob,
-  CalculateRankLimitsJob,
+  // CalculateSumsJob,
+  // CalculateRankLimitsJob,
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
   InvalidatePeriodDeltasJob,
@@ -47,8 +47,8 @@ const JOBS: JobDefinition<unknown>[] = [
   ScheduleFlaggedPlayerReview,
   ScheduleGroupScoreUpdatesJob,
   ScheduleNameChangeReviewsJob,
-  ScheduleRankLimitsCalcsJob,
-  ScheduleSumCalcsJob,
+  // ScheduleRankLimitsCalcsJob,
+  // ScheduleSumCalcsJob,
   SchedulePlayerBannedChecks,
   UpdateCompetitionScoreJob,
   UpdateGroupScoreJob,
@@ -99,15 +99,15 @@ const CRON_JOBS = [
   {
     type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS,
     interval: '0 8 * * *' // everyday at 8AM
-  },
-  {
-    type: JobType.SCHEDULE_RANK_LIMIT_CALCS,
-    interval: '0 * * * *' // every hour (reduce to every 24h at 9AM later)
-  },
-  {
-    type: JobType.SCHEDULE_SUM_CALCS,
-    interval: '0 10 * * *' // everyday at 10AM
   }
+  // {
+  //   type: JobType.SCHEDULE_RANK_LIMIT_CALCS,
+  //   interval: '0 * * * *' // every hour (reduce to every 24h at 9AM later)
+  // },
+  // {
+  //   type: JobType.SCHEDULE_SUM_CALCS,
+  //   interval: '0 10 * * *' // everyday at 10AM
+  // }
 ];
 
 class JobManager {
