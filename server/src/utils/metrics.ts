@@ -201,6 +201,7 @@ const REAL_SKILLS = SKILLS.filter(s => s !== Skill.OVERALL);
 const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers);
 const MEMBER_SKILLS = SKILLS.filter(s => MetricProps[s].isMembers);
 const COMBAT_SKILLS = SKILLS.filter(s => MetricProps[s].isCombat);
+const REAL_METRICS = [...SKILLS, ...BOSSES, ...ACTIVITIES];
 
 function findMetric(metricName: string): Metric | null {
   for (const [key, value] of Object.entries(MetricProps)) {
@@ -622,6 +623,7 @@ export {
   REAL_SKILLS,
   MEMBER_SKILLS,
   COMBAT_SKILLS,
+  REAL_METRICS,
   // Functions
   findMetric,
   parseMetricAbbreviation,
