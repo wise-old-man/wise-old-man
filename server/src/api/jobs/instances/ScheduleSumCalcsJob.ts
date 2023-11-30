@@ -1,3 +1,4 @@
+import { isDevelopment } from '../../../env';
 import prisma from '../../../prisma';
 import jobManager from '../job.manager';
 import { JobType, JobDefinition } from '../job.types';
@@ -10,6 +11,10 @@ class ScheduleSumCalcsJob implements JobDefinition<unknown> {
   }
 
   async execute() {
+    if (isDevelopment()) {
+      return;
+    }
+
     const unpopulatedDates = (
       await prisma.$queryRaw<{ date: Date }[]>`
         SELECT "date" FROM public."trendDatapoints"

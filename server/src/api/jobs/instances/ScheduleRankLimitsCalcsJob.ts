@@ -1,3 +1,4 @@
+import { isDevelopment } from '../../../env';
 import prisma from '../../../prisma';
 import { REAL_METRICS } from '../../../utils/metrics';
 import { normalizeDate, getDatesInBetween } from '../../util/dates';
@@ -23,6 +24,10 @@ class ScheduleRankLimitsCalcsJob implements JobDefinition<unknown> {
   }
 
   async execute() {
+    if (isDevelopment()) {
+      return;
+    }
+
     const yesterday = normalizeDate(new Date(Date.now() - 1000 * 60 * 60 * 24));
     const datesInBetween = getDatesInBetween(MIN_DATE, yesterday);
 
