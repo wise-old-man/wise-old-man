@@ -80,6 +80,20 @@ const extendedClient = prisma.$extends({
         }
       }
     },
+    trendDatapoint: {
+      sum: {
+        needs: { sum: true },
+        compute({ sum }) {
+          return parseBigInt(sum);
+        }
+      },
+      maxValue: {
+        needs: { maxValue: true },
+        compute({ maxValue }) {
+          return parseBigInt(maxValue);
+        }
+      }
+    },
     groupSocialLinks: {
       id: {
         compute() {
