@@ -1,3 +1,4 @@
+import { isDevelopment } from '../../../env';
 import prisma from '../../../prisma';
 import { Period, PeriodProps } from '../../../utils';
 import { JobType, JobDefinition, JobPriority } from '../job.types';
@@ -11,6 +12,10 @@ class AutoUpdatePatronPlayersJob implements JobDefinition<unknown> {
   }
 
   async execute() {
+    if (isDevelopment()) {
+      return;
+    }
+
     const dayAgo = new Date(Date.now() - PeriodProps[Period.DAY].milliseconds);
 
     const outdatedPatronPlayers = (
