@@ -86,7 +86,11 @@ const CRON_JOBS = [
   },
   {
     type: JobType.SCHEDULE_RANK_LIMIT_CALCS,
-    interval: '0 * * * *' // every hour (reduce to every 24h at 8AM later)
+    interval: '0 * * * *' // every hour (reduce to every 24h at 9AM later)
+  },
+  {
+    type: JobType.SCHEDULE_RANK_LIMIT_CALCS,
+    interval: '0 10 * * *' // everyday at 10AM
   }
 ];
 
