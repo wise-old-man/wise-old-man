@@ -1,14 +1,6 @@
 import prisma from '../../../prisma';
-import {
-  ACTIVITIES,
-  BOSSES,
-  Metric,
-  MetricProps,
-  REAL_METRICS,
-  Snapshot,
-  getMetricRankKey,
-  getMetricValueKey
-} from '../../../utils';
+import { Metric, REAL_METRICS, getMetricRankKey, getMetricValueKey } from '../../../utils';
+import { normalizeDate } from '../../util/dates';
 import jobManager from '../job.manager';
 import { JobType, JobDefinition } from '../job.types';
 
@@ -34,7 +26,7 @@ class CalculateRankLimitsJob implements JobDefinition<unknown> {
   async execute(payload: CalculateRankLimitsPayload) {
     const { dateISO } = payload;
 
-    const date = new Date(dateISO);
+    const date = normalizeDate(new Date(dateISO));
 
     const maximumRankMap = new Map<Metric, number>();
     const minimumValueMap = new Map<Metric, number>();
@@ -61,40 +53,22 @@ class CalculateRankLimitsJob implements JobDefinition<unknown> {
       }
     });
 
-    // A boss's minimum kc to be ranked is known, so pre-populate the maps with those values
-    BOSSES.forEach(boss => {
-      minimumValueMap.set(boss, MetricProps[boss].minimumValue);
-    });
+    // Create a materialized view with all the snapshots (max 1 per player) for the given date,
+    // since we'll need to query this data many times, it's more efficient to store it in a view.
+    // This also allows us to only select exactly the columns we need, to reduce memory usage on the API server.
+    const materializedViewName = await setupMaterializedView(dayAgo, date);
 
-    // An activity's minimum score to be ranked is known, so pre-populate the maps with those values
-    ACTIVITIES.forEach(activity => {
-      minimumValueMap.set(activity, MetricProps[activity].minimumValue);
-    });
+    for (const metric of REAL_METRICS) {
+      const rankKey = getMetricRankKey(metric);
+      const valueKey = getMetricValueKey(metric);
 
-    // Fetch one snapshots from each player for the given date
-    const allSnapshots = await prisma.$queryRaw<Snapshot[]>`
-      WITH data AS (
-          SELECT
-              s.*,
-              ROW_NUMBER() OVER (PARTITION BY p."id" ORDER BY s."createdAt" DESC) AS row_num
-          FROM
-              public.snapshots s
-          JOIN
-              public.players p ON p."id" = s."playerId"
-          WHERE
-              s."createdAt" BETWEEN ${dayAgo} AND ${date}
-      )
-      SELECT * FROM data WHERE row_num = 1;
-  `;
+      const data = await prisma.$queryRawUnsafe<{ rank: number; value: number }[]>(
+        `SELECT "${rankKey}" AS "rank", "${valueKey}" AS "value"
+         FROM ${materializedViewName}
+         WHERE "${rankKey}" > -1 AND "${valueKey}" > -1`
+      );
 
-    // Update the maps with today's limits
-    allSnapshots.forEach(snapshot => {
-      REAL_METRICS.forEach(metric => {
-        const rank = snapshot[getMetricRankKey(metric)];
-        const value = snapshot[getMetricValueKey(metric)];
-
-        if (rank === -1 || value === -1) return;
-
+      data.forEach(({ rank, value }) => {
         const maxRank = maximumRankMap.get(metric);
         const minValue = minimumValueMap.get(metric);
         const maxValue = maximumValueMap.get(metric);
@@ -111,7 +85,7 @@ class CalculateRankLimitsJob implements JobDefinition<unknown> {
           minimumValueMap.set(metric, value > 2147483647 ? 2147483647 : Number(value));
         }
       });
-    });
+    }
 
     await prisma.$transaction(async tx => {
       // Delete all datapoints for the given date
@@ -136,6 +110,25 @@ class CalculateRankLimitsJob implements JobDefinition<unknown> {
       payload: { dateISO: date.toISOString() }
     });
   }
+}
+
+async function setupMaterializedView(startDate: Date, endDate: Date) {
+  const materializedViewName = `all_day_snapshots_${endDate.getTime()}`;
+
+  await prisma.$executeRawUnsafe(`DROP MATERIALIZED VIEW IF EXISTS ${materializedViewName}`);
+
+  await prisma.$executeRawUnsafe(
+    `CREATE MATERIALIZED VIEW ${materializedViewName} AS (
+        WITH data AS (
+            SELECT s.*, ROW_NUMBER() OVER (PARTITION BY p."id" ORDER BY s."createdAt" DESC) AS row_num
+            FROM public.snapshots s
+            JOIN public.players p ON p."id" = s."playerId"
+            WHERE s."createdAt"::timestamp BETWEEN '${startDate.toISOString()}'::timestamp AND '${endDate.toISOString()}'::timestamp
+        ) SELECT * FROM data WHERE row_num = 1
+      )`
+  );
+
+  return materializedViewName;
 }
 
 export default new CalculateRankLimitsJob();
