@@ -1,4 +1,4 @@
-import prisma, { Snapshot, TrendDatapoint } from '../../../prisma';
+import prisma, { TrendDatapoint } from '../../../prisma';
 import { getMetricRankKey, getMetricValueKey, Metric, REAL_METRICS, SKILLS } from '../../../utils/metrics';
 import { JobType, JobDefinition } from '../job.types';
 import { normalizeDate } from '../../util/dates';
@@ -17,7 +17,8 @@ class CalculateSumsJob implements JobDefinition<unknown> {
   async execute(payload: CalculateSumsPayload) {
     const { dateISO } = payload;
 
-    const date = new Date(dateISO);
+    const date = normalizeDate(new Date(dateISO));
+    const dayAgo = new Date(date.getTime() - 1000 * 60 * 60 * 24);
 
     const trendDatapoints = await prisma.trendDatapoint.findMany({
       where: { date }
@@ -29,27 +30,31 @@ class CalculateSumsJob implements JobDefinition<unknown> {
     const trendDatapointMap = new Map<Metric, TrendDatapoint>();
     trendDatapoints.forEach(t => trendDatapointMap.set(t.metric, t));
 
-    const snapshots = await getSnapshotsFrom(normalizeDate(date));
-
-    if (snapshots.length === 0) return;
+    // Create a materialized view with all the snapshots (max 1 per player) for the given date,
+    // since we'll need to query this data many times, it's more efficient to store it in a view.
+    // This also allows us to only select exactly the columns we need, to reduce memory usage on the API server.
+    const materializedViewName = await setupMaterializedView(dayAgo, date);
 
     const sumMap = new Map<Metric, number>();
 
-    REAL_METRICS.forEach(metric => {
-      if (metric === Metric.OVERALL) return;
+    for (const metric of REAL_METRICS) {
+      if (metric === Metric.OVERALL) continue;
 
-      // Simplify a snapshot into a { rank, value } object
-      const datapoints = snapshots.map(s => {
-        return {
-          rank: s[getMetricRankKey(metric)],
-          value: s[getMetricValueKey(metric)]
-        };
-      });
+      const rankKey = getMetricRankKey(metric);
+      const valueKey = getMetricValueKey(metric);
 
-      const sum = calculateSum(datapoints, trendDatapointMap.get(metric));
+      const data = await prisma.$queryRawUnsafe<{ rank: number; value: number }[]>(
+        `SELECT "${rankKey}" AS "rank", "${valueKey}" AS "value"
+         FROM ${materializedViewName}
+         WHERE "${rankKey}" > -1 AND "${valueKey}" > -1`
+      );
+
+      if (data.length === 0) continue;
+
+      const sum = calculateSum(data, trendDatapointMap.get(metric));
 
       sumMap.set(metric, sum);
-    });
+    }
 
     // Overall exp is a bit trickier to estimate as the exp doesn't necessarily
     // correlate to the rank (can have a lot of exp but lower level, so lower rank)
@@ -133,22 +138,21 @@ function calculateSum(data: { rank: number; value: number }[], datapoint: TrendD
   return Math.round(areaSum);
 }
 
-async function getSnapshotsFrom(date: Date) {
-  const dayAgo = new Date(date.getTime() - 1000 * 60 * 60 * 24);
+async function setupMaterializedView(startDate: Date, endDate: Date) {
+  const materializedViewName = `all_day_snapshots_${endDate.getTime()}`;
 
-  const result = await prisma.$queryRaw<Snapshot[]>`
-    WITH data AS (
-        SELECT s.*, ROW_NUMBER() OVER (PARTITION BY p."id" ORDER BY s."createdAt" DESC) AS row_num
-        FROM public.snapshots s
-        JOIN public.players p ON p."id" = s."playerId"
-        WHERE s."createdAt" BETWEEN ${dayAgo} AND ${date}
-    )
-    SELECT * FROM data WHERE row_num = 1
-  `;
+  await prisma.$executeRawUnsafe(
+    `CREATE MATERIALIZED VIEW IF NOT EXISTS ${materializedViewName} AS (
+        WITH data AS (
+            SELECT s.*, ROW_NUMBER() OVER (PARTITION BY p."id" ORDER BY s."createdAt" DESC) AS row_num
+            FROM public.snapshots s
+            JOIN public.players p ON p."id" = s."playerId"
+            WHERE s."createdAt"::timestamp BETWEEN '${startDate.toISOString()}'::timestamp AND '${endDate.toISOString()}'::timestamp
+        ) SELECT * FROM data WHERE row_num = 1
+      )`
+  );
 
-  return result.map(s => {
-    return { ...s, overallExperience: Number(s.overallExperience) };
-  });
+  return materializedViewName;
 }
 
 export default new CalculateSumsJob();
