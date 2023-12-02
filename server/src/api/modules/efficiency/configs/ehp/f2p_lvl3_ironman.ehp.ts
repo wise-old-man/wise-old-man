@@ -17,43 +17,38 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 6_500,
-        description: 'Regular Trees'
+        rate: 8_365,
+        description: '4t Trees'
       },
       {
         startExp: 2_411,
-        rate: 33_000,
+        rate: 35_000,
         description: '2t Oaks (steel axe)'
       },
       {
-        startExp: 13_363,
-        rate: 29_500,
-        description: '2x snow willows + forestry'
+        startExp: 5_018,
+        rate: 45_000,
+        description: '2t Oaks (mith axe)'
+      },
+      {
+        startExp: 14_833,
+        rate: 60_000,
+        description: '2t Oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 47_500,
-        description: '2x snow willows + forestry'
+        rate: 80_000,
+        description: '2t Oaks (rune axe)'
+      },
+      {
+        startExp: 101_333,
+        rate: 100_000,
+        description: '2t Oaks (rune axe)'
       },
       {
         startExp: 302_288,
-        rate: 61_500,
-        description: '2x snow willows + forestry'
-      },
-      {
-        startExp: 1_986_068,
-        rate: 73_500,
-        description: '2x snow willows + forestry'
-      },
-      {
-        startExp: 5_346_332,
-        rate: 85_000,
-        description: '2x snow willows + forestry'
-      },
-      {
-        startExp: 13_034_431,
-        rate: 95_000,
-        description: '2x snow willows + forestry'
+        rate: 110_000,
+        description: '2t Oaks (100% success)'
       }
     ],
     bonuses: []
@@ -148,12 +143,12 @@ export default [
       },
       {
         startExp: 13_363,
-        rate: 85_000,
+        rate: 60_000,
         description: 'Willow logs from Woodcutting (77% fm success)'
       },
       {
         startExp: 50_339,
-        rate: 130_500,
+        rate: 65_000,
         description: 'Willow logs from Woodcutting (100% fm success)'
       }
     ],
