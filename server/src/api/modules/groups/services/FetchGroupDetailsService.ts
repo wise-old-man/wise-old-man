@@ -29,7 +29,7 @@ async function fetchGroupDetails(payload: FetchGroupDetailsParams): Promise<Grou
     throw new NotFoundError('Group not found.');
   }
 
-  const priorities = PRIVELEGED_GROUP_ROLES.reverse();
+  const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
 
   return {
     ...omit(group, 'verificationHash'),

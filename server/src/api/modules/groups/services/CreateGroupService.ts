@@ -101,7 +101,7 @@ async function createGroup(payload: CreateGroupParams): Promise<CreateGroupResul
 
   onGroupCreated(createdGroup.id);
 
-  const priorities = PRIVELEGED_GROUP_ROLES.reverse();
+  const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
 
   const sortedMemberships = createdGroup.memberships.sort(
     (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
