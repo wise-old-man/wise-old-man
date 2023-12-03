@@ -239,7 +239,7 @@ async function findOrCreate(username: string): Promise<[Player & { latestSnapsho
   const newPlayer = await prisma.player.create({
     data: {
       username: cleanUsername,
-      displayName: sanitize(username)
+      displayName: sanitize(username, true)
     }
   });
 
