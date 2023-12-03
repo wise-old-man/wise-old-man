@@ -1,12 +1,11 @@
+import Link from "next/link";
 import { Container } from "./Container";
 
 import GithubIcon from "~/assets/github.svg";
 import TwitterIcon from "~/assets/twitter.svg";
 import DiscordIcon from "~/assets/discord.svg";
 import PatreonIcon from "~/assets/patreon.svg";
-
-import LogoAlt from "~/assets/logo_alt.svg";
-import Link from "next/link";
+import LogoXmas from "~/assets/logo_xmas.svg";
 
 const SOCIAL_LINKS = [
   { label: "Discord", href: "https://wiseoldman.net/discord", icon: DiscordIcon },
@@ -39,7 +38,7 @@ export function Footer() {
       <Container>
         <div className="border-t border-gray-700 pt-12 xl:grid xl:grid-cols-2 xl:gap-16">
           <div className="space-y-8 pr-8">
-            <LogoAlt alt="Wise Old Man Logo" className="w-32" />
+            <LogoXmas alt="Wise Old Man Logo" className="w-32" />
             <p className="text-sm leading-6 text-gray-200">
               Made with care by community volunteers. Please consider contributing to the development and
               maintenance of the project on{" "}
