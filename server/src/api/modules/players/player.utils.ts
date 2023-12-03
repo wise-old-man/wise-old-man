@@ -86,8 +86,8 @@ function standardize(username: string): string {
   return sanitize(username).toLowerCase();
 }
 
-function sanitize(username: string): string {
-  return username.replace(/[-\s]/g, '').trim();
+function sanitize(username: string, includeUnderscore?: boolean): string {
+  return includeUnderscore ? username.replace(/^_+|_+$/g, '').replace(/_/g, ' ').trim() : username.replace(/[-_\s]/g, ' ').trim()
 }
 
 function validateUsername(username: string): Error | null {
