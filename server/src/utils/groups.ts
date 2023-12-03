@@ -6,10 +6,10 @@ const GROUP_ROLES = Object.values(GroupRole);
 
 const PRIVELEGED_GROUP_ROLES: GroupRole[] = [
   GroupRole.ADMINISTRATOR,
-  GroupRole.DEPUTY_OWNER,
+  GroupRole.OWNER,
   GroupRole.LEADER,
-  GroupRole.MODERATOR,
-  GroupRole.OWNER
+  GroupRole.DEPUTY_OWNER,
+  GroupRole.MODERATOR
 ];
 
 type GroupRolePropsMap = MapOf<GroupRole, { name: string; isPriveleged: boolean }>;

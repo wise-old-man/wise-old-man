@@ -982,8 +982,8 @@ describe('Group API', () => {
       expect(editResponse.body).toMatchObject({ memberCount: 3 });
 
       expect(editResponse.body.memberships.length).toBe(3);
-      expect(editResponse.body.memberships[0].player.username).toBe('riblet');
-      expect(editResponse.body.memberships[1].player.username).toBe('psikoi');
+      expect(editResponse.body.memberships[0].player.username).toBe('psikoi');
+      expect(editResponse.body.memberships[1].player.username).toBe('riblet');
       expect(editResponse.body.memberships[2].player.username).toBe('cookmeplox');
 
       const changedRoleEvents = onMembersRolesChangedEvent.mock.calls[0][0];

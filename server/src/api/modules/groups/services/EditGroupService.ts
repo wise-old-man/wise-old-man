@@ -184,7 +184,7 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
 
   logger.moderation(`[Group:${params.id}] Edited`);
 
-  const priorities = PRIVELEGED_GROUP_ROLES.reverse();
+  const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
 
   const sortedMemberships = updatedGroup.memberships.sort(
     (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
@@ -448,7 +448,7 @@ function calculateRoleChangeMaps(
   memberInputs: EditGroupParams['members']
 ) {
   // Note: reversing the array here to find the role that was last declared for a given username
-  const reversedInputs = memberInputs.reverse();
+  const reversedInputs = [...memberInputs].reverse();
 
   const newRoleMap = new Map<GroupRole, number[]>();
   const currentRoleMap = new Map<GroupRole, number[]>();

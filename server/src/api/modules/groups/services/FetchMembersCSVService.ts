@@ -34,7 +34,7 @@ async function fetchGroupMembersCSV(payload: FetchMembersCSVParams): Promise<str
     throw new BadRequestError('Group has no members.');
   }
 
-  const priorities = PRIVELEGED_GROUP_ROLES.reverse();
+  const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
 
   const headers = ['Player', 'Role', 'Experience', 'Last progressed', 'Last updated'].join(',');
 
