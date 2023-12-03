@@ -99,11 +99,7 @@ function Header(props: PlayerDetails) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href={getHiscoresURL(displayName, type)}
-            >
+            <a target="_blank" rel="noopener noreferrer" href={getHiscoresURL(displayName, type)}>
               <DropdownMenuItem>
                 Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
               </DropdownMenuItem>
@@ -215,6 +211,13 @@ function PlayerStatusAlert(props: { player: Player }) {
               contact us on Discord
             </a>
             {` for more information.`}
+
+            <p className="mt-5">
+              <span className="text-white">Note (November 14th):</span> There&apos;s currently a issue
+              with the Jagex hiscores due to a recently reverted banwave that is causing some players to
+              get flagged or archived. If you&apos;re affected, try to log out in-game (to update your
+              hiscores) and then update your WOM profile.
+            </p>
           </AlertDescription>
         </div>
       </Alert>
