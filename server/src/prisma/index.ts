@@ -6,6 +6,7 @@ import {
   Record as PrismaRecord,
   Snapshot as PrismaSnapshot,
   Achievement as PrismaAchievement,
+  TrendDatapoint as PrismaTrendDatapoint,
   Patron,
   Competition,
   Participation,
@@ -80,6 +81,20 @@ const extendedClient = prisma.$extends({
         }
       }
     },
+    trendDatapoint: {
+      sum: {
+        needs: { sum: true },
+        compute({ sum }) {
+          return parseBigInt(sum);
+        }
+      },
+      maxValue: {
+        needs: { maxValue: true },
+        compute({ maxValue }) {
+          return parseBigInt(maxValue);
+        }
+      }
+    },
     groupSocialLinks: {
       id: {
         compute() {
@@ -136,6 +151,11 @@ type Snapshot = Omit<PrismaSnapshot, 'overallExperience'> & {
   overallExperience: number;
 };
 
+type TrendDatapoint = Omit<PrismaTrendDatapoint, 'sum' | 'maxValue'> & {
+  sum: number;
+  maxValue: number;
+};
+
 type Player = Omit<PrismaPlayer, 'exp' | 'latestSnapshotId'> & {
   exp: number;
 };
@@ -163,6 +183,7 @@ export {
   Achievement,
   MemberActivity,
   GroupSocialLinks,
+  TrendDatapoint,
   // Enums
   Country,
   NameChangeStatus,
