@@ -100,7 +100,7 @@ const CRON_JOBS = [
   },
   {
     type: JobType.SCHEDULE_TREND_CALCS,
-    interval: '0 * * * *' // every hour (can be reduced to every 6h or so once the initial data collection is done)
+    interval: '0 */12 * * *' // every 12 hours
   }
 ];
 
