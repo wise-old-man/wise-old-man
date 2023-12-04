@@ -147,7 +147,7 @@ async function setupMaterializedView(startDate: Date, endDate: Date) {
             SELECT s.*, ROW_NUMBER() OVER (PARTITION BY p."id" ORDER BY s."createdAt" DESC) AS row_num
             FROM public.snapshots s
             JOIN public.players p ON p."id" = s."playerId"
-            WHERE s."createdAt"::timestamp BETWEEN '${startDate.toISOString()}'::timestamp AND '${endDate.toISOString()}'::timestamp
+            WHERE p."type" = 'regular' AND s."createdAt"::timestamp BETWEEN '${startDate.toISOString()}'::timestamp AND '${endDate.toISOString()}'::timestamp
         ) SELECT * FROM data WHERE row_num = 1
       )`
   );
