@@ -8,7 +8,7 @@ import { JobType, JobDefinition } from '../job.types';
 const DELAY_PER_DAY = 60_000; // ms
 
 // The minimum date to gather data from
-const MIN_DATE = normalizeDate(new Date('2023-11-16'));
+const MIN_DATE = normalizeDate(new Date('2023-01-01'));
 
 class ScheduleTrendCalcsJob implements JobDefinition<unknown> {
   type: JobType;
