@@ -6,34 +6,37 @@ import metricsService from '../services/external/metrics.service';
 import redisService from '../services/external/redis.service';
 import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.types';
 import AssertPlayerTypeJob from './instances/AssertPlayerTypeJob';
+import AutoUpdatePatronGroupsJob from './instances/AutoUpdatePatronGroupsJob';
+import AutoUpdatePatronPlayersJob from './instances/AutoUpdatePatronPlayersJob';
+import CalculateRankLimitsJob from './instances/CalculateRankLimitsJob';
+import CalculateSumsJob from './instances/CalculateSumsJob';
+import CheckPlayerBannedJob from './instances/CheckPlayerBannedJob';
+import CheckPlayerRankedJob from './instances/CheckPlayerRankedJob';
 import InvalidatePeriodDeltasJob from './instances/InvalidatePeriodDeltasJob';
 import SyncApiKeysJob from './instances/SyncApiKeysJob';
 import ReviewNameChangeJob from './instances/ReviewNameChangeJob';
-import ScheduleNameChangeReviewsJob from './instances/ScheduleNameChangeReviewsJob';
 import ScheduleCompetitionEventsJob from './instances/ScheduleCompetitionEventsJob';
 import ScheduleCompetitionScoreUpdatesJob from './instances/ScheduleCompetitionScoreUpdatesJob';
 import ScheduleDeltaInvalidationsJob from './instances/ScheduleDeltaInvalidationsJob';
+import ScheduleFlaggedPlayerReview from './instances/ScheduleFlaggedPlayerReviewJob';
 import ScheduleGroupScoreUpdatesJob from './instances/ScheduleGroupScoreUpdatesJob';
+import ScheduleNameChangeReviewsJob from './instances/ScheduleNameChangeReviewsJob';
+import SchedulePlayerBannedChecks from './instances/SchedulePlayerBannedChecksJob';
+import ScheduleTrendCalcsJob from './instances/ScheduleTrendCalcsJob';
+import SyncPatronsJob from './instances/SyncPatronsJob';
 import UpdateCompetitionScoreJob from './instances/UpdateCompetitionScoreJob';
 import UpdateGroupScoreJob from './instances/UpdateGroupScoreJob';
 import UpdatePlayerJob from './instances/UpdatePlayerJob';
-import CheckPlayerBannedJob from './instances/CheckPlayerBannedJob';
-import CheckPlayerRankedJob from './instances/CheckPlayerRankedJob';
-import ScheduleFlaggedPlayerReview from './instances/ScheduleFlaggedPlayerReviewJob';
-import SchedulePlayerBannedChecks from './instances/SchedulePlayerBannedChecksJob';
-import SyncPatronsJob from './instances/SyncPatronsJob';
-import AutoUpdatePatronPlayersJob from './instances/AutoUpdatePatronPlayersJob';
-import AutoUpdatePatronGroupsJob from './instances/AutoUpdatePatronGroupsJob';
 
 const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
-  AutoUpdatePatronPlayersJob,
   AutoUpdatePatronGroupsJob,
+  AutoUpdatePatronPlayersJob,
+  CalculateRankLimitsJob,
+  CalculateSumsJob,
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
   InvalidatePeriodDeltasJob,
-  SyncApiKeysJob,
-  SyncPatronsJob,
   ReviewNameChangeJob,
   ScheduleCompetitionEventsJob,
   ScheduleCompetitionScoreUpdatesJob,
@@ -42,6 +45,9 @@ const JOBS: JobDefinition<unknown>[] = [
   ScheduleGroupScoreUpdatesJob,
   ScheduleNameChangeReviewsJob,
   SchedulePlayerBannedChecks,
+  ScheduleTrendCalcsJob,
+  SyncApiKeysJob,
+  SyncPatronsJob,
   UpdateCompetitionScoreJob,
   UpdateGroupScoreJob,
   UpdatePlayerJob
@@ -91,6 +97,10 @@ const CRON_JOBS = [
   {
     type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS,
     interval: '0 8 * * *' // everyday at 8AM
+  },
+  {
+    type: JobType.SCHEDULE_TREND_CALCS,
+    interval: '0 */12 * * *' // every 12 hours
   }
 ];
 

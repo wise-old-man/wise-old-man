@@ -615,6 +615,20 @@ model Patron {
   @@map("patrons")
 }
 
+model TrendDatapoint {
+  date     DateTime
+  metric   Metric
+  sum      BigInt
+  maxValue BigInt
+  minValue Int
+  maxRank  Int
+
+  // Constraints
+  @@id([metric, date])
+  // Map
+  @@map("trendDatapoints")
+}
+
 enum NameChangeStatus {
   pending
   denied
