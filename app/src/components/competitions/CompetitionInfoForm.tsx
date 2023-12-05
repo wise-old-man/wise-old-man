@@ -237,7 +237,7 @@ function MetricSelect(props: MetricSelectProps) {
             <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
           </div>
         </ComboboxButton>
-        <ComboboxContent className="max-h-64">
+        <ComboboxContent>
           <ComboboxInput placeholder="Search metrics..." />
           <ComboboxEmpty>No results were found</ComboboxEmpty>
           <ComboboxItemsContainer>
