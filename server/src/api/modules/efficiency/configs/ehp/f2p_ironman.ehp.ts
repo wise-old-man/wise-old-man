@@ -625,12 +625,12 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 29_500,
+        rate: 8_365,
         description: '4t Trees'
       },
       {
         startExp: 2_411,
-        rate: 33_000,
+        rate: 35_000,
         description: '2t Oaks (steel axe)'
       },
       {
@@ -640,22 +640,22 @@ export default [
       },
       {
         startExp: 14_833,
-        rate: 63_000,
+        rate: 60_000,
         description: '2t Oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 82_000,
+        rate: 80_000,
         description: '2t Oaks (rune axe)'
       },
       {
         startExp: 101_333,
-        rate: 90_000,
+        rate: 100_000,
         description: '2t Oaks (rune axe)'
       },
       {
         startExp: 302_288,
-        rate: 100_000,
+        rate: 110_000,
         description: '2t Oaks (100% success)'
       }
     ],
@@ -911,8 +911,8 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 4_650,
-        description: 'Varrock/Chronicle Earth Runes'
+        rate: 5_700,
+        description: 'Suicide bodies/minotaurs'
       }
     ],
     bonuses: [
@@ -922,15 +922,7 @@ export default [
         startExp: 0,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.769
-      },
-      {
-        originSkill: Skill.RUNECRAFTING,
-        bonusSkill: Skill.WOODCUTTING,
-        startExp: 0,
-        endExp: 200_000_000,
-        end: true,
-        ratio: 0.3403
+        ratio: 0.667
       }
     ]
   }
