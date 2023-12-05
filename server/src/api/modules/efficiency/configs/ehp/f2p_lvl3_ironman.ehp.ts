@@ -152,7 +152,16 @@ export default [
         description: 'Willow logs from Woodcutting (100% fm success)'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.FIREMAKING,
+        bonusSkill: Skill.WOODCUTTING,
+        startExp: 13_363,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.75
+      }
+    ]
   },
   {
     skill: Skill.CRAFTING,
