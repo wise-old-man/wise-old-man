@@ -8,9 +8,8 @@ const withSvgr = require("next-plugin-svgr");
 
 const nextConfig = withBundleAnalyzer(
   withSvgr({
-    experimental: {
-      logging: {
-        level: "verbose",
+    logging: {
+      fetches: {
         fullUrl: true,
       },
     },
