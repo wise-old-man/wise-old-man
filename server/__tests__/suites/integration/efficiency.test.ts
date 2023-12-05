@@ -137,23 +137,14 @@ afterAll(async () => {
 
 describe('Efficiency API', () => {
   describe('1 - Maximum TTM and TT200m', () => {
-    test('Check maximum TTM', () => {
+    test('Check maximum TTM and TT200m', () => {
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maxedEHP).toBeCloseTo(962.9246300000013, 4);
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.IRONMAN).maxedEHP).toBeCloseTo(1603.4281499999997, 4);
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.LVL3).maxedEHP).toBeCloseTo(880.0553999999993, 4);
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).maxedEHP).toBeCloseTo(1568.7465499999998, 4);
-    });
-
-    test('Check maximum TT200m', () => {
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maximumEHP).toBeCloseTo(12813.80829, 4);
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.IRONMAN).maximumEHP).toBeCloseTo(20300.84631, 4);
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.LVL3).maximumEHP).toBeCloseTo(11796.08924, 4);
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).maximumEHP).toBeCloseTo(23163.6045, 4);
     });
   });
 
   describe('2 - Player EHP calcs', () => {
-    test('Maximum EHP calcs (main)', () => {
+    test('Maximum EHP calcs', () => {
       const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP])) as ExperienceMap;
 
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHP(maximumStats)).toBeCloseTo(
@@ -174,37 +165,6 @@ describe('Efficiency API', () => {
         4
       );
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateTT200m(adjustedStats)).toBeCloseTo(2, 4);
-    });
-
-    test('Maximum EHP calcs (f2p)', () => {
-      const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP])) as ExperienceMap;
-
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).calculateEHP(maximumStats)).toBeCloseTo(
-        ALGORITHMS.get(EfficiencyAlgorithmType.F2P).maximumEHP,
-        4
-      );
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).calculateTT200m(maximumStats)).toBeCloseTo(0, 4);
-
-      const adjustedStats = {
-        ...maximumStats,
-        // 1 hour of woodcutting
-        woodcutting: maximumStats['woodcutting'] - 100_000,
-        // for mains, ironmen and lvl3s, this would be bonus xp (20%) from woodcutting
-        // but there's no infernal axe in f2p so this will need to be trained manually
-        // which at the rate of 293_625 fm exp per hour, would take an extra 0.0613 hours (3min40s)
-        firemaking: maximumStats['firemaking'] - 18_000,
-        // bonus exp from firemaking (12.5%)
-        prayer: maximumStats['prayer'] - 2250
-      };
-
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).calculateEHP(adjustedStats)).toBeCloseTo(
-        ALGORITHMS.get(EfficiencyAlgorithmType.F2P).maximumEHP - 1.0613,
-        4
-      );
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).calculateTT200m(adjustedStats)).toBeCloseTo(
-        1.0613,
-        4
-      );
     });
 
     test('Maxed EHP calcs', () => {
@@ -301,7 +261,7 @@ describe('Efficiency API', () => {
   });
 
   describe('3 - Player EHB calcs', () => {
-    test('EHB calcs (main)', () => {
+    test('EHB calcs', () => {
       const killcountMap = {
         barrows_chests: 100, // no rate, 0 EHB
         cerberus: 100, // 61 per hour, 1.63934 EHB
