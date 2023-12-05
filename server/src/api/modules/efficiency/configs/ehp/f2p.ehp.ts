@@ -278,38 +278,43 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 29_500,
+        rate: 8_365,
         description: '4t Trees'
       },
       {
         startExp: 2_411,
-        rate: 33_000,
-        description: '2t Oaks (steel axe)'
+        rate: 35_000,
+        description: '2t Oaks (steel axe) + Alchemy'
       },
       {
         startExp: 5_018,
         rate: 45_000,
-        description: '2t Oaks (mith axe)'
+        description: '2t Oaks (mith axe) + Alchemy'
       },
       {
         startExp: 14_833,
-        rate: 63_000,
-        description: '2t Oaks (addy axe)'
+        rate: 60_000,
+        description: '2t Oaks (addy axe) + Alchemy'
       },
       {
         startExp: 41_171,
-        rate: 82_000,
-        description: '2t Oaks (rune axe)'
+        rate: 80_000,
+        description: '2t Oaks (rune axe) + Alchemy'
       },
       {
         startExp: 101_333,
-        rate: 90_000,
-        description: '2t Oaks (rune axe)'
+        rate: 100_000,
+        description: '2t Oaks (rune axe) + Alchemy'
       },
       {
         startExp: 302_288,
-        rate: 100_000,
-        description: '2t Oaks (100% success)'
+        rate: 110_000,
+        description: '2t Oaks (100% success) + Alchemy'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 85_000,
+        description: 'Cake scatter willows + forestry events'
       }
     ],
     bonuses: [
@@ -319,7 +324,7 @@ export default [
         startExp: 2_411,
         endExp: 5_018,
         end: false,
-        ratio: 1.8
+        ratio: 1.54
       },
       {
         originSkill: Skill.WOODCUTTING,
@@ -327,7 +332,7 @@ export default [
         startExp: 5_018,
         endExp: 14_833,
         end: false,
-        ratio: 1.35
+        ratio: 1.2
       },
       {
         originSkill: Skill.WOODCUTTING,
@@ -335,7 +340,7 @@ export default [
         startExp: 14_833,
         endExp: 41_171,
         end: false,
-        ratio: 0.97
+        ratio: 0.9
       },
       {
         originSkill: Skill.WOODCUTTING,
@@ -343,7 +348,7 @@ export default [
         startExp: 41_171,
         endExp: 101_333,
         end: false,
-        ratio: 0.73
+        ratio: 0.675
       },
       {
         originSkill: Skill.WOODCUTTING,
@@ -351,15 +356,23 @@ export default [
         startExp: 101_333,
         endExp: 302_288,
         end: false,
-        ratio: 0.66
+        ratio: 0.54
       },
       {
         originSkill: Skill.WOODCUTTING,
         bonusSkill: Skill.MAGIC,
         startExp: 302_288,
+        endExp: 13_034_431,
+        end: false,
+        ratio: 0.49
+      },
+      {
+        originSkill: Skill.WOODCUTTING,
+        bonusSkill: Skill.PRAYER,
+        startExp: 13_034_431,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.54
+        ratio: 0.47
       }
     ]
   },
@@ -388,109 +401,53 @@ export default [
       },
       {
         startExp: 13_363,
-        rate: 37_500,
-        description: '3t Cake Scatter'
+        rate: 41_000,
+        description: '3t fish 0t cook trout+salmon'
+      },
+      {
+        startExp: 37_224,
+        rate: 50_000,
+        description: '3t fish 0t cook trout+salmon'
       },
       {
         startExp: 101_333,
-        rate: 52_000,
-        description: '3t Cake Scatter'
+        rate: 58_000,
+        description: '3t fish 0t cook trout+salmon'
       },
       {
         startExp: 273_742,
-        rate: 58_000,
-        description: '3t Cake Scatter'
+        rate: 65_000,
+        description: '3t fish 0t cook trout+salmon'
       },
       {
         startExp: 737_627,
-        rate: 64_000,
-        description: '3t Cake Scatter'
+        rate: 71_000,
+        description: '3t fish 0t cook trout+salmon'
       },
       {
         startExp: 1_986_068,
-        rate: 70_000,
-        description: '3t Cake Scatter'
+        rate: 78_000,
+        description: '3t fish 0t cook trout+salmon'
       },
       {
         startExp: 5_902_831,
-        rate: 75_000,
-        description: '3t Cake Scatter'
-      },
-      {
-        startExp: 8_771_558,
-        rate: 77_500,
-        description: '3t Cake Scatter'
+        rate: 84_000,
+        description: '3t fish 0t cook trout+salmon'
       },
       {
         startExp: 13_034_431,
-        rate: 80_000,
-        description: '3t Cake Scatter'
+        rate: 90_000,
+        description: '3t fish 0t cook trout+salmon'
       }
     ],
     bonuses: [
       {
         originSkill: Skill.FISHING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 13_363,
-        endExp: 101_333,
-        end: false,
-        ratio: 0.667
-      },
-      {
-        originSkill: Skill.FISHING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 101_333,
-        endExp: 273_742,
-        end: false,
-        ratio: 0.48
-      },
-      {
-        originSkill: Skill.FISHING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 273_742,
-        endExp: 737_627,
-        end: false,
-        ratio: 0.43
-      },
-      {
-        originSkill: Skill.FISHING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 737_627,
-        endExp: 1_986_068,
-        end: false,
-        ratio: 0.39
-      },
-      {
-        originSkill: Skill.FISHING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 1_986_068,
-        endExp: 5_902_831,
-        end: false,
-        ratio: 0.356
-      },
-      {
-        originSkill: Skill.FISHING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 5_902_831,
-        endExp: 8_771_558,
-        end: false,
-        ratio: 0.333
-      },
-      {
-        originSkill: Skill.FISHING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 8_771_558,
-        endExp: 13_034_431,
-        end: false,
-        ratio: 0.323
-      },
-      {
-        originSkill: Skill.FISHING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 13_034_431,
+        bonusSkill: Skill.COOKING,
+        startExp: 0,
         endExp: 200_000_000,
-        end: false,
-        ratio: 0.313
+        end: true,
+        ratio: 1.15
       }
     ]
   },
@@ -515,7 +472,7 @@ export default [
       {
         startExp: 273_742,
         rate: 293_625,
-        description: 'Best logs @ GE w/ Vile ashes'
+        description: 'Best logs @ GE w/ Vile ashes + big bones'
       }
     ],
     bonuses: [
@@ -525,7 +482,7 @@ export default [
         startExp: 13_363,
         endExp: 61_512,
         end: false,
-        ratio: 0.267
+        ratio: 0.427
       },
       {
         originSkill: Skill.FIREMAKING,
@@ -533,7 +490,7 @@ export default [
         startExp: 61_512,
         endExp: 273_742,
         end: false,
-        ratio: 0.178
+        ratio: 0.285
       },
       {
         originSkill: Skill.FIREMAKING,
@@ -541,7 +498,7 @@ export default [
         startExp: 273_742,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.125
+        ratio: 0.2
       }
     ]
   },
@@ -643,10 +600,15 @@ export default [
       {
         startExp: 247_886,
         rate: 56_000,
-        description: '3t cake scatter iron at mining guild'
+        description: '3.5t superheat mining'
       },
       {
         startExp: 302_288,
+        rate: 57_000,
+        description: '3.5t superheat mining'
+      },
+      {
+        startExp: 142_000_000,
         rate: 57_000,
         description: '3t cake scatter iron at mining guild'
       }
@@ -654,8 +616,40 @@ export default [
     bonuses: [
       {
         originSkill: Skill.MINING,
-        bonusSkill: Skill.PRAYER,
+        bonusSkill: Skill.SMITHING,
         startExp: 247_886,
+        endExp: 302_288,
+        end: false,
+        ratio: 0.321
+      },
+      {
+        originSkill: Skill.MINING,
+        bonusSkill: Skill.MAGIC,
+        startExp: 247_886,
+        endExp: 302_288,
+        end: false,
+        ratio: 1.363
+      },
+      {
+        originSkill: Skill.MINING,
+        bonusSkill: Skill.SMITHING,
+        startExp: 302_288,
+        endExp: 142_000_000,
+        end: false,
+        ratio: 0.321
+      },
+      {
+        originSkill: Skill.MINING,
+        bonusSkill: Skill.MAGIC,
+        startExp: 302_288,
+        endExp: 142_000_000,
+        end: false,
+        ratio: 1.363
+      },
+      {
+        originSkill: Skill.MINING,
+        bonusSkill: Skill.PRAYER,
+        startExp: 142_000_000,
         endExp: 200_000_000,
         end: false,
         ratio: 0.54
@@ -667,19 +661,10 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 55_000,
-        description: 'Solo Body talismans'
+        rate: 75_000,
+        description: 'Various'
       }
     ],
-    bonuses: [
-      {
-        originSkill: Skill.RUNECRAFTING,
-        bonusSkill: Skill.MAGIC,
-        startExp: 0,
-        endExp: 200_000_000,
-        end: false,
-        ratio: 0.4
-      }
-    ]
+    bonuses: []
   }
 ];
