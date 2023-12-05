@@ -192,7 +192,7 @@ export const ComboboxSeparator = CommandSeparator;
 export function ComboboxItemsContainer(props: { className?: string } & PropsWithChildren) {
   return (
     <div
-      className={cn("custom-scroll max-h-[20rem] overflow-y-auto overflow-x-hidden", props.className)}
+      className={cn("custom-scroll max-h-[16rem] overflow-y-auto overflow-x-hidden", props.className)}
     >
       {props.children}
     </div>
