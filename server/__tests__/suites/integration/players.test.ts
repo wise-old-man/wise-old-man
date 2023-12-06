@@ -99,13 +99,13 @@ describe('Player API', () => {
     it('should not track player (hiscores failed)', async () => {
       // Mock the hiscores to fail
       registerHiscoresMock(axiosMock, {
-        [PlayerType.REGULAR]: { statusCode: 500, rawData: '' }
+        [PlayerType.REGULAR]: { statusCode: 404, rawData: '' }
       });
 
       const response = await api.post(`/players/enrique`);
 
-      expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Failed to load hiscores: Connection refused.');
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Failed to load hiscores for enrique.');
 
       expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
 
