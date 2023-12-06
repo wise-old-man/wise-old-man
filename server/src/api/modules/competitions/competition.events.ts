@@ -1,6 +1,6 @@
 import { Competition, Participation } from '../../../prisma';
 import { CompetitionWithParticipations, PlayerType } from '../../../utils';
-import { jobManager, JobType } from '../../jobs';
+import { jobManager, JobType, JobPriority } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
 import * as playerServices from '../players/player.services';
@@ -67,6 +67,9 @@ async function onCompetitionStarting(competition: Competition, period: EventPeri
 }
 
 async function onCompetitionEnding(competition: Competition, period: EventPeriodDelay) {
+  // Dispatch a competition ending event to our discord bot API.
+  await metrics.trackEffect(discordService.dispatchCompetitionEnding, competition, period);
+
   if (period.hours === 2) {
     // 2 hours before a competition ends, update any players that are actually competing in the competition,
     // this is just a precaution in case the competition manager forgets to update people before the end.
@@ -76,20 +79,41 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
       id: competition.id
     });
 
-    competitionDetails.participations
-      .filter(p => p.progress.gained > 0)
-      .forEach(p => {
-        jobManager.add({
-          type: JobType.UPDATE_PLAYER,
-          payload: { username: p.player.username }
-        });
+    const activeParticipants = competitionDetails.participations.filter(p => p.progress.gained > 0);
+
+    activeParticipants.forEach(p => {
+      jobManager.add({
+        type: JobType.UPDATE_PLAYER,
+        payload: { username: p.player.username }
       });
+    });
 
     return;
   }
 
-  // Dispatch a competition ending event to our discord bot API.
-  await metrics.trackEffect(discordService.dispatchCompetitionEnding, competition, period);
+  if (period.hours === 12) {
+    // 12 hours before a competition ends, update all participants. This solves a fairly rare occurence
+    // where a player is actively competing, but has only been updated once at the start of the competition.
+    // By updating them again 12h before it ends, that'll award them some gains, ensuring they get updated twice,
+    // and making them an active competitor. This active competitor status is important for the code block above this,
+    // where 2h before a competition ends, all active competitors get updated again.
+    // Note: These should be low priority updates as to not delay regularly scheduled updates. 10-12h should be more than enough
+    // for these to slowly get processed.
+
+    const competitionDetails = await competitionServices.fetchCompetitionDetails({
+      id: competition.id
+    });
+
+    competitionDetails.participations.forEach(p => {
+      jobManager.add(
+        {
+          type: JobType.UPDATE_PLAYER,
+          payload: { username: p.player.username }
+        },
+        { priority: JobPriority.LOW }
+      );
+    });
+  }
 }
 
 export {
