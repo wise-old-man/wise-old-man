@@ -5,7 +5,7 @@ import { normalizeDate, getDatesInBetween } from '../../util/dates';
 import jobManager from '../job.manager';
 import { JobType, JobDefinition } from '../job.types';
 
-const DELAY_PER_DAY = 90_000; // ms
+const DELAY_PER_DAY = 600_000; // ms
 
 // The minimum date to gather data from
 const MIN_DATE = normalizeDate(new Date('2022-12-01'));
