@@ -11,6 +11,7 @@ import { PlayerStatus } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
+import { archivePlayer } from '../../players/player.services';
 import * as playerEvents from '../../players/player.events';
 import * as playerUtils from '../../players/player.utils';
 import { prepareRecordValue } from '../../records/record.utils';
@@ -48,6 +49,11 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
     throw new ServerError('Old Player cannot be found in the database anymore.');
   }
 
+  if (newPlayer && newPlayer.id !== oldPlayer.id) {
+    // Archive the "new" profile, in case we need to restore some of this data later
+    await archivePlayer(newPlayer, false);
+  }
+
   // Attempt to transfer data between both accounts
   const updatedPlayer = await transferPlayerData(oldPlayer, newPlayer, nameChange.newName).catch(e => {
     logger.debug('Failed to transfer name change data.', e);
@@ -81,19 +87,17 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
 
   const newPlayerExists = newPlayer && oldPlayer.id !== newPlayer.id;
 
-  const recordData = {
-    oldRecords: [] as Record[],
-    newRecords: [] as Record[]
-  };
+  let oldRecords: Record[] = [];
+  let newRecords: Record[] = [];
 
   if (newPlayerExists) {
     // Fetch all of older player's records, to compare to the new ones
-    recordData.oldRecords = await prisma.record.findMany({
+    oldRecords = await prisma.record.findMany({
       where: { playerId: oldPlayer.id }
     });
 
     // Find all of new player's records (post transition date)
-    recordData.newRecords = await prisma.record.findMany({
+    newRecords = await prisma.record.findMany({
       where: { playerId: newPlayer.id, updatedAt: { gte: transitionDate } }
     });
   }
@@ -118,10 +122,7 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
         await transferParticipations(tx, oldPlayer.id, newPlayer.id, transitionDate);
 
         // Transfer all records from the newPlayer (post transition date) to the old player
-        await transferRecords(tx, oldPlayer.id, recordData.oldRecords, recordData.newRecords);
-
-        // Delete the "new" player profile
-        await tx.player.delete({ where: { id: newPlayer.id } });
+        await transferRecords(tx, oldPlayer.id, oldRecords, newRecords);
 
         if (newPlayer.country && !oldPlayer.country) {
           // Set the player's flag to the new one, if one didn't exist before
@@ -159,7 +160,7 @@ async function transferRecords(
   newRecords: Record[]
 ) {
   const recordsToAdd: Record[] = [];
-  const recordsToUpdate: { record: Record; newValue: number }[] = [];
+  const recordsToUpdate: { oldRecord: Record; newRecord: Record }[] = [];
 
   newRecords.map(n => {
     // Find if this same record definition (playerId/metric/period) existed before
@@ -170,7 +171,7 @@ async function transferRecords(
       recordsToAdd.push(n);
     } else if (oldEquivalent.value < n.value) {
       // This record existed but had a lower value than the new one, update it
-      recordsToUpdate.push({ record: oldEquivalent, newValue: n.value });
+      recordsToUpdate.push({ oldRecord: oldEquivalent, newRecord: n });
     }
   });
 
@@ -184,12 +185,16 @@ async function transferRecords(
     });
   }
 
-  for (const { record, newValue } of recordsToUpdate) {
+  for (const { oldRecord, newRecord } of recordsToUpdate) {
     await transaction.record.update({
-      where: { id: record.id },
+      where: { id: oldRecord.id },
       data: {
-        value: prepareRecordValue(record.metric, newValue)
+        value: prepareRecordValue(oldRecord.metric, newRecord.value)
       }
+    });
+
+    await transaction.record.delete({
+      where: { id: newRecord.id }
     });
   }
 }

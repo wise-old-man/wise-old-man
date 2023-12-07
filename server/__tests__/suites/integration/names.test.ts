@@ -1,7 +1,7 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { getMetricValueKey, getMetricRankKey, METRICS, PlayerType } from '../../../src/utils';
+import { getMetricValueKey, getMetricRankKey, METRICS, PlayerType, PlayerStatus } from '../../../src/utils';
 import env from '../../../src/env';
 import prisma, { setHooksEnabled } from '../../../src/prisma';
 import apiServer from '../../../src/api';
@@ -22,6 +22,7 @@ const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
+const onPlayerArchivedEvent = jest.spyOn(playerEvents, 'onPlayerArchived');
 const onPlayerNameChangedEvent = jest.spyOn(playerEvents, 'onPlayerNameChanged');
 const onNameChangeSubmittedEvent = jest.spyOn(nameChangeEvents, 'onNameChangeSubmitted');
 
@@ -598,6 +599,42 @@ describe('Names API', () => {
         }),
         'jakesterwars'
       );
+
+      // New player didn't exist, so no profiles needed to be archived
+      expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
+    });
+
+    it("should approve (new username isn't tracked, no transfers)", async () => {
+      const trackResponse = await api.post(`/players/Momo`);
+
+      expect(trackResponse.status).toBe(201);
+      expect(trackResponse.body.username).toBe('momo');
+      expect(trackResponse.body.displayName).toBe('Momo');
+
+      const submitResponse = await api.post(`/names`).send({
+        oldName: 'momo',
+        newName: 'Mudscape 17'
+      });
+
+      expect(submitResponse.status).toBe(201);
+
+      const response = await api
+        .post(`/names/${submitResponse.body.id}/approve`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(200);
+      expect(response.body.status).toBe('approved');
+      expect(response.body.resolvedAt).not.toBe(null);
+
+      expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          displayName: 'Mudscape 17'
+        }),
+        'Momo'
+      );
+
+      // New player didn't exist, so no profiles needed to be archived
+      expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
     });
 
     it('should approve (and transfer data)', async () => {
@@ -645,66 +682,138 @@ describe('Names API', () => {
 
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
 
-      // Check if records transfered correctly
-      const recordsResponse = await api.get(`/players/USBC/records`);
+      // "New" player profile was archived
+      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: newPlayerId,
+          status: PlayerStatus.ARCHIVED,
+          username: expect.stringContaining('archive'),
+          displayName: expect.stringContaining('archive')
+        }),
+        'USBC'
+      );
 
-      expect(recordsResponse.status).toBe(200);
-      expect(recordsResponse.body.length).toBe(5);
+      const archive = await prisma.playerArchive.findFirst({
+        where: {
+          playerId: newPlayerId,
+          previousUsername: 'usbc'
+        }
+      });
 
-      expect(recordsResponse.body.filter(r => r.metric === 'zulrah')[0]).toMatchObject({
+      const { archiveUsername } = archive;
+
+      expect(archive).not.toBeNull();
+
+      // Check if records transfered correctly to the main player
+      const mainRecordsResponse = await api.get(`/players/USBC/records`);
+
+      expect(mainRecordsResponse.status).toBe(200);
+      expect(mainRecordsResponse.body.length).toBe(5);
+
+      expect(mainRecordsResponse.body.filter(r => r.metric === 'zulrah')[0]).toMatchObject({
         period: 'month',
         metric: 'zulrah',
         value: 500
       });
 
-      expect(recordsResponse.body.filter(r => r.metric === 'ranged')[0]).toMatchObject({
+      expect(mainRecordsResponse.body.filter(r => r.metric === 'ranged')[0]).toMatchObject({
         period: 'year',
         metric: 'ranged',
         value: 1_350_000
       });
 
-      expect(recordsResponse.body.filter(r => r.metric === 'agility')[0]).toMatchObject({
+      expect(mainRecordsResponse.body.filter(r => r.metric === 'agility')[0]).toMatchObject({
         period: 'week',
         metric: 'agility',
         value: 100_000
       });
 
-      expect(recordsResponse.body.filter(r => r.metric === 'smithing')[0]).toMatchObject({
+      expect(mainRecordsResponse.body.filter(r => r.metric === 'smithing')[0]).toMatchObject({
         period: 'day',
         metric: 'smithing',
         value: 10_000
       });
 
-      expect(recordsResponse.body.filter(r => r.metric === 'ehp')[0]).toMatchObject({
+      expect(mainRecordsResponse.body.filter(r => r.metric === 'ehp')[0]).toMatchObject({
         period: 'day',
         metric: 'ehp',
         value: 5.67
       });
 
-      // Check if none of the pre-transition snapshots have been transfered
-      const snapshotsResponse = await api.get(`/players/USBC/snapshots`).query({ period: 'week' });
+      // Check if records transfered correctly to the archived player
+      const archivedRecordsResponse = await api.get(`/players/${archiveUsername}/records`);
 
-      expect(snapshotsResponse.status).toBe(200);
-      expect(snapshotsResponse.body.filter(s => s.data.bosses.obor.kills > -1).length).toBe(0);
+      expect(archivedRecordsResponse.status).toBe(200);
+      expect(archivedRecordsResponse.body.length).toBe(1); // Only one record was "abandoned"
+
+      // oldPlayer's week record for agility was 100k, but newPlayer's week record for agility was 50k.
+      // So this 50k record wasn't transfered (because it was lower than the existing one).
+      // In other words, it was abandoned in this archived "new" profile.
+
+      expect(archivedRecordsResponse.body.filter(r => r.metric === 'agility')[0]).toMatchObject({
+        period: 'week',
+        metric: 'agility',
+        value: 50_000
+      });
+
+      // Check if none of the pre-transition snapshots have been transfered
+      const mainSnapshotsResponse = await api.get(`/players/USBC/snapshots`).query({ period: 'week' });
+
+      expect(mainSnapshotsResponse.status).toBe(200);
+      expect(mainSnapshotsResponse.body.filter(s => s.data.bosses.obor.kills > -1).length).toBe(0);
+
+      // One snapshot should have been abandoned (it was on newPlayer's profile before the transition date).
+      // This snapshot has 30 obor kills, so the presence or abcense of these 30 kills are an indicator of transfer success.
+
+      const archivedSnapshotsResponse = await api
+        .get(`/players/${archiveUsername}/snapshots`)
+        .query({ period: 'week' });
+
+      expect(archivedSnapshotsResponse.status).toBe(200);
+      expect(archivedSnapshotsResponse.body.filter(s => s.data.bosses.obor.kills === 30).length).toBe(1);
 
       // Check if none of the pre-transition memberships have been transfered
-      const groupsResponse = await api.get(`/players/USBC/groups`);
+      const mainGroupsResponse = await api.get(`/players/USBC/groups`);
 
-      expect(groupsResponse.status).toBe(200);
-      expect(groupsResponse.body.length).toBe(1);
-      expect(groupsResponse.body[0]).toMatchObject({
+      expect(mainGroupsResponse.status).toBe(200);
+      expect(mainGroupsResponse.body.length).toBe(1);
+      expect(mainGroupsResponse.body[0]).toMatchObject({
         role: 'archer',
         group: { name: 'Test Transfer Group' }
       });
 
-      // Check if none of the pre-transition participations have been transfered
-      const competitionsResponse = await api.get(`/players/USBC/competitions`);
+      // Before the name change happened, the "newPlayer" was in a group called "Test Transfer Group (Pre)"".
+      // So this archived player profile should still be in it.
 
-      expect(competitionsResponse.status).toBe(200);
-      expect(competitionsResponse.body.length).toBe(1);
-      expect(competitionsResponse.body[0].competition).toMatchObject({
+      const archivedGroupsResponse = await api.get(`/players/${archiveUsername}/groups`);
+
+      expect(archivedGroupsResponse.status).toBe(200);
+      expect(archivedGroupsResponse.body.length).toBe(1);
+      expect(archivedGroupsResponse.body[0]).toMatchObject({
+        role: 'beast',
+        group: { name: 'Test Transfer Group (Pre)' }
+      });
+
+      // Check if none of the pre-transition participations have been transfered
+      const mainCompetitionsResponse = await api.get(`/players/USBC/competitions`);
+
+      expect(mainCompetitionsResponse.status).toBe(200);
+      expect(mainCompetitionsResponse.body.length).toBe(1);
+      expect(mainCompetitionsResponse.body[0].competition).toMatchObject({
         title: 'Test Comp',
         metric: 'thieving'
+      });
+
+      // Before the name change happened, the "newPlayer" was in a competition called "Test Comp (Pre)".
+      // So this archived player profile should still be in it.
+
+      const archivedCompetitionsResponse = await api.get(`/players/${archiveUsername}/competitions`);
+
+      expect(archivedCompetitionsResponse.status).toBe(200);
+      expect(archivedCompetitionsResponse.body.length).toBe(1);
+      expect(archivedCompetitionsResponse.body[0].competition).toMatchObject({
+        title: 'Test Comp (Pre)',
+        metric: 'herblore'
       });
 
       const detailsResponse = await api.get(`/players/USBC`);

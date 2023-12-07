@@ -8,16 +8,19 @@ import * as playerUtils from '../player.utils';
 import * as playerEvents from '../player.events';
 
 interface ArchivePlayerResult {
-  newPlayer: Player;
+  newPlayer: Player | null;
   archivedPlayer: Player;
 }
 
-async function archivePlayer(player: Player): Promise<ArchivePlayerResult> {
-  const latestSnapshot = await snapshotServices.findPlayerSnapshot({ id: player.id });
-  const cutoffDate = latestSnapshot.createdAt;
+async function archivePlayer(player: Player, createNewPlayer = true): Promise<ArchivePlayerResult> {
+  let splitData: Awaited<ReturnType<typeof playerUtils.splitArchivalData>> | null = null;
 
-  // Get all the memberships and participations that should be transfered to the new player
-  const splitData = await playerUtils.splitArchivalData(player.id, cutoffDate);
+  if (createNewPlayer) {
+    const latestSnapshot = await snapshotServices.findPlayerSnapshot({ id: player.id });
+
+    // Get all the memberships and participations that should be transfered to the new player
+    splitData = await playerUtils.splitArchivalData(player.id, latestSnapshot.createdAt);
+  }
 
   // Find a free random username for the archived player (archive#####)
   const archiveUsername = await findAvailableArchiveUsername();
@@ -48,6 +51,10 @@ async function archivePlayer(player: Player): Promise<ArchivePlayerResult> {
           previousUsername: player.username
         }
       });
+
+      if (!createNewPlayer) {
+        return { archivedPlayer, newPlayer: null };
+      }
 
       // Now that the disputed username is free, create a new player for it
       const newPlayer = await transaction.player.create({
