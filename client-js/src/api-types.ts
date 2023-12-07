@@ -15,7 +15,8 @@ import {
   CompetitionWithParticipations,
   Team,
   GroupRole,
-  GroupDetails
+  GroupDetails,
+  CompetitionCSVTableType
 } from '../../server/src/utils';
 
 export interface GenericCountMessageResponse {
@@ -89,6 +90,12 @@ export interface CompetitionsSearchFilter {
   type?: CompetitionType;
   status?: CompetitionStatus;
 }
+
+export type CompetitionDetailsCSVParams = {
+  previewMetric?: Metric;
+  teamName?: string;
+  table?: CompetitionCSVTableType;
+};
 
 export type CreateCompetitionPayload = {
   title: string;
