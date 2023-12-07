@@ -79,14 +79,15 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
       id: competition.id
     });
 
-    const activeParticipants = competitionDetails.participations.filter(p => p.progress.gained > 0);
-
-    activeParticipants.forEach(p => {
-      jobManager.add({
-        type: JobType.UPDATE_PLAYER,
-        payload: { username: p.player.username }
+    competitionDetails.participations
+      // Only update players that have gained xp
+      .filter(p => p.progress.gained > 0)
+      .forEach(p => {
+        jobManager.add({
+          type: JobType.UPDATE_PLAYER,
+          payload: { username: p.player.username }
+        });
       });
-    });
 
     return;
   }
@@ -99,20 +100,22 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
     // where 2h before a competition ends, all active competitors get updated again.
     // Note: These should be low priority updates as to not delay regularly scheduled updates. 10-12h should be more than enough
     // for these to slowly get processed.
-
     const competitionDetails = await competitionServices.fetchCompetitionDetails({
       id: competition.id
     });
 
-    competitionDetails.participations.forEach(p => {
-      jobManager.add(
-        {
-          type: JobType.UPDATE_PLAYER,
-          payload: { username: p.player.username }
-        },
-        { priority: JobPriority.LOW }
-      );
-    });
+    competitionDetails.participations
+      // Only update players that haven't been updated in the last 24h
+      .filter(p => Date.now() - p.player.updatedAt.getTime() > 1000 * 60 * 60 * 24)
+      .forEach(p => {
+        jobManager.add(
+          {
+            type: JobType.UPDATE_PLAYER,
+            payload: { username: p.player.username }
+          },
+          { priority: JobPriority.LOW }
+        );
+      });
   }
 }
 
