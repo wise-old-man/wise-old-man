@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PlayerType, PlayerBuild, Period, Metric, Country } from '../../../../utils';
+import { PlayerType, PlayerBuild, Period, Metric, Country, PlayerStatus } from '../../../../utils';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { RecordLeaderboardEntry } from '../record.types';
 
@@ -35,7 +35,7 @@ async function findRecordLeaderboards(
     where: {
       metric: params.metric,
       period: params.period,
-      player: { ...playerQuery }
+      player: { ...playerQuery, status: PlayerStatus.ACTIVE }
     },
     include: { player: true },
     orderBy: [{ value: 'desc' }],

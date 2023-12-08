@@ -46,7 +46,7 @@ async function fetchSortedPlayersList(params: FindEfficiencyLeaderboardsParams) 
   const playerQuery: PrismaTypes.PlayerWhereInput = {
     type: params.playerType,
     build: params.playerBuild,
-    status: { not: PlayerStatus.ARCHIVED }
+    status: PlayerStatus.ACTIVE
   };
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
