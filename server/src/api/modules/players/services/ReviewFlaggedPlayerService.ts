@@ -138,10 +138,10 @@ function hasLostTooMuch(previous: FormattedSnapshot, rejected: FormattedSnapshot
       .reduce((a, b) => a + b, 0)
   );
 
-  // If lost over 72h of EHP and EHB, then it's probably not a rollback.
+  // If lost over 24h of EHP and EHB, then it's probably not a rollback.
   // Rollbacks are usually quickly fixed by Jagex, so it's unlikely
   // that a player gains a huge amount of EHP and EHB in a short period of time.
-  return lostEHP + lostEHB > 72;
+  return lostEHP + lostEHB > 24;
 }
 
 export { reviewFlaggedPlayer };
