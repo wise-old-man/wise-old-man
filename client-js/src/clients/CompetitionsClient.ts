@@ -12,7 +12,8 @@ import type {
   CreateCompetitionPayload,
   CreateCompetitionResponse,
   GenericCountMessageResponse,
-  GenericMessageResponse
+  GenericMessageResponse,
+  CompetitionDetailsCSVParams
 } from '../api-types';
 import { PaginationOptions } from '../utils';
 import BaseAPIClient from './BaseAPIClient';
@@ -32,6 +33,14 @@ export default class CompetitionsClient extends BaseAPIClient {
    */
   getCompetitionDetails(id: number, previewMetric?: Metric) {
     return this.getRequest<CompetitionDetails>(`/competitions/${id}`, { metric: previewMetric });
+  }
+
+  /**
+   * Fetches the competition's participant list in CSV format.
+   * @returns A string containing the CSV content.
+   */
+  getCompetitionDetailsCSV(id: number, params?: CompetitionDetailsCSVParams) {
+    return this.getText(`/competitions/${id}/csv`, { metric: params.previewMetric, ...params });
   }
 
   /**

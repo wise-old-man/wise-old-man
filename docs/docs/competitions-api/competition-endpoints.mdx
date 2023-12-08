@@ -267,6 +267,72 @@ const competition = await client.competitions.getCompetitionDetails(123);
 
 ---
 
+## Get Competition Details CSV
+
+<Endpoint verb="GET" path="/competitions/:id/csv" />
+<br />
+
+Fetches the competition's details in CSV format.
+
+:::note
+
+This endpoint returns plain text, not a JSON response.
+
+:::
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description           |
+| ----- | ------- | -------- | --------------------- |
+| id    | integer | `true`   | The competition's ID. |
+
+<br />
+
+**Query Params**
+
+| Field    | Type                                                                                       | Required | Description                                                                                                                                                                                                                                        |
+| -------- | ------------------------------------------------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| metric   | [Metric](/global-type-definitions#enum-metric)                                             | `false`  | An alternative metric to preview the competition's progress in. (Ex: If it's originally an `agility` competition, you can still use this param to preview what the competition would have looked like if it were a `fishing` competition instead.) |
+| teamName | string                                                                                     | `false`  | The optional team name to get competition details for. Only used when `table` is set to `'team'`.                                                                                                                                                  |
+| table    | [Competition CSV Table Type](competition-type-definitions#enum-competition-csv-table-type) | `false`  | The optional CSV table type to use, defaults to `'participants'`.                                                                                                                                                                                  |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/competitions/123/csv \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+const { WOMClient } = require('@wise-old-man/utils');
+
+const client = new WOMClient();
+
+const csv = await client.competitions.getCompetitionDetailsCSV(123);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```csv
+Rank,Username,Start,End,Gained,Last Updated
+1,Jonxslays,13088583,15173063,2084480,12-03-2023 07:07
+2,Psikoi,10531887,11505398,973511,12-03-2023 02:51
+3,Rro,17087369,17893813,806444,12-03-2023 12:55
+4,Aluminoti,2614826,3263458,648632,12-03-2023 02:51
+```
+
+---
+
 ## Get Top Participants' History
 
 <Endpoint verb="GET" path="/competitions/:id/top-history" />
