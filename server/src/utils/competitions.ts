@@ -7,6 +7,12 @@ enum CompetitionStatus {
   FINISHED = 'finished'
 }
 
+enum CompetitionCSVTableType {
+  TEAM = 'team',
+  TEAMS = 'teams',
+  PARTICIPANTS = 'participants'
+}
+
 const CompetitionTypeProps: MapOf<CompetitionType, { name: string }> = {
   [CompetitionType.CLASSIC]: { name: 'Classic' },
   [CompetitionType.TEAM]: { name: 'Team' }
@@ -33,6 +39,7 @@ export {
   // Enums
   CompetitionType,
   CompetitionStatus,
+  CompetitionCSVTableType,
   CompetitionTypeProps,
   CompetitionStatusProps,
   // Lists

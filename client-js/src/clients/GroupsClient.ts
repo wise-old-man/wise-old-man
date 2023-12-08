@@ -182,4 +182,12 @@ export default class GroupsClient extends BaseAPIClient {
   getGroupActivity(id: number, pagination?: PaginationOptions) {
     return this.getRequest<MemberActivityWithPlayer[]>(`/groups/${id}/activity`, { ...pagination });
   }
+
+  /**
+   * Fetches the groups's member list in CSV format.
+   * @returns A string containing the CSV content.
+   */
+  getMembersCSV(id: number) {
+    return this.getText(`/groups/${id}/csv`);
+  }
 }

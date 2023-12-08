@@ -1,24 +1,18 @@
 import { z } from 'zod';
-import { CompetitionType, Metric } from '../../../../utils';
+import { CompetitionCSVTableType, CompetitionType, Metric } from '../../../../utils';
 import { formatDate } from '../../../util/dates';
 import { BadRequestError } from '../../../errors';
 import { CompetitionDetails, ParticipationWithPlayerAndProgress } from '../competition.types';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
-
-enum CSVTable {
-  TEAM = 'team',
-  TEAMS = 'teams',
-  PARTICIPANTS = 'participants'
-}
 
 const inputSchema = z
   .object({
     id: z.number().int().positive(),
     metric: z.nativeEnum(Metric).optional(),
     teamName: z.string().optional(),
-    table: z.nativeEnum(CSVTable).optional().default(CSVTable.PARTICIPANTS)
+    table: z.nativeEnum(CompetitionCSVTableType).optional().default(CompetitionCSVTableType.PARTICIPANTS)
   })
-  .refine(s => !(s.table === CSVTable.TEAM && !s.teamName), {
+  .refine(s => !(s.table === CompetitionCSVTableType.TEAM && !s.teamName), {
     message: 'Team name is a required parameter for the table type of "team".'
   });
 
@@ -29,7 +23,7 @@ async function fetchCompetitionCSV(payload: FetchCompetitionCSVParams): Promise<
 
   const competitionDetails = await fetchCompetitionDetails(params);
 
-  if (params.table === CSVTable.PARTICIPANTS) {
+  if (params.table === CompetitionCSVTableType.PARTICIPANTS) {
     return getParticipantsCSV(competitionDetails);
   }
 
@@ -37,7 +31,7 @@ async function fetchCompetitionCSV(payload: FetchCompetitionCSVParams): Promise<
     throw new BadRequestError('Cannot view team/teams table on a classic competition.');
   }
 
-  if (params.table === CSVTable.TEAMS) {
+  if (params.table === CompetitionCSVTableType.TEAMS) {
     return getTeamsCSV(competitionDetails);
   }
 

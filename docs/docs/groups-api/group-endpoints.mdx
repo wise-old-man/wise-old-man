@@ -1928,3 +1928,68 @@ const activity = await client.groups.getGroupActivity(139);
   }
 ]
 ```
+
+---
+
+## Get Group Members CSV
+
+<Endpoint verb="GET" path="/groups/:id/csv" />
+<br />
+
+Fetches the group's members in CSV format.
+
+:::note
+
+This endpoint returns plain text, not a JSON response.
+
+:::
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description      |
+| ----- | ------- | -------- | ---------------- |
+| id    | integer | `true`   | The groups's ID. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/139/csv \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+const { WOMClient } = require('@wise-old-man/utils');
+
+const client = new WOMClient();
+
+const csv = await client.groups.getMembersCSV(139);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```csv
+Player,Role,Experience,Last progressed,Last updated
+Boom,moderator,210157321,12-04-2023 05:41,12-04-2023 05:41
+Aluminoti,moderator,486351623,12-06-2023 23:55,12-06-2023 23:55
+Rro,achiever,698779609,11-08-2023 20:31,12-06-2023 22:55
+Jakesterwars,artisan,79352877,11-07-2023 21:19,12-06-2023 03:30
+Sethmare,legend,171680739,11-02-2023 20:42,12-05-2023 04:49
+Jonxslays,medic,50085718,11-02-2023 14:14,12-06-2023 13:25
+Enriath,member,281501662,10-24-2023 07:48,11-27-2023 12:41
+USBC,member,135966343,11-30-2023 22:21,11-30-2023 22:21
+Crow653,member,201891714,11-03-2023 02:16,11-27-2023 12:40
+Psikoi,orange,314625557,11-26-2023 07:40,12-05-2023 21:58
+Alexsuperfly,short_green_guy,286211980,11-26-2023 07:40,11-27-2023 12:40
+```
+
+---

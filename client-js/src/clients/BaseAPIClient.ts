@@ -20,7 +20,7 @@ export default class BaseAPIClient {
     return query ? `?${query}` : '';
   }
 
-  private async request<T>({
+  private async fetch({
     method,
     path,
     body,
@@ -42,7 +42,21 @@ export default class BaseAPIClient {
       query = this.buildParams(params);
     }
 
-    const res = await fetch(this.baseUrl + path + query, req);
+    return await fetch(this.baseUrl + path + query, req);
+  }
+
+  private async request<T>({
+    method,
+    path,
+    body,
+    params
+  }: {
+    method: string;
+    path: string;
+    body?: unknown;
+    params?: unknown;
+  }): Promise<T> {
+    const res = await this.fetch({ method, path, body, params });
     const data = await res.json();
 
     if (res.ok) {
@@ -50,6 +64,27 @@ export default class BaseAPIClient {
     }
 
     handleError(res.status, path, data);
+  }
+
+  private async requestText({
+    method,
+    path,
+    body,
+    params
+  }: {
+    method: string;
+    path: string;
+    body?: unknown;
+    params?: unknown;
+  }): Promise<string> {
+    const res = await this.fetch({ method, path, body, params });
+    const text = await res.text();
+
+    if (res.ok) {
+      return text;
+    }
+
+    handleError(res.status, path, JSON.parse(text));
   }
 
   async postRequest<T>(path: string, body?: unknown) {
@@ -66,5 +101,9 @@ export default class BaseAPIClient {
 
   async getRequest<T>(path: string, params?: unknown) {
     return await this.request<T>({ method: 'GET', path, params });
+  }
+
+  async getText(path: string, params?: unknown) {
+    return await this.requestText({ method: 'GET', path, params });
   }
 }

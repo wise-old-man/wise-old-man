@@ -23,6 +23,14 @@ sidebar_position: 1
 
 <br />
 
+### `(Enum)` Competition CSV Table Type
+
+```bash
+'team', 'teams', 'participants'
+```
+
+<br />
+
 ### `(Object)` Competition Progress
 
 | Field  | Type    | Description                                           |
