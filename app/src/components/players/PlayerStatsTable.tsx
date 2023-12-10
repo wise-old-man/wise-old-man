@@ -161,7 +161,7 @@ export function PlayerStatsTable(props: PlayerStatsTableProps) {
 function getVirtualTotalLevel(skills: MapOf<Skill, SkillValue>): number {
   let totalLevel = 0;
   for (const [_, value] of Object.entries(skills)) {
-    if (value.metric === 'overall') continue;
+    if (value.metric === Skill.OVERALL) continue;
 
     totalLevel += getLevel(value.experience, true);
   }
