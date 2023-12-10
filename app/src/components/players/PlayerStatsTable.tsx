@@ -169,17 +169,13 @@ function getVirtualTotalLevel(skills: MapOf<Skill, SkillValue>): number {
   return totalLevel;
 }
 
-function getSkillMetrics(skills: MapOf<Skill, SkillValue>, showVirtualLevels = false): number {
-   return showVirtualLevels ? getVirtualTotalLevel(skills) : skills.overall.level;
-}
-
 function PlayerSkillsTable(
   props: PropsWithChildren<{ player: PlayerDetails; showVirtualLevels: boolean }>
 ) {
   const { children, player, showVirtualLevels } = props;
   const skillValues = Object.values(player.latestSnapshot.data.skills)
   .map(v => (showVirtualLevels && v.metric === Skill.OVERALL) 
-    ? { ...v, level: getSkillMetrics(player.latestSnapshot.data.skills, true)} : v);
+    ? { ...v, level: getVirtualTotalLevel(player.latestSnapshot.data.skills)} : v);
 
   const rows = [
     {
