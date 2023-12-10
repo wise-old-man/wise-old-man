@@ -1,5 +1,13 @@
 import { z } from 'zod';
-import { Period, Metric, PlayerType, PlayerBuild, Country, DeltaLeaderboardEntry } from '../../../../utils';
+import {
+  Period,
+  Metric,
+  PlayerType,
+  PlayerBuild,
+  Country,
+  DeltaLeaderboardEntry,
+  PlayerStatus
+} from '../../../../utils';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { parseNum } from '../delta.utils';
 
@@ -33,7 +41,7 @@ async function findDeltaLeaderboards(payload: FindDeltaLeaderboardsParams): Prom
   const deltas = await prisma.delta.findMany({
     where: {
       period: params.period,
-      player: { ...playerQuery }
+      player: { ...playerQuery, status: PlayerStatus.ACTIVE }
     },
     select: {
       [params.metric]: true,
