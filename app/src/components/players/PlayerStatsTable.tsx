@@ -7,6 +7,7 @@ import {
   ActivityValue,
   Boss,
   BossValue,
+  MapOf,
   Metric,
   MetricProps,
   MetricType,
@@ -157,10 +158,24 @@ export function PlayerStatsTable(props: PlayerStatsTableProps) {
   );
 }
 
+function getVirtualTotalLevel(skills: MapOf<Skill, SkillValue>): number {
+  let totalLevel = 0;
+  for (const [_, value] of Object.entries(skills)) {
+    if (value.metric === Skill.OVERALL) continue;
+
+    totalLevel += getLevel(value.experience, true);
+  }
+
+  return totalLevel;
+}
+
 function PlayerSkillsTable(
   props: PropsWithChildren<{ player: PlayerDetails; showVirtualLevels: boolean }>
 ) {
   const { children, player, showVirtualLevels } = props;
+  const skillValues = Object.values(player.latestSnapshot.data.skills)
+  .map(v => (showVirtualLevels && v.metric === Skill.OVERALL) 
+    ? { ...v, level: getVirtualTotalLevel(player.latestSnapshot.data.skills)} : v);
 
   const rows = [
     {
@@ -170,7 +185,7 @@ function PlayerSkillsTable(
       ehp: player.latestSnapshot.data.computed.ehp.value,
       rank: player.latestSnapshot.data.computed.ehp.rank,
     },
-    ...Object.values(player.latestSnapshot.data.skills),
+    ...skillValues
   ];
 
   // Filter out skills based on player build
