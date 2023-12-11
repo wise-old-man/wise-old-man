@@ -30,7 +30,16 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
 
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(new Date()));
 
+  const [invalidStartDate, setInvalidStartDate] = useState(false);
+
   function handleSelection() {
+    if (startDate.year < 2013) {
+      setInvalidStartDate(true);
+      setStartDate(toCalendarDate(new Date(2013, 0, 1)));
+      return;
+    }
+
+    setInvalidStartDate(false);
     const startDateTime = toDate(startDate, startTime);
     const endDateTime = toDate(endDate, endTime);
 
@@ -61,7 +70,7 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
         >
           <div className="flex grow gap-x-4">
             <div className="grow">
-              <Label className="mb-2 block text-xs text-gray-200">Start date</Label>
+              { !invalidStartDate ? <Label className="mb-2 block text-xs text-gray-200">Start date</Label> : <Label className="mb-2 block text-xs text-red-500">Start date must be after 01/01/2013</Label> }
               <DateTimePicker inDialog value={startDate} onChange={setStartDate} />
             </div>
             <div className="grow">
