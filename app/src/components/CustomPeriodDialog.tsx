@@ -37,6 +37,12 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
   const earliestDate = toCalendarDate(new Date(2013, 0, 1));
   const typeEnum = { START: 'start', END: 'end' };
 
+  const errorLabels = {
+    start: "Start date must be after " + earliestDate.toString(),
+    endFuture: "End date must not be in the future",
+    endBeforeStart: "End date must be after start date"
+  };
+
  function resetStates() {
     setInvalidStartDate(false);
     setInvalidEndDate(false);
@@ -44,57 +50,56 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
  }
 
  function getLabel(type: string) {
-    if (type === typeEnum.START && invalidStartDate) {
-      return <Label className="mb-2 block text-xs text-red-500">Start date must be after {earliestDate.toString()}</Label>
-    } else if (type === typeEnum.END && invalidEndDate) {
-      return <Label className="mb-2 block text-xs text-red-500">End date must not be in the future</Label>
-    } else if (type === typeEnum.END && startDateAfterEndDate) {
-      return <Label className="mb-2 block text-xs text-red-500">End date must be after start date</Label>
-    } else if (type === typeEnum.END) {
-      return <Label className="mb-2 block text-xs text-gray-200">End date</Label>
-    } else {
-      return <Label className="mb-2 block text-xs text-gray-200">Start date</Label>
+  const isError = type === typeEnum.START ? invalidStartDate : invalidEndDate || startDateAfterEndDate;
+  const label = type === typeEnum.START ? "Start date" : "End date";
+  const errorText = type === typeEnum.START ? errorLabels.start : invalidEndDate ? errorLabels.endFuture : errorLabels.endBeforeStart;
+  const className = `mb-2 block text-xs ${isError ? "text-red-500" : "text-gray-200"}`;
+  return <Label className={className}>{isError ? errorText : label}</Label>;
+}
+
+ function setEndDateTime(dateTime: Date) {
+  setEndTime(new Time(dateTime.getHours(), dateTime.getMinutes()));
+  setEndDate(toCalendarDate(dateTime));
+}
+
+function validateDate(date: DateValue, time: TimeValue, type: string) {
+  console.log("validating date")
+  const dateTime = toDate(date, time);
+  if (type === typeEnum.START && dateTime.getFullYear() < 2013) {
+    setInvalidStartDate(true);
+    setStartDate(earliestDate);
+    console.log("1 return false")
+    return false;
+  }
+  if (type === typeEnum.END) {
+    if (dateTime < toDate(startDate, startTime)) {
+      setStartDateAfterEndDate(true);
+      setEndDateTime(toDate(startDate, startTime));
+      console.log("2 return false")
+      return false;
     }
- }
+    if (dateTime > new Date()) {
+      setInvalidEndDate(true);
+      setEndDateTime(new Date());
+      console.log("3 return false")
+      return false;
+    }
+  }
+  console.log("resetting states because we validatedProperly")
+  resetStates();
+  return true;
+}
 
   function handleSelection() {
+    console.log("fixing state?")
     resetStates();
 
-    // Prevent users from checking metrics before 2013
-    if (startDate.year < 2013) {
-      setInvalidStartDate(true);
-      setStartDate(toCalendarDate(new Date(2013, 0, 1)));
-      return;
-    }
+    if (validateDate(startDate, startTime, typeEnum.START) !== true) return;
+    if (validateDate(endDate, endTime, typeEnum.END) !== true ) return;
 
-    // Prevent users from checking past metrics that don't exist
-    if (endDate.year < 2013) {
-      setInvalidEndDate(true);
-      setEndDate(toCalendarDate(new Date(2013, 0, 1)));
-      return;
-      }
-
-    // Check if endtime is before starttime
-    if (toDate(endDate, endTime) < toDate(startDate, startTime)) {
-      console.log("End date is before start date");
-      setStartDateAfterEndDate(true);
-      //Set the end date to a minute after the start date
-      setEndDate(toCalendarDate(toDate(startDate, startTime)));
-      setEndTime(new Time(toDate(startDate, startTime).getMinutes()+1));
-      return;
-    }
-
-    // Prevent users from checking future metrics that don't exist
-    if (toDate(endDate, endTime) > new Date()) {
-      setInvalidEndDate(true);
-      setEndTime(new Time(new Date().getHours(), new Date().getMinutes()));
-      setEndDate(toCalendarDate(new Date()));
-      return;
-    }
 
     const startDateTime = toDate(startDate, startTime);
     const endDateTime = toDate(endDate, endTime);
-
     onSelected(startDateTime, endDateTime);
   }
 
@@ -116,6 +121,7 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
         <form
           className="mt-2 flex flex-col"
           onSubmit={(e) => {
+            console.log("submitting")
             e.preventDefault();
             handleSelection();
           }}
