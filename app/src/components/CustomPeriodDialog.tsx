@@ -64,7 +64,7 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
 
 function validateDate(date: DateValue, time: TimeValue, type: string) {
   const dateTime = toDate(date, time);
-  if (type === typeEnum.START_DATE && dateTime.getFullYear() < 2013) {
+  if (type === typeEnum.START_DATE && dateTime.getFullYear() < earliestDate.year) {
     setInvalidStartDate(true);
     setStartDate(earliestDate);
     return false;
