@@ -31,6 +31,7 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(new Date()));
 
   const [invalidStartDate, setInvalidStartDate] = useState(false);
+  const [invalidEndDate, setInvalidEndDate] = useState(false);
 
   function handleSelection() {
     if (startDate.year < 2013) {
@@ -39,7 +40,15 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
       return;
     }
 
+    if (toDate(endDate, endTime) > new Date()) {
+      setInvalidEndDate(true);
+      setEndTime(new Time(new Date().getHours(), new Date().getMinutes()));
+      setEndDate(toCalendarDate(new Date()));
+      return;
+    }
+
     setInvalidStartDate(false);
+    setInvalidEndDate(false);
     const startDateTime = toDate(startDate, startTime);
     const endDateTime = toDate(endDate, endTime);
 
@@ -80,8 +89,8 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
           </div>
           <div className="mt-5 flex grow gap-x-4">
             <div className="grow">
-              <Label className="mb-2 block text-xs text-gray-200">End date</Label>
-              <DateTimePicker inDialog value={endDate} onChange={setEndDate} />
+              { !invalidEndDate ? <Label className="mb-2 block text-xs text-gray-200">End date</Label> : <Label className="mb-2 block text-xs text-red-500">Enter valid end date</Label> }
+              <DateTimePicker inDialog value={endDate} onChange={setEndDate}/>
             </div>
             <div className="grow">
               <Label className="mb-2 block text-xs text-gray-200">End time</Label>
