@@ -63,35 +63,29 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
 }
 
 function validateDate(date: DateValue, time: TimeValue, type: string) {
-  console.log("validating date")
   const dateTime = toDate(date, time);
   if (type === typeEnum.START && dateTime.getFullYear() < 2013) {
     setInvalidStartDate(true);
     setStartDate(earliestDate);
-    console.log("1 return false")
     return false;
   }
   if (type === typeEnum.END) {
     if (dateTime < toDate(startDate, startTime)) {
       setStartDateAfterEndDate(true);
       setEndDateTime(toDate(startDate, startTime));
-      console.log("2 return false")
       return false;
     }
     if (dateTime > new Date()) {
       setInvalidEndDate(true);
       setEndDateTime(new Date());
-      console.log("3 return false")
       return false;
     }
   }
-  console.log("resetting states because we validatedProperly")
   resetStates();
   return true;
 }
 
   function handleSelection() {
-    console.log("fixing state?")
     resetStates();
 
     if (validateDate(startDate, startTime, typeEnum.START) !== true) return;
@@ -121,7 +115,6 @@ function validateDate(date: DateValue, time: TimeValue, type: string) {
         <form
           className="mt-2 flex flex-col"
           onSubmit={(e) => {
-            console.log("submitting")
             e.preventDefault();
             handleSelection();
           }}
