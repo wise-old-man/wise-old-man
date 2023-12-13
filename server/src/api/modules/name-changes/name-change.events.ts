@@ -7,7 +7,7 @@ async function onNameChangeSubmitted(nameChange: NameChange) {
 
   jobManager.add({
     type: JobType.REVIEW_NAME_CHANGE,
-    payload: { nameChangeId: nameChange.id }
+    payload: { id: nameChange.id }
   });
 }
 

@@ -70,6 +70,31 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
     }
   });
 
+  if (oldPlayer.status === PlayerStatus.ARCHIVED) {
+    const archive = await prisma.playerArchive.findFirst({
+      where: {
+        playerId: oldPlayer.id,
+        restoredAt: null
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    await prisma.playerArchive.update({
+      data: {
+        restoredAt: new Date(),
+        restoredUsername: updatedPlayer.username
+      },
+      where: {
+        playerId_createdAt: {
+          playerId: archive.playerId,
+          createdAt: archive.createdAt
+        }
+      }
+    });
+  }
+
   playerEvents.onPlayerNameChanged(updatedPlayer, oldPlayer.displayName);
 
   // Update the player ID caches

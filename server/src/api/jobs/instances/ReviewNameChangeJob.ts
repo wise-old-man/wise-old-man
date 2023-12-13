@@ -2,7 +2,7 @@ import * as nameChangeServices from '../../modules/name-changes/name-change.serv
 import { JobType, JobDefinition, JobOptions } from '../job.types';
 
 export interface ReviewNameChangePayload {
-  nameChangeId: number;
+  id: number;
 }
 
 class ReviewNameChangeJob implements JobDefinition<ReviewNameChangePayload> {
@@ -17,7 +17,7 @@ class ReviewNameChangeJob implements JobDefinition<ReviewNameChangePayload> {
   }
 
   async execute(data: ReviewNameChangePayload) {
-    await nameChangeServices.autoReviewNameChange({ id: data.nameChangeId });
+    await nameChangeServices.autoReviewNameChange({ id: data.id });
   }
 }
 
