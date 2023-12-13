@@ -823,6 +823,65 @@ describe('Names API', () => {
       expect(detailsResponse.body.displayName).toBe('USBC');
       expect(detailsResponse.body.country).toBe('PT');
     }, 10_000);
+
+    it('should approve (archived player)', async () => {
+      const trackPlayerResponse = await api.post(`/players/Nightfirecat`);
+      expect(trackPlayerResponse.status).toBe(201);
+
+      const archiveResponse = await api
+        .post(`/players/Nightfirecat/archive`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(archiveResponse.status).toBe(200);
+
+      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: trackPlayerResponse.body.id,
+          status: PlayerStatus.ARCHIVED,
+          username: expect.stringContaining('archive'),
+          displayName: expect.stringContaining('archive')
+        }),
+        'Nightfirecat'
+      );
+
+      const archiveUsername = archiveResponse.body.username;
+
+      const submitResponse = await api.post(`/names`).send({
+        oldName: archiveUsername,
+        newName: 'Ron'
+      });
+
+      expect(submitResponse.status).toBe(201);
+
+      const approveResponse = await api
+        .post(`/names/${submitResponse.body.id}/approve`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(approveResponse.status).toBe(200);
+      expect(approveResponse.body.status).toBe('approved');
+      expect(approveResponse.body.resolvedAt).not.toBe(null);
+
+      const archive = await prisma.playerArchive.findFirst({
+        where: {
+          playerId: trackPlayerResponse.body.id,
+          previousUsername: 'nightfirecat'
+        }
+      });
+
+      expect(archive).not.toBeNull();
+      expect(archive.restoredAt).not.toBe(null);
+      expect(archive.restoredUsername).toBe('ron');
+
+      const player = await prisma.player.findFirst({
+        where: {
+          username: 'ron'
+        }
+      });
+
+      expect(player).not.toBeNull();
+      expect(player.displayName).toBe('Ron');
+      expect(player.status).toBe(PlayerStatus.ACTIVE);
+    });
   });
 
   describe('7 - Listing Group Name Changes', () => {

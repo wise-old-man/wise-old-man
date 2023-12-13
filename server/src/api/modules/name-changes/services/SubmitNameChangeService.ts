@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PlayerStatus } from '../../../../utils';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError } from '../../../errors';
 import * as playerUtils from '../../../modules/players/player.utils';
@@ -32,10 +31,6 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
 
   if (!oldPlayer) {
     throw new BadRequestError(`Player '${params.oldName}' is not tracked yet.`);
-  }
-
-  if (oldPlayer.status === PlayerStatus.ARCHIVED) {
-    throw new BadRequestError('Failed to submit name change: Player is archived.');
   }
 
   // Check if there's any pending name changes for these names
