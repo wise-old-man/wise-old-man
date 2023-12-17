@@ -1,19 +1,23 @@
 import * as nameChangeServices from '../../modules/name-changes/name-change.services';
-import { JobType, JobDefinition } from '../job.types';
+import { JobType, JobDefinition, JobOptions } from '../job.types';
 
 export interface ReviewNameChangePayload {
-  nameChangeId: number;
+  id: number;
 }
 
 class ReviewNameChangeJob implements JobDefinition<ReviewNameChangePayload> {
   type: JobType;
+  options: JobOptions;
 
   constructor() {
     this.type = JobType.REVIEW_NAME_CHANGE;
+    this.options = {
+      rateLimiter: { max: 1, duration: 5000 }
+    };
   }
 
   async execute(data: ReviewNameChangePayload) {
-    await nameChangeServices.autoReviewNameChange({ id: data.nameChangeId });
+    await nameChangeServices.autoReviewNameChange({ id: data.id });
   }
 }
 

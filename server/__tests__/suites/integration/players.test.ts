@@ -1948,16 +1948,6 @@ describe('Player API', () => {
       expect(trackArchivedPlayerResponse.status).toBe(400);
       expect(trackArchivedPlayerResponse.body.message).toBe('Failed to update: Player is archived.');
 
-      const submitArchivedPlayerNameChangeResponse = await api.post(`/names`).send({
-        oldName: archivedPlayer.username,
-        newName: 'gerri'
-      });
-
-      expect(submitArchivedPlayerNameChangeResponse.status).toBe(400);
-      expect(submitArchivedPlayerNameChangeResponse.body.message).toBe(
-        'Failed to submit name change: Player is archived.'
-      );
-
       const archivals = await prisma.playerArchive.findMany({
         where: { playerId: player.id }
       });
@@ -2145,16 +2135,6 @@ describe('Player API', () => {
       expect(trackArchivedPlayerResponse.status).toBe(400);
       expect(trackArchivedPlayerResponse.body.message).toBe('Failed to update: Player is archived.');
 
-      const submitArchivedPlayerNameChangeResponse = await api.post(`/names`).send({
-        oldName: archivedPlayer.username,
-        newName: 'gerri'
-      });
-
-      expect(submitArchivedPlayerNameChangeResponse.status).toBe(400);
-      expect(submitArchivedPlayerNameChangeResponse.body.message).toBe(
-        'Failed to submit name change: Player is archived.'
-      );
-
       const archivals = await prisma.playerArchive.findMany({
         where: { playerId: player.id }
       });
@@ -2209,6 +2189,69 @@ describe('Player API', () => {
       expect(postArchiveNameChangesResponse.body[0].oldName).toBe('TomWambsgans');
       expect(postArchiveNameChangesResponse.body[0].newName).toBe('Tom');
       expect(postArchiveNameChangesResponse.body[0].playerId).toBe(archivedPlayer.id);
+    });
+  });
+
+  describe('11. View archives', () => {
+    it('should not fetch archives (player not found)', async () => {
+      const response = await api.get(`/players/alexsuperfly/archives`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Player not found.');
+    });
+
+    it('should fetch archives', async () => {
+      const firstResponse = await api.get(`/players/siobhan/archives`);
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body.length).toBe(1);
+
+      const archiveResponse = await api
+        .post(`/players/siobhan/archive`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(archiveResponse.status).toBe(200);
+      expect(archiveResponse.body.status).toBe(PlayerStatus.ARCHIVED);
+      expect(archiveResponse.body.username).toContain('archive');
+      expect(archiveResponse.body.displayName).toContain('archive');
+
+      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: PlayerStatus.ARCHIVED,
+          username: expect.stringContaining('archive'),
+          displayName: expect.stringContaining('archive')
+        }),
+        'Siobhan'
+      );
+
+      const secondResponse = await api.get(`/players/siobhan/archives`);
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.length).toBe(2);
+
+      expect(new Date(secondResponse.body[0].createdAt).getTime()).toBeGreaterThan(
+        new Date(secondResponse.body[1].createdAt).getTime()
+      );
+
+      const submitNameChangeResponse = await api.post(`/names`).send({
+        oldName: archiveResponse.body.username,
+        newName: 'h exagon'
+      });
+
+      expect(submitNameChangeResponse.status).toBe(201);
+
+      const approveNameChangeResponse = await api
+        .post(`/names/${submitNameChangeResponse.body.id}/approve`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(approveNameChangeResponse.status).toBe(200);
+
+      await sleep(500);
+
+      const thirdResponse = await api.get(`/players/siobhan/archives`);
+      expect(thirdResponse.status).toBe(200);
+      expect(thirdResponse.body.length).toBe(1); // Only one non-restored archive should be returned
+
+      expect(thirdResponse.body[0].restoredAt).toBeNull();
+      expect(thirdResponse.body[0].previousUsername).toBe(firstResponse.body[0].previousUsername);
     });
   });
 });

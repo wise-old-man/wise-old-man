@@ -1,4 +1,4 @@
-import { Player } from '../../../prisma';
+import { Player, PlayerArchive } from '../../../prisma';
 import { FormattedSnapshot } from '../snapshots/snapshot.types';
 
 export interface PlayerDetails extends Player {
@@ -23,5 +23,9 @@ export interface FlaggedPlayerReviewContext {
     rejectedRank: number;
   };
 }
+
+export type PlayerArchiveWithPlayer = PlayerArchive & {
+  player: Player;
+};
 
 export { Player };
