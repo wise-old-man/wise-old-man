@@ -193,3 +193,17 @@ Although this type mostly extends from [Achievement](/players-api/player-type-de
 | date  | date   | The date at which the datapoint was recorded.                          |
 
 <br />
+
+### `(Object)` Player Archive
+
+| Field            | Type                                                         | Description                                            |
+| :--------------- | :----------------------------------------------------------- | :----------------------------------------------------- |
+| playerId         | integer                                                      | The parent player's ID.                                |
+| previousUsername | string                                                       | The player's previous username (before the archival)   |
+| archiveUsername  | string                                                       | The player's placeholder username (after the archival) |
+| restoredUsername | string?                                                      | The player's new username (after restoration)          |
+| createdAt        | date                                                         | The archive's creation date.                           |
+| restoredAt       | date?                                                        | The archive's restoration date.                        |
+| player           | [Player](/players-api/player-type-definitions#object-player) | The membership's player.                               |
+
+<br />

@@ -1429,3 +1429,75 @@ const nameChanges = await client.players.getPlayerNames('zezima');
   }
 ]
 ```
+
+---
+
+## Get Player Archives
+
+<Endpoint verb="GET" path="/players/:username/archives" />
+<br />
+
+Fetches all previous archived player profiles that held this username. Returns an array of [PlayerArchive](/players-api/player-type-definitions#object-player-archive) objects.
+
+**Request Params**
+
+| Field    | Type   | Required | Description            |
+| -------- | ------ | -------- | ---------------------- |
+| username | string | `true`   | The player's username. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/players/zezima/archives \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+const { WOMClient } = require('@wise-old-man/utils');
+
+const client = new WOMClient();
+
+const archives = await client.players.getPlayerArchives('zezima');
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "playerId": 2,
+    "previousUsername": "psikoi",
+    "archiveUsername": "archive42392",
+    "restoredUsername": null,
+    "createdAt": "2022-02-13T16:36:44.464Z",
+    "restoredAt": null,
+    "player": {
+      "id": 2,
+      "username": "archive42392",
+      "displayName": "archive42392",
+      "type": "regular",
+      "build": "main",
+      "country": "PT",
+      "status": "archived",
+      "patron": false,
+      "exp": 0,
+      "ehp": 0,
+      "ehb": 0,
+      "ttm": 0,
+      "tt200m": 0,
+      "registeredAt": "2020-04-02T19:40:06.317Z",
+      "updatedAt": "2023-02-11T13:13:31.999Z",
+      "lastChangedAt": "2023-02-11T13:13:31.620Z",
+      "lastImportedAt": "2022-11-04T21:59:42.472Z"
+    }
+  }
+]
+```
