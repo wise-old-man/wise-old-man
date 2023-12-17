@@ -22,7 +22,10 @@ class ScheduleNameChangeReviewsJob implements JobDefinition<unknown> {
 
     pending.forEach((p, i) => {
       jobManager.add(
-        { type: JobType.REVIEW_NAME_CHANGE, payload: { nameChangeId: p.id } },
+        {
+          type: JobType.REVIEW_NAME_CHANGE,
+          payload: { id: p.id }
+        },
         { delay: i * cooldown }
       );
     });

@@ -19,6 +19,15 @@ export type MemberActivity = {
   createdAt: Date;
 };
 
+export type PlayerArchive = {
+  playerId: number;
+  previousUsername: string;
+  archiveUsername: string;
+  restoredUsername: string | null;
+  createdAt: Date;
+  restoredAt: Date | null;
+};
+
 type Prisma_Base_GroupSocialLinks = {
   id: number;
   groupId: number;
