@@ -251,6 +251,15 @@ async function names(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: result };
 }
 
+// GET /players/:username/archives
+async function archives(req: Request): Promise<ControllerResponse> {
+  const result = await playerServices.findPlayerArchives({
+    username: getString(req.params.username)
+  });
+
+  return { statusCode: 200, response: result };
+}
+
 // PUT /players/:username/country
 // REQUIRES ADMIN PASSWORD
 async function changeCountry(req: Request): Promise<ControllerResponse> {
@@ -349,6 +358,7 @@ export {
   timeline,
   snapshots,
   names,
+  archives,
   changeCountry,
   deletePlayer
 };

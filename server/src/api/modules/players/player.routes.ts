@@ -18,6 +18,7 @@ api.get('/:username/achievements/progress', setupController(controller.achieveme
 api.get('/:username/competitions', setupController(controller.competitions));
 api.get('/:username/competitions/standings', setupController(controller.competitionStandings));
 api.get('/:username/names', setupController(controller.names));
+api.get('/:username/archives', setupController(controller.archives));
 api.put('/:username/country', setupController(controller.changeCountry));
 api.get('/:username', setupController(controller.details));
 api.post('/:username', setupController(controller.track));
