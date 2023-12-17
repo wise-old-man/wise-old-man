@@ -1,7 +1,8 @@
 import { z } from 'zod';
-import prisma, { Player, PlayerArchive } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../player.utils';
+import { PlayerArchiveWithPlayer } from '../player.types';
 
 const inputSchema = z.object({
   username: z.string()
@@ -35,7 +36,7 @@ async function findPlayerArchives(payload: FindPlayerArchivesParams) {
     }
   }
 
-  return archives as (PlayerArchive & { player: Player })[];
+  return archives as PlayerArchiveWithPlayer[];
 }
 
 export { findPlayerArchives };

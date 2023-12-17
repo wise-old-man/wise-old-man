@@ -18,7 +18,8 @@ import {
   FormattedSnapshot,
   MembershipWithGroup,
   ParticipationWithCompetitionAndStandings,
-  Metric
+  Metric,
+  PlayerArchiveWithPlayer
 } from '../../../server/src/utils';
 import { PaginationOptions } from '../utils';
 import BaseAPIClient from './BaseAPIClient';
@@ -162,5 +163,13 @@ export default class PlayersClient extends BaseAPIClient {
    */
   getPlayerNames(username: string) {
     return this.getRequest<NameChange[]>(`/players/${username}/names`);
+  }
+
+  /**
+   * Fetches all of archived players that previously held this username.
+   * @returns A list of player archives.
+   */
+  getPlayerArchives(username: string) {
+    return this.getRequest<PlayerArchiveWithPlayer[]>(`/players/${username}/archives`);
   }
 }
