@@ -1,5 +1,5 @@
 import { Period, PeriodProps, PlayerBuild, PlayerDetails } from '../../../utils';
-import prisma, { Player, Snapshot } from '../../../prisma';
+import prisma, { Player, PlayerArchive, Snapshot } from '../../../prisma';
 import { BadRequestError, NotFoundError } from '../../errors';
 import redisService from '../../services/external/redis.service';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
@@ -8,13 +8,14 @@ import * as efficiencyUtils from '../efficiency/efficiency.utils';
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
-function formatPlayerDetails(player: Player, snapshot?: Snapshot): PlayerDetails {
+function formatPlayerDetails(player: Player, snapshot?: Snapshot, archive?: PlayerArchive): PlayerDetails {
   const efficiency = efficiencyUtils.getPlayerEfficiencyMap(snapshot, player);
   const combatLevel = snapshotUtils.getCombatLevelFromSnapshot(snapshot);
 
   return {
     ...player,
     combatLevel,
+    archive: archive ? archive : null,
     latestSnapshot: snapshotUtils.format(snapshot, efficiency)
   };
 }
