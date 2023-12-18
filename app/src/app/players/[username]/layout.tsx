@@ -68,7 +68,10 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
 
       {/* Dialogs */}
       <PlayerGainedCustomPeriodDialog username={username} />
-      <NameChangeSubmissionDialog oldName={player.displayName} />
+      <NameChangeSubmissionDialog
+        oldName={player.displayName}
+        hideOldName={player.status === PlayerStatus.ARCHIVED}
+      />
     </Container>
   );
 }
@@ -91,25 +94,29 @@ function Header(props: PlayerDetails) {
   return (
     <div className="flex flex-col justify-between gap-y-7 md:flex-row-reverse md:items-end">
       <div className="flex shrink-0 items-center gap-x-2">
-        <UpdatePlayerForm player={props} />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button iconButton>
-              <OverflowIcon className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52">
-            <a target="_blank" rel="noopener noreferrer" href={getHiscoresURL(displayName, type)}>
-              <DropdownMenuItem>
-                Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
-              </DropdownMenuItem>
-            </a>
-            <QueryLink query={{ dialog: "submit-name" }}>
-              <DropdownMenuItem>Submit name change</DropdownMenuItem>
-            </QueryLink>
-            <AssertPlayerTypeForm player={props} />
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {status !== PlayerStatus.ARCHIVED && (
+          <>
+            <UpdatePlayerForm player={props} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button iconButton>
+                  <OverflowIcon className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <a target="_blank" rel="noopener noreferrer" href={getHiscoresURL(displayName, type)}>
+                  <DropdownMenuItem>
+                    Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
+                  </DropdownMenuItem>
+                </a>
+                <QueryLink query={{ dialog: "submit-name" }}>
+                  <DropdownMenuItem>Submit name change</DropdownMenuItem>
+                </QueryLink>
+                <AssertPlayerTypeForm player={props} />
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        )}
       </div>
       <div className="flex items-center gap-x-5">
         <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50 md:h-16 md:w-16">
@@ -142,7 +149,9 @@ function Header(props: PlayerDetails) {
           {icon}
         </div>
         <div className="flex flex-col">
-          <h1 className="text-xl font-bold md:text-3xl">{displayName}</h1>
+          <h1 className="text-xl font-bold md:text-3xl">
+            {status === PlayerStatus.ARCHIVED ? "[Archived]" : displayName}
+          </h1>
           <p className="mt-1 text-xs text-gray-200 md:text-body">
             <PlayerAttributes {...props} />
           </p>
@@ -152,8 +161,8 @@ function Header(props: PlayerDetails) {
   );
 }
 
-function PlayerStatusAlert(props: { player: Player }) {
-  const { status } = props.player;
+function PlayerStatusAlert(props: { player: PlayerDetails }) {
+  const { status, archive } = props.player;
 
   if (status === PlayerStatus.ARCHIVED) {
     return (
@@ -161,17 +170,25 @@ function PlayerStatusAlert(props: { player: Player }) {
         <div>
           <AlertTitle>This player is archived</AlertTitle>
           <AlertDescription>
-            {`Their previous username has been taken by another player. If you know this account's new
+            <p>
+              {`Their previous username (${archive?.previousUsername}) has been taken by another player. If you know this account's new
             username, you can `}
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://wiseoldman.net/discord"
-              className="text-white underline"
-            >
-              contact us on Discord
-            </a>
-            {` to transfer their old data to their current username.`}
+              <QueryLink query={{ dialog: "submit-name" }} className="text-white underline">
+                submit a name change
+              </QueryLink>
+              {" to restore their profile data."}
+            </p>
+            <p className="mt-3">
+              {"Need help? "}
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://wiseoldman.net/discord"
+                className="text-white underline"
+              >
+                contact us on Discord
+              </a>
+            </p>
           </AlertDescription>
         </div>
       </Alert>
@@ -257,7 +274,7 @@ function PlayerStatusAlert(props: { player: Player }) {
 }
 
 function PlayerAttributes(props: PlayerDetails) {
-  const { status, type, build, latestSnapshot, patron } = props;
+  const { status, type, build, latestSnapshot, patron, archive } = props;
 
   const elements: React.ReactNode[] = [];
 
@@ -280,8 +297,10 @@ function PlayerAttributes(props: PlayerDetails) {
     elements.push(<span className="text-yellow-400">Unranked</span>);
   } else if (status === PlayerStatus.BANNED) {
     elements.push(<span className="text-orange-400">Banned</span>);
-  } else if (status === PlayerStatus.ARCHIVED) {
-    elements.push(<span className="text-red-400">Archived</span>);
+  }
+
+  if (archive) {
+    elements.push(<span>Previously known as {`"${archive.previousUsername}"`}</span>);
   }
 
   elements.push(<span>{PlayerTypeProps[type].name}</span>);

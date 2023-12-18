@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 interface NameChangeSubmissionDialogProps {
   oldName?: string;
+  hideOldName?: boolean;
 }
 
 export function NameChangeSubmissionDialog(props: NameChangeSubmissionDialogProps) {
@@ -33,7 +34,7 @@ export function NameChangeSubmissionDialog(props: NameChangeSubmissionDialogProp
           <DialogTitle>Submit new name change</DialogTitle>
           <DialogDescription>
             Most name changes are usually auto-reviewed within the first two minutes. If yours
-            doesn&apos;t, you can contact us on&nbsp;
+            isn&apos;t, you can contact us on&nbsp;
             <a
               href="https://wiseoldman.net/discord"
               target="_blank"
@@ -45,7 +46,7 @@ export function NameChangeSubmissionDialog(props: NameChangeSubmissionDialogProp
             &nbsp;for help.
           </DialogDescription>
         </DialogHeader>
-        <SubmitNameChangeForm {...props} />
+        <SubmitNameChangeForm key={props.oldName} {...props} />
       </DialogContent>
     </Dialog>
   );
@@ -92,10 +93,10 @@ function SubmitNameChangeForm(props: NameChangeSubmissionDialogProps) {
   // Clear the inputs when the form is unmounted
   useEffect(() => {
     return () => {
-      setOldName("");
+      setOldName(props.oldName || "");
       setNewName("");
     };
-  }, []);
+  }, [props]);
 
   return (
     <form
@@ -105,17 +106,21 @@ function SubmitNameChangeForm(props: NameChangeSubmissionDialogProps) {
         submitMutation.mutate({ oldName, newName });
       }}
     >
-      <div className="flex flex-col">
-        <Label className="mb-2 text-xs font-normal text-gray-200">Old Name</Label>
-        <Input
-          placeholder="Ex: Zezima"
-          name="oldName"
-          value={oldName}
-          onChange={(e) => setOldName(e.target.value)}
-          className={cn(oldNameError && "border-red-400")}
-        />
-        {oldNameError && <Label className="mt-2 text-xs font-normal text-red-400">{oldNameError}</Label>}
-      </div>
+      {!props.hideOldName && (
+        <div className={"flex flex-col"}>
+          <Label className="mb-2 text-xs font-normal text-gray-200">Old Name</Label>
+          <Input
+            placeholder="Ex: Zezima"
+            name="oldName"
+            value={oldName}
+            onChange={(e) => setOldName(e.target.value)}
+            className={cn(oldNameError && "border-red-400")}
+          />
+          {oldNameError && (
+            <Label className="mt-2 text-xs font-normal text-red-400">{oldNameError}</Label>
+          )}
+        </div>
+      )}
       <div className="mt-1 flex flex-col">
         <Label className="mb-2 text-xs font-normal text-gray-200">New Name</Label>
         <Input
