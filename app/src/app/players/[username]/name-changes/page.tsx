@@ -1,8 +1,12 @@
 import { Fragment } from "react";
+import { timeago } from "~/utils/dates";
 import { LocalDate } from "~/components/LocalDate";
-import { getPlayerDetails, getPlayerNames } from "~/services/wiseoldman";
+import { PlayerIdentity } from "~/components/PlayerIdentity";
+import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
+import { getPlayerArchives, getPlayerDetails, getPlayerNames } from "~/services/wiseoldman";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
+import { PlayerStatus } from "@wise-old-man/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -30,39 +34,64 @@ export default async function PlayerNameChangesPage(props: PageProps) {
     getPlayerNames(username),
   ]);
 
-  if (!nameChanges || nameChanges.length === 0) {
-    return (
-      <div className="flex h-32 w-full items-center justify-center rounded-lg border border-gray-600 text-gray-200">
-        {player.displayName} has no known name changes.
-      </div>
-    );
+  let archives = null;
+  if (player.status === PlayerStatus.ARCHIVED) {
+    archives = await getPlayerArchives(username);
   }
 
   return (
     <>
-      <div>
+      <div className="mb-4 mt-5">
         <h3 className="text-h3 font-medium text-white">Name change history</h3>
         <p className="text-body text-gray-200">Previous usernames this account used to hold.</p>
       </div>
-      <div className="mt-5">
-        <div className="rounded-lg border border-gray-500 bg-gray-800 px-5 py-4 text-sm shadow-sm">
-          {player.displayName}
-          <span className="ml-2 text-xs text-gray-200">(current)</span>
+      {!nameChanges || nameChanges.length === 0 ? (
+        <div className="flex h-32 w-full items-center justify-center rounded-lg border border-gray-600 text-gray-200">
+          {player.displayName} has no known name changes.
         </div>
-        {nameChanges.map((nameChange) => (
-          <Fragment key={nameChange.id}>
-            <div className="my-4 ml-4 flex items-center text-gray-200">
-              <ArrowRightIcon className="h-5 w-5 -rotate-90" />
-              <span className="ml-2 mt-px text-xs">
-                <LocalDate isoDate={(nameChange.resolvedAt || new Date()).toISOString()} />
-              </span>
-            </div>
-            <div className="rounded-lg border border-gray-500 bg-gray-800 px-5 py-4 text-sm">
-              {nameChange.oldName}
-            </div>
-          </Fragment>
-        ))}
-      </div>
+      ) : (
+        <div>
+          <div className="rounded-lg border border-gray-500 bg-gray-800 px-5 py-4 text-sm shadow-sm">
+            {player.displayName}
+            <span className="ml-2 text-xs text-gray-200">(current)</span>
+          </div>
+          {nameChanges.map((nameChange) => (
+            <Fragment key={nameChange.id}>
+              <div className="my-4 ml-4 flex items-center text-gray-200">
+                <ArrowRightIcon className="h-5 w-5 -rotate-90" />
+                <span className="ml-2 mt-px text-xs">
+                  <LocalDate isoDate={(nameChange.resolvedAt || new Date()).toISOString()} />
+                </span>
+              </div>
+              <div className="rounded-lg border border-gray-500 bg-gray-800 px-5 py-4 text-sm">
+                {nameChange.oldName}
+              </div>
+            </Fragment>
+          ))}
+        </div>
+      )}
+      {archives && archives.length > 0 && (
+        <>
+          <div className="mb-1 mt-10">
+            <h3 className="text-h3 font-medium text-white">Archived profiles</h3>
+            <p className="text-body text-gray-200">
+              {`Archived player profiles that once held the "${username}" username.`}
+            </p>
+          </div>
+          <ListTable className="border-spacing-y-3">
+            {archives.map((archive) => (
+              <ListTableRow key={archive.archiveUsername}>
+                <ListTableCell>
+                  <PlayerIdentity
+                    player={archive.player}
+                    caption={`Archived ${timeago.format(archive.createdAt)}`}
+                  />
+                </ListTableCell>
+              </ListTableRow>
+            ))}
+          </ListTable>
+        </>
+      )}
     </>
   );
 }

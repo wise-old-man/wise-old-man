@@ -165,6 +165,10 @@ export const getPlayerNames = cache((username: string) => {
   return handleNotFound(apiClient.players.getPlayerNames(username));
 });
 
+export const getPlayerArchives = cache((username: string) => {
+  return handleNotFound(apiClient.players.getPlayerArchives(username));
+});
+
 export const getPlayerRecords = cache((username: string) => {
   return handleNotFound(apiClient.players.getPlayerRecords(username));
 });
