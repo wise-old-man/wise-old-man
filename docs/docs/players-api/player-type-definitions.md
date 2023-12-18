@@ -135,10 +135,11 @@ Not to be confused with [Player Details](/players-api/player-type-definitions#ob
 
 > extends [Player](/players-api/player-type-definitions#object-player)
 
-| Field          | Type                                                               | Description                   |
-| :------------- | :----------------------------------------------------------------- | :---------------------------- |
-| combatLevel    | integer                                                            | The player's combat level.    |
-| latestSnapshot | [Snapshot](/players-api/player-type-definitions#object-snapshot) ? | The player's latest snapshot. |
+| Field          | Type                                                                          | Description                                                         |
+| :------------- | :---------------------------------------------------------------------------- | :------------------------------------------------------------------ |
+| combatLevel    | integer                                                                       | The player's combat level.                                          |
+| archive        | [PlayerArchive](/players-api/player-type-definitions#object-player-archive) ? | The player's archive. (only applicable to archived player profiles) |
+| latestSnapshot | [Snapshot](/players-api/player-type-definitions#object-snapshot) ?            | The player's latest snapshot.                                       |
 
 <br />
 
@@ -196,14 +197,23 @@ Although this type mostly extends from [Achievement](/players-api/player-type-de
 
 ### `(Object)` Player Archive
 
-| Field            | Type                                                         | Description                                            |
-| :--------------- | :----------------------------------------------------------- | :----------------------------------------------------- |
-| playerId         | integer                                                      | The parent player's ID.                                |
-| previousUsername | string                                                       | The player's previous username (before the archival)   |
-| archiveUsername  | string                                                       | The player's placeholder username (after the archival) |
-| restoredUsername | string?                                                      | The player's new username (after restoration)          |
-| createdAt        | date                                                         | The archive's creation date.                           |
-| restoredAt       | date?                                                        | The archive's restoration date.                        |
-| player           | [Player](/players-api/player-type-definitions#object-player) | The membership's player.                               |
+| Field            | Type    | Description                                            |
+| :--------------- | :------ | :----------------------------------------------------- |
+| playerId         | integer | The parent player's ID.                                |
+| previousUsername | string  | The player's previous username (before the archival)   |
+| archiveUsername  | string  | The player's placeholder username (after the archival) |
+| restoredUsername | string? | The player's new username (after restoration)          |
+| createdAt        | date    | The archive's creation date.                           |
+| restoredAt       | date?   | The archive's restoration date.                        |
+
+<br />
+
+### `(Object)` Player Archive With Player
+
+> extends [PlayerArchive](/players-api/player-type-definitions#object-player-archive)
+
+| Field  | Type                                                         | Description           |
+| :----- | :----------------------------------------------------------- | :-------------------- |
+| player | [Player](/players-api/player-type-definitions#object-player) | The archive's player. |
 
 <br />
