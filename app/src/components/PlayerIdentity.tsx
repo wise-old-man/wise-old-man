@@ -65,7 +65,7 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
                 player.patron && "text-amber-300"
               )}
             >
-              {player.displayName}
+              {player.status === PlayerStatus.ARCHIVED ? "[Archived]" : player.displayName}
             </Link>
           </TooltipTrigger>
           {caption && <span className="text-xs text-gray-200">{caption}</span>}
@@ -88,7 +88,7 @@ export function PlayerIdentityTooltip(props: { player: Player }) {
   return (
     <>
       <div className="flex flex-col rounded-t-lg border-b border-gray-500 px-4 py-3">
-        <span>{player.displayName}</span>
+        <span>{player.status === PlayerStatus.ARCHIVED ? "[Archived]" : player.displayName}</span>
         <span className="text-xs text-gray-200">{updatedTimeago}</span>
         {player.status === PlayerStatus.ARCHIVED && (
           <span className="mt-4 text-xs text-red-400">
