@@ -6,7 +6,6 @@ import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import { getPlayerArchives, getPlayerDetails, getPlayerNames } from "~/services/wiseoldman";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
-import { PlayerStatus } from "@wise-old-man/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -29,15 +28,11 @@ export default async function PlayerNameChangesPage(props: PageProps) {
 
   const username = decodeURI(params.username);
 
-  const [player, nameChanges] = await Promise.all([
+  const [player, nameChanges, archives] = await Promise.all([
     getPlayerDetails(username),
     getPlayerNames(username),
+    getPlayerArchives(username),
   ]);
-
-  let archives = null;
-  if (player.status === PlayerStatus.ARCHIVED) {
-    archives = await getPlayerArchives(username);
-  }
 
   return (
     <>
