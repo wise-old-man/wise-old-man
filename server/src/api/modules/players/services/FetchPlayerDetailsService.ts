@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import prisma from '../../../../prisma';
+import { PlayerStatus } from '../../../../utils';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { NotFoundError } from '../../../errors';
 import { PlayerDetails } from '../player.types';
@@ -35,7 +36,21 @@ async function fetchPlayerDetails(payload: FetchPlayerParams): Promise<PlayerDet
     if (latestSnapshot) player.latestSnapshot = latestSnapshot;
   }
 
-  return formatPlayerDetails(player, player.latestSnapshot);
+  if (player.status !== PlayerStatus.ARCHIVED) {
+    return formatPlayerDetails(player, player.latestSnapshot);
+  }
+
+  const currentArchive = await prisma.playerArchive.findFirst({
+    where: {
+      playerId: player.id,
+      restoredAt: null
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+
+  return formatPlayerDetails(player, player.latestSnapshot, currentArchive);
 }
 
 export { fetchPlayerDetails };

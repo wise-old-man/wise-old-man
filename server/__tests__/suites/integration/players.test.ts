@@ -1092,7 +1092,8 @@ describe('Player API', () => {
         username: 'psikoi',
         displayName: 'PSIKOI',
         type: 'regular',
-        build: 'main'
+        build: 'main',
+        archive: null
       });
       expect(byUsernameResponse.body.latestSnapshot).not.toBeNull();
 
@@ -1103,7 +1104,8 @@ describe('Player API', () => {
         username: 'psikoi',
         displayName: 'PSIKOI',
         type: 'regular',
-        build: 'main'
+        build: 'main',
+        archive: null
       });
       expect(byIdResponse.body.latestSnapshot).not.toBeNull();
     });
@@ -1732,6 +1734,7 @@ describe('Player API', () => {
 
       const playerResponse = await api.post(`/players/Siobhan`);
       expect(playerResponse.status).toBe(201);
+      expect(playerResponse.body.archive).toBeNull();
 
       const player = playerResponse.body;
 
@@ -1769,6 +1772,7 @@ describe('Player API', () => {
       expect(trackResponse.status).toBe(200);
       expect(trackResponse.body.id).not.toBe(player.id); // ID changed, meaning this username is now on a new account
       expect(trackResponse.body.type).not.toBe('unknown');
+      expect(trackResponse.body.archive).toBeNull();
 
       expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
 
@@ -1938,6 +1942,13 @@ describe('Player API', () => {
 
       const archivedPlayer = await prisma.player.findFirst({
         where: { id: player.id }
+      });
+
+      const archivedDetailsResponse = await api.get(`/players/${archivedPlayer.username}`);
+      expect(archivedDetailsResponse.status).toBe(200);
+      expect(archivedDetailsResponse.body.archive).toMatchObject({
+        playerId: player.id,
+        previousUsername: 'greg hirsch'
       });
 
       expect(archivedPlayer.status).toBe('archived');

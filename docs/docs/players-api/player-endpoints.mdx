@@ -153,6 +153,7 @@ const playerDetails = await client.players.updatePlayer('zezima');
   "lastChangedAt": "2021-04-17T15:57:49.039Z",
   "lastImportedAt": "2022-10-23T18:24:22.792Z",
   "combatLevel": 93,
+  "archive": null,
   "latestSnapshot": {
     "id": 68052294,
     "playerId": 1135,
@@ -324,6 +325,7 @@ const playerDetails = await client.players.getPlayerDetails('zezima');
   "lastChangedAt": "2021-04-17T15:57:49.039Z",
   "lastImportedAt": "2022-10-23T18:24:22.792Z",
   "combatLevel": 93,
+  "archive": null,
   "latestSnapshot": {
     "id": 68052294,
     "playerId": 1135,
@@ -430,6 +432,7 @@ const playerDetails = await client.players.getPlayerDetailsById(123);
   "lastChangedAt": "2021-04-17T15:57:49.039Z",
   "lastImportedAt": "2022-10-23T18:24:22.792Z",
   "combatLevel": 93,
+  "archive": null,
   "latestSnapshot": {
     "id": 68052294,
     "playerId": 1135,
@@ -1437,7 +1440,7 @@ const nameChanges = await client.players.getPlayerNames('zezima');
 <Endpoint verb="GET" path="/players/:username/archives" />
 <br />
 
-Fetches all previous archived player profiles that held this username. Returns an array of [PlayerArchive](/players-api/player-type-definitions#object-player-archive) objects.
+Fetches all previous archived player profiles that held this username. Returns an array of [PlayerArchiveWithPlayer](/players-api/player-type-definitions#object-player-archive-with-player) objects.
 
 **Request Params**
 
