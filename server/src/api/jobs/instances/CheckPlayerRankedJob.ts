@@ -40,7 +40,7 @@ class CheckPlayerRankedJob implements JobDefinition<CheckPlayerRankedPayload> {
   }
 
   async onFailedAllAttempts(data: CheckPlayerRankedPayload, error: Error) {
-    // If it fails every attempt with the "Failed to load hiscores" (404) error message,
+    // If it fails every attempt with the "Failed to load hiscores" (400) error message,
     // then we can be pretty sure that the player is unranked.
     if (!(error instanceof BadRequestError) || !error.message.includes('Failed to load hiscores')) return;
 
