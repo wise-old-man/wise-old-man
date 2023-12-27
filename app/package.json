@@ -25,6 +25,7 @@
     "@tailwindcss/container-queries": "^0.1.1",
     "@tanstack/react-query": "^5.0.0-alpha.34",
     "@tanstack/react-table": "^8.9.1",
+    "@vercel/analytics": "^1.1.1",
     "@wise-old-man/utils": "^3.1.8",
     "autoprefixer": "10.4.14",
     "class-variance-authority": "^0.5.2",
