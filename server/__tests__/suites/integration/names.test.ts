@@ -770,7 +770,10 @@ describe('Names API', () => {
         .query({ period: 'week' });
 
       expect(archivedSnapshotsResponse.status).toBe(200);
-      expect(archivedSnapshotsResponse.body.filter(s => s.data.bosses.obor.kills === 30).length).toBe(1);
+
+      expect(
+        archivedSnapshotsResponse.body.filter(s => s.data.bosses.obor.kills === 30).length
+      ).toBeGreaterThan(0);
 
       // Check if none of the pre-transition memberships have been transfered
       const mainGroupsResponse = await api.get(`/players/USBC/groups`);
@@ -824,6 +827,62 @@ describe('Names API', () => {
       expect(detailsResponse.body.country).toBe('PT');
     }, 10_000);
 
+    it('should approve (new player has very little data)', async () => {
+      const firstTrackResponse = await api.post(`/players/Romeo`);
+      expect(firstTrackResponse.status).toBe(201);
+      expect(firstTrackResponse.body.username).toBe('romeo');
+      expect(firstTrackResponse.body.displayName).toBe('Romeo');
+
+      const secondTrackResponse = await api.post(`/players/Juliet`);
+      expect(secondTrackResponse.status).toBe(201);
+      expect(secondTrackResponse.body.username).toBe('juliet');
+      expect(secondTrackResponse.body.displayName).toBe('Juliet');
+
+      const submitResponse = await api.post(`/names`).send({ oldName: 'Romeo', newName: 'Juliet' });
+
+      expect(submitResponse.status).toBe(201);
+
+      const newPlayerId = secondTrackResponse.body.id;
+
+      const response = await api
+        .post(`/names/${submitResponse.body.id}/approve`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(200);
+      expect(response.body.status).toBe('approved');
+      expect(response.body.resolvedAt).not.toBe(null);
+
+      await sleep(500);
+
+      expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          displayName: 'Juliet'
+        }),
+        'Romeo'
+      );
+
+      // "New" player profile was archived
+      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: newPlayerId,
+          status: PlayerStatus.ARCHIVED,
+          username: expect.stringContaining('archive'),
+          displayName: expect.stringContaining('archive')
+        }),
+        'Juliet'
+      );
+
+      const archive = await prisma.playerArchive.findFirst({
+        where: {
+          playerId: newPlayerId,
+          previousUsername: 'juliet'
+        }
+      });
+
+      // The new player had very little data (< 2 snapshots), so the archived profile should have been deleted
+      expect(archive).toBeNull();
+    });
+
     it('should approve (archived player)', async () => {
       const trackPlayerResponse = await api.post(`/players/Nightfirecat`);
       expect(trackPlayerResponse.status).toBe(201);
@@ -843,6 +902,8 @@ describe('Names API', () => {
         }),
         'Nightfirecat'
       );
+
+      jest.resetAllMocks();
 
       const archiveUsername = archiveResponse.body.username;
 
@@ -881,6 +942,8 @@ describe('Names API', () => {
       expect(player).not.toBeNull();
       expect(player.displayName).toBe('Ron');
       expect(player.status).toBe(PlayerStatus.ACTIVE);
+
+      expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
     });
   });
 
@@ -1093,7 +1156,10 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
   });
 
   setHooksEnabled(false); // disable hooks to prevent gains/records from being calculated from this
-  // Create a pre-transition-date snapshot
+  // Create two pre-transition-date snapshots
+  await prisma.snapshot.create({
+    data: { ...filteredSnapshotData, playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
+  });
   await prisma.snapshot.create({
     data: { ...filteredSnapshotData, playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
   });
