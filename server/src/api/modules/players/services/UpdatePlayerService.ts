@@ -68,7 +68,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
       // If failed to load this player's stats from the hiscores, and they're not "regular" or "unknown"
       // we should at least check if their type has changed (e.g. the name was transfered to a regular acc)
       if (await shouldReviewType(player)) {
-        const hasTypeChanged = await reviewType(player);
+        const hasTypeChanged = await reviewType(player).catch(() => false);
         // If they did in fact change type, call this function recursively,
         // so that it fetches their stats from the correct hiscores.
         if (hasTypeChanged) return updatePlayer(player);

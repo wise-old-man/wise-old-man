@@ -103,6 +103,28 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
 
   logger.moderation(`[NameChange:${nameChange.id}] Approved`);
 
+  if (newPlayer && newPlayer.id !== oldPlayer.id) {
+    const archivedNewPlayer = await prisma.player.findFirst({
+      where: {
+        id: newPlayer.id
+      }
+    });
+
+    if (archivedNewPlayer && archivedNewPlayer.status === PlayerStatus.ARCHIVED) {
+      const snapshots = await prisma.snapshot.findMany({
+        where: {
+          playerId: archivedNewPlayer.id
+        }
+      });
+
+      if (snapshots.length < 2) {
+        await prisma.player.delete({
+          where: { id: archivedNewPlayer.id }
+        });
+      }
+    }
+  }
+
   return updatedNameChange as NameChange;
 }
 

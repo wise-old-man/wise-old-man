@@ -266,7 +266,7 @@ describe('Player API', () => {
 
       const secondResponse = await api.post(`/players/ash`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores for ash.');
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
 
       // failed to review (null cooldown = no review)
       expect(await redisService.getValue('cd:PlayerTypeReview', 'ash')).toBeNull();
