@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { Inter } from "next/font/google";
-import { cn } from "~/utils/styling";
 import { Footer } from "~/components/Footer";
 import { Navigation } from "~/components/Navigation";
 import { TooltipProvider } from "~/components/Tooltip";
@@ -41,6 +41,7 @@ function RootLayout(props: PropsWithChildren) {
         </TooltipProvider>
         <TailwindIndicator />
         <ToastManager />
+        <Analytics />
       </body>
     </html>
   );
