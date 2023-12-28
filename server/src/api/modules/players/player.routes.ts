@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { setupController } from '../../util/routing';
+import { detectRuneLiteNameChange } from '../../util/middlewares';
 import * as controller from './player.controller';
 
 const api = Router();
@@ -21,7 +22,7 @@ api.get('/:username/names', setupController(controller.names));
 api.get('/:username/archives', setupController(controller.archives));
 api.put('/:username/country', setupController(controller.changeCountry));
 api.get('/:username', setupController(controller.details));
-api.post('/:username', setupController(controller.track));
+api.post('/:username', detectRuneLiteNameChange, setupController(controller.track));
 api.post('/:username/rollback', setupController(controller.rollback));
 api.post('/:username/archive', setupController(controller.archive));
 api.delete('/:username', setupController(controller.deletePlayer));

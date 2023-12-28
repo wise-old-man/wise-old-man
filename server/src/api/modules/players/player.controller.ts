@@ -1,7 +1,6 @@
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { ForbiddenError, ServerError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
-import redisService from '../../services/external/redis.service';
 import * as achievementServices from '../achievements/achievement.services';
 import * as nameChangeServices from '../name-changes/name-change.services';
 import * as recordServices from '../records/record.services';
@@ -15,7 +14,6 @@ import * as efficiencyUtils from '../efficiency/efficiency.utils';
 import * as playerUtils from './player.utils';
 import { getDate, getEnum, getNumber, getString } from '../../util/validation';
 import { ControllerResponse } from '../../util/routing';
-import logger from '../../util/logging';
 
 // GET /players/search?username={username}
 async function search(req: Request): Promise<ControllerResponse> {
@@ -30,30 +28,9 @@ async function search(req: Request): Promise<ControllerResponse> {
 }
 
 // POST /players/:username
-async function track(req: Request, res: Response): Promise<ControllerResponse> {
-  const userAgent = res.locals.userAgent;
-
-  const { accountHash, force } = req.body;
+async function track(req: Request): Promise<ControllerResponse> {
+  const { force } = req.body;
   const { username } = req.params;
-
-  // RuneLite requests include an "accountHash" body param that serves as a unique ID per OSRS account.
-  // If this ID is linked to a different username than before, that means that account has changed
-  // their name and we should automatically submit a name change for it.
-  if ((userAgent === 'RuneLite' || userAgent === 'WiseOldMan RuneLite Plugin') && accountHash) {
-    const storedUsername = await redisService.getValue('hash', accountHash);
-
-    if (storedUsername && storedUsername !== username) {
-      logger.debug('Detected name change from account hash, auto-submitting name change.', {
-        oldName: storedUsername,
-        newName: username
-      });
-      await nameChangeServices
-        .submitNameChange({ oldName: storedUsername, newName: username })
-        .catch(e => logger.error('Failed to auto-submit name changed from account hash.', e));
-    }
-
-    await redisService.setValue('hash', accountHash, username);
-  }
 
   // Force updates are moderator-only
   if (force && !adminGuard.checkAdminPermissions(req)) {
