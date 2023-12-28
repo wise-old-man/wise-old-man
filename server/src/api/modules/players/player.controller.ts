@@ -43,6 +43,10 @@ async function track(req: Request, res: Response): Promise<ControllerResponse> {
     const storedUsername = await redisService.getValue('hash', accountHash);
 
     if (storedUsername && storedUsername !== username) {
+      logger.debug('Detected name change from account hash, auto-submitting name change.', {
+        oldName: storedUsername,
+        newName: username
+      });
       await nameChangeServices
         .submitNameChange({ oldName: storedUsername, newName: username })
         .catch(e => logger.error('Failed to auto-submit name changed from account hash.', e));
