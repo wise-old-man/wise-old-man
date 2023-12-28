@@ -52,6 +52,7 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
   if (newPlayer && newPlayer.id !== oldPlayer.id) {
     // Archive the "new" profile, in case we need to restore some of this data later
     await archivePlayer(newPlayer, false);
+    await playerUtils.setCachedPlayerId(newPlayer.username, null);
   }
 
   // Attempt to transfer data between both accounts

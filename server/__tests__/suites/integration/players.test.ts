@@ -789,7 +789,8 @@ describe('Player API', () => {
         .send({ accountHash: '123456' })
         .set('User-Agent', 'RuneLite');
 
-      expect(secondResponse.status).toBe(201);
+      expect(secondResponse.status).toBe(500); // Player update gets interrupted if a name change is detected
+      expect(secondResponse.body.message).toBe('Failed to update: Name change detected.');
 
       const fetchNameChangesResponse = await api.get('/names').query({ username: 'ruben' });
 
