@@ -32,10 +32,10 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
   await metrics.trackEffect(discordService.dispatchNameChanged, player, previousDisplayName);
 
   // Setup jobs to assert the player's account type and auto-update them
-  // jobManager.add({
-  //   type: JobType.UPDATE_PLAYER,
-  //   payload: { username: player.username }
-  // });
+  jobManager.add({
+    type: JobType.UPDATE_PLAYER,
+    payload: { username: player.username }
+  });
 
   jobManager.add({
     type: JobType.ASSERT_PLAYER_TYPE,
