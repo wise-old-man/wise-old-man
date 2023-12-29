@@ -2728,27 +2728,6 @@ describe('Competition API', () => {
       expect(usernameResponse.body.message).toMatch('Player not found.');
     });
 
-    it.skip('should not list player competitions (negative offset)', async () => {
-      const response = await api.get(`/players/psikoi/competitions`).query({ offset: -5 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
-    });
-
-    it.skip('should not list player competitions (negative limit)', async () => {
-      const response = await api.get(`/players/psikoi/competitions`).query({ limit: -5 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
-    });
-
-    it.skip('should not list player competitions (limit > 50)', async () => {
-      const response = await api.get(`/players/psikoi/competitions`).query({ limit: 1000 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('The maximum results limit is 50');
-    });
-
     it('should list player competitions', async () => {
       const response = await api.get(`/players/psikoi/competitions`);
 
@@ -2894,27 +2873,6 @@ describe('Competition API', () => {
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(0);
     });
-
-    it.skip('should list player competitions (w/ limit & offset)', async () => {
-      const response = await api.get(`/players/psikoi/competitions`).query({ limit: 1, offset: 1 });
-
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
-
-      // Hashes and snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body[0].competition.verificationHash).not.toBeDefined();
-      expect(response.body[0].startSnapshotId).not.toBeDefined();
-      expect(response.body[0].endSnapshotId).not.toBeDefined();
-
-      expect(response.body[0]).toMatchObject({
-        teamName: 'Warriors',
-        competitionId: globalData.testCompetitionWithGroup.id,
-        competition: {
-          id: globalData.testCompetitionWithGroup.id,
-          participantCount: 4
-        }
-      });
-    });
   });
 
   describe('12 - List Player Competition Standings', () => {
@@ -3034,29 +2992,6 @@ describe('Competition API', () => {
         progress: { end: -1, gained: 0, start: -1 }
       });
     });
-
-    it.skip('should list player competitions (w/ limit & offset)', async () => {
-      const response = await api
-        .get(`/players/psikoi/competitions`)
-        .query({ status: 'ongoing', limit: 1, offset: 1 });
-
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
-
-      // Hashes and snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body[0].competition.verificationHash).not.toBeDefined();
-      expect(response.body[0].startSnapshotId).not.toBeDefined();
-      expect(response.body[0].endSnapshotId).not.toBeDefined();
-
-      expect(response.body[0]).toMatchObject({
-        teamName: 'Warriors',
-        competitionId: globalData.testCompetitionWithGroup.id,
-        competition: {
-          id: globalData.testCompetitionWithGroup.id,
-          participantCount: 4
-        }
-      });
-    });
   });
 
   describe('13 - List Group Competitions', () => {
@@ -3065,29 +3000,6 @@ describe('Competition API', () => {
 
       expect(usernameResponse.status).toBe(404);
       expect(usernameResponse.body.message).toMatch('Group not found.');
-    });
-
-    it.skip('should not list group competitions (negative offset)', async () => {
-      const response = await api.get(`/groups/${globalData.testGroup.id}/competitions`).query({ offset: -5 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
-    });
-
-    it.skip('should not list group competitions (negative limit)', async () => {
-      const response = await api.get(`/groups/${globalData.testGroup.id}/competitions`).query({ limit: -5 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
-    });
-
-    it.skip('should not list group competitions (limit > 50)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroup.id}/competitions`)
-        .query({ limit: 1000 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('The maximum results limit is 50');
     });
 
     it('should list group competitions', async () => {
@@ -3134,23 +3046,6 @@ describe('Competition API', () => {
       });
 
       expect(response.body[2]).toMatchObject({
-        id: globalData.testCompetitionWithGroup.id,
-        participantCount: 4 // these 4 participants were explicitly added to the competition
-      });
-    });
-
-    it.skip('should list group competitions (w/ limit & offset)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroup.id}/competitions`)
-        .query({ limit: 1, offset: 2 });
-
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
-
-      // Hashes shouldn't be exposed to the API consumer
-      expect(response.body[0].verificationHash).not.toBeDefined();
-
-      expect(response.body[0]).toMatchObject({
         id: globalData.testCompetitionWithGroup.id,
         participantCount: 4 // these 4 participants were explicitly added to the competition
       });
