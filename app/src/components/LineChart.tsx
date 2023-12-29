@@ -78,13 +78,15 @@ export default function LineChart(props: LineChartProps) {
   function handleRangeSelected() {
     if (!selectedRangeStart || !selectedRangeEnd || !onRangeSelected) return;
 
-    let range = [selectedRangeStart, selectedRangeEnd];
+    if (selectedRangeStart.getTime() !== selectedRangeEnd.getTime()) {
+      let range = [selectedRangeStart, selectedRangeEnd];
 
-    if (selectedRangeStart.getTime() > selectedRangeEnd.getTime()) {
-      range = [selectedRangeEnd, selectedRangeStart];
+      if (selectedRangeStart.getTime() > selectedRangeEnd.getTime()) {
+        range = [selectedRangeEnd, selectedRangeStart];
+      }
+
+      onRangeSelected(range as [Date, Date]);
     }
-
-    onRangeSelected(range as [Date, Date]);
 
     setSelectedRangeStart(undefined);
     setSelectedRangeEnd(undefined);
@@ -110,11 +112,11 @@ export default function LineChart(props: LineChartProps) {
         <LineChartPrimitive
           margin={{ bottom: 20, left: 5, right: 5, top: 5 }}
           onMouseDown={(e) => {
-            if (!e.activeLabel || !onRangeSelected) return;
+            if (!e || !e.activeLabel || !onRangeSelected) return;
             setSelectedRangeStart(new Date(e.activeLabel));
           }}
           onMouseMove={(e) => {
-            if (!e.activeLabel || !selectedRangeStart || !onRangeSelected) return;
+            if (!e || !e.activeLabel || !selectedRangeStart || !onRangeSelected) return;
             setSelectedRangeEnd(new Date(e.activeLabel));
           }}
           onMouseUp={() => {
