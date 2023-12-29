@@ -542,7 +542,7 @@ describe('Competition API', () => {
         title: 'Team Comp Test 123',
         metric: 'zulrah',
         startsAt: startDate,
-        endsAt: endDate,
+        endsAt: new Date(endDate.getTime() + 30_000), // ends 30sec later than the other one
         teams: [
           { name: 'Team 1', participants: ['psikoi', 'rorro'] },
           { name: 'Team 2', participants: ['zezima', 'usbc'] }
@@ -745,7 +745,7 @@ describe('Competition API', () => {
       jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 172_800_000));
 
       const startDate = new Date(Date.now() + 10_000);
-      const endDate = new Date(Date.now() + 10_000 + 174_000_000);
+      const endDate = new Date(Date.now() + 30_000 + 174_000_000);
 
       // Started 2 days ago, ending in 20 mins
       const response = await api.post('/competitions').send({
@@ -2728,27 +2728,6 @@ describe('Competition API', () => {
       expect(usernameResponse.body.message).toMatch('Player not found.');
     });
 
-    it.skip('should not list player competitions (negative offset)', async () => {
-      const response = await api.get(`/players/psikoi/competitions`).query({ offset: -5 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
-    });
-
-    it.skip('should not list player competitions (negative limit)', async () => {
-      const response = await api.get(`/players/psikoi/competitions`).query({ limit: -5 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
-    });
-
-    it.skip('should not list player competitions (limit > 50)', async () => {
-      const response = await api.get(`/players/psikoi/competitions`).query({ limit: 1000 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('The maximum results limit is 50');
-    });
-
     it('should list player competitions', async () => {
       const response = await api.get(`/players/psikoi/competitions`);
 
@@ -2766,6 +2745,7 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionEnding.id,
         competition: {
           id: globalData.testCompetitionEnding.id,
+          metric: 'soul_wars_zeal',
           participantCount: 11
         }
       });
@@ -2775,21 +2755,18 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionWithGroup.id,
         competition: {
           id: globalData.testCompetitionWithGroup.id,
+          metric: 'fishing',
           participantCount: 4
         }
       });
 
       expect(response.body[2]).toMatchObject({
         teamName: null,
-        competitionId: globalData.testCompetitionEnded.id,
+        competitionId: globalData.testCompetitionStarted.id,
         competition: {
-          id: globalData.testCompetitionEnded.id,
-          groupId: globalData.testGroup.id,
-          group: {
-            id: globalData.testGroup.id,
-            memberCount: 2
-          },
-          participantCount: 2
+          id: globalData.testCompetitionStarted.id,
+          metric: 'zulrah',
+          participantCount: 5
         }
       });
 
@@ -2798,16 +2775,23 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionStartedTeam.id,
         competition: {
           id: globalData.testCompetitionStartedTeam.id,
+          metric: 'zulrah',
           participantCount: 4
         }
       });
 
       expect(response.body[4]).toMatchObject({
         teamName: null,
-        competitionId: globalData.testCompetitionStarted.id,
+        competitionId: globalData.testCompetitionEnded.id,
         competition: {
-          id: globalData.testCompetitionStarted.id,
-          participantCount: 5
+          id: globalData.testCompetitionEnded.id,
+          metric: 'overall',
+          groupId: globalData.testGroup.id,
+          group: {
+            id: globalData.testGroup.id,
+            memberCount: 2
+          },
+          participantCount: 2
         }
       });
     });
@@ -2829,6 +2813,7 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionEnding.id,
         competition: {
           id: globalData.testCompetitionEnding.id,
+          metric: 'soul_wars_zeal',
           participantCount: 11
         }
       });
@@ -2838,25 +2823,28 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionWithGroup.id,
         competition: {
           id: globalData.testCompetitionWithGroup.id,
+          metric: 'fishing',
           participantCount: 4
         }
       });
 
       expect(response.body[2]).toMatchObject({
-        teamName: 'Team 1',
-        competitionId: globalData.testCompetitionStartedTeam.id,
-        competition: {
-          id: globalData.testCompetitionStartedTeam.id,
-          participantCount: 4
-        }
-      });
-
-      expect(response.body[3]).toMatchObject({
         teamName: null,
         competitionId: globalData.testCompetitionStarted.id,
         competition: {
           id: globalData.testCompetitionStarted.id,
+          metric: 'zulrah',
           participantCount: 5
+        }
+      });
+
+      expect(response.body[3]).toMatchObject({
+        teamName: 'Team 1',
+        competitionId: globalData.testCompetitionStartedTeam.id,
+        competition: {
+          id: globalData.testCompetitionStartedTeam.id,
+          metric: 'zulrah',
+          participantCount: 4
         }
       });
     });
@@ -2878,6 +2866,7 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionEnded.id,
         competition: {
           id: globalData.testCompetitionEnded.id,
+          metric: 'overall',
           groupId: globalData.testGroup.id,
           group: {
             id: globalData.testGroup.id,
@@ -2893,27 +2882,6 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(0);
-    });
-
-    it.skip('should list player competitions (w/ limit & offset)', async () => {
-      const response = await api.get(`/players/psikoi/competitions`).query({ limit: 1, offset: 1 });
-
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
-
-      // Hashes and snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body[0].competition.verificationHash).not.toBeDefined();
-      expect(response.body[0].startSnapshotId).not.toBeDefined();
-      expect(response.body[0].endSnapshotId).not.toBeDefined();
-
-      expect(response.body[0]).toMatchObject({
-        teamName: 'Warriors',
-        competitionId: globalData.testCompetitionWithGroup.id,
-        competition: {
-          id: globalData.testCompetitionWithGroup.id,
-          participantCount: 4
-        }
-      });
     });
   });
 
@@ -2984,17 +2952,6 @@ describe('Competition API', () => {
       });
 
       expect(response.body[2]).toMatchObject({
-        teamName: 'Team 1',
-        competitionId: globalData.testCompetitionStartedTeam.id,
-        competition: {
-          id: globalData.testCompetitionStartedTeam.id,
-          participantCount: 4
-        },
-        rank: 3,
-        progress: { end: 1000, gained: 0, start: 1000 }
-      });
-
-      expect(response.body[3]).toMatchObject({
         teamName: null,
         competitionId: globalData.testCompetitionStarted.id,
         competition: {
@@ -3002,6 +2959,17 @@ describe('Competition API', () => {
           participantCount: 5
         },
         rank: 4,
+        progress: { end: 1000, gained: 0, start: 1000 }
+      });
+
+      expect(response.body[3]).toMatchObject({
+        teamName: 'Team 1',
+        competitionId: globalData.testCompetitionStartedTeam.id,
+        competition: {
+          id: globalData.testCompetitionStartedTeam.id,
+          participantCount: 4
+        },
+        rank: 3,
         progress: { end: 1000, gained: 0, start: 1000 }
       });
     });
@@ -3034,29 +3002,6 @@ describe('Competition API', () => {
         progress: { end: -1, gained: 0, start: -1 }
       });
     });
-
-    it.skip('should list player competitions (w/ limit & offset)', async () => {
-      const response = await api
-        .get(`/players/psikoi/competitions`)
-        .query({ status: 'ongoing', limit: 1, offset: 1 });
-
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
-
-      // Hashes and snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body[0].competition.verificationHash).not.toBeDefined();
-      expect(response.body[0].startSnapshotId).not.toBeDefined();
-      expect(response.body[0].endSnapshotId).not.toBeDefined();
-
-      expect(response.body[0]).toMatchObject({
-        teamName: 'Warriors',
-        competitionId: globalData.testCompetitionWithGroup.id,
-        competition: {
-          id: globalData.testCompetitionWithGroup.id,
-          participantCount: 4
-        }
-      });
-    });
   });
 
   describe('13 - List Group Competitions', () => {
@@ -3067,35 +3012,12 @@ describe('Competition API', () => {
       expect(usernameResponse.body.message).toMatch('Group not found.');
     });
 
-    it.skip('should not list group competitions (negative offset)', async () => {
-      const response = await api.get(`/groups/${globalData.testGroup.id}/competitions`).query({ offset: -5 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
-    });
-
-    it.skip('should not list group competitions (negative limit)', async () => {
-      const response = await api.get(`/groups/${globalData.testGroup.id}/competitions`).query({ limit: -5 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
-    });
-
-    it.skip('should not list group competitions (limit > 50)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroup.id}/competitions`)
-        .query({ limit: 1000 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('The maximum results limit is 50');
-    });
-
     it('should list group competitions', async () => {
       // Add a second competition to this group
       const createSecondCompetitionResponse = await api.post('/competitions').send({
         title: 'Test Group Competition',
         metric: 'agility',
-        startsAt: new Date(Date.now() + 1_200_000),
+        startsAt: new Date(Date.now() + 1_200_000 + 1000), // 1 second later
         endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
         groupId: globalData.testGroup.id,
         groupVerificationCode: globalData.testGroup.verificationCode
@@ -3108,7 +3030,7 @@ describe('Competition API', () => {
         title: 'Test Group Competition (again)',
         metric: 'mimic',
         startsAt: new Date(Date.now() + 1_200_000),
-        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000 + 1000),
         groupId: globalData.testGroup.id,
         groupVerificationCode: globalData.testGroup.verificationCode
       });
@@ -3124,35 +3046,18 @@ describe('Competition API', () => {
       expect(response.body.filter(c => !!c.verificationHash).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
+        id: globalData.testCompetitionWithGroup.id,
+        participantCount: 4 // these 4 participants were explicitly added to the competition
+      });
+
+      expect(response.body[1]).toMatchObject({
         id: createThirdCompetitionResponse.body.competition.id,
         participantCount: 2 // inherits all members of the group as participants
       });
 
-      expect(response.body[1]).toMatchObject({
+      expect(response.body[2]).toMatchObject({
         id: createSecondCompetitionResponse.body.competition.id,
         participantCount: 2 // inherits all members of the group as participants
-      });
-
-      expect(response.body[2]).toMatchObject({
-        id: globalData.testCompetitionWithGroup.id,
-        participantCount: 4 // these 4 participants were explicitly added to the competition
-      });
-    });
-
-    it.skip('should list group competitions (w/ limit & offset)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroup.id}/competitions`)
-        .query({ limit: 1, offset: 2 });
-
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
-
-      // Hashes shouldn't be exposed to the API consumer
-      expect(response.body[0].verificationHash).not.toBeDefined();
-
-      expect(response.body[0]).toMatchObject({
-        id: globalData.testCompetitionWithGroup.id,
-        participantCount: 4 // these 4 participants were explicitly added to the competition
       });
     });
   });

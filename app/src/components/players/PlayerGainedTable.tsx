@@ -99,12 +99,12 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
           <p className="text-body text-gray-200">
             {"period" in timeRange ? (
               <>
-                {player.displayName}&apos;s exp. gains in the last&nbsp;
+                {player.displayName}&apos;s gains in the last&nbsp;
                 <span className="text-white">{PeriodProps[timeRange.period].name.toLowerCase()}</span>
               </>
             ) : (
               <>
-                {player.displayName}&apos;s exp. gains during:&nbsp;
+                {player.displayName}&apos;s gains during:&nbsp;
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="text-white underline">custom period</span>

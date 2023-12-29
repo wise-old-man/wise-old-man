@@ -28,8 +28,8 @@ export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
     const nextParams = new URLSearchParams(searchParams);
 
     // Pad these dates by 1 second in each direction so that the next data set includes them
-    nextParams.set("startDate", new Date(startDate.getTime() - 1000).toISOString());
-    nextParams.set("endDate", new Date(endDate.getTime() + 1000).toISOString());
+    nextParams.set("startDate", startDate.toISOString());
+    nextParams.set("endDate", endDate.toISOString());
     nextParams.set("period", "custom");
 
     router.push(`${pathname}?${nextParams.toString()}`, { scroll: false });

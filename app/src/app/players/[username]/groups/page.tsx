@@ -1,10 +1,5 @@
-import Link from "next/link";
-import { GroupRoleProps, MembershipWithGroup } from "@wise-old-man/utils";
 import { getPlayerDetails, getPlayerGroups } from "~/services/wiseoldman";
-import { GroupRoleIcon } from "~/components/Icon";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
-
-import VerifiedIcon from "~/assets/verified.svg";
+import { MembershipListItem } from "~/components/groups/MembershipListItem";
 
 export const dynamic = "force-dynamic";
 
@@ -40,35 +35,8 @@ export default async function PlayerGroupsPage(props: PageProps) {
   return (
     <div className="flex flex-col gap-y-3">
       {groups.map((g) => (
-        <MembershipListItem key={g.group.id} {...g} />
+        <MembershipListItem {...g} key={g.group.name} />
       ))}
     </div>
-  );
-}
-
-function MembershipListItem(props: MembershipWithGroup) {
-  const { role, group } = props;
-
-  return (
-    <Link
-      href={`/groups/${group.id}`}
-      className="flex flex-col gap-x-4 gap-y-1 rounded-lg border border-gray-600 bg-gray-800 px-5 py-3 shadow-md transition-colors hover:bg-gray-700"
-    >
-      <span className="flex gap-x-1.5 text-base font-medium">
-        {group.name}
-        {group.verified && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <VerifiedIcon className="mt-1 h-4 w-4" />
-            </TooltipTrigger>
-            <TooltipContent>This group is verified on our Discord server.</TooltipContent>
-          </Tooltip>
-        )}
-      </span>
-      <span className="flex items-center gap-x-1 text-xs text-gray-200">
-        <GroupRoleIcon role={role} />
-        {GroupRoleProps[role].name}
-      </span>
-    </Link>
   );
 }
