@@ -26,8 +26,6 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [, startTransition] = useTransition();
-
   function handleTimeRangeSelected(range: [Date, Date]) {
     const [startDate, endDate] = range;
 
@@ -37,9 +35,7 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
     nextParams.set("startDate", new Date(startDate.getTime() - 1000).toISOString());
     nextParams.set("endDate", new Date(endDate.getTime() + 1000).toISOString());
 
-    startTransition(() => {
-      router.push(`${pathname}?${nextParams.toString()}`, { scroll: false });
-    });
+    router.push(`${pathname}?${nextParams.toString()}`, { scroll: false });
   }
 
   if (data.length < 2 || data.every((d) => d.value === -1)) {

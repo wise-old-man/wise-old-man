@@ -1,7 +1,7 @@
 "use client";
 
 import { formatNumber } from "@wise-old-man/utils";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   LineChart as LineChartPrimitive,
   Line,
@@ -58,6 +58,8 @@ export default function LineChart(props: LineChartProps) {
     tooltipValueFormatter,
   } = props;
 
+  const [hasMounted, setHasMounted] = useState(false);
+
   const [selectedRangeStart, setSelectedRangeStart] = useState<Date | undefined>(undefined);
   const [selectedRangeEnd, setSelectedRangeEnd] = useState<Date | undefined>(undefined);
 
@@ -87,6 +89,20 @@ export default function LineChart(props: LineChartProps) {
     setSelectedRangeStart(undefined);
     setSelectedRangeEnd(undefined);
   }
+
+  useEffect(() => {
+    // I want the line to animate whenever the data changes, but I don't want it to animate
+    // on the first render, so I need to track when it becomes mounted. So it becomes "mounted"
+    // 500ms after the first render is done.
+
+    const timeout = setTimeout(() => {
+      setHasMounted(true);
+    }, 500);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [setHasMounted]);
 
   return (
     <div className="aspect-video w-full">
@@ -199,7 +215,8 @@ export default function LineChart(props: LineChartProps) {
                   strokeWidth="2"
                   dot={<ChartDot />}
                   activeDot={<ChartDot stroke={COLORS[index]} active />}
-                  isAnimationActive={false}
+                  animationDuration={200}
+                  isAnimationActive={hasMounted}
                 />
               );
             })}
