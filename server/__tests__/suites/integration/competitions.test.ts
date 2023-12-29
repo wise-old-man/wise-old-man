@@ -542,7 +542,7 @@ describe('Competition API', () => {
         title: 'Team Comp Test 123',
         metric: 'zulrah',
         startsAt: startDate,
-        endsAt: endDate,
+        endsAt: new Date(endDate.getTime() + 30_000), // ends 30sec later than the other one
         teams: [
           { name: 'Team 1', participants: ['psikoi', 'rorro'] },
           { name: 'Team 2', participants: ['zezima', 'usbc'] }
@@ -745,7 +745,7 @@ describe('Competition API', () => {
       jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 172_800_000));
 
       const startDate = new Date(Date.now() + 10_000);
-      const endDate = new Date(Date.now() + 10_000 + 174_000_000);
+      const endDate = new Date(Date.now() + 30_000 + 174_000_000);
 
       // Started 2 days ago, ending in 20 mins
       const response = await api.post('/competitions').send({
@@ -2745,6 +2745,7 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionEnding.id,
         competition: {
           id: globalData.testCompetitionEnding.id,
+          metric: 'soul_wars_zeal',
           participantCount: 11
         }
       });
@@ -2754,21 +2755,18 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionWithGroup.id,
         competition: {
           id: globalData.testCompetitionWithGroup.id,
+          metric: 'fishing',
           participantCount: 4
         }
       });
 
       expect(response.body[2]).toMatchObject({
         teamName: null,
-        competitionId: globalData.testCompetitionEnded.id,
+        competitionId: globalData.testCompetitionStarted.id,
         competition: {
-          id: globalData.testCompetitionEnded.id,
-          groupId: globalData.testGroup.id,
-          group: {
-            id: globalData.testGroup.id,
-            memberCount: 2
-          },
-          participantCount: 2
+          id: globalData.testCompetitionStarted.id,
+          metric: 'zulrah',
+          participantCount: 5
         }
       });
 
@@ -2777,16 +2775,23 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionStartedTeam.id,
         competition: {
           id: globalData.testCompetitionStartedTeam.id,
+          metric: 'zulrah',
           participantCount: 4
         }
       });
 
       expect(response.body[4]).toMatchObject({
         teamName: null,
-        competitionId: globalData.testCompetitionStarted.id,
+        competitionId: globalData.testCompetitionEnded.id,
         competition: {
-          id: globalData.testCompetitionStarted.id,
-          participantCount: 5
+          id: globalData.testCompetitionEnded.id,
+          metric: 'overall',
+          groupId: globalData.testGroup.id,
+          group: {
+            id: globalData.testGroup.id,
+            memberCount: 2
+          },
+          participantCount: 2
         }
       });
     });
@@ -2808,6 +2813,7 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionEnding.id,
         competition: {
           id: globalData.testCompetitionEnding.id,
+          metric: 'soul_wars_zeal',
           participantCount: 11
         }
       });
@@ -2817,25 +2823,28 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionWithGroup.id,
         competition: {
           id: globalData.testCompetitionWithGroup.id,
+          metric: 'fishing',
           participantCount: 4
         }
       });
 
       expect(response.body[2]).toMatchObject({
-        teamName: 'Team 1',
-        competitionId: globalData.testCompetitionStartedTeam.id,
-        competition: {
-          id: globalData.testCompetitionStartedTeam.id,
-          participantCount: 4
-        }
-      });
-
-      expect(response.body[3]).toMatchObject({
         teamName: null,
         competitionId: globalData.testCompetitionStarted.id,
         competition: {
           id: globalData.testCompetitionStarted.id,
+          metric: 'zulrah',
           participantCount: 5
+        }
+      });
+
+      expect(response.body[3]).toMatchObject({
+        teamName: 'Team 1',
+        competitionId: globalData.testCompetitionStartedTeam.id,
+        competition: {
+          id: globalData.testCompetitionStartedTeam.id,
+          metric: 'zulrah',
+          participantCount: 4
         }
       });
     });
@@ -2857,6 +2866,7 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionEnded.id,
         competition: {
           id: globalData.testCompetitionEnded.id,
+          metric: 'overall',
           groupId: globalData.testGroup.id,
           group: {
             id: globalData.testGroup.id,
@@ -2942,17 +2952,6 @@ describe('Competition API', () => {
       });
 
       expect(response.body[2]).toMatchObject({
-        teamName: 'Team 1',
-        competitionId: globalData.testCompetitionStartedTeam.id,
-        competition: {
-          id: globalData.testCompetitionStartedTeam.id,
-          participantCount: 4
-        },
-        rank: 3,
-        progress: { end: 1000, gained: 0, start: 1000 }
-      });
-
-      expect(response.body[3]).toMatchObject({
         teamName: null,
         competitionId: globalData.testCompetitionStarted.id,
         competition: {
@@ -2960,6 +2959,17 @@ describe('Competition API', () => {
           participantCount: 5
         },
         rank: 4,
+        progress: { end: 1000, gained: 0, start: 1000 }
+      });
+
+      expect(response.body[3]).toMatchObject({
+        teamName: 'Team 1',
+        competitionId: globalData.testCompetitionStartedTeam.id,
+        competition: {
+          id: globalData.testCompetitionStartedTeam.id,
+          participantCount: 4
+        },
+        rank: 3,
         progress: { end: 1000, gained: 0, start: 1000 }
       });
     });
@@ -3007,7 +3017,7 @@ describe('Competition API', () => {
       const createSecondCompetitionResponse = await api.post('/competitions').send({
         title: 'Test Group Competition',
         metric: 'agility',
-        startsAt: new Date(Date.now() + 1_200_000),
+        startsAt: new Date(Date.now() + 1_200_000 + 1000), // 1 second later
         endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
         groupId: globalData.testGroup.id,
         groupVerificationCode: globalData.testGroup.verificationCode
@@ -3020,7 +3030,7 @@ describe('Competition API', () => {
         title: 'Test Group Competition (again)',
         metric: 'mimic',
         startsAt: new Date(Date.now() + 1_200_000),
-        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000 + 1000),
         groupId: globalData.testGroup.id,
         groupVerificationCode: globalData.testGroup.verificationCode
       });
@@ -3036,18 +3046,18 @@ describe('Competition API', () => {
       expect(response.body.filter(c => !!c.verificationHash).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
+        id: globalData.testCompetitionWithGroup.id,
+        participantCount: 4 // these 4 participants were explicitly added to the competition
+      });
+
+      expect(response.body[1]).toMatchObject({
         id: createThirdCompetitionResponse.body.competition.id,
         participantCount: 2 // inherits all members of the group as participants
       });
 
-      expect(response.body[1]).toMatchObject({
+      expect(response.body[2]).toMatchObject({
         id: createSecondCompetitionResponse.body.competition.id,
         participantCount: 2 // inherits all members of the group as participants
-      });
-
-      expect(response.body[2]).toMatchObject({
-        id: globalData.testCompetitionWithGroup.id,
-        participantCount: 4 // these 4 participants were explicitly added to the competition
       });
     });
   });

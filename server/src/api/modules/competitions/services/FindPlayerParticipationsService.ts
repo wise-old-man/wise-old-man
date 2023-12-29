@@ -59,21 +59,51 @@ async function findPlayerParticipations(
     orderBy: [{ competition: { score: 'desc' } }, { createdAt: 'desc' }]
   });
 
-  return participations.map(participation => {
-    return {
-      ...omit(participation, 'startSnapshotId', 'endSnapshotId'),
-      competition: {
-        ...omit(participation.competition, '_count', 'verificationHash'),
-        group: participation.competition.group
-          ? {
-              ...omit(participation.competition.group, '_count', 'verificationHash'),
-              memberCount: participation.competition.group._count.memberships
-            }
-          : undefined,
-        participantCount: participation.competition._count.participations
-      }
-    };
+  return sortCompetitions(
+    participations.map(participation => {
+      return {
+        ...omit(participation, 'startSnapshotId', 'endSnapshotId'),
+        competition: {
+          ...omit(participation.competition, '_count', 'verificationHash'),
+          group: participation.competition.group
+            ? {
+                ...omit(participation.competition.group, '_count', 'verificationHash'),
+                memberCount: participation.competition.group._count.memberships
+              }
+            : undefined,
+          participantCount: participation.competition._count.participations
+        }
+      };
+    })
+  );
+}
+
+function sortCompetitions(participations: ParticipationWithCompetition[]): ParticipationWithCompetition[] {
+  const finished: ParticipationWithCompetition[] = [];
+  const upcoming: ParticipationWithCompetition[] = [];
+  const ongoing: ParticipationWithCompetition[] = [];
+
+  participations.forEach(p => {
+    if (p.competition.endsAt.getTime() < Date.now()) {
+      finished.push(p);
+    } else if (p.competition.startsAt.getTime() < Date.now()) {
+      ongoing.push(p);
+    } else {
+      upcoming.push(p);
+    }
   });
+
+  return [
+    ...ongoing.sort((a, b) => {
+      return a.competition.endsAt.getTime() - b.competition.endsAt.getTime();
+    }),
+    ...upcoming.sort((a, b) => {
+      return a.competition.startsAt.getTime() - b.competition.startsAt.getTime();
+    }),
+    ...finished.sort((a, b) => {
+      return b.competition.endsAt.getTime() - a.competition.endsAt.getTime();
+    })
+  ];
 }
 
 export { findPlayerParticipations };
