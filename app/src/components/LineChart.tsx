@@ -1,7 +1,7 @@
 "use client";
 
 import { formatNumber } from "@wise-old-man/utils";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   LineChart as LineChartPrimitive,
   Line,
@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceArea,
 } from "recharts";
 import { cn } from "~/utils/styling";
 
@@ -36,6 +37,7 @@ interface LineChartProps {
   minDate?: Date;
   maxDate?: Date;
   reversed?: boolean;
+  onRangeSelected?: (range: [Date, Date]) => void;
   yAxisValueFormatter?: (value: number) => string;
   xAxisLabelFormatter?: (label: string, index: number) => string;
   tooltipLabelFormatter?: (label: string) => string;
@@ -49,11 +51,17 @@ export default function LineChart(props: LineChartProps) {
     minDate,
     maxDate,
     reversed,
+    onRangeSelected,
     xAxisLabelFormatter,
     yAxisValueFormatter,
     tooltipLabelFormatter,
     tooltipValueFormatter,
   } = props;
+
+  const [hasMounted, setHasMounted] = useState(false);
+
+  const [selectedRangeStart, setSelectedRangeStart] = useState<Date | undefined>(undefined);
+  const [selectedRangeEnd, setSelectedRangeEnd] = useState<Date | undefined>(undefined);
 
   const [selectedDataset, setSelectedDataset] = useState<string | undefined>(undefined);
 
@@ -67,10 +75,54 @@ export default function LineChart(props: LineChartProps) {
     }
   }
 
+  function handleRangeSelected() {
+    if (!selectedRangeStart || !selectedRangeEnd || !onRangeSelected) return;
+
+    if (selectedRangeStart.getTime() !== selectedRangeEnd.getTime()) {
+      let range = [selectedRangeStart, selectedRangeEnd];
+
+      if (selectedRangeStart.getTime() > selectedRangeEnd.getTime()) {
+        range = [selectedRangeEnd, selectedRangeStart];
+      }
+
+      onRangeSelected(range as [Date, Date]);
+    }
+
+    setSelectedRangeStart(undefined);
+    setSelectedRangeEnd(undefined);
+  }
+
+  useEffect(() => {
+    // I want the line to animate whenever the data changes, but I don't want it to animate
+    // on the first render, so I need to track when it becomes mounted. So it becomes "mounted"
+    // 500ms after the first render is done.
+
+    const timeout = setTimeout(() => {
+      setHasMounted(true);
+    }, 500);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [setHasMounted]);
+
   return (
     <div className="aspect-video w-full">
       <ResponsiveContainer width="100%" aspect={16 / 9}>
-        <LineChartPrimitive margin={{ bottom: 20, left: 5, right: 5, top: 5 }}>
+        <LineChartPrimitive
+          margin={{ bottom: 20, left: 5, right: 5, top: 5 }}
+          onMouseDown={(e) => {
+            if (!e || !e.activeLabel || !onRangeSelected) return;
+            setSelectedRangeStart(new Date(e.activeLabel));
+          }}
+          onMouseMove={(e) => {
+            if (!e || !e.activeLabel || !selectedRangeStart || !onRangeSelected) return;
+            setSelectedRangeEnd(new Date(e.activeLabel));
+          }}
+          onMouseUp={() => {
+            handleRangeSelected();
+          }}
+        >
           <CartesianGrid vertical={false} style={GRID_STYLE} />
           <XAxis
             dataKey="time"
@@ -165,10 +217,18 @@ export default function LineChart(props: LineChartProps) {
                   strokeWidth="2"
                   dot={<ChartDot />}
                   activeDot={<ChartDot stroke={COLORS[index]} active />}
-                  isAnimationActive={false}
+                  animationDuration={200}
+                  isAnimationActive={hasMounted}
                 />
               );
             })}
+          {selectedRangeStart && selectedRangeEnd && (
+            <ReferenceArea
+              x1={selectedRangeStart.getTime()}
+              x2={selectedRangeEnd.getTime()}
+              opacity={0.2}
+            />
+          )}
         </LineChartPrimitive>
       </ResponsiveContainer>
     </div>

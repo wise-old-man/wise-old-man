@@ -66,7 +66,7 @@ function InfoPanel(props: InfoPanelProps) {
       ) : (
         <>
           {!props.date ? (
-            "---"
+            <span className="text-xs text-white">---</span>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
