@@ -11,7 +11,7 @@ import {
 import { omit } from '../../../util/objects';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
-import { GroupHiscoresEntry } from '../group.types';
+import { GroupHiscoresEntry, GroupHiscoresSkillItem } from '../group.types';
 import { getTotalLevel } from '../../snapshots/snapshot.utils';
 
 const inputSchema = z
@@ -77,7 +77,16 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
         data
       };
     })
-    .sort((a, b) => b.data[measure] - a.data[measure])
+    .sort((a, b) => {
+      if (params.metric === Metric.OVERALL) {
+        const aData = a.data as GroupHiscoresSkillItem;
+        const bData = b.data as GroupHiscoresSkillItem;
+
+        return bData.level - aData.level || bData.experience - aData.experience;
+      }
+
+      return b.data[measure] - a.data[measure];
+    })
     .slice(params.offset, params.offset + params.limit);
 }
 
