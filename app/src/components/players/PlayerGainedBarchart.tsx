@@ -1,6 +1,7 @@
 "use client";
 
 import dynamicImport from "next/dynamic";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Metric, MetricProps } from "@wise-old-man/utils";
 
 const BarChartSSR = dynamicImport(() => import("../BarChart"), {
@@ -17,6 +18,23 @@ interface PlayerGainedBarchartProps {
 export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
   const { data, view, metric } = props;
 
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  function handleTimeRangeSelected(range: [Date, Date]) {
+    const [startDate, endDate] = range;
+
+    const nextParams = new URLSearchParams(searchParams);
+
+    // Pad these dates by 1 second in each direction so that the next data set includes them
+    nextParams.set("startDate", new Date(startDate.getTime() - 1000).toISOString());
+    nextParams.set("endDate", new Date(endDate.getTime() + 1000).toISOString());
+    nextParams.set("period", "custom");
+
+    router.push(`${pathname}?${nextParams.toString()}`, { scroll: false });
+  }
+
   const { name, measure } = MetricProps[metric];
 
   // If has no gains on any of the days of the week
@@ -28,7 +46,13 @@ export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
     );
   }
 
-  return <BarChartSSR name={`${name} ${view === "ranks" ? "ranks" : measure}`} data={data} />;
+  return (
+    <BarChartSSR
+      name={`${name} ${view === "ranks" ? "ranks" : measure}`}
+      data={data}
+      onRangeSelected={handleTimeRangeSelected}
+    />
+  );
 }
 
 export function PlayerGainedBarchartSkeleton() {

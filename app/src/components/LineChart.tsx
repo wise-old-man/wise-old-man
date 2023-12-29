@@ -110,6 +110,7 @@ export default function LineChart(props: LineChartProps) {
     <div className="aspect-video w-full">
       <ResponsiveContainer width="100%" aspect={16 / 9}>
         <LineChartPrimitive
+          className="select-none"
           margin={{ bottom: 20, left: 5, right: 5, top: 5 }}
           onMouseDown={(e) => {
             if (!e || !e.activeLabel || !onRangeSelected) return;
@@ -226,6 +227,7 @@ export default function LineChart(props: LineChartProps) {
             <ReferenceArea
               x1={selectedRangeStart.getTime()}
               x2={selectedRangeEnd.getTime()}
+              fill={COLORS[0]}
               opacity={0.2}
             />
           )}
