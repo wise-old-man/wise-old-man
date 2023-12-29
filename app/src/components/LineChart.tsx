@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceArea,
 } from "recharts";
 import { cn } from "~/utils/styling";
 
@@ -36,6 +37,7 @@ interface LineChartProps {
   minDate?: Date;
   maxDate?: Date;
   reversed?: boolean;
+  onRangeSelected?: (range: [Date, Date]) => void;
   yAxisValueFormatter?: (value: number) => string;
   xAxisLabelFormatter?: (label: string, index: number) => string;
   tooltipLabelFormatter?: (label: string) => string;
@@ -49,11 +51,15 @@ export default function LineChart(props: LineChartProps) {
     minDate,
     maxDate,
     reversed,
+    onRangeSelected,
     xAxisLabelFormatter,
     yAxisValueFormatter,
     tooltipLabelFormatter,
     tooltipValueFormatter,
   } = props;
+
+  const [selectedRangeStart, setSelectedRangeStart] = useState<Date | undefined>(undefined);
+  const [selectedRangeEnd, setSelectedRangeEnd] = useState<Date | undefined>(undefined);
 
   const [selectedDataset, setSelectedDataset] = useState<string | undefined>(undefined);
 
@@ -67,10 +73,38 @@ export default function LineChart(props: LineChartProps) {
     }
   }
 
+  function handleRangeSelected() {
+    if (!selectedRangeStart || !selectedRangeEnd || !onRangeSelected) return;
+
+    let range = [selectedRangeStart, selectedRangeEnd];
+
+    if (selectedRangeStart.getTime() > selectedRangeEnd.getTime()) {
+      range = [selectedRangeEnd, selectedRangeStart];
+    }
+
+    onRangeSelected(range as [Date, Date]);
+
+    setSelectedRangeStart(undefined);
+    setSelectedRangeEnd(undefined);
+  }
+
   return (
     <div className="aspect-video w-full">
       <ResponsiveContainer width="100%" aspect={16 / 9}>
-        <LineChartPrimitive margin={{ bottom: 20, left: 5, right: 5, top: 5 }}>
+        <LineChartPrimitive
+          margin={{ bottom: 20, left: 5, right: 5, top: 5 }}
+          onMouseDown={(e) => {
+            if (!e.activeLabel || !onRangeSelected) return;
+            setSelectedRangeStart(new Date(e.activeLabel));
+          }}
+          onMouseMove={(e) => {
+            if (!e.activeLabel || !selectedRangeStart || !onRangeSelected) return;
+            setSelectedRangeEnd(new Date(e.activeLabel));
+          }}
+          onMouseUp={() => {
+            handleRangeSelected();
+          }}
+        >
           <CartesianGrid vertical={false} style={GRID_STYLE} />
           <XAxis
             dataKey="time"
@@ -169,6 +203,13 @@ export default function LineChart(props: LineChartProps) {
                 />
               );
             })}
+          {selectedRangeStart && selectedRangeEnd && (
+            <ReferenceArea
+              x1={selectedRangeStart.getTime()}
+              x2={selectedRangeEnd.getTime()}
+              opacity={0.2}
+            />
+          )}
         </LineChartPrimitive>
       </ResponsiveContainer>
     </div>
