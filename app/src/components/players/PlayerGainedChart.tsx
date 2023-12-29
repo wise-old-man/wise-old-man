@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import dynamicImport from "next/dynamic";
 import { TimeRangeFilter } from "~/services/wiseoldman";
 import { Metric, MetricProps, PeriodProps } from "@wise-old-man/utils";
@@ -19,6 +20,22 @@ interface PlayerGainedChartProps {
 
 export async function PlayerGainedChart(props: PlayerGainedChartProps) {
   const { data, view, metric, timeRange } = props;
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  function handleTimeRangeSelected(range: [Date, Date]) {
+    const [startDate, endDate] = range;
+
+    const nextParams = new URLSearchParams(searchParams);
+
+    // Pad these dates by 1 second in each direction so that the next data set includes them
+    nextParams.set("startDate", new Date(startDate.getTime() - 1000).toISOString());
+    nextParams.set("endDate", new Date(endDate.getTime() + 1000).toISOString());
+
+    router.push(`${pathname}?${nextParams.toString()}`, { scroll: false });
+  }
 
   if (data.length < 2 || data.every((d) => d.value === -1)) {
     return (
@@ -44,7 +61,10 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
       datasets={[
         {
           name: `${name} ${isShowingRanks ? "rank" : measure}`,
-          data: data.map((d) => ({ value: isShowingRanks ? d.rank : d.value, time: d.date.getTime() })),
+          data: data.map((d) => ({
+            value: isShowingRanks ? d.rank : d.value,
+            time: d.date.getTime(),
+          })),
         },
       ]}
       reversed={isShowingRanks}
@@ -63,6 +83,7 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
 
         return formatDate(new Date(timestamp), { month: "short", day: "numeric" });
       }}
+      onRangeSelected={handleTimeRangeSelected}
     />
   );
 }
