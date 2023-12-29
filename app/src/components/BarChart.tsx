@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { formatNumber } from "@wise-old-man/utils";
 import {
   BarChart as RechartsBarChart,
@@ -11,6 +11,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  ReferenceArea,
 } from "recharts";
 
 const DEFAULT_BAR_COLOR = "#3b82f6";
@@ -25,6 +26,7 @@ interface BarChartProps {
   data: Array<{ date: Date; value: number }>;
   name?: string;
   color?: string;
+  onRangeSelected?: (range: [Date, Date]) => void;
   yAxisValueFormatter?: (value: number) => string;
   xAxisLabelFormatter?: (label: string) => string;
   tooltipLabelFormatter?: (label: string) => string;
@@ -36,59 +38,105 @@ export default function BarChart(props: BarChartProps) {
     data,
     name,
     color,
+    onRangeSelected,
     xAxisLabelFormatter,
     yAxisValueFormatter,
     tooltipLabelFormatter,
     tooltipValueFormatter,
   } = props;
 
+  const [selectedRangeStart, setSelectedRangeStart] = useState<Date | undefined>(undefined);
+  const [selectedRangeEnd, setSelectedRangeEnd] = useState<Date | undefined>(undefined);
+
+  function handleRangeSelected() {
+    if (!selectedRangeStart || !selectedRangeEnd || !onRangeSelected) return;
+
+    if (selectedRangeStart.getTime() !== selectedRangeEnd.getTime()) {
+      let range = [selectedRangeStart, selectedRangeEnd];
+
+      if (selectedRangeStart.getTime() > selectedRangeEnd.getTime()) {
+        range = [selectedRangeEnd, selectedRangeStart];
+      }
+
+      onRangeSelected(range as [Date, Date]);
+    }
+
+    setSelectedRangeStart(undefined);
+    setSelectedRangeEnd(undefined);
+  }
+
   return (
-    <ResponsiveContainer width="100%" aspect={16 / 9}>
-      <RechartsBarChart data={data} margin={{ left: -15 }}>
-        <CartesianGrid vertical={false} style={GRID_STYLE} />
-        <XAxis
-          dataKey="date"
-          tickLine={false}
-          tick={AXIS_TICK_STYLE}
-          axisLine={X_AXIS_TICK_LINE}
-          tickFormatter={xAxisLabelFormatter || defaultXAxisLabelFormatter}
-        />
-        <YAxis
-          dataKey="value"
-          axisLine={false}
-          tickLine={false}
-          tick={AXIS_TICK_STYLE}
-          tickFormatter={yAxisValueFormatter || defaultYAxisValueFormatter}
-        />
-        <Tooltip
-          animationDuration={200}
-          cursor={TOOLTIP_CURSOR_STYLE}
-          wrapperStyle={TOOLTIP_WRAPPER_STYLE}
-          content={({ payload, label }) => {
-            if (!payload || payload.length === 0) return null;
-
-            const labelFormatter = tooltipLabelFormatter || defaultTooltipLabelFormatter;
-            const valueFormatter = tooltipValueFormatter || defaultTooltipValueFormatter;
-
-            return (
-              <ChartTooltip
-                name={name || "Value"}
-                value={valueFormatter(Number(payload[0].value))}
-                label={labelFormatter(label)}
-              />
-            );
+    <div className="aspect-video w-full">
+      <ResponsiveContainer width="100%" aspect={16 / 9}>
+        <RechartsBarChart
+          data={data}
+          margin={{ left: -15 }}
+          onMouseDown={(e) => {
+            if (!e || !e.activeLabel || !onRangeSelected) return;
+            setSelectedRangeStart(new Date(e.activeLabel));
           }}
-        />
-        <Bar dataKey="value" isAnimationActive={false}>
-          {data.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={entry.value < 0 ? NEGATIVE_BAR_COLOR : color || DEFAULT_BAR_COLOR}
+          onMouseMove={(e) => {
+            if (!e || !e.activeLabel || !selectedRangeStart || !onRangeSelected) return;
+            setSelectedRangeEnd(new Date(e.activeLabel));
+          }}
+          onMouseUp={() => {
+            handleRangeSelected();
+          }}
+          className="select-none"
+        >
+          <CartesianGrid vertical={false} style={GRID_STYLE} />
+          <XAxis
+            dataKey="date"
+            tickLine={false}
+            tick={AXIS_TICK_STYLE}
+            axisLine={X_AXIS_TICK_LINE}
+            tickFormatter={xAxisLabelFormatter || defaultXAxisLabelFormatter}
+          />
+          <YAxis
+            dataKey="value"
+            axisLine={false}
+            tickLine={false}
+            tick={AXIS_TICK_STYLE}
+            tickFormatter={yAxisValueFormatter || defaultYAxisValueFormatter}
+          />
+          <Tooltip
+            animationDuration={200}
+            cursor={TOOLTIP_CURSOR_STYLE}
+            wrapperStyle={TOOLTIP_WRAPPER_STYLE}
+            content={({ payload, label }) => {
+              if (!payload || payload.length === 0) return null;
+
+              const labelFormatter = tooltipLabelFormatter || defaultTooltipLabelFormatter;
+              const valueFormatter = tooltipValueFormatter || defaultTooltipValueFormatter;
+
+              return (
+                <ChartTooltip
+                  name={name || "Value"}
+                  value={valueFormatter(Number(payload[0].value))}
+                  label={labelFormatter(label)}
+                />
+              );
+            }}
+          />
+          <Bar dataKey="value" isAnimationActive={false}>
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={entry.value < 0 ? NEGATIVE_BAR_COLOR : color || DEFAULT_BAR_COLOR}
+              />
+            ))}
+          </Bar>
+          {selectedRangeStart && selectedRangeEnd && (
+            <ReferenceArea
+              x1={selectedRangeStart.getTime()}
+              x2={selectedRangeEnd.getTime()}
+              fill={DEFAULT_BAR_COLOR}
+              opacity={0.2}
             />
-          ))}
-        </Bar>
-      </RechartsBarChart>
-    </ResponsiveContainer>
+          )}
+        </RechartsBarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
 
