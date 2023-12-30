@@ -62,7 +62,7 @@ export function GroupInformationForm(props: GroupInformationFormProps) {
       {isEditing && missingOptionals.length > 0 && (
         <Alert variant="warn">
           <AlertDescription className="text-gray-100">
-            Please note have recently made all group fields required. To proceed, fill out the missing
+            Please note we have recently made all group fields required. To proceed, fill out the missing
             fields:
             <ul className="mt-3 flex flex-col gap-y-1">
               {missingOptionals.map((field) => (

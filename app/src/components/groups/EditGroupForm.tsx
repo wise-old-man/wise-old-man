@@ -65,6 +65,11 @@ export function EditGroupForm(props: EditGroupFormProps) {
 
   return (
     <Container style={{ "--max-width": "64rem" }}>
+      <Link href={`/groups/${group.id}`} className="flex items-center text-gray-200">
+        <ChevronDownIcon className="-ml-1.5 h-4 w-4 rotate-90" />
+        <span className="ml-1 text-xs">Back to details</span>
+      </Link>
+
       <h1 className="mt-3 border-gray-600 text-xl font-bold md:border-b md:pb-7 md:text-3xl">
         {group.name}
       </h1>

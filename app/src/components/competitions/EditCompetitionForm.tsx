@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import {
   CompetitionDetails,
@@ -27,6 +28,7 @@ import { CompetitionVerificationCodeCheckDialog } from "./CompetitionVerificatio
 
 import LoadingIcon from "~/assets/loading.svg";
 import WarningIcon from "~/assets/warning.svg";
+import ChevronDownIcon from "~/assets/chevron_down.svg";
 
 interface EditCompetitionFormProps {
   competition: CompetitionDetails;
@@ -40,6 +42,11 @@ export function EditCompetitionForm(props: EditCompetitionFormProps) {
 
   return (
     <Container style={{ "--max-width": "56rem" }}>
+      <Link href={`/competitions/${competition.id}`} className="flex items-center text-gray-200">
+        <ChevronDownIcon className="-ml-1.5 h-4 w-4 rotate-90" />
+        <span className="ml-1 text-xs">Back to details</span>
+      </Link>
+
       <h1 className="mt-3 border-gray-600 text-xl font-bold md:border-b md:pb-7 md:text-3xl">
         {competition.title}
       </h1>
