@@ -6,8 +6,18 @@ export default [
     methods: [
       {
         startExp: 0,
+        rate: 100_000,
+        description: '1t beef'
+      },
+      {
+        startExp: 22_406,
+        rate: 450_000,
+        description: 'Wines (avg rate with failures)'
+      },
+      {
+        startExp: 605_032,
         rate: 500_000,
-        description: 'wines'
+        description: 'Wines'
       }
     ],
     bonuses: []
@@ -17,7 +27,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 8_365,
+        rate: 29_500,
         description: '4t Trees'
       },
       {
@@ -28,27 +38,27 @@ export default [
       {
         startExp: 5_018,
         rate: 45_000,
-        description: '2t Oaks (mith axe)'
+        description: '2t oaks (mith axe)'
       },
       {
         startExp: 14_833,
         rate: 60_000,
-        description: '2t Oaks (addy axe)'
+        description: '2t oaks (addy axe)'
       },
       {
         startExp: 41_171,
         rate: 80_000,
-        description: '2t Oaks (rune axe)'
+        description: '2t oaks (rune axe)'
       },
       {
         startExp: 101_333,
         rate: 100_000,
-        description: '2t Oaks (rune axe)'
+        description: '2t oaks (rune axe)'
       },
       {
         startExp: 302_288,
         rate: 110_000,
-        description: '2t Oaks (100% success)'
+        description: '2t oaks (100% success)'
       }
     ],
     bonuses: []
@@ -123,7 +133,7 @@ export default [
         bonusSkill: Skill.COOKING,
         startExp: 0,
         endExp: 200_000_000,
-        end: true,
+        end: false,
         ratio: 1.15
       }
     ]
@@ -138,7 +148,7 @@ export default [
       },
       {
         startExp: 13_363,
-        rate: 130_000,
+        rate: 130_500,
         description: 'Best Logs @ GE'
       },
       {

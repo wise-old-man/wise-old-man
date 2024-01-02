@@ -60,8 +60,8 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 0,
         endExp: 200_000_000,
-        end: true,
-        ratio: 0.09399465048
+        end: false,
+        ratio: 0.094
       }
     ]
   },
@@ -199,70 +199,56 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 7_000,
-        description: 'Trees'
+        rate: 29_000,
+        description: 'Quests and trees'
       },
       {
         startExp: 2_411,
-        rate: 16_000,
-        description: 'Oak trees'
-      },
-      {
-        startExp: 13_363,
-        rate: 35_000,
-        description: 'Willow trees'
+        rate: 62_000,
+        description: '2t oaks (average rate)'
       },
       {
         startExp: 22_406,
-        rate: 89_733,
-        description: '1.5t Teaks'
+        rate: 101_275,
+        description: '1.5t teaks'
       },
       {
         startExp: 41_171,
-        rate: 110_833,
-        description: '1.5t Teaks'
+        rate: 125_019,
+        description: '1.5t teaks'
       },
       {
         startExp: 111_945,
-        rate: 122_170,
-        description: '1.5t Teaks'
+        rate: 137_764,
+        description: '1.5t teaks'
       },
       {
         startExp: 302_288,
-        rate: 152_139,
-        description: '1.5t Teaks'
+        rate: 171_413,
+        description: '1.5t teaks'
       },
       {
-        startExp: 737_627,
-        rate: 162_786,
-        description: '1.5t Teaks'
+        startExp: 814_445,
+        rate: 192_963,
+        description: '1.5t teaks'
       },
       {
         startExp: 1_986_068,
-        rate: 176_077,
-        description: '1.5t Teaks'
+        rate: 206_599,
+        description: '1.5t teaks'
       },
       {
         startExp: 5_346_332,
-        rate: 188_160,
-        description: '1.5t Teaks'
+        rate: 220_964,
+        description: '1.5t teaks'
       },
       {
         startExp: 13_034_431,
-        rate: 200_000,
-        description: '1.5t Teaks'
+        rate: 235_000,
+        description: '1.5t teaks'
       }
     ],
-    bonuses: [
-      {
-        originSkill: Skill.WOODCUTTING,
-        bonusSkill: Skill.FIREMAKING,
-        startExp: 302_288,
-        endExp: 200_000_000,
-        end: true,
-        ratio: 0.2
-      }
-    ]
+    bonuses: []
   },
   {
     skill: Skill.FISHING,
@@ -676,7 +662,7 @@ export default [
         startExp: 0,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.427844
+        ratio: 0.4278
       },
       {
         originSkill: Skill.SLAYER,
@@ -748,7 +734,7 @@ export default [
         startExp: 3_258_594,
         endExp: 5_346_332,
         end: false,
-        ratio: 0.11917
+        ratio: 0.1192
       },
       {
         originSkill: Skill.SLAYER,
@@ -756,7 +742,7 @@ export default [
         startExp: 5_346_332,
         endExp: 7_195_629,
         end: false,
-        ratio: 0.21689
+        ratio: 0.2169
       },
       {
         originSkill: Skill.SLAYER,
@@ -764,7 +750,7 @@ export default [
         startExp: 7_195_629,
         endExp: 13_034_431,
         end: false,
-        ratio: 0.18914
+        ratio: 0.1891
       },
       {
         originSkill: Skill.SLAYER,
@@ -772,7 +758,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.21605
+        ratio: 0.2161
       }
     ]
   },
@@ -874,7 +860,6 @@ export default [
       {
         startExp: 737_627,
         rate: 255_000,
-        realRate: 118_535,
         description: 'Drift Net (Black Chinchompas)'
       }
     ],
@@ -884,9 +869,8 @@ export default [
         bonusSkill: Skill.FISHING,
         startExp: 737_627,
         endExp: 200_000_000,
-        maxBonus: 32_414_530,
         end: true,
-        ratio: 0.7586029443
+        ratio: 0.7586
       }
     ]
   },

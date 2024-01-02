@@ -594,7 +594,7 @@ export default [
       {
         startExp: 0,
         rate: 15_000,
-        description: 'Misc. Spells'
+        description: 'Misc spells'
       },
       {
         startExp: 3_973,
@@ -630,7 +630,7 @@ export default [
       },
       {
         startExp: 2_411,
-        rate: 35_000,
+        rate: 33_000,
         description: '2t Oaks (steel axe)'
       },
       {
@@ -640,23 +640,28 @@ export default [
       },
       {
         startExp: 14_833,
-        rate: 60_000,
+        rate: 63_000,
         description: '2t Oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 80_000,
+        rate: 82_000,
         description: '2t Oaks (rune axe)'
       },
       {
         startExp: 101_333,
-        rate: 100_000,
+        rate: 90_000,
         description: '2t Oaks (rune axe)'
       },
       {
         startExp: 302_288,
-        rate: 110_000,
+        rate: 100_000,
         description: '2t Oaks (100% success)'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 110_000,
+        description: '2t Oaks (forestry events give more xp at higher lvl)'
       }
     ],
     bonuses: []
@@ -823,7 +828,7 @@ export default [
       {
         startExp: 0,
         rate: 38_175,
-        description: "Knight's Sword (assumes 20 min completion)"
+        description: "Knight's sword (assumes 20 min completion)"
       },
       {
         startExp: 12_725,
@@ -912,7 +917,7 @@ export default [
       {
         startExp: 0,
         rate: 5_700,
-        description: 'Suicide bodies/minotaurs'
+        description: 'Suicide bodies / minotaurs'
       }
     ],
     bonuses: [
