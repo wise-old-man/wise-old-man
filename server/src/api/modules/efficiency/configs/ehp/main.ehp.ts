@@ -61,7 +61,7 @@ export default [
         startExp: 0,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.094
+        ratio: 0.09399465048
       }
     ]
   },
@@ -662,7 +662,7 @@ export default [
         startExp: 0,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.4278
+        ratio: 0.427844
       },
       {
         originSkill: Skill.SLAYER,
@@ -734,7 +734,7 @@ export default [
         startExp: 3_258_594,
         endExp: 5_346_332,
         end: false,
-        ratio: 0.1192
+        ratio: 0.11917
       },
       {
         originSkill: Skill.SLAYER,
@@ -742,7 +742,7 @@ export default [
         startExp: 5_346_332,
         endExp: 7_195_629,
         end: false,
-        ratio: 0.2169
+        ratio: 0.21689
       },
       {
         originSkill: Skill.SLAYER,
@@ -750,7 +750,7 @@ export default [
         startExp: 7_195_629,
         endExp: 13_034_431,
         end: false,
-        ratio: 0.1891
+        ratio: 0.18914
       },
       {
         originSkill: Skill.SLAYER,
@@ -758,7 +758,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.2161
+        ratio: 0.21605
       }
     ]
   },
@@ -870,7 +870,7 @@ export default [
         startExp: 737_627,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.7586
+        ratio: 0.7586029443
       }
     ]
   },

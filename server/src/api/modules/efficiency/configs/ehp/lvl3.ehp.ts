@@ -503,7 +503,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.2727
+        ratio: 0.2727272727
       }
     ]
   },
@@ -620,7 +620,7 @@ export default [
         startExp: 933_979,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.7586
+        ratio: 0.7586029443
       }
     ]
   },
