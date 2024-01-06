@@ -25,16 +25,19 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
   const [endTime, setEndTime] = useState<TimeValue>(new Time(12, 0));
 
   const [startDate, setStartDate] = useState<DateValue>(
-      toCalendarDate(new Date('2013-01-01T00:00:00'))
+      toCalendarDate(new Date(Math.max(Date.now() - PeriodProps[Period.WEEK].milliseconds, new Date('2013-01-01T00:00:00').getTime())))
   );
 
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(new Date()));
 
   function handleSelection() {
-    const startDateTime = toDate(startDate, startTime);
-    const endDateTime = toDate(endDate, endTime);
+    const startDateTime = Math.max(
+        toDate(startDate, startTime).getTime(),
+        new Date('2013-01-01T00:00:00').getTime()
+    );
+    const endDateTime = toDate(endDate, endTime).getTime();
 
-    onSelected(startDateTime, endDateTime);
+    onSelected(new Date(startDateTime), new Date(endDateTime));
   }
 
   return (
