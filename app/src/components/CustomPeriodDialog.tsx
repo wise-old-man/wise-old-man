@@ -25,7 +25,7 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
   const [endTime, setEndTime] = useState<TimeValue>(new Time(12, 0));
 
   const [startDate, setStartDate] = useState<DateValue>(
-    toCalendarDate(new Date(Date.now() - PeriodProps[Period.WEEK].milliseconds))
+      toCalendarDate(new Date('2013-01-01T00:00:00'))
   );
 
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(new Date()));
