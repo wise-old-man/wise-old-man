@@ -25,20 +25,19 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
   const [endTime, setEndTime] = useState<TimeValue>(new Time(12, 0));
 
   const [startDate, setStartDate] = useState<DateValue>(
-      toCalendarDate(new Date(
-          Math.max(Date.now() -
-              PeriodProps[Period.WEEK].milliseconds,
-              new Date('2013-01-01T00:00:00').getTime())))
+      toCalendarDate(new Date(Date.now() - PeriodProps[Period.WEEK].milliseconds))
   );
 
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(new Date()));
 
-  function handleSelection() {
-    const startDateTime = Math.max(toDate(startDate, startTime).getTime(),
-        new Date('2013-01-01T00:00:00').getTime());
-    const endDateTime = toDate(endDate, endTime);
+  /* minDate = OSRS Launch Date February 22nd 2012 @ 12:00:00 PM */
+  const minDate = new Date('2012-02-22T12:00:00');
 
-    onSelected(new Date(startDateTime), new Date(endDateTime));
+  function handleSelection() {
+    const startDateTime = new Date(Math.max(toDate(startDate, startTime).getTime(),
+        minDate.getTime()));
+    const endDateTime = toDate(endDate, endTime);
+    onSelected(startDateTime, endDateTime);
   }
 
   return (
