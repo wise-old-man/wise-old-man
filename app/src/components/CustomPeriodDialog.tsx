@@ -32,14 +32,20 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
 
   /* minDate = OSRS Launch Date February 22nd 2012 @ 12:00:00 PM */
   const minDate = new Date('2012-02-22T12:00:00');
+    /* maxDate = Today */
+  const maxDate = new Date();
 
   function handleSelection() {
-    const startDateTime = new Date(Math.max(toDate(startDate, startTime).getTime(),
+    let startDateTime = new Date(Math.max(toDate(startDate, startTime).getTime(),
         minDate.getTime()));
-    const endDateTime = toDate(endDate, endTime);
+    let endDateTime = new Date(Math.min(Math.max(toDate(endDate, endTime).getTime(),
+        minDate.getTime()), maxDate.getTime()));
+    if (startDateTime.getTime() >= endDateTime.getTime() || endDateTime.getTime() <= minDate.getTime()) {
+      startDateTime = minDate;
+      endDateTime = maxDate;
+    }
     onSelected(startDateTime, endDateTime);
   }
-
   return (
     <Dialog
       open={isOpen}
