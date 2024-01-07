@@ -945,6 +945,147 @@ describe('Names API', () => {
 
       expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
     });
+
+    it('should remove duplicated group member activities on approval', async () => {
+      // If a player changes their name in-game without submitting on WOM and their group gets synced,
+      // WOM will register oldName has having left, and newName has having joined.
+      // Eventually, when this name change is submitted and approve, we should find these matching
+      // left/join events and delete them from the database.
+
+      const createGroupResponse = await api.post(`/groups`).send({
+        name: 'Test Group!!!',
+        members: [
+          {
+            username: 'Dayseeker',
+            role: 'owner'
+          },
+          {
+            username: 'BMTH',
+            role: 'magician'
+          }
+        ]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      // Add vukovi as a member
+      const firstEditResponse = await api.put(`/groups/${createGroupResponse.body.group.id}`).send({
+        name: 'Test Group!!!',
+        members: [
+          {
+            username: 'Dayseeker',
+            role: 'owner'
+          },
+          {
+            username: 'BMTH',
+            role: 'magician'
+          },
+          {
+            username: 'Vukovi',
+            role: 'cook'
+          }
+        ],
+        verificationCode: createGroupResponse.body.verificationCode
+      });
+
+      expect(firstEditResponse.status).toBe(200);
+
+      const trackResponse = await api.post(`/players/Vukovi`);
+
+      expect(trackResponse.status).toBe(200);
+      expect(trackResponse.body.username).toBe('vukovi');
+      expect(trackResponse.body.displayName).toBe('vukovi');
+
+      const secondEditResponse = await api.put(`/groups/${createGroupResponse.body.group.id}`).send({
+        name: 'Test Group!!!',
+        members: [
+          {
+            username: 'Dayseeker',
+            role: 'owner'
+          },
+          {
+            username: 'BMTH',
+            role: 'magician'
+          },
+          {
+            username: 'Boston Manor',
+            role: 'cook'
+          }
+        ],
+        verificationCode: createGroupResponse.body.verificationCode
+      });
+
+      expect(secondEditResponse.status).toBe(200);
+
+      // Should incorrectly show joined/left activity
+      const firstGroupActivityResponse = await api.get(
+        `/groups/${createGroupResponse.body.group.id}/activity`
+      );
+
+      expect(firstGroupActivityResponse.status).toBe(200);
+      expect(firstGroupActivityResponse.body.length).toBe(3);
+
+      expect(firstGroupActivityResponse.body[0]).toMatchObject({
+        groupId: createGroupResponse.body.group.id,
+        role: null,
+        type: 'left',
+        player: {
+          username: 'vukovi'
+        }
+      });
+
+      expect(firstGroupActivityResponse.body[1]).toMatchObject({
+        groupId: createGroupResponse.body.group.id,
+        role: null,
+        type: 'joined',
+        player: {
+          username: 'boston manor'
+        }
+      });
+
+      expect(firstGroupActivityResponse.body[2]).toMatchObject({
+        groupId: createGroupResponse.body.group.id,
+        role: null,
+        type: 'joined',
+        player: {
+          username: 'vukovi'
+        }
+      });
+
+      const submitNameChangeResponse = await api.post(`/names`).send({
+        oldName: 'vukovi',
+        newName: 'Boston Manor'
+      });
+
+      expect(submitNameChangeResponse.status).toBe(201);
+
+      const approveNameChangeResponse = await api
+        .post(`/names/${submitNameChangeResponse.body.id}/approve`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(approveNameChangeResponse.status).toBe(200);
+
+      // Should no longer have joined/left activity (as it was deleted)
+      const secondGroupActivityResponse = await api.get(
+        `/groups/${createGroupResponse.body.group.id}/activity`
+      );
+
+      expect(secondGroupActivityResponse.status).toBe(200);
+      expect(secondGroupActivityResponse.body.length).toBe(1);
+
+      // This activity should be still remain, as it happened before the name change,
+      // however, the username should be updated to the new one.
+
+      expect(secondGroupActivityResponse.body[0]).toMatchObject({
+        groupId: createGroupResponse.body.group.id,
+        role: null,
+        type: 'joined',
+        createdAt: firstGroupActivityResponse.body[2].createdAt,
+        player: {
+          username: 'boston manor'
+        }
+      });
+    });
   });
 
   describe('7 - Listing Group Name Changes', () => {

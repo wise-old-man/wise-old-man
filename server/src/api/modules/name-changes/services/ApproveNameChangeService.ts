@@ -7,7 +7,7 @@ import prisma, {
   PrismaTypes,
   setHooksEnabled
 } from '../../../../prisma';
-import { PlayerStatus } from '../../../../utils';
+import { ActivityType, MemberActivity, PlayerStatus } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
@@ -137,6 +137,7 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
 
   let oldRecords: Record[] = [];
   let newRecords: Record[] = [];
+  let memberActivity: MemberActivity[] = [];
 
   if (newPlayerExists) {
     // Fetch all of older player's records, to compare to the new ones
@@ -147,6 +148,15 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
     // Find all of new player's records (post transition date)
     newRecords = await prisma.record.findMany({
       where: { playerId: newPlayer.id, updatedAt: { gte: transitionDate } }
+    });
+
+    memberActivity = await prisma.memberActivity.findMany({
+      where: {
+        OR: [
+          { playerId: oldPlayer.id, type: ActivityType.LEFT },
+          { playerId: newPlayer.id, type: ActivityType.JOINED }
+        ]
+      }
     });
   }
 
@@ -162,6 +172,9 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
       if (newPlayerExists) {
         // Transfer all snapshots from the newPlayer (post transition date) to the old player
         await transferSnapshots(tx, oldPlayer.id, newPlayer.id, transitionDate);
+
+        // Deduplicate joined/left member activity created before the name change
+        await deduplicateGroupActivity(tx, memberActivity);
 
         // Transfer all memberships from the newPlayer (post transition date) to the old player
         await transferMemberships(tx, oldPlayer.id, newPlayer.id, transitionDate);
@@ -199,6 +212,50 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
   setHooksEnabled(true);
 
   return result;
+}
+
+/**
+ * If a player changes their name in-game without submitting on WOM and their group gets synced,
+ * WOM will register oldName has having left, and newName has having joined.
+ * Eventually, when this name change is submitted and approve, we should find these matching
+ * left/join events and delete them from the database.
+ */
+async function deduplicateGroupActivity(
+  transaction: PrismaTypes.TransactionClient,
+  memberActivity: MemberActivity[]
+) {
+  if (memberActivity.length === 0) return;
+
+  const leftActivity = memberActivity.filter(activity => {
+    return activity.type === ActivityType.LEFT;
+  });
+
+  const joinedActivity = memberActivity.filter(activity => {
+    return activity.type === ActivityType.JOINED;
+  });
+
+  const activityToDelete: MemberActivity[] = [];
+
+  for (const left of leftActivity) {
+    for (const joined of joinedActivity) {
+      if (left.groupId === joined.groupId && left.createdAt.getTime() === joined.createdAt.getTime()) {
+        activityToDelete.push(left, joined);
+      }
+    }
+  }
+
+  if (activityToDelete.length > 0) {
+    await transaction.memberActivity.deleteMany({
+      where: {
+        OR: activityToDelete.map(activity => ({
+          groupId: activity.groupId,
+          playerId: activity.playerId,
+          createdAt: activity.createdAt,
+          type: activity.type
+        }))
+      }
+    });
+  }
 }
 
 async function transferRecords(
