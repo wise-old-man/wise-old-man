@@ -54,6 +54,8 @@ function ReviewContextContent(props: NameChange) {
 
   if (reviewContext.reason === "excessive_gains") {
     const { hoursDiff, ehpDiff, ehbDiff } = reviewContext;
+    const ehbFloored = Math.floor(ehbDiff);
+    const ehpFloored = Math.floor(ehpDiff);
 
     return (
       <>
@@ -61,9 +63,9 @@ function ReviewContextContent(props: NameChange) {
         the two names.
         <br />
         <br />
-        EHP: +{Math.floor(ehpDiff)}
+        EHP: { ehpFloored > 0 ? `+${ehpFloored}` : ehpFloored }
         <br />
-        EHB: +{Math.floor(ehbDiff)}
+        EHB: { ehbFloored > 0 ? `+${ehbFloored}` : ehbFloored }
         <br />
         Hours in between: {Math.floor(hoursDiff)}
       </>
