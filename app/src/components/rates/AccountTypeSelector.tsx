@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams, usePathname, useRouter } from "next/navigation";
+import { useAccountAlgorithm } from "~/hooks/useAccountAlgorithm";
 import { EfficiencyAlgorithmType, Metric } from "@wise-old-man/utils";
 import { getAlgorithmTypeParam } from "~/utils/params";
 import {
@@ -18,11 +19,13 @@ export function AccountTypeSelector() {
   const router = useRouter();
   const params = useParams();
   const pathname = usePathname();
+  const { setAlgorithm } = useAccountAlgorithm();
 
   const metric = pathname.includes("ehp") ? Metric.EHP : Metric.EHB;
   const type = getAlgorithmTypeParam(String(params.type)) || EfficiencyAlgorithmType.MAIN;
 
   function handleTypeChanged(value: string) {
+    setAlgorithm(getAlgorithmTypeParam(value) as EfficiencyAlgorithmType);
     router.push(`/${metric}/${value}`);
   }
 
