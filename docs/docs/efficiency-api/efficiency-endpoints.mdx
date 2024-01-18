@@ -19,12 +19,14 @@ Fetches the current efficiency leaderboard for a specific efficiency metric. Ret
 
 **Query Params**
 
-| Field       | Type                                                                         | Required | Description                                  |
-| ----------- | ---------------------------------------------------------------------------- | -------- | -------------------------------------------- |
-| metric      | [ComputedMetric](/global-type-definitions#enum-computed-metric) or `ehp+ehb` | `true`   | The efficiency metric.                       |
-| playerType  | [PlayerType](/players-api/player-type-definitions#enum-player-type)?         | `false`  | The player's account type to filter by.      |
-| playerBuild | [PlayerBuild](/players-api/player-type-definitions#enum-player-build)?       | `false`  | The player's account build to filter by.     |
-| country     | [Country](/players-api/player-type-definitions#enum-country)?                | `false`  | The player's country of origin to filter by. |
+| Field        | Type                                                                         | Required | Description                                           |
+| -----------  | ---------------------------------------------------------------------------- | -------- | ----------------------------------------------------- |
+| metric       | [ComputedMetric](/global-type-definitions#enum-computed-metric) or `ehp+ehb` | `true`   | The efficiency metric.                                |
+| playerType   | [PlayerType](/players-api/player-type-definitions#enum-player-type)?         | `false`  | The player's account type to filter by.               |
+| playerBuild  | [PlayerBuild](/players-api/player-type-definitions#enum-player-build)?       | `false`  | The player's account build to filter by.              |
+| country      | [Country](/players-api/player-type-definitions#enum-country)?                | `false`  | The player's country of origin to filter by.          |
+| limit        | integer                                                                      | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset       | integer                                                                      | `false`  | The pagination offset. See [Pagination](/#pagination) |
 
 <br />
 
