@@ -1,7 +1,7 @@
 "use client";
 
 import { formatNumber } from "@wise-old-man/utils";
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   LineChart as LineChartPrimitive,
   Line,
@@ -58,6 +58,8 @@ export default function LineChart(props: LineChartProps) {
     tooltipValueFormatter,
   } = props;
 
+  const chartElementRef = useRef<HTMLDivElement>(null);
+
   const [hasMounted, setHasMounted] = useState(false);
 
   const [selectedRangeStart, setSelectedRangeStart] = useState<Date | undefined>(undefined);
@@ -92,6 +94,29 @@ export default function LineChart(props: LineChartProps) {
     setSelectedRangeEnd(undefined);
   }
 
+  function handleMouseLeave(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    if (!selectedRangeStart || !onRangeSelected) return;
+    if (!chartElementRef || !chartElementRef.current) return;
+
+    const { x, width } = chartElementRef.current.getBoundingClientRect();
+
+    if (e.clientX <= x + 50) {
+      // If the user moves the mouse past the start of the chart, select the first datapoint
+      const firstDatapoint = datasets[0].data.at(-1);
+
+      if (firstDatapoint) {
+        setSelectedRangeEnd(new Date(firstDatapoint.time));
+      }
+    } else if (e.clientX > x + width - 50) {
+      // If the user moves the mouse past the end of the chart, select the last datapoint
+      const lastDatapoint = datasets[0].data.at(0);
+
+      if (lastDatapoint) {
+        setSelectedRangeEnd(new Date(lastDatapoint.time));
+      }
+    }
+  }
+
   useEffect(() => {
     // I want the line to animate whenever the data changes, but I don't want it to animate
     // on the first render, so I need to track when it becomes mounted. So it becomes "mounted"
@@ -106,8 +131,16 @@ export default function LineChart(props: LineChartProps) {
     };
   }, [setHasMounted]);
 
+  useEffect(() => {
+    document.addEventListener("mouseup", handleRangeSelected);
+
+    return () => {
+      document.removeEventListener("mouseup", handleRangeSelected);
+    };
+  });
+
   return (
-    <div className="aspect-video w-full">
+    <div className="aspect-video w-full" onMouseLeave={handleMouseLeave} ref={chartElementRef}>
       <ResponsiveContainer width="100%" aspect={16 / 9}>
         <LineChartPrimitive
           className="select-none"
@@ -225,8 +258,8 @@ export default function LineChart(props: LineChartProps) {
             })}
           {selectedRangeStart && selectedRangeEnd && (
             <ReferenceArea
-              x1={selectedRangeStart.getTime()}
-              x2={selectedRangeEnd.getTime()}
+              x1={Math.min(selectedRangeStart.getTime(), selectedRangeEnd.getTime())}
+              x2={Math.max(selectedRangeStart.getTime(), selectedRangeEnd.getTime())}
               fill={COLORS[0]}
               opacity={0.2}
             />
