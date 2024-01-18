@@ -59,21 +59,21 @@ export default async function PlayerAchievements(props: PageProps) {
   return (
     <div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <QueryLink query={{ view: null }}>
+        <QueryLink query={{ view: null }} shallow={false}>
           <Tab
             label="Skill achievements"
             count={skillAchievements.length}
             isSelected={metricType === MetricType.SKILL}
           />
         </QueryLink>
-        <QueryLink query={{ view: "bosses" }}>
+        <QueryLink query={{ view: "bosses" }} shallow={false}>
           <Tab
             label="Boss achievements"
             count={bossAchievements.length}
             isSelected={metricType === MetricType.BOSS}
           />
         </QueryLink>
-        <QueryLink query={{ view: "activities" }}>
+        <QueryLink query={{ view: "activities" }} shallow={false}>
           <Tab
             label="Activity achievements"
             count={activityAchievements.length}
@@ -141,7 +141,7 @@ function ProgressTableRow(props: ProgressTableRowProps) {
           {measure === "levels" ? "Base Stats" : MetricProps[metric].name}
         </span>
       </div>
-      <div className="custom-scroll flex grow overflow-x-auto pb-4 sm:pb-0 md:max-w-md lg:max-w-lg xl:max-w-md">
+      <div className="custom-scroll flex grow overflow-x-auto pb-4 sm:pb-0 md:max-w-md lg:max-w-lg xl:max-w-[29rem]">
         <div className="z-[1] flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200 shadow-md">
           0
         </div>

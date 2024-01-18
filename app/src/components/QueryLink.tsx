@@ -7,6 +7,7 @@ interface QueryLinkProps extends Omit<React.ComponentPropsWithoutRef<typeof Link
   query: {
     [key: string]: string | undefined | null;
   };
+  shallow?: boolean;
 }
 
 /*
@@ -27,7 +28,21 @@ export function QueryLink(props: QueryLinkProps) {
   }
 
   return (
-    <Link href={`${pathname}?${nextParams.toString()}`} {...props}>
+    <Link
+      href={`${pathname}?${nextParams.toString()}`}
+      onClick={(e) => {
+        if (e.metaKey || props.shallow === false) {
+          return;
+        }
+
+        // If ctrl or command are pressed, this link will be opened in another tab with hard routing.
+        // Otherwise, we intercept the Link navigation, and we do a shallow routing instead (updates UI, doesn't do server fetching)
+
+        e.preventDefault();
+        window.history.pushState(null, "", `?${nextParams.toString()}`);
+      }}
+      {...props}
+    >
       {props.children}
     </Link>
   );

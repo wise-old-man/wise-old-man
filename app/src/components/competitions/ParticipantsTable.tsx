@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -35,11 +36,12 @@ interface ParticipantsTableProps {
   metric: Metric;
   competition: CompetitionDetails;
   teamName?: string;
-  filter?: string;
 }
 
 export function ParticipantsTable(props: ParticipantsTableProps) {
-  const { competition, teamName, metric, filter } = props;
+  const { competition, teamName, metric } = props;
+
+  const searchParams = useSearchParams();
 
   const columnDefs = useMemo(() => getColumnDefinitions(metric, competition), [metric, competition]);
 
@@ -51,7 +53,7 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
     (p) => !p.player.updatedAt || p.player.updatedAt < competition.startsAt
   );
 
-  const showOnlyOutdated = filter === "outdated";
+  const showOnlyOutdated = searchParams.get("filter") === "outdated";
 
   return (
     <DataTable

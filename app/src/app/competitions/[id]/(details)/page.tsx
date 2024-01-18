@@ -14,7 +14,6 @@ interface PageProps {
   };
   searchParams: {
     preview?: string;
-    filter?: string;
   };
 }
 
@@ -37,7 +36,7 @@ export async function generateMetadata(props: PageProps) {
 
 export default async function CompetitionOverviewPage(props: PageProps) {
   const { id } = props.params;
-  const { preview, filter } = props.searchParams;
+  const { preview } = props.searchParams;
 
   const previewMetric = getPreviewMetric(preview);
 
@@ -79,7 +78,7 @@ export default async function CompetitionOverviewPage(props: PageProps) {
       {competition.type === CompetitionType.TEAM ? (
         <TeamsTable metric={metric} competition={competition} />
       ) : (
-        <ParticipantsTable metric={metric} competition={competition} filter={filter} />
+        <ParticipantsTable metric={metric} competition={competition} />
       )}
     </div>
   );
