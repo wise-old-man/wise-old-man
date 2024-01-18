@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { formatNumber } from "@wise-old-man/utils";
 import {
   BarChart as RechartsBarChart,
@@ -45,6 +45,8 @@ export default function BarChart(props: BarChartProps) {
     tooltipValueFormatter,
   } = props;
 
+  const chartElementRef = useRef<HTMLDivElement>(null);
+
   const [selectedRangeStart, setSelectedRangeStart] = useState<Date | undefined>(undefined);
   const [selectedRangeEnd, setSelectedRangeEnd] = useState<Date | undefined>(undefined);
 
@@ -65,8 +67,43 @@ export default function BarChart(props: BarChartProps) {
     setSelectedRangeEnd(undefined);
   }
 
+  function handleMouseLeave(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    if (!selectedRangeStart || !onRangeSelected) return;
+    if (!chartElementRef || !chartElementRef.current) return;
+
+    const { x, width } = chartElementRef.current.getBoundingClientRect();
+
+    if (e.clientX <= x + 50) {
+      // If the user moves the mouse past the start of the chart, select the first datapoint
+      const firstDatapoint = data.at(0);
+
+      console.log({ firstDatapoint, data });
+
+      if (firstDatapoint) {
+        setSelectedRangeEnd(firstDatapoint.date);
+      }
+    } else if (e.clientX > x + width - 50) {
+      // If the user moves the mouse past the end of the chart, select the last datapoint
+      const lastDatapoint = data.at(-1);
+
+      console.log({ lastDatapoint });
+
+      if (lastDatapoint) {
+        setSelectedRangeEnd(lastDatapoint.date);
+      }
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener("mouseup", handleRangeSelected);
+
+    return () => {
+      document.removeEventListener("mouseup", handleRangeSelected);
+    };
+  });
+
   return (
-    <div className="aspect-video w-full">
+    <div className="aspect-video w-full" onMouseLeave={handleMouseLeave} ref={chartElementRef}>
       <ResponsiveContainer width="100%" aspect={16 / 9}>
         <RechartsBarChart
           data={data}
@@ -128,8 +165,8 @@ export default function BarChart(props: BarChartProps) {
           </Bar>
           {selectedRangeStart && selectedRangeEnd && (
             <ReferenceArea
-              x1={selectedRangeStart.getTime()}
-              x2={selectedRangeEnd.getTime()}
+              x1={Math.min(selectedRangeStart.getTime(), selectedRangeEnd.getTime())}
+              x2={Math.max(selectedRangeStart.getTime(), selectedRangeEnd.getTime())}
               fill={DEFAULT_BAR_COLOR}
               opacity={0.2}
             />
