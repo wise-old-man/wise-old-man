@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PlayerSearch } from "./PlayerSearch";
 
-import LogoXmas from "~/assets/logo_xmas.svg";
+import Logo from "~/assets/logo.svg";
 import MenuIcon from "~/assets/menu.svg";
 
 interface TopNavigationProps {
@@ -24,7 +24,7 @@ export function TopNavigation(props: TopNavigationProps) {
         className="hidden outline-none ring-0 lg:block"
         onClick={() => onMenuToggled(false)}
       >
-        <LogoXmas alt="Wise Old Man Logo" className="w-32 shrink-0" />
+        <Logo alt="Wise Old Man Logo" className="w-32 shrink-0" />
       </Link>
       <button onClick={() => onMenuToggled(true)} className="block p-1 lg:hidden">
         <MenuIcon className="h-6 w-6 text-white" />
