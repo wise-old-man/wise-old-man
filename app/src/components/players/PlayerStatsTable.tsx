@@ -22,7 +22,7 @@ import {
   getLevel,
 } from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
-import { getBuildHiddenMetrics } from "~/utils/metrics";
+import { getBuildHiddenMetrics, hasSpecialEhp } from "~/utils/metrics";
 import { Label } from "../Label";
 import { Button } from "../Button";
 import { Checkbox } from "../Checkbox";
@@ -214,7 +214,7 @@ function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): 
         return <TableSortButton column={column}>Skill</TableSortButton>;
       },
       cell: ({ row }) => {
-        const isSpecialEHP = player.type !== PlayerType.REGULAR || player.build !== PlayerBuild.MAIN;
+        const isSpecialEHP = hasSpecialEhp(player.build);
 
         return (
           <div className="flex items-center gap-x-2">
