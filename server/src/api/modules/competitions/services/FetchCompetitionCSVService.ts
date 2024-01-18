@@ -62,7 +62,7 @@ function getParticipantsCSV(competitionDetails: CompetitionDetails): string {
     { header: 'Start', resolveCell: row => String(row.progress.start) },
     { header: 'End', resolveCell: row => String(row.progress.end) },
     { header: 'Gained', resolveCell: row => String(row.progress.gained) },
-    { header: 'Last Updated', resolveCell: row => formatDate(row.updatedAt) }
+    { header: 'Last Updated', resolveCell: row => formatDate(row.updatedAt, 'MM/DD/YYYY HH:mm:ss') }
   ];
 
   if (competitionDetails.type === CompetitionType.TEAM) {
