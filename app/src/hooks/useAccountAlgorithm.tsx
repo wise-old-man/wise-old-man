@@ -1,5 +1,3 @@
-'use client'
-
 import { EfficiencyAlgorithmType } from "@wise-old-man/utils";
 import { createContext, useContext, useState } from "react";
 

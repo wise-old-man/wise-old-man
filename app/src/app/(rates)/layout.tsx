@@ -1,3 +1,5 @@
+'use client'
+
 import { PropsWithChildren } from "react";
 import { Container } from "~/components/Container";
 import { AccountTypeSelector } from "~/components/rates/AccountTypeSelector";
