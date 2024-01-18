@@ -214,7 +214,7 @@ function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): 
         return <TableSortButton column={column}>Skill</TableSortButton>;
       },
       cell: ({ row }) => {
-        const isSpecialEHP = hasSpecialEhp(player.build);
+        const isSpecialEHP = hasSpecialEhp(player);
 
         return (
           <div className="flex items-center gap-x-2">

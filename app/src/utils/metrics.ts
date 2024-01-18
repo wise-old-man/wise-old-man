@@ -1,7 +1,7 @@
-import { COMBAT_SKILLS, MEMBER_SKILLS, Metric, PlayerBuild } from "@wise-old-man/utils";
+import { COMBAT_SKILLS, MEMBER_SKILLS, Metric, Player, PlayerBuild } from "@wise-old-man/utils";
 
-export function hasSpecialEhp(build: PlayerBuild) {
-  return ['f2p', 'f2p_lvl3', 'lvl3'].includes(build);
+export function hasSpecialEhp(player: Player) {
+  return ['f2p', 'f2p_lvl3', 'lvl3'].includes(player.build);
 }
 
 export function getBuildHiddenMetrics(build: PlayerBuild): Metric[] {
