@@ -69,13 +69,13 @@ export default async function PlayerRecordsPage(props: PageProps) {
     <>
       <ToggleTabs value={metricType}>
         <ToggleTabsList>
-          <QueryLink className="border-r border-gray-400" query={{ view: null }}>
+          <QueryLink className="border-r border-gray-400" query={{ view: null }} shallow={false}>
             <ToggleTabsTrigger value={MetricType.SKILL}>Skills</ToggleTabsTrigger>
           </QueryLink>
-          <QueryLink className="border-r border-gray-400" query={{ view: "bosses" }}>
+          <QueryLink className="border-r border-gray-400" query={{ view: "bosses" }} shallow={false}>
             <ToggleTabsTrigger value={MetricType.BOSS}>Bosses</ToggleTabsTrigger>
           </QueryLink>
-          <QueryLink query={{ view: "activities" }}>
+          <QueryLink query={{ view: "activities" }} shallow={false}>
             <ToggleTabsTrigger value={MetricType.ACTIVITY}>Activities</ToggleTabsTrigger>
           </QueryLink>
         </ToggleTabsList>
