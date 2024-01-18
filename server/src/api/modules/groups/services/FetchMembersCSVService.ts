@@ -45,8 +45,8 @@ async function fetchGroupMembersCSV(payload: FetchMembersCSVParams): Promise<str
         membership.player.displayName,
         membership.role,
         membership.player.exp,
-        formatDate(membership.player.lastChangedAt),
-        formatDate(membership.player.updatedAt)
+        formatDate(membership.player.lastChangedAt, 'MM/DD/YYYY HH:mm:ss'),
+        formatDate(membership.player.updatedAt, 'MM/DD/YYYY HH:mm:ss')
       ].join(',');
     });
 
