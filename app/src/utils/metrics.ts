@@ -1,9 +1,5 @@
 import { COMBAT_SKILLS, MEMBER_SKILLS, Metric, Player, PlayerBuild } from "@wise-old-man/utils";
 
-export function hasSpecialEhp(player: Player) {
-  return ['f2p', 'f2p_lvl3', 'lvl3'].includes(player.build);
-}
-
 export function getBuildHiddenMetrics(build: PlayerBuild): Metric[] {
   switch (build) {
     case "f2p":

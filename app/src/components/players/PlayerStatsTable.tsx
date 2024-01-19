@@ -22,7 +22,7 @@ import {
   getLevel,
 } from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
-import { getBuildHiddenMetrics, hasSpecialEhp } from "~/utils/metrics";
+import { getBuildHiddenMetrics } from "~/utils/metrics";
 import { Label } from "../Label";
 import { Button } from "../Button";
 import { Checkbox } from "../Checkbox";
@@ -207,6 +207,10 @@ function PlayerSkillsTable(
 }
 
 function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): ColumnDef<SkillValue>[] {
+  const hasSpecialEhp = (player: Player) => {
+    return ['f2p', 'f2p_lvl3', 'lvl3'].includes(player.build) || player.type !== PlayerType.REGULAR;
+  }
+
   return [
     {
       accessorKey: "skill",
@@ -214,13 +218,12 @@ function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): 
         return <TableSortButton column={column}>Skill</TableSortButton>;
       },
       cell: ({ row }) => {
-        const isSpecialEHP = hasSpecialEhp(player);
 
         return (
           <div className="flex items-center gap-x-2">
             <MetricIconSmall metric={row.original.metric} />
             {MetricProps[row.original.metric].name}
-            {(row.original.metric as Metric) === Metric.EHP && isSpecialEHP && (
+            {(row.original.metric as Metric) === Metric.EHP && hasSpecialEhp(player) && (
               <Tooltip>
                 <TooltipTrigger>
                   <span>(Special)</span>
