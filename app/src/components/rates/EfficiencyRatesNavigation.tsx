@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useAccountAlgorithm } from "~/hooks/useAccountAlgorithm";
+import { useParams, usePathname } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "../Tabs";
 import { AccountTypeSelector } from "./AccountTypeSelector";
 
@@ -13,7 +12,7 @@ const TABS = [
 
 export function EfficiencyRatesNavigation() {
   const pathname = usePathname();
-  const { algorithm } = useAccountAlgorithm();
+  const { type } = useParams();
 
   const selectedTab = TABS.find((t) => pathname.includes(t.route)) || TABS[0];
 
@@ -28,7 +27,7 @@ export function EfficiencyRatesNavigation() {
         }
       >
         {TABS.map((tab) => (
-          <Link href={`${tab.route}/${algorithm}`} key={tab.route}>
+          <Link href={`${tab.route}/${type}`} key={tab.route}>
             <TabsTrigger value={tab.route}>{tab.label}</TabsTrigger>
           </Link>
         ))}
