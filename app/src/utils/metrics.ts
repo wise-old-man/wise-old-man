@@ -1,4 +1,4 @@
-import { COMBAT_SKILLS, MEMBER_SKILLS, Metric, Player, PlayerBuild } from "@wise-old-man/utils";
+import { COMBAT_SKILLS, MEMBER_SKILLS, Metric, PlayerBuild } from "@wise-old-man/utils";
 
 export function getBuildHiddenMetrics(build: PlayerBuild): Metric[] {
   switch (build) {
