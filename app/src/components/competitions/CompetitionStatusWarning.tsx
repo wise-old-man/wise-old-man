@@ -9,7 +9,7 @@ const FAQ = {
       question: "Why is this necessary?",
       answer: `In order to calculate any progress (gains) made within the competition, we need to track
       every player's start and end values, these have to be within the competition's
-      boundaries. This means we need at least one data point at the after beginning on the
+      boundaries. This means we need at least one data point at the beginning of the
       competition, and at least one before the end.`,
     },
     {
@@ -25,7 +25,7 @@ const FAQ = {
       question: "Why is this necessary?",
       answer: `In order to calculate any progress (gains) made within the competition, we need to track
       every player's start and end values, these have to be within the competition's
-      boundaries. This means we need at least one data point at the after beginning on the
+      boundaries. This means we need at least one data point at the beginning of the
       competition, and at least one before the end.`,
     },
     {
