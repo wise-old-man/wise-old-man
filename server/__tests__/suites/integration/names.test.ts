@@ -1086,6 +1086,52 @@ describe('Names API', () => {
         }
       });
     });
+
+    it('should set reviewContext to null upon approval', async () => {
+      const trackResponse = await api.post(`/players/makefrend`);
+      expect(trackResponse.status).toBe(201);
+      expect(trackResponse.body.username).toBe('makefrend');
+
+      const submitResponse = await api.post(`/names`).send({
+        oldName: 'makefrend',
+        newName: 'myarm'
+      });
+
+      expect(submitResponse.status).toBe(201);
+      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: submitResponse.body.id
+        })
+      );
+
+      const pendingNameChange = await prisma.nameChange.findFirst({
+        where: { id: submitResponse.body.id }
+      });
+
+      expect(pendingNameChange.reviewContext).toBe(null);
+
+      await prisma.nameChange.update({
+        where: { id: submitResponse.body.id },
+        data: {
+          reviewContext: { reason: 'test_reason' }
+        }
+      });
+
+      const approveResponse = await api
+        .post(`/names/${submitResponse.body.id}/approve`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(approveResponse.status).toBe(200);
+      expect(approveResponse.body.status).toBe('approved');
+      expect(approveResponse.body.resolvedAt).not.toBe(null);
+      expect(approveResponse.body.reviewContext).toBe(null);
+
+      const approvedNameChange = await prisma.nameChange.findFirst({
+        where: { id: approveResponse.body.id }
+      });
+
+      expect(approvedNameChange.reviewContext).toBe(null);
+    });
   });
 
   describe('7 - Listing Group Name Changes', () => {
