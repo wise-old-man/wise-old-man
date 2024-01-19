@@ -1,0 +1,19 @@
+name: Daily Docker Image Prune
+
+on:
+  schedule:
+    - cron: 0 8 * * *
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prune Docker Images
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          passphrase: ${{ secrets.DO_SSH_PASS }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd wise-old-man
+            docker image prune
