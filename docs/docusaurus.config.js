@@ -54,6 +54,18 @@ const config = {
         },
         items: [
           {
+            type: 'docSidebar',
+            position: 'left',
+            sidebarId: 'docs',
+            label: 'Docs',
+          },
+          {
+            type: 'docSidebar',
+            position: 'left',
+            sidebarId: 'guides',
+            label: 'Guides',
+          },
+          {
             href: 'https://github.com/wise-old-man/wise-old-man',
             label: 'GitHub',
             position: 'right'
