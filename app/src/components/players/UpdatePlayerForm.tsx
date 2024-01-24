@@ -27,8 +27,8 @@ export function UpdatePlayerForm(props: { player: Player }) {
         toast.toast({ variant: "success", title: `${player.displayName} has been updated!` });
       });
     },
-    onError: () => {
-      toast.toast({ variant: "error", title: "Failed to update player." });
+    onError: (e) => {
+      toast.toast({ variant: "error", title: "Failed to update player.", description: e.message });
     },
   });
 
