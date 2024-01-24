@@ -328,6 +328,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
+    name: '{threshold} Scurrius kills',
+    metric: Metric.SCURRIUS,
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
     name: '{threshold} Skotizo kills',
     metric: Metric.SKOTIZO,
     thresholds: [50, 100, 500, 1000]
