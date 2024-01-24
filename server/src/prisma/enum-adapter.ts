@@ -122,6 +122,7 @@ export const Boss = {
   PHANTOM_MUSPAH: 'phantom_muspah',
   SARACHNIS: 'sarachnis',
   SCORPIA: 'scorpia',
+  SCURRIUS: 'scurrius',
   SKOTIZO: 'skotizo',
   SPINDEL: 'spindel',
   TEMPOROSS: 'tempoross',

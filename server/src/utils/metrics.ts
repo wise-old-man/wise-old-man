@@ -120,6 +120,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
     [Boss.PHANTOM_MUSPAH]: { name: 'Phantom Muspah' },
     [Boss.SARACHNIS]: { name: 'Sarachnis' },
     [Boss.SCORPIA]: { name: 'Scorpia' },
+    [Boss.SCURRIUS]: { name: 'Scurrius' },
     [Boss.SKOTIZO]: { name: 'Skotizo' },
     [Boss.SPINDEL]: { name: 'Spindel' },
     [Boss.TEMPOROSS]: { name: 'Tempoross' },
