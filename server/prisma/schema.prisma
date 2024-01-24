@@ -126,6 +126,7 @@ model Delta {
   phantom_muspah                   Int       @default(0)
   sarachnis                        Int       @default(0)
   scorpia                          Int       @default(0)
+  scurrius                         Int       @default(0)
   skotizo                          Int       @default(0)
   spindel                          Int       @default(0)
   tempoross                        Int       @default(0)
@@ -513,6 +514,8 @@ model Snapshot {
   sarachnisKills                        Int       @default(-1)
   scorpiaRank                           Int       @default(-1)
   scorpiaKills                          Int       @default(-1)
+  scurriusRank                          Int       @default(-1)
+  scurriusKills                         Int       @default(-1)
   skotizoRank                           Int       @default(-1)
   skotizoKills                          Int       @default(-1)
   spindelRank                           Int       @default(-1)
@@ -1289,6 +1292,7 @@ enum Metric {
   phantom_muspah
   sarachnis
   scorpia
+  scurrius
   skotizo
   spindel
   the_gauntlet
