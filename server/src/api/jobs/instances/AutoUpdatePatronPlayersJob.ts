@@ -23,7 +23,7 @@ class AutoUpdatePatronPlayersJob implements JobDefinition<unknown> {
         where: {
           playerId: { not: null },
           player: {
-            updatedAt: { lt: dayAgo }
+            OR: [{ updatedAt: { lt: dayAgo } }, { updatedAt: null }]
           }
         },
         include: {

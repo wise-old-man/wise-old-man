@@ -77,7 +77,7 @@ async function getOutdatedParticipants(
     where: {
       competitionId,
       player: {
-        updatedAt: { lt: cooldownExpiration }
+        OR: [{ updatedAt: { lt: cooldownExpiration } }, { updatedAt: null }]
       }
     },
     include: {

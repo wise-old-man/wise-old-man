@@ -118,7 +118,7 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
       ...p,
       exp: Number(p.exp),
       registeredAt: new Date(p.registeredAt),
-      updatedAt: new Date(p.updatedAt),
+      updatedAt: p.updatedAt ? new Date(p.updatedAt) : null,
       lastChangedAt: p.lastChangedAt ? new Date(p.lastChangedAt) : null,
       lastImportedAt: p.lastImportedAt ? new Date(p.lastImportedAt) : null
     }))
