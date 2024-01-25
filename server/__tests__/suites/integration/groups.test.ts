@@ -2120,10 +2120,18 @@ describe('Group API', () => {
       const rows = response.text.split('\n');
       expect(rows.length).toBe(6);
 
+      await prisma.player.update({
+        where: { username: 'alexsuperfly' },
+        data: { updatedAt: null }
+      });
+
       // Check the table header
       expect(rows[0]).toBe('Player,Role,Experience,Last progressed,Last updated');
 
       expect(rows[0].split(',').length).toBe(5);
+
+      expect(rows[1].split(',').at(-1)).toBe(''); // Alexsuperfly has null updatedAt, should be returned as empty string
+      expect(rows[1].split(',').at(-2)).toBe(''); // Alexsuperfly has null lastChangedAt, should be returned as empty string
 
       // Check the table body
       expect(rows[1]).toMatch('alexsuperfly,leader,');
@@ -2515,6 +2523,28 @@ describe('Group API', () => {
     });
 
     it('should not update all (no outdated members)', async () => {
+      // Force these players last update timestamps to be recent
+      await prisma.player.update({
+        where: { username: 'psikoi' },
+        data: { updatedAt: new Date() }
+      });
+      await prisma.player.update({
+        where: { username: 'alexsuperfly' },
+        data: { updatedAt: new Date() }
+      });
+      await prisma.player.update({
+        where: { username: 'zezima' },
+        data: { updatedAt: new Date() }
+      });
+      await prisma.player.update({
+        where: { username: 'swampletics' },
+        data: { updatedAt: new Date() }
+      });
+      await prisma.player.update({
+        where: { username: 'rorro' },
+        data: { updatedAt: new Date() }
+      });
+
       const response = await api.post(`/groups/${globalData.testGroupOneLeader.id}/update-all`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode
       });
@@ -2532,13 +2562,31 @@ describe('Group API', () => {
         data: { updatedAt: dayOldDate }
       });
 
+      // Force this player's last update timestamp to be null
+      await prisma.player.update({
+        where: { username: 'alexsuperfly' },
+        data: { updatedAt: null }
+      });
+
+      // Force these players last update timestamps to be recent
+      await prisma.player.update({
+        where: { username: 'swampletics' },
+        data: { updatedAt: new Date() }
+      });
+      await prisma.player.update({
+        where: { username: 'rorro' },
+        data: { updatedAt: new Date() }
+      });
+
       const response = await api.post(`/groups/${globalData.testGroupOneLeader.id}/update-all`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode
       });
 
+      // 1 outdated player, 1 player with no last update timestamp, 3 players with recent update timestamps
+
       expect(response.status).toBe(200);
       expect(response.body.message).toBe(
-        '1 outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.'
+        '2 outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.'
       );
     });
   });

@@ -46,7 +46,7 @@ async function getOutdatedMembers(groupId: number): Promise<Pick<Player, 'userna
     where: {
       groupId,
       player: {
-        updatedAt: { lt: dayAgo }
+        OR: [{ updatedAt: { lt: dayAgo } }, { updatedAt: null }]
       }
     },
     include: {

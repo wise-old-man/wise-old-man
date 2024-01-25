@@ -41,12 +41,14 @@ async function fetchGroupMembersCSV(payload: FetchMembersCSVParams): Promise<str
   const rows = memberships
     .sort((a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role))
     .map(membership => {
+      const { role, player } = membership;
+
       return [
-        membership.player.displayName,
-        membership.role,
-        membership.player.exp,
-        formatDate(membership.player.lastChangedAt, 'MM/DD/YYYY HH:mm:ss'),
-        formatDate(membership.player.updatedAt, 'MM/DD/YYYY HH:mm:ss')
+        player.displayName,
+        role,
+        player.exp,
+        player.lastChangedAt ? formatDate(player.lastChangedAt, 'MM/DD/YYYY HH:mm:ss') : '',
+        player.updatedAt ? formatDate(player.updatedAt, 'MM/DD/YYYY HH:mm:ss') : ''
       ].join(',');
     });
 

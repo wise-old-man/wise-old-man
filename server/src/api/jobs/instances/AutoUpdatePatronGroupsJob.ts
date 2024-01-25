@@ -29,7 +29,7 @@ class AutoUpdatePatronGroupsJob implements JobDefinition<unknown> {
       where: {
         groupId: { in: patronGroupIds },
         player: {
-          updatedAt: { lt: dayAgo }
+          OR: [{ updatedAt: { lt: dayAgo } }, { updatedAt: null }]
         }
       },
       include: {

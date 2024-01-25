@@ -3089,6 +3089,12 @@ describe('Competition API', () => {
     });
 
     it('should not update all (no outdated participants)', async () => {
+      // Force this player's last update timestamp to be recent
+      await prisma.player.update({
+        where: { username: 'zezima' },
+        data: { updatedAt: new Date() }
+      });
+
       const response = await api
         .post(`/competitions/${globalData.testCompetitionOngoing.id}/update-all`)
         .send({
@@ -3102,6 +3108,12 @@ describe('Competition API', () => {
     });
 
     it('should not update all (no outdated participants, near start)', async () => {
+      // Force this player's last update timestamp to be recent
+      await prisma.player.update({
+        where: { username: 'zulu' },
+        data: { updatedAt: new Date() }
+      });
+
       const response = await api
         .post(`/competitions/${globalData.testCompetitionStarted.id}/update-all`)
         .send({
@@ -3211,6 +3223,12 @@ describe('Competition API', () => {
         data: { updatedAt: tenHourOldDate }
       });
 
+      // Force this player's last update timestamp to be now
+      await prisma.player.update({
+        where: { username: 'toph' },
+        data: { updatedAt: new Date() }
+      });
+
       const response = await api
         .post(`/competitions/${globalData.testCompetitionEnding.id}/update-all`)
         .send({ verificationCode: globalData.testCompetitionEnding.verificationCode });
@@ -3219,7 +3237,8 @@ describe('Competition API', () => {
 
       // This competition has started 2 days ago and ends soon (in 20mins), so players
       // are considered outdated after 1h. USBC was updated 10h ago, so they will count as outdated.
-      expect(response.body.message).toMatch('2 outdated (updated > 1h ago) players are being updated.');
+      // One play (toph) has been updated just now, so they shouldn't be included, every other player (9), should.
+      expect(response.body.message).toMatch('9 outdated (updated > 1h ago) players are being updated.');
     });
   });
 
