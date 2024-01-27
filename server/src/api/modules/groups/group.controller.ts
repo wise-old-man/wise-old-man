@@ -148,13 +148,7 @@ async function updateAll(req: Request): Promise<ControllerResponse> {
     throw new ForbiddenError('Incorrect verification code.');
   }
 
-  const outdatedCount = await groupServices.updateAllMembers({
-    groupId: getNumber(req.params.id)
-  });
-
-  const message = `${outdatedCount} outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.`;
-
-  return { statusCode: 200, response: { message } };
+  return { statusCode: 400, response: { message: 'Tracking has been disabled.' } };
 }
 
 // POST /groups/:id/members
