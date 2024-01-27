@@ -1,5 +1,4 @@
 import redisService from '../../services/external/redis.service';
-import * as playerServices from '../../modules/players/player.services';
 import { JobType, JobDefinition, JobOptions } from '../job.types';
 
 export interface UpdatePlayerJobPayload {
@@ -22,7 +21,7 @@ class UpdatePlayerJob implements JobDefinition<UpdatePlayerJobPayload> {
   async execute(data: UpdatePlayerJobPayload) {
     if (!data.username) return;
 
-    await playerServices.updatePlayer({ username: data.username });
+    // await playerServices.updatePlayer({ username: data.username });
   }
 
   onFailure(data: UpdatePlayerJobPayload) {
