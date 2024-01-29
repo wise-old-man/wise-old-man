@@ -49,11 +49,6 @@ async function searchCompetitions(payload: SearchCompetitionsParams): Promise<Co
             }
           }
         }
-      },
-      _count: {
-        select: {
-          participations: true
-        }
       }
     },
     orderBy: [{ score: 'desc' }, { createdAt: 'desc' }],
@@ -61,16 +56,31 @@ async function searchCompetitions(payload: SearchCompetitionsParams): Promise<Co
     skip: params.offset
   });
 
+  const participantCounts = await prisma.participation.groupBy({
+    by: ['competitionId'],
+    where: {
+      competitionId: {
+        in: competitions.map(c => c.id)
+      }
+    },
+    _count: true
+  });
+
+  const participantCountsMap = new Map<number, number>();
+  for (const { competitionId, _count } of participantCounts) {
+    participantCountsMap.set(competitionId, _count);
+  }
+
   return competitions.map(g => {
     return {
-      ...omit(g, '_count', 'verificationHash'),
+      ...omit(g, 'verificationHash'),
       group: g.group
         ? {
             ...omit(g.group, '_count', 'verificationHash'),
             memberCount: g.group._count.memberships
           }
         : undefined,
-      participantCount: g._count.participations
+      participantCount: participantCountsMap.get(g.id) ?? 0
     };
   });
 }
