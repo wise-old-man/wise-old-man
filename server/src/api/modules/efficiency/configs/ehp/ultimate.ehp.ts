@@ -6,7 +6,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 200_920,
+        rate: 207_800,
         description: 'Chally TzHaar with 2 alts'
       }
     ],
@@ -17,8 +17,8 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 592_000,
-        description: 'Defensive chinning with rigour (299k defence rate, incl. passive XP)'
+        rate: 539_100,
+        description: 'Defensive chinning (286k defence rate, incl. passive XP)'
       }
     ],
     bonuses: []
@@ -44,28 +44,28 @@ export default [
       },
       {
         startExp: 273_742,
-        rate: 520_000,
+        rate: 533_000,
         description: 'Chinning (478k ranged rate, incl. prayer XP)'
       },
       {
         startExp: 737_627,
-        rate: 609_000,
+        rate: 628_000,
         description: 'Chinning (551k ranged rate, incl. prayer XP)'
       },
       {
         startExp: 1_986_068,
-        rate: 692_000,
+        rate: 716_000,
         description: 'Chinning (617k ranged rate, incl. prayer XP)'
       },
       {
         startExp: 5_346_332,
-        rate: 770_000,
+        rate: 801_000,
         description: 'Chinning (678k ranged rate, incl. prayer XP)'
       },
       {
         startExp: 13_034_431,
-        rate: 1_252_000,
-        description: 'Chinning with rigour (810k ranged rate, incl. prayer XP)'
+        rate: 1_085_000,
+        description: 'Chinning (776k ranged rate, incl. prayer XP)'
       }
     ],
     bonuses: []
@@ -81,17 +81,17 @@ export default [
       {
         startExp: 50_339,
         rate: 50_000,
-        description: 'Green dragons, ensouled heads and demonic ashes from early slayer'
+        description: 'Wilderness green dragons & chaos altar, passive XP from early slayer, DT2'
       },
       {
         startExp: 737_627,
-        rate: 100_100,
-        description: 'Wilderness green dragons with whip (91.5k prayer rate, incl. defence XP)'
+        rate: 122_900,
+        description: 'Wilderness green dragons & chaos altar (108.3k prayer rate, incl. defence XP)'
       },
       {
         startExp: 13_034_431,
-        rate: 119_800,
-        description: "Myths' Guild dragons with lance (75k prayer rate, incl. melee XP)"
+        rate: 137_800,
+        description: 'Wilderness green dragons & chaos altar (108.3k prayer rate, incl. melee XP)'
       }
     ],
     bonuses: []
@@ -152,47 +152,52 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 7_000,
-        description: 'Trees'
+        rate: 29_000,
+        description: "Monk's Friend and regular trees"
       },
       {
         startExp: 2_411,
-        rate: 25_000,
-        description: 'Oaks'
+        rate: 35_500,
+        description: '2t oaks & burning logs'
       },
       {
-        startExp: 22_406,
-        rate: 45_000,
-        description: 'Teaks'
+        startExp: 13_363,
+        rate: 44_300,
+        description: '2t oaks & burning logs'
       },
       {
-        startExp: 67_983,
-        rate: 115_500,
-        description: '1.5t teaks (for Wintertodt scaling)'
+        startExp: 64_249,
+        rate: 130_900,
+        description: 'Wintertodt (1.5t teaks rate)'
       },
       {
         startExp: 302_288,
-        rate: 146_900,
+        rate: 75_000,
+        description: 'Forestry for the log basket'
+      },
+      {
+        startExp: 602_288,
+        rate: 164_700,
         description: '1.5t teaks'
       },
       {
         startExp: 737_627,
-        rate: 159_500,
+        rate: 168_600,
         description: '1.5t teaks'
       },
       {
         startExp: 1_986_068,
-        rate: 173_400,
+        rate: 181_100,
         description: '1.5t teaks'
       },
       {
         startExp: 5_902_831,
-        rate: 188_800,
+        rate: 193_400,
         description: '1.5t teaks'
       },
       {
         startExp: 13_034_431,
-        rate: 200_000,
+        rate: 204_500,
         description: '1.5t teaks'
       }
     ],
@@ -208,8 +213,13 @@ export default [
       },
       {
         startExp: 123_660,
-        rate: 941_000,
-        description: 'Broad arrows'
+        rate: 1_040_000,
+        description: 'Broad arrows with Sepulchre, hunter, and artefacts'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 1_300_000,
+        description: 'Broad arrows with Sepulchre, hunter, and artefacts'
       }
     ],
     bonuses: []
@@ -219,53 +229,38 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 20_000,
-        description: 'Quests'
-      },
-      {
-        startExp: 9_612,
-        rate: 30_000,
-        description: 'Fly fishing'
-      },
-      {
-        startExp: 13_363,
-        rate: 40_000,
-        description: 'Fly fishing'
+        rate: 53_300,
+        description: 'Quests and 3t fly fishing'
       },
       {
         startExp: 83_014,
-        rate: 43_711,
-        description: 'Cut-eat barbarian fishing'
+        rate: 42_700,
+        description: 'Eat-cut barbarian fishing'
       },
       {
         startExp: 224_466,
-        rate: 72_629,
-        description: 'Cut-eat barbarian fishing'
+        rate: 70_900,
+        description: 'Eat-cut barbarian fishing'
       },
       {
         startExp: 737_627,
-        rate: 95_282,
-        description: 'Cut-eat barbarian fishing'
+        rate: 92_600,
+        description: 'Eat-cut barbarian fishing'
       },
       {
-        startExp: 2_421_087,
-        rate: 101_997,
-        description: 'Cut-eat barbarian fishing'
+        startExp: 2_183_968,
+        rate: 153_100,
+        description: 'Decant barblore (88.3k fishing rate & 400 caviar/h + potion noting time)'
       },
       {
-        startExp: 5_902_831,
-        rate: 106_519,
-        description: 'Cut-eat barbarian fishing'
-      },
-      {
-        startExp: 8_417_783,
-        rate: 121_300,
-        description: 'Cut-eat barbarian fishing (108k fishing rate)'
+        startExp: 5_346_332,
+        rate: 169_600,
+        description: 'Decant barblore (92.2k fishing rate & 432 caviar/h + potion noting time)'
       },
       {
         startExp: 13_034_431,
-        rate: 193_400,
-        description: 'Barblore (95k fishing & 430 caviar rate)'
+        rate: 183_000,
+        description: 'Decant barblore (98.2k fishing rate & 456 caviar/h + potion noting time)'
       }
     ],
     bonuses: [
@@ -273,23 +268,79 @@ export default [
         originSkill: Skill.FISHING,
         bonusSkill: Skill.COOKING,
         startExp: 83_014,
-        endExp: 200_000_000,
+        endExp: 13_034_431,
         end: true,
-        ratio: 0.1046
+        ratio: 0.13
       },
       {
         originSkill: Skill.FISHING,
-        bonusSkill: Skill.STRENGTH,
+        bonusSkill: Skill.COOKING,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.1355
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.AGILITY,
         startExp: 83_014,
+        endExp: 224_466,
+        end: false,
+        ratio: 0.1
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.AGILITY,
+        startExp: 224_466,
+        endExp: 737_627,
+        end: false,
+        ratio: 0.093
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.AGILITY,
+        startExp: 737_627,
+        endExp: 13_034_431,
+        end: false,
+        ratio: 0.091
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.AGILITY,
+        startExp: 13_034_431,
         endExp: 200_000_000,
         end: false,
         ratio: 0.0885
       },
       {
         originSkill: Skill.FISHING,
-        bonusSkill: Skill.AGILITY,
+        bonusSkill: Skill.STRENGTH,
         startExp: 83_014,
-        endExp: 8_417_783,
+        endExp: 224_466,
+        end: false,
+        ratio: 0.1
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.STRENGTH,
+        startExp: 224_466,
+        endExp: 737_627,
+        end: false,
+        ratio: 0.093
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.STRENGTH,
+        startExp: 737_627,
+        endExp: 13_034_431,
+        end: false,
+        ratio: 0.091
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.STRENGTH,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
         end: false,
         ratio: 0.0885
       }
@@ -300,53 +351,80 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 45_000,
-        description: 'Burning oak and teak logs'
+        rate: 7_200,
+        description: 'Burning regular logs'
+      },
+      {
+        startExp: 2_411,
+        rate: 66_500,
+        description: '2t oaks & burning oak logs'
+      },
+      {
+        startExp: 50_339,
+        rate: 80_500,
+        description: '2t oaks & burning oak logs'
       },
       {
         startExp: 101_333,
-        rate: 198_800,
+        rate: 181_300,
         description: 'Dolo Wintertodt (164k firemaking rate, incl. passive & stored XP)'
       },
       {
         startExp: 273_742,
-        rate: 243_000,
+        rate: 215_000,
         description: 'Dolo Wintertodt (193k firemaking rate, incl. passive & stored XP)'
       },
       {
         startExp: 737_627,
-        rate: 293_700,
+        rate: 249_500,
         description: 'Dolo Wintertodt (223k firemaking rate, incl. passive & stored XP)'
       },
       {
         startExp: 1_986_068,
-        rate: 356_300,
+        rate: 287_600,
         description: 'Dolo Wintertodt (255k firemaking rate, incl. passive & stored XP)'
       },
       {
         startExp: 5_848_876,
-        rate: 411_900,
-        description: 'Dolo Wintertodt (292k firemaking rate, incl. passive & stored XP)'
+        rate: 459_700,
+        description: 'World-hop Wintertodt (360k firemaking rate, incl. passive & stored XP)'
       },
       {
         startExp: 13_034_431,
-        rate: 431_700,
-        description: 'Dolo Wintertodt (305k firemaking rate, incl. passive & stored XP)'
+        rate: 431_300,
+        description: 'World-hop Wintertodt (375k firemaking rate + stored XP)'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.FIREMAKING,
+        bonusSkill: Skill.WOODCUTTING,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.049
+      },
+      {
+        originSkill: Skill.FIREMAKING,
+        bonusSkill: Skill.FLETCHING,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.025
+      }
+    ]
   },
   {
     skill: Skill.CRAFTING,
     methods: [
       {
         startExp: 0,
-        rate: 35_000,
+        rate: 15_200,
         description: 'Quests, Port Phasmatys charters'
       },
       {
         startExp: 91_721,
-        rate: 43_500,
+        rate: 44_000,
         description: 'Port Phasmatys lantern lenses'
       },
       {
@@ -373,12 +451,12 @@ export default [
       {
         startExp: 273_742,
         rate: 315_000,
-        description: 'Blast Furnace gold'
+        description: 'Blast Furnace gold (2-client hopping)'
       },
       {
         startExp: 13_034_431,
         rate: 330_000,
-        description: 'Blast Furnace gold'
+        description: 'Blast Furnace gold (2-client hopping)'
       }
     ],
     bonuses: []
@@ -394,7 +472,7 @@ export default [
       {
         startExp: 13_363,
         rate: 59_158,
-        description: '3t Iron'
+        description: '3t iron'
       },
       {
         startExp: 61_512,
@@ -449,8 +527,18 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 41_000,
-        description: 'Nechryael, birdhouses, mole, and herbiboar + CG & CoX time for bowfa and rigour'
+        rate: 21_800,
+        description: 'Quests, lamps, and master farmers'
+      },
+      {
+        startExp: 737_627,
+        rate: 38_169,
+        description: 'Master farmers'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 40_300,
+        description: 'Master farmers, mole, and herbiboar + ToA time for fang'
       }
     ],
     bonuses: []
@@ -465,13 +553,13 @@ export default [
       },
       {
         startExp: 123_660,
-        rate: 42_100,
+        rate: 44_900,
         description: 'Bonus XP from fishing (Sepulchre rate)'
       },
       {
-        startExp: 333_804,
-        rate: 53_400,
-        description: 'Bonus XP from fishing (Sepulchre rate)'
+        startExp: 273_742,
+        rate: 40_000,
+        description: "Seers' rooftop for the graceful outfit"
       },
       {
         startExp: 737_627,
@@ -479,19 +567,19 @@ export default [
         description: 'Pollnivneach rooftop for the graceful outfit'
       },
       {
-        startExp: 1_986_068,
-        rate: 64_100,
+        startExp: 1_282_357,
+        rate: 65_700,
         description: 'Sepulchre'
       },
       {
         startExp: 2_421_087,
-        rate: 69_300,
-        description: 'Sepulchre looting (68.5k agility rate, incl. passive XP)'
+        rate: 73_700,
+        description: 'Sepulchre looting (72.7k agility rate, incl. passive XP)'
       },
       {
         startExp: 6_517_253,
-        rate: 87_300,
-        description: 'Sepulchre looting (83.8k agility rate, incl. passive XP)'
+        rate: 91_800,
+        description: 'Sepulchre looting (87.6k agility rate, incl. passive XP)'
       }
     ],
     bonuses: []
@@ -531,13 +619,13 @@ export default [
       },
       {
         startExp: 7_944_614,
-        rate: 356_800,
-        description: 'Artefacts with glassblowing (215.3k thieving & 53.5k crafting rate, incl. supply time)'
+        rate: 339_866,
+        description: 'Artefacts with glassblowing (215.3k thieving & 54.6k crafting rate, incl. supply time)'
       },
       {
         startExp: 13_034_431,
-        rate: 372_700,
-        description: 'Artefacts with glassblowing (224.9k thieving & 53.5k crafting rate, incl. supply time)'
+        rate: 355_354,
+        description: 'Artefacts with glassblowing (224.9k thieving & 54.6k crafting rate, incl. supply time)'
       }
     ],
     bonuses: []
@@ -558,39 +646,39 @@ export default [
       },
       {
         startExp: 668_051,
-        rate: 16_700,
-        description: 'Nieve slayer (30.1k slayer rate) + quest time and unlocks'
+        rate: 16_400,
+        description: 'Nieve slayer (33.2k slayer rate) + quest time and unlocks'
       },
       {
         startExp: 1_210_421,
-        rate: 36_000,
-        description: 'Nieve slayer (30.6k slayer rate)'
+        rate: 38_300,
+        description: 'Nieve slayer (33.8k slayer rate)'
       },
       {
         startExp: 1_986_068,
-        rate: 37_400,
-        description: 'Duradel slayer (30.5k slayer rate)'
+        rate: 42_400,
+        description: 'Duradel slayer (33.9k slayer rate)'
       },
       {
         startExp: 3_258_594,
-        rate: 51_500,
-        description: 'Duradel slayer (30.4k slayer rate)'
+        rate: 58_300,
+        description: 'Duradel slayer (35.6k slayer rate)'
       },
       {
         startExp: 5_346_332,
-        rate: 32_800,
-        description: 'Duradel slayer (31.1k slayer rate) + PVM time'
+        rate: 36_800,
+        description: 'Duradel slayer (33.7k slayer rate) + PVM time'
       },
       {
         startExp: 7_195_629,
-        rate: 57_700,
-        description: 'Duradel slayer (33.4k slayer rate)'
+        rate: 63_000,
+        description: 'Duradel slayer (38.6k slayer rate)'
       },
       {
         startExp: 13_034_431,
-        rate: 59_500,
+        rate: 71_800,
         description:
-          'Duradel slayer & every 250th task at Konar (36.4k slayer rate, incl. passive & stored XP and PVM time)'
+          'Duradel slayer (43.3k slayer rate) + passive & stored XP, PVM upgrades, and supply time)'
       }
     ],
     bonuses: [
@@ -616,7 +704,7 @@ export default [
         startExp: 0,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.9115
+        ratio: 0.911
       },
       {
         originSkill: Skill.SLAYER,
@@ -624,7 +712,7 @@ export default [
         startExp: 0,
         endExp: 13_034_431,
         end: false,
-        ratio: 0.7472
+        ratio: 0.605
       },
       {
         originSkill: Skill.SLAYER,
@@ -632,7 +720,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.6695
+        ratio: 0.663
       }
     ]
   },
@@ -641,23 +729,23 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 250_000,
-        description: 'Low-level trees'
+        rate: 115_000,
+        description: 'Quests, low-level trees'
       },
       {
-        startExp: 185_428,
-        rate: 66_000,
+        startExp: 313_818,
+        rate: 65_000,
         description: 'Tithe Farm rewards'
       },
       {
         startExp: 496_254,
-        rate: 1_000_000,
-        description: 'Pre-99 trees'
+        rate: 800_000,
+        description: 'Tree runs from mole seeds'
       },
       {
         startExp: 13_034_431,
-        rate: 1_116_000,
-        description: 'Tree runs'
+        rate: 1_090_000,
+        description: 'Tree runs from mole seeds'
       }
     ],
     bonuses: []
@@ -668,35 +756,67 @@ export default [
       {
         startExp: 0,
         rate: 13_100,
-        description: 'Quests, Arceuus Library'
+        description: 'Quests'
       },
       {
         startExp: 37_224,
-        rate: 26_300,
-        description: 'GotR masses (25k runecraft rate, incl. passive XP & looting time)'
+        rate: 36_100,
+        description: 'GotR small teams / dolos (35.2k runecraft rate + passive XP & looting time)'
       },
       {
         startExp: 101_333,
-        rate: 42_100,
-        description: 'GotR masses (40k runecraft rate, incl. passive XP & looting time)'
+        rate: 53_000,
+        description: 'GotR small teams / dolos (43.2k runecraft rate + passive XP & looting time)'
+      },
+      {
+        startExp: 449_428,
+        rate: 58_300,
+        description: 'GotR small teams / dolos (47.5k runecraft rate + passive XP & looting time)'
       },
       {
         startExp: 1_210_421,
-        rate: 56_400,
-        description: 'Dolo GotR (52k runecraft rate, incl. passive XP & looting time)'
+        rate: 59_900,
+        description: 'GotR small teams / solos (56.1k runecraft rate + passive XP & looting time)'
+      },
+      {
+        startExp: 1_475_581,
+        rate: 60_600,
+        description: 'GotR small teams / solos (56.7k runecraft rate + passive XP & looting time)'
       },
       {
         startExp: 3_258_594,
-        rate: 65_700,
-        description: 'Dolo GotR (60k runecraft rate, incl. passive XP & looting time)'
+        rate: 74_400,
+        description: 'GotR small teams / solos (69.5k runecraft rate + passive XP & looting time)'
+      },
+      {
+        startExp: 8_771_558,
+        rate: 78_600,
+        description: 'GotR small teams / solos (73.4k runecraft rate + passive XP & looting time)'
       },
       {
         startExp: 13_034_431,
-        rate: 69_000,
-        description: 'Dolo GotR (63k runecraft rate, incl. passive XP & looting time)'
+        rate: 75_128,
+        description: 'GotR small teams / solos (77.0k runecraft rate + looting time)'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.RUNECRAFTING,
+        bonusSkill: Skill.CRAFTING,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.095
+      },
+      {
+        originSkill: Skill.RUNECRAFTING,
+        bonusSkill: Skill.MINING,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.0364
+      }
+    ]
   },
   {
     skill: Skill.HUNTER,
@@ -713,17 +833,17 @@ export default [
       },
       {
         startExp: 737_627,
-        rate: 142_300,
-        description: 'Mahogany birdhouses'
+        rate: 104_600,
+        description: 'Red chinchompas'
       },
       {
         startExp: 1_986_068,
-        rate: 154_300,
+        rate: 158_300,
         description: 'Red chinchompas'
       },
       {
         startExp: 5_346_332,
-        rate: 178_600,
+        rate: 183_300,
         description: 'Red chinchompas'
       },
       {
@@ -739,30 +859,49 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 6_000,
+        rate: 3_800,
         description: 'Quests, low-level furniture'
       },
       {
         startExp: 4_470,
-        rate: 71_500,
-        description: 'Oak Mahogany Homes (65k construction rate, no plank sack), Wintertodt'
+        rate: 0,
+        description: 'Dolo Wintertodt'
       },
       {
-        startExp: 445_287,
-        rate: 80_100,
-        description: 'Oak Mahogany Homes (72k construction rate)'
+        startExp: 223_678,
+        rate: 128_100,
+        description: '1.5t teaks & Mahogany Homes (107k base rate, no plank sack)'
       },
       {
-        startExp: 737_627,
-        rate: 121_800,
-        description: 'Teak Mahogany Homes (100k construction rate)'
+        startExp: 508_945,
+        rate: 138_400,
+        description: '1.5t teaks & Mahogany Homes (114k base rate)'
       },
       {
-        startExp: 3_258_594,
-        rate: 179_700,
-        description: '3t Prifddinas mythical capes (112k construction rate)'
+        startExp: 1_336_443,
+        rate: 144_600,
+        description: '1.5t teaks & Mahogany Homes (119k base rate)'
+      },
+      {
+        startExp: 1_475_581,
+        rate: 219_944,
+        description: '1.5t teaks & mythical capes (125k base rate)'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 125_000,
+        description: '1.5t teaks & mythical capes'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.CONSTRUCTION,
+        bonusSkill: Skill.WOODCUTTING,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.706
+      }
+    ]
   }
 ];
