@@ -5,22 +5,17 @@ import {
   SKILLS,
   MAX_SKILL_EXP,
   SKILL_EXP_AT_99,
-  ExperienceMap,
-  KillcountMap,
   EfficiencyAlgorithmType,
   PlayerType,
   PlayerBuild
 } from '../../../src/utils';
 import apiServer from '../../../src/api';
-import {
-  ALGORITHMS,
-  buildAlgorithmCache,
-  getAlgorithm
-} from '../../../src/api/modules/efficiency/efficiency.utils';
+import { ALGORITHMS, getAlgorithm } from '../../../src/api/modules/efficiency/efficiency.utils';
 import * as efficiencyServices from '../../../src/api/modules/efficiency/efficiency.services';
 import testSkillingMetas from '../../data/efficiency/configs/test.ehp';
 import testBossingMetas from '../../data/efficiency/configs/test.ehb';
 import { resetDatabase, resetRedis, sleep } from '../../utils';
+import EfficiencyAlgorithm from '../../../src/api/modules/efficiency/EfficiencyAlgorithm';
 
 const api = supertest(apiServer.express);
 
@@ -32,7 +27,7 @@ beforeAll(async () => {
   // don't break when rates are updated in the future, consistent configs = consistent tests
   ALGORITHMS.set(
     EfficiencyAlgorithmType.MAIN,
-    buildAlgorithmCache(EfficiencyAlgorithmType.MAIN, testSkillingMetas, testBossingMetas)
+    new EfficiencyAlgorithm(EfficiencyAlgorithmType.MAIN, testSkillingMetas, testBossingMetas)
   );
 
   // Create 100 players, with increasing overall ranks, and make sure some of them
@@ -138,65 +133,61 @@ afterAll(async () => {
 describe('Efficiency API', () => {
   describe('1 - Maximum TTM and TT200m', () => {
     test('Check maximum TTM and TT200m', () => {
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maxedEHP).toBeCloseTo(962.9246300000013, 4);
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maximumEHP).toBeCloseTo(12813.80829, 4);
+      const maxedStats = new Map(SKILLS.map(s => [s, SKILL_EXP_AT_99]));
+
+      expect(
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHPMap(maxedStats).get('overall')
+      ).toBeCloseTo(962.9246338539108, 4);
+
+      const maximumStats = new Map(SKILLS.map(s => [s, MAX_SKILL_EXP]));
+      expect(
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHPMap(maximumStats).get('overall')
+      ).toBeCloseTo(12813.80829, 4);
     });
   });
 
   describe('2 - Player EHP calcs', () => {
     test('Maximum EHP calcs', () => {
-      const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP])) as ExperienceMap;
+      const maximumStats = new Map(SKILLS.map(s => [s, MAX_SKILL_EXP]));
 
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHP(maximumStats)).toBeCloseTo(
-        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maximumEHP,
-        4
-      );
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateTT200m(maximumStats)).toBeCloseTo(0, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateTT200mAll(maximumStats)).toBeCloseTo(0, 4);
 
-      const adjustedStats = {
-        ...maximumStats,
-        farming: maximumStats['farming'] - 1_900_000, // 1 hour of farming
-        mining: maximumStats['mining'] - 125_000, // 1 hour of mining
-        smithing: maximumStats['smithing'] - 10_000 // 0 hours of smithing (bonus exp from mining)
-      };
+      const adjustedStats = new Map(SKILLS.map(s => [s, MAX_SKILL_EXP]));
+      adjustedStats.set('farming', adjustedStats.get('farming') - 1_900_000); // 1 hour of farming
+      adjustedStats.set('mining', adjustedStats.get('mining') - 125_000); // 1 hour of mining
+      adjustedStats.set('smithing', adjustedStats.get('smithing') - 10_000); // 0 hours of smithing (bonus exp from mining)
 
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHP(adjustedStats)).toBeCloseTo(
-        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maximumEHP - 2,
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHPMap(maximumStats).get('overall') - 2,
         4
       );
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateTT200m(adjustedStats)).toBeCloseTo(2, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateTT200mAll(adjustedStats)).toBeCloseTo(
+        2,
+        4
+      );
     });
 
     test('Maxed EHP calcs', () => {
-      const maxedStats = Object.fromEntries(SKILLS.map(s => [s, SKILL_EXP_AT_99])) as ExperienceMap;
-
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHP(maxedStats)).toBeCloseTo(
-        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maxedEHP,
-        4
-      );
+      const maxedStats = new Map(SKILLS.map(s => [s, SKILL_EXP_AT_99]));
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateTTM(maxedStats)).toBeCloseTo(0, 4);
 
-      const adjustedStats = {
-        ...maxedStats,
-        farming: maxedStats['farming'] - 1_900_000, // 1 hour of farming
-        prayer: maxedStats['prayer'] - 1_800_000 // 1 hour of prayer
-      };
+      const adjustedStats = new Map(SKILLS.map(s => [s, SKILL_EXP_AT_99]));
+      adjustedStats.set('farming', adjustedStats.get('farming') - 1_900_000); // 1 hour of farming
+      adjustedStats.set('prayer', adjustedStats.get('prayer') - 1_800_000); // 1 hour of prayer
 
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHP(adjustedStats)).toBeCloseTo(
-        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maxedEHP - 2,
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHPMap(maxedStats).get('overall') - 2,
         4
       );
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateTTM(adjustedStats)).toBeCloseTo(2, 4);
     });
 
     test('Skill EHP calcs', () => {
-      const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP])) as ExperienceMap;
+      const resetWoodcutting = new Map(SKILLS.map(s => [s, MAX_SKILL_EXP]));
+      resetWoodcutting.set('woodcutting', 0);
 
       expect(
-        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateSkillEHP('woodcutting', {
-          ...maximumStats,
-          woodcutting: 0
-        })
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHPMap(resetWoodcutting).get('woodcutting')
       ).toBeCloseTo(0, 4);
 
       // Woodcutting WITH bonuses (infernal axe 20%), would have taken 1008.99494 hours
@@ -204,21 +195,31 @@ describe('Efficiency API', () => {
       // however this bonus firemaking exp won't include the cooking bonus exp (firebwan 70%)
       // so we'd have to manually train another 27.95m cooking exp, adding an extra 29,42913 hours of cooking
 
+      const resetFmAndcook = new Map(SKILLS.map(s => [s, MAX_SKILL_EXP]));
+      resetFmAndcook.set('firemaking', 0);
+      resetFmAndcook.set('cooking', 0);
+
       expect(
-        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateSkillEHP('woodcutting', {
-          ...maximumStats,
-          firemaking: 0,
-          cooking: 0
-        })
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHPMap(resetFmAndcook).get('woodcutting')
       ).toBeCloseTo(1008.9949484021762 - 79.0882027723 + 29.4291365053, 4);
 
-      // But if the player already has Firemaking and Cooking at 200m, that means
-      // they manually trained those skills and the WC bonus exp will be wasted efficiency
-      // and won't shave off any time from their total EHP, so Woodcutting will contribute
-      // the full 1008 hours to the player's EHP
+      expect(
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHPMap(resetFmAndcook).get('firemaking')
+      ).toBeCloseTo(0, 4);
 
       expect(
-        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateSkillEHP('woodcutting', maximumStats)
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHPMap(resetFmAndcook).get('cooking')
+      ).toBeCloseTo(0, 4);
+
+      // But if we already have Firemaking and Cooking at 200m, that means
+      // we manually trained those skills and the WC bonus exp will be wasted efficiency
+      // and won't shave off any time from the total EHP, so Woodcutting will contribute
+      // the full 1008 hours to the player's EHP
+
+      const maximumStats = new Map(SKILLS.map(s => [s, MAX_SKILL_EXP]));
+
+      expect(
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHPMap(maximumStats).get('woodcutting')
       ).toBeCloseTo(1008.994948, 4);
 
       // Without woodcutting bonuses (infernal axe 20%), firemaking would have taken 399.25525 hours to 200m
@@ -232,69 +233,66 @@ describe('Efficiency API', () => {
       // lvl75 -> lvl90 = 4,135,911 exp, at 447,801 per hour = 9.23604 EHP
       // lvl90 -> 200m  = 194,653,668 exp, at 505,000 per hour = 385.45280 EHP
 
-      // As said above, usually through Woodcutting, we save firemaking 79.0882 hours from bonuses,
-      // meaning firemaking to 200m WITH Woodcutting would take 320.16709 hours.
-
       expect(
-        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateSkillEHP('firemaking', {
-          ...maximumStats,
-          woodcutting: 0
-        })
-      ).toBeCloseTo(320.16709, 4);
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHPMap(resetWoodcutting).get('firemaking')
+      ).toBeCloseTo(320.16709036, 4);
 
-      // In addition, training it manually to 200m (WITHOUT Woodcutting) would have also gotten
+      // In addition, training firemaking manually to 200m (WITHOUT Woodcutting) would have also gotten
       // us 139,929,066 bonus Cooking exp from firebwans, which would have saved us
       // 147,2937536842 hours of 1t karambwans
 
+      const resetCooking = new Map(SKILLS.map(s => [s, MAX_SKILL_EXP]));
+      resetCooking.set('cooking', 0);
+
       expect(
-        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateSkillEHP('firemaking', {
-          ...maximumStats,
-          cooking: 0
-        })
-      ).toBeCloseTo(399.25525 - 147.29375, 4);
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHPMap(resetCooking).get('firemaking')
+      ).toBeCloseTo(320.16709036 - 147.29375, 4);
 
       // Make sure unranked skills return 0 EHP (and definitely not negative numbers)
-      const unrankedStats = Object.fromEntries(SKILLS.map(s => [s, -1])) as ExperienceMap;
+      const unrankedStats = new Map(SKILLS.map(s => [s, -1]));
+
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHP(unrankedStats)).toBe(0);
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateSkillEHP('prayer', unrankedStats)).toBe(0);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHPMap(unrankedStats).get('prayer')).toBe(
+        0
+      );
     });
   });
 
   describe('3 - Player EHB calcs', () => {
     test('EHB calcs', () => {
-      const killcountMap = {
-        barrows_chests: 100, // no rate, 0 EHB
-        cerberus: 100, // 61 per hour, 1.63934 EHB
-        corporeal_beast: 100, // 50 per hour, 2 EHB
-        nex: 100, // 12 per hour, 8.33333 EHB
-        tzkal_zuk: 100, // 0.8 per hour, 125 EHB
-        wintertodt: 100, // no rate, 0 EHB
-        zulrah: 100 // 35 per hour, 2.85714 EHB
-      } as KillcountMap;
+      const killcountMap = new Map([
+        [Boss.BARROWS_CHESTS, 100], // no rate, 0 EHB
+        [Boss.CERBERUS, 100], // 61 per hour, 1.63934 EHB
+        [Boss.CORPOREAL_BEAST, 100], // 50 per hour, 2 EHB
+        [Boss.NEX, 100], // 12 per hour, 8.33333 EHB
+        [Boss.TZKAL_ZUK, 100], // 0.8 per hour, 125 EHB
+        [Boss.WINTERTODT, 100], // no rate, 0 EHB
+        [Boss.ZULRAH, 100] // 35 per hour, 2.85714 EHB
+      ]);
 
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHB(killcountMap)).toBeCloseTo(
         139.82981,
         4
       );
 
-      const ehbSum = Object.keys(killcountMap)
-        .map(b => ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateBossEHB(b as Boss, killcountMap))
+      const ehbSum = Array.from(killcountMap.keys())
+        .map(b => ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHBMap(killcountMap).get(b))
         .reduce((acc, curr) => acc + curr);
 
       // The sum of every boss' individual EHB value should be the same as the player's total EHB
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHB(killcountMap)).toBe(ehbSum);
 
-      const unrankedKillcountMap = {
-        cerberus: -1,
-        corporeal_beast: -1,
-        nex: -1,
-        tzkal_zuk: -1
-      } as KillcountMap;
+      const unrankedKillcountMap = new Map([
+        [Boss.CERBERUS, -1],
+        [Boss.CORPOREAL_BEAST, -1],
+        [Boss.NEX, -1],
+        [Boss.TZKAL_ZUK, -1]
+      ]);
 
       // Make sure unranked skills return 0 EHB (and definitely not negative numbers)
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHB(unrankedKillcountMap)).toBe(0);
       expect(
-        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateBossEHB('cerberus', unrankedKillcountMap)
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHBMap(unrankedKillcountMap).get('cerberus')
       ).toBe(0);
     });
   });

@@ -17,7 +17,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 8_365,
+        rate: 29_500,
         description: '4t Trees'
       },
       {
