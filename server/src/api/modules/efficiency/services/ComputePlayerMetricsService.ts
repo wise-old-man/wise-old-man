@@ -50,7 +50,7 @@ async function computePlayerMetrics(payload: ComputePlayerMetricsParams) {
 
   const result: ComputePlayerMetricsResult = {
     ttm: algorithm.calculateTTM(experienceMap),
-    tt200m: algorithm.calculateTT200m(experienceMap),
+    tt200m: algorithm.calculateTT200mAll(experienceMap),
     ehpValue,
     ehbValue,
     ehpRank,

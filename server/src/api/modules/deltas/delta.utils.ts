@@ -28,7 +28,6 @@ import {
   SkillDelta,
   ComputedMetricDelta
 } from './delta.types';
-import { EfficiencyMap } from '../efficiency/efficiency.types';
 import { getTotalLevel } from '../snapshots/snapshot.utils';
 
 const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 });
@@ -115,10 +114,14 @@ function calculateValueDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot
 /**
  * Calculates the efficiency (ehp/ehb) difference between two snapshots, for a given metric.
  */
-function calculateEfficiencyDiff(metric: Metric, startMap: EfficiencyMap, endMap: EfficiencyMap) {
+function calculateEfficiencyDiff(
+  metric: Skill | Boss,
+  startMap: Map<Skill | Boss, number>,
+  endMap: Map<Skill | Boss, number>
+) {
   // Calculate EHP/EHB diffs
-  const startEfficiency = startMap[metric];
-  const endEfficiency = endMap[metric];
+  const startEfficiency = startMap.get(metric);
+  const endEfficiency = endMap.get(metric);
 
   return {
     gained: round(endEfficiency - startEfficiency, 5),

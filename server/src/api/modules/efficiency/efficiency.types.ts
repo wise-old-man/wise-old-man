@@ -1,14 +1,4 @@
-import { Skill, Boss, MapOf } from '../../../utils';
-
-export type ExperienceMap = MapOf<Skill, number>;
-export type KillcountMap = MapOf<Boss, number>;
-
-export type EfficiencyMap = ExperienceMap & KillcountMap;
-
-export enum BonusType {
-  START,
-  END
-}
+import { Skill, Boss } from '../../../utils';
 
 export enum EfficiencyAlgorithmType {
   MAIN = 'main',
@@ -47,18 +37,4 @@ export interface Bonus {
   maxBonus?: number;
   end: boolean;
   ratio: number;
-}
-
-export interface EfficiencyAlgorithm {
-  type: EfficiencyAlgorithmType;
-  skillMetas: SkillMetaConfig[];
-  bossMetas: BossMetaConfig[];
-  maximumEHP: number;
-  maxedEHP: number;
-  calculateEHB(killcountMap: KillcountMap): number;
-  calculateEHP(experienceMap: ExperienceMap): number;
-  calculateTTM(experienceMap: ExperienceMap): number;
-  calculateTT200m(experienceMap: ExperienceMap): number;
-  calculateSkillEHP(skill: Skill, experienceMap: ExperienceMap): number;
-  calculateBossEHB(boss: Boss, killcountMap: KillcountMap): number;
 }

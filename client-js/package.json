@@ -1,6 +1,6 @@
 {
   "name": "@wise-old-man/utils",
-  "version": "3.1.13",
+  "version": "3.1.14",
   "description": "A JavaScript/TypeScript client that interfaces and consumes the Wise Old Man API, an API that tracks and measures players' progress in Old School Runescape.",
   "keywords": [
     "wiseoldman",

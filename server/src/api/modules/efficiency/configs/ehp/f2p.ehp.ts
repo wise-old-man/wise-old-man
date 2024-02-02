@@ -278,38 +278,38 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 8_365,
+        rate: 29_500,
         description: '4t Trees'
       },
       {
         startExp: 2_411,
         rate: 35_000,
-        description: '2t Oaks (steel axe) + Alchemy'
+        description: '2t Oaks (steel axe)'
       },
       {
         startExp: 5_018,
         rate: 45_000,
-        description: '2t Oaks (mith axe) + Alchemy'
+        description: '2t oaks (mith axe)'
       },
       {
         startExp: 14_833,
         rate: 60_000,
-        description: '2t Oaks (addy axe) + Alchemy'
+        description: '2t oaks (addy axe)'
       },
       {
         startExp: 41_171,
         rate: 80_000,
-        description: '2t Oaks (rune axe) + Alchemy'
+        description: '2t oaks (rune axe)'
       },
       {
         startExp: 101_333,
         rate: 100_000,
-        description: '2t Oaks (rune axe) + Alchemy'
+        description: '2t oaks (rune axe)'
       },
       {
         startExp: 302_288,
         rate: 110_000,
-        description: '2t Oaks (100% success) + Alchemy'
+        description: '2t oaks (100% success)'
       },
       {
         startExp: 13_034_431,
@@ -321,18 +321,10 @@ export default [
       {
         originSkill: Skill.WOODCUTTING,
         bonusSkill: Skill.MAGIC,
-        startExp: 2_411,
-        endExp: 5_018,
-        end: false,
-        ratio: 1.54
-      },
-      {
-        originSkill: Skill.WOODCUTTING,
-        bonusSkill: Skill.MAGIC,
         startExp: 5_018,
         endExp: 14_833,
         end: false,
-        ratio: 1.2
+        ratio: 1.54
       },
       {
         originSkill: Skill.WOODCUTTING,
@@ -446,7 +438,7 @@ export default [
         bonusSkill: Skill.COOKING,
         startExp: 0,
         endExp: 200_000_000,
-        end: true,
+        end: false,
         ratio: 1.15
       }
     ]
@@ -618,22 +610,6 @@ export default [
         originSkill: Skill.MINING,
         bonusSkill: Skill.SMITHING,
         startExp: 247_886,
-        endExp: 302_288,
-        end: false,
-        ratio: 0.321
-      },
-      {
-        originSkill: Skill.MINING,
-        bonusSkill: Skill.MAGIC,
-        startExp: 247_886,
-        endExp: 302_288,
-        end: false,
-        ratio: 1.363
-      },
-      {
-        originSkill: Skill.MINING,
-        bonusSkill: Skill.SMITHING,
-        startExp: 302_288,
         endExp: 142_000_000,
         end: false,
         ratio: 0.321
@@ -641,7 +617,7 @@ export default [
       {
         originSkill: Skill.MINING,
         bonusSkill: Skill.MAGIC,
-        startExp: 302_288,
+        startExp: 247_886,
         endExp: 142_000_000,
         end: false,
         ratio: 1.363

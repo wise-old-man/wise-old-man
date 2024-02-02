@@ -630,7 +630,7 @@ export default [
       },
       {
         startExp: 2_411,
-        rate: 35_000,
+        rate: 33_000,
         description: '2t Oaks (steel axe)'
       },
       {
@@ -640,23 +640,28 @@ export default [
       },
       {
         startExp: 14_833,
-        rate: 60_000,
+        rate: 63_000,
         description: '2t Oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 80_000,
+        rate: 82_000,
         description: '2t Oaks (rune axe)'
       },
       {
         startExp: 101_333,
-        rate: 100_000,
+        rate: 90_000,
         description: '2t Oaks (rune axe)'
       },
       {
         startExp: 302_288,
-        rate: 110_000,
+        rate: 100_000,
         description: '2t Oaks (100% success)'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 110_000,
+        description: '2t Oaks (forestry events give more xp at higher lvl)'
       }
     ],
     bonuses: []

@@ -57,116 +57,111 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 7_000,
-        description: 'Trees'
+        rate: 29_000,
+        description: 'Quests and trees'
       },
       {
         startExp: 2_411,
-        rate: 16_000,
-        description: 'Oak trees'
-      },
-      {
-        startExp: 13_363,
-        rate: 35_000,
-        description: 'Willow trees'
+        rate: 62_000,
+        description: '2t oaks (average rate)'
       },
       {
         startExp: 22_406,
-        rate: 87_750,
-        description: '1.5t Teaks'
+        rate: 101_272,
+        description: '1.5t teaks'
       },
       {
         startExp: 41_171,
-        rate: 108_161,
-        description: '1.5t Teaks'
+        rate: 125_015,
+        description: '1.5t teaks'
       },
       {
         startExp: 111_945,
-        rate: 119_224,
-        description: '1.5t Teaks'
+        rate: 137_760,
+        description: '1.5t teaks'
       },
       {
         startExp: 302_288,
-        rate: 148_471,
-        description: '1.5t Teaks'
+        rate: 171_408,
+        description: '1.5t teaks'
       },
       {
         startExp: 737_627,
-        rate: 158_861,
-        description: '1.5t Teaks'
+        rate: 183_346,
+        description: '1.5t teaks'
       },
       {
         startExp: 1_986_068,
-        rate: 171_832,
-        description: '1.5t Teaks'
+        rate: 198_235,
+        description: '1.5t teaks'
       },
       {
         startExp: 5_346_332,
-        rate: 183_623,
-        description: '1.5t Teaks'
+        rate: 211_761,
+        description: '1.5t teaks'
       },
       {
         startExp: 13_034_431,
-        rate: 195_178,
-        description: '1.5t Teaks'
+        rate: 225_000,
+        description: '1.5t teaks'
       }
     ],
-    bonuses: [
-      {
-        originSkill: Skill.WOODCUTTING,
-        bonusSkill: Skill.FIREMAKING,
-        startExp: 302_288,
-        endExp: 200_000_000,
-        end: true,
-        ratio: 0.2
-      }
-    ]
+    bonuses: []
   },
   {
     skill: Skill.FISHING,
     methods: [
       {
         startExp: 0,
-        rate: 20_000,
-        description: 'Questing XP'
+        rate: 29_200,
+        description: 'Quests'
       },
       {
-        startExp: 18_247,
-        rate: 40_000,
-        description: 'Fly fishing (Trout & Salmon)'
+        startExp: 14_612,
+        rate: 46_592,
+        description: '3t fly fishing'
       },
       {
-        startExp: 101_333,
-        rate: 82_355,
-        description: 'Fly fishing (Trout & Salmon)'
+        startExp: 75_127,
+        rate: 80_446,
+        description: 'Drift net fishing (65.2k hunter & 55.9k fishing xp/h)'
       },
       {
-        startExp: 273_742,
-        rate: 97_862,
-        description: 'Fly fishing (Trout & Salmon)'
+        startExp: 106_046,
+        rate: 92_041,
+        description: 'Drift net fishing (81.6k hunter & 64.6k fishing xp/h)'
+      },
+      {
+        startExp: 229_685,
+        rate: 102_279,
+        description: 'Drift net fishing (95.1k hunter & 72.2k fishing xp/h)'
+      },
+      {
+        startExp: 302_288,
+        rate: 123_438,
+        description: 'Drift net fishing (108.7k hunter & 80.3k fishing xp/h)'
+      },
+      {
+        startExp: 593_234,
+        rate: 134_262,
+        description: 'Drift net fishing (118.5k hunter & 87.2k fishing xp/h)'
       },
       {
         startExp: 737_627,
-        rate: 124_127,
-        description: 'Fly fishing (Trout & Salmon)'
-      },
-      {
-        startExp: 1_986_068,
-        rate: 128_908,
-        description: 'Fly fishing (Trout & Salmon)'
-      },
-      {
-        startExp: 5_346_332,
-        rate: 131_109,
-        description: 'Fly fishing (Trout & Salmon)'
-      },
-      {
-        startExp: 13_034_431,
-        rate: 95_000,
-        description: 'Fly fishing (Trout & Salmon)'
+        rate: 120_000,
+        description: 'Drift net fishing + 2t swordfish & tuna'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.COOKING,
+        startExp: 737_627,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.216
+      }
+    ]
   },
   {
     skill: Skill.FIREMAKING,
@@ -571,70 +566,65 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 55_000,
-        description: 'Varrock Museum'
+        rate: 30_080,
+        description: 'Varrock museum and birdhouses'
       },
       {
         startExp: 2_107,
-        rate: 82_000,
-        description: 'Oak bird house runs'
+        rate: 82_849,
+        description: 'Oak birdhouses'
       },
       {
         startExp: 7_028,
-        rate: 110_000,
-        description: 'Willow bird house runs'
+        rate: 110_466,
+        description: 'Willow birdhouses'
       },
       {
         startExp: 20_224,
-        rate: 138_000,
-        description: 'Teak bird house runs'
+        rate: 138_082,
+        description: 'Teak birdhouses'
       },
       {
         startExp: 55_649,
-        rate: 161_000,
-        description: 'Maple bird house runs'
+        rate: 214_059,
+        description: 'Drift net fishing (65.2k hunter & 55.9k fishing xp/h)'
       },
       {
-        startExp: 101_333,
-        rate: 361_981,
-        description: 'Drift net'
+        startExp: 91_721,
+        rate: 273_711,
+        description: 'Drift net fishing (81.6k hunter & 64.6k fishing xp/h)'
       },
       {
-        startExp: 273_742,
-        rate: 427_613,
-        description: 'Drift net'
+        startExp: 247_886,
+        rate: 323_167,
+        description: 'Drift net fishing (95.1k hunter & 72.2k fishing xp/h)'
+      },
+      {
+        startExp: 343_551,
+        rate: 310_693,
+        description: 'Drift net fishing (108.7k hunter & 80.3k fishing xp/h)'
       },
       {
         startExp: 737_627,
-        rate: 430_165,
-        description: 'Drift net'
+        rate: 337_937,
+        description: 'Drift net fishing (118.5k hunter & 87.2k fishing xp/h)'
       },
       {
-        startExp: 1_986_068,
-        rate: 391_950,
-        description: 'Drift net'
-      },
-      {
-        startExp: 5_346_332,
-        rate: 377_338,
-        description: 'Drift net'
-      },
-      {
-        startExp: 13_034_431,
-        rate: 310_000,
+        startExp: 933_979,
+        rate: 255_000,
         realRate: 118_535,
-        description: 'Drift net (Bird house runs)'
+        description: 'Drift net fishing (118.5k hunter & 89.9k fishing xp/h, scales to black chinchompas)'
       }
     ],
     bonuses: [
       {
         originSkill: Skill.HUNTER,
         bonusSkill: Skill.FISHING,
-        startExp: 13_034_431,
+        startExp: 933_979,
         endExp: 200_000_000,
-        maxBonus: 49_288_098,
+        maxBonus: 43_163_290,
         end: true,
-        ratio: 0.7586029443
+        ratio: 0.75862069443
       }
     ]
   },
