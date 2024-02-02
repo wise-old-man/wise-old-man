@@ -151,7 +151,7 @@ class EfficiencyAlgorithm {
     bonuses
       .sort((a, b) => {
         // Sort the bonuses by the number of dependencies they have.
-        // This ensures skills with no received bonus exp are applied last.
+        // This ensures skills with no received bonus exp are applied first (ex: Slayer).
         return (
           (this.bonusDirectionMap.get(b.bonusSkill)?.length ?? 0) -
           (this.bonusDirectionMap.get(a.bonusSkill)?.length ?? 0)
@@ -247,7 +247,7 @@ class EfficiencyAlgorithm {
 
     // Handle 0 time skills (Hitpoints, Magic, Fletching)
     if (!methods || (methods.length === 1 && methods[0].rate === 0)) {
-      return (endExp - startExp) / 200_000_000;
+      return (endExp - startExp) / MAX_SKILL_EXP;
     }
 
     let skillTime = 0;
