@@ -25,7 +25,6 @@ import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
 import logger from '../../util/logging';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
-import { EfficiencyMap } from '../efficiency/efficiency.types';
 import {
   ActivityValue,
   ActivityValueWithPlayer,
@@ -42,7 +41,7 @@ import {
 // On this date, the Bounty Hunter was updated and scores were reset.
 const BOUNTY_HUNTER_UPDATE_DATE = new Date('2023-05-24T10:30:00.000Z');
 
-function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSnapshot {
+function format(snapshot: Snapshot, efficiencyMap?: Map<Skill | Boss, number>): FormattedSnapshot {
   if (!snapshot) return null;
 
   const { id, playerId, createdAt, importedAt } = snapshot;
@@ -64,8 +63,8 @@ function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSna
             level: s === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(experience)
           };
 
-          if (efficiencyMap && efficiencyMap[s] !== undefined) {
-            value.ehp = efficiencyMap[s];
+          if (efficiencyMap && efficiencyMap.get(s) !== undefined) {
+            value.ehp = efficiencyMap.get(s);
           }
 
           return [s, value];
@@ -79,8 +78,8 @@ function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSna
             rank: snapshot[getMetricRankKey(b)]
           };
 
-          if (efficiencyMap && efficiencyMap[b] !== undefined) {
-            value.ehb = efficiencyMap[b];
+          if (efficiencyMap && efficiencyMap.get(b) !== undefined) {
+            value.ehb = efficiencyMap.get(b);
           }
 
           return [b, value];
