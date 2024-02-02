@@ -193,20 +193,6 @@ function SideBar(props: SideBarProps) {
             </a>
           </li>
         ))}
-        <li>
-          <a
-            href="https://league.wiseoldman.net"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between px-7 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700"
-          >
-            <div className="flex items-center">
-              <CompassIcon className="mr-2 h-5 w-5" />
-              Trailblazer Edition
-            </div>
-            <span className="mt-px text-xs text-blue-400">New</span>
-          </a>
-        </li>
       </ul>
       <div className="mt-auto block lg:hidden">
         <SocialLinks />

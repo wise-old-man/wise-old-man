@@ -33,7 +33,7 @@
     "cmdk": "^0.2.0",
     "dayjs": "^1.11.7",
     "javascript-time-ago": "^2.5.9",
-    "next": "14.0.4",
+    "next": "14.1.1-canary.27",
     "next-nprogress-bar": "^2.1.2",
     "next-plugin-svgr": "^1.1.4",
     "postcss": "8.4.22",
