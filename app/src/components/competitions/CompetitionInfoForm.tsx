@@ -27,7 +27,6 @@ import {
   ComboboxSeparator,
   ComboboxTrigger,
 } from "../Combobox";
-import { Alert, AlertDescription, AlertTitle } from "../Alert";
 import { DateTimePicker, TimeField, toCalendarDate, toDate } from "../DatePicker";
 import { MetricIconSmall } from "../Icon";
 import { Input } from "../Input";
@@ -226,12 +225,7 @@ function MetricSelect(props: MetricSelectProps) {
           }
         }}
       >
-        <ComboboxButton
-          className={cn(
-            "w-full bg-gray-800 hover:bg-gray-700",
-            metric === Metric.LEAGUE_POINTS && "border border-red-800"
-          )}
-        >
+        <ComboboxButton className="w-full bg-gray-800 hover:bg-gray-700">
           <div className="flex items-center gap-x-2">
             <MetricIconSmall metric={metric} />
             <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
@@ -278,20 +272,6 @@ function MetricSelect(props: MetricSelectProps) {
           </ComboboxItemsContainer>
         </ComboboxContent>
       </Combobox>
-      {metric === Metric.LEAGUE_POINTS && (
-        <Alert className="mt-6 pb-4" variant="error">
-          <AlertTitle>League Points competitions are not supported on this website.</AlertTitle>
-          <AlertDescription>
-            <p className="mb-3">{`You might want to use the "Trailblazer Reloaded" version of our website that does allow you to create League-specific competitions.`}</p>
-            <a
-              href="https://league.wiseoldman.net"
-              className="font-medium text-blue-400 hover:text-blue-400"
-            >
-              Go to Trailblazer Reloaded Website
-            </a>
-          </AlertDescription>
-        </Alert>
-      )}
     </>
   );
 }
