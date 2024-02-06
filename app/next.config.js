@@ -25,7 +25,7 @@ const nextConfig = withBundleAnalyzer(
       ],
     },
     async redirects() {
-      return [
+      const redirects = [
         // Redirects to external websites
         {
           source: "/github",
@@ -81,6 +81,16 @@ const nextConfig = withBundleAnalyzer(
           permanent: true,
         },
       ];
+
+      return process.env.MAINTENANCE_MODE
+        ? [
+            {
+              source: "/((?!maintenance).*)",
+              destination: "/maintenance",
+              permanent: false,
+            },
+          ]
+        : redirects;
     },
   })
 );

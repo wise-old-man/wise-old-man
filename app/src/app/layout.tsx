@@ -4,7 +4,6 @@ import { Footer } from "~/components/Footer";
 import { Navigation } from "~/components/Navigation";
 import { TooltipProvider } from "~/components/Tooltip";
 import { ToastManager } from "~/components/ToastManager";
-import { MaintenanceNotice } from "~/components/MaintenaceNotice";
 import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { ReactQueryProvider } from "~/components/ReactQueryProvider";
 import { NavigationLoadingBar } from "~/components/NavigationLoadingBar";
@@ -27,26 +26,22 @@ export const metadata = {
 function RootLayout(props: PropsWithChildren) {
   const { children } = props;
 
-  if (process.env.MAINTENANCE_MODE) {
-    return (
-      <html lang="en" className={inter.variable}>
-        <body>
-          <MaintenanceNotice />
-        </body>
-      </html>
-    );
-  }
-
   return (
     <html lang="en" className={inter.variable}>
       <body>
         <NavigationLoadingBar />
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
-            <Navigation>
-              {children}
-              <Footer />
-            </Navigation>
+            {process.env.MAINTENANCE_MODE ? (
+              <>{children}</>
+            ) : (
+              <>
+                <Navigation>
+                  {children}
+                  <Footer />
+                </Navigation>
+              </>
+            )}
           </ReactQueryProvider>
         </TooltipProvider>
         <TailwindIndicator />
