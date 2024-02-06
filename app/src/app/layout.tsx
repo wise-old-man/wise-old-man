@@ -4,7 +4,6 @@ import { Footer } from "~/components/Footer";
 import { Navigation } from "~/components/Navigation";
 import { TooltipProvider } from "~/components/Tooltip";
 import { ToastManager } from "~/components/ToastManager";
-import { MaintenanceNotice } from "~/components/MaintenaceNotice";
 import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { ReactQueryProvider } from "~/components/ReactQueryProvider";
 import { NavigationLoadingBar } from "~/components/NavigationLoadingBar";
@@ -30,9 +29,7 @@ function RootLayout(props: PropsWithChildren) {
   if (process.env.MAINTENANCE_MODE) {
     return (
       <html lang="en" className={inter.variable}>
-        <body>
-          <MaintenanceNotice />
-        </body>
+        <body>{children}</body>
       </html>
     );
   }
