@@ -26,24 +26,22 @@ export const metadata = {
 function RootLayout(props: PropsWithChildren) {
   const { children } = props;
 
-  if (process.env.MAINTENANCE_MODE) {
-    return (
-      <html lang="en" className={inter.variable}>
-        <body>{children}</body>
-      </html>
-    );
-  }
-
   return (
     <html lang="en" className={inter.variable}>
       <body>
         <NavigationLoadingBar />
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
-            <Navigation>
-              {children}
-              <Footer />
-            </Navigation>
+            {process.env.MAINTENANCE_MODE ? (
+              <>{children}</>
+            ) : (
+              <>
+                <Navigation>
+                  {children}
+                  <Footer />
+                </Navigation>
+              </>
+            )}
           </ReactQueryProvider>
         </TooltipProvider>
         <TailwindIndicator />
