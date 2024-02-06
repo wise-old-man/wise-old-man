@@ -13,6 +13,9 @@ const nextConfig = withBundleAnalyzer(
         fullUrl: true,
       },
     },
+    experimental: {
+      windowHistorySupport: true,
+    },
     images: {
       remotePatterns: [
         {
