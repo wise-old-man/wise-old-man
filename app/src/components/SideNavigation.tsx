@@ -17,7 +17,6 @@ import TrophyIcon from "~/assets/trophy.svg";
 import PeopleIcon from "~/assets/people.svg";
 import GithubIcon from "~/assets/github.svg";
 import TwitterIcon from "~/assets/twitter.svg";
-import CompassIcon from "~/assets/compass.svg";
 import DiscordIcon from "~/assets/discord.svg";
 import PatreonIcon from "~/assets/patreon.svg";
 import RuneliteIcon from "~/assets/runelite.svg";
