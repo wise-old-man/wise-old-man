@@ -75,6 +75,7 @@ export function Footer() {
                   <li key={item.name}>
                     <Link
                       href={item.href}
+                      prefetch={false}
                       className="text-sm leading-6 text-gray-200 hover:text-gray-100"
                     >
                       {item.name}

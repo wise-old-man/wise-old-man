@@ -18,7 +18,7 @@ export function LeaderboardsNavigation() {
     <Tabs defaultValue={selectedTab.route}>
       <TabsList aria-label="Leaderboards Navigation">
         {TABS.map((tab) => (
-          <Link href={tab.route} key={tab.route}>
+          <Link prefetch={false} href={tab.route} key={tab.route}>
             <TabsTrigger value={tab.route}>{tab.label}</TabsTrigger>
           </Link>
         ))}

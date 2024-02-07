@@ -11,13 +11,13 @@ export function GroupLeaderboardsNavigation() {
   return (
     <ToggleTabs value={selectedTab}>
       <ToggleTabsList className="divide-x divide-gray-500">
-        <Link href={`/groups/${id}/hiscores`}>
+        <Link prefetch={false} href={`/groups/${id}/hiscores`}>
           <ToggleTabsTrigger value="hiscores">Hiscores</ToggleTabsTrigger>
         </Link>
-        <Link href={`/groups/${id}/gained`}>
+        <Link prefetch={false} href={`/groups/${id}/gained`}>
           <ToggleTabsTrigger value="gained">Gained</ToggleTabsTrigger>
         </Link>
-        <Link href={`/groups/${id}/records`}>
+        <Link prefetch={false} href={`/groups/${id}/records`}>
           <ToggleTabsTrigger value="records">Records</ToggleTabsTrigger>
         </Link>
       </ToggleTabsList>
