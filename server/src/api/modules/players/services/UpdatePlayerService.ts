@@ -137,9 +137,9 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
   // Add the computed metrics to the snapshot
   currentStats.ehpValue = computedMetrics.ehpValue;
-  currentStats.ehpRank = computedMetrics.ehpRank;
+  currentStats.ehpRank = previousSnapshot?.ehpRank || computedMetrics.ehpRank;
   currentStats.ehbValue = computedMetrics.ehbValue;
-  currentStats.ehbRank = computedMetrics.ehbRank;
+  currentStats.ehbRank = previousSnapshot?.ehbRank || computedMetrics.ehbRank;
 
   // Create (and save) a new snapshot
   const newSnapshot = await prisma.snapshot.create({
