@@ -54,7 +54,7 @@ export function CompetitionParticipantsForm(props: CompetitionParticipantsFormPr
       cell: ({ row }) => {
         return (
           <div className="pr-5 text-sm font-medium text-white">
-            <Link href={`/players/${row.original}`} className="hover:underline">
+            <Link prefetch={false} href={`/players/${row.original}`} className="hover:underline">
               {row.original}
             </Link>
           </div>

@@ -74,6 +74,7 @@ function CompetitionTableRow(props: { competition: CompetitionListItem; showHost
           <MetricIcon metric={competition.metric} />
           <div className="flex flex-col">
             <Link
+              prefetch={false}
               href={`/competitions/${competition.id}`}
               className="truncate text-base font-medium leading-7 text-white hover:underline"
             >
@@ -102,6 +103,7 @@ function CompetitionCard(props: { competition: CompetitionListItem; showHost?: b
         <MetricIcon metric={competition.metric} />
         <div className="flex flex-col overflow-hidden">
           <Link
+            prefetch={false}
             href={`/competitions/${competition.id}`}
             className="truncate overflow-ellipsis text-sm font-medium leading-7 text-white hover:underline sm:text-base"
           >
@@ -132,6 +134,7 @@ function CompetitionAttributes(props: { competition: CompetitionListItem; showHo
         <>
           Hosted by&nbsp;
           <Link
+            prefetch={false}
             href={`/groups/${competition.group.id}`}
             className="font-medium text-blue-400 hover:underline"
           >

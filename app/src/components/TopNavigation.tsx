@@ -20,6 +20,7 @@ export function TopNavigation(props: TopNavigationProps) {
     <nav className="z-50 flex h-[4rem] items-center justify-between border-b border-gray-700 bg-gray-800 px-7 shadow-lg">
       <Link
         href="/"
+        prefetch={false}
         aria-label="Home"
         className="hidden outline-none ring-0 lg:block"
         onClick={() => onMenuToggled(false)}

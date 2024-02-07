@@ -65,7 +65,7 @@ export function EditGroupForm(props: EditGroupFormProps) {
 
   return (
     <Container style={{ "--max-width": "64rem" }}>
-      <Link href={`/groups/${group.id}`} className="flex items-center text-gray-200">
+      <Link prefetch={false} href={`/groups/${group.id}`} className="flex items-center text-gray-200">
         <ChevronDownIcon className="-ml-1.5 h-4 w-4 rotate-90" />
         <span className="ml-1 text-xs">Back to details</span>
       </Link>
@@ -744,7 +744,11 @@ function getMembersColumnDefinitions(
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-x-2 pr-5 text-sm font-medium text-white">
-            <Link href={`/players/${row.original.username}`} className="hover:underline">
+            <Link
+              prefetch={false}
+              href={`/players/${row.original.username}`}
+              className="hover:underline"
+            >
               {row.original.username}
             </Link>
             {row.original.isNew && <Badge variant="success">New</Badge>}
@@ -789,7 +793,11 @@ function getRemovedMembersColumnDefinitions(onReaddClicked: (username: string) =
       cell: ({ row }) => {
         return (
           <div className="pr-5 text-sm font-medium text-white">
-            <Link href={`/players/${row.original.username}`} className="hover:underline">
+            <Link
+              prefetch={false}
+              href={`/players/${row.original.username}`}
+              className="hover:underline"
+            >
               {row.original.username}
             </Link>
           </div>

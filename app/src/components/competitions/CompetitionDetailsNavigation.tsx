@@ -47,7 +47,7 @@ export function CompetitionDetailsNavigation(props: CompetitionDetailsNavigation
             if (previewMetric) url += `?preview=${previewMetric}`;
 
             return (
-              <Link href={url} key={tab.route}>
+              <Link prefetch={false} href={url} key={tab.route}>
                 <TabsTrigger value={tab.route}>{tab.label}</TabsTrigger>
               </Link>
             );

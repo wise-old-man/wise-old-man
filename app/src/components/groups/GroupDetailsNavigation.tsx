@@ -36,7 +36,7 @@ export function GroupDetailsNavigation(props: GroupDetailsNavigationProps) {
       <Tabs defaultValue={selectedTab.route}>
         <TabsList aria-label="Group Details Navigation">
           {TABS.map((tab) => (
-            <Link href={`/groups/${id}${tab.route}`} key={tab.route}>
+            <Link prefetch={false} href={`/groups/${id}${tab.route}`} key={tab.route}>
               <TabsTrigger value={tab.route}>{tab.label}</TabsTrigger>
             </Link>
           ))}

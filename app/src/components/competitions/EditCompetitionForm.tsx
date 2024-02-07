@@ -42,7 +42,11 @@ export function EditCompetitionForm(props: EditCompetitionFormProps) {
 
   return (
     <Container style={{ "--max-width": "56rem" }}>
-      <Link href={`/competitions/${competition.id}`} className="flex items-center text-gray-200">
+      <Link
+        prefetch={false}
+        href={`/competitions/${competition.id}`}
+        className="flex items-center text-gray-200"
+      >
         <ChevronDownIcon className="-ml-1.5 h-4 w-4 rotate-90" />
         <span className="ml-1 text-xs">Back to details</span>
       </Link>

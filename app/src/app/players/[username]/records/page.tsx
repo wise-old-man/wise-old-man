@@ -146,6 +146,7 @@ function MetricRecords(props: MetricRecordsProps) {
 
           return (
             <Link
+              prefetch={false}
               key={`${metric}_${period}`}
               href={`/players/${username}/gained?${params.toString()}`}
               className="group flex items-center justify-between rounded-lg border border-gray-500 bg-gray-800 px-5 py-3 shadow-sm"

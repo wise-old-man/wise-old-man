@@ -17,10 +17,10 @@ export function GroupStatisticsNavigation(props: GroupStatisticsNavigationProps)
   return (
     <ToggleTabs defaultValue={selectedSegment === "best" ? "best" : "statistics"}>
       <ToggleTabsList>
-        <Link href={`/groups/${id}/statistics`} className="border-r border-gray-400">
+        <Link prefetch={false} href={`/groups/${id}/statistics`} className="border-r border-gray-400">
           <ToggleTabsTrigger value="statistics">Average Stats</ToggleTabsTrigger>
         </Link>
-        <Link href={`/groups/${id}/statistics/best`}>
+        <Link prefetch={false} href={`/groups/${id}/statistics/best`}>
           <ToggleTabsTrigger value="best">Best Players</ToggleTabsTrigger>
         </Link>
       </ToggleTabsList>

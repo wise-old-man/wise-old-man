@@ -30,6 +30,7 @@ export async function PlayerOverviewMemberships(props: PlayerOverviewMemberships
       {hasMoreGroups && (
         <div className="mt-3 flex justify-end">
           <Link
+            prefetch={false}
             href={`/players/${username}/groups`}
             className="text-xs font-medium text-gray-200 hover:underline"
           >

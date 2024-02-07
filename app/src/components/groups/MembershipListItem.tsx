@@ -23,6 +23,7 @@ export function MembershipListItem(props: MembershipWithGroup) {
       )}
       <div className="flex flex-col gap-x-4 gap-y-1 transition-colors">
         <Link
+          prefetch={false}
           href={`/groups/${group.id}`}
           className="flex items-center gap-x-1.5 text-base font-medium hover:underline"
         >
