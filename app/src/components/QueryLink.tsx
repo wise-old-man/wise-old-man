@@ -29,6 +29,7 @@ export function QueryLink(props: QueryLinkProps) {
 
   return (
     <Link
+      prefetch={false}
       href={`${pathname}?${nextParams.toString()}`}
       onClick={(e) => {
         if (e.metaKey || props.shallow === false) {

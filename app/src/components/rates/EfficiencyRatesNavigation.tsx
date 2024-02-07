@@ -27,7 +27,7 @@ export function EfficiencyRatesNavigation() {
         }
       >
         {TABS.map((tab) => (
-          <Link href={`${tab.route}/${type}`} key={tab.route}>
+          <Link prefetch={false} href={`${tab.route}/${type}`} key={tab.route}>
             <TabsTrigger value={tab.route}>{tab.label}</TabsTrigger>
           </Link>
         ))}

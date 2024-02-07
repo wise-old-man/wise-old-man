@@ -46,6 +46,7 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
           </div>
           <div className="mt-3 flex justify-end">
             <Link
+              prefetch={false}
               href={`/players/${player.username}/achievements`}
               className="text-xs font-medium text-gray-200 hover:underline"
             >
@@ -64,6 +65,7 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
           </div>
           <div className="mt-3 flex justify-end">
             <Link
+              prefetch={false}
               href={`/players/${player.username}/achievements`}
               className="text-xs font-medium text-gray-200 hover:underline"
             >

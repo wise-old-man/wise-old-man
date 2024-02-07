@@ -11,6 +11,7 @@ export default function CompetitionsLayout(props: PropsWithChildren) {
       <div className="mb-8 flex flex-col justify-between border-b border-gray-600 pb-6 lg:flex-row lg:items-end">
         <h1 className="text-h1 font-bold">Competitions</h1>
         <Link
+          prefetch={false}
           href="/competitions/create"
           className="mt-8 text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline lg:mt-0"
         >

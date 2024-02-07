@@ -135,6 +135,7 @@ function SideBar(props: SideBarProps) {
       <Link
         href="/"
         aria-label="Home"
+        prefetch={false}
         className="block outline-none ring-0 lg:hidden"
         onClick={onRouteSelected}
       >
@@ -145,6 +146,7 @@ function SideBar(props: SideBarProps) {
           <li key={link.href}>
             <Link
               href={link.href}
+              prefetch={false}
               className={cn(
                 "flex items-center px-7 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700",
                 currentRouteHref === link.href &&

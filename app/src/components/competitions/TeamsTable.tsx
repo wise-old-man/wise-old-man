@@ -81,6 +81,7 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
+                prefetch={false}
                 href={`/players/${mvp.player.username}`}
                 className="mr-1 text-gray-100 hover:text-white hover:underline"
               >

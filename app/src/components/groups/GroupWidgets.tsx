@@ -134,7 +134,7 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
   }
 
   return (
-    <Link href={`/competitions/${featured.id}`}>
+    <Link prefetch={false} href={`/competitions/${featured.id}`}>
       <div className="group relative flex h-[5rem] w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-600 px-6 hover:border-gray-400">
         <Image
           alt={featured.metric}

@@ -59,6 +59,7 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
         <div className="ml-3 flex flex-col">
           <TooltipTrigger asChild>
             <Link
+              prefetch={false}
               href={href || `/players/${player.username}`}
               className={cn(
                 "line-clamp-1 text-sm font-medium hover:underline",

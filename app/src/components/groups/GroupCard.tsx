@@ -8,7 +8,7 @@ import VerifiedIcon from "~/assets/verified.svg";
 
 export function GroupCard(props: GroupListItem) {
   return (
-    <Link href={`/groups/${props.id}`} className="group">
+    <Link prefetch={false} href={`/groups/${props.id}`} className="group">
       <div className="flex h-[8.75rem] flex-col justify-between rounded-lg border border-gray-600 bg-gray-800 p-5 shadow-md group-hover:border-gray-500 group-hover:bg-gray-700">
         <div className="flex items-center gap-x-3">
           {props.profileImage && (

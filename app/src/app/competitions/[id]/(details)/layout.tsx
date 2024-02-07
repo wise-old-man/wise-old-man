@@ -89,7 +89,11 @@ function Header(props: CompetitionDetails) {
             {group && (
               <span>
                 {` · Hosted by `}
-                <Link href={`/groups/${group.id}`} className="font-medium text-blue-400 hover:underline">
+                <Link
+                  prefetch={false}
+                  href={`/groups/${group.id}`}
+                  className="font-medium text-blue-400 hover:underline"
+                >
                   {group.name}
                 </Link>
               </span>
@@ -108,7 +112,7 @@ function Header(props: CompetitionDetails) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <Link href={`/competitions/${id}/edit`}>
+            <Link prefetch={false} href={`/competitions/${id}/edit`}>
               <DropdownMenuItem>Edit</DropdownMenuItem>
             </Link>
             <QueryLink query={{ dialog: "delete" }}>
