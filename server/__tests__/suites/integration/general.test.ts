@@ -96,7 +96,7 @@ describe('General API', () => {
       process.env.NODE_ENV = 'test';
     });
 
-    it('should not allow more than 100 requests (no API key)', async () => {
+    it('should not allow more than 20 requests per minute (no API key)', async () => {
       // Flush redis to reset rate limits
       await resetRedis();
 
@@ -107,7 +107,7 @@ describe('General API', () => {
       process.env.NODE_ENV = 'production';
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for (const i of Array.from(Array(150).keys())) {
+      for (const i of Array.from(Array(100).keys())) {
         const response = await api.get('/');
         if (response.status === 200) successCount++;
         else if (response.status === 429) rateLimitedCount++;
@@ -115,11 +115,11 @@ describe('General API', () => {
 
       process.env.NODE_ENV = 'test';
 
-      expect(successCount).toBe(100);
-      expect(rateLimitedCount).toBe(50);
+      expect(successCount).toBe(20);
+      expect(rateLimitedCount).toBe(80);
     });
 
-    it('should not allow more than 500 requests (with API key)', async () => {
+    it('should not allow more than 200 requests per minute (with API key)', async () => {
       // Flush redis to reset rate limits
       await resetRedis();
 
@@ -138,7 +138,7 @@ describe('General API', () => {
       process.env.NODE_ENV = 'production';
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for (const i of Array.from(Array(550).keys())) {
+      for (const i of Array.from(Array(500).keys())) {
         const response = await api.get('/').set({ 'x-api-key': apiKeyResponse.body.id });
 
         if (response.status === 200) successCount++;
@@ -147,11 +147,11 @@ describe('General API', () => {
 
       process.env.NODE_ENV = 'test';
 
-      expect(successCount).toBe(500);
-      expect(rateLimitedCount).toBe(50);
+      expect(successCount).toBe(200);
+      expect(rateLimitedCount).toBe(300);
     });
 
-    it('should allow more than 500 requests (with master API key)', async () => {
+    it('should allow more than 200 requests per minute (with master API key)', async () => {
       // Flush redis to reset rate limits
       await resetRedis();
 
