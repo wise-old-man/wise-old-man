@@ -1,6 +1,6 @@
 {
   "functions": {
-    "**/*": {
+    "src/app/*": {
       "memory": 512
     }
   }
