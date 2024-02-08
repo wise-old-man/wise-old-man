@@ -161,7 +161,6 @@ export function PlayerSearch(props: PlayerSearchProps) {
               )}
             </HeadlessCombobox.Options>
           </Transition>
-          {mode === "navigate" && <Prefetcher activeOption={activeOption} />}
         </div>
       )}
     </HeadlessCombobox>
@@ -332,24 +331,6 @@ function SearchHotkeys() {
       <kbd className="ml-1 font-mono text-xs font-black">K</kbd>
     </div>
   );
-}
-
-/**
- * HeadlessUI doesn't expose an "onActiveOptionChanged" event, only an "activeOption" render prop.
- * so instead we have to pass that renderProp down to a component that then listens for changes on it.
- * We then use that active option to prefetch the page that it leads to.
- */
-function Prefetcher(props: { activeOption: string | null }) {
-  const { activeOption } = props;
-
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!activeOption) return;
-    router.prefetch(`/players/${activeOption}`);
-  }, [router, activeOption]);
-
-  return null;
 }
 
 function isExactMatch(query: string, username: string) {
