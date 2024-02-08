@@ -10,15 +10,15 @@ import router from './routing';
 import metricsService from './services/external/metrics.service';
 import redisService from './services/external/redis.service';
 
-const RATE_LIMIT_MAX_REQUESTS = 100;
-const RATE_LIMIT_DURATION_MINUTES = 5 * 60;
+const RATE_LIMIT_MAX_REQUESTS = 20;
+const RATE_LIMIT_DURATION_SECONDS = 60;
 
-// Trusted developers are allowed 5x more requests per 5 mins
+// Trusted developers are allowed 5x more requests per minute
 const RATE_LIMIT_TRUSTED_RATIO = 5;
 
 const rateLimiter = new RateLimiterRedis({
   points: RATE_LIMIT_MAX_REQUESTS * RATE_LIMIT_TRUSTED_RATIO,
-  duration: RATE_LIMIT_DURATION_MINUTES,
+  duration: RATE_LIMIT_DURATION_SECONDS,
   storeClient: redisService.redisClient
 });
 
@@ -89,7 +89,7 @@ class API {
         .then(() => next())
         .catch(() =>
           res.status(429).json({
-            message: 'Too Many Requests. Please check https://docs.wiseoldman.net/#rate-limits--api-keys. '
+            message: 'Too Many Requests. Please check https://docs.wiseoldman.net/#rate-limits--api-keys.'
           })
         );
     });
