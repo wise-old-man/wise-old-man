@@ -63,7 +63,7 @@ Example: <br />
 
 ### Rate Limits & API Keys
 
-There is a maximum of 100 requests per 5 minutes, however, this can be increased (to 500) if you register for an **API key**.
+There is a maximum of 20 requests per 60 seconds, however, this can be increased (to 100) if you register for an **API key**.
 
 **API Keys** help us keep track of who is actually using our API, and what resources they need the most, and can be really helpful for us to know how to contact our API consumers.
 

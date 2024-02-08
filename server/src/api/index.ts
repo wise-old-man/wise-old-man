@@ -13,8 +13,8 @@ import redisService from './services/external/redis.service';
 const RATE_LIMIT_MAX_REQUESTS = 20;
 const RATE_LIMIT_DURATION_SECONDS = 60;
 
-// Trusted developers are allowed 10x more requests per minute
-const RATE_LIMIT_TRUSTED_RATIO = 10;
+// Trusted developers are allowed 5x more requests per minute
+const RATE_LIMIT_TRUSTED_RATIO = 5;
 
 const rateLimiter = new RateLimiterRedis({
   points: RATE_LIMIT_MAX_REQUESTS * RATE_LIMIT_TRUSTED_RATIO,
