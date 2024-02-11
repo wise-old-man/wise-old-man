@@ -8,6 +8,7 @@ import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.type
 import AssertPlayerTypeJob from './instances/AssertPlayerTypeJob';
 import AutoUpdatePatronGroupsJob from './instances/AutoUpdatePatronGroupsJob';
 import AutoUpdatePatronPlayersJob from './instances/AutoUpdatePatronPlayersJob';
+import CalculateComputedMetricRankTablesJob from './instances/CalculateComputedMetricRankTablesJob';
 import CalculateRankLimitsJob from './instances/CalculateRankLimitsJob';
 import CalculateSumsJob from './instances/CalculateSumsJob';
 import CheckPlayerBannedJob from './instances/CheckPlayerBannedJob';
@@ -32,6 +33,7 @@ const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
   AutoUpdatePatronGroupsJob,
   AutoUpdatePatronPlayersJob,
+  CalculateComputedMetricRankTablesJob,
   CalculateRankLimitsJob,
   CalculateSumsJob,
   CheckPlayerBannedJob,
@@ -97,6 +99,10 @@ const CRON_JOBS = [
   {
     type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS,
     interval: '0 8 * * *' // everyday at 8AM
+  },
+  {
+    type: JobType.CALCULATE_COMPUTED_METRIC_RANK_TABLES,
+    interval: '0 * * * *' // every hour (change to every 6 hours soon?)
   }
   // {
   // type: JobType.SCHEDULE_TREND_CALCS,

@@ -77,16 +77,12 @@ export default function BarChart(props: BarChartProps) {
       // If the user moves the mouse past the start of the chart, select the first datapoint
       const firstDatapoint = data.at(0);
 
-      console.log({ firstDatapoint, data });
-
       if (firstDatapoint) {
         setSelectedRangeEnd(firstDatapoint.date);
       }
     } else if (e.clientX > x + width - 50) {
       // If the user moves the mouse past the end of the chart, select the last datapoint
       const lastDatapoint = data.at(-1);
-
-      console.log({ lastDatapoint });
 
       if (lastDatapoint) {
         setSelectedRangeEnd(lastDatapoint.date);
