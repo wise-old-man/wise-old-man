@@ -76,7 +76,7 @@ export function EditGroupForm(props: EditGroupFormProps) {
 
       <div className="grid-cols-10 gap-x-12 md:grid">
         <div className="col-span-3 border-gray-600 pt-7 md:border-r md:pr-7">
-          <SideNavigation showPatronTabs={group.patron} />
+          <SideNavigation isPatron={group.patron} />
         </div>
         <div className="col-span-7 flex pt-7">
           {(!section || section === "general") && (
@@ -157,6 +157,10 @@ function ImagesSection(props: EditGroupFormProps & { verificationCode: string })
       }
     },
   });
+
+  if (!group.patron) {
+    return <PatreonInfo />;
+  }
 
   return (
     <div className="flex w-full flex-col gap-y-7">
@@ -268,6 +272,10 @@ function SocialLinksSection(props: EditGroupFormProps & { verificationCode: stri
       }
     },
   });
+
+  if (!group.patron) {
+    return <PatreonInfo />;
+  }
 
   return (
     <div className="w-full">
@@ -627,7 +635,7 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
 }
 
 interface SideNavigationProps {
-  showPatronTabs: boolean;
+  isPatron: boolean;
 }
 
 function SideNavigation(props: SideNavigationProps) {
@@ -637,12 +645,9 @@ function SideNavigation(props: SideNavigationProps) {
   const sections = [
     { name: "General", value: "general" },
     { name: "Members", value: "members" },
+    { name: "Profile images", value: "images" },
+    { name: "Social links", value: "links" },
   ];
-
-  if (props.showPatronTabs) {
-    sections.push({ name: "Profile & Banner images", value: "images" });
-    sections.push({ name: "Social links", value: "links" });
-  }
 
   return (
     <>
@@ -651,7 +656,12 @@ function SideNavigation(props: SideNavigationProps) {
           <TabsList>
             {sections.map((s) => (
               <QueryLink key={s.value} query={{ section: s.value }}>
-                <TabsTrigger value={s.value}>{s.name}</TabsTrigger>
+                <TabsTrigger value={s.value}>
+                  {s.name}
+                  {!props.isPatron && (s.value === "images" || s.value === "links") && (
+                    <div className="ml-2 h-1.5 w-1.5 rounded-full bg-yellow-400" />
+                  )}
+                </TabsTrigger>
               </QueryLink>
             ))}
           </TabsList>
@@ -665,18 +675,41 @@ function SideNavigation(props: SideNavigationProps) {
             <QueryLink key={s.value} query={{ section: s.value }}>
               <li
                 className={cn(
-                  "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
+                  "relative flex items-center justify-between overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
                   isSelected && "bg-gray-700 text-white"
                 )}
               >
                 {isSelected && <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />}
                 {s.name}
+                {!props.isPatron && (s.value === "images" || s.value === "links") && (
+                  <div className="h-1.5 w-1.5 rounded-full bg-yellow-400" />
+                )}
               </li>
             </QueryLink>
           );
         })}
       </ul>
     </>
+  );
+}
+
+function PatreonInfo() {
+  return (
+    <div className="flex w-full flex-col items-center justify-center">
+      <p className="px-8 text-center text-base text-gray-200">
+        This is feature is only available to our Patreon supporters. If you&apos;d like to support the
+        development of this project and gain access to the benefits, please consider becoming a patron.
+      </p>
+
+      <a
+        href="https://wiseoldman.net/patreon"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-6 text-yellow-300 underline"
+      >
+        Join our Patreon
+      </a>
+    </div>
   );
 }
 
