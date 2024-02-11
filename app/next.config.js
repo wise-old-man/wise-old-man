@@ -25,7 +25,7 @@ const nextConfig = withBundleAnalyzer(
       ],
     },
     async redirects() {
-      const redirects = [
+      const externalRedirects = [
         // Redirects to external websites
         {
           source: "/github",
@@ -49,8 +49,7 @@ const nextConfig = withBundleAnalyzer(
         },
         {
           source: "/flags",
-          destination:
-            "https://github.com/wise-old-man/wise-old-man/wiki/User-Guide:-How-to-setup-countries-flags",
+          destination: `https://github.com/wise-old-man/wise-old-man/wiki/User-Guide:-How-to-setup-countries-flags`,
           permanent: true,
         },
         {
@@ -58,7 +57,21 @@ const nextConfig = withBundleAnalyzer(
           destination: "https://docs.wiseoldman.net",
           permanent: true,
         },
-        // Redirects to page defaults
+      ];
+
+      if (process.env.MAINTENANCE_MODE) {
+        return [
+          ...externalRedirects,
+          {
+            source: "/((?!maintenance).*)",
+            destination: "/maintenance",
+            permanent: false,
+          },
+        ];
+      }
+
+      return [
+        ...externalRedirects,
         {
           source: "/leaderboards",
           destination: "/leaderboards/top",
@@ -81,16 +94,6 @@ const nextConfig = withBundleAnalyzer(
           permanent: true,
         },
       ];
-
-      return process.env.MAINTENANCE_MODE
-        ? [
-            {
-              source: "/((?!maintenance).*)",
-              destination: "/maintenance",
-              permanent: false,
-            },
-          ]
-        : redirects;
     },
   })
 );
