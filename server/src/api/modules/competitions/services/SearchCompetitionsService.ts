@@ -2,7 +2,7 @@ import { z } from 'zod';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { Metric, CompetitionStatus, CompetitionType } from '../../../../utils';
 import { omit } from '../../../util/objects';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
+import { getPaginationSchema } from '../../../util/validation';
 import { CompetitionListItem } from '../competition.types';
 
 const inputSchema = z
@@ -12,7 +12,7 @@ const inputSchema = z
     type: z.nativeEnum(CompetitionType).optional(),
     status: z.nativeEnum(CompetitionStatus).optional()
   })
-  .merge(PAGINATION_SCHEMA);
+  .merge(getPaginationSchema());
 
 type SearchCompetitionsParams = z.infer<typeof inputSchema>;
 

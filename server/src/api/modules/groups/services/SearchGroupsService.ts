@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { omit } from '../../../util/objects';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
+import { getPaginationSchema } from '../../../util/validation';
 import { GroupListItem } from '../group.types';
 
 const inputSchema = z
   .object({
     name: z.string().optional()
   })
-  .merge(PAGINATION_SCHEMA);
+  .merge(getPaginationSchema());
 
 type SearchGroupsParams = z.infer<typeof inputSchema>;
 

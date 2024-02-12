@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import prisma, { NameChangeStatus } from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
+import { getPaginationSchema } from '../../../util/validation';
 import { NameChangeWithPlayer } from '../name-change.types';
 
 const inputSchema = z
   .object({
     id: z.number().int().positive()
   })
-  .merge(PAGINATION_SCHEMA);
+  .merge(getPaginationSchema());
 
 type FindGroupNameChangesParams = z.infer<typeof inputSchema>;
 

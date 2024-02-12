@@ -65,11 +65,33 @@ Example: <br />
 
 There is a maximum of 20 requests per 60 seconds, however, this can be increased (to 100) if you register for an **API key**.
 
+<br />
+
+:::info
+Regardless of rate limits, we ask you to add delays between your requests to help evenly distribute the server load. Keep in mind this is a free project with very real hosting costs.
+:::
+
+:::caution
+If you're planning on using the API to auto-update players on any given **short** interval, please think twice before doing so.
+
+Often, the best approach is to use a **longer** interval, such as 1-6 hours, to avoid overloading our servers with mostly redundant requests. Short intervals are often overkill for most players, and can be detrimental to the API's performance.
+
+If you are found to be updating players too often, this can result in an IP ban.
+
+Feel free to reach out to us on Discord if you are unsure about the best approach/timing for your use case.
+:::
+
+<br />
+
 **API Keys** help us keep track of who is actually using our API, and what resources they need the most, and can be really helpful for us to know how to contact our API consumers.
 
 **If you want an API key, or just want to be notified of API changes, just send us a message on [our discord](https://wiseoldman.net/discord) and we'll help you.**
 
 Alternatively, you can add a user agent header to your requests, which would help us identify who you are, however, this does not increase API rate limits.
+
+:::info
+If you do not provide us with a user agent that we can use to potentially contact you if you are found to be abusing our API, we have no other choice but to IP ban you.
+:::
 
 Examples:
 
@@ -120,10 +142,16 @@ Error Statuses:
 
 Some API endpoints support pagination in the form of `limit` and `offset` query parameters. This will be indicated in the endpoint description.
 
-| Field  | Default | Max |
-| ------ | ------- | --- |
-| limit  | 20      | 50  |
-| offset | 0       | --- |
+| Field  | Default | Max  |
+| ------ | ------- | ---- |
+| limit  | 20      | 50\* |
+| offset | 0       | ---  |
+
+:::note
+
+\*There are exceptions for some endpoints such as `/groups/:id/hiscores` and `/groups/:id/gained`. These do not have a maximum limit, they will return every result available.
+
+:::
 
 Examples
 

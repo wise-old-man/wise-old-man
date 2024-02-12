@@ -102,7 +102,7 @@ const CRON_JOBS = [
   },
   {
     type: JobType.CALCULATE_COMPUTED_METRIC_RANK_TABLES,
-    interval: '0 * * * *' // every hour (change to every 6 hours soon?)
+    interval: '0 8 * * *' // everyday at 8AM
   }
   // {
   // type: JobType.SCHEDULE_TREND_CALCS,

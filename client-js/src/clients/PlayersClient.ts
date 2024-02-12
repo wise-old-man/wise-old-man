@@ -142,8 +142,11 @@ export default class PlayersClient extends BaseAPIClient {
    * Fetches all of the player's past snapshots.
    * @returns A list of snapshots.
    */
-  getPlayerSnapshots(username: string, options?: TimeRangeFilter) {
-    return this.getRequest<FormattedSnapshot[]>(`/players/${username}/snapshots`, options);
+  getPlayerSnapshots(username: string, filter: TimeRangeFilter, pagination?: PaginationOptions) {
+    return this.getRequest<FormattedSnapshot[]>(`/players/${username}/snapshots`, {
+      ...filter,
+      ...pagination
+    });
   }
 
   /**

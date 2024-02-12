@@ -98,18 +98,6 @@ class MetricsService {
     }
   }
 
-  async trackEffectDebug<T>(effectName: string, handler: () => Promise<T>) {
-    const endTimer = this.effectHistogram.startTimer();
-    try {
-      const res = await handler();
-      endTimer({ effectName, status: 1 });
-      return res;
-    } catch (error) {
-      endTimer({ effectName, status: 0 });
-      throw error;
-    }
-  }
-
   async trackJob(jobType: JobType, handler: () => Promise<void>) {
     const endTimer = this.jobHistogram.startTimer();
 
