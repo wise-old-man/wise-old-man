@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
+import { getPaginationSchema } from '../../../util/validation';
 import { MemberActivityWithPlayer } from '../group.types';
 import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
@@ -8,7 +8,7 @@ const inputSchema = z
   .object({
     groupId: z.number().int().positive()
   })
-  .merge(PAGINATION_SCHEMA);
+  .merge(getPaginationSchema());
 
 type FetchGroupActivityParams = z.infer<typeof inputSchema>;
 

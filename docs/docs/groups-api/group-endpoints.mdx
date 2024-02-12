@@ -1094,6 +1094,10 @@ Fetches the top gains for a group's member list (filtered by metric and period/d
 This endpoint accepts either `period` or `startDate` + `endDate`.
 :::
 
+:::info
+Unlike most other endpoints, this one does not have a maximum result limit.
+:::
+
 <br />
 
 **Example Request**
@@ -1438,6 +1442,10 @@ Fetches a group's hiscores for a specific metric. Returns an array of [GroupHisc
 | metric | [Metric](/global-type-definitions#enum-metric) | `true`   | The hiscores' metric.                                 |
 | limit  | integer                                        | `false`  | The pagination limit. See [Pagination](/#pagination)  |
 | offset | integer                                        | `false`  | The pagination offset. See [Pagination](/#pagination) |
+
+:::info
+Unlike most other endpoints, this one does not have a maximum result limit.
+:::
 
 <br />
 

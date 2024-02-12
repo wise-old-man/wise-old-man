@@ -34,19 +34,21 @@ z.setErrorMap((issue, ctx) => {
   return { message: ctx.defaultError };
 });
 
-export const PAGINATION_SCHEMA = z.object({
-  limit: z
-    .number()
-    .int()
-    .positive("Parameter 'limit' must be > 0.")
-    .max(
-      50,
-      "The maximum results limit is 50. Please consider using the 'offset' parameter to load more data."
-    )
-    .optional()
-    .default(20),
-  offset: z.number().int().nonnegative("Parameter 'offset' must be >= 0.").optional().default(0)
-});
+export function getPaginationSchema(maxLimit = 50) {
+  let limit = z.number().int().positive("Parameter 'limit' must be > 0.");
+
+  if (maxLimit) {
+    limit = limit.max(
+      maxLimit,
+      `The maximum results limit is ${maxLimit}. Please consider using the 'offset' parameter to load more data.`
+    );
+  }
+
+  return z.object({
+    limit: z.optional(limit).default(20),
+    offset: z.optional(z.number().int().nonnegative("Parameter 'offset' must be >= 0.")).default(0)
+  });
+}
 
 export function getNumber(payload: any): number | undefined {
   if (payload === undefined || payload === null || isNaN(payload) || String(payload).length === 0) {

@@ -2303,15 +2303,6 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
-
-    it('should not view hiscores (limit > 50)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
-        .query({ metric: 'magic', limit: 1000 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('The maximum results limit is 50');
-    });
   });
 
   describe('12 - View Group Activity', () => {

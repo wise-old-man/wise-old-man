@@ -1,17 +1,14 @@
 import { z } from 'zod';
 import { Snapshot } from '../../../../prisma';
 import { getMetricValueKey, Metric } from '../../../../utils';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { Top5ProgressResult } from '../competition.types';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 
-const inputSchema = z
-  .object({
-    id: z.number().int().positive(),
-    metric: z.nativeEnum(Metric).optional()
-  })
-  .merge(PAGINATION_SCHEMA);
+const inputSchema = z.object({
+  id: z.number().int().positive(),
+  metric: z.nativeEnum(Metric).optional()
+});
 
 type FetchTop5ProgressParams = z.infer<typeof inputSchema>;
 

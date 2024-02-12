@@ -9,7 +9,7 @@ import {
   getLevel
 } from '../../../../utils';
 import { omit } from '../../../util/objects';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
+import { getPaginationSchema } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
 import { GroupHiscoresEntry, GroupHiscoresSkillItem } from '../group.types';
 import { getTotalLevel } from '../../snapshots/snapshot.utils';
@@ -19,7 +19,7 @@ const inputSchema = z
     id: z.number().int().positive(),
     metric: z.nativeEnum(Metric)
   })
-  .merge(PAGINATION_SCHEMA);
+  .merge(getPaginationSchema(100_000)); // unlimited "max" limit
 
 type FetchGroupHiscoresParams = z.infer<typeof inputSchema>;
 

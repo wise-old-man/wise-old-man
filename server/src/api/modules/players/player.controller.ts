@@ -187,11 +187,16 @@ async function records(req: Request): Promise<ControllerResponse> {
 async function snapshots(req: Request): Promise<ControllerResponse> {
   const player = await playerUtils.resolvePlayer(getString(req.params.username));
 
+  let limit = req.query.limit ? getNumber(req.query.limit) : undefined;
+  if (limit && limit > 50) limit = 50;
+
   const results = await snapshotServices.findPlayerSnapshots({
     id: player.id,
     period: getEnum(req.query.period),
     minDate: getDate(req.query.startDate),
-    maxDate: getDate(req.query.endDate)
+    maxDate: getDate(req.query.endDate),
+    limit,
+    offset: getNumber(req.query.offset)
   });
 
   const formattedSnapshots = results.map(s =>
