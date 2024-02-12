@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { omit } from '../../../util/objects';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
+import { getPaginationSchema } from '../../../util/validation';
 import { MembershipWithGroup } from '../group.types';
 
 const inputSchema = z
   .object({
     playerId: z.number().int().positive()
   })
-  .merge(PAGINATION_SCHEMA);
+  .merge(getPaginationSchema());
 
 type FindPlayerMembershipsParams = z.infer<typeof inputSchema>;
 

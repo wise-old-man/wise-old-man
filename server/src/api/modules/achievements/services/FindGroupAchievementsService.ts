@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
+import { getPaginationSchema } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
 import { ExtendedAchievementWithPlayer } from '../achievement.types';
 import { extend } from '../achievement.utils';
@@ -9,7 +9,7 @@ const inputSchema = z
   .object({
     id: z.number().int().positive()
   })
-  .merge(PAGINATION_SCHEMA);
+  .merge(getPaginationSchema());
 
 type FindGroupAchievementsParams = z.infer<typeof inputSchema>;
 

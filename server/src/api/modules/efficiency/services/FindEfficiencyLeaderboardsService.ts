@@ -2,7 +2,7 @@ import { z } from 'zod';
 import prisma, { Player, PrismaTypes } from '../../../../prisma';
 import { PlayerType, PlayerBuild, Metric, Country, PlayerStatus } from '../../../../utils';
 import { omit } from '../../../util/objects';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
+import { getPaginationSchema } from '../../../util/validation';
 
 const COMBINED_METRIC = 'ehp+ehb';
 
@@ -13,7 +13,7 @@ const inputSchema = z
     playerType: z.nativeEnum(PlayerType).optional().default(PlayerType.REGULAR),
     playerBuild: z.nativeEnum(PlayerBuild).optional().default(PlayerBuild.MAIN)
   })
-  .merge(PAGINATION_SCHEMA);
+  .merge(getPaginationSchema());
 
 type FindEfficiencyLeaderboardsParams = z.infer<typeof inputSchema>;
 

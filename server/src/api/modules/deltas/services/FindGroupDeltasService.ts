@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { omit } from '../../../util/objects';
 import { Metric, parsePeriodExpression } from '../../../../utils';
 import prisma, { Player, Snapshot } from '../../../../prisma';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
+import { getPaginationSchema } from '../../../util/validation';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { calculateMetricDelta } from '../delta.utils';
@@ -18,7 +18,7 @@ const inputSchema = z
     minDate: z.date().optional(),
     maxDate: z.date().optional()
   })
-  .merge(PAGINATION_SCHEMA)
+  .merge(getPaginationSchema(100_000)) // unlimited "max" limit
   .refine(s => s.period || (s.maxDate && s.minDate), {
     message: 'Invalid period and start/end dates.'
   })

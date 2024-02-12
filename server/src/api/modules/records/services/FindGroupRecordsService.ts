@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { Period, Metric } from '../../../../utils';
 import prisma from '../../../../prisma';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
+import { getPaginationSchema } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
 import { RecordLeaderboardEntry } from '../record.types';
 
@@ -11,7 +11,7 @@ const inputSchema = z
     period: z.nativeEnum(Period),
     metric: z.nativeEnum(Metric)
   })
-  .merge(PAGINATION_SCHEMA);
+  .merge(getPaginationSchema());
 
 type FindGroupRecordsParams = z.infer<typeof inputSchema>;
 
