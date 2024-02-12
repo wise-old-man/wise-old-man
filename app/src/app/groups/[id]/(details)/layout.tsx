@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/Dropdown";
 
+import IdIcon from "~/assets/id.svg";
 import WebIcon from "~/assets/web.svg";
 import ChatIcon from "~/assets/chat.svg";
 import GlobeIcon from "~/assets/globe.svg";
@@ -177,6 +178,15 @@ function Header(props: GroupDetails) {
           </div>
         )}
         <div className="flex items-center gap-x-7">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center">
+                <IdIcon className="mr-1 h-6 w-6 text-gray-200" />
+                <span className="text-xs text-gray-200">{id}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>Group ID: {id}</TooltipContent>
+          </Tooltip>
           {clanChat && (
             <Tooltip>
               <TooltipTrigger asChild>
