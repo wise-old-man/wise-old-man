@@ -67,6 +67,10 @@ There is a maximum of 20 requests per 60 seconds, however, this can be increased
 
 <br />
 
+:::info
+Regardless of rate limits, we ask you to add delays between your requests to help evenly distribute the server load. Keep in mind this is a free project with very real hosting costs.
+:::
+
 :::caution
 If you're planning on using the API to auto-update players on any given **short** interval, please think twice before doing so.
 
@@ -84,6 +88,10 @@ Feel free to reach out to us on Discord if you are unsure about the best approac
 **If you want an API key, or just want to be notified of API changes, just send us a message on [our discord](https://wiseoldman.net/discord) and we'll help you.**
 
 Alternatively, you can add a user agent header to your requests, which would help us identify who you are, however, this does not increase API rate limits.
+
+:::info
+If you do not provide us with a user agent that we can use to potentially contact you if you are found to be abusing our API, we have no other choice but to IP ban you.
+:::
 
 Examples:
 
