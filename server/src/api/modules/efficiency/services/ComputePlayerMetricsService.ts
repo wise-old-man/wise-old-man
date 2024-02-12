@@ -3,7 +3,6 @@ import { Snapshot } from '../../../../prisma';
 import { PlayerType, PlayerBuild, Metric } from '../../../../utils';
 import * as efficiencyUtils from '../efficiency.utils';
 import * as efficiencyServices from '../efficiency.services';
-import metricsService from '../../../services/external/metrics.service';
 
 const inputSchema = z.object({
   player: z.object({
@@ -37,20 +36,16 @@ async function computePlayerMetrics(payload: ComputePlayerMetricsParams) {
   const ehpValue = Math.max(0, algorithm.calculateEHP(experienceMap));
   const ehbValue = Math.max(0, algorithm.calculateEHB(killcountMap));
 
-  const ehpRank = await metricsService.trackEffectDebug('computeEfficiencyRank_ehp', () => {
-    return efficiencyServices.computeEfficiencyRank({
-      player,
-      metric: Metric.EHP,
-      value: ehpValue
-    });
+  const ehpRank = await efficiencyServices.computeEfficiencyRank({
+    player,
+    metric: Metric.EHP,
+    value: ehpValue
   });
 
-  const ehbRank = await metricsService.trackEffectDebug('computeEfficiencyRank_ehb', () => {
-    return efficiencyServices.computeEfficiencyRank({
-      player,
-      metric: Metric.EHB,
-      value: ehbValue
-    });
+  const ehbRank = await efficiencyServices.computeEfficiencyRank({
+    player,
+    metric: Metric.EHB,
+    value: ehbValue
   });
 
   const result: ComputePlayerMetricsResult = {
