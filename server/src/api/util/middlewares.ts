@@ -1,9 +1,10 @@
-import { Response, Request, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import env from '../../env';
 import { isMetric, parseMetricAbbreviation } from '../../utils';
+import { BadRequestError, ForbiddenError, ServerError } from '../errors';
 import * as nameChangeServices from '../modules/name-changes/name-change.services';
 import redisService from '../services/external/redis.service';
 import logger from '../util/logging';
-import { ServerError } from '../errors';
 
 export function metricAbbreviation(req: Request, _res: Response, next: NextFunction) {
   if (!req) {
@@ -68,6 +69,20 @@ export async function detectRuneLiteNameChange(req: Request, res: Response, next
     } catch (error) {
       logger.error('Failed to auto-submit name changed from account hash.', error);
     }
+  }
+
+  next();
+}
+
+export async function checkAdminPermission(req: Request, _: Response, next: NextFunction) {
+  const { adminPassword } = req.body;
+
+  if (!adminPassword) {
+    return next(new BadRequestError("Required parameter 'adminPassword' is undefined."));
+  }
+
+  if (String(adminPassword) !== env.ADMIN_PASSWORD) {
+    return next(new ForbiddenError('Incorrect admin password.'));
   }
 
   next();

@@ -39,7 +39,8 @@
     "prom-client": "^13.2.0",
     "rate-limiter-flexible": "^2.3.11",
     "winston": "^3.3.3",
-    "zod": "^3.13.4"
+    "zod": "^3.13.4",
+    "zod-express": "^0.0.8"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

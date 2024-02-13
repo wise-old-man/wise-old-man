@@ -301,15 +301,13 @@ describe('Efficiency API', () => {
     it('should not list (invalid type)', async () => {
       const response = await api.get(`/efficiency/rates`).query({ type: 'zerker' });
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe(
-        'Incorrect type: zerker. Must be one of [main, ironman, ultimate, lvl3, f2p, f2p_lvl3, f2p_ironman, f2p_lvl3_ironman]'
-      );
+      expect(response.body.message).toBe("Invalid enum value for 'type'.");
     });
 
-    it('should list (invalid metric, default to EHP)', async () => {
+    it('should not list (invalid metric)', async () => {
       const response = await api.get(`/efficiency/rates`).query({ type: 'main', metric: 'something' });
-      expect(response.status).toBe(200);
-      expect(response.body[0]).toMatchObject({ skill: 'attack' }); // returning skilling metas
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Invalid enum value for 'metric'. Expected ehp | ehb");
     });
 
     it('should list (EHP)', async () => {

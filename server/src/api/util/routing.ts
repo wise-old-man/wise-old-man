@@ -1,4 +1,5 @@
-import { Response, Request, NextFunction } from 'express';
+import { Options, RequestValidation, processRequest } from 'zod-express';
+import { Response, Request, NextFunction, RequestHandler } from 'express';
 import logger from './logging';
 
 interface ControllerResponse {
@@ -41,4 +42,11 @@ function setupController(controllerFn: ControllerFunction, options?: ControllerO
   };
 }
 
-export { ControllerResponse, setupController };
+function validateRequestExtended<TParams = unknown, TQuery = unknown, TBody = unknown>(
+  schemas: RequestValidation<TParams, TQuery, TBody>,
+  options?: Options
+): RequestHandler<TParams, unknown, TBody, TQuery> {
+  return processRequest(schemas, { ...options, passErrorToNext: true });
+}
+
+export { ControllerResponse, setupController, validateRequestExtended as validateRequest };
