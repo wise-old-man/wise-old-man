@@ -8,11 +8,11 @@ import { metricAbbreviation } from './util/middlewares';
 import competitionRoutes from './modules/competitions/competition.routes';
 import deltaRouter from './modules/deltas/delta.router';
 import generalRouter from './modules/general/general.router';
+import patronRouter from './modules/patrons/patron.router';
 import efficiencyRouter from './modules/efficiency/efficiency.router';
 import groupRoutes from './modules/groups/group.routes';
 import nameRoutes from './modules/name-changes/name-change.routes';
 import playerRoutes from './modules/players/player.routes';
-import patronRoutes from './modules/patrons/patron.routes';
 import metricsService from './services/external/metrics.service';
 import recordRouter from './modules/records/record.router';
 
@@ -41,16 +41,16 @@ class RoutingHandler {
     this.router.get('/', (req, res) => res.json(true));
 
     // Register all the modules to the router
-    this.router.use(generalRouter);
     this.router.use(deltaRouter);
-    this.router.use(recordRouter);
     this.router.use(efficiencyRouter);
+    this.router.use(generalRouter);
+    this.router.use(patronRouter);
+    this.router.use(recordRouter);
 
     this.router.use('/players', playerRoutes);
     this.router.use('/competitions', competitionRoutes);
     this.router.use('/groups', groupRoutes);
     this.router.use('/names', nameRoutes);
-    this.router.use('/patrons', patronRoutes);
 
     this.router.get('/metrics', async (req, res) => {
       const metrics = await metricsService.getMetrics();
