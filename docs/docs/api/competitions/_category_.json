@@ -3,6 +3,8 @@
   "position": 5,
   "link": {
     "type": "generated-index",
+    "title": "Competitions API",
+    "slug": "/api/competitions",
     "description": " "
   }
 }

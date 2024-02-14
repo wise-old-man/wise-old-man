@@ -1,5 +1,5 @@
 ---
-slug: /
+slug: /api
 sidebar_position: 1
 ---
 
