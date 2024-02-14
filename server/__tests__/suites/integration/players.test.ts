@@ -20,7 +20,7 @@ import * as playerServices from '../../../src/api/modules/players/player.service
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
-import * as efficiencyUtils from '../../../src/api/modules/efficiency/efficiency.utils';
+import { getPlayerEfficiencyMap } from '../../../src/api/modules/efficiency/efficiency.utils';
 import redisService from '../../../src/api/services/external/redis.service';
 import { reviewFlaggedPlayer } from '../../../src/api/modules/players/player.services';
 
@@ -1544,12 +1544,12 @@ describe('Player API', () => {
 
       const formattedPrevious = snapshotUtils.format(
         previousSnapshot,
-        efficiencyUtils.getPlayerEfficiencyMap(previousSnapshot, player)
+        getPlayerEfficiencyMap(previousSnapshot, player)
       );
 
       const formattedRejected = snapshotUtils.format(
         rejectedSnapshot,
-        efficiencyUtils.getPlayerEfficiencyMap(rejectedSnapshot, player)
+        getPlayerEfficiencyMap(rejectedSnapshot, player)
       );
 
       const runecraftingEHPDiff =

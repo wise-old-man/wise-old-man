@@ -8,7 +8,7 @@ import {
   PlayerBuild,
   PlayerType
 } from '../../../utils';
-import { validateRequest } from '../../util/routing';
+import { validateRequest, executeRequest } from '../../util/routing';
 import { getPaginationSchema } from '../../util/validation';
 import { getRates } from './efficiency.utils';
 import { findEfficiencyLeaderboards } from './services/FindEfficiencyLeaderboardsService';
@@ -27,7 +27,7 @@ router.get(
       })
       .merge(getPaginationSchema())
   }),
-  async (req, res) => {
+  executeRequest(async (req, res) => {
     const { metric, country, playerType, playerBuild, offset, limit } = req.query;
 
     const result = await findEfficiencyLeaderboards(
@@ -37,7 +37,7 @@ router.get(
     );
 
     res.status(200).json(result);
-  }
+  })
 );
 
 router.get(
@@ -48,12 +48,12 @@ router.get(
       metric: z.nativeEnum(ComputedMetric)
     })
   }),
-  (req, res) => {
+  executeRequest((req, res) => {
     const { metric, type } = req.query;
 
     const result = getRates(metric, type);
     res.status(200).json(result);
-  }
+  })
 );
 
 export default router;

@@ -2,9 +2,9 @@ import { NextFunction, Request, Response } from 'express';
 import env from '../../env';
 import { isMetric, parseMetricAbbreviation } from '../../utils';
 import { BadRequestError, ForbiddenError, ServerError } from '../errors';
-import * as nameChangeServices from '../modules/name-changes/name-change.services';
 import redisService from '../services/external/redis.service';
 import logger from '../util/logging';
+import { submitNameChange } from '../modules/name-changes/services/SubmitNameChangeService';
 
 export function metricAbbreviation(req: Request, _res: Response, next: NextFunction) {
   if (!req) {
@@ -61,7 +61,7 @@ export async function detectRuneLiteNameChange(req: Request, res: Response, next
     });
 
     try {
-      await nameChangeServices.submitNameChange({ oldName: storedUsername, newName: username });
+      await submitNameChange(storedUsername, username);
 
       // Interrupt the player update by forwarding an error.
       // This prevent a race condition where the player is updated during a name change's data transfer.
@@ -74,16 +74,14 @@ export async function detectRuneLiteNameChange(req: Request, res: Response, next
   next();
 }
 
-export async function checkAdminPermission(req: Request, _: Response, next: NextFunction) {
-  const { adminPassword } = req.body;
+export function checkAdminPermission(req: unknown, _res: Response, next: NextFunction) {
+  const { adminPassword } = (req as Request).body;
 
   if (!adminPassword) {
-    return next(new BadRequestError("Required parameter 'adminPassword' is undefined."));
+    next(new BadRequestError("Required parameter 'adminPassword' is undefined."));
+  } else if (String(adminPassword) !== env.ADMIN_PASSWORD) {
+    next(new ForbiddenError('Incorrect admin password.'));
+  } else {
+    next();
   }
-
-  if (String(adminPassword) !== env.ADMIN_PASSWORD) {
-    return next(new ForbiddenError('Incorrect admin password.'));
-  }
-
-  next();
 }

@@ -24,7 +24,7 @@ import {
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
 import logger from '../../util/logging';
-import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
+import { getPlayerEHP, getPlayerEHB } from '../../modules/efficiency/efficiency.utils';
 import {
   ActivityValue,
   ActivityValueWithPlayer,
@@ -162,8 +162,8 @@ function getExcessiveGains(before: Snapshot, after: Snapshot) {
 
   const hoursDiff = Math.max(120, timeDiff / 1000 / 3600);
 
-  const ehpDiff = efficiencyUtils.getPlayerEHP(after) - efficiencyUtils.getPlayerEHP(before);
-  const ehbDiff = efficiencyUtils.getPlayerEHB(after) - efficiencyUtils.getPlayerEHB(before);
+  const ehpDiff = getPlayerEHP(after) - getPlayerEHP(before);
+  const ehbDiff = getPlayerEHB(after) - getPlayerEHB(before);
 
   if (ehpDiff + ehbDiff <= hoursDiff) return null;
 

@@ -4,9 +4,9 @@ import prisma from '../../../../prisma';
 import { RateLimitError } from '../../../errors';
 import * as playerUtils from '../player.utils';
 import * as cmlService from '../../../services/external/cml.service';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerEvents from '../player.events';
 import { SnapshotDataSource, SnapshotFragment } from '../../snapshots/snapshot.types';
+import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
 
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 
@@ -62,7 +62,7 @@ async function importCMLHistorySince(id: number, username: string, time: number)
   // Convert the CML csv data to Snapshot instances
   const snapshots = await Promise.all(
     history.map(row =>
-      snapshotServices.buildSnapshot({
+      buildSnapshot({
         playerId: id,
         rawCSV: row,
         source: SnapshotDataSource.CRYSTAL_MATH_LABS

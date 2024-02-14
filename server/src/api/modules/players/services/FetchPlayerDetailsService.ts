@@ -2,10 +2,10 @@ import { z } from 'zod';
 
 import prisma from '../../../../prisma';
 import { PlayerStatus } from '../../../../utils';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import { NotFoundError } from '../../../errors';
 import { PlayerDetails } from '../player.types';
 import { formatPlayerDetails, standardize } from '../player.utils';
+import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 
 const inputSchema = z
   .object({
@@ -32,7 +32,7 @@ async function fetchPlayerDetails(payload: FetchPlayerParams): Promise<PlayerDet
 
   if (!player.latestSnapshot) {
     // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
-    const latestSnapshot = await snapshotServices.findPlayerSnapshot({ id: player.id });
+    const latestSnapshot = await findPlayerSnapshot({ id: player.id });
     if (latestSnapshot) player.latestSnapshot = latestSnapshot;
   }
 

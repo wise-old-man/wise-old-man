@@ -1,5 +1,5 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import * as snapshotServices from '../../snapshots/snapshot.services';
+import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 
 async function syncParticipations(playerId: number, latestSnapshotId: number): Promise<void> {
   const currentDate = new Date();
@@ -29,7 +29,7 @@ async function syncParticipations(playerId: number, latestSnapshotId: number): P
     // If this participation's starting snapshot has not been set,
     // find the first snapshot created since the start date and set it
     if (!participation.startSnapshotId) {
-      const startSnapshot = await snapshotServices.findPlayerSnapshot({
+      const startSnapshot = await findPlayerSnapshot({
         id: playerId,
         minDate: participation.competition.startsAt
       });

@@ -2,9 +2,9 @@ import { z } from 'zod';
 import prisma, { Snapshot } from '../../../../prisma';
 import { parsePeriodExpression } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import { PlayerDeltasArray, PlayerDeltasMap } from '../delta.types';
 import { calculatePlayerDeltas, emptyPlayerDelta, flattenPlayerDeltas } from '../delta.utils';
+import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 
 const inputSchema = z
   .object({
@@ -83,11 +83,11 @@ async function findEdgeSnapshots(params: FindPlayerDeltasParams): Promise<Snapsh
   const { startDate, endDate } = getEdgeDates();
 
   return await Promise.all([
-    snapshotServices.findPlayerSnapshot({
+    findPlayerSnapshot({
       id: params.id,
       minDate: startDate
     }),
-    snapshotServices.findPlayerSnapshot({
+    findPlayerSnapshot({
       id: params.id,
       maxDate: endDate
     })

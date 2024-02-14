@@ -22,13 +22,10 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   let details: NameChangeDetails;
 
   try {
-    details = await fetchNameChangeDetails({ id: params.id });
+    details = await fetchNameChangeDetails(params.id);
   } catch (error) {
     if (error.message === 'Old stats could not be found.') {
-      await denyNameChange({
-        id: params.id,
-        reviewContext: { reason: 'old_stats_cannot_be_found' }
-      });
+      await denyNameChange(params.id, { reason: 'old_stats_cannot_be_found' });
       return;
     }
   }
@@ -40,7 +37,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
 
   // If it's a capitalization change, auto-approve
   if (playerUtils.standardize(nameChange.oldName) === playerUtils.standardize(nameChange.newName)) {
-    await approveNameChange({ id: params.id });
+    await approveNameChange(params.id);
     return;
   }
 
@@ -52,19 +49,13 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
 
   // If new name is not on the hiscores
   if (!isNewOnHiscores) {
-    await denyNameChange({
-      id: params.id,
-      reviewContext: { reason: 'new_name_not_on_the_hiscores' }
-    });
+    await denyNameChange(params.id, { reason: 'new_name_not_on_the_hiscores' });
     return;
   }
 
   // If has lost exp/kills/scores, deny request
   if (negativeGains) {
-    await denyNameChange({
-      id: params.id,
-      reviewContext: { reason: 'negative_gains', negativeGains }
-    });
+    await denyNameChange(params.id, { reason: 'negative_gains', negativeGains });
     return;
   }
 
@@ -108,7 +99,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   }
 
   // All seems to be fine, auto approve
-  await approveNameChange({ id: params.id });
+  await approveNameChange(params.id);
 }
 
 /**

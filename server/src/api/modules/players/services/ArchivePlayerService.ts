@@ -3,9 +3,9 @@ import { ServerError } from '../../../../api/errors';
 import logger from '../../../util/logging';
 import prisma, { NameChangeStatus, Player, setHooksEnabled } from '../../../../prisma';
 import * as discordService from '../../../services/external/discord.service';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerUtils from '../player.utils';
 import * as playerEvents from '../player.events';
+import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 
 interface ArchivePlayerResult {
   newPlayer: Player | null;
@@ -16,7 +16,7 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
   let splitData: Awaited<ReturnType<typeof playerUtils.splitArchivalData>> | null = null;
 
   if (createNewPlayer) {
-    const latestSnapshot = await snapshotServices.findPlayerSnapshot({ id: player.id });
+    const latestSnapshot = await findPlayerSnapshot({ id: player.id });
 
     // Get all the memberships and participations that should be transfered to the new player
     splitData = await playerUtils.splitArchivalData(player.id, latestSnapshot.createdAt);
