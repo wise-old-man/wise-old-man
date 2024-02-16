@@ -2,7 +2,6 @@ import { Request } from 'express';
 import { ForbiddenError, ServerError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import * as groupServices from '../groups/group.services';
-import * as competitionServices from '../competitions/competition.services';
 import * as playerServices from './player.services';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
 import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
@@ -17,6 +16,8 @@ import { findPlayerSnapshots } from '../snapshots/services/FindPlayerSnapshotsSe
 import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsService';
 import { findPlayerAchievements } from '../achievements/services/FindPlayerAchievementsService';
 import { findPlayerAchievementProgress } from '../achievements/services/FindPlayerAchievementProgressService';
+import { findPlayerParticipations } from '../competitions/services/FindPlayerParticipationsService';
+import { findPlayerParticipationsStandings } from '../competitions/services/FindPlayerParticipationsStandingsService';
 
 // GET /players/search?username={username}
 async function search(req: Request): Promise<ControllerResponse> {
@@ -124,7 +125,7 @@ async function achievementsProgress(req: Request): Promise<ControllerResponse> {
 async function competitions(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
-  const results = await competitionServices.findPlayerParticipations({
+  const results = await findPlayerParticipations({
     playerId,
     status: getEnum(req.query.status)
   });
@@ -136,7 +137,7 @@ async function competitions(req: Request): Promise<ControllerResponse> {
 async function competitionStandings(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
-  const results = await competitionServices.findPlayerParticipationsStandings({
+  const results = await findPlayerParticipationsStandings({
     playerId,
     status: getEnum(req.query.status)
   });

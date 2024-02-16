@@ -462,7 +462,11 @@ describe('Snapshots API', () => {
 
       await expect(
         findPlayerSnapshots({ id: undefined, minDate: startDate, maxDate: endDate })
+<<<<<<< HEAD
       ).rejects.toThrow("Parameter 'id' is not a valid number.");
+=======
+      ).rejects.toThrow("Parameter 'id' is undefined.");
+>>>>>>> c5dccb76... Refactor competitions router
     });
 
     it('should not fetch snapshots between (invalid start date)', async () => {

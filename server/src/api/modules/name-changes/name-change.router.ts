@@ -3,15 +3,15 @@ import { z } from 'zod';
 import { checkAdminPermission } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getPaginationSchema } from '../../util/validation';
+import { resolvePlayerId } from '../players/player.utils';
 import { NameChangeStatus } from './name-change.types';
 import { approveNameChange } from './services/ApproveNameChangeService';
 import { bulkSubmitNameChanges } from './services/BulkSubmitNameChangesService';
+import { clearNameChangeHistory } from './services/ClearNameChangeHistoryService';
 import { denyNameChange } from './services/DenyNameChangeService';
 import { fetchNameChangeDetails } from './services/FetchNameChangeDetailsService';
 import { searchNameChanges } from './services/SearchNameChangesService';
 import { submitNameChange } from './services/SubmitNameChangeService';
-import { clearNameChangeHistory } from './services/ClearNameChangeHistoryService';
-import { resolvePlayerId } from '../players/player.utils';
 
 const router = Router();
 

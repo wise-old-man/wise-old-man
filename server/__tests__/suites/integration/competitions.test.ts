@@ -92,7 +92,7 @@ describe('Competition API', () => {
       const response = await api.post('/competitions').send({ title: '' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Competition title must have at least one character.');
+      expect(response.body.message).toMatch("Parameter 'title' must have a minimum of 1 character(s).");
 
       expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
@@ -102,7 +102,7 @@ describe('Competition API', () => {
       const response = await api.post('/competitions').send({ title: 'hello' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
+      expect(response.body.message).toMatch("Parameter 'metric' is undefined.");
 
       expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
@@ -112,7 +112,7 @@ describe('Competition API', () => {
       const response = await api.post('/competitions').send({ title: 'hello', metric: 'smithing' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'startsAt' is undefined.");
+      expect(response.body.message).toMatch("Parameter 'startsAt' is not a valid date.");
 
       expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
@@ -121,10 +121,10 @@ describe('Competition API', () => {
     it('should not create (invalid start date)', async () => {
       const response = await api
         .post('/competitions')
-        .send({ title: 'hello', metric: 'smithing', startsAt: 123 });
+        .send({ title: 'hello', metric: 'smithing', startsAt: 123, endsAt: VALID_END_DATE });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'startsAt' is undefined.");
+      expect(response.body.message).toMatch("Parameter 'startsAt' is not a valid date.");
 
       expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
@@ -136,7 +136,7 @@ describe('Competition API', () => {
         .send({ title: 'hello', metric: 'smithing', startsAt: VALID_START_DATE });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'endsAt' is undefined.");
+      expect(response.body.message).toMatch("Parameter 'endsAt' is not a valid date.");
 
       expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
@@ -148,7 +148,7 @@ describe('Competition API', () => {
         .send({ title: 'hello', metric: 'smithing', endsAt: 123, startsAt: VALID_START_DATE });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'endsAt' is undefined.");
+      expect(response.body.message).toMatch("Parameter 'endsAt' is not a valid date.");
 
       expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
@@ -199,7 +199,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Competition title cannot be longer than 50 characters.');
+      expect(response.body.message).toMatch("Parameter 'title' must have a maximum of 50 character(s).");
 
       expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
@@ -816,7 +816,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Competition title must have at least one character.');
+      expect(response.body.message).toBe("Parameter 'title' must have a minimum of 1 character(s).");
 
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -828,7 +828,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Competition title cannot be longer than 50 characters.');
+      expect(response.body.message).toBe("Parameter 'title' must have a maximum of 50 character(s).");
 
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1183,7 +1183,7 @@ describe('Competition API', () => {
       expect(response.body.group).not.toBeDefined();
       expect(response.body.verificationHash).not.toBeDefined();
 
-      // Only hydrox6 was added, the other 3 were already participants
+      // hydrox6 was added, the other 3 were already participants
       expect(onParticipantsJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 1 }));
 
       const participantUsernames = response.body.participations.map(p => p.player.username);
@@ -1242,7 +1242,7 @@ describe('Competition API', () => {
       expect(response.body.group).not.toBeDefined();
       expect(response.body.verificationHash).not.toBeDefined();
 
-      // Only 4 players were added (the other 6 were already participants)
+      // 4 players were added (the other 6 were already participants)
       expect(onParticipantsJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 4 }));
 
       const usernameTeamMap: { [username: string]: string } = {};
@@ -1319,7 +1319,7 @@ describe('Competition API', () => {
       expect(response.body.participations.map(p => p.player.username)).not.toContain('zezima'); // player got removed
       expect(response.body.title).toBe('SoulWars Competition');
 
-      // psikoi, hydrox6 and usbc were already in the competition, only 5 new players joined
+      // psikoi, hydrox6 and usbc were already in the competition, 5 new players joined
       expect(onParticipantsJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 5 }));
     });
   });
@@ -1639,7 +1639,21 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Empty participants list.');
+      expect(response.body.message).toMatch("Parameter 'participants' must have a minimum of 1 element(s).");
+
+      expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not add participants (invalid participant username type)', async () => {
+      const response = await api
+        .post(`/competitions/${globalData.testCompetitionStarting.id}/participants`)
+        .send({
+          participants: [123, {}],
+          verificationCode: globalData.testCompetitionStarting.verificationCode
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Found 1 invalid usernames:');
 
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1648,7 +1662,7 @@ describe('Competition API', () => {
       const response = await api
         .post(`/competitions/${globalData.testCompetitionStarting.id}/participants`)
         .send({
-          participants: [123, {}],
+          participants: ['hello$@', '$$@__$'],
           verificationCode: globalData.testCompetitionStarting.verificationCode
         });
 
@@ -1810,7 +1824,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Empty participants list.');
+      expect(response.body.message).toMatch("Parameter 'participants' must have a minimum of 1 element(s).");
     });
 
     it('should not remove participants (no valid players found)', async () => {
@@ -1946,7 +1960,7 @@ describe('Competition API', () => {
         .send({ verificationCode: globalData.testCompetitionEnding.verificationCode });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'teams' is not a valid array.");
+      expect(response.body.message).toBe("Parameter 'teams' is undefined.");
     });
 
     it('should not add teams (invalid teams list)', async () => {
@@ -1966,7 +1980,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Empty teams list.');
+      expect(response.body.message).toBe("Parameter 'teams' must have a minimum of 1 element(s).");
     });
 
     it('should not add teams (invalid team shape)', async () => {
@@ -2212,7 +2226,7 @@ describe('Competition API', () => {
         .send({ verificationCode: globalData.testCompetitionEnding.verificationCode, teamNames: [] });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Empty team names list.');
+      expect(response.body.message).toBe("Parameter 'teamNames' must have a minimum of 1 element(s).");
     });
 
     it('should not remove teams (classic competition)', async () => {
@@ -2294,7 +2308,7 @@ describe('Competition API', () => {
       // Fake the current date to be 15 minutes ago
       jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 900_000));
 
-      // Track Lynx Titan once, this player won't be tracked again (only 1 snapshot during competition)
+      // Track Lynx Titan once, this player won't be tracked again  1 snapshot during competition)
       const trackResponse1 = await api.post('/players/lynx titan');
       expect(trackResponse1.status).toBe(200);
 
@@ -2899,7 +2913,7 @@ describe('Competition API', () => {
       const response = await api.get(`/players/psikoi/competitions/standings`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Invalid enum value for 'status'");
+      expect(response.body.message).toMatch("Parameter 'status' is undefined.");
     });
 
     it('should not list player competition standings (invalid competition status)', async () => {
@@ -3158,7 +3172,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(200);
 
       // This competition has been ongoing for 2 days, and is ending in 5 days, so players
-      // are only considered outdated after 24h. USBC was updated 10h ago, so they won't count.
+      // are considered outdated after 24h. USBC was updated 10h ago, so they won't count.
       expect(response.body.message).toMatch('1 outdated (updated > 24h ago) players are being updated.');
     });
 

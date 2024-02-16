@@ -3,7 +3,6 @@ import { ForbiddenError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import * as verificationGuard from '../../guards/verification.guard';
 import * as groupServices from './group.services';
-import * as competitionServices from '../competitions/competition.services';
 import { getNumber, getEnum, getDate, getString } from '../../util/validation';
 import { ControllerResponse } from '../../util/routing';
 import { MigrationDataSource } from './group.types';
@@ -11,6 +10,7 @@ import { findGroupDeltas } from '../deltas/services/FindGroupDeltasService';
 import { findGroupNameChanges } from '../name-changes/services/FindGroupNameChangesService';
 import { findGroupRecords } from '../records/services/FindGroupRecordsService';
 import { findGroupAchievements } from '../achievements/services/FindGroupAchievementsService';
+import { findGroupCompetitions } from '../competitions/services/FindGroupCompetitionsService';
 
 // GET /groups
 async function search(req: Request): Promise<ControllerResponse> {
@@ -199,7 +199,7 @@ async function removeMembers(req: Request): Promise<ControllerResponse> {
 
 // GET /groups/:id/competitions
 async function competitions(req: Request): Promise<ControllerResponse> {
-  const results = await competitionServices.findGroupCompetitions({
+  const results = await findGroupCompetitions({
     groupId: getNumber(req.params.id)
   });
 

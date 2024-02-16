@@ -1,20 +1,11 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../services/external/crypt.service';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
-const inputSchema = z.object({
-  id: z.number().int().positive()
-});
-
-type ResetCompetitionCodeParams = z.infer<typeof inputSchema>;
-
-async function resetCompetitionCode(payload: ResetCompetitionCodeParams): Promise<{ newCode: string }> {
-  const params = inputSchema.parse(payload);
-
+async function resetCompetitionCode(id: number): Promise<{ newCode: string }> {
   const competition = await prisma.competition.findFirst({
-    where: { id: params.id }
+    where: { id }
   });
 
   if (!competition) {
@@ -29,9 +20,9 @@ async function resetCompetitionCode(payload: ResetCompetitionCodeParams): Promis
 
   const [code, hash] = await cryptService.generateVerification();
 
-  await prisma.competition.update({ where: { id: params.id }, data: { verificationHash: hash } });
+  await prisma.competition.update({ where: { id }, data: { verificationHash: hash } });
 
-  logger.moderation(`[Competition:${params.id}] Code reset`);
+  logger.moderation(`[Competition:${id}] Code reset`);
 
   return { newCode: code };
 }

@@ -1,22 +1,12 @@
-import { z } from 'zod';
 import { Snapshot } from '../../../../prisma';
 import { getMetricValueKey, Metric } from '../../../../utils';
 import { Top5ProgressResult } from '../competition.types';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 
-const inputSchema = z.object({
-  id: z.number().int().positive(),
-  metric: z.nativeEnum(Metric).optional()
-});
-
-type FetchTop5ProgressParams = z.infer<typeof inputSchema>;
-
-async function fetchCompetitionTop5Progress(payload: FetchTop5ProgressParams): Promise<Top5ProgressResult> {
-  const params = inputSchema.parse(payload);
-
-  const competitionDetails = await fetchCompetitionDetails(params);
-  const metricKey = getMetricValueKey(params.metric || competitionDetails.metric);
+async function fetchCompetitionTop5Progress(id: number, metric?: Metric): Promise<Top5ProgressResult> {
+  const competitionDetails = await fetchCompetitionDetails(id, metric);
+  const metricKey = getMetricValueKey(metric || competitionDetails.metric);
 
   // Select the top 5 players
   const top5Players = competitionDetails.participations.slice(0, 5).map(p => p.player);

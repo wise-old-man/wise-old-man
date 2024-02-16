@@ -1,27 +1,12 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { sanitizeTitle } from '../competition.utils';
 
-const inputSchema = z.object({
-  id: z.number().int().positive(),
-  teamNames: z
-    .array(z.string({ invalid_type_error: 'All team names must be non-empty strings.' }), {
-      invalid_type_error: "Parameter 'teamNames' is not a valid array.",
-      required_error: "Parameter 'teamNames' is undefined."
-    })
-    .nonempty({ message: 'Empty team names list.' })
-});
-
-type RemoveTeamsParams = z.infer<typeof inputSchema>;
-
-async function removeTeams(payload: RemoveTeamsParams): Promise<{ count: number }> {
-  const params = inputSchema.parse(payload);
-
+async function removeTeams(id: number, teamNames: string[]): Promise<{ count: number }> {
   const competition = await prisma.competition.findFirst({
-    where: { id: params.id }
+    where: { id }
   });
 
   if (!competition) {
@@ -34,8 +19,8 @@ async function removeTeams(payload: RemoveTeamsParams): Promise<{ count: number 
 
   const { count } = await prisma.participation.deleteMany({
     where: {
-      competitionId: params.id,
-      teamName: { in: params.teamNames.map(sanitizeTitle) }
+      competitionId: id,
+      teamName: { in: teamNames.map(sanitizeTitle) }
     }
   });
 
@@ -43,10 +28,10 @@ async function removeTeams(payload: RemoveTeamsParams): Promise<{ count: number 
     throw new BadRequestError('No players were removed from the competition.');
   }
 
-  logger.moderation(`[Competition:${params.id}] (${params.teamNames}) removed`);
+  logger.moderation(`[Competition:${id}] (${teamNames}) removed`);
 
   await prisma.competition.update({
-    where: { id: params.id },
+    where: { id },
     data: { updatedAt: new Date() }
   });
 

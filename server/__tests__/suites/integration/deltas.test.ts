@@ -531,7 +531,7 @@ describe('Deltas API', () => {
     it('should not fetch leaderboards (undefined period)', async () => {
       const response = await api.get(`/deltas/leaderboard`);
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Invalid enum value for 'period'.");
+      expect(response.body.message).toBe("Parameter 'period' is undefined.");
     });
 
     it('should not fetch leaderboards (invalid period)', async () => {
@@ -543,7 +543,7 @@ describe('Deltas API', () => {
     it('should not fetch leaderboards (undefined metric)', async () => {
       const response = await api.get(`/deltas/leaderboard`).query({ period: 'week' });
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
+      expect(response.body.message).toBe("Parameter 'metric' is undefined.");
     });
 
     it('should not fetch leaderboards (invalid metric)', async () => {

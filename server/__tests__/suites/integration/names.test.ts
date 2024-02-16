@@ -5,10 +5,10 @@ import { getMetricValueKey, getMetricRankKey, METRICS, PlayerType, PlayerStatus 
 import env from '../../../src/env';
 import prisma, { setHooksEnabled } from '../../../src/prisma';
 import apiServer from '../../../src/api';
-import { buildSnapshot } from '../../../src/api/modules/snapshots/services/BuildSnapshotService';
 import * as nameChangeEvents from '../../../src/api/modules/name-changes/name-change.events';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
+import { buildSnapshot } from '../../../src/api/modules/snapshots/services/BuildSnapshotService';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -1139,7 +1139,7 @@ describe('Names API', () => {
       const fetchResponse = await api.get(`/groups/abc/name-changes`);
 
       expect(fetchResponse.status).toBe(400);
-      expect(fetchResponse.body.message).toBe("Parameter 'id' is not a valid number.");
+      expect(fetchResponse.body.message).toBe("Parameter 'id' is undefined.");
     });
 
     it('should not fetch (group not found)', async () => {

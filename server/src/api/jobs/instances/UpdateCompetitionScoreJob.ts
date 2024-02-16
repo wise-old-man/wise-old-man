@@ -1,6 +1,6 @@
+import { fetchCompetitionDetails } from '../../modules/competitions/services/FetchCompetitionDetailsService';
 import prisma, { Competition } from '../../../prisma';
 import { Metric, isSkill, isBoss, isActivity } from '../../../utils';
-import * as competitionServices from '../../modules/competitions/competition.services';
 import { JobType, JobDefinition } from '../job.types';
 
 export interface UpdateCompetitionScorePayload {
@@ -40,7 +40,7 @@ async function calculateScore(competition: Competition): Promise<number> {
     return score;
   }
 
-  const details = await competitionServices.fetchCompetitionDetails({ id: competition.id });
+  const details = await fetchCompetitionDetails(competition.id);
 
   const activeParticipants = details.participations.filter(p => p.progress.gained > 0);
 
