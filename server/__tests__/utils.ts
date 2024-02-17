@@ -4,7 +4,7 @@ import prisma from '../src/prisma';
 import redisService from '../src/api/services/external/redis.service';
 import { OSRS_HISCORES_URLS } from '../src/api/services/external/jagex.service';
 import { PlayerType, METRICS, Metric, SKILLS } from '../src/utils';
-import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/snapshot.services';
+import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/services/BuildSnapshotService';
 
 type HiscoresMockConfig = {
   [playerType in PlayerType]?: {

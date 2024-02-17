@@ -11,11 +11,11 @@ import {
 } from '../../../src/utils';
 import apiServer from '../../../src/api';
 import { ALGORITHMS, getAlgorithm } from '../../../src/api/modules/efficiency/efficiency.utils';
-import * as efficiencyServices from '../../../src/api/modules/efficiency/efficiency.services';
 import testSkillingMetas from '../../data/efficiency/configs/test.ehp';
 import testBossingMetas from '../../data/efficiency/configs/test.ehb';
 import { resetDatabase, resetRedis, sleep } from '../../utils';
 import EfficiencyAlgorithm from '../../../src/api/modules/efficiency/EfficiencyAlgorithm';
+import { computeEfficiencyRank } from '../../../src/api/modules/efficiency/services/ComputeEfficiencyRankService';
 
 const api = supertest(apiServer.express);
 
@@ -327,7 +327,7 @@ describe('Efficiency API', () => {
     it('should compute > top 50 rank', async () => {
       const top60Player = await prisma.player.findUnique({ where: { username: 'player 60' } });
 
-      const result = await efficiencyServices.computeEfficiencyRank({
+      const result = await computeEfficiencyRank({
         player: top60Player,
         value: top60Player.ehp,
         metric: 'ehp'
@@ -339,7 +339,7 @@ describe('Efficiency API', () => {
     it('should compute < top 50 rank', async () => {
       const top7Player = await prisma.player.findUnique({ where: { username: 'player 7' } });
 
-      const result = await efficiencyServices.computeEfficiencyRank({
+      const result = await computeEfficiencyRank({
         player: top7Player,
         value: top7Player.ehp,
         metric: 'ehp'
@@ -351,7 +351,7 @@ describe('Efficiency API', () => {
     it('should compute > top 50 rank (ironman)', async () => {
       const top85Player = await prisma.player.findUnique({ where: { username: 'player 85' } });
 
-      const result = await efficiencyServices.computeEfficiencyRank({
+      const result = await computeEfficiencyRank({
         player: top85Player,
         value: top85Player.ehp,
         metric: 'ehp'

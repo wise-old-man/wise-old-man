@@ -5,7 +5,7 @@ import { getMetricValueKey, getMetricRankKey, METRICS, PlayerType, PlayerStatus 
 import env from '../../../src/env';
 import prisma, { setHooksEnabled } from '../../../src/prisma';
 import apiServer from '../../../src/api';
-import * as snapshotServices from '../../../src/api/modules/snapshots/snapshot.services';
+import { buildSnapshot } from '../../../src/api/modules/snapshots/services/BuildSnapshotService';
 import * as nameChangeEvents from '../../../src/api/modules/name-changes/name-change.events';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
@@ -1332,7 +1332,7 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await snapshotServices.buildSnapshot({
+  const snapshotData = await buildSnapshot({
     playerId: oldPlayerId,
     rawCSV: globalData.hiscoresRawData
   });
@@ -1391,7 +1391,7 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await snapshotServices.buildSnapshot({
+  const snapshotData = await buildSnapshot({
     playerId: oldPlayerId,
     rawCSV: globalData.hiscoresRawData
   });

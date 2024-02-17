@@ -14,7 +14,6 @@ import {
   sleep,
   resetRedis
 } from '../../utils';
-import * as snapshotServices from '../../../src/api/modules/snapshots/snapshot.services';
 import * as snapshotUtils from '../../../src/api/modules/snapshots/snapshot.utils';
 import * as playerServices from '../../../src/api/modules/players/player.services';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
@@ -23,6 +22,7 @@ import * as playerUtils from '../../../src/api/modules/players/player.utils';
 import { getPlayerEfficiencyMap } from '../../../src/api/modules/efficiency/efficiency.utils';
 import redisService from '../../../src/api/services/external/redis.service';
 import { reviewFlaggedPlayer } from '../../../src/api/modules/players/player.services';
+import { buildSnapshot } from '../../../src/api/modules/snapshots/services/BuildSnapshotService';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -1514,7 +1514,7 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await snapshotServices.buildSnapshot({
+      const previousSnapshot = await buildSnapshot({
         playerId: player.id,
         rawCSV: globalData.hiscoresRawData,
         source: SnapshotDataSource.HISCORES
@@ -1531,7 +1531,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await snapshotServices.buildSnapshot({
+      const rejectedSnapshot = await buildSnapshot({
         playerId: player.id,
         rawCSV: modifiedRawData,
         source: SnapshotDataSource.HISCORES
@@ -1645,7 +1645,7 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await snapshotServices.buildSnapshot({
+      const previousSnapshot = await buildSnapshot({
         playerId: player.id,
         rawCSV: globalData.hiscoresRawData,
         source: SnapshotDataSource.HISCORES
@@ -1661,7 +1661,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await snapshotServices.buildSnapshot({
+      const rejectedSnapshot = await buildSnapshot({
         playerId: player.id,
         rawCSV: modifiedRejectedRawData,
         source: SnapshotDataSource.HISCORES
@@ -1739,7 +1739,7 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await snapshotServices.buildSnapshot({
+      const previousSnapshot = await buildSnapshot({
         playerId: player.id,
         rawCSV: globalData.hiscoresRawData,
         source: SnapshotDataSource.HISCORES
@@ -1760,7 +1760,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await snapshotServices.buildSnapshot({
+      const rejectedSnapshot = await buildSnapshot({
         playerId: player.id,
         rawCSV: modifiedRejectedRawData,
         source: SnapshotDataSource.HISCORES
@@ -1804,7 +1804,7 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await snapshotServices.buildSnapshot({
+      const previousSnapshot = await buildSnapshot({
         playerId: player.id,
         rawCSV: modifiedPreviousRawData,
         source: SnapshotDataSource.HISCORES
@@ -1817,7 +1817,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await snapshotServices.buildSnapshot({
+      const rejectedSnapshot = await buildSnapshot({
         playerId: player.id,
         rawCSV: globalData.hiscoresRawData,
         source: SnapshotDataSource.HISCORES
@@ -1859,7 +1859,7 @@ describe('Player API', () => {
       // pre changes setup
       const groupId = await setupPreTransitionData(1000, player.id);
 
-      const previousSnapshot = await snapshotServices.buildSnapshot({
+      const previousSnapshot = await buildSnapshot({
         playerId: player.id,
         rawCSV: globalData.hiscoresRawData,
         source: SnapshotDataSource.HISCORES
@@ -1882,7 +1882,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await snapshotServices.buildSnapshot({
+      const rejectedSnapshot = await buildSnapshot({
         playerId: player.id,
         rawCSV: modifiedRejectedRawData,
         source: SnapshotDataSource.HISCORES
@@ -2052,7 +2052,7 @@ describe('Player API', () => {
       // pre changes setup
       const groupId = await setupPreTransitionData(2000, player.id);
 
-      const previousSnapshot = await snapshotServices.buildSnapshot({
+      const previousSnapshot = await buildSnapshot({
         playerId: player.id,
         rawCSV: globalData.hiscoresRawData,
         source: SnapshotDataSource.HISCORES
@@ -2075,7 +2075,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await snapshotServices.buildSnapshot({
+      const rejectedSnapshot = await buildSnapshot({
         playerId: player.id,
         rawCSV: modifiedRejectedRawData,
         source: SnapshotDataSource.HISCORES
