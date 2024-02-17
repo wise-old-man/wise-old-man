@@ -4,9 +4,9 @@ import { GroupRole } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, ServerError } from '../../../errors';
 import { isValidUsername, standardize } from '../../players/player.utils';
-import * as playerServices from '../../players/player.services';
 import * as groupEvents from '../group.events';
 import { ActivityType } from '../group.types';
+import { findPlayers } from '../../players/services/FindPlayersService';
 
 const MEMBER_INPUT_SCHEMA = z.object(
   {
@@ -47,7 +47,7 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
   ).map(p => p.playerId);
 
   // Find or create all players with the given usernames
-  const players = await playerServices.findPlayers({
+  const players = await findPlayers({
     usernames: params.members.map(m => m.username),
     createIfNotFound: true
   });

@@ -2,9 +2,9 @@ import { MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType }
 import { jobManager, JobType } from '../../jobs';
 import metrics from '../../services/external/metrics.service';
 import * as discordService from '../../services/external/discord.service';
-import * as playerServices from '../players/player.services';
 import { addToGroupCompetitions } from '../competitions/services/AddToGroupCompetitionsService';
 import { removeFromGroupCompetitions } from '../competitions/services/RemoveFromGroupCompetitionsService';
+import { findPlayers } from '../players/services/FindPlayersService';
 
 function onGroupUpdated(groupId: number) {
   jobManager.add({ type: JobType.UPDATE_GROUP_SCORE, payload: { groupId } });
@@ -26,7 +26,7 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
   await metrics.trackEffect(addToGroupCompetitions, groupId, playerIds);
 
   // Fetch all the newly added members
-  const players = await playerServices.findPlayers({ ids: playerIds });
+  const players = await findPlayers({ ids: playerIds });
 
   // If couldn't find any players for these ids, ignore event
   if (!players || players.length === 0) return;

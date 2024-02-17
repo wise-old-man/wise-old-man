@@ -24,7 +24,7 @@ async function reevaluatePlayerAchievements(payload: ReevaluatePlayerAchievement
   const unknownDefinitions = ALL_DEFINITIONS.filter(d => unknownAchievementNames.includes(d.name));
 
   // Search dates for previously unknown definitions, based on player history
-  const allSnapshots = await findPlayerSnapshots({ id: params.id });
+  const allSnapshots = await findPlayerSnapshots(params.id);
   const pastDatesData = calculatePastDates(allSnapshots.reverse(), unknownDefinitions);
 
   // Attach new dates where possible, and filter out any (still) unknown achievements

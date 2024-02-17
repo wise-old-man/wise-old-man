@@ -1,7 +1,7 @@
 import prisma from '../../../prisma';
-import * as playerServices from '../../modules/players/player.services';
 import { NotFoundError } from '../../errors';
-import { JobType, JobDefinition, JobOptions } from '../job.types';
+import { assertPlayerType } from '../../modules/players/services/AssertPlayerTypeService';
+import { JobDefinition, JobOptions, JobType } from '../job.types';
 
 export interface AssertPlayerTypePayload {
   playerId: number;
@@ -29,7 +29,7 @@ class AssertPlayerTypeJob implements JobDefinition<AssertPlayerTypePayload> {
       throw new NotFoundError('Player not found.');
     }
 
-    await playerServices.assertPlayerType(player, true);
+    await assertPlayerType(player, true);
   }
 }
 

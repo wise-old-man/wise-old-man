@@ -2,7 +2,6 @@ import { CompetitionType, Metric, Snapshot } from '../../../../utils';
 import prisma, { Participation, PrismaTypes, PrismaPromise, Player } from '../../../../prisma';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
-import * as playerServices from '../../players/player.services';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import {
   sanitizeTeams,
@@ -14,6 +13,7 @@ import {
 import { standardize } from '../../players/player.utils';
 import { CompetitionWithParticipations, Team } from '../competition.types';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
+import { findPlayers } from '../../players/services/FindPlayersService';
 
 interface EditCompetitionPayload {
   title?: string;
@@ -334,7 +334,7 @@ async function getParticipations(payload: EditCompetitionPayload) {
   validateParticipantDuplicates(payload.participants);
 
   // Find or create all players with the given usernames
-  const players = await playerServices.findPlayers({
+  const players = await findPlayers({
     usernames: payload.participants,
     createIfNotFound: true
   });
@@ -354,7 +354,7 @@ async function getTeamsParticipations(payload: EditCompetitionPayload) {
   validateParticipantDuplicates(newTeams.map(t => t.participants).flat());
 
   // Find or create all players with the given usernames
-  const players = await playerServices.findPlayers({
+  const players = await findPlayers({
     usernames: newTeams.map(t => t.participants).flat(),
     createIfNotFound: true
   });

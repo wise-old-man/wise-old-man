@@ -1,5 +1,3 @@
-import { z } from 'zod';
-
 import prisma from '../../../../prisma';
 import { PlayerStatus } from '../../../../utils';
 import { NotFoundError } from '../../../errors';
@@ -7,22 +5,9 @@ import { PlayerDetails } from '../player.types';
 import { formatPlayerDetails, standardize } from '../player.utils';
 import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 
-const inputSchema = z
-  .object({
-    id: z.number().int().positive().optional(),
-    username: z.string().optional()
-  })
-  .refine(s => s.id || s.username, {
-    message: 'Undefined id and username.'
-  });
-
-type FetchPlayerParams = z.infer<typeof inputSchema>;
-
-async function fetchPlayerDetails(payload: FetchPlayerParams): Promise<PlayerDetails> {
-  const params = inputSchema.parse(payload);
-
+async function fetchPlayerDetails(username: string): Promise<PlayerDetails> {
   const player = await prisma.player.findFirst({
-    where: params.id ? { id: params.id } : { username: standardize(params.username) },
+    where: { username: standardize(username) },
     include: { latestSnapshot: true }
   });
 

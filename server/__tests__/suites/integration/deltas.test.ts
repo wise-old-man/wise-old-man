@@ -224,19 +224,15 @@ describe('Deltas API', () => {
   });
 
   describe('2 - Fetch Player Deltas', () => {
-    it('should not fetch (invalid player id)', async () => {
-      await expect(findPlayerDeltas({ id: null })).rejects.toThrow("Parameter 'id' is not a valid number.");
-    });
-
     it('should not fetch (player not found)', async () => {
-      await expect(findPlayerDeltas({ id: 2_000_000, period: 'week' })).rejects.toThrow('Player not found.');
+      await expect(findPlayerDeltas('woaaaaaah', 'week')).rejects.toThrow('Player not found.');
     });
 
     it('should not fetch (no snapshots found with player id)', async () => {
       // Create a brand new account, with no snapshots
       const testPlayer = await prisma.player.create({ data: { username: 'test', displayName: 'Test' } });
 
-      const result = await findPlayerDeltas({ id: testPlayer.id, period: 'week' });
+      const result = await findPlayerDeltas(testPlayer.username, 'week');
 
       // If there are no snapshots found for the given period, it'll return an empty diff
       expect(result.startsAt).toBe(null);

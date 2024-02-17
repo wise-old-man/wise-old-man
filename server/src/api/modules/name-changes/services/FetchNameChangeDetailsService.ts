@@ -9,6 +9,7 @@ import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMet
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
+import { formatSnapshot } from '../../snapshots/snapshot.utils';
 
 async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
   const nameChange = await prisma.nameChange.findFirst({ where: { id } });
@@ -125,8 +126,8 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
       hoursDiff,
       ehpDiff,
       ehbDiff,
-      oldStats: snapshotUtils.format(oldStats, oldPlayerEfficiencyMap),
-      newStats: snapshotUtils.format(newStats, newPlayerEfficiencyMap)
+      oldStats: formatSnapshot(oldStats, oldPlayerEfficiencyMap),
+      newStats: formatSnapshot(newStats, newPlayerEfficiencyMap)
     }
   };
 }

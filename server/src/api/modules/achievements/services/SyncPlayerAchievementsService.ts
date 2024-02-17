@@ -41,7 +41,7 @@ async function syncPlayerAchievements(playerId: number, previous: Snapshot | und
   }
 
   // Search dates for missing definitions, based on player history
-  const allSnapshots = await findPlayerSnapshots({ id: playerId });
+  const allSnapshots = await findPlayerSnapshots(playerId);
 
   const missingPastDates = calculatePastDates(allSnapshots.reverse(), missingDefinitions);
 

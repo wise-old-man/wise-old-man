@@ -1,26 +1,12 @@
-import { z } from 'zod';
 import prisma, { Player } from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 import logger from '../../../util/logging';
 import { setCachedPlayerId, standardize } from '../player.utils';
 
-const inputSchema = z
-  .object({
-    id: z.number().int().positive().optional(),
-    username: z.string().optional()
-  })
-  .refine(s => s.id || s.username, {
-    message: 'Undefined id and username.'
-  });
-
-type DeletePlayerParams = z.infer<typeof inputSchema>;
-
-async function deletePlayer(payload: DeletePlayerParams): Promise<Player> {
-  const params = inputSchema.parse(payload);
-
+async function deletePlayer(username: string): Promise<Player> {
   try {
     const deletedPlayer = await prisma.player.delete({
-      where: { id: params.id, username: standardize(params.username) }
+      where: { username: standardize(username) }
     });
 
     // Clear this player's ID cache

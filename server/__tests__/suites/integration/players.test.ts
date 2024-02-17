@@ -1,28 +1,29 @@
+import { buildSnapshot } from '.../../../src/api/modules/snapshots/services/BuildSnapshotService';
 import axios from 'axios';
-import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import prisma from '../../../src/prisma';
-import env from '../../../src/env';
+import supertest from 'supertest';
 import apiServer from '../../../src/api';
+import { getPlayerEfficiencyMap } from '../../../src/api/modules/efficiency/efficiency.utils';
+import * as groupEvents from '../../../src/api/modules/groups/group.events';
+import * as playerEvents from '../../../src/api/modules/players/player.events';
+import * as playerUtils from '../../../src/api/modules/players/player.utils';
+import { findPlayers } from '../../../src/api/modules/players/services/FindPlayersService';
+import { reviewFlaggedPlayer } from '../../../src/api/modules/players/services/ReviewFlaggedPlayerService';
+import { setUpdateCooldown } from '../../../src/api/modules/players/services/UpdatePlayerService';
+import { formatSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
+import redisService from '../../../src/api/services/external/redis.service';
+import env from '../../../src/env';
+import prisma from '../../../src/prisma';
 import { BOSSES, Metric, PlayerStatus, PlayerType, SnapshotDataSource } from '../../../src/utils';
 import {
+  modifyRawHiscoresData,
+  readFile,
   registerCMLMock,
   registerHiscoresMock,
   resetDatabase,
-  readFile,
-  modifyRawHiscoresData,
-  sleep,
-  resetRedis
+  resetRedis,
+  sleep
 } from '../../utils';
-import * as snapshotUtils from '../../../src/api/modules/snapshots/snapshot.utils';
-import * as playerServices from '../../../src/api/modules/players/player.services';
-import * as playerEvents from '../../../src/api/modules/players/player.events';
-import * as groupEvents from '../../../src/api/modules/groups/group.events';
-import * as playerUtils from '../../../src/api/modules/players/player.utils';
-import { getPlayerEfficiencyMap } from '../../../src/api/modules/efficiency/efficiency.utils';
-import redisService from '../../../src/api/services/external/redis.service';
-import { reviewFlaggedPlayer } from '../../../src/api/modules/players/player.services';
-import { buildSnapshot } from '../../../src/api/modules/snapshots/services/BuildSnapshotService';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -691,14 +692,14 @@ describe('Player API', () => {
 
     it('should not track player (too soon)', async () => {
       // This cooldown is set to 0 during testing by default
-      playerServices.setUpdateCooldown(60);
+      setUpdateCooldown(60);
 
       const response = await api.post(`/players/enriath`);
 
       expect(response.status).toBe(429);
       expect(response.body.message).toMatch('Error: enriath has been updated recently.');
 
-      playerServices.setUpdateCooldown(0);
+      setUpdateCooldown(0);
     });
 
     it('should not track player (excessive gains)', async () => {
@@ -938,18 +939,24 @@ describe('Player API', () => {
       expect(detailsResponse.status).toBe(200);
       expect(detailsResponse.body.lastImportedAt).not.toBeNull();
 
-      const snapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
-        startDate: new Date('2010-01-01'),
-        endDate: new Date('2030-01-01')
+      const playerSnapshots = await prisma.snapshot.findMany({
+        where: {
+          player: {
+            username: 'psikoi'
+          },
+          createdAt: {
+            gte: new Date('2010-01-01'),
+            lte: new Date('2030-01-01')
+          }
+        },
+        orderBy: { createdAt: 'desc' }
       });
 
-      expect(snapshotsResponse.status).toBe(200);
-      expect(snapshotsResponse.body.length).toBe(222); // 219 imported, 3 tracked (during this test session)
-      expect(snapshotsResponse.body.filter(s => s.importedAt !== null).length).toBe(219);
+      expect(playerSnapshots.length).toBe(222); // 219 imported, 3 tracked (during this test session)
+      expect(playerSnapshots.filter(s => s.importedAt !== null).length).toBe(219);
       expect(
-        snapshotsResponse.body.filter(
-          s => s.importedAt !== null && new Date(s.createdAt) > new Date('2020-05-10')
-        ).length
+        playerSnapshots.filter(s => s.importedAt !== null && new Date(s.createdAt) > new Date('2020-05-10'))
+          .length
       ).toBe(0); // there should be no imported snapshots from AFTER May 10th 2020
 
       const snapshotsTimelineResponse = await api.get(`/players/psikoi/snapshots/timeline`).query({
@@ -962,11 +969,9 @@ describe('Player API', () => {
       expect(snapshotsTimelineResponse.body.length).toBe(222); // 219 imported, 3 tracked (during this test session)
 
       for (let i = 0; i < snapshotsTimelineResponse.body.length; i++) {
-        expect(snapshotsTimelineResponse.body[i].value).toBe(
-          snapshotsResponse.body[i].data.skills.magic.experience
-        );
-        expect(snapshotsTimelineResponse.body[i].rank).toBe(snapshotsResponse.body[i].data.skills.magic.rank);
-        expect(snapshotsTimelineResponse.body[i].date).toBe(snapshotsResponse.body[i].createdAt);
+        expect(snapshotsTimelineResponse.body[i].value).toBe(playerSnapshots[i].magicExperience);
+        expect(snapshotsTimelineResponse.body[i].rank).toBe(playerSnapshots[i].magicRank);
+        expect(snapshotsTimelineResponse.body[i].date).toBe(playerSnapshots[i].createdAt.toISOString());
       }
 
       // Mock the history fetch from CML
@@ -1003,7 +1008,7 @@ describe('Player API', () => {
       const response = await api.get('/players/search').query({ username: '' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+      expect(response.body.message).toMatch("Parameter 'username' must have a minimum of 1 character(s).");
     });
 
     it('should not search players (negative pagination limit)', async () => {
@@ -1228,7 +1233,7 @@ describe('Player API', () => {
         .send({ country: '', adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'country' is undefined.");
+      expect(response.body.message).toBe("Parameter 'country' must have a minimum of 2 character(s).");
     });
 
     it('should not update player country (player not found)', async () => {
@@ -1328,13 +1333,20 @@ describe('Player API', () => {
         [PlayerType.HARDCORE]: { statusCode: 404 }
       });
 
-      const firstSnapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
-        startDate: new Date('2010-01-01'),
-        endDate: new Date('2030-01-01')
+      const playerSnapshotsBefore = await prisma.snapshot.findMany({
+        where: {
+          player: {
+            username: 'psikoi'
+          },
+          createdAt: {
+            gte: new Date('2010-01-01'),
+            lte: new Date('2030-01-01')
+          }
+        },
+        orderBy: { createdAt: 'desc' }
       });
 
-      expect(firstSnapshotsResponse.status).toBe(200);
-      expect(firstSnapshotsResponse.body.length).toBe(223);
+      expect(playerSnapshotsBefore.length).toBe(223);
 
       const rollbackResponse = await api
         .post(`/players/psikoi/rollback`)
@@ -1343,41 +1355,54 @@ describe('Player API', () => {
       expect(rollbackResponse.status).toBe(200);
       expect(rollbackResponse.body.message).toMatch('Successfully rolled back player: PSIKOI');
 
-      const secondSnapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
-        startDate: new Date('2010-01-01'),
-        endDate: new Date('2030-01-01')
+      const playerSnapshotsAfter = await prisma.snapshot.findMany({
+        where: {
+          player: {
+            username: 'psikoi'
+          },
+          createdAt: {
+            gte: new Date('2010-01-01'),
+            lte: new Date('2030-01-01')
+          }
+        },
+        orderBy: { createdAt: 'desc' }
       });
-
-      expect(secondSnapshotsResponse.status).toBe(200);
 
       // the total number of snapshots should remain the same, because we delete the last snapshot
       // but we also create a new one by updating immediately after
-      expect(secondSnapshotsResponse.body.length).toBe(223);
+      expect(playerSnapshotsAfter.length).toBe(223);
 
       // The last snapshot (sorted desc) should be different
-      expect(secondSnapshotsResponse.body.at(0).id).not.toBe(firstSnapshotsResponse.body.at(0).id);
+      expect(playerSnapshotsAfter.at(0).id).not.toBe(playerSnapshotsBefore.at(0).id);
 
       // The second to last snapshot (sorted desc) should be the same
-      expect(secondSnapshotsResponse.body.at(1).id).toBe(firstSnapshotsResponse.body.at(1).id);
+      expect(playerSnapshotsAfter.at(1).id).toBe(playerSnapshotsBefore.at(1).id);
 
       // The previous last snapshot shouldn't be on the new snapshots list anymore
-      const previousLastSnapshotId = firstSnapshotsResponse.body.at(0).id;
-      expect(secondSnapshotsResponse.body.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
+      const previousLastSnapshotId = playerSnapshotsBefore.at(0).id;
+      expect(playerSnapshotsAfter.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
     });
 
     it('should rollback player (until last changed)', async () => {
-      const firstSnapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
-        startDate: new Date('2010-01-01'),
-        endDate: new Date('2030-01-01')
+      const playerSnapshotsBefore = await prisma.snapshot.findMany({
+        where: {
+          player: {
+            username: 'psikoi'
+          },
+          createdAt: {
+            gte: new Date('2010-01-01'),
+            lte: new Date('2030-01-01')
+          }
+        },
+        orderBy: { createdAt: 'desc' }
       });
 
-      expect(firstSnapshotsResponse.status).toBe(200);
-      expect(firstSnapshotsResponse.body.length).toBe(223);
+      expect(playerSnapshotsBefore.length).toBe(223);
 
       const fakeLastChangedAt = new Date(Date.now() - 30_000); // 30 seconds ago
 
       // this is the number of snapshots that should be deleted
-      const recentSnapshotsCount = firstSnapshotsResponse.body.filter(
+      const recentSnapshotsCount = playerSnapshotsBefore.filter(
         s => new Date(s.createdAt) > fakeLastChangedAt
       ).length;
 
@@ -1397,22 +1422,28 @@ describe('Player API', () => {
       expect(rollbackResponse.status).toBe(200);
       expect(rollbackResponse.body.message).toMatch('Successfully rolled back player: PSIKOI');
 
-      const secondSnapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
-        startDate: new Date('2010-01-01'),
-        endDate: new Date('2030-01-01')
+      const playerSnapshotsAfter = await prisma.snapshot.findMany({
+        where: {
+          player: {
+            username: 'psikoi'
+          },
+          createdAt: {
+            gte: new Date('2010-01-01'),
+            lte: new Date('2030-01-01')
+          }
+        },
+        orderBy: { createdAt: 'desc' }
       });
 
-      expect(secondSnapshotsResponse.status).toBe(200);
-
       // it should have deleted the recent snapshots, but also added one at the end
-      expect(secondSnapshotsResponse.body.length).toBe(223 - recentSnapshotsCount + 1);
+      expect(playerSnapshotsAfter.length).toBe(223 - recentSnapshotsCount + 1);
 
       // The last snapshot (sorted desc) should be different
-      expect(secondSnapshotsResponse.body.at(0).id).not.toBe(firstSnapshotsResponse.body.at(0).id);
+      expect(playerSnapshotsAfter.at(0).id).not.toBe(playerSnapshotsBefore.at(0).id);
 
       // The previous last snapshot shouldn't be on the new snapshots list anymore
-      const previousLastSnapshotId = firstSnapshotsResponse.body.at(0).id;
-      expect(secondSnapshotsResponse.body.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
+      const previousLastSnapshotId = playerSnapshotsBefore.at(0).id;
+      expect(playerSnapshotsAfter.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
     });
   });
 
@@ -1476,7 +1507,7 @@ describe('Player API', () => {
     });
 
     it('should find all players or create', async () => {
-      const existingPlayers = await playerServices.findPlayers({
+      const existingPlayers = await findPlayers({
         usernames: ['PSIKOI', 'enriath', 'enrique'],
         createIfNotFound: true
       });
@@ -1487,7 +1518,7 @@ describe('Player API', () => {
       expect(existingPlayers[1].username).toBe('enriath');
       expect(existingPlayers[2].username).toBe('enrique');
 
-      const oneNewPlayer = await playerServices.findPlayers({
+      const oneNewPlayer = await findPlayers({
         usernames: ['PSIKOI', '_enriath ', 'enrique', 'Zezima'],
         createIfNotFound: true
       });
@@ -1542,12 +1573,12 @@ describe('Player API', () => {
       rejectedSnapshot.overallRank = 60_000;
       rejectedSnapshot.overallExperience = 363_192_115;
 
-      const formattedPrevious = snapshotUtils.format(
+      const formattedPrevious = formatSnapshot(
         previousSnapshot,
         getPlayerEfficiencyMap(previousSnapshot, player)
       );
 
-      const formattedRejected = snapshotUtils.format(
+      const formattedRejected = formatSnapshot(
         rejectedSnapshot,
         getPlayerEfficiencyMap(rejectedSnapshot, player)
       );
@@ -2260,7 +2291,7 @@ describe('Player API', () => {
 
       const thirdResponse = await api.get(`/players/siobhan/archives`);
       expect(thirdResponse.status).toBe(200);
-      expect(thirdResponse.body.length).toBe(1); // Only one non-restored archive should be returned
+      expect(thirdResponse.body.length).toBe(1); // one non-restored archive should be returned
 
       expect(thirdResponse.body[0].restoredAt).toBeNull();
       expect(thirdResponse.body[0].previousUsername).toBe(firstResponse.body[0].previousUsername);

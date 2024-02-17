@@ -1,29 +1,11 @@
-import { z } from 'zod';
 import prisma, { Player } from '../../../../prisma';
 import { Country, findCountry } from '../../../../utils';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 import { standardize } from '../player.utils';
 
-const ERROR_MESSAGE = "Parameter 'country' is undefined.";
-
-const inputSchema = z
-  .object({
-    id: z.number().int().positive().optional(),
-    username: z.string().optional(),
-    // This service accepts country codes, and country names (will attempt to parse these into country codes)
-    country: z.string({ required_error: ERROR_MESSAGE }).min(1, { message: ERROR_MESSAGE })
-  })
-  .refine(s => s.id || s.username, {
-    message: 'Undefined id and username.'
-  });
-
-type ChangePlayerCountryParams = z.infer<typeof inputSchema>;
-
-async function changePlayerCountry(payload: ChangePlayerCountryParams): Promise<Player> {
-  const params = inputSchema.parse(payload);
-
-  const countryObject = params.country ? findCountry(params.country) : null;
+async function changePlayerCountry(username: string, country: string): Promise<Player> {
+  const countryObject = country ? findCountry(country) : null;
   const countryCode = countryObject?.code;
 
   if (!countryCode) {
@@ -34,13 +16,13 @@ async function changePlayerCountry(payload: ChangePlayerCountryParams): Promise<
   }
 
   if (!(countryCode in Country)) {
-    throw new ServerError(`Failed to validate country code: ${params.country}:${countryCode}`);
+    throw new ServerError(`Failed to validate country code: ${country}:${countryCode}`);
   }
 
   try {
     const updatedPlayer = await prisma.player.update({
       data: { country: countryCode },
-      where: { id: params.id, username: standardize(params.username) }
+      where: { username: standardize(username) }
     });
 
     logger.moderation(`[Player:${updatedPlayer.username}] Country updated to ${countryCode}`);

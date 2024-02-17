@@ -34,15 +34,15 @@ export function metricAbbreviation(req: Request, _res: Response, next: NextFunct
   next();
 }
 
-export async function detectRuneLiteNameChange(req: Request, res: Response, next: NextFunction) {
+export async function detectRuneLiteNameChange(req: unknown, res: Response, next: NextFunction) {
   if (!req) {
     return next();
   }
 
   const userAgent = res.locals.userAgent;
 
-  const { accountHash } = req.body;
-  const { username } = req.params;
+  const { accountHash } = (req as Request).body;
+  const { username } = (req as Request).params;
 
   if ((userAgent !== 'RuneLite' && userAgent !== 'WiseOldMan RuneLite Plugin') || !accountHash) {
     return next();
@@ -90,7 +90,7 @@ export function checkAdminPermission(req: unknown, _res: Response, next: NextFun
   next();
 }
 
-export async function checkCompetitionVerificationCode(req: unknown, res: Response, next: NextFunction) {
+export async function checkCompetitionVerificationCode(req: unknown, _res: Response, next: NextFunction) {
   const { id } = (req as Request).params;
   const { verificationCode, adminPassword } = (req as Request).body;
 

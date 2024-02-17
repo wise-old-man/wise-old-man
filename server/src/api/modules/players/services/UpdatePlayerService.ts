@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { isTesting } from '../../../../env';
 import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import { PlayerType, PlayerBuild, PlayerStatus } from '../../../../utils';
@@ -25,17 +24,9 @@ type UpdatablePlayerFields = PrismaTypes.XOR<
 
 let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
 
-const inputSchema = z.object({
-  username: z.string(),
-  skipFlagChecks: z.boolean().optional().default(false)
-});
-
-type UpdatePlayerParams = z.infer<typeof inputSchema>;
 type UpdatePlayerResult = [playerDetails: PlayerDetails, isNew: boolean];
 
-async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerResult> {
-  const { username, skipFlagChecks } = inputSchema.parse(payload);
-
+async function updatePlayer(username: string, skipFlagChecks = false): Promise<UpdatePlayerResult> {
   // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findOrCreate(username);
 
@@ -72,7 +63,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
         const hasTypeChanged = await reviewType(player).catch(() => false);
         // If they did in fact change type, call this function recursively,
         // so that it fetches their stats from the correct hiscores.
-        if (hasTypeChanged) return updatePlayer(player);
+        if (hasTypeChanged) return updatePlayer(player.username);
       }
 
       // If it failed to load their stats, and the player isn't unranked,
@@ -96,7 +87,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
       const handled = await handlePlayerFlagged(player, previousSnapshot, currentStats);
       // If the flag was properly handled (via a player archive),
       // call this function recursively, so that the new player can be tracked
-      if (handled) return updatePlayer({ username: player.username });
+      if (handled) return updatePlayer(player.username);
     }
 
     throw new ServerError('Failed to update: Player is flagged.');
@@ -113,7 +104,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
     // If they did in fact de-iron, call this function recursively,
     // so that it fetches their stats from the correct hiscores.
-    if (hasTypeChanged) return updatePlayer(player);
+    if (hasTypeChanged) return updatePlayer(player.username);
   }
 
   // Refresh the player's build

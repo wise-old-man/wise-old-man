@@ -7,7 +7,7 @@ import { reevaluatePlayerAchievements } from '../achievements/services/Reevaluat
 import { syncPlayerAchievements } from '../achievements/services/SyncPlayerAchievementsService';
 import { syncParticipations } from '../competitions/services/SyncParticipationsService';
 import { syncPlayerDeltas } from '../deltas/services/SyncPlayerDeltasService';
-import * as playerServices from './player.services';
+import { importPlayerHistory } from './services/ImportPlayerHistoryService';
 
 async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerReviewContext) {
   await metrics.trackEffect(discordService.dispatchPlayerFlaggedReview, player, flaggedContext);
@@ -63,7 +63,7 @@ async function onPlayerUpdated(
   await metrics.trackEffect(syncPlayerDeltas, player, current);
 
   // Attempt to import this player's history from CML
-  await metrics.trackEffect(playerServices.importPlayerHistory, player);
+  await metrics.trackEffect(importPlayerHistory, player);
 }
 
 async function onPlayerImported(playerId: number) {
