@@ -1,51 +1,49 @@
-import { z } from 'zod';
 import prisma, { Player, PrismaTypes } from '../../../../prisma';
-import { PlayerType, PlayerBuild, Metric, Country, PlayerStatus } from '../../../../utils';
+import { ComputedMetric, Country, Metric, PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
 import { omit } from '../../../util/objects';
-import { getPaginationSchema } from '../../../util/validation';
+import { PaginationOptions } from '../../../util/validation';
 
 const COMBINED_METRIC = 'ehp+ehb';
 
-const inputSchema = z
-  .object({
-    metric: z.enum([Metric.EHP, Metric.EHB, COMBINED_METRIC]),
-    country: z.nativeEnum(Country).optional(),
-    playerType: z.nativeEnum(PlayerType).optional().default(PlayerType.REGULAR),
-    playerBuild: z.nativeEnum(PlayerBuild).optional().default(PlayerBuild.MAIN)
-  })
-  .merge(getPaginationSchema());
+type Filter = {
+  country?: Country;
+  playerType?: PlayerType;
+  playerBuild?: PlayerBuild;
+};
 
-type FindEfficiencyLeaderboardsParams = z.infer<typeof inputSchema>;
-
-async function findEfficiencyLeaderboards(payload: FindEfficiencyLeaderboardsParams): Promise<Player[]> {
-  const params = inputSchema.parse(payload);
+async function findEfficiencyLeaderboards(
+  metric: ComputedMetric | typeof COMBINED_METRIC,
+  filter: Filter,
+  pagination: PaginationOptions
+): Promise<Player[]> {
+  const { playerBuild } = filter;
+  const { limit, offset } = pagination;
 
   // For EHP categories with multiple players with 200m all, we can't just sort by EHP,
   // we need to find a tie breaker, for this, we'll pull snapshots and use their overall rank
-  const requiresSorting =
-    params.offset < 50 && params.metric === Metric.EHP && params.playerBuild === PlayerBuild.MAIN;
+  const requiresSorting = offset < 50 && metric === Metric.EHP && playerBuild === PlayerBuild.MAIN;
 
   if (requiresSorting) {
     // Fetch top 100 players, and include their snapshots
-    const sortedPlayers = (await fetchSortedPlayersList({ ...params, offset: 0, limit: 100 })).sort(
+    const sortedPlayers = (await fetchSortedPlayersList(metric, filter)).sort(
       (a, b) =>
         (a.latestSnapshot?.overallRank ?? Number.MAX_SAFE_INTEGER) -
         (b.latestSnapshot?.overallRank ?? Number.MAX_SAFE_INTEGER)
     );
 
     // Once we've used their snapshots to sort by rank, we can omit them from the response
-    return sortedPlayers
-      .map(s => omit(s, 'latestSnapshot'))
-      .slice(params.offset, params.offset + params.limit);
+    return sortedPlayers.map(s => omit(s, 'latestSnapshot')).slice(offset, offset + limit);
   }
 
-  return await fetchPlayersList(params);
+  return await fetchPlayersList(metric, filter, pagination);
 }
 
-async function fetchSortedPlayersList(params: FindEfficiencyLeaderboardsParams) {
+async function fetchSortedPlayersList(metric: ComputedMetric | typeof COMBINED_METRIC, filter: Filter) {
+  const { country, playerType, playerBuild } = filter;
+
   const playerQuery: PrismaTypes.PlayerWhereInput = {
-    type: params.playerType,
-    build: params.playerBuild,
+    type: playerType,
+    build: playerBuild,
     status: PlayerStatus.ACTIVE
   };
 
@@ -54,13 +52,13 @@ async function fetchSortedPlayersList(params: FindEfficiencyLeaderboardsParams) 
     playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
   }
 
-  if (params.country) playerQuery.country = params.country;
+  if (country) playerQuery.country = country;
 
   const players = await prisma.player.findMany({
     where: { ...playerQuery },
-    orderBy: { [params.metric]: 'desc' },
-    take: params.limit,
-    skip: params.offset,
+    orderBy: { [metric]: 'desc' },
+    take: 100,
+    skip: 0,
     include: {
       latestSnapshot: true
     }
@@ -69,11 +67,18 @@ async function fetchSortedPlayersList(params: FindEfficiencyLeaderboardsParams) 
   return players;
 }
 
-async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
-  if (params.metric !== COMBINED_METRIC) {
+async function fetchPlayersList(
+  metric: ComputedMetric | typeof COMBINED_METRIC,
+  filter: Filter,
+  pagination: PaginationOptions
+) {
+  const { country, playerType, playerBuild } = filter;
+  const { limit, offset } = pagination;
+
+  if (metric !== COMBINED_METRIC) {
     const playerQuery: PrismaTypes.PlayerWhereInput = {
-      type: params.playerType,
-      build: params.playerBuild,
+      type: playerType,
+      build: playerBuild,
       status: { not: PlayerStatus.ARCHIVED }
     };
 
@@ -82,13 +87,13 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
       playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
     }
 
-    if (params.country) playerQuery.country = params.country;
+    if (country) playerQuery.country = country;
 
     const players = await prisma.player.findMany({
       where: { ...playerQuery },
-      orderBy: { [params.metric]: 'desc' },
-      take: params.limit,
-      skip: params.offset
+      orderBy: { [metric]: 'desc' },
+      take: limit,
+      skip: offset
     });
 
     return players;
@@ -96,12 +101,12 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   let playerQuery =
-    params.playerType !== PlayerType.IRONMAN
-      ? `"type" = '${params.playerType}'`
+    playerType !== PlayerType.IRONMAN
+      ? `"type" = '${playerType}'`
       : `("type" = '${PlayerType.IRONMAN}' OR "type" = '${PlayerType.HARDCORE}' OR "type" = '${PlayerType.ULTIMATE}')`;
 
-  if (params.country) playerQuery += ` AND "country" = '${params.country}'`;
-  if (params.playerBuild) playerQuery += ` AND "build" = '${params.playerBuild}'`;
+  if (country) playerQuery += ` AND "country" = '${country}'`;
+  if (playerBuild) playerQuery += ` AND "build" = '${playerBuild}'`;
 
   // For combined metrics, we need to do raw db queries to be able to sort by combined columns
   const players = await prisma.$queryRawUnsafe<Player[]>(`
@@ -109,8 +114,8 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
     FROM public.players
     WHERE ${playerQuery}
     ORDER BY "ehp+ehb" DESC
-    LIMIT ${params.limit}
-    OFFSET ${params.offset}
+    LIMIT ${limit}
+    OFFSET ${offset}
   `);
 
   return players

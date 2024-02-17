@@ -14,8 +14,9 @@ import {
   modifyRawHiscoresData
 } from '../../utils';
 import prisma from '../../../src/prisma';
-import * as services from '../../../src/api/modules/deltas/delta.services';
 import * as deltaEvents from '../../../src/api/modules/deltas/delta.events';
+import { findPlayerDeltas } from '../../../src/api/modules/deltas/services/FindPlayerDeltasService';
+import { findGroupDeltas } from '../../../src/api/modules/deltas/services/FindGroupDeltasService';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -224,22 +225,18 @@ describe('Deltas API', () => {
 
   describe('2 - Fetch Player Deltas', () => {
     it('should not fetch (invalid player id)', async () => {
-      await expect(services.findPlayerDeltas({ id: null })).rejects.toThrow(
-        "Parameter 'id' is not a valid number."
-      );
+      await expect(findPlayerDeltas({ id: null })).rejects.toThrow("Parameter 'id' is not a valid number.");
     });
 
     it('should not fetch (player not found)', async () => {
-      await expect(services.findPlayerDeltas({ id: 2_000_000, period: 'week' })).rejects.toThrow(
-        'Player not found.'
-      );
+      await expect(findPlayerDeltas({ id: 2_000_000, period: 'week' })).rejects.toThrow('Player not found.');
     });
 
     it('should not fetch (no snapshots found with player id)', async () => {
       // Create a brand new account, with no snapshots
       const testPlayer = await prisma.player.create({ data: { username: 'test', displayName: 'Test' } });
 
-      const result = await services.findPlayerDeltas({ id: testPlayer.id, period: 'week' });
+      const result = await findPlayerDeltas({ id: testPlayer.id, period: 'week' });
 
       // If there are no snapshots found for the given period, it'll return an empty diff
       expect(result.startsAt).toBe(null);
@@ -348,7 +345,7 @@ describe('Deltas API', () => {
       globalData.testGroupId = createGroupResponse.body.group.id;
 
       await expect(
-        services.findGroupDeltas({
+        findGroupDeltas({
           id: globalData.testGroupId,
           metric: 'smithing',
           period: 'decade'
@@ -358,7 +355,7 @@ describe('Deltas API', () => {
 
     it('should not fetch (invalid metric)', async () => {
       await expect(
-        services.findGroupDeltas({
+        findGroupDeltas({
           id: globalData.testGroupId,
           metric: 'sailing' as Metric,
           period: 'week'
@@ -368,7 +365,7 @@ describe('Deltas API', () => {
 
     it('should not fetch (group not found)', async () => {
       await expect(
-        services.findGroupDeltas({
+        findGroupDeltas({
           id: 2_000_000,
           metric: 'smithing',
           period: 'week',
@@ -379,7 +376,7 @@ describe('Deltas API', () => {
     });
 
     it('should fetch group deltas (common period)', async () => {
-      const directResponse = await services.findGroupDeltas({
+      const directResponse = await findGroupDeltas({
         id: globalData.testGroupId,
         metric: 'smithing',
         period: 'week'
@@ -404,7 +401,7 @@ describe('Deltas API', () => {
     });
 
     it('should fetch group deltas (custom period)', async () => {
-      const directResponse = await services.findGroupDeltas({
+      const directResponse = await findGroupDeltas({
         id: globalData.testGroupId,
         metric: 'smithing',
         period: '3d6h'
@@ -430,7 +427,7 @@ describe('Deltas API', () => {
 
     it('should not fetch deltas between (min date greater than max date)', async () => {
       await expect(
-        services.findGroupDeltas({
+        findGroupDeltas({
           id: globalData.testGroupId,
           metric: 'smithing',
           minDate: new Date('2021-12-14T04:15:36.000Z'),
@@ -440,7 +437,7 @@ describe('Deltas API', () => {
     });
 
     it('should fetch group deltas (time range)', async () => {
-      const emptyGains = await services.findGroupDeltas({
+      const emptyGains = await findGroupDeltas({
         id: globalData.testGroupId,
         metric: 'smithing',
         minDate: new Date('2015-12-14T04:15:36.000Z'),
@@ -449,7 +446,7 @@ describe('Deltas API', () => {
 
       expect(emptyGains.length).toBe(0);
 
-      const recentGains = await services.findGroupDeltas({
+      const recentGains = await findGroupDeltas({
         id: globalData.testGroupId,
         metric: 'smithing',
         minDate: new Date('2021-12-14T04:15:36.000Z'),
@@ -509,7 +506,7 @@ describe('Deltas API', () => {
     });
 
     it('should fetch group deltas (with offset)', async () => {
-      const result = await services.findGroupDeltas({
+      const result = await findGroupDeltas({
         id: globalData.testGroupId,
         metric: 'smithing',
         minDate: new Date('2021-12-14T04:15:36.000Z'),

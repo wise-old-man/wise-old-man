@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import {
   Period,
   Metric,
@@ -13,24 +12,24 @@ import { parseNum } from '../delta.utils';
 
 const MAX_RESULTS = 20;
 
-const inputSchema = z.object({
-  period: z.nativeEnum(Period),
-  metric: z.nativeEnum(Metric),
-  country: z.nativeEnum(Country).optional(),
-  playerType: z.nativeEnum(PlayerType).optional(),
-  playerBuild: z.nativeEnum(PlayerBuild).optional()
-});
+type Filter = {
+  country?: Country;
+  playerType?: PlayerType;
+  playerBuild?: PlayerBuild;
+};
 
-type FindDeltaLeaderboardsParams = z.infer<typeof inputSchema>;
-
-async function findDeltaLeaderboards(payload: FindDeltaLeaderboardsParams): Promise<DeltaLeaderboardEntry[]> {
-  const params = inputSchema.parse(payload);
+async function findDeltaLeaderboards(
+  period: Period,
+  metric: Metric,
+  filter: Filter
+): Promise<DeltaLeaderboardEntry[]> {
+  const { country, playerType, playerBuild } = filter;
 
   const playerQuery: PrismaTypes.PlayerWhereInput = {};
 
-  if (params.country) playerQuery.country = params.country;
-  if (params.playerType) playerQuery.type = params.playerType;
-  if (params.playerBuild) playerQuery.build = params.playerBuild;
+  if (country) playerQuery.country = country;
+  if (playerType) playerQuery.type = playerType;
+  if (playerBuild) playerQuery.build = playerBuild;
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   if (playerQuery.type === PlayerType.IRONMAN) {
@@ -40,17 +39,17 @@ async function findDeltaLeaderboards(payload: FindDeltaLeaderboardsParams): Prom
   // Fetch the top 20 deltas for this period & metric
   const deltas = await prisma.delta.findMany({
     where: {
-      period: params.period,
+      period,
       player: { ...playerQuery, status: PlayerStatus.ACTIVE }
     },
     select: {
-      [params.metric]: true,
+      [metric]: true,
       playerId: true,
       startedAt: true,
       endedAt: true,
       player: true
     },
-    orderBy: [{ [params.metric]: 'desc' }],
+    orderBy: [{ [metric]: 'desc' }],
     take: MAX_RESULTS
   });
 
@@ -60,7 +59,7 @@ async function findDeltaLeaderboards(payload: FindDeltaLeaderboardsParams): Prom
     playerId: d.playerId,
     startDate: d.startedAt,
     endDate: d.endedAt,
-    gained: Math.max(0, parseNum(params.metric, String(d[params.metric])))
+    gained: Math.max(0, parseNum(metric, String(d[metric])))
   }));
 
   return results;

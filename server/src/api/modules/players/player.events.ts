@@ -3,9 +3,10 @@ import { FlaggedPlayerReviewContext, PlayerType } from '../../../utils';
 import { jobManager, JobType } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
-import * as achievementServices from '../achievements/achievement.services';
+import { reevaluatePlayerAchievements } from '../achievements/services/ReevaluatePlayerAchievementsService';
+import { syncPlayerAchievements } from '../achievements/services/SyncPlayerAchievementsService';
 import * as competitionServices from '../competitions/competition.services';
-import * as deltaServices from '../deltas/delta.services';
+import { syncPlayerDeltas } from '../deltas/services/SyncPlayerDeltasService';
 import * as playerServices from './player.services';
 
 async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerReviewContext) {
@@ -26,7 +27,7 @@ async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
 
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
   // Recalculate player achievements
-  await metrics.trackEffect(achievementServices.syncPlayerAchievements, { id: player.id });
+  await metrics.trackEffect(syncPlayerAchievements, { id: player.id });
 
   // Dispatch a "Player name changed" event to our discord bot API.
   await metrics.trackEffect(discordService.dispatchNameChanged, player, previousDisplayName);
@@ -55,11 +56,11 @@ async function onPlayerUpdated(
   // Only sync achievements if the player gained any exp/kc this update
   if (hasChanged) {
     // Check for new achievements
-    await metrics.trackEffect(achievementServices.syncPlayerAchievements, player.id, previous, current);
+    await metrics.trackEffect(syncPlayerAchievements, player.id, previous, current);
   }
 
   // Update this player's deltas (gains)
-  await metrics.trackEffect(deltaServices.syncPlayerDeltas, player, current);
+  await metrics.trackEffect(syncPlayerDeltas, player, current);
 
   // Attempt to import this player's history from CML
   await metrics.trackEffect(playerServices.importPlayerHistory, player);
@@ -67,7 +68,7 @@ async function onPlayerUpdated(
 
 async function onPlayerImported(playerId: number) {
   // Reevaluate this player's achievements to try and find earlier completion dates
-  await metrics.trackEffect(achievementServices.reevaluatePlayerAchievements, { id: playerId });
+  await metrics.trackEffect(reevaluatePlayerAchievements, { id: playerId });
 }
 
 export {

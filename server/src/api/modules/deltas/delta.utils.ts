@@ -18,7 +18,11 @@ import {
   round,
   MapOf
 } from '../../../utils';
-import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
+import {
+  getPlayerEHP,
+  getPlayerEHB,
+  getPlayerEfficiencyMap
+} from '../../modules/efficiency/efficiency.utils';
 import {
   ActivityDelta,
   BossDelta,
@@ -134,8 +138,8 @@ function calculateEfficiencyDiff(
  * Calculates the total EHP difference between two snapshots.
  */
 function calculateEHPDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: Player) {
-  const startEHP = startSnapshot ? efficiencyUtils.getPlayerEHP(startSnapshot, player) : 0;
-  const endEHP = endSnapshot ? efficiencyUtils.getPlayerEHP(endSnapshot, player) : 0;
+  const startEHP = startSnapshot ? getPlayerEHP(startSnapshot, player) : 0;
+  const endEHP = endSnapshot ? getPlayerEHP(endSnapshot, player) : 0;
 
   return {
     gained: Math.max(0, round(endEHP - startEHP, 5)),
@@ -148,8 +152,8 @@ function calculateEHPDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player
  * Calculates the total EHB difference between two snapshots.
  */
 function calculateEHBDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: Player) {
-  const startEHB = startSnapshot ? efficiencyUtils.getPlayerEHB(startSnapshot, player) : 0;
-  const endEHB = endSnapshot ? efficiencyUtils.getPlayerEHB(endSnapshot, player) : 0;
+  const startEHB = startSnapshot ? getPlayerEHB(startSnapshot, player) : 0;
+  const endEHB = endSnapshot ? getPlayerEHB(endSnapshot, player) : 0;
 
   return {
     gained: Math.max(0, round(endEHB - startEHB, 5)),
@@ -210,8 +214,8 @@ export function calculateMetricDelta(
  * Calculates the complete deltas for a given player (and snapshots)
  */
 export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snapshot, player: Player) {
-  const startEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(startSnapshot, player);
-  const endEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(endSnapshot, player);
+  const startEfficiencyMap = getPlayerEfficiencyMap(startSnapshot, player);
+  const endEfficiencyMap = getPlayerEfficiencyMap(endSnapshot, player);
 
   function calculateSkillDelta(skill: Skill): SkillDelta {
     const valueDiff = calculateValueDiff(skill, startSnapshot, endSnapshot);

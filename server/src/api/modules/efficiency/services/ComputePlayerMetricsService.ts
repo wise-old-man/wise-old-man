@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { Snapshot } from '../../../../prisma';
 import { PlayerType, PlayerBuild, Metric } from '../../../../utils';
-import * as efficiencyUtils from '../efficiency.utils';
-import * as efficiencyServices from '../efficiency.services';
+import { getAlgorithm, getExperienceMap, getKillcountMap } from '../efficiency.utils';
+import { computeEfficiencyRank } from './ComputeEfficiencyRankService';
 
 const inputSchema = z.object({
   player: z.object({
@@ -28,21 +28,21 @@ async function computePlayerMetrics(payload: ComputePlayerMetricsParams) {
 
   if (!snapshot) return null;
 
-  const killcountMap = efficiencyUtils.getKillcountMap(snapshot);
-  const experienceMap = efficiencyUtils.getExperienceMap(snapshot);
+  const killcountMap = getKillcountMap(snapshot);
+  const experienceMap = getExperienceMap(snapshot);
 
-  const algorithm = efficiencyUtils.getAlgorithm({ type: player.type, build: player.build });
+  const algorithm = getAlgorithm({ type: player.type, build: player.build });
 
   const ehpValue = Math.max(0, algorithm.calculateEHP(experienceMap));
   const ehbValue = Math.max(0, algorithm.calculateEHB(killcountMap));
 
-  const ehpRank = await efficiencyServices.computeEfficiencyRank({
+  const ehpRank = await computeEfficiencyRank({
     player,
     metric: Metric.EHP,
     value: ehpValue
   });
 
-  const ehbRank = await efficiencyServices.computeEfficiencyRank({
+  const ehbRank = await computeEfficiencyRank({
     player,
     metric: Metric.EHB,
     value: ehbValue

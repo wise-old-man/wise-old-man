@@ -35,7 +35,7 @@ z.setErrorMap((issue, ctx) => {
 });
 
 export function getPaginationSchema(maxLimit = 50) {
-  let limit = z.number().int().positive("Parameter 'limit' must be > 0.");
+  let limit = z.coerce.number().int().positive("Parameter 'limit' must be > 0.");
 
   if (maxLimit) {
     limit = limit.max(
@@ -46,9 +46,14 @@ export function getPaginationSchema(maxLimit = 50) {
 
   return z.object({
     limit: z.optional(limit).default(20),
-    offset: z.optional(z.number().int().nonnegative("Parameter 'offset' must be >= 0.")).default(0)
+    offset: z.optional(z.coerce.number().int().nonnegative("Parameter 'offset' must be >= 0.")).default(0)
   });
 }
+
+export type PaginationOptions = {
+  limit?: number;
+  offset?: number;
+};
 
 export function getNumber(payload: any): number | undefined {
   if (payload === undefined || payload === null || isNaN(payload) || String(payload).length === 0) {

@@ -1,19 +1,22 @@
 import { Request } from 'express';
 import { ForbiddenError, ServerError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
-import * as achievementServices from '../achievements/achievement.services';
-import * as nameChangeServices from '../name-changes/name-change.services';
-import * as recordServices from '../records/record.services';
 import * as groupServices from '../groups/group.services';
 import * as competitionServices from '../competitions/competition.services';
 import * as playerServices from './player.services';
-import * as snapshotServices from '../snapshots/snapshot.services';
-import * as deltaServices from '../deltas/delta.services';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
-import * as efficiencyUtils from '../efficiency/efficiency.utils';
+import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
 import * as playerUtils from './player.utils';
 import { getDate, getEnum, getNumber, getString } from '../../util/validation';
 import { ControllerResponse } from '../../util/routing';
+import { findPlayerDeltas } from '../deltas/services/FindPlayerDeltasService';
+import { findPlayerNameChanges } from '../name-changes/services/FindPlayerNameChangesService';
+import { findPlayerRecords } from '../records/services/FindPlayerRecordsService';
+import { findPlayerSnapshotTimeline } from '../snapshots/services/FindPlayerSnapshotTimelineService';
+import { findPlayerSnapshots } from '../snapshots/services/FindPlayerSnapshotsService';
+import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsService';
+import { findPlayerAchievements } from '../achievements/services/FindPlayerAchievementsService';
+import { findPlayerAchievementProgress } from '../achievements/services/FindPlayerAchievementProgressService';
 
 // GET /players/search?username={username}
 async function search(req: Request): Promise<ControllerResponse> {
@@ -102,7 +105,7 @@ async function achievements(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
   // Get all player achievements (by player id)
-  const achievements = await achievementServices.findPlayerAchievements({ id: playerId });
+  const achievements = await findPlayerAchievements({ id: playerId });
 
   return { statusCode: 200, response: achievements };
 }
@@ -112,7 +115,7 @@ async function achievementsProgress(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
   // Get all player achievements (by player id)
-  const result = await achievementServices.findPlayerAchievementProgress({ id: playerId });
+  const result = await findPlayerAchievementProgress({ id: playerId });
 
   return { statusCode: 200, response: result };
 }
@@ -158,7 +161,7 @@ async function groups(req: Request): Promise<ControllerResponse> {
 async function gained(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
-  const results = await deltaServices.findPlayerDeltas({
+  const results = await findPlayerDeltas({
     id: playerId,
     period: getEnum(req.query.period),
     minDate: getDate(req.query.startDate),
@@ -174,7 +177,7 @@ async function records(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
   // Fetch all player records for the given period and metric
-  const results = await recordServices.findPlayerRecords({
+  const results = await findPlayerRecords({
     id: playerId,
     period: getEnum(req.query.period),
     metric: getEnum(req.query.metric)
@@ -190,7 +193,7 @@ async function snapshots(req: Request): Promise<ControllerResponse> {
   let limit = req.query.limit ? getNumber(req.query.limit) : undefined;
   if (limit && limit > 50) limit = 50;
 
-  const results = await snapshotServices.findPlayerSnapshots({
+  const results = await findPlayerSnapshots({
     id: player.id,
     period: getEnum(req.query.period),
     minDate: getDate(req.query.startDate),
@@ -199,9 +202,7 @@ async function snapshots(req: Request): Promise<ControllerResponse> {
     offset: getNumber(req.query.offset)
   });
 
-  const formattedSnapshots = results.map(s =>
-    snapshotUtils.format(s, efficiencyUtils.getPlayerEfficiencyMap(s, player))
-  );
+  const formattedSnapshots = results.map(s => snapshotUtils.format(s, getPlayerEfficiencyMap(s, player)));
 
   return {
     statusCode: 200,
@@ -213,7 +214,7 @@ async function snapshots(req: Request): Promise<ControllerResponse> {
 async function timeline(req: Request): Promise<ControllerResponse> {
   const player = await playerUtils.resolvePlayer(getString(req.params.username));
 
-  const results = await snapshotServices.findPlayerSnapshotTimeline({
+  const results = await findPlayerSnapshotTimeline({
     id: player.id,
     metric: getEnum(req.query.metric),
     period: getEnum(req.query.period),
@@ -230,7 +231,7 @@ async function timeline(req: Request): Promise<ControllerResponse> {
 // GET /players/:username/names
 async function names(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
-  const result = await nameChangeServices.findPlayerNameChanges({ playerId });
+  const result = await findPlayerNameChanges({ playerId });
 
   return { statusCode: 200, response: result };
 }
@@ -286,7 +287,7 @@ async function rollback(req: Request): Promise<ControllerResponse> {
   const username = getString(req.params.username);
   const player = await playerUtils.resolvePlayer(username);
 
-  await snapshotServices.rollbackSnapshots({
+  await rollbackSnapshots({
     playerId: player.id,
     deleteAllSince: req.body.untilLastChange && player.lastChangedAt ? player.lastChangedAt : undefined
   });

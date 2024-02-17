@@ -1,25 +1,17 @@
-import { z } from 'zod';
 import { PlayerType } from '../../../../utils';
 import prisma, { NameChangeStatus } from '../../../../prisma';
 import { NotFoundError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
-import * as efficiencyUtils from '../../efficiency/efficiency.utils';
-import * as efficiencyServices from '../../efficiency/efficiency.services';
 import { NameChange, NameChangeDetails } from '../name-change.types';
 import { standardize } from '../../players/player.utils';
+import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
+import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
+import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
+import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
 
-const inputSchema = z.object({
-  id: z.number().int().positive()
-});
-
-type FetchDetailsParams = z.infer<typeof inputSchema>;
-
-async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<NameChangeDetails> {
-  const params = inputSchema.parse(payload);
-
-  const nameChange = await prisma.nameChange.findFirst({ where: { id: params.id } });
+async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
+  const nameChange = await prisma.nameChange.findFirst({ where: { id } });
 
   if (!nameChange) {
     throw new NotFoundError('Name change id was not found.');
@@ -58,7 +50,7 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
   }
 
   // Fetch the last snapshot from the old name
-  const oldStats = await snapshotServices.findPlayerSnapshot({ id: oldPlayer.id });
+  const oldStats = await findPlayerSnapshot({ id: oldPlayer.id });
 
   if (!oldStats) {
     throw new ServerError('Old stats could not be found.');
@@ -66,15 +58,13 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
 
   // Fetch either the first snapshot of the new name, or the current hiscores stats
   // Note: this playerId isn't needed, and won't be used or exposed to the user
-  let newStats = newHiscores
-    ? await snapshotServices.buildSnapshot({ playerId: 1, rawCSV: newHiscores })
-    : null;
+  let newStats = newHiscores ? await buildSnapshot({ playerId: 1, rawCSV: newHiscores }) : null;
 
   if (newPlayer) {
     // If the new name is already a tracked player and was tracked
     // since the old name's last snapshot, use this first "post change"
     // snapshot as a starting point
-    const postChangeSnapshot = await snapshotServices.findPlayerSnapshot({
+    const postChangeSnapshot = await findPlayerSnapshot({
       id: newPlayer.id,
       minDate: oldStats.createdAt
     });
@@ -88,12 +78,12 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
   const timeDiff = afterDate.getTime() - oldStats.createdAt.getTime();
   const hoursDiff = timeDiff / 1000 / 60 / 60;
 
-  const oldPlayerComputedMetrics = await efficiencyServices.computePlayerMetrics({
+  const oldPlayerComputedMetrics = await computePlayerMetrics({
     player: oldPlayer,
     snapshot: oldStats
   });
 
-  const newPlayerComputedMetrics = await efficiencyServices.computePlayerMetrics({
+  const newPlayerComputedMetrics = await computePlayerMetrics({
     player: newPlayer || { id: 1, type: oldPlayer.type, build: oldPlayer.build },
     snapshot: newStats
   });
@@ -116,8 +106,8 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
 
   const negativeGains = newStats ? snapshotUtils.getNegativeGains(oldStats, newStats) : null;
 
-  const oldPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(oldStats, oldPlayer);
-  const newPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(newStats, newPlayer);
+  const oldPlayerEfficiencyMap = getPlayerEfficiencyMap(oldStats, oldPlayer);
+  const newPlayerEfficiencyMap = getPlayerEfficiencyMap(newStats, newPlayer);
 
   if (!newPlayer && newStats) {
     delete newStats.playerId;

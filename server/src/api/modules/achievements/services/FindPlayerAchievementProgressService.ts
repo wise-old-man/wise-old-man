@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { Metric, MetricMeasure, round } from '../../../../utils';
 import prisma, { Achievement } from '../../../../prisma';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import { AchievementProgress, AchievementDefinition } from '../achievement.types';
 import { getAchievementDefinitions } from '../achievement.utils';
+import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
 
@@ -26,7 +26,7 @@ async function findPlayerAchievementProgress(payload: FindProgressParams): Promi
   achievements.forEach(achievement => currentAchievementMap.set(achievement.name, achievement));
 
   // Find the player's latest snapshot
-  const latestSnapshot = await snapshotServices.findPlayerSnapshot({ id: params.id });
+  const latestSnapshot = await findPlayerSnapshot({ id: params.id });
 
   // Get all definitions and sort them so that related definitions are clustered
   const definitions = clusterDefinitions(ALL_DEFINITIONS);

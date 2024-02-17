@@ -2,15 +2,15 @@ import { Request } from 'express';
 import { ForbiddenError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import * as verificationGuard from '../../guards/verification.guard';
-import * as nameChangeServices from '../name-changes/name-change.services';
-import * as recordServices from '../records/record.services';
 import * as groupServices from './group.services';
-import * as deltaServices from '../deltas/delta.services';
-import * as achievementServices from '../achievements/achievement.services';
 import * as competitionServices from '../competitions/competition.services';
 import { getNumber, getEnum, getDate, getString } from '../../util/validation';
 import { ControllerResponse } from '../../util/routing';
 import { MigrationDataSource } from './group.types';
+import { findGroupDeltas } from '../deltas/services/FindGroupDeltasService';
+import { findGroupNameChanges } from '../name-changes/services/FindGroupNameChangesService';
+import { findGroupRecords } from '../records/services/FindGroupRecordsService';
+import { findGroupAchievements } from '../achievements/services/FindGroupAchievementsService';
 
 // GET /groups
 async function search(req: Request): Promise<ControllerResponse> {
@@ -219,7 +219,7 @@ async function activity(req: Request): Promise<ControllerResponse> {
 
 // GET /groups/:id/gained
 async function gained(req: Request): Promise<ControllerResponse> {
-  const results = await deltaServices.findGroupDeltas({
+  const results = await findGroupDeltas({
     id: getNumber(req.params.id),
     metric: getEnum(req.query.metric),
     period: getEnum(req.query.period),
@@ -234,7 +234,7 @@ async function gained(req: Request): Promise<ControllerResponse> {
 
 // GET /groups/:id/achievements
 async function achievements(req: Request): Promise<ControllerResponse> {
-  const results = await achievementServices.findGroupAchievements({
+  const results = await findGroupAchievements({
     id: getNumber(req.params.id),
     limit: getNumber(req.query.limit),
     offset: getNumber(req.query.offset)
@@ -245,7 +245,7 @@ async function achievements(req: Request): Promise<ControllerResponse> {
 
 // GET /groups/:id/records
 async function records(req: Request): Promise<ControllerResponse> {
-  const results = await recordServices.findGroupRecords({
+  const results = await findGroupRecords({
     id: getNumber(req.params.id),
     period: getEnum(req.query.period),
     metric: getEnum(req.query.metric),
@@ -270,7 +270,7 @@ async function hiscores(req: Request): Promise<ControllerResponse> {
 
 // GET /groups/:id/name-changes
 async function nameChanges(req: Request): Promise<ControllerResponse> {
-  const results = await nameChangeServices.findGroupNameChanges({
+  const results = await findGroupNameChanges({
     id: getNumber(req.params.id),
     limit: getNumber(req.query.limit),
     offset: getNumber(req.query.offset)

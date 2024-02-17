@@ -11,11 +11,11 @@ import {
 } from '../../../src/utils';
 import apiServer from '../../../src/api';
 import { ALGORITHMS, getAlgorithm } from '../../../src/api/modules/efficiency/efficiency.utils';
-import * as efficiencyServices from '../../../src/api/modules/efficiency/efficiency.services';
 import testSkillingMetas from '../../data/efficiency/configs/test.ehp';
 import testBossingMetas from '../../data/efficiency/configs/test.ehb';
 import { resetDatabase, resetRedis, sleep } from '../../utils';
 import EfficiencyAlgorithm from '../../../src/api/modules/efficiency/EfficiencyAlgorithm';
+import { computeEfficiencyRank } from '../../../src/api/modules/efficiency/services/ComputeEfficiencyRankService';
 
 const api = supertest(apiServer.express);
 
@@ -301,15 +301,13 @@ describe('Efficiency API', () => {
     it('should not list (invalid type)', async () => {
       const response = await api.get(`/efficiency/rates`).query({ type: 'zerker' });
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe(
-        'Incorrect type: zerker. Must be one of [main, ironman, ultimate, lvl3, f2p, f2p_lvl3, f2p_ironman, f2p_lvl3_ironman]'
-      );
+      expect(response.body.message).toBe("Invalid enum value for 'type'.");
     });
 
-    it('should list (invalid metric, default to EHP)', async () => {
+    it('should not list (invalid metric)', async () => {
       const response = await api.get(`/efficiency/rates`).query({ type: 'main', metric: 'something' });
-      expect(response.status).toBe(200);
-      expect(response.body[0]).toMatchObject({ skill: 'attack' }); // returning skilling metas
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Invalid enum value for 'metric'. Expected ehp | ehb");
     });
 
     it('should list (EHP)', async () => {
@@ -329,7 +327,7 @@ describe('Efficiency API', () => {
     it('should compute > top 50 rank', async () => {
       const top60Player = await prisma.player.findUnique({ where: { username: 'player 60' } });
 
-      const result = await efficiencyServices.computeEfficiencyRank({
+      const result = await computeEfficiencyRank({
         player: top60Player,
         value: top60Player.ehp,
         metric: 'ehp'
@@ -341,7 +339,7 @@ describe('Efficiency API', () => {
     it('should compute < top 50 rank', async () => {
       const top7Player = await prisma.player.findUnique({ where: { username: 'player 7' } });
 
-      const result = await efficiencyServices.computeEfficiencyRank({
+      const result = await computeEfficiencyRank({
         player: top7Player,
         value: top7Player.ehp,
         metric: 'ehp'
@@ -353,7 +351,7 @@ describe('Efficiency API', () => {
     it('should compute > top 50 rank (ironman)', async () => {
       const top85Player = await prisma.player.findUnique({ where: { username: 'player 85' } });
 
-      const result = await efficiencyServices.computeEfficiencyRank({
+      const result = await computeEfficiencyRank({
         player: top85Player,
         value: top85Player.ehp,
         metric: 'ehp'

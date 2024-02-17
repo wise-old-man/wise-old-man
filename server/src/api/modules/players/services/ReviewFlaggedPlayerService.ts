@@ -1,7 +1,7 @@
 import { Snapshot, Player } from '../../../../prisma';
 import { BOSSES, FlaggedPlayerReviewContext, Metric, REAL_SKILLS } from '../../../../utils';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
-import * as efficiencyUtils from '../../efficiency/efficiency.utils';
+import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { FormattedSnapshot } from '../../snapshots/snapshot.types';
 
 const STACKABLE_EXP_SKILLS = [
@@ -24,15 +24,8 @@ function reviewFlaggedPlayer(
   const excessiveGains = !!snapshotUtils.getExcessiveGains(previousStats, rejectedStats);
   const excessiveGainsReversed = !!snapshotUtils.getExcessiveGains(rejectedStats, previousStats);
 
-  const previous = snapshotUtils.format(
-    previousStats,
-    efficiencyUtils.getPlayerEfficiencyMap(previousStats, player)
-  );
-
-  const rejected = snapshotUtils.format(
-    rejectedStats,
-    efficiencyUtils.getPlayerEfficiencyMap(rejectedStats, player)
-  );
+  const previous = snapshotUtils.format(previousStats, getPlayerEfficiencyMap(previousStats, player));
+  const rejected = snapshotUtils.format(rejectedStats, getPlayerEfficiencyMap(rejectedStats, player));
 
   if (negativeGains) {
     const possibleRollback =

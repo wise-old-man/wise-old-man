@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { Snapshot } from '../../../../prisma';
 import { getMetricValueKey, Metric } from '../../../../utils';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import { Top5ProgressResult } from '../competition.types';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
+import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 
 const inputSchema = z.object({
   id: z.number().int().positive(),
@@ -21,7 +21,7 @@ async function fetchCompetitionTop5Progress(payload: FetchTop5ProgressParams): P
   // Select the top 5 players
   const top5Players = competitionDetails.participations.slice(0, 5).map(p => p.player);
 
-  const groupSnapshots = await snapshotServices.findGroupSnapshots({
+  const groupSnapshots = await findGroupSnapshots({
     playerIds: top5Players.map(t => t.id),
     includeAllBetween: true,
     minDate: competitionDetails.startsAt,

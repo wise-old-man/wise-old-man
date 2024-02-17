@@ -5,7 +5,7 @@ import { getMetricValueKey, getMetricRankKey, METRICS, PlayerType, PlayerStatus 
 import env from '../../../src/env';
 import prisma, { setHooksEnabled } from '../../../src/prisma';
 import apiServer from '../../../src/api';
-import * as snapshotServices from '../../../src/api/modules/snapshots/snapshot.services';
+import { buildSnapshot } from '../../../src/api/modules/snapshots/services/BuildSnapshotService';
 import * as nameChangeEvents from '../../../src/api/modules/name-changes/name-change.events';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
@@ -104,7 +104,7 @@ describe('Names API', () => {
     it('should not submit (equal names)', async () => {
       const response = await api.post(`/names`).send({ oldName: 'psikoi', newName: 'psikoi' });
 
-      // Note: We allow changes in capitalization, so this condition only fails for equal names (same capitalization)
+      // Note: We allow changes in capitalization, so this condition fails for equal names (same capitalization)
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Old name and new name cannot be the same.');
 
@@ -744,7 +744,7 @@ describe('Names API', () => {
       const archivedRecordsResponse = await api.get(`/players/${archiveUsername}/records`);
 
       expect(archivedRecordsResponse.status).toBe(200);
-      expect(archivedRecordsResponse.body.length).toBe(1); // Only one record was "abandoned"
+      expect(archivedRecordsResponse.body.length).toBe(1); // one record was "abandoned"
 
       // oldPlayer's week record for agility was 100k, but newPlayer's week record for agility was 50k.
       // So this 50k record wasn't transfered (because it was lower than the existing one).
@@ -1332,7 +1332,7 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await snapshotServices.buildSnapshot({
+  const snapshotData = await buildSnapshot({
     playerId: oldPlayerId,
     rawCSV: globalData.hiscoresRawData
   });
@@ -1391,7 +1391,7 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await snapshotServices.buildSnapshot({
+  const snapshotData = await buildSnapshot({
     playerId: oldPlayerId,
     rawCSV: globalData.hiscoresRawData
   });

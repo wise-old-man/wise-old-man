@@ -4,7 +4,6 @@ import prisma, { Participation, PrismaTypes, PrismaPromise, Player } from '../..
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
 import * as playerServices from '../../players/player.services';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import {
   sanitizeTeams,
@@ -15,6 +14,7 @@ import {
 } from '../competition.utils';
 import { standardize } from '../../players/player.utils';
 import { CompetitionWithParticipations } from '../competition.types';
+import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 
 const INVALID_TYPE_ERROR =
   'Invalid teams list. Must be an array of { name: string; participants: string[]; }.';
@@ -198,7 +198,7 @@ async function recalculateParticipationsStart(competitionId: number, startDate: 
   ).map(p => p.playerId);
 
   // Find everyone's first snapshot AFTER the new start date
-  const playerSnapshots = await snapshotServices.findGroupSnapshots({ playerIds, minDate: startDate });
+  const playerSnapshots = await findGroupSnapshots({ playerIds, minDate: startDate });
 
   // Map these snapshots for O(1) lookups
   const snapshotMap = new Map<number, Snapshot>(playerSnapshots.map(s => [s.playerId, s]));
@@ -222,7 +222,7 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
   ).map(p => p.playerId);
 
   // Find everyone's last snapshot BEFORE the new end date
-  const playerSnapshots = await snapshotServices.findGroupSnapshots({ playerIds, maxDate: endDate });
+  const playerSnapshots = await findGroupSnapshots({ playerIds, maxDate: endDate });
 
   // Map these snapshots for O(1) lookups
   const snapshotMap = new Map<number, Snapshot>(playerSnapshots.map(s => [s.playerId, s]));

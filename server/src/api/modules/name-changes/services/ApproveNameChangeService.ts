@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import prisma, {
   Player,
   Record,
@@ -10,23 +9,15 @@ import prisma, {
 import { ActivityType, MemberActivity, PlayerStatus } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import { archivePlayer } from '../../players/player.services';
 import * as playerEvents from '../../players/player.events';
 import * as playerUtils from '../../players/player.utils';
 import { prepareRecordValue } from '../../records/record.utils';
+import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 
-const inputSchema = z.object({
-  id: z.number().int().positive()
-});
-
-type ApproveNameChangeService = z.infer<typeof inputSchema>;
-
-async function approveNameChange(payload: ApproveNameChangeService): Promise<NameChange> {
-  const params = inputSchema.parse(payload);
-
+async function approveNameChange(id: number): Promise<NameChange> {
   const nameChange = await prisma.nameChange.findFirst({
-    where: { id: params.id }
+    where: { id }
   });
 
   if (!nameChange) {
@@ -63,7 +54,7 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
 
   // If successful, resolve the name change
   const updatedNameChange = await prisma.nameChange.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       status: NameChangeStatus.APPROVED,
       resolvedAt: new Date(),
@@ -130,7 +121,7 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
 }
 
 async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<Player> {
-  const transitionDate = (await snapshotServices.findPlayerSnapshot({ id: oldPlayer.id })).createdAt;
+  const transitionDate = (await findPlayerSnapshot({ id: oldPlayer.id })).createdAt;
   const playerUpdateFields: PrismaTypes.PlayerUpdateInput = {};
 
   const newPlayerExists = newPlayer && oldPlayer.id !== newPlayer.id;

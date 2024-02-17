@@ -1,30 +1,27 @@
-import { z } from 'zod';
-import { PlayerType, PlayerBuild, Period, Metric, Country, PlayerStatus } from '../../../../utils';
+import { PlayerType, PlayerStatus, Period, Metric, Country, PlayerBuild } from '../../../../utils';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { RecordLeaderboardEntry } from '../record.types';
 
 const MAX_RESULTS = 20;
 
-const inputSchema = z.object({
-  period: z.nativeEnum(Period),
-  metric: z.nativeEnum(Metric),
-  country: z.nativeEnum(Country).optional(),
-  playerType: z.nativeEnum(PlayerType).optional(),
-  playerBuild: z.nativeEnum(PlayerBuild).optional()
-});
-
-type FindRecordLeaderboardsParams = z.infer<typeof inputSchema>;
+type Filter = {
+  country?: Country;
+  playerType?: PlayerType;
+  playerBuild?: PlayerBuild;
+};
 
 async function findRecordLeaderboards(
-  payload: FindRecordLeaderboardsParams
+  period: Period,
+  metric: Metric,
+  filter: Filter
 ): Promise<RecordLeaderboardEntry[]> {
-  const params = inputSchema.parse(payload);
+  const { country, playerType, playerBuild } = filter;
 
   const playerQuery: PrismaTypes.PlayerWhereInput = {};
 
-  if (params.country) playerQuery.country = params.country;
-  if (params.playerType) playerQuery.type = params.playerType;
-  if (params.playerBuild) playerQuery.build = params.playerBuild;
+  if (country) playerQuery.country = country;
+  if (playerType) playerQuery.type = playerType;
+  if (playerBuild) playerQuery.build = playerBuild;
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   if (playerQuery.type === PlayerType.IRONMAN) {
@@ -33,8 +30,8 @@ async function findRecordLeaderboards(
 
   const records = await prisma.record.findMany({
     where: {
-      metric: params.metric,
-      period: params.period,
+      metric,
+      period,
       player: { ...playerQuery, status: PlayerStatus.ACTIVE }
     },
     include: { player: true },
