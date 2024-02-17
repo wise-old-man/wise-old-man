@@ -4,9 +4,9 @@ import { Metric, parsePeriodExpression } from '../../../../utils';
 import prisma, { Player, Snapshot } from '../../../../prisma';
 import { getPaginationSchema } from '../../../util/validation';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import { calculateMetricDelta } from '../delta.utils';
 import { DeltaGroupLeaderboardEntry } from '../delta.types';
+import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 
 const inputSchema = z
   .object({
@@ -125,8 +125,8 @@ async function buildPlayerSnapshotMap(
 
 async function findEdgeSnapshots(playerIds: number[], minDate: Date, maxDate: Date) {
   return await Promise.all([
-    snapshotServices.findGroupSnapshots({ playerIds, minDate }),
-    snapshotServices.findGroupSnapshots({ playerIds, maxDate })
+    findGroupSnapshots({ playerIds, minDate }),
+    findGroupSnapshots({ playerIds, maxDate })
   ]);
 }
 
@@ -137,7 +137,7 @@ async function findStartingSnapshots(playerIds: number[], period: string) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  return await snapshotServices.findGroupSnapshots({
+  return await findGroupSnapshots({
     playerIds,
     minDate: new Date(Date.now() - parsedPeriod.durationMs)
   });

@@ -1,5 +1,5 @@
 import prisma, { Snapshot } from '../../../../prisma';
-import * as snapshotServices from '../../snapshots/snapshot.services';
+import { findPlayerSnapshots } from '../../snapshots/services/FindPlayerSnapshotsService';
 import { calculatePastDates, getAchievementDefinitions } from '../achievement.utils';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
@@ -41,7 +41,7 @@ async function syncPlayerAchievements(playerId: number, previous: Snapshot | und
   }
 
   // Search dates for missing definitions, based on player history
-  const allSnapshots = await snapshotServices.findPlayerSnapshots({ id: playerId });
+  const allSnapshots = await findPlayerSnapshots({ id: playerId });
 
   const missingPastDates = calculatePastDates(allSnapshots.reverse(), missingDefinitions);
 

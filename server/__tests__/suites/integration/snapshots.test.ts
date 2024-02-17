@@ -3,7 +3,6 @@ import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import { PlayerType, SKILLS, getMetricValueKey, getMetricRankKey, Metric } from '../../../src/utils';
 import * as playerServices from '../../../src/api/modules/players/player.services';
-import * as services from '../../../src/api/modules/snapshots/snapshot.services';
 import * as utils from '../../../src/api/modules/snapshots/snapshot.utils';
 import apiServer from '../../../src/api';
 import {
@@ -16,6 +15,10 @@ import {
   modifyRawHiscoresData
 } from '../../utils';
 import { SnapshotDataSource } from '../../../src/api/modules/snapshots/snapshot.types';
+import { buildSnapshot } from '../../../src/api/modules/snapshots/services/BuildSnapshotService';
+import { findPlayerSnapshot } from '../../../src/api/modules/snapshots/services/FindPlayerSnapshotService';
+import { findPlayerSnapshots } from '../../../src/api/modules/snapshots/services/FindPlayerSnapshotsService';
+import { findGroupSnapshots } from '../../../src/api/modules/snapshots/services/FindGroupSnapshotsService';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -71,7 +74,7 @@ afterAll(async () => {
 describe('Snapshots API', () => {
   describe('1 - Creating from OSRS Hiscores', () => {
     it('should not create snapshot (invalid input)', async () => {
-      await expect(services.buildSnapshot({ playerId: 1, rawCSV: null })).rejects.toThrow();
+      await expect(buildSnapshot({ playerId: 1, rawCSV: null })).rejects.toThrow();
     });
 
     it('should not create snapshot (hiscores change)', async () => {
@@ -79,17 +82,17 @@ describe('Snapshots API', () => {
       const rawDataMinusOneLine = rest.join('\n');
       const rawDataPlusOneLine = `${globalData.hiscoresRawDataLT}\n${firstLine}`;
 
-      await expect(services.buildSnapshot({ playerId: 1, rawCSV: rawDataMinusOneLine })).rejects.toThrow(
+      await expect(buildSnapshot({ playerId: 1, rawCSV: rawDataMinusOneLine })).rejects.toThrow(
         'The OSRS Hiscores were updated. Please wait for a fix.'
       );
 
-      await expect(services.buildSnapshot({ playerId: 1, rawCSV: rawDataPlusOneLine })).rejects.toThrow(
+      await expect(buildSnapshot({ playerId: 1, rawCSV: rawDataPlusOneLine })).rejects.toThrow(
         'The OSRS Hiscores were updated. Please wait for a fix.'
       );
     });
 
     it('should create snapshot (Lynx Titan)', async () => {
-      const snapshot = await services.buildSnapshot({ playerId: 1, rawCSV: globalData.hiscoresRawDataLT });
+      const snapshot = await buildSnapshot({ playerId: 1, rawCSV: globalData.hiscoresRawDataLT });
 
       expect(snapshot.playerId).toBe(1);
       expect(snapshot.importedAt).toBeUndefined();
@@ -112,7 +115,7 @@ describe('Snapshots API', () => {
     });
 
     it('should create snapshot (Psikoi)', async () => {
-      const snapshot = await services.buildSnapshot({ playerId: 1, rawCSV: globalData.hiscoresRawDataP });
+      const snapshot = await buildSnapshot({ playerId: 1, rawCSV: globalData.hiscoresRawDataP });
 
       expect(snapshot.playerId).toBe(1);
       expect(snapshot.importedAt).toBeUndefined();
@@ -145,7 +148,7 @@ describe('Snapshots API', () => {
         { metric: Metric.BOUNTY_HUNTER_ROGUE, value: 45 }
       ]);
 
-      const newSnapshot = await services.buildSnapshot({ playerId: 1, rawCSV: modifiedRawData });
+      const newSnapshot = await buildSnapshot({ playerId: 1, rawCSV: modifiedRawData });
 
       // Now these shouldn't be unranked
       expect(newSnapshot.bounty_hunter_rogueScore).toBe(45);
@@ -156,7 +159,7 @@ describe('Snapshots API', () => {
   describe('2 - Creating from CrystalMathLabs', () => {
     it('should not create snapshot (invalid input)', async () => {
       await expect(
-        services.buildSnapshot({
+        buildSnapshot({
           playerId: 1,
           rawCSV: null,
           source: SnapshotDataSource.CRYSTAL_MATH_LABS
@@ -171,7 +174,7 @@ describe('Snapshots API', () => {
         .slice(0, -5);
 
       await expect(
-        services.buildSnapshot({
+        buildSnapshot({
           playerId: 1,
           rawCSV: missingData,
           source: SnapshotDataSource.CRYSTAL_MATH_LABS
@@ -181,7 +184,7 @@ describe('Snapshots API', () => {
       const excessiveData = globalData.cmlRawDataLT.split('\n').filter(r => r.length)[0] + ',1';
 
       await expect(
-        services.buildSnapshot({
+        buildSnapshot({
           playerId: 1,
           rawCSV: excessiveData,
           source: SnapshotDataSource.CRYSTAL_MATH_LABS
@@ -192,7 +195,7 @@ describe('Snapshots API', () => {
     it('should create snapshot (Lynx Titan)', async () => {
       const data = globalData.cmlRawDataLT.split('\n').filter(r => r.length)[0];
 
-      const snapshot = await services.buildSnapshot({
+      const snapshot = await buildSnapshot({
         playerId: 1,
         rawCSV: data,
         source: SnapshotDataSource.CRYSTAL_MATH_LABS
@@ -215,7 +218,7 @@ describe('Snapshots API', () => {
     it('should create snapshot (Psikoi)', async () => {
       const data = globalData.cmlRawDataP.split('\n').filter(r => r.length)[0];
 
-      const snapshot = await services.buildSnapshot({
+      const snapshot = await buildSnapshot({
         playerId: 1,
         rawCSV: data,
         source: SnapshotDataSource.CRYSTAL_MATH_LABS
@@ -246,7 +249,7 @@ describe('Snapshots API', () => {
 
       const snapshots = await Promise.all(
         cml.map(row => {
-          return services.buildSnapshot({
+          return buildSnapshot({
             playerId: globalData.testPlayerId,
             rawCSV: row,
             source: SnapshotDataSource.CRYSTAL_MATH_LABS
@@ -257,7 +260,7 @@ describe('Snapshots API', () => {
       const { count } = await playerServices.saveAllSnapshots(snapshots);
       expect(count).toBe(219);
 
-      const snapshotResponse = await services.findPlayerSnapshots({
+      const snapshotResponse = await findPlayerSnapshots({
         id: trackResponse.body.id,
         minDate: new Date('2010-01-01T00:00:00.000Z'),
         maxDate: new Date('2030-01-01T00:00:00.000Z')
@@ -355,26 +358,24 @@ describe('Snapshots API', () => {
 
   describe('4 - Get Player Snapshots', () => {
     it('should not fetch latest snapshot (invalid player id)', async () => {
-      await expect(services.findPlayerSnapshot({ id: null })).rejects.toThrow(
-        "Parameter 'id' is not a valid number."
-      );
+      await expect(findPlayerSnapshot({ id: null })).rejects.toThrow("Parameter 'id' is not a valid number.");
     });
 
     it('should not fetch latest snapshot (player not found)', async () => {
-      const result = await services.findPlayerSnapshot({ id: 2_000_000 });
+      const result = await findPlayerSnapshot({ id: 2_000_000 });
 
       expect(result).toBe(null);
     });
 
     it('should fetch latest snapshot', async () => {
-      const result = await services.findPlayerSnapshot({ id: globalData.testPlayerId });
+      const result = await findPlayerSnapshot({ id: globalData.testPlayerId });
 
       expect(result.createdAt.getTime() - Date.now()).toBeLessThan(365_000);
       expect(result.zulrahKills).toBe(1646);
     });
 
     it('should fetch latest snapshot (w/ max date)', async () => {
-      const result = await services.findPlayerSnapshot({
+      const result = await findPlayerSnapshot({
         id: globalData.testPlayerId,
         maxDate: new Date('2018-11-01T18:00:00.000Z')
       });
@@ -384,7 +385,7 @@ describe('Snapshots API', () => {
     });
 
     it('should not fetch latest snapshot (invalid max date)', async () => {
-      await expect(services.findPlayerSnapshot({ id: 1, maxDate: null })).rejects.toThrow(
+      await expect(findPlayerSnapshot({ id: 1, maxDate: null })).rejects.toThrow(
         'Expected date, received null'
       );
     });
@@ -392,19 +393,19 @@ describe('Snapshots API', () => {
     it('should not fetch first snapshot since (invalid player id)', async () => {
       const startDate = new Date('2019-03-28T19:00:00.000Z');
 
-      await expect(services.findPlayerSnapshot({ id: null, minDate: startDate })).rejects.toThrow(
+      await expect(findPlayerSnapshot({ id: null, minDate: startDate })).rejects.toThrow(
         "Parameter 'id' is not a valid number."
       );
     });
 
     it('should not fetch first snapshot since (invalid date)', async () => {
-      await expect(services.findPlayerSnapshot({ id: 1, minDate: null })).rejects.toThrow(
+      await expect(findPlayerSnapshot({ id: 1, minDate: null })).rejects.toThrow(
         'Expected date, received null'
       );
     });
 
     it('should fetch first snapshot since', async () => {
-      const result = await services.findPlayerSnapshot({
+      const result = await findPlayerSnapshot({
         id: globalData.testPlayerId,
         minDate: new Date('2019-03-28T19:00:00.000Z')
       });
@@ -413,18 +414,18 @@ describe('Snapshots API', () => {
     });
 
     it('should not fetch all (invalid player id)', async () => {
-      await expect(services.findPlayerSnapshots({ id: null })).rejects.toThrow(
+      await expect(findPlayerSnapshots({ id: null })).rejects.toThrow(
         "Parameter 'id' is not a valid number."
       );
     });
 
     it('should not fetch all (player not found)', async () => {
-      const result = await services.findPlayerSnapshots({ id: 2_000_000 });
+      const result = await findPlayerSnapshots({ id: 2_000_000 });
       expect(result.length).toBe(0);
     });
 
     it('should fetch all snapshots (high limit)', async () => {
-      const result = await services.findPlayerSnapshots({ id: globalData.testPlayerId });
+      const result = await findPlayerSnapshots({ id: globalData.testPlayerId });
 
       expect(result.length).toBe(220);
       expect(result.filter(r => r.importedAt === null).length).toBe(1);
@@ -440,7 +441,7 @@ describe('Snapshots API', () => {
     });
 
     it('should fetch all snapshots (limited)', async () => {
-      const result = await services.findPlayerSnapshots({ id: globalData.testPlayerId, limit: 10 });
+      const result = await findPlayerSnapshots({ id: globalData.testPlayerId, limit: 10 });
 
       expect(result.length).toBe(10);
       expect(result.filter(r => r.importedAt === null).length).toBe(1);
@@ -460,14 +461,14 @@ describe('Snapshots API', () => {
       const endDate = new Date('2020-04-14T21:08:55.000Z');
 
       await expect(
-        services.findPlayerSnapshots({ id: undefined, minDate: startDate, maxDate: endDate })
+        findPlayerSnapshots({ id: undefined, minDate: startDate, maxDate: endDate })
       ).rejects.toThrow("Parameter 'id' is not a valid number.");
     });
 
     it('should not fetch snapshots between (invalid start date)', async () => {
       const endDate = new Date('2020-04-14T21:08:55.000Z');
 
-      await expect(services.findPlayerSnapshots({ id: 1, minDate: null, maxDate: endDate })).rejects.toThrow(
+      await expect(findPlayerSnapshots({ id: 1, minDate: null, maxDate: endDate })).rejects.toThrow(
         'Expected date, received null'
       );
     });
@@ -475,13 +476,13 @@ describe('Snapshots API', () => {
     it('should not fetch snapshots between (invalid end date)', async () => {
       const startDate = new Date('2019-07-03T21:13:56.000Z');
 
-      await expect(
-        services.findPlayerSnapshots({ id: 1, minDate: startDate, maxDate: null })
-      ).rejects.toThrow('Expected date, received null');
+      await expect(findPlayerSnapshots({ id: 1, minDate: startDate, maxDate: null })).rejects.toThrow(
+        'Expected date, received null'
+      );
     });
 
     it('should not fetch snapshots between (player not found)', async () => {
-      const result = await services.findPlayerSnapshots({
+      const result = await findPlayerSnapshots({
         id: 2_000_000,
         minDate: new Date('2019-07-03T21:13:56.000Z'),
         maxDate: new Date('2020-04-14T21:08:55.000Z')
@@ -492,7 +493,7 @@ describe('Snapshots API', () => {
 
     it('should not fetch snapshots between (min date greater than max date)', async () => {
       await expect(
-        services.findPlayerSnapshots({
+        findPlayerSnapshots({
           id: 2_000_000,
           minDate: new Date('2020-04-14T21:08:55.000Z'),
           maxDate: new Date('2019-07-03T21:13:56.000Z')
@@ -504,7 +505,7 @@ describe('Snapshots API', () => {
       const startDate = new Date('2019-07-03T21:13:56.000Z');
       const endDate = new Date('2020-04-14T21:08:55.000Z');
 
-      const result = await services.findPlayerSnapshots({
+      const result = await findPlayerSnapshots({
         id: globalData.testPlayerId,
         minDate: startDate,
         maxDate: endDate
@@ -522,14 +523,14 @@ describe('Snapshots API', () => {
     });
 
     it('should not fetch period snapshots (invalid period)', async () => {
-      await expect(
-        services.findPlayerSnapshots({ id: globalData.testPlayerId, period: 'idk' })
-      ).rejects.toThrow('Invalid period: idk.');
+      await expect(findPlayerSnapshots({ id: globalData.testPlayerId, period: 'idk' })).rejects.toThrow(
+        'Invalid period: idk.'
+      );
     });
 
     it('should fetch period snapshots (common period)', async () => {
       const now = new Date();
-      const results = await services.findPlayerSnapshots({ id: globalData.testPlayerId, period: 'week' });
+      const results = await findPlayerSnapshots({ id: globalData.testPlayerId, period: 'week' });
 
       expect(results.length).toBe(7);
       expect(results[6].createdAt.toISOString()).toBe('2020-05-01T20:24:34.000Z');
@@ -546,7 +547,7 @@ describe('Snapshots API', () => {
 
     it('should fetch period snapshots (custom period)', async () => {
       const now = new Date();
-      const results = await services.findPlayerSnapshots({ id: globalData.testPlayerId, period: '2w3d' });
+      const results = await findPlayerSnapshots({ id: globalData.testPlayerId, period: '2w3d' });
 
       expect(results.length).toBe(12);
       expect(results[11].createdAt.toISOString()).toBe('2020-04-21T23:58:48.000Z');
@@ -564,11 +565,11 @@ describe('Snapshots API', () => {
 
   describe('5 - Get Group Snapshots', () => {
     it('should not fetch (invalid group id and player ids)', async () => {
-      await expect(services.findGroupSnapshots({})).rejects.toThrow();
+      await expect(findGroupSnapshots({})).rejects.toThrow();
     });
 
     it('should not fetch (group not found)', async () => {
-      await expect(services.findGroupSnapshots({ groupId: 2_000_000 })).rejects.toThrow('Group not found.');
+      await expect(findGroupSnapshots({ groupId: 2_000_000 })).rejects.toThrow('Group not found.');
     });
 
     it('should not fetch (dates not provided)', async () => {
@@ -582,7 +583,7 @@ describe('Snapshots API', () => {
       globalData.testGroupCode = createGroupResponse.body.verificationCode;
 
       await expect(
-        services.findGroupSnapshots({ groupId: globalData.testGroupId, includeAllBetween: true })
+        findGroupSnapshots({ groupId: globalData.testGroupId, includeAllBetween: true })
       ).rejects.toThrow();
     });
 
@@ -605,7 +606,7 @@ describe('Snapshots API', () => {
       });
       expect(addToGroupResponse.status).toBe(200);
 
-      const result = await services.findGroupSnapshots({
+      const result = await findGroupSnapshots({
         groupId: globalData.testGroupId,
         includeAllBetween: true,
         minDate: new Date('2020-04-16T22:00:00.000Z'),
@@ -625,7 +626,7 @@ describe('Snapshots API', () => {
     });
 
     it('should fetch group snapshots between (player ids array)', async () => {
-      const result = await services.findGroupSnapshots({
+      const result = await findGroupSnapshots({
         playerIds: [globalData.testPlayerId, globalData.secondaryPlayerId],
         includeAllBetween: true,
         minDate: new Date('2020-04-16T22:00:00.000Z'),
@@ -645,7 +646,7 @@ describe('Snapshots API', () => {
     });
 
     it('should fetch group last snapshots (by group id)', async () => {
-      const results = await services.findGroupSnapshots({
+      const results = await findGroupSnapshots({
         groupId: globalData.testGroupId,
         maxDate: new Date()
       });
@@ -664,7 +665,7 @@ describe('Snapshots API', () => {
     });
 
     it('should fetch group last snapshots (by player id array)', async () => {
-      const results = await services.findGroupSnapshots({
+      const results = await findGroupSnapshots({
         playerIds: [globalData.testPlayerId, globalData.secondaryPlayerId],
         maxDate: new Date()
       });
@@ -683,7 +684,7 @@ describe('Snapshots API', () => {
     });
 
     it('should fetch group first snapshots (by group id)', async () => {
-      const results = await services.findGroupSnapshots({
+      const results = await findGroupSnapshots({
         groupId: globalData.testGroupId,
         minDate: new Date('2020-04-16T18:00:00.000Z')
       });
@@ -702,7 +703,7 @@ describe('Snapshots API', () => {
     });
 
     it('should fetch group first snapshots (by player id array)', async () => {
-      const results = await services.findGroupSnapshots({
+      const results = await findGroupSnapshots({
         playerIds: [globalData.testPlayerId, globalData.secondaryPlayerId],
         minDate: new Date('2020-04-16T18:00:00.000Z')
       });

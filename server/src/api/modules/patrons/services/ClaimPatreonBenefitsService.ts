@@ -1,22 +1,13 @@
-import { z } from 'zod';
 import prisma, { Patron } from '../../../../prisma';
 import { JobType, jobManager } from '../../../jobs';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 
-const inputSchema = z.object({
-  discordId: z.string(),
-  username: z.string().optional(),
-  groupId: z.number().int().positive().optional()
-});
-
-type ClaimPatreonBenefitsServiceParams = z.infer<typeof inputSchema>;
-
-async function claimPatreonBenefits(payload: ClaimPatreonBenefitsServiceParams): Promise<Patron> {
-  const params = inputSchema.parse(payload);
-
-  const { discordId, username, groupId } = params;
-
+async function claimPatreonBenefits(
+  discordId: string,
+  username: string | undefined,
+  groupId: number | undefined
+): Promise<Patron> {
   if (!username && !groupId) {
     throw new BadRequestError('Username and/or groupId must be provided.');
   }

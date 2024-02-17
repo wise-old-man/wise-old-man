@@ -1,43 +1,36 @@
-import { z } from 'zod';
 import { BadRequestError } from '../../../errors';
-import * as playerUtils from '../../players/player.utils';
 import { submitNameChange } from './SubmitNameChangeService';
-
-const submitNameEntrySchema = z
-  .object(
-    {
-      oldName: z.string(),
-      newName: z.string()
-    },
-    { invalid_type_error: 'All name change objects must have "oldName" and "newName" properties.' }
-  )
-  .refine(s => playerUtils.isValidUsername(s.oldName), { message: 'Invalid old name.' })
-  .refine(s => playerUtils.isValidUsername(s.newName), { message: 'Invalid new name.' })
-  .refine(s => playerUtils.sanitize(s.oldName) !== playerUtils.sanitize(s.newName), {
-    message: 'Old name and new name cannot be the same.'
-  });
-
-const inputSchema = z
-  .array(submitNameEntrySchema, {
-    invalid_type_error: 'Invalid name change list format.'
-  })
-  .nonempty('Empty name change list.');
-
-type BulkSubmitParams = z.infer<typeof inputSchema>;
+import { isValidUsername, sanitize } from '../../players/player.utils';
 
 type BulkSubmitResult = {
   nameChangesSubmitted: number;
   message: string;
 };
 
-async function bulkSubmitNameChanges(payload: BulkSubmitParams): Promise<BulkSubmitResult> {
-  const input = inputSchema.parse(payload);
+async function bulkSubmitNameChanges(
+  entries: Array<{ oldName: string; newName: string }>
+): Promise<BulkSubmitResult> {
+  // Validate all entries
+  entries.forEach(entry => {
+    if (!isValidUsername(entry.oldName)) {
+      throw new BadRequestError('Invalid old name.');
+    }
+
+    if (!isValidUsername(entry.newName)) {
+      throw new BadRequestError('Invalid new name.');
+    }
+
+    if (sanitize(entry.oldName) === sanitize(entry.newName)) {
+      throw new BadRequestError('Old name and new name cannot be the same.');
+    }
+  });
+
   let submitted = 0;
 
   // Submit all the entries one by one, using the submitNameChange service.
-  for (const entry of input) {
+  for (const entry of entries) {
     try {
-      await submitNameChange(entry);
+      await submitNameChange(entry.oldName, entry.newName);
       submitted++;
     } catch (_) {
       // Skip over errors
@@ -50,7 +43,7 @@ async function bulkSubmitNameChanges(payload: BulkSubmitParams): Promise<BulkSub
 
   return {
     nameChangesSubmitted: submitted,
-    message: `Successfully submitted ${submitted}/${input.length} name changes.`
+    message: `Successfully submitted ${submitted}/${entries.length} name changes.`
   };
 }
 

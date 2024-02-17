@@ -3,8 +3,8 @@ import prisma, { Player } from '../../../../prisma';
 import { PlayerType } from '../../../../utils';
 import logger from '../../../util/logging';
 import * as jagexService from '../../../services/external/jagex.service';
-import * as snapshotServices from '../../../modules/snapshots/snapshot.services';
 import * as playerEvents from '../player.events';
+import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
 
 type AssertPlayerTypeResult = [type: PlayerType, player: Player, changed: boolean];
 
@@ -68,7 +68,7 @@ async function getOverallExperience(player: Pick<Player, 'username' | 'type'>, t
 
     // Convert the csv data to a Snapshot instance
     // The playerId doesn't matter here, this snapshot won't be saved to this id
-    const snapshot = await snapshotServices.buildSnapshot({ playerId: 1, rawCSV: hiscoresCSV });
+    const snapshot = await buildSnapshot({ playerId: 1, rawCSV: hiscoresCSV });
 
     return snapshot.overallExperience;
   } catch (e) {

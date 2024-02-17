@@ -1,28 +1,24 @@
-import { z } from 'zod';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError } from '../../../errors';
-import * as playerUtils from '../../../modules/players/player.utils';
 import * as nameChangeEvents from '../name-change.events';
+import { isValidUsername, sanitize, standardize } from '../../../modules/players/player.utils';
 
-const inputSchema = z
-  .object({
-    oldName: z.string(),
-    newName: z.string()
-  })
-  .refine(s => playerUtils.isValidUsername(s.oldName), { message: 'Invalid old name.' })
-  .refine(s => playerUtils.isValidUsername(s.newName), { message: 'Invalid new name.' })
-  .refine(s => playerUtils.sanitize(s.oldName) !== playerUtils.sanitize(s.newName), {
-    message: 'Old name and new name cannot be the same.'
-  });
+async function submitNameChange(oldName: string, newName: string): Promise<NameChange> {
+  if (!isValidUsername(oldName)) {
+    throw new BadRequestError(`Invalid old name.`);
+  }
 
-type SubmitNameChangeParams = z.infer<typeof inputSchema>;
+  if (!isValidUsername(newName)) {
+    throw new BadRequestError(`Invalid new name.`);
+  }
 
-async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameChange> {
-  const params = inputSchema.parse(payload);
+  if (sanitize(oldName) === sanitize(newName)) {
+    throw new BadRequestError('Old name and new name cannot be the same.');
+  }
 
   // Standardize both input usernames (convert to lower case, remove symbols)
-  const stOldName = playerUtils.standardize(params.oldName);
-  const stNewName = playerUtils.standardize(params.newName);
+  const stOldName = standardize(oldName);
+  const stNewName = standardize(newName);
 
   // Check if a player with the "oldName" username is registered
   const oldPlayer = await prisma.player.findFirst({
@@ -30,7 +26,7 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
   });
 
   if (!oldPlayer) {
-    throw new BadRequestError(`Player '${params.oldName}' is not tracked yet.`);
+    throw new BadRequestError(`Player '${oldName}' is not tracked yet.`);
   }
 
   // Check if there's any pending name changes for these names
@@ -60,7 +56,7 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
         orderBy: { createdAt: 'desc' }
       });
 
-      if (lastChange && playerUtils.standardize(lastChange.oldName) === stOldName) {
+      if (lastChange && standardize(lastChange.oldName) === stOldName) {
         throw new BadRequestError(`Cannot submit a duplicate (approved) name change. (Id: ${lastChange.id})`);
       }
     }
@@ -70,7 +66,7 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
       orderBy: { createdAt: 'desc' }
     });
 
-    if (lastChange && playerUtils.standardize(lastChange.oldName) === stOldName) {
+    if (lastChange && standardize(lastChange.oldName) === stOldName) {
       throw new BadRequestError(`Cannot submit a duplicate (approved) name change. (Id: ${lastChange.id})`);
     }
   }
@@ -80,7 +76,7 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
     data: {
       playerId: oldPlayer.id,
       oldName: oldPlayer.displayName,
-      newName: playerUtils.sanitize(params.newName)
+      newName: sanitize(newName)
     }
   })) as NameChange;
 

@@ -8,14 +8,15 @@ import logger from '../../../util/logging';
 import { formatPlayerDetails, getBuild, sanitize, standardize, validateUsername } from '../player.utils';
 import redisService from '../../../services/external/redis.service';
 import * as jagexService from '../../../services/external/jagex.service';
-import * as efficiencyServices from '../../efficiency/efficiency.services';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
 import { PlayerDetails } from '../player.types';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
 import { archivePlayer } from './ArchivePlayerService';
+import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
+import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
+import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
 
 type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
@@ -119,7 +120,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   updatedPlayerFields.build = getBuild(currentStats);
   updatedPlayerFields.status = PlayerStatus.ACTIVE;
 
-  const computedMetrics = await efficiencyServices.computePlayerMetrics({
+  const computedMetrics = await computePlayerMetrics({
     player: {
       id: player.id,
       type: (updatedPlayerFields.type as PlayerType) || player.type,
@@ -208,7 +209,7 @@ async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> 
   const hiscoresCSV = await jagexService.fetchHiscoresData(player.username, type || player.type);
 
   // Convert the csv data to a Snapshot instance
-  const newSnapshot = await snapshotServices.buildSnapshot({ playerId: player.id, rawCSV: hiscoresCSV });
+  const newSnapshot = await buildSnapshot({ playerId: player.id, rawCSV: hiscoresCSV });
 
   return newSnapshot;
 }
@@ -222,7 +223,7 @@ async function findOrCreate(username: string): Promise<[Player & { latestSnapsho
   if (player) {
     // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
     if (!player.latestSnapshot) {
-      const latestSnapshot = await snapshotServices.findPlayerSnapshot({ id: player.id });
+      const latestSnapshot = await findPlayerSnapshot({ id: player.id });
       if (latestSnapshot) player.latestSnapshot = latestSnapshot;
     }
 

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { PlayerBuild, PlayerType } from '../../../../utils';
 import { NotFoundError, BadRequestError } from '../../../errors';
-import * as efficiencyUtils from '../../efficiency/efficiency.utils';
+import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import {
   get200msCount,
   format,
@@ -68,7 +68,7 @@ async function fetchGroupStatistics(payload: FetchGroupStatisticsParams): Promis
 
   const averageSnapshot = average(players.map(p => p.latestSnapshot));
 
-  const averageEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(averageSnapshot, {
+  const averageEfficiencyMap = getPlayerEfficiencyMap(averageSnapshot, {
     type: PlayerType.REGULAR,
     build: PlayerBuild.MAIN
   });
