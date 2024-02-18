@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric } from '../../../utils';
+import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric, Team } from '../../../utils';
 import { checkAdminPermission, checkCompetitionVerificationCode } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getDateSchema, teamSchema } from '../../util/schemas';
@@ -228,7 +228,7 @@ router.post(
     const { id } = req.params;
     const { teams } = req.body;
 
-    const { count } = await addTeams(id, teams);
+    const { count } = await addTeams(id, teams as Team[]);
 
     res.status(200).json({
       count,

@@ -23,7 +23,7 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
   const playerIds = events.map(m => m.playerId);
 
   // Add these new members to all upcoming and ongoing competitions
-  await metrics.trackEffect(addToGroupCompetitions, { groupId, playerIds });
+  await metrics.trackEffect(addToGroupCompetitions, groupId, playerIds);
 
   // Fetch all the newly added members
   const players = await playerServices.findPlayers({ ids: playerIds });
@@ -46,7 +46,7 @@ async function onMembersLeft(events: MemberLeftEvent[]) {
   const playerIds = events.map(m => m.playerId);
 
   // Remove these players from ongoing/upcoming group competitions
-  await metrics.trackEffect(removeFromGroupCompetitions, { groupId, playerIds });
+  await metrics.trackEffect(removeFromGroupCompetitions, groupId, playerIds);
 
   // Dispatch this event to the discord service
   await metrics.trackEffect(discordService.dispatchMembersLeft, groupId, playerIds);

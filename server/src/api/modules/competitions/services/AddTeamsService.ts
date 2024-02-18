@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
 import logger from '../../../util/logging';
@@ -11,9 +10,8 @@ import {
   validateTeamDuplicates
 } from '../competition.utils';
 import * as playerServices from '../../players/player.services';
-import { teamSchema } from '../../../util/schemas';
 
-async function addTeams(id: number, teams: Array<z.infer<typeof teamSchema>>): Promise<{ count: number }> {
+async function addTeams(id: number, teams: Team[]): Promise<{ count: number }> {
   const competition = await prisma.competition.findFirst({
     where: { id }
   });
