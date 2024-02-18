@@ -1183,7 +1183,7 @@ describe('Competition API', () => {
       expect(response.body.group).not.toBeDefined();
       expect(response.body.verificationHash).not.toBeDefined();
 
-      // hydrox6 was added, the other 3 were already participants
+      // Only hydrox6 was added, the other 3 were already participants
       expect(onParticipantsJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 1 }));
 
       const participantUsernames = response.body.participations.map(p => p.player.username);
@@ -1242,7 +1242,7 @@ describe('Competition API', () => {
       expect(response.body.group).not.toBeDefined();
       expect(response.body.verificationHash).not.toBeDefined();
 
-      // 4 players were added (the other 6 were already participants)
+      // Only 4 players were added (the other 6 were already participants)
       expect(onParticipantsJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 4 }));
 
       const usernameTeamMap: { [username: string]: string } = {};
@@ -1319,7 +1319,7 @@ describe('Competition API', () => {
       expect(response.body.participations.map(p => p.player.username)).not.toContain('zezima'); // player got removed
       expect(response.body.title).toBe('SoulWars Competition');
 
-      // psikoi, hydrox6 and usbc were already in the competition, 5 new players joined
+      // psikoi, hydrox6 and usbc were already in the competition, only 5 new players joined
       expect(onParticipantsJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 5 }));
     });
   });
@@ -2308,7 +2308,7 @@ describe('Competition API', () => {
       // Fake the current date to be 15 minutes ago
       jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 900_000));
 
-      // Track Lynx Titan once, this player won't be tracked again  1 snapshot during competition)
+      // Track Lynx Titan once, this player won't be tracked again  (only 1 snapshot during competition)
       const trackResponse1 = await api.post('/players/lynx titan');
       expect(trackResponse1.status).toBe(200);
 
@@ -3172,7 +3172,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(200);
 
       // This competition has been ongoing for 2 days, and is ending in 5 days, so players
-      // are considered outdated after 24h. USBC was updated 10h ago, so they won't count.
+      // are only considered outdated after 24h. USBC was updated 10h ago, so they won't count.
       expect(response.body.message).toMatch('1 outdated (updated > 24h ago) players are being updated.');
     });
 
