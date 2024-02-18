@@ -9,7 +9,7 @@ async function searchCompetitions(
   metric: Metric | undefined,
   type: CompetitionType | undefined,
   status: CompetitionStatus | undefined,
-  pagiation: PaginationOptions
+  pagination: PaginationOptions
 ): Promise<CompetitionListItem[]> {
   const query: PrismaTypes.CompetitionWhereInput = {};
 
@@ -44,8 +44,8 @@ async function searchCompetitions(
       }
     },
     orderBy: [{ score: 'desc' }, { createdAt: 'desc' }],
-    take: pagiation.limit,
-    skip: pagiation.offset
+    take: pagination.limit,
+    skip: pagination.offset
   });
 
   const participantCounts = await prisma.participation.groupBy({
