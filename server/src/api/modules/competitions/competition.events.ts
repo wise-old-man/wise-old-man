@@ -107,7 +107,7 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
     competitionDetails.participations
       // Only update players that haven't been updated in the last 24h
       .filter(p => {
-        return !p.updatedAt || Date.now() - p.player.updatedAt.getTime() > 1000 * 60 * 60 * 24;
+        return !p.player.updatedAt || Date.now() - p.player.updatedAt.getTime() > 1000 * 60 * 60 * 24;
       })
       .forEach(p => {
         jobManager.add(
