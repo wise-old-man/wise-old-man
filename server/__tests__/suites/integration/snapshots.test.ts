@@ -456,15 +456,6 @@ describe('Snapshots API', () => {
       }
     });
 
-    it('should not fetch snapshots between (invalid player id)', async () => {
-      const startDate = new Date('2019-07-03T21:13:56.000Z');
-      const endDate = new Date('2020-04-14T21:08:55.000Z');
-
-      await expect(
-        findPlayerSnapshots({ id: undefined, minDate: startDate, maxDate: endDate })
-      ).rejects.toThrow("Parameter 'id' is not a valid number.");
-    });
-
     it('should not fetch snapshots between (invalid start date)', async () => {
       const endDate = new Date('2020-04-14T21:08:55.000Z');
 

@@ -20,15 +20,41 @@ function enumErrorMap(path: Array<string | number>, options: Array<string | numb
 // Add a global error map to zod validations
 z.setErrorMap((issue, ctx) => {
   if (issue.code === z.ZodIssueCode.invalid_type) {
+    if (issue.received === 'undefined') {
+      return { message: `Parameter '${issue.path}' is undefined.` };
+    }
+
     if (issue.expected === 'number') {
       return { message: `Parameter '${issue.path}' is not a valid number.` };
-    } else if (issue.expected === 'string') {
-      return { message: `Parameter '${issue.path}' is undefined.` };
-    } else if (/^(?:'(\w+)'(?: \| )?)+$/.test(issue.expected)) {
+    }
+
+    if (issue.expected === 'string') {
+      return { message: `Parameter '${issue.path}' is not a valid string.` };
+    }
+
+    if (issue.expected === 'array') {
+      return { message: `Parameter '${issue.path}' is not a valid array.` };
+    }
+
+    if (/^(?:'(\w+)'(?: \| )?)+$/.test(issue.expected)) {
       return enumErrorMap(issue.path, issue.expected.split(' | '));
     }
-  } else if (issue.code === z.ZodIssueCode.invalid_enum_value) {
+  }
+
+  if (issue.code === z.ZodIssueCode.invalid_enum_value) {
     return enumErrorMap(issue.path, issue.options);
+  }
+
+  if (issue.code === z.ZodIssueCode.too_small) {
+    if (issue.type === 'array') {
+      return { message: `Parameter '${issue.path}' must have a minimum of ${issue.minimum} element(s).` };
+    }
+
+    return { message: `Parameter '${issue.path}' must have a minimum of ${issue.minimum} character(s).` };
+  }
+
+  if (issue.code === z.ZodIssueCode.too_big) {
+    return { message: `Parameter '${issue.path}' must have a maximum of ${issue.maximum} character(s).` };
   }
 
   return { message: ctx.defaultError };

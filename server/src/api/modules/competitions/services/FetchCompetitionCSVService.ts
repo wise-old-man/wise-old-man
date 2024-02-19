@@ -1,41 +1,34 @@
-import { z } from 'zod';
 import { CompetitionCSVTableType, CompetitionType, Metric } from '../../../../utils';
 import { formatDate } from '../../../util/dates';
 import { BadRequestError } from '../../../errors';
 import { CompetitionDetails, ParticipationWithPlayerAndProgress } from '../competition.types';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 
-const inputSchema = z
-  .object({
-    id: z.number().int().positive(),
-    metric: z.nativeEnum(Metric).optional(),
-    teamName: z.string().optional(),
-    table: z.nativeEnum(CompetitionCSVTableType).optional().default(CompetitionCSVTableType.PARTICIPANTS)
-  })
-  .refine(s => !(s.table === CompetitionCSVTableType.TEAM && !s.teamName), {
-    message: 'Team name is a required parameter for the table type of "team".'
-  });
+async function fetchCompetitionCSV(
+  id: number,
+  metric: Metric | undefined,
+  table = CompetitionCSVTableType.PARTICIPANTS,
+  teamName: string | undefined
+): Promise<string> {
+  const competitionDetails = await fetchCompetitionDetails(id, metric);
 
-type FetchCompetitionCSVParams = z.infer<typeof inputSchema>;
-
-async function fetchCompetitionCSV(payload: FetchCompetitionCSVParams): Promise<string> {
-  const params = inputSchema.parse(payload);
-
-  const competitionDetails = await fetchCompetitionDetails(params);
-
-  if (params.table === CompetitionCSVTableType.PARTICIPANTS) {
+  if (table === CompetitionCSVTableType.PARTICIPANTS) {
     return getParticipantsCSV(competitionDetails);
+  }
+
+  if (table === CompetitionCSVTableType.TEAM && !teamName) {
+    throw new BadRequestError('Team name is a required parameter for the table type of "team".');
   }
 
   if (competitionDetails.type === CompetitionType.CLASSIC) {
     throw new BadRequestError('Cannot view team/teams table on a classic competition.');
   }
 
-  if (params.table === CompetitionCSVTableType.TEAMS) {
+  if (table === CompetitionCSVTableType.TEAMS) {
     return getTeamsCSV(competitionDetails);
   }
 
-  return getTeamCSV(competitionDetails, params.teamName);
+  return getTeamCSV(competitionDetails, teamName);
 }
 
 type TeamRow = {

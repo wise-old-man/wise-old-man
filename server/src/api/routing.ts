@@ -5,7 +5,7 @@ import { getThreadIndex } from '../env';
 import { BadRequestError, NotFoundError } from './errors';
 import logger from './util/logging';
 import { metricAbbreviation } from './util/middlewares';
-import competitionRoutes from './modules/competitions/competition.routes';
+import competitionRouter from './modules/competitions/competition.router';
 import deltaRouter from './modules/deltas/delta.router';
 import generalRouter from './modules/general/general.router';
 import patronRouter from './modules/patrons/patron.router';
@@ -41,6 +41,7 @@ class RoutingHandler {
     this.router.get('/', (req, res) => res.json(true));
 
     // Register all the modules to the router
+    this.router.use(competitionRouter);
     this.router.use(deltaRouter);
     this.router.use(efficiencyRouter);
     this.router.use(generalRouter);
@@ -49,7 +50,6 @@ class RoutingHandler {
     this.router.use(recordRouter);
 
     this.router.use('/players', playerRoutes);
-    this.router.use('/competitions', competitionRoutes);
     this.router.use('/groups', groupRoutes);
 
     this.router.get('/metrics', async (req, res) => {

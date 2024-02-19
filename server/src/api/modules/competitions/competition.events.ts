@@ -4,8 +4,9 @@ import { jobManager, JobType, JobPriority } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
 import * as playerServices from '../players/player.services';
-import * as competitionServices from '../competitions/competition.services';
 import { EventPeriodDelay } from '../../services/external/discord.service';
+import { updateAllParticipants } from './services/UpdateAllParticipantsService';
+import { fetchCompetitionDetails } from './services/FetchCompetitionDetailsService';
 
 async function onParticipantsJoined(participations: Participation[]) {
   const playerIds = participations.map(p => p.playerId);
@@ -34,10 +35,7 @@ async function onCompetitionCreated(competition: CompetitionWithParticipations) 
 
 async function onCompetitionStarted(competition: Competition) {
   // Update all players when the competition starts
-  await metrics.trackEffect(competitionServices.updateAllParticipants, {
-    competitionId: competition.id,
-    forcedUpdate: true
-  });
+  await metrics.trackEffect(updateAllParticipants, competition.id, true);
 
   // Dispatch a competition started event to our discord bot API.
   await metrics.trackEffect(discordService.dispatchCompetitionStarted, competition);
@@ -49,7 +47,7 @@ async function onCompetitionStarted(competition: Competition) {
 }
 
 async function onCompetitionEnded(competition: Competition) {
-  const competitionDetails = await competitionServices.fetchCompetitionDetails({ id: competition.id });
+  const competitionDetails = await fetchCompetitionDetails(competition.id);
   if (!competitionDetails) return;
 
   // Dispatch a competition ended event to our discord bot API.
@@ -75,9 +73,7 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
     // this is just a precaution in case the competition manager forgets to update people before the end.
     // With this, we can ensure that any serious competitors will at least be updated once 2 hours before it ends.
     // Note: We're doing this 2 hours before, because that'll still allow "update all" to update these players in the final hour.
-    const competitionDetails = await competitionServices.fetchCompetitionDetails({
-      id: competition.id
-    });
+    const competitionDetails = await fetchCompetitionDetails(competition.id);
 
     competitionDetails.participations
       // Only update players that have gained xp
@@ -100,9 +96,7 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
     // where 2h before a competition ends, all active competitors get updated again.
     // Note: These should be low priority updates as to not delay regularly scheduled updates. 10-12h should be more than enough
     // for these to slowly get processed.
-    const competitionDetails = await competitionServices.fetchCompetitionDetails({
-      id: competition.id
-    });
+    const competitionDetails = await fetchCompetitionDetails(competition.id);
 
     competitionDetails.participations
       // Only update players that haven't been updated in the last 24h

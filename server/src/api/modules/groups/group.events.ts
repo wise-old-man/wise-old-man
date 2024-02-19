@@ -3,7 +3,8 @@ import { jobManager, JobType } from '../../jobs';
 import metrics from '../../services/external/metrics.service';
 import * as discordService from '../../services/external/discord.service';
 import * as playerServices from '../players/player.services';
-import * as competitionServices from '../competitions/competition.services';
+import { addToGroupCompetitions } from '../competitions/services/AddToGroupCompetitionsService';
+import { removeFromGroupCompetitions } from '../competitions/services/RemoveFromGroupCompetitionsService';
 
 function onGroupUpdated(groupId: number) {
   jobManager.add({ type: JobType.UPDATE_GROUP_SCORE, payload: { groupId } });
@@ -22,7 +23,7 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
   const playerIds = events.map(m => m.playerId);
 
   // Add these new members to all upcoming and ongoing competitions
-  await metrics.trackEffect(competitionServices.addToGroupCompetitions, { groupId, playerIds });
+  await metrics.trackEffect(addToGroupCompetitions, groupId, playerIds);
 
   // Fetch all the newly added members
   const players = await playerServices.findPlayers({ ids: playerIds });
@@ -45,7 +46,7 @@ async function onMembersLeft(events: MemberLeftEvent[]) {
   const playerIds = events.map(m => m.playerId);
 
   // Remove these players from ongoing/upcoming group competitions
-  await metrics.trackEffect(competitionServices.removeFromGroupCompetitions, { groupId, playerIds });
+  await metrics.trackEffect(removeFromGroupCompetitions, groupId, playerIds);
 
   // Dispatch this event to the discord service
   await metrics.trackEffect(discordService.dispatchMembersLeft, groupId, playerIds);

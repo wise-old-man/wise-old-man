@@ -1,6 +1,6 @@
 import prisma from '../../../prisma';
 import { GroupDetails, PRIVELEGED_GROUP_ROLES } from '../../../utils';
-import * as competitionServices from '../../modules/competitions/competition.services';
+import { findGroupCompetitions } from '../../modules/competitions/services/FindGroupCompetitionsService';
 import { JobType, JobDefinition } from '../job.types';
 import * as groupServices from '../../modules/groups/group.services';
 
@@ -40,7 +40,7 @@ async function calculateScore(group: GroupDetails): Promise<number> {
     return score;
   }
 
-  const competitions = await competitionServices.findGroupCompetitions({ groupId: group.id });
+  const competitions = await findGroupCompetitions({ groupId: group.id });
   const averageOverallExp = memberships.reduce((acc, cur) => acc + cur.player.exp, 0) / memberships.length;
 
   // If has atleast one leader

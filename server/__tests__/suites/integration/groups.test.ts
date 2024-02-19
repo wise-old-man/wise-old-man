@@ -1548,7 +1548,7 @@ describe('Group API', () => {
         .send({ username: 'idk', verificationCode: globalData.testGroupNoLeaders.verificationCode });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Invalid enum value for 'role'.");
+      expect(response.body.message).toBe("Parameter 'role' is undefined.");
 
       expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
@@ -2147,7 +2147,7 @@ describe('Group API', () => {
       const response = await api.get(`/groups/100000/hiscores`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
+      expect(response.body.message).toBe("Parameter 'metric' is undefined.");
     });
 
     it('should not view hiscores (empty metric)', async () => {
