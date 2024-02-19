@@ -2243,7 +2243,7 @@ describe('Player API', () => {
 
       const thirdResponse = await api.get(`/players/siobhan/archives`);
       expect(thirdResponse.status).toBe(200);
-      expect(thirdResponse.body.length).toBe(1); // one non-restored archive should be returned
+      expect(thirdResponse.body.length).toBe(1); // Only one non-restored archive should be returned
 
       expect(thirdResponse.body[0].restoredAt).toBeNull();
       expect(thirdResponse.body[0].previousUsername).toBe(firstResponse.body[0].previousUsername);
