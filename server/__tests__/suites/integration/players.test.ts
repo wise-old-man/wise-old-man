@@ -14,7 +14,7 @@ import { formatSnapshot } from '../../../src/api/modules/snapshots/snapshot.util
 import redisService from '../../../src/api/services/external/redis.service';
 import env from '../../../src/env';
 import prisma from '../../../src/prisma';
-import { BOSSES, Metric, PlayerStatus, PlayerType, SnapshotDataSource } from '../../../src/utils';
+import { BOSSES, Metric, PlayerStatus, PlayerType } from '../../../src/utils';
 import {
   modifyRawHiscoresData,
   readFile,
@@ -1545,11 +1545,7 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await buildSnapshot({
-        playerId: player.id,
-        rawCSV: globalData.hiscoresRawData,
-        source: SnapshotDataSource.HISCORES
-      });
+      const previousSnapshot = await buildSnapshot(player.id, globalData.hiscoresRawData);
 
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metric.RUNECRAFTING, value: 50_000_000 },
@@ -1562,11 +1558,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await buildSnapshot({
-        playerId: player.id,
-        rawCSV: modifiedRawData,
-        source: SnapshotDataSource.HISCORES
-      });
+      const rejectedSnapshot = await buildSnapshot(player.id, modifiedRawData);
 
       // Manually set overall ranks and exp for de-iron checks later on
       previousSnapshot.overallRank = 10_000;
@@ -1676,11 +1668,7 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await buildSnapshot({
-        playerId: player.id,
-        rawCSV: globalData.hiscoresRawData,
-        source: SnapshotDataSource.HISCORES
-      });
+      const previousSnapshot = await buildSnapshot(player.id, globalData.hiscoresRawData);
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metric.ZULRAH, value: 1615 }, // zulrah kc dropped from 1646 to 1615
@@ -1692,11 +1680,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await buildSnapshot({
-        playerId: player.id,
-        rawCSV: modifiedRejectedRawData,
-        source: SnapshotDataSource.HISCORES
-      });
+      const rejectedSnapshot = await buildSnapshot(player.id, modifiedRejectedRawData);
 
       const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
 
@@ -1770,11 +1754,7 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await buildSnapshot({
-        playerId: player.id,
-        rawCSV: globalData.hiscoresRawData,
-        source: SnapshotDataSource.HISCORES
-      });
+      const previousSnapshot = await buildSnapshot(player.id, globalData.hiscoresRawData);
 
       await sleep(500);
 
@@ -1791,11 +1771,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await buildSnapshot({
-        playerId: player.id,
-        rawCSV: modifiedRejectedRawData,
-        source: SnapshotDataSource.HISCORES
-      });
+      const rejectedSnapshot = await buildSnapshot(player.id, modifiedRejectedRawData);
 
       const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
@@ -1835,11 +1811,7 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await buildSnapshot({
-        playerId: player.id,
-        rawCSV: modifiedPreviousRawData,
-        source: SnapshotDataSource.HISCORES
-      });
+      const previousSnapshot = await buildSnapshot(player.id, modifiedPreviousRawData);
 
       await sleep(500);
 
@@ -1848,11 +1820,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await buildSnapshot({
-        playerId: player.id,
-        rawCSV: globalData.hiscoresRawData,
-        source: SnapshotDataSource.HISCORES
-      });
+      const rejectedSnapshot = await buildSnapshot(player.id, globalData.hiscoresRawData);
 
       const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
@@ -1890,11 +1858,7 @@ describe('Player API', () => {
       // pre changes setup
       const groupId = await setupPreTransitionData(1000, player.id);
 
-      const previousSnapshot = await buildSnapshot({
-        playerId: player.id,
-        rawCSV: globalData.hiscoresRawData,
-        source: SnapshotDataSource.HISCORES
-      });
+      const previousSnapshot = await buildSnapshot(player.id, globalData.hiscoresRawData);
 
       await prisma.snapshot.create({ data: previousSnapshot });
 
@@ -1913,11 +1877,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await buildSnapshot({
-        playerId: player.id,
-        rawCSV: modifiedRejectedRawData,
-        source: SnapshotDataSource.HISCORES
-      });
+      const rejectedSnapshot = await buildSnapshot(player.id, modifiedRejectedRawData);
 
       const submitNameChangeResponse = await api.post(`/names`).send({
         oldName: 'Greg Hirsch',
@@ -2083,11 +2043,7 @@ describe('Player API', () => {
       // pre changes setup
       const groupId = await setupPreTransitionData(2000, player.id);
 
-      const previousSnapshot = await buildSnapshot({
-        playerId: player.id,
-        rawCSV: globalData.hiscoresRawData,
-        source: SnapshotDataSource.HISCORES
-      });
+      const previousSnapshot = await buildSnapshot(player.id, globalData.hiscoresRawData);
 
       await prisma.snapshot.create({ data: previousSnapshot });
 
@@ -2106,11 +2062,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await buildSnapshot({
-        playerId: player.id,
-        rawCSV: modifiedRejectedRawData,
-        source: SnapshotDataSource.HISCORES
-      });
+      const rejectedSnapshot = await buildSnapshot(player.id, modifiedRejectedRawData);
 
       const submitNameChangeResponse = await api.post(`/names`).send({
         oldName: 'TomWambsgans',

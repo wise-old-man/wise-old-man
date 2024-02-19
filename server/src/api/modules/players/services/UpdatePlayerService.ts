@@ -111,14 +111,14 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
   updatedPlayerFields.build = getBuild(currentStats);
   updatedPlayerFields.status = PlayerStatus.ACTIVE;
 
-  const computedMetrics = await computePlayerMetrics({
-    player: {
+  const computedMetrics = await computePlayerMetrics(
+    {
       id: player.id,
       type: (updatedPlayerFields.type as PlayerType) || player.type,
       build: (updatedPlayerFields.build as PlayerBuild) || player.build
     },
-    snapshot: currentStats
-  });
+    currentStats
+  );
 
   // Set the player's global computed data
   updatedPlayerFields.exp = Math.max(0, currentStats.overallExperience);
@@ -200,7 +200,7 @@ async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> 
   const hiscoresCSV = await jagexService.fetchHiscoresData(player.username, type || player.type);
 
   // Convert the csv data to a Snapshot instance
-  const newSnapshot = await buildSnapshot({ playerId: player.id, rawCSV: hiscoresCSV });
+  const newSnapshot = await buildSnapshot(player.id, hiscoresCSV);
 
   return newSnapshot;
 }

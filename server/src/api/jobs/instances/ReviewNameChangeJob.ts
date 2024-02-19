@@ -17,7 +17,7 @@ class ReviewNameChangeJob implements JobDefinition<ReviewNameChangePayload> {
   }
 
   async execute(data: ReviewNameChangePayload) {
-    await autoReviewNameChange({ id: data.id });
+    await autoReviewNameChange(data.id);
   }
 }
 

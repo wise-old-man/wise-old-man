@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import csv from 'csvtojson';
 import { BOSSES, ACTIVITIES, Metric, SKILLS, getMetricRankKey, getMetricValueKey } from '../../../../utils';
 import { Snapshot } from '../../../../prisma';
@@ -8,17 +7,11 @@ import { SnapshotDataSource } from '../snapshot.types';
 // Skip Deadman Points and Legacy Bounty Hunter (hunter/rogue)
 export const SKIPPED_ACTIVITY_INDICES = [1, 4, 5];
 
-const inputSchema = z.object({
-  playerId: z.number().int().positive(),
-  rawCSV: z.string().min(1),
-  source: z.nativeEnum(SnapshotDataSource).default(SnapshotDataSource.HISCORES)
-});
-
-type BuildSnapshotParams = z.infer<typeof inputSchema>;
-
-async function buildSnapshot(payload: BuildSnapshotParams): Promise<Snapshot> {
-  const { playerId, rawCSV, source } = inputSchema.parse(payload);
-
+async function buildSnapshot(
+  playerId: number,
+  rawCSV: string,
+  source = SnapshotDataSource.HISCORES
+): Promise<Snapshot> {
   if (source === SnapshotDataSource.CRYSTAL_MATH_LABS) {
     return await buildFromCML(playerId, rawCSV);
   }

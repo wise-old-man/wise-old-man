@@ -68,7 +68,7 @@ async function onPlayerUpdated(
 
 async function onPlayerImported(playerId: number) {
   // Reevaluate this player's achievements to try and find earlier completion dates
-  await metrics.trackEffect(reevaluatePlayerAchievements, { id: playerId });
+  await metrics.trackEffect(reevaluatePlayerAchievements, playerId);
 }
 
 export {

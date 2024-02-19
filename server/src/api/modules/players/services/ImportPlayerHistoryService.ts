@@ -54,13 +54,7 @@ async function importCMLHistorySince(id: number, username: string, time: number)
 
   // Convert the CML csv data to Snapshot instances
   const snapshots = await Promise.all(
-    history.map(row =>
-      buildSnapshot({
-        playerId: id,
-        rawCSV: row,
-        source: SnapshotDataSource.CRYSTAL_MATH_LABS
-      })
-    )
+    history.map(row => buildSnapshot(id, row, SnapshotDataSource.CRYSTAL_MATH_LABS))
   );
 
   // Ignore any CML snapshots past May 10th 2020 (when we introduced boss tracking)

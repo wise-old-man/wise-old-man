@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { Metric, NameChangeDetails, SkipContext } from '../../../../utils';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import logger from '../../../util/logging';
@@ -10,22 +9,14 @@ import { fetchNameChangeDetails } from './FetchNameChangeDetailsService';
 const BASE_MAX_HOURS = 504;
 const BASE_MIN_TOTAL_LEVEL = 700;
 
-const inputSchema = z.object({
-  id: z.number().int().positive()
-});
-
-type AutoReviewNameChangeParams = z.infer<typeof inputSchema>;
-
-async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promise<void> {
-  const params = inputSchema.parse(payload);
-
+async function autoReviewNameChange(id: number): Promise<void> {
   let details: NameChangeDetails;
 
   try {
-    details = await fetchNameChangeDetails(params.id);
+    details = await fetchNameChangeDetails(id);
   } catch (error) {
     if (error.message === 'Old stats could not be found.') {
-      await denyNameChange(params.id, { reason: 'old_stats_cannot_be_found' });
+      await denyNameChange(id, { reason: 'old_stats_cannot_be_found' });
       return;
     }
   }
@@ -37,7 +28,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
 
   // If it's a capitalization change, auto-approve
   if (playerUtils.standardize(nameChange.oldName) === playerUtils.standardize(nameChange.newName)) {
-    await approveNameChange(params.id);
+    await approveNameChange(id);
     return;
   }
 
@@ -49,13 +40,13 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
 
   // If new name is not on the hiscores
   if (!isNewOnHiscores) {
-    await denyNameChange(params.id, { reason: 'new_name_not_on_the_hiscores' });
+    await denyNameChange(id, { reason: 'new_name_not_on_the_hiscores' });
     return;
   }
 
   // If has lost exp/kills/scores, deny request
   if (negativeGains) {
-    await denyNameChange(params.id, { reason: 'negative_gains', negativeGains });
+    await denyNameChange(id, { reason: 'negative_gains', negativeGains });
     return;
   }
 
@@ -67,7 +58,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
 
   // If the transition period is over (3 weeks + 1 week per each 2m exp)
   if (hoursDiff > allowedHourDiff) {
-    await skipReview(params.id, {
+    await skipReview(id, {
       reason: 'transition_period_too_long',
       maxHoursDiff: BASE_MAX_HOURS,
       hoursDiff: hoursDiff
@@ -77,7 +68,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
 
   // If has gained too much exp/kills
   if (ehpDiff + ehbDiff > allowedEfficiencyDiff) {
-    await skipReview(params.id, {
+    await skipReview(id, {
       reason: 'excessive_gains',
       ehpDiff,
       ehbDiff,
@@ -90,7 +81,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
 
   // If is high level enough (high level swaps are harder to fake)
   if (totalLevel < allowedTotalLevel) {
-    await skipReview(params.id, {
+    await skipReview(id, {
       reason: 'total_level_too_low',
       minTotalLevel: BASE_MIN_TOTAL_LEVEL,
       totalLevel
@@ -99,7 +90,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   }
 
   // All seems to be fine, auto approve
-  await approveNameChange(params.id);
+  await approveNameChange(id);
 }
 
 /**

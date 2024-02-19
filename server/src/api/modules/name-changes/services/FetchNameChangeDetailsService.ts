@@ -59,7 +59,7 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
 
   // Fetch either the first snapshot of the new name, or the current hiscores stats
   // Note: this playerId isn't needed, and won't be used or exposed to the user
-  let newStats = newHiscores ? await buildSnapshot({ playerId: 1, rawCSV: newHiscores }) : null;
+  let newStats = newHiscores ? await buildSnapshot(1, newHiscores) : null;
 
   if (newPlayer) {
     // If the new name is already a tracked player and was tracked
@@ -79,15 +79,8 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
   const timeDiff = afterDate.getTime() - oldStats.createdAt.getTime();
   const hoursDiff = timeDiff / 1000 / 60 / 60;
 
-  const oldPlayerComputedMetrics = await computePlayerMetrics({
-    player: oldPlayer,
-    snapshot: oldStats
-  });
-
-  const newPlayerComputedMetrics = await computePlayerMetrics({
-    player: newPlayer || { id: 1, type: oldPlayer.type, build: oldPlayer.build },
-    snapshot: newStats
-  });
+  const oldPlayerComputedMetrics = await computePlayerMetrics(oldPlayer, oldStats);
+  const newPlayerComputedMetrics = await computePlayerMetrics(newPlayer || { ...oldPlayer, id: 1 }, newStats);
 
   oldStats.ehpValue = oldPlayerComputedMetrics.ehpValue;
   oldStats.ehpRank = oldPlayerComputedMetrics.ehpRank;
