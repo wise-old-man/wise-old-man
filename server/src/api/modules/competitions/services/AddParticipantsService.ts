@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
 import logger from '../../../util/logging';
@@ -6,24 +5,9 @@ import { BadRequestError, NotFoundError } from '../../../errors';
 import * as playerServices from '../../players/player.services';
 import { validateInvalidParticipants, validateParticipantDuplicates } from '../competition.utils';
 
-const inputSchema = z.object({
-  id: z.number().int().positive(),
-  participants: z
-    // Allowing "any" so that we could do better error messages below
-    .array(z.string().or(z.any()).optional(), {
-      invalid_type_error: "Parameter 'participants' is not a valid array.",
-      required_error: "Parameter 'participants' is undefined."
-    })
-    .nonempty({ message: 'Empty participants list.' })
-});
-
-type AddParticipantsParams = z.infer<typeof inputSchema>;
-
-async function addParticipants(payload: AddParticipantsParams): Promise<{ count: number }> {
-  const params = inputSchema.parse(payload);
-
+async function addParticipants(id: number, participants: string[]): Promise<{ count: number }> {
   const competition = await prisma.competition.findFirst({
-    where: { id: params.id }
+    where: { id }
   });
 
   if (!competition) {
@@ -35,21 +19,21 @@ async function addParticipants(payload: AddParticipantsParams): Promise<{ count:
   }
 
   // throws an error if any participant is invalid
-  validateInvalidParticipants(params.participants);
+  validateInvalidParticipants(participants);
   // throws an error if any participant is duplicated
-  validateParticipantDuplicates(params.participants);
+  validateParticipantDuplicates(participants);
 
   // Find all existing participants' ids
   const existingIds = (
     await prisma.participation.findMany({
-      where: { competitionId: params.id },
+      where: { competitionId: id },
       select: { playerId: true }
     })
   ).map(p => p.playerId);
 
   // Find or create all players with the given usernames
   const players = await playerServices.findPlayers({
-    usernames: params.participants,
+    usernames: participants,
     createIfNotFound: true
   });
 
@@ -60,15 +44,15 @@ async function addParticipants(payload: AddParticipantsParams): Promise<{ count:
   }
 
   const { count } = await prisma.participation.createMany({
-    data: newPlayers.map(p => ({ playerId: p.id, competitionId: params.id }))
+    data: newPlayers.map(p => ({ playerId: p.id, competitionId: id }))
   });
 
   await prisma.competition.update({
-    where: { id: params.id },
+    where: { id },
     data: { updatedAt: new Date() }
   });
 
-  logger.moderation(`[Competition:${params.id}] (${newPlayers.map(p => p.id)}) joined`);
+  logger.moderation(`[Competition:${id}] (${newPlayers.map(p => p.id)}) joined`);
 
   return { count };
 }

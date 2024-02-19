@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import prisma, { Player } from '../../../../prisma';
 import { jobManager, JobType } from '../../../jobs';
 import { NotFoundError, BadRequestError } from '../../../errors';
@@ -12,21 +11,14 @@ const PRIORITY_COOLDOWN = 1;
 // By default, players are considered outdated 24h after their last update
 const DEFAULT_COOLDOWN = 24;
 
-const inputSchema = z.object({
-  competitionId: z.number().int().positive(),
-  forcedUpdate: z.boolean().optional().default(false)
-});
-
-type UpdateAllParticipantsParams = z.infer<typeof inputSchema>;
 type UpdateAllParticipantsResult = { outdatedCount: number; cooldownDuration: number };
 
 async function updateAllParticipants(
-  payload: UpdateAllParticipantsParams
+  id: number,
+  forceUpdate?: boolean
 ): Promise<UpdateAllParticipantsResult> {
-  const params = inputSchema.parse(payload);
-
   const competition = await prisma.competition.findFirst({
-    where: { id: params.competitionId }
+    where: { id }
   });
 
   if (!competition) {
@@ -45,10 +37,7 @@ async function updateAllParticipants(
 
   const cooldownDuration = hasPriority ? PRIORITY_COOLDOWN : DEFAULT_COOLDOWN;
 
-  const outdatedPlayers = await getOutdatedParticipants(
-    params.competitionId,
-    params.forcedUpdate ? 0 : cooldownDuration
-  );
+  const outdatedPlayers = await getOutdatedParticipants(id, forceUpdate ? 0 : cooldownDuration);
 
   if (!outdatedPlayers || outdatedPlayers.length === 0) {
     throw new BadRequestError(

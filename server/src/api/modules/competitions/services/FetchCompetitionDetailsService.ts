@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { omit } from '../../../util/objects';
 import {
@@ -13,19 +12,10 @@ import { NotFoundError } from '../../../errors';
 import { CompetitionDetails } from '../competition.types';
 import * as deltaUtils from '../../deltas/delta.utils';
 
-const inputSchema = z.object({
-  id: z.number().int().positive(),
-  metric: z.nativeEnum(Metric).optional()
-});
-
-type FetchCompetitionDetailsParams = z.infer<typeof inputSchema>;
-
-async function fetchCompetitionDetails(payload: FetchCompetitionDetailsParams): Promise<CompetitionDetails> {
-  const params = inputSchema.parse(payload);
-
+async function fetchCompetitionDetails(id: number, metric?: Metric): Promise<CompetitionDetails> {
   const competition = await prisma.competition.findFirst({
     where: {
-      id: params.id
+      id
     },
     include: {
       group: {
@@ -44,7 +34,7 @@ async function fetchCompetitionDetails(payload: FetchCompetitionDetailsParams): 
     throw new NotFoundError('Competition not found.');
   }
 
-  const participants = await calculateParticipantsStandings(params.id, params.metric || competition.metric);
+  const participants = await calculateParticipantsStandings(id, metric || competition.metric);
 
   return {
     ...omit(competition, 'verificationHash'),

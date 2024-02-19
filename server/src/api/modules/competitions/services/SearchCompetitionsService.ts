@@ -1,38 +1,30 @@
-import { z } from 'zod';
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { Metric, CompetitionStatus, CompetitionType } from '../../../../utils';
+import { CompetitionStatus, CompetitionType, Metric } from '../../../../utils';
 import { omit } from '../../../util/objects';
-import { getPaginationSchema } from '../../../util/validation';
+import { PaginationOptions } from '../../../util/validation';
 import { CompetitionListItem } from '../competition.types';
 
-const inputSchema = z
-  .object({
-    title: z.string().optional(),
-    metric: z.nativeEnum(Metric).optional(),
-    type: z.nativeEnum(CompetitionType).optional(),
-    status: z.nativeEnum(CompetitionStatus).optional()
-  })
-  .merge(getPaginationSchema());
-
-type SearchCompetitionsParams = z.infer<typeof inputSchema>;
-
-async function searchCompetitions(payload: SearchCompetitionsParams): Promise<CompetitionListItem[]> {
-  const params = inputSchema.parse(payload);
-
+async function searchCompetitions(
+  title: string | undefined,
+  metric: Metric | undefined,
+  type: CompetitionType | undefined,
+  status: CompetitionStatus | undefined,
+  pagination: PaginationOptions
+): Promise<CompetitionListItem[]> {
   const query: PrismaTypes.CompetitionWhereInput = {};
 
-  if (params.type) query.type = params.type;
-  if (params.metric) query.metric = params.metric;
-  if (params.title) query.title = { contains: params.title.trim(), mode: 'insensitive' };
+  if (type) query.type = type;
+  if (metric) query.metric = metric;
+  if (title) query.title = { contains: title.trim(), mode: 'insensitive' };
 
-  if (params.status) {
+  if (status) {
     const now = new Date();
 
-    if (params.status === CompetitionStatus.FINISHED) {
+    if (status === CompetitionStatus.FINISHED) {
       query.endsAt = { lt: now };
-    } else if (params.status === CompetitionStatus.UPCOMING) {
+    } else if (status === CompetitionStatus.UPCOMING) {
       query.startsAt = { gt: now };
-    } else if (params.status === CompetitionStatus.ONGOING) {
+    } else if (status === CompetitionStatus.ONGOING) {
       query.startsAt = { lt: now };
       query.endsAt = { gt: now };
     }
@@ -52,8 +44,8 @@ async function searchCompetitions(payload: SearchCompetitionsParams): Promise<Co
       }
     },
     orderBy: [{ score: 'desc' }, { createdAt: 'desc' }],
-    take: params.limit,
-    skip: params.offset
+    take: pagination.limit,
+    skip: pagination.offset
   });
 
   const participantCounts = await prisma.participation.groupBy({

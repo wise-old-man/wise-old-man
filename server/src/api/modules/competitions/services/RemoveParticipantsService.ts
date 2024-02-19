@@ -1,27 +1,12 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import * as playerServices from '../../players/player.services';
 
-const inputSchema = z.object({
-  id: z.number().int().positive(),
-  participants: z
-    .array(z.string(), {
-      invalid_type_error: "Parameter 'participants' is not a valid array.",
-      required_error: "Parameter 'participants' is undefined."
-    })
-    .nonempty({ message: 'Empty participants list.' })
-});
-
-type RemoveParticipantsParams = z.infer<typeof inputSchema>;
-
-async function removeParticipants(payload: RemoveParticipantsParams): Promise<{ count: number }> {
-  const params = inputSchema.parse(payload);
-
+async function removeParticipants(id: number, participants: string[]): Promise<{ count: number }> {
   const competition = await prisma.competition.findFirst({
-    where: { id: params.id }
+    where: { id }
   });
 
   if (!competition) {
@@ -33,7 +18,7 @@ async function removeParticipants(payload: RemoveParticipantsParams): Promise<{ 
   }
 
   const playersToRemove = await playerServices.findPlayers({
-    usernames: params.participants
+    usernames: participants
   });
 
   if (!playersToRemove || playersToRemove.length === 0) {
@@ -42,7 +27,7 @@ async function removeParticipants(payload: RemoveParticipantsParams): Promise<{ 
 
   const { count } = await prisma.participation.deleteMany({
     where: {
-      competitionId: params.id,
+      competitionId: id,
       playerId: { in: playersToRemove.map(p => p.id) }
     }
   });
@@ -52,11 +37,11 @@ async function removeParticipants(payload: RemoveParticipantsParams): Promise<{ 
   }
 
   await prisma.competition.update({
-    where: { id: params.id },
+    where: { id },
     data: { updatedAt: new Date() }
   });
 
-  logger.moderation(`[Competition:${params.id}] (${playersToRemove.map(p => p.id)}) left`);
+  logger.moderation(`[Competition:${id}] (${playersToRemove.map(p => p.id)}) left`);
 
   return { count };
 }

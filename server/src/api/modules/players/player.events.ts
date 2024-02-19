@@ -5,7 +5,7 @@ import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
 import { reevaluatePlayerAchievements } from '../achievements/services/ReevaluatePlayerAchievementsService';
 import { syncPlayerAchievements } from '../achievements/services/SyncPlayerAchievementsService';
-import * as competitionServices from '../competitions/competition.services';
+import { syncParticipations } from '../competitions/services/SyncParticipationsService';
 import { syncPlayerDeltas } from '../deltas/services/SyncPlayerDeltasService';
 import * as playerServices from './player.services';
 
@@ -51,7 +51,7 @@ async function onPlayerUpdated(
   hasChanged: boolean
 ) {
   // Update this player's competition participations (gains)
-  await metrics.trackEffect(competitionServices.syncParticipations, player.id, current.id);
+  await metrics.trackEffect(syncParticipations, player.id, current.id);
 
   // Only sync achievements if the player gained any exp/kc this update
   if (hasChanged) {

@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import env from '../../env';
+import prisma from '../../prisma';
 import { isMetric, parseMetricAbbreviation } from '../../utils';
-import { BadRequestError, ForbiddenError, ServerError } from '../errors';
-import redisService from '../services/external/redis.service';
-import logger from '../util/logging';
+import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../errors';
 import { submitNameChange } from '../modules/name-changes/services/SubmitNameChangeService';
+import redisService from '../services/external/redis.service';
+import * as cryptService from '../services/external/crypt.service';
+import logger from '../util/logging';
 
 export function metricAbbreviation(req: Request, _res: Response, next: NextFunction) {
   if (!req) {
@@ -78,10 +80,50 @@ export function checkAdminPermission(req: unknown, _res: Response, next: NextFun
   const { adminPassword } = (req as Request).body;
 
   if (!adminPassword) {
-    next(new BadRequestError("Required parameter 'adminPassword' is undefined."));
-  } else if (String(adminPassword) !== env.ADMIN_PASSWORD) {
-    next(new ForbiddenError('Incorrect admin password.'));
-  } else {
-    next();
+    return next(new BadRequestError("Required parameter 'adminPassword' is undefined."));
   }
+
+  if (String(adminPassword) !== env.ADMIN_PASSWORD) {
+    return next(new ForbiddenError('Incorrect admin password.'));
+  }
+
+  next();
+}
+
+export async function checkCompetitionVerificationCode(req: unknown, res: Response, next: NextFunction) {
+  const { id } = (req as Request).params;
+  const { verificationCode, adminPassword } = (req as Request).body;
+
+  // Override verification code checks for admins
+  if (adminPassword && String(adminPassword) === env.ADMIN_PASSWORD) {
+    return next();
+  }
+
+  if (!id) {
+    return next(new BadRequestError("Parameter 'id' is required."));
+  }
+
+  if (!verificationCode) {
+    return next(new BadRequestError("Parameter 'verificationCode' is required."));
+  }
+
+  const competition = await prisma.competition.findFirst({
+    where: { id: Number(id) },
+    select: { verificationHash: true, group: { select: { verificationHash: true } } }
+  });
+
+  if (!competition) {
+    return next(new NotFoundError('Competition not found.'));
+  }
+
+  // If it is a group competition, use the group's code to verify instead
+  const hash = competition.group ? competition.group.verificationHash : competition.verificationHash;
+
+  const verified = await cryptService.verifyCode(hash, verificationCode);
+
+  if (!verified) {
+    return next(new ForbiddenError('Incorrect verification code.'));
+  }
+
+  next();
 }

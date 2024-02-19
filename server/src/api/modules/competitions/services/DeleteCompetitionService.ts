@@ -1,23 +1,14 @@
-import { z } from 'zod';
 import prisma, { Competition } from '../../../../prisma';
 import { ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 
-const inputSchema = z.object({
-  id: z.number().int().positive()
-});
-
-type DeleteCompetitionParams = z.infer<typeof inputSchema>;
-
-async function deleteCompetition(payload: DeleteCompetitionParams): Promise<Competition> {
-  const params = inputSchema.parse(payload);
-
+async function deleteCompetition(id: number): Promise<Competition> {
   try {
     const deletedCompetition = await prisma.competition.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
-    logger.moderation(`[Competition:${params.id}] Deleted`);
+    logger.moderation(`[Competition:${id}] Deleted`);
 
     return deletedCompetition;
   } catch (error) {

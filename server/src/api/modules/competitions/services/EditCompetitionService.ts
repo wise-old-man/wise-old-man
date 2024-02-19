@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { CompetitionType, Metric, Snapshot } from '../../../../utils';
 import prisma, { Participation, PrismaTypes, PrismaPromise, Player } from '../../../../prisma';
 import logger from '../../../util/logging';
@@ -13,105 +12,56 @@ import {
   sanitizeTitle
 } from '../competition.utils';
 import { standardize } from '../../players/player.utils';
-import { CompetitionWithParticipations } from '../competition.types';
+import { CompetitionWithParticipations, Team } from '../competition.types';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 
-const INVALID_TYPE_ERROR =
-  'Invalid teams list. Must be an array of { name: string; participants: string[]; }.';
+interface EditCompetitionPayload {
+  title?: string;
+  metric?: Metric;
+  startsAt?: Date;
+  endsAt?: Date;
+  participants?: string[];
+  teams?: Team[];
+}
 
-const TEAM_INPUT_SCHEMA = z.object(
-  {
-    name: z
-      .string({
-        required_error: INVALID_TYPE_ERROR,
-        invalid_type_error: INVALID_TYPE_ERROR
-      })
-      .min(1, 'Team names must have at least one character.')
-      .max(30, 'Team names cannot be longer than 30 characters.'),
-    participants: z
-      .array(z.string(), {
-        invalid_type_error: INVALID_TYPE_ERROR,
-        required_error: INVALID_TYPE_ERROR
-      })
-      .nonempty({ message: 'All teams must have a valid non-empty participants array.' })
-  },
-  {
-    invalid_type_error: INVALID_TYPE_ERROR
+interface PartialParticipation {
+  playerId: number;
+  username: string;
+  teamName?: string;
+}
+
+async function editCompetition(
+  id: number,
+  payload: EditCompetitionPayload
+): Promise<CompetitionWithParticipations> {
+  const { title, metric, startsAt, endsAt, participants, teams } = payload;
+
+  if (participants?.length > 0 && teams?.length > 0) {
+    throw new BadRequestError('Cannot include both "participants" and "teams", they are mutually exclusive.');
   }
-);
 
-const inputSchema = z
-  .object({
-    id: z.number().int().positive(),
-    title: z
-      .string({ required_error: "Parameter 'title' is undefined." })
-      .min(1, 'Competition title must have at least one character.')
-      .max(50, 'Competition title cannot be longer than 50 characters.')
-      .optional(),
-    metric: z.nativeEnum(Metric).optional(),
-    startsAt: z
-      .date({
-        invalid_type_error: "Parameter 'startsAt' is not a valid date.",
-        required_error: "Parameter 'startsAt' is undefined."
-      })
-      .optional(),
-    endsAt: z
-      .date({
-        invalid_type_error: "Parameter 'endsAt' is not a valid date.",
-        required_error: "Parameter 'endsAt' is undefined."
-      })
-      .optional(),
-    participants: z
-      // Allowing "any" so that we could do better error messages below
-      .array(z.string().or(z.any()).optional(), {
-        invalid_type_error: "Parameter 'participants' is not a valid array.",
-        required_error: "Parameter 'participants' is undefined."
-      })
-      .optional(),
-    teams: z
-      .array(TEAM_INPUT_SCHEMA, { invalid_type_error: "Parameter 'teams' is not a valid array." })
-      .optional()
-  })
-  .refine(s => !(s.participants && s.participants.length > 0 && s.teams && s.teams.length > 0), {
-    message: 'Cannot include both "participants" and "teams", they are mutually exclusive.'
-  });
-
-type EditCompetitionParams = z.infer<typeof inputSchema>;
-
-type PartialParticipation = { playerId: number; username: string; teamName?: string };
-
-async function editCompetition(payload: EditCompetitionParams): Promise<CompetitionWithParticipations> {
-  const params = inputSchema.parse(payload);
-
-  if (
-    !params.title &&
-    !params.metric &&
-    !params.startsAt &&
-    !params.endsAt &&
-    !params.participants &&
-    !params.teams
-  ) {
+  if (!title && !metric && !startsAt && !endsAt && !participants && !teams) {
     throw new BadRequestError('Nothing to update.');
   }
 
   const updatedCompetitionFields: PrismaTypes.CompetitionUpdateInput = {};
 
-  const teamsExist = params.teams !== undefined;
-  const participantsExist = params.participants !== undefined;
-  const hasTeams = teamsExist && params.teams.length > 0;
-  const hasParticipants = participantsExist && params.participants.length > 0;
+  const teamsExist = teams !== undefined;
+  const participantsExist = participants !== undefined;
+  const hasTeams = teamsExist && teams.length > 0;
+  const hasParticipants = participantsExist && participants.length > 0;
 
   const competition = await prisma.competition.findFirst({
-    where: { id: params.id }
+    where: { id }
   });
 
   if (!competition) {
     throw new NotFoundError('Competition not found.');
   }
 
-  if (params.startsAt || params.endsAt) {
-    const startDate = params.startsAt || competition.startsAt;
-    const endDate = params.endsAt || competition.endsAt;
+  if (startsAt || endsAt) {
+    const startDate = startsAt || competition.startsAt;
+    const endDate = endsAt || competition.endsAt;
 
     if (endDate.getTime() < startDate.getTime()) {
       throw new BadRequestError('Start date must be before the end date.');
@@ -129,19 +79,19 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
   let participations: PartialParticipation[] = null;
 
   if (participantsExist && competition.type === CompetitionType.CLASSIC) {
-    participations = await getParticipations(params);
+    participations = await getParticipations(payload);
   } else if (teamsExist && competition.type === CompetitionType.TEAM) {
-    participations = await getTeamsParticipations(params);
+    participations = await getTeamsParticipations(payload);
   }
 
-  if (params.title) updatedCompetitionFields.title = sanitizeTitle(params.title);
-  if (params.startsAt) updatedCompetitionFields.startsAt = params.startsAt;
-  if (params.endsAt) updatedCompetitionFields.endsAt = params.endsAt;
-  if (params.metric) updatedCompetitionFields.metric = params.metric;
+  if (title) updatedCompetitionFields.title = sanitizeTitle(title);
+  if (startsAt) updatedCompetitionFields.startsAt = startsAt;
+  if (endsAt) updatedCompetitionFields.endsAt = endsAt;
+  if (metric) updatedCompetitionFields.metric = metric;
 
-  const updatedCompetition = await executeUpdate(params, participations, updatedCompetitionFields);
+  const updatedCompetition = await executeUpdate(id, participations, updatedCompetitionFields);
 
-  logger.moderation(`[Competition:${params.id}] Edited`);
+  logger.moderation(`[Competition:${id}] Edited`);
 
   if (!updatedCompetition) {
     throw new ServerError('Failed to edit competition. (EditCompetitionService)');
@@ -237,7 +187,7 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
 }
 
 async function executeUpdate(
-  params: EditCompetitionParams,
+  id: number,
   nextParticipations: PartialParticipation[] | null,
   updatedCompetitionFields: PrismaTypes.CompetitionUpdateInput
 ) {
@@ -245,7 +195,7 @@ async function executeUpdate(
   // If ran inside a transaction, it should be the last thing to run, to ensure it returns updated data
   const competitionUpdatePromise = prisma.competition.update({
     where: {
-      id: params.id
+      id
     },
     data: {
       ...updatedCompetitionFields,
@@ -272,7 +222,7 @@ async function executeUpdate(
   // Only update the participations if the consumer supplied an array
   if (nextParticipations) {
     const currentParticipations = await prisma.participation.findMany({
-      where: { competitionId: params.id },
+      where: { competitionId: id },
       include: { player: true }
     });
 
@@ -293,11 +243,11 @@ async function executeUpdate(
 
     const results = await prisma.$transaction([
       // Remove any players that are no longer participants
-      removeExcessParticipations(params.id, nextUsernames, currentParticipations),
+      removeExcessParticipations(id, nextUsernames, currentParticipations),
       // Add any missing participations
-      addMissingParticipations(params.id, missingParticipations),
+      addMissingParticipations(id, missingParticipations),
       // Update any team changes
-      ...updateExistingTeams(params.id, currentParticipations, keptParticipations),
+      ...updateExistingTeams(id, currentParticipations, keptParticipations),
       // Update the competition
       competitionUpdatePromise
     ]);
@@ -377,24 +327,24 @@ function removeExcessParticipations(
   });
 }
 
-async function getParticipations(params: EditCompetitionParams) {
+async function getParticipations(payload: EditCompetitionPayload) {
   // throws an error if any participant is invalid
-  validateInvalidParticipants(params.participants);
+  validateInvalidParticipants(payload.participants);
   // throws an error if any participant is duplicated
-  validateParticipantDuplicates(params.participants);
+  validateParticipantDuplicates(payload.participants);
 
   // Find or create all players with the given usernames
   const players = await playerServices.findPlayers({
-    usernames: params.participants,
+    usernames: payload.participants,
     createIfNotFound: true
   });
 
   return players.map(p => ({ playerId: p.id, username: p.username, teamName: null }));
 }
 
-async function getTeamsParticipations(params: EditCompetitionParams) {
+async function getTeamsParticipations(payload: EditCompetitionPayload) {
   // ensures every team name is sanitized, and every username is standardized
-  const newTeams = sanitizeTeams(params.teams);
+  const newTeams = sanitizeTeams(payload.teams);
 
   // throws an error if any team name is duplicated
   validateTeamDuplicates(newTeams);

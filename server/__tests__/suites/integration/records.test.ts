@@ -216,17 +216,17 @@ describe('Records API', () => {
 
   describe('3 - Fetch Group Records', () => {
     it('should not fetch records (undefined metric)', async () => {
-      const response = await api.get(`/groups/2000000000/records`);
+      const response = await api.get(`/groups/2000000000/records`).query({ period: 'day' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Invalid enum value for 'period'.");
+      expect(response.body.message).toBe("Parameter 'metric' is undefined.");
     });
 
     it('should not fetch records (undefined period)', async () => {
       const response = await api.get(`/groups/2000000000/records`).query({ metric: 'a' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Invalid enum value for 'period'.");
+      expect(response.body.message).toBe("Parameter 'period' is undefined.");
     });
 
     it('should not fetch records (group not found)', async () => {
@@ -390,7 +390,7 @@ describe('Records API', () => {
     it('should not fetch leaderboards (undefined period)', async () => {
       const response = await api.get(`/records/leaderboard`);
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Invalid enum value for 'period'.");
+      expect(response.body.message).toBe("Parameter 'period' is undefined.");
     });
 
     it('should not fetch leaderboards (invalid period)', async () => {
@@ -402,7 +402,7 @@ describe('Records API', () => {
     it('should not fetch leaderboards (undefined metric)', async () => {
       const response = await api.get(`/records/leaderboard`).query({ period: 'week' });
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
+      expect(response.body.message).toBe("Parameter 'metric' is undefined.");
     });
 
     it('should not fetch leaderboards (invalid metric)', async () => {
