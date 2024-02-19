@@ -26,9 +26,6 @@ async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
 }
 
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
-  // Recalculate player achievements
-  await metrics.trackEffect(syncPlayerAchievements, { id: player.id });
-
   // Dispatch a "Player name changed" event to our discord bot API.
   await metrics.trackEffect(discordService.dispatchNameChanged, player, previousDisplayName);
 
