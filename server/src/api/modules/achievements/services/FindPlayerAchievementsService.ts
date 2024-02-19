@@ -5,7 +5,6 @@ import { ExtendedAchievement } from '../achievement.types';
 import { extend } from '../achievement.utils';
 
 async function findPlayerAchievements(username: string): Promise<ExtendedAchievement[]> {
-  // Query the database for all achievements of "playerId"
   const achievements = await prisma.achievement.findMany({
     where: {
       player: {
