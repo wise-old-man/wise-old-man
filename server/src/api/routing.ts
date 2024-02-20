@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 import express from 'express';
 import { ZodError } from 'zod';
-import { getThreadIndex } from '../env';
+import env, { getThreadIndex } from '../env';
 import { BadRequestError, NotFoundError } from './errors';
 import competitionRouter from './modules/competitions/competition.router';
 import deltaRouter from './modules/deltas/delta.router';
@@ -38,7 +38,7 @@ class RoutingHandler {
 
   setupRoutes() {
     // A simple ping/test endpoint
-    this.router.get('/', (req, res) => res.json(true));
+    this.router.get('/', (_req, res) => res.json(env.npm_package_version));
 
     // Register all the modules to the router
     this.router.use(competitionRouter);
@@ -51,7 +51,7 @@ class RoutingHandler {
     this.router.use(playerRouter);
     this.router.use(recordRouter);
 
-    this.router.get('/metrics', async (req, res) => {
+    this.router.get('/metrics', async (_req, res) => {
       const metrics = await metricsService.getMetrics();
       res.json({ threadIndex: getThreadIndex(), data: metrics });
     });
@@ -62,19 +62,14 @@ class RoutingHandler {
     this.router.use(Sentry.Handlers.errorHandler());
 
     // Handle endpoint not found
-    this.router.use((req, res, next) => {
+    this.router.use((_req, _res, next) => {
       next(new NotFoundError('Endpoint was not found'));
     });
 
-    // Handle zod errors
-    this.router.use((error, req, res, next) => {
-      if (error instanceof ZodError) {
-        next(new BadRequestError(error.issues[0].message));
-        return;
-      }
-
-      if (error && error.length > 0 && error[0].errors instanceof ZodError) {
-        next(new BadRequestError(error[0].errors.issues[0].message));
+    // Catch and convert Zod errors to (400) BadRequest errors
+    this.router.use((error, _req, _res, next) => {
+      if (error && Array.isArray(error) && error.length > 0 && error[0].errors instanceof ZodError) {
+        next(new BadRequestError(error[0].errors?.issues?.[0]?.message));
         return;
       }
 
