@@ -12,9 +12,9 @@ import {
   MemberRoleChangeEvent
 } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
-import * as playerServices from '../../players/player.services';
 import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
 import { onMembersRolesChanged, onMembersJoined, onMembersLeft, onGroupUpdated } from '../group.events';
+import { findPlayers } from '../../players/services/FindPlayersService';
 
 const MIN_NAME_ERROR = 'Group name must have at least one character.';
 const MAX_NAME_ERROR = 'Group name cannot be longer than 30 characters.';
@@ -217,7 +217,7 @@ async function updateMembers(params: EditGroupParams) {
   const keptUsernames = nextUsernames.filter(u => currentUsernames.includes(u));
 
   // Find or create all players with the given usernames
-  const nextPlayers = await playerServices.findPlayers({
+  const nextPlayers = await findPlayers({
     usernames: nextUsernames,
     createIfNotFound: true
   });

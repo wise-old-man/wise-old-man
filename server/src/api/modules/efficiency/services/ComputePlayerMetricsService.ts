@@ -1,18 +1,7 @@
-import { z } from 'zod';
 import { Snapshot } from '../../../../prisma';
-import { PlayerType, PlayerBuild, Metric } from '../../../../utils';
+import { Metric, Player } from '../../../../utils';
 import { getAlgorithm, getExperienceMap, getKillcountMap } from '../efficiency.utils';
 import { computeEfficiencyRank } from './ComputeEfficiencyRankService';
-
-const inputSchema = z.object({
-  player: z.object({
-    id: z.number().int().positive(),
-    type: z.nativeEnum(PlayerType),
-    build: z.nativeEnum(PlayerBuild)
-  })
-});
-
-type ComputePlayerMetricsParams = z.infer<typeof inputSchema> & { snapshot: Snapshot };
 
 interface ComputePlayerMetricsResult {
   ttm: number;
@@ -23,9 +12,7 @@ interface ComputePlayerMetricsResult {
   ehbRank: number;
 }
 
-async function computePlayerMetrics(payload: ComputePlayerMetricsParams) {
-  const { player, snapshot } = { ...inputSchema.parse(payload), snapshot: payload.snapshot };
-
+async function computePlayerMetrics(player: Pick<Player, 'id' | 'type' | 'build'>, snapshot: Snapshot) {
   if (!snapshot) return null;
 
   const killcountMap = getKillcountMap(snapshot);
@@ -36,17 +23,8 @@ async function computePlayerMetrics(payload: ComputePlayerMetricsParams) {
   const ehpValue = Math.max(0, algorithm.calculateEHP(experienceMap));
   const ehbValue = Math.max(0, algorithm.calculateEHB(killcountMap));
 
-  const ehpRank = await computeEfficiencyRank({
-    player,
-    metric: Metric.EHP,
-    value: ehpValue
-  });
-
-  const ehbRank = await computeEfficiencyRank({
-    player,
-    metric: Metric.EHB,
-    value: ehbValue
-  });
+  const ehpRank = await computeEfficiencyRank(player, Metric.EHP, ehpValue);
+  const ehbRank = await computeEfficiencyRank(player, Metric.EHB, ehbValue);
 
   const result: ComputePlayerMetricsResult = {
     ttm: algorithm.calculateTTM(experienceMap),

@@ -1,31 +1,22 @@
-import { z } from 'zod';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { omit } from '../../../util/objects';
 import { CompetitionStatus } from '../../../../utils';
 import { ParticipationWithCompetition } from '../competition.types';
 
-const inputSchema = z.object({
-  playerId: z.number().int().positive(),
-  status: z.nativeEnum(CompetitionStatus).optional()
-});
-
-type FindPlayerParticipationsParams = z.infer<typeof inputSchema>;
-
 async function findPlayerParticipations(
-  payload: FindPlayerParticipationsParams
+  playerId: number,
+  status?: CompetitionStatus
 ): Promise<ParticipationWithCompetition[]> {
-  const params = inputSchema.parse(payload);
-
   const competitionQuery: PrismaTypes.CompetitionWhereInput = {};
 
-  if (params.status) {
+  if (status) {
     const now = new Date();
 
-    if (params.status === CompetitionStatus.FINISHED) {
+    if (status === CompetitionStatus.FINISHED) {
       competitionQuery.endsAt = { lt: now };
-    } else if (params.status === CompetitionStatus.UPCOMING) {
+    } else if (status === CompetitionStatus.UPCOMING) {
       competitionQuery.startsAt = { gt: now };
-    } else if (params.status === CompetitionStatus.ONGOING) {
+    } else if (status === CompetitionStatus.ONGOING) {
       competitionQuery.startsAt = { lt: now };
       competitionQuery.endsAt = { gt: now };
     }
@@ -33,7 +24,7 @@ async function findPlayerParticipations(
 
   const participations = await prisma.participation.findMany({
     where: {
-      playerId: params.playerId,
+      playerId,
       competition: competitionQuery
     },
     include: {

@@ -1,26 +1,14 @@
-import { z } from 'zod';
-import { CompetitionStatus } from '../../../../utils';
 import { omit } from '../../../util/objects';
 import { findPlayerParticipations } from './FindPlayerParticipationsService';
 import { ParticipationWithCompetitionAndStandings } from '../competition.types';
 import { calculateParticipantsStandings } from './FetchCompetitionDetailsService';
-
-const inputSchema = z.object({
-  playerId: z.number().int().positive(),
-  status: z.enum([CompetitionStatus.ONGOING, CompetitionStatus.FINISHED])
-});
-
-type FindPlayerParticipationsParams = z.infer<typeof inputSchema>;
+import { CompetitionStatus } from '../../../../utils';
 
 async function findPlayerParticipationsStandings(
-  payload: FindPlayerParticipationsParams
+  playerId: number,
+  status: CompetitionStatus
 ): Promise<ParticipationWithCompetitionAndStandings[]> {
-  const params = inputSchema.parse(payload);
-
-  const participations = await findPlayerParticipations({
-    playerId: params.playerId,
-    status: params.status
-  });
+  const participations = await findPlayerParticipations(playerId, status);
 
   const competitionsStandings = await Promise.all(
     participations.map(async p => {
@@ -32,7 +20,7 @@ async function findPlayerParticipationsStandings(
   );
 
   const playerParticipations = competitionsStandings.map(c => {
-    const playerIndex = c.participants.findIndex(p => p.playerId === params.playerId);
+    const playerIndex = c.participants.findIndex(p => p.playerId === playerId);
 
     if (playerIndex === -1) {
       throw new Error("Player couldn't be found in participations list.");

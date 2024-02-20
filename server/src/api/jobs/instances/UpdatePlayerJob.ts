@@ -1,8 +1,8 @@
 import prisma from '../../../prisma';
 import { PlayerStatus, PlayerType } from '../../../utils';
 import redisService from '../../services/external/redis.service';
-import * as playerServices from '../../modules/players/player.services';
 import { standardize } from '../../modules/players/player.utils';
+import { updatePlayer } from '../../modules/players/services/UpdatePlayerService';
 import { RateLimitError, ServerError, BadRequestError } from '../../errors';
 import { JobType, JobDefinition, JobOptions } from '../job.types';
 
@@ -26,7 +26,7 @@ class UpdatePlayerJob implements JobDefinition<UpdatePlayerJobPayload> {
   async execute(data: UpdatePlayerJobPayload) {
     if (!data.username) return;
 
-    await playerServices.updatePlayer({ username: data.username }).catch(async error => {
+    await updatePlayer(data.username).catch(async error => {
       if (await shouldRetry(data.username, error)) {
         throw error;
       }

@@ -1332,10 +1332,7 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await buildSnapshot({
-    playerId: oldPlayerId,
-    rawCSV: globalData.hiscoresRawData
-  });
+  const snapshotData = await buildSnapshot(oldPlayerId, globalData.hiscoresRawData);
 
   METRICS.forEach(m => {
     filteredSnapshotData[getMetricValueKey(m)] = snapshotData[getMetricValueKey(m)];
@@ -1391,10 +1388,7 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await buildSnapshot({
-    playerId: oldPlayerId,
-    rawCSV: globalData.hiscoresRawData
-  });
+  const snapshotData = await buildSnapshot(oldPlayerId, globalData.hiscoresRawData);
 
   METRICS.forEach(m => {
     filteredSnapshotData[getMetricValueKey(m)] = snapshotData[getMetricValueKey(m)];

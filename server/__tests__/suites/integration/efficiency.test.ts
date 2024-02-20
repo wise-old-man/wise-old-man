@@ -326,36 +326,21 @@ describe('Efficiency API', () => {
   describe('5 - Calculate EHP/EHB rankings', () => {
     it('should compute > top 50 rank', async () => {
       const top60Player = await prisma.player.findUnique({ where: { username: 'player 60' } });
-
-      const result = await computeEfficiencyRank({
-        player: top60Player,
-        value: top60Player.ehp,
-        metric: 'ehp'
-      });
+      const result = await computeEfficiencyRank(top60Player, 'ehp', top60Player.ehp);
 
       expect(result).toBe(61);
     });
 
     it('should compute < top 50 rank', async () => {
       const top7Player = await prisma.player.findUnique({ where: { username: 'player 7' } });
-
-      const result = await computeEfficiencyRank({
-        player: top7Player,
-        value: top7Player.ehp,
-        metric: 'ehp'
-      });
+      const result = await computeEfficiencyRank(top7Player, 'ehp', top7Player.ehp);
 
       expect(result).toBe(7);
     });
 
     it('should compute > top 50 rank (ironman)', async () => {
       const top85Player = await prisma.player.findUnique({ where: { username: 'player 85' } });
-
-      const result = await computeEfficiencyRank({
-        player: top85Player,
-        value: top85Player.ehp,
-        metric: 'ehp'
-      });
+      const result = await computeEfficiencyRank(top85Player, 'ehp', top85Player.ehp);
 
       expect(result).toBe(5); // this player has the 85th highest ehp, but the 5th highest for ironman
     });

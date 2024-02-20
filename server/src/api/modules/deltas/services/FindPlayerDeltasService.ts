@@ -1,29 +1,10 @@
-import { z } from 'zod';
 import prisma, { Snapshot } from '../../../../prisma';
-import { parsePeriodExpression } from '../../../../utils';
+import { Period, parsePeriodExpression } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { PlayerDeltasArray, PlayerDeltasMap } from '../delta.types';
 import { calculatePlayerDeltas, emptyPlayerDelta, flattenPlayerDeltas } from '../delta.utils';
 import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
-
-const inputSchema = z
-  .object({
-    id: z.number().int().positive(),
-    // These can be filtered by a period string (week, day, 2m3w6d)
-    period: z.string().optional(),
-    // or by a time range (min date and max date)
-    minDate: z.date().optional(),
-    maxDate: z.date().optional(),
-    formatting: z.enum(['array', 'map']).default('map')
-  })
-  .refine(s => s.period || (s.maxDate && s.minDate), {
-    message: 'Invalid period and start/end dates.'
-  })
-  .refine(s => !(s.minDate && s.maxDate && s.minDate >= s.maxDate), {
-    message: 'Min date must be before the max date.'
-  });
-
-type FindPlayerDeltasParams = z.infer<typeof inputSchema>;
+import { standardize } from '../../players/player.utils';
 
 export interface FindPlayerDeltasResult {
   startsAt: Date;
@@ -31,11 +12,23 @@ export interface FindPlayerDeltasResult {
   data: PlayerDeltasArray | PlayerDeltasMap;
 }
 
-async function findPlayerDeltas(payload: FindPlayerDeltasParams): Promise<FindPlayerDeltasResult> {
-  const params = inputSchema.parse(payload);
+async function findPlayerDeltas(
+  username: string,
+  period?: Period | string,
+  minDate?: Date,
+  maxDate?: Date,
+  formatting?: 'array' | 'map'
+): Promise<FindPlayerDeltasResult> {
+  if (!period && (!minDate || !maxDate)) {
+    throw new BadRequestError('Invalid period and start/end dates.');
+  }
+
+  if (minDate && maxDate && minDate >= maxDate) {
+    throw new BadRequestError('Min date must be before the max date.');
+  }
 
   const player = await prisma.player.findFirst({
-    where: { id: params.id }
+    where: { username: standardize(username) }
   });
 
   if (!player) {
@@ -43,14 +36,14 @@ async function findPlayerDeltas(payload: FindPlayerDeltasParams): Promise<FindPl
   }
 
   // Find the two snapshots at the edges of the period/dates
-  const [startSnapshot, endSnapshot] = await findEdgeSnapshots(params);
+  const [startSnapshot, endSnapshot] = await findEdgeSnapshots(player.id, period, minDate, maxDate);
 
   // Player was inactive during this period (no snapshots), return empty deltas
   if (!startSnapshot || !endSnapshot) {
     return {
       startsAt: null,
       endsAt: null,
-      data: params.formatting === 'array' ? flattenPlayerDeltas(emptyPlayerDelta()) : emptyPlayerDelta()
+      data: formatting === 'array' ? flattenPlayerDeltas(emptyPlayerDelta()) : emptyPlayerDelta()
     };
   }
 
@@ -59,38 +52,37 @@ async function findPlayerDeltas(payload: FindPlayerDeltasParams): Promise<FindPl
   return {
     startsAt: startSnapshot.createdAt,
     endsAt: endSnapshot.createdAt,
-    data: params.formatting === 'array' ? flattenPlayerDeltas(data) : data
+    data: formatting === 'array' ? flattenPlayerDeltas(data) : data
   };
 }
 
-async function findEdgeSnapshots(params: FindPlayerDeltasParams): Promise<Snapshot[]> {
+async function findEdgeSnapshots(
+  playerId: number,
+  period?: Period | string,
+  minDate?: Date,
+  maxDate?: Date
+): Promise<Snapshot[]> {
   const getEdgeDates = () => {
-    if (params.period) {
-      const parsedPeriod = parsePeriodExpression(params.period);
+    if (period) {
+      const parsedPeriod = parsePeriodExpression(period);
 
       if (!parsedPeriod) {
-        throw new BadRequestError(`Invalid period: ${params.period}.`);
+        throw new BadRequestError(`Invalid period: ${period}.`);
       }
 
       return { startDate: new Date(Date.now() - parsedPeriod.durationMs), endDate: new Date() };
     }
 
-    if (params.minDate && params.maxDate) {
-      return { startDate: params.minDate, endDate: params.maxDate };
+    if (minDate && maxDate) {
+      return { startDate: minDate, endDate: maxDate };
     }
   };
 
   const { startDate, endDate } = getEdgeDates();
 
   return await Promise.all([
-    findPlayerSnapshot({
-      id: params.id,
-      minDate: startDate
-    }),
-    findPlayerSnapshot({
-      id: params.id,
-      maxDate: endDate
-    })
+    findPlayerSnapshot({ id: playerId, minDate: startDate }),
+    findPlayerSnapshot({ id: playerId, maxDate: endDate })
   ]);
 }
 

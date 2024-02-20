@@ -3,13 +3,13 @@ import { WebhookClient } from 'discord.js';
 import env, { isTesting } from '../../../env';
 import prisma, { Achievement, Competition, Player } from '../../../prisma';
 import { FlaggedPlayerReviewContext, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
-import { omit } from '../../util/objects';
-import logger from '../../util/logging';
 import {
   CompetitionDetails,
   CompetitionWithParticipations
 } from '../../modules/competitions/competition.types';
-import * as playerServices from '../../modules/players/player.services';
+import { findPlayers } from '../../modules/players/services/FindPlayersService';
+import logger from '../../util/logging';
+import { omit } from '../../util/objects';
 
 export interface EventPeriodDelay {
   hours?: number;
@@ -134,7 +134,7 @@ async function dispatchMembersRolesChanged(events: MemberRoleChangeEvent[]) {
   const playerIds = events.map(m => m.playerId);
 
   // Fetch all the affected players
-  const players = await playerServices.findPlayers({ ids: playerIds });
+  const players = await findPlayers({ ids: playerIds });
   if (players.length === 0) return;
 
   const playersMap = new Map<number, Player>(players.map(p => [p.id, p]));
@@ -175,7 +175,7 @@ async function dispatchMembersJoined(groupId: number, events: MemberJoinedEvent[
  * so that it can notify any relevant guilds/servers.
  */
 async function dispatchMembersLeft(groupId: number, playerIds: number[]) {
-  const players = await playerServices.findPlayers({ ids: playerIds });
+  const players = await findPlayers({ ids: playerIds });
 
   // If couldn't find any players for these ids, ignore event
   if (!players || players.length === 0) return;
@@ -253,19 +253,19 @@ function dispatchCompetitionEnding(competition: Competition, period: EventPeriod
 }
 
 export {
-  sendMonitoringMessage,
-  sendPatreonUpdateMessage,
   dispatch,
   dispatchAchievements,
+  dispatchCompetitionCreated,
+  dispatchCompetitionEnded,
+  dispatchCompetitionEnding,
+  dispatchCompetitionStarted,
+  dispatchCompetitionStarting,
   dispatchHardcoreDied,
-  dispatchPlayerFlaggedReview,
-  dispatchNameChanged,
   dispatchMembersJoined,
   dispatchMembersLeft,
-  dispatchCompetitionCreated,
-  dispatchCompetitionStarted,
-  dispatchCompetitionEnded,
-  dispatchCompetitionStarting,
-  dispatchCompetitionEnding,
-  dispatchMembersRolesChanged
+  dispatchMembersRolesChanged,
+  dispatchNameChanged,
+  dispatchPlayerFlaggedReview,
+  sendMonitoringMessage,
+  sendPatreonUpdateMessage
 };

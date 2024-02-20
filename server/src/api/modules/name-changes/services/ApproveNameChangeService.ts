@@ -9,7 +9,7 @@ import prisma, {
 import { ActivityType, MemberActivity, PlayerStatus } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
-import { archivePlayer } from '../../players/player.services';
+import { archivePlayer } from '../../players/services/ArchivePlayerService';
 import * as playerEvents from '../../players/player.events';
 import * as playerUtils from '../../players/player.utils';
 import { prepareRecordValue } from '../../records/record.utils';

@@ -1,6 +1,6 @@
 import prisma from '../../../prisma';
 import { PlayerStatus } from '../../../utils';
-import { updatePlayer } from '../../modules/players/player.services';
+import { updatePlayer } from '../../modules/players/services/UpdatePlayerService';
 import { JobType, JobDefinition } from '../job.types';
 
 class ScheduleFlaggedPlayerReviewJob implements JobDefinition<unknown> {
@@ -33,7 +33,7 @@ class ScheduleFlaggedPlayerReviewJob implements JobDefinition<unknown> {
 
     // Update them, this will either fix their account if they're not flaggable anymore,
     // or send a review message to our Discord server.
-    await updatePlayer({ username: flaggedPlayer.username });
+    await updatePlayer(flaggedPlayer.username);
   }
 }
 

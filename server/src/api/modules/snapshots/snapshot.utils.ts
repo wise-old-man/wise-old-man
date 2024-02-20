@@ -41,7 +41,7 @@ import {
 // On this date, the Bounty Hunter was updated and scores were reset.
 const BOUNTY_HUNTER_UPDATE_DATE = new Date('2023-05-24T10:30:00.000Z');
 
-function format(snapshot: Snapshot, efficiencyMap?: Map<Skill | Boss, number>): FormattedSnapshot {
+function formatSnapshot(snapshot: Snapshot, efficiencyMap?: Map<Skill | Boss, number>): FormattedSnapshot {
   if (!snapshot) return null;
 
   const { id, playerId, createdAt, importedAt } = snapshot;
@@ -417,7 +417,7 @@ function isZerker(snapshot: Snapshot) {
 }
 
 export {
-  format,
+  formatSnapshot,
   average,
   hasChanged,
   getExcessiveGains,

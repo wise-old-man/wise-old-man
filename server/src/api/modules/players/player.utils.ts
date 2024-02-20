@@ -4,6 +4,7 @@ import { BadRequestError, NotFoundError } from '../../errors';
 import redisService from '../../services/external/redis.service';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
 import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
+import { formatSnapshot } from '../snapshots/snapshot.utils';
 
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
@@ -16,7 +17,7 @@ function formatPlayerDetails(player: Player, snapshot?: Snapshot, archive?: Play
     ...player,
     combatLevel,
     archive: archive ? archive : null,
-    latestSnapshot: snapshotUtils.format(snapshot, efficiency)
+    latestSnapshot: formatSnapshot(snapshot, efficiency)
   };
 }
 

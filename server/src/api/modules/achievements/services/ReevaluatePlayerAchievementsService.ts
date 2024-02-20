@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { calculatePastDates, getAchievementDefinitions } from '../achievement.utils';
 import { findPlayerSnapshots } from '../../snapshots/services/FindPlayerSnapshotsService';
@@ -6,25 +5,17 @@ import { findPlayerSnapshots } from '../../snapshots/services/FindPlayerSnapshot
 const ALL_DEFINITIONS = getAchievementDefinitions();
 const UNKNOWN_DATE = new Date(0);
 
-const inputSchema = z.object({
-  id: z.number().int().positive()
-});
-
-type ReevaluatePlayerAchievementsParams = z.infer<typeof inputSchema>;
-
-async function reevaluatePlayerAchievements(payload: ReevaluatePlayerAchievementsParams): Promise<void> {
-  const params = inputSchema.parse(payload);
-
+async function reevaluatePlayerAchievements(playerId: number): Promise<void> {
   // Find all unknown date achievements
   const unknownAchievements = await prisma.achievement.findMany({
-    where: { playerId: params.id, createdAt: UNKNOWN_DATE }
+    where: { playerId, createdAt: UNKNOWN_DATE }
   });
 
   const unknownAchievementNames = unknownAchievements.map(u => u.name);
   const unknownDefinitions = ALL_DEFINITIONS.filter(d => unknownAchievementNames.includes(d.name));
 
   // Search dates for previously unknown definitions, based on player history
-  const allSnapshots = await findPlayerSnapshots({ id: params.id });
+  const allSnapshots = await findPlayerSnapshots(playerId);
   const pastDatesData = calculatePastDates(allSnapshots.reverse(), unknownDefinitions);
 
   // Attach new dates where possible, and filter out any (still) unknown achievements
@@ -48,7 +39,7 @@ async function reevaluatePlayerAchievements(payload: ReevaluatePlayerAchievement
     // Delete outdated achievements
     prisma.achievement.deleteMany({
       where: {
-        playerId: params.id,
+        playerId,
         name: { in: toUpdate.map(t => t.name) }
       }
     }),

@@ -12,7 +12,7 @@ import patronRouter from './modules/patrons/patron.router';
 import efficiencyRouter from './modules/efficiency/efficiency.router';
 import groupRoutes from './modules/groups/group.routes';
 import nameRouter from './modules/name-changes/name-change.router';
-import playerRoutes from './modules/players/player.routes';
+import playerRouter from './modules/players/player.router';
 import metricsService from './services/external/metrics.service';
 import recordRouter from './modules/records/record.router';
 
@@ -47,9 +47,9 @@ class RoutingHandler {
     this.router.use(generalRouter);
     this.router.use(nameRouter);
     this.router.use(patronRouter);
+    this.router.use(playerRouter);
     this.router.use(recordRouter);
 
-    this.router.use('/players', playerRoutes);
     this.router.use('/groups', groupRoutes);
 
     this.router.get('/metrics', async (req, res) => {
