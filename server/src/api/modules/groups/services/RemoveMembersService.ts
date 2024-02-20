@@ -2,10 +2,10 @@ import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { BadRequestError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
-import * as playerServices from '../../players/player.services';
 import * as groupEvents from '../group.events';
 import { ActivityType } from '../group.types';
 import { fetchGroupDetails } from './FetchGroupDetailsService';
+import { findPlayers } from '../../players/services/FindPlayersService';
 
 const inputSchema = z.object({
   id: z.number().int().positive(),
@@ -23,7 +23,7 @@ async function removeMembers(payload: RemoveMembersService): Promise<{ count: nu
     membership => membership.player.id
   );
 
-  const toRemovePlayerIds = (await playerServices.findPlayers({ usernames: params.usernames }))
+  const toRemovePlayerIds = (await findPlayers({ usernames: params.usernames }))
     .map(p => p.id)
     .filter(id => groupMemberIds.includes(id));
 

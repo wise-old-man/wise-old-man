@@ -6,9 +6,9 @@ import * as cryptService from '../../../services/external/crypt.service';
 import { BadRequestError, ServerError } from '../../../errors';
 import { GroupDetails } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
-import * as playerServices from '../../players/player.services';
 import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
 import { onGroupCreated } from '../group.events';
+import { findPlayers } from '../../players/services/FindPlayersService';
 
 const MIN_NAME_ERROR = 'Group name must have at least one character.';
 
@@ -122,7 +122,7 @@ async function prepareMemberships(members: CreateGroupParams['members']) {
   if (!members || members.length === 0) return [];
 
   // Find or create all players with the given usernames
-  const players = await playerServices.findPlayers({
+  const players = await findPlayers({
     usernames: members.map(member => member.username),
     createIfNotFound: true
   });

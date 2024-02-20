@@ -2,8 +2,8 @@ import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import * as playerServices from '../../players/player.services';
 import { validateInvalidParticipants, validateParticipantDuplicates } from '../competition.utils';
+import { findPlayers } from '../../players/services/FindPlayersService';
 
 async function addParticipants(id: number, participants: string[]): Promise<{ count: number }> {
   const competition = await prisma.competition.findFirst({
@@ -32,7 +32,7 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
   ).map(p => p.playerId);
 
   // Find or create all players with the given usernames
-  const players = await playerServices.findPlayers({
+  const players = await findPlayers({
     usernames: participants,
     createIfNotFound: true
   });

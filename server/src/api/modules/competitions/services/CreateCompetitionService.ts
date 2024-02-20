@@ -2,7 +2,6 @@ import prisma from '../../../../prisma';
 import { CompetitionType, Metric } from '../../../../utils';
 import { omit } from '../../../util/objects';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
-import * as playerServices from '../../players/player.services';
 import * as cryptService from '../../../services/external/crypt.service';
 import { CompetitionWithParticipations, Team } from '../competition.types';
 import * as competitionEvents from '../competition.events';
@@ -13,6 +12,7 @@ import {
   validateInvalidParticipants,
   validateParticipantDuplicates
 } from '../competition.utils';
+import { findPlayers } from '../../players/services/FindPlayersService';
 
 interface CreateCompetitionPayload {
   title: string;
@@ -145,7 +145,7 @@ async function createCompetition(payload: CreateCompetitionPayload): Promise<Cre
 
 async function getParticipations(participants: string[]) {
   // Find or create all players with the given usernames
-  const players = await playerServices.findPlayers({
+  const players = await findPlayers({
     usernames: participants,
     createIfNotFound: true
   });
@@ -155,7 +155,7 @@ async function getParticipations(participants: string[]) {
 
 async function getTeamsParticipations(teams: Team[]) {
   // Find or create all players with the given usernames
-  const players = await playerServices.findPlayers({
+  const players = await findPlayers({
     usernames: teams.map(t => t.participants).flat(),
     createIfNotFound: true
   });

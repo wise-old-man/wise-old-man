@@ -1,7 +1,8 @@
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
-import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
+import logger from '../../../util/logging';
+import { findPlayers } from '../../players/services/FindPlayersService';
 import { Team } from '../competition.types';
 import {
   sanitizeTeams,
@@ -9,7 +10,6 @@ import {
   validateParticipantDuplicates,
   validateTeamDuplicates
 } from '../competition.utils';
-import * as playerServices from '../../players/player.services';
 
 async function addTeams(id: number, teams: Team[]): Promise<{ count: number }> {
   const competition = await prisma.competition.findFirst({
@@ -42,7 +42,7 @@ async function addTeams(id: number, teams: Team[]): Promise<{ count: number }> {
     ...currentTeams.map(t => t.participants).flat()
   ]);
 
-  const newPlayers = await playerServices.findPlayers({
+  const newPlayers = await findPlayers({
     usernames: newTeams.map(t => t.participants).flat(),
     createIfNotFound: true
   });

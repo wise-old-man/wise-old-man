@@ -7,7 +7,7 @@ import { reevaluatePlayerAchievements } from '../achievements/services/Reevaluat
 import { syncPlayerAchievements } from '../achievements/services/SyncPlayerAchievementsService';
 import { syncParticipations } from '../competitions/services/SyncParticipationsService';
 import { syncPlayerDeltas } from '../deltas/services/SyncPlayerDeltasService';
-import * as playerServices from './player.services';
+import { importPlayerHistory } from './services/ImportPlayerHistoryService';
 
 async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerReviewContext) {
   await metrics.trackEffect(discordService.dispatchPlayerFlaggedReview, player, flaggedContext);
@@ -26,9 +26,6 @@ async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
 }
 
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
-  // Recalculate player achievements
-  await metrics.trackEffect(syncPlayerAchievements, { id: player.id });
-
   // Dispatch a "Player name changed" event to our discord bot API.
   await metrics.trackEffect(discordService.dispatchNameChanged, player, previousDisplayName);
 
@@ -63,12 +60,12 @@ async function onPlayerUpdated(
   await metrics.trackEffect(syncPlayerDeltas, player, current);
 
   // Attempt to import this player's history from CML
-  await metrics.trackEffect(playerServices.importPlayerHistory, player);
+  await metrics.trackEffect(importPlayerHistory, player);
 }
 
 async function onPlayerImported(playerId: number) {
   // Reevaluate this player's achievements to try and find earlier completion dates
-  await metrics.trackEffect(reevaluatePlayerAchievements, { id: playerId });
+  await metrics.trackEffect(reevaluatePlayerAchievements, playerId);
 }
 
 export {

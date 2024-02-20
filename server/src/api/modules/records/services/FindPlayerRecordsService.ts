@@ -1,29 +1,32 @@
-import { z } from 'zod';
-import { Period, Metric } from '../../../../utils';
-import prisma, { Record, PrismaTypes } from '../../../../prisma';
+import prisma, { PrismaTypes, Record } from '../../../../prisma';
+import { Metric, Period } from '../../../../utils';
+import { NotFoundError } from '../../../errors';
+import { standardize } from '../../players/player.utils';
 
-const inputSchema = z.object({
-  id: z.number().int().positive(),
-  period: z.nativeEnum(Period).optional(),
-  metric: z.nativeEnum(Metric).optional()
-});
-
-type FindPlayerRecordParams = z.infer<typeof inputSchema>;
-
-async function findPlayerRecords(payload: FindPlayerRecordParams): Promise<Record[]> {
-  const params = inputSchema.parse(payload);
-
+async function findPlayerRecords(username: string, period?: Period, metric?: Metric): Promise<Record[]> {
   const query: PrismaTypes.RecordWhereInput = {
-    playerId: params.id
+    player: {
+      username: standardize(username)
+    }
   };
 
-  if (params.period) query.period = params.period;
-  if (params.metric) query.metric = params.metric;
+  if (period) query.period = period;
+  if (metric) query.metric = metric;
 
   const records = await prisma.record.findMany({
     where: { ...query },
     orderBy: { updatedAt: 'desc' }
   });
+
+  if (records.length === 0) {
+    const player = await prisma.player.findFirst({
+      where: { username: standardize(username) }
+    });
+
+    if (!player) {
+      throw new NotFoundError('Player not found.');
+    }
+  }
 
   return records;
 }

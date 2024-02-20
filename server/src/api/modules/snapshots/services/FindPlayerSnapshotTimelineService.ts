@@ -1,33 +1,48 @@
-import { z } from 'zod';
 import prisma, { PrismaTypes, Snapshot } from '../../../../prisma';
-import { Metric, getMetricRankKey, getMetricValueKey, parsePeriodExpression } from '../../../../utils';
+import {
+  Metric,
+  Period,
+  getMetricRankKey,
+  getMetricValueKey,
+  parsePeriodExpression
+} from '../../../../utils';
 import { BadRequestError } from '../../../errors';
 
-const inputSchema = z
-  .object({
-    id: z.number().int().positive(),
-    metric: z.nativeEnum(Metric),
-    // These can be filtered by a period string (week, day, 2m3w6d)
-    period: z.string().optional(),
-    // or by a time range (min date and max date)
-    minDate: z.date().optional(),
-    maxDate: z.date().optional(),
-    limit: z.number().int().positive().optional().default(100_000)
-  })
-  .refine(s => !(s.minDate && s.maxDate && s.minDate >= s.maxDate), {
-    message: 'Min date must be before the max date.'
-  });
-
-type FindPlayerSnapshotTimelineParams = z.infer<typeof inputSchema>;
+type Datapoint = { value: number; rank: number; date: Date };
 
 async function findPlayerSnapshotTimeline(
-  payload: FindPlayerSnapshotTimelineParams
-): Promise<Array<{ value: number; rank: number; date: Date }>> {
-  const params = inputSchema.parse(payload);
+  id: number,
+  metric: Metric,
+  period?: Period | string,
+  minDate?: Date,
+  maxDate?: Date
+): Promise<Array<Datapoint>> {
+  if (minDate && maxDate && minDate >= maxDate) {
+    throw new BadRequestError('Min date must be before the max date.');
+  }
 
-  const filterQuery = buildFilterQuery(params);
-  const metricRankKey = getMetricRankKey(params.metric);
-  const metricValueKey = getMetricValueKey(params.metric);
+  const dateQuery: PrismaTypes.SnapshotWhereInput = {};
+
+  if (minDate && maxDate) {
+    dateQuery.createdAt = {
+      gte: minDate,
+      lte: maxDate
+    };
+  } else if (period) {
+    const parsedPeriod = parsePeriodExpression(period);
+
+    if (!parsedPeriod) {
+      throw new BadRequestError(`Invalid period: ${period}.`);
+    }
+
+    dateQuery.createdAt = {
+      gte: new Date(Date.now() - parsedPeriod.durationMs),
+      lte: new Date()
+    };
+  }
+
+  const metricRankKey = getMetricRankKey(metric);
+  const metricValueKey = getMetricValueKey(metric);
 
   const snapshots = (await prisma.snapshot.findMany({
     select: {
@@ -35,9 +50,8 @@ async function findPlayerSnapshotTimeline(
       [metricRankKey]: true,
       createdAt: true
     },
-    where: { playerId: params.id, ...filterQuery },
-    orderBy: { createdAt: 'desc' },
-    take: params.limit
+    where: { playerId: id, ...dateQuery },
+    orderBy: { createdAt: 'desc' }
   })) as unknown as Snapshot[];
 
   const history = snapshots.map(snapshot => {
@@ -49,34 +63,6 @@ async function findPlayerSnapshotTimeline(
   });
 
   return history;
-}
-
-function buildFilterQuery(params: FindPlayerSnapshotTimelineParams): PrismaTypes.SnapshotWhereInput {
-  if (params.minDate && params.maxDate) {
-    return {
-      createdAt: {
-        gte: params.minDate,
-        lte: params.maxDate
-      }
-    };
-  }
-
-  if (params.period) {
-    const parsedPeriod = parsePeriodExpression(params.period);
-
-    if (!parsedPeriod) {
-      throw new BadRequestError(`Invalid period: ${params.period}.`);
-    }
-
-    return {
-      createdAt: {
-        gte: new Date(Date.now() - parsedPeriod.durationMs),
-        lte: new Date()
-      }
-    };
-  }
-
-  return {};
 }
 
 export { findPlayerSnapshotTimeline };

@@ -1,21 +1,11 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { ServerError } from '../../../errors';
 
-const inputSchema = z.object({
-  playerId: z.number().int().positive(),
-  deleteAllSince: z.date().optional()
-});
-
-type RollbackSnapshotsParams = z.infer<typeof inputSchema>;
-
-async function rollbackSnapshots(payload: RollbackSnapshotsParams) {
-  const params = inputSchema.parse(payload);
-
-  if (params.deleteAllSince) {
-    await deleteSnapshotsSince(params.playerId, params.deleteAllSince);
+async function rollbackSnapshots(playerId: number, deleteAllSince?: Date) {
+  if (deleteAllSince) {
+    await deleteSnapshotsSince(playerId, deleteAllSince);
   } else {
-    await deleteLastSnapshot(params.playerId);
+    await deleteLastSnapshot(playerId);
   }
 }
 

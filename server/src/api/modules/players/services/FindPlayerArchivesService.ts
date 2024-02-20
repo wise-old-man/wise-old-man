@@ -1,21 +1,12 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../player.utils';
 import { PlayerArchiveWithPlayer } from '../player.types';
 
-const inputSchema = z.object({
-  username: z.string()
-});
-
-type FindPlayerArchivesParams = z.infer<typeof inputSchema>;
-
-async function findPlayerArchives(payload: FindPlayerArchivesParams) {
-  const params = inputSchema.parse(payload);
-
+async function findPlayerArchives(username: string) {
   const archives = await prisma.playerArchive.findMany({
     where: {
-      previousUsername: standardize(params.username),
+      previousUsername: standardize(username),
       restoredAt: null
     },
     include: {
@@ -27,7 +18,7 @@ async function findPlayerArchives(payload: FindPlayerArchivesParams) {
   if (archives.length === 0) {
     const player = await prisma.player.findFirst({
       where: {
-        username: standardize(params.username)
+        username: standardize(username)
       }
     });
 

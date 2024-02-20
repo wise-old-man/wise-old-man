@@ -1,22 +1,14 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { omit } from '../../../util/objects';
-import { getPaginationSchema } from '../../../util/validation';
+import { PaginationOptions } from '../../../util/validation';
 import { MembershipWithGroup } from '../group.types';
 
-const inputSchema = z
-  .object({
-    playerId: z.number().int().positive()
-  })
-  .merge(getPaginationSchema());
-
-type FindPlayerMembershipsParams = z.infer<typeof inputSchema>;
-
-async function findPlayerMemberships(payload: FindPlayerMembershipsParams): Promise<MembershipWithGroup[]> {
-  const params = inputSchema.parse(payload);
-
+async function findPlayerMemberships(
+  playerId: number,
+  pagination: PaginationOptions
+): Promise<MembershipWithGroup[]> {
   const memberships = await prisma.membership.findMany({
-    where: { playerId: params.playerId },
+    where: { playerId },
     include: {
       group: {
         include: {
@@ -29,8 +21,8 @@ async function findPlayerMemberships(payload: FindPlayerMembershipsParams): Prom
       }
     },
     orderBy: [{ group: { score: 'desc' } }, { createdAt: 'desc' }],
-    take: params.limit,
-    skip: params.offset
+    take: pagination.limit,
+    skip: pagination.offset
   });
 
   return memberships.map(membership => {

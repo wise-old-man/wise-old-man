@@ -5,7 +5,7 @@ import { NotFoundError, BadRequestError } from '../../../errors';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import {
   get200msCount,
-  format,
+  formatSnapshot,
   average,
   getCombatLevelFromSnapshot,
   getTotalLevel,
@@ -73,7 +73,7 @@ async function fetchGroupStatistics(payload: FetchGroupStatisticsParams): Promis
     build: PlayerBuild.MAIN
   });
 
-  const averageStats = format(averageSnapshot, averageEfficiencyMap);
+  const averageStats = formatSnapshot(averageSnapshot, averageEfficiencyMap);
 
   const { metricLeaders, leaderIdMap } = getMetricLeaders(players.map(p => p.latestSnapshot));
   const leaderIds = [...new Set(leaderIdMap.values())];

@@ -1,33 +1,18 @@
-import { z } from 'zod';
 import prisma, { Record, PrismaTypes } from '../../../../prisma';
 import { Period, Metric } from '../../../../utils';
 import { prepareRecordValue } from '../record.utils';
-
-const inputSchema = z.object({
-  id: z.number().int().positive(),
-  period: z.nativeEnum(Period),
-  metricDeltas: z.array(
-    z.object({
-      metric: z.nativeEnum(Metric),
-      value: z.number()
-    })
-  )
-});
 
 type RecordMap = {
   [metric in Metric]?: Record;
 };
 
-type SyncPlayerRecordsParams = z.infer<typeof inputSchema>;
-
-async function syncPlayerRecords(payload: SyncPlayerRecordsParams): Promise<void> {
-  const params = inputSchema.parse(payload);
-
+async function syncPlayerRecords(
+  playerId: number,
+  period: Period,
+  metricDeltas: Array<{ metric: Metric; value: number }>
+): Promise<void> {
   const currentRecords = await prisma.record.findMany({
-    where: {
-      playerId: params.id,
-      period: params.period
-    }
+    where: { playerId, period }
   });
 
   const currentRecordMap: RecordMap = Object.fromEntries(currentRecords.map(r => [r.metric, r]));
@@ -35,14 +20,14 @@ async function syncPlayerRecords(payload: SyncPlayerRecordsParams): Promise<void
   const toCreate: PrismaTypes.RecordCreateManyInput[] = [];
   const toUpdate: { recordId: number; newValue: number }[] = [];
 
-  params.metricDeltas.forEach(md => {
+  metricDeltas.forEach(md => {
     if (md.value <= 0) return;
 
     // No record exists for this period and metric, create a new one.
     if (!currentRecordMap[md.metric]) {
       toCreate.push({
-        playerId: params.id,
-        period: params.period,
+        playerId,
+        period,
         metric: md.metric,
         value: prepareRecordValue(md.metric, md.value)
       });

@@ -2,7 +2,7 @@ import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import * as playerServices from '../../players/player.services';
+import { findPlayers } from '../../players/services/FindPlayersService';
 
 async function removeParticipants(id: number, participants: string[]): Promise<{ count: number }> {
   const competition = await prisma.competition.findFirst({
@@ -17,7 +17,7 @@ async function removeParticipants(id: number, participants: string[]): Promise<{
     throw new BadRequestError('Cannot remove participants from a team competition.');
   }
 
-  const playersToRemove = await playerServices.findPlayers({
+  const playersToRemove = await findPlayers({
     usernames: participants
   });
 
