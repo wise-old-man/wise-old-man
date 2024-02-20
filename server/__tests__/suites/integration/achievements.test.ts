@@ -333,7 +333,7 @@ describe('Achievements API', () => {
       // Fetch 1-50
       const firstFetchResponse = await api
         .get(`/groups/${createGroupResponse.body.group.id}/achievements`)
-        .query({ limit: 50, offset: 'abc' }); // the invalid offset value should be ignored by the API
+        .query({ limit: 50 });
 
       expect(firstFetchResponse.status).toBe(200);
       expect(firstFetchResponse.body.length).toBe(50); // should return the maximum defined by the limit param

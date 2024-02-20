@@ -1,20 +1,11 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { omit } from '../../../util/objects';
 import { NotFoundError } from '../../../errors';
 import { CompetitionListItem } from '../competition.types';
 
-const inputSchema = z.object({
-  groupId: z.number().int().positive()
-});
-
-type FindGroupCompetitionsParams = z.infer<typeof inputSchema>;
-
-async function findGroupCompetitions(payload: FindGroupCompetitionsParams): Promise<CompetitionListItem[]> {
-  const params = inputSchema.parse(payload);
-
+async function findGroupCompetitions(groupId: number): Promise<CompetitionListItem[]> {
   const competitions = await prisma.competition.findMany({
-    where: { groupId: params.groupId },
+    where: { groupId },
     include: {
       group: {
         include: {
@@ -35,7 +26,7 @@ async function findGroupCompetitions(payload: FindGroupCompetitionsParams): Prom
 
   if (!competitions || competitions.length === 0) {
     const group = await prisma.group.findFirst({
-      where: { id: params.groupId }
+      where: { id: groupId }
     });
 
     if (!group) {

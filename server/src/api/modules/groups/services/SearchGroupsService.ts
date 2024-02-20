@@ -1,24 +1,16 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { omit } from '../../../util/objects';
-import { getPaginationSchema } from '../../../util/validation';
+import { PaginationOptions } from '../../../util/validation';
 import { GroupListItem } from '../group.types';
 
-const inputSchema = z
-  .object({
-    name: z.string().optional()
-  })
-  .merge(getPaginationSchema());
-
-type SearchGroupsParams = z.infer<typeof inputSchema>;
-
-async function searchGroups(payload: SearchGroupsParams): Promise<GroupListItem[]> {
-  const params = inputSchema.parse(payload);
-
+async function searchGroups(
+  name: string | undefined,
+  pagination: PaginationOptions
+): Promise<GroupListItem[]> {
   const groups = await prisma.group.findMany({
     where: {
       name: {
-        contains: params.name ? params.name.trim() : params.name,
+        contains: name ? name.trim() : name,
         mode: 'insensitive'
       }
     },
@@ -30,8 +22,8 @@ async function searchGroups(payload: SearchGroupsParams): Promise<GroupListItem[
       }
     },
     orderBy: [{ score: 'desc' }, { id: 'asc' }],
-    take: params.limit,
-    skip: params.offset
+    take: pagination.limit,
+    skip: pagination.offset
   });
 
   return groups.map(g => {

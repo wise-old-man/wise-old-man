@@ -1,26 +1,16 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
-import { getPaginationSchema } from '../../../util/validation';
+import { PaginationOptions } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
 import { ExtendedAchievementWithPlayer } from '../achievement.types';
 import { extend } from '../achievement.utils';
 
-const inputSchema = z
-  .object({
-    id: z.number().int().positive()
-  })
-  .merge(getPaginationSchema());
-
-type FindGroupAchievementsParams = z.infer<typeof inputSchema>;
-
 async function findGroupAchievements(
-  payload: FindGroupAchievementsParams
+  groupId: number,
+  pagination: PaginationOptions
 ): Promise<ExtendedAchievementWithPlayer[]> {
-  const params = inputSchema.parse(payload);
-
   // Fetch this group and all of its memberships
   const groupAndMemberships = await prisma.group.findFirst({
-    where: { id: params.id },
+    where: { id: groupId },
     include: { memberships: { select: { playerId: true } } }
   });
 
@@ -40,8 +30,8 @@ async function findGroupAchievements(
     where: { playerId: { in: playerIds } },
     include: { player: true },
     orderBy: [{ createdAt: 'desc' }],
-    take: params.limit,
-    skip: params.offset
+    take: pagination.limit,
+    skip: pagination.offset
   });
 
   return achievements.map(a => {

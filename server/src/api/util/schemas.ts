@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { isValidDate } from './dates';
+import { GroupRole } from '../../utils';
 
 const INVALID_TEAM_TYPE_ERROR = `Invalid teams list. Must be an array of { name: string; participants: string[]; }.`;
 
@@ -23,6 +24,26 @@ export const teamSchema = z.object(
     invalid_type_error: INVALID_TEAM_TYPE_ERROR
   }
 );
+
+export const memberSchema = z.object(
+  {
+    username: z.string(),
+    role: z.optional(z.nativeEnum(GroupRole)).default(GroupRole.MEMBER)
+  },
+  {
+    invalid_type_error: 'Invalid members list. Must be an array of { username: string; role?: string; }.'
+  }
+);
+
+const urlSchema = z.preprocess(str => (str === '' ? null : str), z.string().url().or(z.null()));
+
+export const socialLinksSchema = z.object({
+  website: z.optional(urlSchema),
+  discord: z.optional(urlSchema),
+  twitter: z.optional(urlSchema),
+  twitch: z.optional(urlSchema),
+  youtube: z.optional(urlSchema)
+});
 
 export function getDateSchema(propName: string) {
   return z

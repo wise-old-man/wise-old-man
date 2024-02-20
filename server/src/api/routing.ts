@@ -1,20 +1,20 @@
-import { ZodError } from 'zod';
 import * as Sentry from '@sentry/node';
 import express from 'express';
+import { ZodError } from 'zod';
 import { getThreadIndex } from '../env';
 import { BadRequestError, NotFoundError } from './errors';
-import logger from './util/logging';
-import { metricAbbreviation } from './util/middlewares';
 import competitionRouter from './modules/competitions/competition.router';
 import deltaRouter from './modules/deltas/delta.router';
-import generalRouter from './modules/general/general.router';
-import patronRouter from './modules/patrons/patron.router';
 import efficiencyRouter from './modules/efficiency/efficiency.router';
-import groupRoutes from './modules/groups/group.routes';
+import generalRouter from './modules/general/general.router';
+import groupRouter from './modules/groups/group.router';
 import nameRouter from './modules/name-changes/name-change.router';
+import patronRouter from './modules/patrons/patron.router';
 import playerRouter from './modules/players/player.router';
-import metricsService from './services/external/metrics.service';
 import recordRouter from './modules/records/record.router';
+import metricsService from './services/external/metrics.service';
+import logger from './util/logging';
+import { metricAbbreviation } from './util/middlewares';
 
 class RoutingHandler {
   router: express.Router;
@@ -45,12 +45,11 @@ class RoutingHandler {
     this.router.use(deltaRouter);
     this.router.use(efficiencyRouter);
     this.router.use(generalRouter);
+    this.router.use(groupRouter);
     this.router.use(nameRouter);
     this.router.use(patronRouter);
     this.router.use(playerRouter);
     this.router.use(recordRouter);
-
-    this.router.use('/groups', groupRoutes);
 
     this.router.get('/metrics', async (req, res) => {
       const metrics = await metricsService.getMetrics();

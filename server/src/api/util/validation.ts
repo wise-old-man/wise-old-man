@@ -57,6 +57,10 @@ z.setErrorMap((issue, ctx) => {
     return { message: `Parameter '${issue.path}' must have a maximum of ${issue.maximum} character(s).` };
   }
 
+  if ('validation' in issue && issue.validation === 'url' && issue.code === z.ZodIssueCode.invalid_string) {
+    return { message: `Parameter '${String(issue.path).replaceAll(',', '.')}' is not a valid URL.` };
+  }
+
   return { message: ctx.defaultError };
 });
 

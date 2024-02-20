@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 import { omit } from '../../../util/objects';
@@ -6,18 +5,10 @@ import logger from '../../../util/logging';
 import { GroupListItem } from '../group.types';
 import { onGroupUpdated } from '../group.events';
 
-const inputSchema = z.object({
-  id: z.number().int().positive()
-});
-
-type VerifyGroupService = z.infer<typeof inputSchema>;
-
-async function verifyGroup(payload: VerifyGroupService): Promise<GroupListItem> {
-  const params = inputSchema.parse(payload);
-
+async function verifyGroup(groupId: number): Promise<GroupListItem> {
   try {
     const updatedGroup = await prisma.group.update({
-      where: { id: params.id },
+      where: { id: groupId },
       data: { verified: true },
       include: {
         _count: {
@@ -28,9 +19,9 @@ async function verifyGroup(payload: VerifyGroupService): Promise<GroupListItem> 
       }
     });
 
-    logger.moderation(`[Group:${params.id}] Verified`);
+    logger.moderation(`[Group:${groupId}] Verified`);
 
-    onGroupUpdated(params.id);
+    onGroupUpdated(groupId);
 
     return {
       ...omit(updatedGroup, '_count', 'verificationHash'),

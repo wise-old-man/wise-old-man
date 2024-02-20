@@ -1139,7 +1139,7 @@ describe('Names API', () => {
       const fetchResponse = await api.get(`/groups/abc/name-changes`);
 
       expect(fetchResponse.status).toBe(400);
-      expect(fetchResponse.body.message).toBe("Parameter 'id' is undefined.");
+      expect(fetchResponse.body.message).toBe("Parameter 'id' is not a valid number.");
     });
 
     it('should not fetch (group not found)', async () => {
@@ -1184,10 +1184,9 @@ describe('Names API', () => {
     });
 
     it('should fetch group name changes', async () => {
-      const fetchResponse = await api
-        .get(`/groups/${globalData.testGroupId}/name-changes`)
-        .query({ limit: null, offset: 'abc' }); // the API should ignore these invalid pagination params
+      const fetchResponse = await api.get(`/groups/${globalData.testGroupId}/name-changes`);
 
+      expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(4); // 3 name changes from Jakesterwars, 1 from USBC
       expect(fetchResponse.body[0].player.username).toBe('usbc');
 
@@ -1195,6 +1194,7 @@ describe('Names API', () => {
         .get(`/groups/${globalData.testGroupId}/name-changes`)
         .query({ limit: 2, offset: 2 });
 
+      expect(fetchResponseLimited.status).toBe(200);
       expect(fetchResponseLimited.body.length).toBe(2); // Test the limit
       expect(fetchResponseLimited.body[0].id).toBe(fetchResponse.body[2].id); // Test the offset
     });
