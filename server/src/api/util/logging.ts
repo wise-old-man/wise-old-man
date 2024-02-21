@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-import { isTesting } from '../../env';
 import { Logger as WinstonLogger, createLogger, transports, format } from 'winston';
 
 class Logger {
@@ -35,28 +34,28 @@ class Logger {
   }
 
   error(message: string, data?: unknown, printData?: boolean) {
-    if (isTesting()) return;
+    if (process.env.NODE_ENV === 'test') return;
 
     this.errorLogger.error(message, data);
     prettyPrint('error', message, printData && data);
   }
 
   debug(message: string, data?: unknown, printData?: boolean) {
-    if (isTesting()) return;
+    if (process.env.NODE_ENV === 'test') return;
 
     this.debugLogger.debug(message, data);
     prettyPrint('debug', message, printData && data);
   }
 
   info(message: string, data?: unknown, printData?: boolean) {
-    if (isTesting()) return;
+    if (process.env.NODE_ENV === 'test') return;
 
     this.infoLogger.info(message, data);
     prettyPrint('info', message, printData && data);
   }
 
   moderation(message: string, data?: unknown, printData?: boolean) {
-    if (isTesting()) return;
+    if (process.env.NODE_ENV === 'test') return;
 
     this.moderationLogger.info(message, data);
     prettyPrint('info', message, printData && data);

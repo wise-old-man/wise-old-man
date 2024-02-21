@@ -3,7 +3,6 @@ import dayjs from 'dayjs';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import prisma from '../../../src/prisma';
-import env from '../../../src/env';
 import apiServer from '../../../src/api';
 import { Achievement, Metric, PlayerType, SKILL_EXP_AT_99 } from '../../../src/utils';
 import * as achievementEvents from '../../../src/api/modules/achievements/achievement.events';
@@ -167,7 +166,7 @@ describe('Achievements API', () => {
       // Import player history
       const importResponse = await api
         .post(`/players/Psikoi/import-history`)
-        .send({ adminPassword: env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.ADMIN_PASSWORD });
 
       expect(importResponse.status).toBe(200);
 

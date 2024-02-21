@@ -1,6 +1,5 @@
 import supertest from 'supertest';
 import { isCuid } from '@paralleldrive/cuid2';
-import env from '../../../src/env';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import redisService from '../../../src/api/services/external/redis.service';
@@ -50,7 +49,7 @@ describe('General API', () => {
     });
 
     it('should not create API key (undefined application name)', async () => {
-      const response = await api.post(`/api-key`).send({ adminPassword: env.ADMIN_PASSWORD });
+      const response = await api.post(`/api-key`).send({ adminPassword: process.env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'application' is undefined.");
@@ -59,7 +58,7 @@ describe('General API', () => {
     it('should not create API key (undefined developer name)', async () => {
       const response = await api
         .post(`/api-key`)
-        .send({ application: 'Some Website', adminPassword: env.ADMIN_PASSWORD });
+        .send({ application: 'Some Website', adminPassword: process.env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'developer' is undefined.");
@@ -69,7 +68,7 @@ describe('General API', () => {
       const response = await api.post(`/api-key`).send({
         application: 'Some Website',
         developer: 'aluminoti',
-        adminPassword: env.ADMIN_PASSWORD
+        adminPassword: process.env.ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(201);
@@ -128,7 +127,7 @@ describe('General API', () => {
       const apiKeyResponse = await api.post(`/api-key`).send({
         application: '123456',
         developer: 'psikoi',
-        adminPassword: env.ADMIN_PASSWORD
+        adminPassword: process.env.ADMIN_PASSWORD
       });
       expect(apiKeyResponse.status).toBe(201);
 
@@ -160,7 +159,7 @@ describe('General API', () => {
       const apiKeyResponse = await api.post(`/api-key`).send({
         application: 'xyzxyz',
         developer: 'Rorro',
-        adminPassword: env.ADMIN_PASSWORD
+        adminPassword: process.env.ADMIN_PASSWORD
       });
       expect(apiKeyResponse.status).toBe(201);
 

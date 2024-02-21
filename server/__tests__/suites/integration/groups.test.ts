@@ -1,7 +1,6 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import env from '../../../src/env';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import { PlayerType } from '../../../src/utils';
@@ -1927,7 +1926,7 @@ describe('Group API', () => {
       expect(before.status).toBe(200);
 
       const removeResponse = await api.delete(`/groups/${createResponse.body.group.id}/members`).send({
-        adminPassword: env.ADMIN_PASSWORD,
+        adminPassword: process.env.ADMIN_PASSWORD,
         members: ['harry']
       });
 
@@ -2025,7 +2024,7 @@ describe('Group API', () => {
       expect(before.status).toBe(200);
 
       const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
-        adminPassword: env.ADMIN_PASSWORD
+        adminPassword: process.env.ADMIN_PASSWORD
       });
 
       expect(deleteResponse.status).toBe(200);
@@ -2607,7 +2606,7 @@ describe('Group API', () => {
 
     it('should not reset code (group not found)', async () => {
       const response = await api.put(`/groups/100000/reset-code`).send({
-        adminPassword: env.ADMIN_PASSWORD
+        adminPassword: process.env.ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(404);
@@ -2616,7 +2615,7 @@ describe('Group API', () => {
 
     it('should reset code', async () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/reset-code`).send({
-        adminPassword: env.ADMIN_PASSWORD
+        adminPassword: process.env.ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(200);
@@ -2661,7 +2660,7 @@ describe('Group API', () => {
 
     it('should not verify group (group not found)', async () => {
       const response = await api.put(`/groups/100000/verify`).send({
-        adminPassword: env.ADMIN_PASSWORD
+        adminPassword: process.env.ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(404);
@@ -2670,7 +2669,7 @@ describe('Group API', () => {
 
     it('should verify group', async () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/verify`).send({
-        adminPassword: env.ADMIN_PASSWORD
+        adminPassword: process.env.ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(200);

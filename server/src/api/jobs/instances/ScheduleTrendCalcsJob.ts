@@ -1,5 +1,4 @@
 import prisma from '../../../prisma';
-import { isDevelopment } from '../../../env';
 import { REAL_METRICS } from '../../../utils/metrics';
 import { normalizeDate, getDatesInBetween } from '../../util/dates';
 import jobManager from '../job.manager';
@@ -18,7 +17,7 @@ class ScheduleTrendCalcsJob implements JobDefinition<unknown> {
   }
 
   async execute() {
-    if (isDevelopment()) {
+    if (process.env.NODE_ENV === 'development') {
       return;
     }
 
