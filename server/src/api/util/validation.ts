@@ -1,6 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod';
 import { isValidDate } from './dates';
+import { GroupRole } from '../../utils';
+
+export type PaginationOptions = {
+  limit?: number;
+  offset?: number;
+};
 
 function enumErrorMap(path: Array<string | number>, options: Array<string | number>) {
   if (path.length === 1 && path[0] === 'country') {
@@ -57,6 +62,10 @@ z.setErrorMap((issue, ctx) => {
     return { message: `Parameter '${issue.path}' must have a maximum of ${issue.maximum} character(s).` };
   }
 
+  if ('validation' in issue && issue.validation === 'url' && issue.code === z.ZodIssueCode.invalid_string) {
+    return { message: `Parameter '${String(issue.path).replaceAll(',', '.')}' is not a valid URL.` };
+  }
+
   return { message: ctx.defaultError };
 });
 
@@ -76,33 +85,54 @@ export function getPaginationSchema(maxLimit = 50) {
   });
 }
 
-export type PaginationOptions = {
-  limit?: number;
-  offset?: number;
-};
+const INVALID_TEAM_TYPE_ERROR = `Invalid teams list. Must be an array of { name: string; participants: string[]; }.`;
 
-export function getNumber(payload: any): number | undefined {
-  if (payload === undefined || payload === null || isNaN(payload) || String(payload).length === 0) {
-    return undefined;
+export const teamSchema = z.object(
+  {
+    name: z
+      .string({
+        required_error: INVALID_TEAM_TYPE_ERROR,
+        invalid_type_error: INVALID_TEAM_TYPE_ERROR
+      })
+      .min(1, 'Team names must have at least one character.')
+      .max(30, 'Team names cannot be longer than 30 characters.'),
+    participants: z
+      .array(z.string(), {
+        invalid_type_error: INVALID_TEAM_TYPE_ERROR,
+        required_error: INVALID_TEAM_TYPE_ERROR
+      })
+      .nonempty({ message: 'All teams must have a valid non-empty participants array.' })
+  },
+  {
+    invalid_type_error: INVALID_TEAM_TYPE_ERROR
   }
+);
 
-  return Number(payload);
-}
-
-export function getString(payload: any): string | undefined {
-  if (payload === undefined || payload === null) return undefined;
-  return String(payload);
-}
-
-export function getEnum(payload: any): any | undefined {
-  return getString(payload) as any;
-}
-
-export function getDate(payload: any): Date | undefined {
-  try {
-    const dateString = z.string().refine(isValidDate).parse(payload);
-    return new Date(dateString);
-  } catch (error) {
-    return undefined;
+export const memberSchema = z.object(
+  {
+    username: z.string(),
+    role: z.optional(z.nativeEnum(GroupRole)).default(GroupRole.MEMBER)
+  },
+  {
+    invalid_type_error: 'Invalid members list. Must be an array of { username: string; role?: string; }.'
   }
+);
+
+const urlSchema = z.preprocess(str => (str === '' ? null : str), z.string().url().or(z.null()));
+
+export const socialLinksSchema = z.object({
+  website: z.optional(urlSchema),
+  discord: z.optional(urlSchema),
+  twitter: z.optional(urlSchema),
+  twitch: z.optional(urlSchema),
+  youtube: z.optional(urlSchema)
+});
+
+export function getDateSchema(propName: string) {
+  return z
+    .any()
+    .refine(s => typeof s === 'string' && isValidDate(s), {
+      message: `Parameter '${propName}' is not a valid date.`
+    })
+    .pipe(z.coerce.date()) as unknown as z.ZodDate;
 }

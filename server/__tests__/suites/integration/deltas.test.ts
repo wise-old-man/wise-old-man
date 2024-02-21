@@ -340,43 +340,19 @@ describe('Deltas API', () => {
 
       globalData.testGroupId = createGroupResponse.body.group.id;
 
-      await expect(
-        findGroupDeltas({
-          id: globalData.testGroupId,
-          metric: 'smithing',
-          period: 'decade'
-        })
-      ).rejects.toThrow('Invalid period: decade.');
-    });
-
-    it('should not fetch (invalid metric)', async () => {
-      await expect(
-        findGroupDeltas({
-          id: globalData.testGroupId,
-          metric: 'sailing' as Metric,
-          period: 'week'
-        })
-      ).rejects.toThrow("Invalid enum value for 'metric'");
+      await expect(findGroupDeltas(globalData.testGroupId, 'smithing', 'decade')).rejects.toThrow(
+        'Invalid period: decade.'
+      );
     });
 
     it('should not fetch (group not found)', async () => {
       await expect(
-        findGroupDeltas({
-          id: 2_000_000,
-          metric: 'smithing',
-          period: 'week',
-          limit: 20,
-          offset: 0
-        })
+        findGroupDeltas(2_000_000, 'smithing', 'week', undefined, undefined, { limit: 20, offset: 0 })
       ).rejects.toThrow('Group not found.');
     });
 
     it('should fetch group deltas (common period)', async () => {
-      const directResponse = await findGroupDeltas({
-        id: globalData.testGroupId,
-        metric: 'smithing',
-        period: 'week'
-      });
+      const directResponse = await findGroupDeltas(globalData.testGroupId, 'smithing', 'week');
 
       expect(directResponse[0]).toMatchObject({
         player: { username: 'psikoi' },
@@ -397,11 +373,7 @@ describe('Deltas API', () => {
     });
 
     it('should fetch group deltas (custom period)', async () => {
-      const directResponse = await findGroupDeltas({
-        id: globalData.testGroupId,
-        metric: 'smithing',
-        period: '3d6h'
-      });
+      const directResponse = await findGroupDeltas(globalData.testGroupId, 'smithing', '3d6h');
 
       expect(directResponse[0]).toMatchObject({
         player: { username: 'psikoi' },
@@ -423,31 +395,34 @@ describe('Deltas API', () => {
 
     it('should not fetch deltas between (min date greater than max date)', async () => {
       await expect(
-        findGroupDeltas({
-          id: globalData.testGroupId,
-          metric: 'smithing',
-          minDate: new Date('2021-12-14T04:15:36.000Z'),
-          maxDate: new Date('2015-12-14T04:15:36.000Z')
-        })
+        findGroupDeltas(
+          globalData.testGroupId,
+          'smithing',
+          undefined,
+          new Date('2021-12-14T04:15:36.000Z'),
+          new Date('2015-12-14T04:15:36.000Z')
+        )
       ).rejects.toThrow('Min date must be before the max date.');
     });
 
     it('should fetch group deltas (time range)', async () => {
-      const emptyGains = await findGroupDeltas({
-        id: globalData.testGroupId,
-        metric: 'smithing',
-        minDate: new Date('2015-12-14T04:15:36.000Z'),
-        maxDate: new Date('2021-12-14T04:15:36.000Z')
-      });
+      const emptyGains = await findGroupDeltas(
+        globalData.testGroupId,
+        'smithing',
+        undefined,
+        new Date('2015-12-14T04:15:36.000Z'),
+        new Date('2021-12-14T04:15:36.000Z')
+      );
 
       expect(emptyGains.length).toBe(0);
 
-      const recentGains = await findGroupDeltas({
-        id: globalData.testGroupId,
-        metric: 'smithing',
-        minDate: new Date('2021-12-14T04:15:36.000Z'),
-        maxDate: new Date('2025-12-14T04:15:36.000Z')
-      });
+      const recentGains = await findGroupDeltas(
+        globalData.testGroupId,
+        'smithing',
+        undefined,
+        new Date('2021-12-14T04:15:36.000Z'),
+        new Date('2025-12-14T04:15:36.000Z')
+      );
 
       expect(recentGains[0]).toMatchObject({
         player: { username: 'psikoi' },
@@ -502,14 +477,14 @@ describe('Deltas API', () => {
     });
 
     it('should fetch group deltas (with offset)', async () => {
-      const result = await findGroupDeltas({
-        id: globalData.testGroupId,
-        metric: 'smithing',
-        minDate: new Date('2021-12-14T04:15:36.000Z'),
-        maxDate: new Date('2025-12-14T04:15:36.000Z'),
-        limit: 1,
-        offset: 1
-      });
+      const result = await findGroupDeltas(
+        globalData.testGroupId,
+        'smithing',
+        undefined,
+        new Date('2021-12-14T04:15:36.000Z'),
+        new Date('2025-12-14T04:15:36.000Z'),
+        { limit: 1, offset: 1 }
+      );
 
       expect(result.length).toBe(1);
 

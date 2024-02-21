@@ -1,20 +1,20 @@
-import { ZodError } from 'zod';
 import * as Sentry from '@sentry/node';
 import express from 'express';
-import { getThreadIndex } from '../env';
+import { ZodError } from 'zod';
+import env, { getThreadIndex } from '../env';
 import { BadRequestError, NotFoundError } from './errors';
-import logger from './util/logging';
-import { metricAbbreviation } from './util/middlewares';
 import competitionRouter from './modules/competitions/competition.router';
 import deltaRouter from './modules/deltas/delta.router';
-import generalRouter from './modules/general/general.router';
-import patronRouter from './modules/patrons/patron.router';
 import efficiencyRouter from './modules/efficiency/efficiency.router';
-import groupRoutes from './modules/groups/group.routes';
+import generalRouter from './modules/general/general.router';
+import groupRouter from './modules/groups/group.router';
 import nameRouter from './modules/name-changes/name-change.router';
+import patronRouter from './modules/patrons/patron.router';
 import playerRouter from './modules/players/player.router';
-import metricsService from './services/external/metrics.service';
 import recordRouter from './modules/records/record.router';
+import metricsService from './services/external/metrics.service';
+import logger from './util/logging';
+import { metricAbbreviation } from './util/middlewares';
 
 class RoutingHandler {
   router: express.Router;
@@ -38,21 +38,20 @@ class RoutingHandler {
 
   setupRoutes() {
     // A simple ping/test endpoint
-    this.router.get('/', (req, res) => res.json(true));
+    this.router.get('/', (_req, res) => res.json(env.npm_package_version));
 
     // Register all the modules to the router
     this.router.use(competitionRouter);
     this.router.use(deltaRouter);
     this.router.use(efficiencyRouter);
     this.router.use(generalRouter);
+    this.router.use(groupRouter);
     this.router.use(nameRouter);
     this.router.use(patronRouter);
     this.router.use(playerRouter);
     this.router.use(recordRouter);
 
-    this.router.use('/groups', groupRoutes);
-
-    this.router.get('/metrics', async (req, res) => {
+    this.router.get('/metrics', async (_req, res) => {
       const metrics = await metricsService.getMetrics();
       res.json({ threadIndex: getThreadIndex(), data: metrics });
     });
@@ -63,19 +62,14 @@ class RoutingHandler {
     this.router.use(Sentry.Handlers.errorHandler());
 
     // Handle endpoint not found
-    this.router.use((req, res, next) => {
+    this.router.use((_req, _res, next) => {
       next(new NotFoundError('Endpoint was not found'));
     });
 
-    // Handle zod errors
-    this.router.use((error, req, res, next) => {
-      if (error instanceof ZodError) {
-        next(new BadRequestError(error.issues[0].message));
-        return;
-      }
-
-      if (error && error.length > 0 && error[0].errors instanceof ZodError) {
-        next(new BadRequestError(error[0].errors.issues[0].message));
+    // Catch and convert Zod errors to (400) BadRequest errors
+    this.router.use((error, _req, _res, next) => {
+      if (error && Array.isArray(error) && error.length > 0 && error[0].errors instanceof ZodError) {
+        next(new BadRequestError(error[0].errors?.issues?.[0]?.message));
         return;
       }
 

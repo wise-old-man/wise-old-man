@@ -1,23 +1,14 @@
-import { z } from 'zod';
 import prisma, { Player } from '../../../../prisma';
 import { Period, PeriodProps } from '../../../../utils';
 import { NotFoundError, BadRequestError } from '../../../errors';
 import { jobManager, JobType } from '../../../jobs';
 
-const inputSchema = z.object({
-  groupId: z.number().int().positive()
-});
-
-type UpdateAllMembersParams = z.infer<typeof inputSchema>;
-
-async function updateAllMembers(payload: UpdateAllMembersParams): Promise<number> {
-  const params = inputSchema.parse(payload);
-
-  const outdatedPlayers = await getOutdatedMembers(params.groupId);
+async function updateAllMembers(groupId: number): Promise<number> {
+  const outdatedPlayers = await getOutdatedMembers(groupId);
 
   if (!outdatedPlayers || outdatedPlayers.length === 0) {
     const group = await prisma.group.findFirst({
-      where: { id: params.groupId }
+      where: { id: groupId }
     });
 
     if (!group) {

@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { PlayerBuild, PlayerType } from '../../../../utils';
 import { NotFoundError, BadRequestError } from '../../../errors';
@@ -14,22 +13,14 @@ import {
 } from '../../snapshots/snapshot.utils';
 import { GroupStatistics } from '../group.types';
 
-const inputSchema = z.object({
-  id: z.number().int().positive()
-});
-
-type FetchGroupStatisticsParams = z.infer<typeof inputSchema>;
-
-async function fetchGroupStatistics(payload: FetchGroupStatisticsParams): Promise<GroupStatistics> {
-  const params = inputSchema.parse(payload);
-
+async function fetchGroupStatistics(groupId: number): Promise<GroupStatistics> {
   const memberships = await prisma.membership.findMany({
-    where: { groupId: params.id }
+    where: { groupId }
   });
 
   if (!memberships || memberships.length === 0) {
     const group = await prisma.group.findFirst({
-      where: { id: params.id }
+      where: { id: groupId }
     });
 
     if (!group) {

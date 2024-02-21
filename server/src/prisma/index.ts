@@ -22,7 +22,16 @@ import {
 import { DenyContext, SkipContext, isComputedMetric } from '../utils';
 import { NameChangeStatus } from './enum-adapter';
 import { routeAfterHook } from './hooks';
-import { parseBigInt } from './utils';
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+BigInt.prototype.toJSON = function () {
+  return parseBigInt(this);
+};
+
+function parseBigInt(bigint: bigint): number {
+  return bigint !== null && bigint !== undefined && parseInt(bigint.toString());
+}
 
 let hooksEnabled = true;
 

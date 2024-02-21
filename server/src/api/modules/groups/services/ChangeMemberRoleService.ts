@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { GroupRole } from '../../../../utils';
 import logger from '../../../util/logging';
@@ -8,38 +7,32 @@ import { ActivityType, MembershipWithPlayer } from '../group.types';
 import { standardize } from '../../players/player.utils';
 import * as groupEvents from '../group.events';
 
-const inputSchema = z.object({
-  id: z.number().int().positive(),
-  username: z.string(),
-  role: z.nativeEnum(GroupRole)
-});
-
-type ChangeMemberRoleService = z.infer<typeof inputSchema>;
-
-async function changeMemberRole(payload: ChangeMemberRoleService): Promise<MembershipWithPlayer> {
-  const params = inputSchema.parse(payload);
-
+async function changeMemberRole(
+  groupId: number,
+  username: string,
+  newRole: GroupRole
+): Promise<MembershipWithPlayer> {
   const membership = await prisma.membership.findFirst({
     where: {
-      groupId: params.id,
-      player: { username: standardize(params.username) }
+      groupId,
+      player: { username: standardize(username) }
     }
   });
 
   if (!membership) {
     const group = await prisma.group.findFirst({
-      where: { id: params.id }
+      where: { id: groupId }
     });
 
     if (group) {
-      throw new BadRequestError(`${params.username} is not a member of ${group.name}.`);
+      throw new BadRequestError(`${username} is not a member of ${group.name}.`);
     } else {
       throw new ServerError('Failed to change member role.');
     }
   }
 
-  if (membership.role === params.role) {
-    throw new BadRequestError(`${params.username} is already a ${membership.role}.`);
+  if (membership.role === newRole) {
+    throw new BadRequestError(`${username} is already a ${membership.role}.`);
   }
 
   const result = await prisma
@@ -52,7 +45,7 @@ async function changeMemberRole(payload: ChangeMemberRoleService): Promise<Membe
           }
         },
         data: {
-          role: params.role,
+          role: newRole,
           group: {
             update: {
               updatedAt: new Date()
@@ -69,7 +62,7 @@ async function changeMemberRole(payload: ChangeMemberRoleService): Promise<Membe
           groupId: membership.groupId,
           playerId: membership.playerId,
           type: ActivityType.CHANGED_ROLE,
-          role: params.role
+          role: newRole
         }
       });
 

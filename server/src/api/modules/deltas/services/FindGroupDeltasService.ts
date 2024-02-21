@@ -1,39 +1,31 @@
-import { z } from 'zod';
 import { omit } from '../../../util/objects';
-import { Metric, parsePeriodExpression } from '../../../../utils';
+import { Metric, Period, parsePeriodExpression } from '../../../../utils';
 import prisma, { Player, Snapshot } from '../../../../prisma';
-import { getPaginationSchema } from '../../../util/validation';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { calculateMetricDelta } from '../delta.utils';
 import { DeltaGroupLeaderboardEntry } from '../delta.types';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
+import { PaginationOptions } from 'src/api/util/validation';
 
-const inputSchema = z
-  .object({
-    id: z.number().int().positive(),
-    metric: z.nativeEnum(Metric),
-    // These can be filtered by a period string (week, day, 2m3w6d)
-    period: z.string().optional(),
-    // or by a time range (min date and max date)
-    minDate: z.date().optional(),
-    maxDate: z.date().optional()
-  })
-  .merge(getPaginationSchema(100_000)) // unlimited "max" limit
-  .refine(s => s.period || (s.maxDate && s.minDate), {
-    message: 'Invalid period and start/end dates.'
-  })
-  .refine(s => !(s.minDate && s.maxDate && s.minDate >= s.maxDate), {
-    message: 'Min date must be before the max date.'
-  });
+async function findGroupDeltas(
+  groupId: number,
+  metric: Metric,
+  period?: Period | string,
+  minDate?: Date,
+  maxDate?: Date,
+  pagination?: PaginationOptions
+): Promise<DeltaGroupLeaderboardEntry[]> {
+  if (!period && (!minDate || !maxDate)) {
+    throw new BadRequestError('Invalid period and start/end dates.');
+  }
 
-type FindGroupDeltasParams = z.infer<typeof inputSchema>;
-
-async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaGroupLeaderboardEntry[]> {
-  const params = inputSchema.parse(payload);
+  if (minDate && maxDate && minDate >= maxDate) {
+    throw new BadRequestError('Min date must be before the max date.');
+  }
 
   // Fetch this group and all of its memberships
   const groupAndMemberships = await prisma.group.findFirst({
-    where: { id: params.id },
+    where: { id: groupId },
     include: {
       memberships: {
         select: {
@@ -41,7 +33,7 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaGro
             include: {
               // If fetching by period (not custom time range), the "end" snapshots will always be
               // the player's latest snapshots. So it's cheaper to just pull them from the latestSnapshotId relation
-              latestSnapshot: !!params.period
+              latestSnapshot: !!period
             }
           }
         }
@@ -55,7 +47,9 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaGro
 
   const playerSnapshotMap = await buildPlayerSnapshotMap(
     groupAndMemberships.memberships.map(m => m.player),
-    params
+    period,
+    minDate,
+    maxDate
   );
 
   const results = Array.from(playerSnapshotMap.keys())
@@ -66,7 +60,7 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaGro
         return null;
       }
 
-      const data = calculateMetricDelta(player, params.metric, startSnapshot, endSnapshot);
+      const data = calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
 
       return {
         player: omit(player, 'latestSnapshot'),
@@ -76,8 +70,11 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaGro
       };
     })
     .filter(r => r !== null)
-    .sort((a, b) => b.data.gained - a.data.gained)
-    .slice(params.offset, params.offset + params.limit);
+    .sort((a, b) => b.data.gained - a.data.gained);
+
+  if (pagination) {
+    return results.slice(pagination.offset, pagination.offset + pagination.limit);
+  }
 
   return results;
 }
@@ -90,18 +87,20 @@ type PlayerMapValue = {
 
 async function buildPlayerSnapshotMap(
   players: Array<Player & { latestSnapshot?: Snapshot }>,
-  params: FindGroupDeltasParams
+  period?: Period | string,
+  minDate?: Date,
+  maxDate?: Date
 ) {
   const playerIds = players.map(p => p.id);
 
   let startSnapshots: Snapshot[];
   let endSnapshots: Snapshot[];
 
-  if (params.period) {
-    startSnapshots = await findStartingSnapshots(playerIds, params.period);
+  if (period) {
+    startSnapshots = await findStartingSnapshots(playerIds, period);
     endSnapshots = players.map(p => p.latestSnapshot).filter(Boolean);
   } else {
-    const [start, end] = await findEdgeSnapshots(playerIds, params.minDate, params.maxDate);
+    const [start, end] = await findEdgeSnapshots(playerIds, minDate, maxDate);
     startSnapshots = start;
     endSnapshots = end;
   }

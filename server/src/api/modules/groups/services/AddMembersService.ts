@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { GroupRole } from '../../../../utils';
 import logger from '../../../util/logging';
@@ -8,27 +7,11 @@ import * as groupEvents from '../group.events';
 import { ActivityType } from '../group.types';
 import { findPlayers } from '../../players/services/FindPlayersService';
 
-const MEMBER_INPUT_SCHEMA = z.object(
-  {
-    username: z.string(),
-    role: z.nativeEnum(GroupRole).optional().default(GroupRole.MEMBER)
-  },
-  { invalid_type_error: 'Invalid members list. Must be an array of { username: string; role?: string; }.' }
-);
-
-const inputSchema = z.object({
-  id: z.number().int().positive(),
-  members: z
-    .array(MEMBER_INPUT_SCHEMA, { invalid_type_error: "Parameter 'members' is not a valid array." })
-    .nonempty({ message: 'Empty members list.' })
-});
-
-type AddMembersService = z.infer<typeof inputSchema>;
-
-async function addMembers(payload: AddMembersService): Promise<{ count: number }> {
-  const params = inputSchema.parse(payload);
-
-  const invalidUsernames = params.members.map(m => m.username).filter(u => !isValidUsername(u));
+async function addMembers(
+  groupId: number,
+  members: Array<{ username: string; role: GroupRole }>
+): Promise<{ count: number }> {
+  const invalidUsernames = members.map(m => m.username).filter(u => !isValidUsername(u));
 
   if (invalidUsernames.length > 0) {
     throw new BadRequestError(
@@ -41,14 +24,14 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
   // Find all existing members' ids
   const existingIds = (
     await prisma.membership.findMany({
-      where: { groupId: params.id },
+      where: { groupId },
       select: { playerId: true }
     })
   ).map(p => p.playerId);
 
   // Find or create all players with the given usernames
   const players = await findPlayers({
-    usernames: params.members.map(m => m.username),
+    usernames: members.map(m => m.username),
     createIfNotFound: true
   });
 
@@ -60,11 +43,11 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
   }
 
   const newMemberships = newPlayers.map(player => {
-    const role = params.members.find(m => standardize(m.username) === player.username)?.role;
+    const role = members.find(m => standardize(m.username) === player.username)?.role;
 
     if (!role) return;
 
-    return { groupId: params.id, playerId: player.id, role };
+    return { groupId, playerId: player.id, role };
   });
 
   const newActivites = newMemberships.map(membership => {
@@ -88,7 +71,7 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
       }
 
       await transaction.group.update({
-        where: { id: params.id },
+        where: { id: groupId },
         data: { updatedAt: new Date() }
       });
 
@@ -103,9 +86,9 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
       throw new ServerError('Failed to add members.');
     });
 
-  groupEvents.onGroupUpdated(params.id);
+  groupEvents.onGroupUpdated(groupId);
 
-  logger.moderation(`[Group:${params.id}] (${newMemberships.map(m => m.playerId)}) joined`);
+  logger.moderation(`[Group:${groupId}] (${newMemberships.map(m => m.playerId)}) joined`);
 
   return { count: addedCount };
 }

@@ -127,3 +127,38 @@ export async function checkCompetitionVerificationCode(req: unknown, _res: Respo
 
   next();
 }
+
+export async function checkGroupVerificationCode(req: unknown, _res: Response, next: NextFunction) {
+  const { id } = (req as Request).params;
+  const { verificationCode, adminPassword } = (req as Request).body;
+
+  // Override verification code checks for admins
+  if (adminPassword && String(adminPassword) === env.ADMIN_PASSWORD) {
+    return next();
+  }
+
+  if (!id) {
+    return next(new BadRequestError("Parameter 'id' is required."));
+  }
+
+  if (!verificationCode) {
+    return next(new BadRequestError("Parameter 'verificationCode' is required."));
+  }
+
+  const group = await prisma.group.findFirst({
+    where: { id: Number(id) },
+    select: { verificationHash: true }
+  });
+
+  if (!group) {
+    return next(new NotFoundError('Group not found.'));
+  }
+
+  const verified = await cryptService.verifyCode(group.verificationHash, String(verificationCode));
+
+  if (!verified) {
+    return next(new ForbiddenError('Incorrect verification code.'));
+  }
+
+  next();
+}

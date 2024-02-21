@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { PRIVELEGED_GROUP_ROLES } from '../../../..//utils';
 import { omit } from '../../../util/objects';
@@ -6,17 +5,9 @@ import { NotFoundError } from '../../../errors';
 import { GroupDetails } from '../group.types';
 import { buildDefaultSocialLinks } from '../group.utils';
 
-const inputSchema = z.object({
-  id: z.number().int().positive()
-});
-
-type FetchGroupDetailsParams = z.infer<typeof inputSchema>;
-
-async function fetchGroupDetails(payload: FetchGroupDetailsParams): Promise<GroupDetails> {
-  const params = inputSchema.parse(payload);
-
+async function fetchGroupDetails(id: number): Promise<GroupDetails> {
   const group = await prisma.group.findFirst({
-    where: { id: params.id },
+    where: { id },
     include: {
       memberships: {
         include: { player: true }
