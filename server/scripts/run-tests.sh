@@ -13,8 +13,10 @@ fail() {
 
 setup() {
     # Reset the test database
-    export CORE_DATABASE=wise-old-man_TEST;
-    export NODE_ENV=test TZ=UTC;
+    export CORE_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/wise-old-man_TEST?schema=public
+    export ADMIN_PASSWORD=password123_the_most_hackable_pw_ever
+    export NODE_ENV=test
+    export TZ=UTC;
     prisma migrate reset --force;
 }
 

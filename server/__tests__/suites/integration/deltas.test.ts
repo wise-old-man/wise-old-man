@@ -2,7 +2,6 @@ import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import { PlayerType, Metric } from '../../../src/utils';
-import env from '../../../src/env';
 import apiServer from '../../../src/api';
 import {
   registerCMLMock,
@@ -610,7 +609,7 @@ describe('Deltas API', () => {
     it('should fetch leaderboards (with player country filter)', async () => {
       const updateCountryResponse = await api
         .put('/players/psikoi/country')
-        .send({ country: 'USA', adminPassword: env.ADMIN_PASSWORD });
+        .send({ country: 'USA', adminPassword: process.env.ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
       expect(updateCountryResponse.body).toMatchObject({

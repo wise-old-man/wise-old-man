@@ -4,7 +4,6 @@ import cors from 'cors';
 import express, { Express } from 'express';
 import { RateLimiterRedis } from 'rate-limiter-flexible';
 import userAgent from 'express-useragent';
-import env, { isTesting } from '../env';
 import { jobManager } from './jobs';
 import router from './routing';
 import metricsService from './services/external/metrics.service';
@@ -30,7 +29,7 @@ class API {
 
     jobManager.init();
 
-    if (!isTesting()) {
+    if (process.env.NODE_ENV !== 'test') {
       this.setupServices();
     }
 
@@ -57,7 +56,7 @@ class API {
     // Check the API key or IP of the request origin, and consume rate limit points accordingly
     this.express.use(async (req, res, next) => {
       // Ignore rate limits while running tests
-      if (isTesting()) {
+      if (process.env.NODE_ENV === 'test') {
         next();
         return;
       }
@@ -128,7 +127,7 @@ class API {
 
   private setupServices() {
     Sentry.init({
-      dsn: env.API_SENTRY_DSN,
+      dsn: process.env.API_SENTRY_DSN,
       tracesSampleRate: 0.01,
       integrations: [
         new Sentry.Integrations.Http({ tracing: true }),

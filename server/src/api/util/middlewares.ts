@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import env from '../../env';
 import prisma from '../../prisma';
 import { isMetric, parseMetricAbbreviation } from '../../utils';
 import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../errors';
@@ -83,7 +82,7 @@ export function checkAdminPermission(req: unknown, _res: Response, next: NextFun
     return next(new BadRequestError("Required parameter 'adminPassword' is undefined."));
   }
 
-  if (String(adminPassword) !== env.ADMIN_PASSWORD) {
+  if (String(adminPassword) !== process.env.ADMIN_PASSWORD) {
     return next(new ForbiddenError('Incorrect admin password.'));
   }
 
@@ -95,7 +94,7 @@ export async function checkCompetitionVerificationCode(req: unknown, _res: Respo
   const { verificationCode, adminPassword } = (req as Request).body;
 
   // Override verification code checks for admins
-  if (adminPassword && String(adminPassword) === env.ADMIN_PASSWORD) {
+  if (adminPassword && String(adminPassword) === process.env.ADMIN_PASSWORD) {
     return next();
   }
 
@@ -133,7 +132,7 @@ export async function checkGroupVerificationCode(req: unknown, _res: Response, n
   const { verificationCode, adminPassword } = (req as Request).body;
 
   // Override verification code checks for admins
-  if (adminPassword && String(adminPassword) === env.ADMIN_PASSWORD) {
+  if (adminPassword && String(adminPassword) === process.env.ADMIN_PASSWORD) {
     return next();
   }
 

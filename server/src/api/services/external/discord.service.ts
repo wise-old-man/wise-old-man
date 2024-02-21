@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
-import env, { isTesting } from '../../../env';
 import prisma, { Achievement, Competition, Player } from '../../../prisma';
 import { FlaggedPlayerReviewContext, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
 import {
@@ -17,26 +16,32 @@ export interface EventPeriodDelay {
 }
 
 function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
-  if (isTesting()) return;
+  if (process.env.NODE_ENV === 'test') return;
 
-  if (!env.DISCORD_MONITORING_WEBHOOK_URL) {
+  if (!process.env.DISCORD_MONITORING_WEBHOOK_URL) {
     logger.error('Missing Discord Monitoring Webhook URL.');
     return;
   }
 
-  const webhookClient = new WebhookClient({ url: env.DISCORD_MONITORING_WEBHOOK_URL });
+  const webhookClient = new WebhookClient({
+    url: process.env.DISCORD_MONITORING_WEBHOOK_URL
+  });
+
   return webhookClient.send({ content: `${text} ${tagAdmin ? '<@329256344798494773>' : ''}` });
 }
 
 function sendPatreonUpdateMessage(text: string) {
-  if (isTesting()) return;
+  if (process.env.NODE_ENV === 'test') return;
 
-  if (!env.DISCORD_PATREON_WEBHOOK_URL) {
+  if (!process.env.DISCORD_PATREON_WEBHOOK_URL) {
     logger.error('Missing Discord Patreon Webhook URL.');
     return;
   }
 
-  const webhookClient = new WebhookClient({ url: env.DISCORD_PATREON_WEBHOOK_URL });
+  const webhookClient = new WebhookClient({
+    url: process.env.DISCORD_PATREON_WEBHOOK_URL
+  });
+
   return webhookClient.send({ content: text });
 }
 
@@ -44,14 +49,14 @@ function sendPatreonUpdateMessage(text: string) {
  * Dispatch an event to our Discord Bot API.
  */
 function dispatch(type: string, payload: unknown) {
-  if (isTesting()) return;
+  if (process.env.NODE_ENV === 'test') return;
 
-  if (!env.DISCORD_BOT_API_URL) {
+  if (!process.env.DISCORD_BOT_API_URL) {
     logger.error('Missing Discord Bot API URL.');
     return;
   }
 
-  axios.post(env.DISCORD_BOT_API_URL, { type, data: payload }).catch(e => {
+  axios.post(process.env.DISCORD_BOT_API_URL, { type, data: payload }).catch(e => {
     logger.error('Error sending discord event.', e);
   });
 }
