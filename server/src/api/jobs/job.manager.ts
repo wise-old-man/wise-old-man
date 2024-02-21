@@ -1,5 +1,5 @@
 import { JobsOptions, Queue, QueueScheduler, Worker } from 'bullmq';
-import { getThreadIndex, isDevelopment, isTesting } from '../../env';
+import { getThreadIndex } from '../../env';
 import redisConfig from '../../config/redis.config';
 import logger from '../util/logging';
 import metricsService from '../services/external/metrics.service';
@@ -125,7 +125,7 @@ class JobManager {
    * Adds a new job to the queue, to be executed ASAP.
    */
   async add(job: DispatchableJob, options?: JobsOptions) {
-    if (isTesting()) return;
+    if (process.env.NODE_ENV === 'test') return;
 
     const matchingQueue = this.queues.find(q => q.name === job.type);
 
@@ -231,7 +231,7 @@ class JobManager {
 
     // If running through pm2 (production), only run cronjobs on the first CPU core.
     // Otherwise, on a 4 core server, every cronjob would run 4x as often.
-    if (getThreadIndex() === 0 || isDevelopment()) {
+    if (getThreadIndex() === 0 || process.env.NODE_ENV === 'development') {
       this.initCrons();
     }
   }

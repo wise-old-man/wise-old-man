@@ -1,4 +1,3 @@
-import { isTesting } from '../../../../env';
 import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import { PlayerType, PlayerBuild, PlayerStatus } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
@@ -22,7 +21,7 @@ type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUncheckedUpdateInput
 >;
 
-let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
+let UPDATE_COOLDOWN = process.env.NODE_ENV === 'test' ? 0 : 60;
 
 type UpdatePlayerResult = [playerDetails: PlayerDetails, isNew: boolean];
 

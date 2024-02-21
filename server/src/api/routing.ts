@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 import express from 'express';
 import { ZodError } from 'zod';
-import env, { getThreadIndex } from '../env';
+import { getThreadIndex } from '../env';
 import { BadRequestError, NotFoundError } from './errors';
 import competitionRouter from './modules/competitions/competition.router';
 import deltaRouter from './modules/deltas/delta.router';
@@ -38,7 +38,7 @@ class RoutingHandler {
 
   setupRoutes() {
     // A simple ping/test endpoint
-    this.router.get('/', (_req, res) => res.json(env.npm_package_version));
+    this.router.get('/', (_req, res) => res.json(process.env.npm_package_version));
 
     // Register all the modules to the router
     this.router.use(competitionRouter);

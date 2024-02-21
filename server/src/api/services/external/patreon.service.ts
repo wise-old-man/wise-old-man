@@ -1,4 +1,3 @@
-import env from '../../../env';
 import { z } from 'zod';
 import axios from 'axios';
 import { Patron } from '../../../prisma';
@@ -141,7 +140,7 @@ async function fetchPledges(campaignId: string): Promise<PledgesResponse> {
 
   const { data } = await axios.get(url.toString(), {
     headers: {
-      Authorization: `Bearer ${env.PATREON_BEARER_TOKEN}`
+      Authorization: `Bearer ${process.env.PATREON_BEARER_TOKEN}`
     }
   });
 
@@ -158,7 +157,7 @@ async function fetchMembers(campaignId: string): Promise<MembersResponse> {
 
   const { data } = await axios.get(url.toString(), {
     headers: {
-      Authorization: `Bearer ${env.PATREON_BEARER_TOKEN}`
+      Authorization: `Bearer ${process.env.PATREON_BEARER_TOKEN}`
     }
   });
 

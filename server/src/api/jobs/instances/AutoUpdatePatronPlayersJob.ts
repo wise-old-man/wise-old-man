@@ -1,4 +1,3 @@
-import { isDevelopment } from '../../../env';
 import prisma from '../../../prisma';
 import { Period, PeriodProps } from '../../../utils';
 import { JobType, JobDefinition, JobPriority } from '../job.types';
@@ -12,7 +11,7 @@ class AutoUpdatePatronPlayersJob implements JobDefinition<unknown> {
   }
 
   async execute() {
-    if (isDevelopment()) {
+    if (process.env.NODE_ENV === 'development') {
       return;
     }
 

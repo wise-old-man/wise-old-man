@@ -1,5 +1,3 @@
-import env from '../../../env';
-
 interface ProxiesConfig {
   port: number;
   username: string;
@@ -21,9 +19,9 @@ class ProxiesHandler {
   private config: ProxiesConfig;
 
   constructor() {
-    const hostList = env.PROXY_LIST;
-    const cpuCount = env.CPU_COUNT ? parseInt(env.CPU_COUNT) : 1;
-    const cpuIndex = env.pm_id ? parseInt(env.pm_id) : 0;
+    const hostList = process.env.PROXY_LIST;
+    const cpuCount = process.env.CPU_COUNT ? process.env.CPU_COUNT : 1;
+    const cpuIndex = process.env.pm_id ? parseInt(process.env.pm_id) : 0;
 
     if (!hostList) {
       return;
@@ -38,9 +36,9 @@ class ProxiesHandler {
     const hostsPerCpu = Math.floor(hosts.length / cpuCount);
     const allowedHosts = hosts.slice(hostsPerCpu * cpuIndex, hostsPerCpu * (cpuIndex + 1));
 
-    const port = parseInt(env.PROXY_PORT, 10);
-    const username = env.PROXY_USER;
-    const password = env.PROXY_PASSWORD;
+    const port = process.env.PROXY_PORT;
+    const username = process.env.PROXY_USER;
+    const password = process.env.PROXY_PASSWORD;
 
     this.cursor = 0;
     this.config = { port, username, password, hosts: allowedHosts };

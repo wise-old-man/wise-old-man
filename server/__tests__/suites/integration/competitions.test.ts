@@ -3,7 +3,6 @@ import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
-import env from '../../../src/env';
 import { PlayerType } from '../../../src/utils';
 import * as competitionEvents from '../../../src/api/modules/competitions/competition.events';
 import {
@@ -1905,7 +1904,7 @@ describe('Competition API', () => {
 
       const removeResponse = await api
         .delete(`/competitions/${createResponse.body.competition.id}/participants`)
-        .send({ adminPassword: env.ADMIN_PASSWORD, participants: ['harry'] });
+        .send({ adminPassword: process.env.ADMIN_PASSWORD, participants: ['harry'] });
 
       expect(removeResponse.status).toBe(200);
       expect(removeResponse.body).toMatchObject({
@@ -3275,7 +3274,7 @@ describe('Competition API', () => {
 
     it('should not reset code (competition not found)', async () => {
       const response = await api.put(`/competitions/100000/reset-code`).send({
-        adminPassword: env.ADMIN_PASSWORD
+        adminPassword: process.env.ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(404);
@@ -3286,7 +3285,7 @@ describe('Competition API', () => {
       const response = await api
         .put(`/competitions/${globalData.testCompetitionWithGroup.id}/reset-code`)
         .send({
-          adminPassword: env.ADMIN_PASSWORD
+          adminPassword: process.env.ADMIN_PASSWORD
         });
 
       expect(response.status).toBe(400);
@@ -3296,7 +3295,7 @@ describe('Competition API', () => {
     it('should reset code', async () => {
       const response = await api
         .put(`/competitions/${globalData.testCompetitionOngoing.id}/reset-code`)
-        .send({ adminPassword: env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.newCode).toBeDefined();
@@ -3409,7 +3408,7 @@ describe('Competition API', () => {
       expect(before.status).toBe(200);
 
       const deleteResponse = await api.delete(`/competitions/${createResponse.body.competition.id}`).send({
-        adminPassword: env.ADMIN_PASSWORD
+        adminPassword: process.env.ADMIN_PASSWORD
       });
 
       expect(deleteResponse.status).toBe(200);
