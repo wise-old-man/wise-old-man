@@ -37,6 +37,7 @@ jobs:
         ports:
           - 6379:6379
     env:
+      REDIS_HOST: localhost
       REDIS_PORT: 6379
       ADMIN_PASSWORD: testpassword123
       CORE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ci-database
