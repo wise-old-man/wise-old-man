@@ -1,21 +1,12 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { formatDate } from '../../../util/dates';
 import { PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
-const inputSchema = z.object({
-  id: z.number().int().positive()
-});
-
-type FetchMembersCSVParams = z.infer<typeof inputSchema>;
-
-async function fetchGroupMembersCSV(payload: FetchMembersCSVParams): Promise<string> {
-  const params = inputSchema.parse(payload);
-
+async function fetchGroupMembersCSV(groupId: number): Promise<string> {
   const memberships = await prisma.membership.findMany({
     where: {
-      groupId: params.id
+      groupId
     },
     include: {
       player: true
@@ -24,7 +15,7 @@ async function fetchGroupMembersCSV(payload: FetchMembersCSVParams): Promise<str
 
   if (!memberships || memberships.length === 0) {
     const group = await prisma.group.findFirst({
-      where: { id: params.id }
+      where: { id: groupId }
     });
 
     if (!group) {

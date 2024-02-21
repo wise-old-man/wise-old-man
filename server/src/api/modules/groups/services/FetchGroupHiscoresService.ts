@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import {
   getMetricMeasure,
@@ -9,25 +8,18 @@ import {
   getLevel
 } from '../../../../utils';
 import { omit } from '../../../util/objects';
-import { getPaginationSchema } from '../../../util/validation';
+import { PaginationOptions } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
 import { GroupHiscoresEntry, GroupHiscoresSkillItem } from '../group.types';
 import { getTotalLevel } from '../../snapshots/snapshot.utils';
 
-const inputSchema = z
-  .object({
-    id: z.number().int().positive(),
-    metric: z.nativeEnum(Metric)
-  })
-  .merge(getPaginationSchema(100_000)); // unlimited "max" limit
-
-type FetchGroupHiscoresParams = z.infer<typeof inputSchema>;
-
-async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<GroupHiscoresEntry[]> {
-  const params = inputSchema.parse(payload);
-
+async function fetchGroupHiscores(
+  groupId: number,
+  metric: Metric,
+  pagination: PaginationOptions
+): Promise<GroupHiscoresEntry[]> {
   const memberships = await prisma.membership.findMany({
-    where: { groupId: params.id },
+    where: { groupId },
     include: {
       player: {
         include: {
@@ -39,7 +31,7 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
 
   if (!memberships || memberships.length === 0) {
     const group = await prisma.group.findFirst({
-      where: { id: params.id }
+      where: { id: groupId }
     });
 
     if (!group) {
@@ -49,9 +41,9 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
     return [];
   }
 
-  const measure = getMetricMeasure(params.metric);
-  const rankKey = getMetricRankKey(params.metric);
-  const valueKey = getMetricValueKey(params.metric);
+  const measure = getMetricMeasure(metric);
+  const rankKey = getMetricRankKey(metric);
+  const valueKey = getMetricValueKey(metric);
 
   return memberships
     .filter(m => !!m.player.latestSnapshot)
@@ -62,7 +54,7 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
       const value = player.latestSnapshot[valueKey];
 
       if (measure === MetricMeasure.EXPERIENCE) {
-        const lvl = params.metric === Metric.OVERALL ? getTotalLevel(player.latestSnapshot) : getLevel(value);
+        const lvl = metric === Metric.OVERALL ? getTotalLevel(player.latestSnapshot) : getLevel(value);
         data = { rank, experience: value, level: lvl };
       } else if (measure === MetricMeasure.KILLS) {
         data = { rank, kills: value };
@@ -78,7 +70,7 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
       };
     })
     .sort((a, b) => {
-      if (params.metric === Metric.OVERALL) {
+      if (metric === Metric.OVERALL) {
         const aData = a.data as GroupHiscoresSkillItem;
         const bData = b.data as GroupHiscoresSkillItem;
 
@@ -87,7 +79,7 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
 
       return b.data[measure] - a.data[measure];
     })
-    .slice(params.offset, params.offset + params.limit);
+    .slice(pagination.offset, pagination.offset + pagination.limit);
 }
 
 export { fetchGroupHiscores };

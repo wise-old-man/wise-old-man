@@ -1,29 +1,19 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { BadRequestError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 import * as groupEvents from '../group.events';
 import { ActivityType } from '../group.types';
-import { fetchGroupDetails } from './FetchGroupDetailsService';
 import { findPlayers } from '../../players/services/FindPlayersService';
 
-const inputSchema = z.object({
-  id: z.number().int().positive(),
-  usernames: z
-    .array(z.string(), { invalid_type_error: "Parameter 'members' is not a valid array." })
-    .nonempty({ message: 'Empty members list.' })
-});
+async function removeMembers(groupId: number, members: string[]): Promise<{ count: number }> {
+  const groupMemberIds = (
+    await prisma.membership.findMany({
+      where: { groupId },
+      select: { playerId: true }
+    })
+  ).map(membership => membership.playerId);
 
-type RemoveMembersService = z.infer<typeof inputSchema>;
-
-async function removeMembers(payload: RemoveMembersService): Promise<{ count: number }> {
-  const params = inputSchema.parse(payload);
-
-  const groupMemberIds = (await fetchGroupDetails({ id: params.id })).memberships.map(
-    membership => membership.player.id
-  );
-
-  const toRemovePlayerIds = (await findPlayers({ usernames: params.usernames }))
+  const toRemovePlayerIds = (await findPlayers({ usernames: members }))
     .map(p => p.id)
     .filter(id => groupMemberIds.includes(id));
 
@@ -34,7 +24,7 @@ async function removeMembers(payload: RemoveMembersService): Promise<{ count: nu
   const newActivites = toRemovePlayerIds.map(playerId => {
     return {
       playerId,
-      groupId: params.id,
+      groupId,
       type: ActivityType.LEFT
     };
   });
@@ -43,7 +33,7 @@ async function removeMembers(payload: RemoveMembersService): Promise<{ count: nu
     .$transaction(async transaction => {
       const { count } = await transaction.membership.deleteMany({
         where: {
-          groupId: params.id,
+          groupId,
           playerId: { in: toRemovePlayerIds }
         }
       });
@@ -55,7 +45,7 @@ async function removeMembers(payload: RemoveMembersService): Promise<{ count: nu
       }
 
       await transaction.group.update({
-        where: { id: params.id },
+        where: { id: groupId },
         data: { updatedAt: new Date() }
       });
 
@@ -68,10 +58,10 @@ async function removeMembers(payload: RemoveMembersService): Promise<{ count: nu
       throw new ServerError('Failed to remove members');
     });
 
-  groupEvents.onGroupUpdated(params.id);
+  groupEvents.onGroupUpdated(groupId);
   groupEvents.onMembersLeft(newActivites);
 
-  logger.moderation(`[Group:${params.id}] (${toRemovePlayerIds}) removed`);
+  logger.moderation(`[Group:${groupId}] (${toRemovePlayerIds}) removed`);
 
   return { count: removedCount };
 }

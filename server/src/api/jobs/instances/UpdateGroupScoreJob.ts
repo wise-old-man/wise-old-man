@@ -1,8 +1,8 @@
 import prisma from '../../../prisma';
 import { GroupDetails, PRIVELEGED_GROUP_ROLES } from '../../../utils';
 import { findGroupCompetitions } from '../../modules/competitions/services/FindGroupCompetitionsService';
-import { JobType, JobDefinition } from '../job.types';
-import * as groupServices from '../../modules/groups/group.services';
+import { fetchGroupDetails } from '../../modules/groups/services/FetchGroupDetailsService';
+import { JobDefinition, JobType } from '../job.types';
 
 export interface UpdateGroupScorePayload {
   groupId: number;
@@ -16,7 +16,7 @@ class UpdateGroupScoreJob implements JobDefinition<UpdateGroupScorePayload> {
   }
 
   async execute(data: UpdateGroupScorePayload) {
-    const groupDetails = await groupServices.fetchGroupDetails({ id: data.groupId });
+    const groupDetails = await fetchGroupDetails(data.groupId);
 
     const currentScore = groupDetails.score;
     const newScore = await calculateScore(groupDetails);
@@ -40,7 +40,7 @@ async function calculateScore(group: GroupDetails): Promise<number> {
     return score;
   }
 
-  const competitions = await findGroupCompetitions({ groupId: group.id });
+  const competitions = await findGroupCompetitions(group.id);
   const averageOverallExp = memberships.reduce((acc, cur) => acc + cur.player.exp, 0) / memberships.length;
 
   // If has atleast one leader

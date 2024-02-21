@@ -1,27 +1,18 @@
-import { z } from 'zod';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../services/external/crypt.service';
 import { NotFoundError } from '../../../errors';
 import logger from '../../../util/logging';
 
-const inputSchema = z.object({
-  id: z.number().int().positive()
-});
-
-type ResetGroupCodeParams = z.infer<typeof inputSchema>;
-
-async function resetGroupCode(payload: ResetGroupCodeParams): Promise<{ newCode: string }> {
-  const params = inputSchema.parse(payload);
-
+async function resetGroupCode(groupId: number): Promise<{ newCode: string }> {
   const [code, hash] = await cryptService.generateVerification();
 
   try {
     await prisma.group.update({
-      where: { id: params.id },
+      where: { id: groupId },
       data: { verificationHash: hash }
     });
 
-    logger.moderation(`[Group:${params.id}] Code reset`);
+    logger.moderation(`[Group:${groupId}] Code reset`);
 
     return { newCode: code };
   } catch (error) {

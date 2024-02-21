@@ -25,6 +25,7 @@ describe('General API', () => {
     test('API is alive', async () => {
       const response = await api.get('/');
       expect(response.status).toBe(200);
+      expect(response.body).toBe(process.env.npm_package_version);
     });
 
     test('Invalid route redirects to 404', async () => {

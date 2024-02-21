@@ -1,23 +1,15 @@
-import { z } from 'zod';
 import prisma, { NameChangeStatus } from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
-import { getPaginationSchema } from '../../../util/validation';
+import { PaginationOptions } from '../../../util/validation';
 import { NameChangeWithPlayer } from '../name-change.types';
 
-const inputSchema = z
-  .object({
-    id: z.number().int().positive()
-  })
-  .merge(getPaginationSchema());
-
-type FindGroupNameChangesParams = z.infer<typeof inputSchema>;
-
-async function findGroupNameChanges(payload: FindGroupNameChangesParams): Promise<NameChangeWithPlayer[]> {
-  const params = inputSchema.parse(payload);
-
+async function findGroupNameChanges(
+  groupId: number,
+  pagination: PaginationOptions
+): Promise<NameChangeWithPlayer[]> {
   // Fetch this group and all of its memberships
   const groupAndMemberships = await prisma.group.findFirst({
-    where: { id: params.id },
+    where: { id: groupId },
     include: { memberships: { select: { playerId: true } } }
   });
 
@@ -40,8 +32,8 @@ async function findGroupNameChanges(payload: FindGroupNameChangesParams): Promis
     },
     include: { player: true },
     orderBy: { createdAt: 'desc' },
-    take: params.limit,
-    skip: params.offset
+    take: pagination.limit,
+    skip: pagination.offset
   });
 
   return nameChanges as unknown as NameChangeWithPlayer[];

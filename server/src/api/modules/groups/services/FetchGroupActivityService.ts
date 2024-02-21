@@ -1,33 +1,25 @@
-import { z } from 'zod';
-import { getPaginationSchema } from '../../../util/validation';
+import { PaginationOptions } from '../../../util/validation';
 import { MemberActivityWithPlayer } from '../group.types';
 import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 
-const inputSchema = z
-  .object({
-    groupId: z.number().int().positive()
-  })
-  .merge(getPaginationSchema());
-
-type FetchGroupActivityParams = z.infer<typeof inputSchema>;
-
-async function fetchGroupActivity(payload: FetchGroupActivityParams): Promise<MemberActivityWithPlayer[]> {
-  const params = inputSchema.parse(payload);
-
+async function fetchGroupActivity(
+  groupId: number,
+  pagination: PaginationOptions
+): Promise<MemberActivityWithPlayer[]> {
   const activities = await prisma.memberActivity.findMany({
-    where: { groupId: params.groupId },
+    where: { groupId },
     include: {
       player: true
     },
     orderBy: { createdAt: 'desc' },
-    take: params.limit,
-    skip: params.offset
+    take: pagination.limit,
+    skip: pagination.offset
   });
 
   if (!activities || activities.length === 0) {
     const group = await prisma.group.findFirst({
-      where: { id: params.groupId }
+      where: { id: groupId }
     });
 
     if (!group) {

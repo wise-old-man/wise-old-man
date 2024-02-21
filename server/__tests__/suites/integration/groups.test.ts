@@ -102,7 +102,7 @@ describe('Group API', () => {
       const response = await api.post('/groups').send({ name: '' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Group name must have at least one character.');
+      expect(response.body.message).toMatch("Parameter 'name' must have a minimum of 1 character(s).");
 
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
@@ -113,7 +113,7 @@ describe('Group API', () => {
         .send({ name: 'jklasjhfklsdhnfkjsdnfkdjsnfkdjsnfkjsdnfksdjnfksdjn' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Group name cannot be longer than 30 characters.');
+      expect(response.body.message).toMatch("Parameter 'name' must have a maximum of 30 character(s).");
 
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
@@ -139,7 +139,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Invalid 'clanChat'");
+      expect(response.body.message).toMatch("Parameter 'clanChat' must have a maximum of 12 character(s).");
 
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
@@ -152,7 +152,9 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Description cannot be longer than 100 characters.');
+      expect(response.body.message).toMatch(
+        "Parameter 'description' must have a maximum of 100 character(s)."
+      );
 
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
@@ -466,7 +468,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid image URL.');
+      expect(response.body.message).toMatch("Parameter 'bannerImage' is not a valid URL.");
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -484,7 +486,9 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Image URL can't be longer than 255 characters.");
+      expect(response.body.message).toMatch(
+        "Parameter 'bannerImage' must have a maximum of 255 character(s)."
+      );
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -497,7 +501,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid image URL.');
+      expect(response.body.message).toMatch("Parameter 'profileImage' is not a valid URL.");
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -515,7 +519,9 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Image URL can't be longer than 255 characters.");
+      expect(response.body.message).toMatch(
+        "Parameter 'profileImage' must have a maximum of 255 character(s)."
+      );
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -560,7 +566,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid social link URL.');
+      expect(response.body.message).toMatch("Parameter 'socialLinks.twitter' is not a valid URL.");
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -1361,7 +1367,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Empty members list.');
+      expect(response.body.message).toMatch("Parameter 'members' must have a minimum of 1 element(s).");
 
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1818,7 +1824,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Empty members list.');
+      expect(response.body.message).toBe("Parameter 'members' must have a minimum of 1 element(s).");
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
     });

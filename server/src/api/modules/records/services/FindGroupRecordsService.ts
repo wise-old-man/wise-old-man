@@ -1,26 +1,18 @@
-import { z } from 'zod';
 import { Period, Metric } from '../../../../utils';
 import prisma from '../../../../prisma';
-import { getPaginationSchema } from '../../../util/validation';
+import { PaginationOptions } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
 import { RecordLeaderboardEntry } from '../record.types';
 
-const inputSchema = z
-  .object({
-    id: z.number().int().positive(),
-    period: z.nativeEnum(Period),
-    metric: z.nativeEnum(Metric)
-  })
-  .merge(getPaginationSchema());
-
-type FindGroupRecordsParams = z.infer<typeof inputSchema>;
-
-async function findGroupRecords(payload: FindGroupRecordsParams): Promise<RecordLeaderboardEntry[]> {
-  const params = inputSchema.parse(payload);
-
+async function findGroupRecords(
+  groupId: number,
+  metric: Metric,
+  period: Period,
+  pagination: PaginationOptions
+): Promise<RecordLeaderboardEntry[]> {
   // Fetch this group and all of its memberships
   const groupAndMemberships = await prisma.group.findFirst({
-    where: { id: params.id },
+    where: { id: groupId },
     include: { memberships: { select: { playerId: true } } }
   });
 
@@ -38,13 +30,13 @@ async function findGroupRecords(payload: FindGroupRecordsParams): Promise<Record
   const records = await prisma.record.findMany({
     where: {
       playerId: { in: playerIds },
-      period: params.period,
-      metric: params.metric
+      period,
+      metric
     },
     include: { player: true },
     orderBy: [{ value: 'desc' }],
-    take: params.limit,
-    skip: params.offset
+    take: pagination.limit,
+    skip: pagination.offset
   });
 
   return records;
