@@ -8,7 +8,7 @@ import {
   COMPUTED_METRICS,
   METRICS
 } from '../../../../utils';
-import prisma, { Delta, Player, Snapshot } from '../../../../prisma';
+import prisma, { Delta, Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import * as deltaUtils from '../delta.utils';
 import * as deltaEvents from '../delta.events';
 import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
@@ -48,9 +48,15 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
     // If has no gains in any metric, delete this delta from the database,
     // as it will never be used in leaderboards
     if (!METRICS.some(metric => newDelta[metric] > 0)) {
-      await prisma.delta.delete({
-        where: { playerId_period: { playerId: player.id, period } }
-      });
+      await prisma.delta
+        .delete({
+          where: { playerId_period: { playerId: player.id, period } }
+        })
+        .catch(e => {
+          // If the update failed because delta does not exist, ignore the error
+          if (e instanceof PrismaTypes.PrismaClientKnownRequestError && e.code === 'P2025') return;
+          throw e;
+        });
       return;
     }
 
