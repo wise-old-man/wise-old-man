@@ -181,13 +181,14 @@ async function syncBenefits() {
 }
 
 function needsUpdate(a: Patron, b: Patron) {
-  return (
-    a.name !== b.name ||
-    a.email !== b.email ||
-    a.tier !== b.tier ||
-    a.discordId !== b.discordId ||
-    a.createdAt.getTime() !== b.createdAt.getTime()
-  );
+  // When member unsubscribes, their pledge is no longer returned by the Patreon API,
+  // and we lose access to their email address. In this case, we return it as an empty string.
+  // Because of this, we should only update the email if the new one is not empty.
+  if (a.email !== b.email && a.email.length > 0) {
+    return true;
+  }
+
+  return a.name !== b.name || a.tier !== b.tier || a.discordId !== b.discordId;
 }
 
 export default new SyncPatronsJob();
