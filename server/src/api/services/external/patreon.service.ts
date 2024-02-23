@@ -111,14 +111,14 @@ export async function getPatrons() {
       if (daysSince > CANCEL_GRACE_PERIOD_DAYS) return;
     }
 
-    const tier = relationships.currently_entitled_tiers.data.map(t => t.id)?.[0] === TIER_2_ID ? 2 : 1;
+    const isTier2 = relationships.currently_entitled_tiers.data.some(tier => tier.id === TIER_2_ID);
 
     patrons.push({
       id: userId,
       name: user.attributes.full_name,
       email: user.attributes.email || '',
       discordId: user.attributes.social_connections.discord?.user_id ?? null,
-      tier,
+      tier: isTier2 ? 2 : 1,
       createdAt: pledge ? new Date(pledge.attributes.created_at) : new Date(),
       playerId: undefined,
       groupId: undefined
