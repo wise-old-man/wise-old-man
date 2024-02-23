@@ -7,6 +7,7 @@ import apiServer from '../../../src/api';
 import { Achievement, Metric, PlayerType, SKILL_EXP_AT_99 } from '../../../src/utils';
 import * as achievementEvents from '../../../src/api/modules/achievements/achievement.events';
 import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
+import { importPlayerHistory } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -163,12 +164,13 @@ describe('Achievements API', () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 200, globalData.cmlRawData);
 
-      // Import player history
-      const importResponse = await api
-        .post(`/players/Psikoi/import-history`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+      const player = await prisma.player.findFirst({
+        where: {
+          username: 'psikoi'
+        }
+      });
 
-      expect(importResponse.status).toBe(200);
+      await importPlayerHistory(player);
 
       // Wait a bit for the onPlayerImported hook to fire
       await sleep(500);
