@@ -9,6 +9,8 @@ services:
       - '6379'
     ports:
       - '6379:6379'
+    volumes:
+      - redis_data:/data
   db:
     container_name: db
     image: postgres:14
@@ -33,3 +35,4 @@ services:
       driver: none
 volumes:
   pgdata:
+  redis_data:

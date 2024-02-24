@@ -1223,13 +1223,41 @@ describe('Player API', () => {
       expect(response.body.message).toBe('Player not found.');
     });
 
-    it('should not update player country (invalid country)', async () => {
+    it('should not update player country (invalid country code)', async () => {
       const response = await api
         .put(`/players/PSIKOI/country`)
         .send({ country: 'XX', adminPassword: process.env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid country.');
+    });
+
+    it('should not update player country (invalid country name)', async () => {
+      const response = await api
+        .put(`/players/PSIKOI/country`)
+        .send({ country: 'Made up', adminPassword: process.env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid country.');
+    });
+
+    it('should update player country', async () => {
+      const updateCountryResponse = await api
+        .put(`/players/PSIKOI/country`)
+        .send({ country: 'Portugal', adminPassword: process.env.ADMIN_PASSWORD });
+
+      expect(updateCountryResponse.status).toBe(200);
+
+      expect(updateCountryResponse.body).toMatchObject({
+        username: 'psikoi',
+        country: 'PT'
+      });
+
+      const detailsResponse = await api.get('/players/PsiKOI');
+
+      expect(detailsResponse.status).toBe(200);
+      expect(detailsResponse.body.username).toBe('psikoi');
+      expect(detailsResponse.body.country).toBe('PT');
     });
 
     it('should update player country', async () => {
