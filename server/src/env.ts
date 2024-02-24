@@ -25,7 +25,7 @@ const envVariablesSchema = z.object({
   // Node Environment
   NODE_ENV: z.enum(['development', 'production', 'test']),
   // Port for the API to run on
-  API_PORT: z.optional(z.coerce.number().positive().int()).default(5000),
+  API_PORT: z.optional(z.coerce.number().positive().int()),
   // Admin Password (For mod+ operations)
   ADMIN_PASSWORD: prodOnly(z.string().trim().min(1)),
   // Sentry (for error tracking)

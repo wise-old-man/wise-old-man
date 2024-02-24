@@ -2,7 +2,7 @@ import { getThreadIndex } from './env';
 import logger from './api/util/logging';
 import api from './api';
 
-const port = process.env.API_PORT;
+const port = process.env.API_PORT || 5000;
 
 const server = api.express.listen(port, () => {
   const version = process.env.npm_package_version;
