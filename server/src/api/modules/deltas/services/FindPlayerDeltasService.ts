@@ -1,9 +1,8 @@
-import prisma, { Snapshot } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { Period, parsePeriodExpression } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { PlayerDeltasArray, PlayerDeltasMap } from '../delta.types';
 import { calculatePlayerDeltas, emptyPlayerDelta, flattenPlayerDeltas } from '../delta.utils';
-import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 import { standardize } from '../../players/player.utils';
 
 export interface FindPlayerDeltasResult {
@@ -28,15 +27,44 @@ async function findPlayerDeltas(
   }
 
   const player = await prisma.player.findFirst({
-    where: { username: standardize(username) }
+    where: {
+      username: standardize(username)
+    },
+    include: {
+      // If fetching by period (not custom time range), the "end" snapshots will always be
+      // the player's latest snapshots. So it's cheaper to just pull them from the latestSnapshotId relation
+      latestSnapshot: !!period
+    }
   });
 
   if (!player) {
     throw new NotFoundError('Player not found.');
   }
 
-  // Find the two snapshots at the edges of the period/dates
-  const [startSnapshot, endSnapshot] = await findEdgeSnapshots(player.id, period, minDate, maxDate);
+  const startSnapshot = await prisma.snapshot.findFirst({
+    where: {
+      playerId: player.id,
+      createdAt: { gte: parseStartDate(period, minDate) }
+    },
+    orderBy: {
+      createdAt: 'asc'
+    }
+  });
+
+  let endSnapshot = player.latestSnapshot;
+
+  // If couldn't get the end snapshot via db joins, fetch it explicitly
+  if (!endSnapshot) {
+    endSnapshot = await prisma.snapshot.findFirst({
+      where: {
+        playerId: player.id,
+        createdAt: period ? undefined : { lte: maxDate }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+  }
 
   // Player was inactive during this period (no snapshots), return empty deltas
   if (!startSnapshot || !endSnapshot) {
@@ -56,34 +84,18 @@ async function findPlayerDeltas(
   };
 }
 
-async function findEdgeSnapshots(
-  playerId: number,
-  period?: Period | string,
-  minDate?: Date,
-  maxDate?: Date
-): Promise<Snapshot[]> {
-  const getEdgeDates = () => {
-    if (period) {
-      const parsedPeriod = parsePeriodExpression(period);
+function parseStartDate(period: Period | string, minDate?: Date): Date {
+  if (period) {
+    const parsedPeriod = parsePeriodExpression(period);
 
-      if (!parsedPeriod) {
-        throw new BadRequestError(`Invalid period: ${period}.`);
-      }
-
-      return { startDate: new Date(Date.now() - parsedPeriod.durationMs), endDate: new Date() };
+    if (!parsedPeriod) {
+      throw new BadRequestError(`Invalid period: ${period}.`);
     }
 
-    if (minDate && maxDate) {
-      return { startDate: minDate, endDate: maxDate };
-    }
-  };
+    return new Date(Date.now() - parsedPeriod.durationMs);
+  }
 
-  const { startDate, endDate } = getEdgeDates();
-
-  return await Promise.all([
-    findPlayerSnapshot({ id: playerId, minDate: startDate }),
-    findPlayerSnapshot({ id: playerId, maxDate: endDate })
-  ]);
+  return minDate;
 }
 
 export { findPlayerDeltas };

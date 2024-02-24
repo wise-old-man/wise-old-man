@@ -5,7 +5,6 @@ import prisma, { NameChangeStatus, Player } from '../../../../prisma';
 import * as discordService from '../../../services/external/discord.service';
 import { splitArchivalData } from '../player.utils';
 import * as playerEvents from '../player.events';
-import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 
 interface ArchivePlayerResult {
   newPlayer: Player | null;
@@ -16,7 +15,10 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
   let splitData: Awaited<ReturnType<typeof splitArchivalData>> | null = null;
 
   if (createNewPlayer) {
-    const latestSnapshot = await findPlayerSnapshot({ id: player.id });
+    const latestSnapshot = await prisma.snapshot.findFirst({
+      where: { playerId: player.id },
+      orderBy: { createdAt: 'desc' }
+    });
 
     // Get all the memberships and participations that should be transfered to the new player
     splitData = await splitArchivalData(player.id, latestSnapshot.createdAt);

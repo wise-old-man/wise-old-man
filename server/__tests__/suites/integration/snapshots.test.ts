@@ -15,7 +15,6 @@ import {
 } from '../../utils';
 import { SnapshotDataSource } from '../../../src/api/modules/snapshots/snapshot.types';
 import { buildSnapshot } from '../../../src/api/modules/snapshots/services/BuildSnapshotService';
-import { findPlayerSnapshot } from '../../../src/api/modules/snapshots/services/FindPlayerSnapshotService';
 import { findPlayerSnapshots } from '../../../src/api/modules/snapshots/services/FindPlayerSnapshotsService';
 import { findGroupSnapshots } from '../../../src/api/modules/snapshots/services/FindGroupSnapshotsService';
 import { saveAllSnapshots } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
@@ -332,62 +331,6 @@ describe('Snapshots API', () => {
   });
 
   describe('4 - Get Player Snapshots', () => {
-    it('should not fetch latest snapshot (invalid player id)', async () => {
-      await expect(findPlayerSnapshot({ id: null })).rejects.toThrow("Parameter 'id' is not a valid number.");
-    });
-
-    it('should not fetch latest snapshot (player not found)', async () => {
-      const result = await findPlayerSnapshot({ id: 2_000_000 });
-
-      expect(result).toBe(null);
-    });
-
-    it('should fetch latest snapshot', async () => {
-      const result = await findPlayerSnapshot({ id: globalData.testPlayerId });
-
-      expect(result.createdAt.getTime() - Date.now()).toBeLessThan(365_000);
-      expect(result.zulrahKills).toBe(1646);
-    });
-
-    it('should fetch latest snapshot (w/ max date)', async () => {
-      const result = await findPlayerSnapshot({
-        id: globalData.testPlayerId,
-        maxDate: new Date('2018-11-01T18:00:00.000Z')
-      });
-
-      expect(result.createdAt.toISOString()).toBe('2018-11-01T17:27:44.000Z');
-      expect(result.zulrahKills).toBe(-1);
-    });
-
-    it('should not fetch latest snapshot (invalid max date)', async () => {
-      await expect(findPlayerSnapshot({ id: 1, maxDate: null })).rejects.toThrow(
-        'Expected date, received null'
-      );
-    });
-
-    it('should not fetch first snapshot since (invalid player id)', async () => {
-      const startDate = new Date('2019-03-28T19:00:00.000Z');
-
-      await expect(findPlayerSnapshot({ id: null, minDate: startDate })).rejects.toThrow(
-        "Parameter 'id' is not a valid number."
-      );
-    });
-
-    it('should not fetch first snapshot since (invalid date)', async () => {
-      await expect(findPlayerSnapshot({ id: 1, minDate: null })).rejects.toThrow(
-        'Expected date, received null'
-      );
-    });
-
-    it('should fetch first snapshot since', async () => {
-      const result = await findPlayerSnapshot({
-        id: globalData.testPlayerId,
-        minDate: new Date('2019-03-28T19:00:00.000Z')
-      });
-
-      expect(result.createdAt.toISOString()).toBe('2019-03-28T23:32:40.000Z');
-    });
-
     it('should not fetch all (player not found)', async () => {
       const result = await findPlayerSnapshots(2_000_000);
       expect(result.length).toBe(0);
