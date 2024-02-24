@@ -5,7 +5,7 @@ import { BadRequestError, ServerError } from '../../../errors';
 import { isValidUsername, standardize } from '../../players/player.utils';
 import * as groupEvents from '../group.events';
 import { ActivityType } from '../group.types';
-import { findPlayers } from '../../players/services/FindPlayersService';
+import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
 async function addMembers(
   groupId: number,
@@ -30,10 +30,7 @@ async function addMembers(
   ).map(p => p.playerId);
 
   // Find or create all players with the given usernames
-  const players = await findPlayers({
-    usernames: members.map(m => m.username),
-    createIfNotFound: true
-  });
+  const players = await findOrCreatePlayers(members.map(m => m.username));
 
   // Filter out any already existing usersnames to find the new unique usernames
   const newPlayers = existingIds.length === 0 ? players : players.filter(p => !existingIds.includes(p.id));

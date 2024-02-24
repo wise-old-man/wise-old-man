@@ -13,7 +13,7 @@ import {
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
 import { onMembersRolesChanged, onMembersJoined, onMembersLeft, onGroupUpdated } from '../group.events';
-import { findPlayers } from '../../players/services/FindPlayersService';
+import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
 // Only allow images from our DigitalOcean bucket CDN, to make sure people don't
 // upload unresize, or uncompressed images. They musgt edit images on the website.
@@ -208,10 +208,7 @@ async function updateMembers(groupId: number, members: EditGroupPayload['members
   const keptUsernames = nextUsernames.filter(u => currentUsernames.includes(u));
 
   // Find or create all players with the given usernames
-  const nextPlayers = await findPlayers({
-    usernames: nextUsernames,
-    createIfNotFound: true
-  });
+  const nextPlayers = await findOrCreatePlayers(nextUsernames);
 
   const keptPlayers = nextPlayers.filter(p => keptUsernames.includes(p.username));
   const missingPlayers = nextPlayers.filter(p => missingUsernames.includes(p.username));

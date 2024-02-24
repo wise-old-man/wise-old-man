@@ -6,7 +6,6 @@ import {
   CompetitionDetails,
   CompetitionWithParticipations
 } from '../../modules/competitions/competition.types';
-import { findPlayers } from '../../modules/players/services/FindPlayersService';
 import logger from '../../util/logging';
 import { omit } from '../../util/objects';
 
@@ -135,17 +134,17 @@ async function dispatchNameChanged(player: Player, previousDisplayName: string) 
 async function dispatchMembersRolesChanged(events: MemberRoleChangeEvent[]) {
   if (events.length === 0) return;
 
-  const groupId = events[0].groupId;
-  const playerIds = events.map(m => m.playerId);
-
   // Fetch all the affected players
-  const players = await findPlayers({ ids: playerIds });
+  const players = await prisma.player.findMany({
+    where: { id: { in: events.map(m => m.playerId) } }
+  });
+
   if (players.length === 0) return;
 
   const playersMap = new Map<number, Player>(players.map(p => [p.id, p]));
 
   dispatch('GROUP_MEMBERS_CHANGED_ROLES', {
-    groupId,
+    groupId: events[0].groupId,
     members: events.map(e => {
       const player = playersMap.get(e.playerId);
       if (!player) return null;
@@ -180,7 +179,9 @@ async function dispatchMembersJoined(groupId: number, events: MemberJoinedEvent[
  * so that it can notify any relevant guilds/servers.
  */
 async function dispatchMembersLeft(groupId: number, playerIds: number[]) {
-  const players = await findPlayers({ ids: playerIds });
+  const players = await prisma.player.findMany({
+    where: { id: { in: playerIds } }
+  });
 
   // If couldn't find any players for these ids, ignore event
   if (!players || players.length === 0) return;
