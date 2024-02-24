@@ -6,12 +6,13 @@ import {
   getMetricValueKey,
   parsePeriodExpression
 } from '../../../../utils';
-import { BadRequestError } from '../../../errors';
+import { BadRequestError, NotFoundError } from '../../../errors';
+import { standardize } from '../../players/player.utils';
 
 type Datapoint = { value: number; rank: number; date: Date };
 
 async function findPlayerSnapshotTimeline(
-  id: number,
+  username: string,
   metric: Metric,
   period?: Period | string,
   minDate?: Date,
@@ -19,6 +20,16 @@ async function findPlayerSnapshotTimeline(
 ): Promise<Array<Datapoint>> {
   if (minDate && maxDate && minDate >= maxDate) {
     throw new BadRequestError('Min date must be before the max date.');
+  }
+
+  const player = await prisma.player.findFirst({
+    where: {
+      username: standardize(username)
+    }
+  });
+
+  if (!player) {
+    throw new NotFoundError('Player not found.');
   }
 
   const dateQuery: PrismaTypes.SnapshotWhereInput = {};
@@ -50,7 +61,7 @@ async function findPlayerSnapshotTimeline(
       [metricRankKey]: true,
       createdAt: true
     },
-    where: { playerId: id, ...dateQuery },
+    where: { playerId: player.id, ...dateQuery },
     orderBy: { createdAt: 'desc' }
   })) as unknown as Snapshot[];
 

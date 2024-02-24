@@ -270,9 +270,7 @@ router.get(
     const { username } = req.params;
     const { metric, period, startDate, endDate } = req.query;
 
-    const player = await resolvePlayer(username);
-    const results = await findPlayerSnapshotTimeline(player.id, metric, period, startDate, endDate);
-
+    const results = await findPlayerSnapshotTimeline(username, metric, period, startDate, endDate);
     res.status(200).json(results);
   })
 );
@@ -304,8 +302,7 @@ router.get(
     const { username } = req.params;
     const { limit, offset } = req.query;
 
-    const playerId = await resolvePlayerId(username);
-    const results = await findPlayerMemberships(playerId, { limit, offset });
+    const results = await findPlayerMemberships(username, { limit, offset });
 
     res.status(200).json(results);
   })
@@ -437,9 +434,7 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const playerId = await resolvePlayerId(username);
-    const results = await findPlayerAchievementProgress(playerId);
-
+    const results = await findPlayerAchievementProgress(username);
     res.status(200).json(results);
   })
 );
