@@ -158,7 +158,7 @@ async function recalculateParticipationsStart(competitionId: number, startDate: 
   ).map(p => p.playerId);
 
   // Find everyone's first snapshot AFTER the new start date
-  const playerSnapshots = await findGroupSnapshots({ playerIds, minDate: startDate });
+  const playerSnapshots = await findGroupSnapshots(playerIds, { minDate: startDate });
 
   // Map these snapshots for O(1) lookups
   const snapshotMap = new Map<number, Snapshot>(playerSnapshots.map(s => [s.playerId, s]));
@@ -182,7 +182,7 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
   ).map(p => p.playerId);
 
   // Find everyone's last snapshot BEFORE the new end date
-  const playerSnapshots = await findGroupSnapshots({ playerIds, maxDate: endDate });
+  const playerSnapshots = await findGroupSnapshots(playerIds, { maxDate: endDate });
 
   // Map these snapshots for O(1) lookups
   const snapshotMap = new Map<number, Snapshot>(playerSnapshots.map(s => [s.playerId, s]));

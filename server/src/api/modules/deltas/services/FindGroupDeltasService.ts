@@ -124,8 +124,8 @@ async function buildPlayerSnapshotMap(
 
 async function findEdgeSnapshots(playerIds: number[], minDate: Date, maxDate: Date) {
   return await Promise.all([
-    findGroupSnapshots({ playerIds, minDate }),
-    findGroupSnapshots({ playerIds, maxDate })
+    findGroupSnapshots(playerIds, { minDate }),
+    findGroupSnapshots(playerIds, { maxDate })
   ]);
 }
 
@@ -136,8 +136,7 @@ async function findStartingSnapshots(playerIds: number[], period: string) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  return await findGroupSnapshots({
-    playerIds,
+  return await findGroupSnapshots(playerIds, {
     minDate: new Date(Date.now() - parsedPeriod.durationMs)
   });
 }
