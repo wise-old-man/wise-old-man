@@ -2,7 +2,7 @@ import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import { getMetricValueKey, getMetricRankKey, METRICS, PlayerType, PlayerStatus } from '../../../src/utils';
-import prisma, { setHooksEnabled } from '../../../src/prisma';
+import prisma from '../../../src/prisma';
 import apiServer from '../../../src/api';
 import * as nameChangeEvents from '../../../src/api/modules/name-changes/name-change.events';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
@@ -1342,7 +1342,6 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
     filteredSnapshotData[getMetricRankKey(m)] = snapshotData[getMetricRankKey(m)];
   });
 
-  setHooksEnabled(false); // disable hooks to prevent gains/records from being calculated from this
   // Create two pre-transition-date snapshots
   await prisma.snapshot.create({
     data: { ...filteredSnapshotData, playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
@@ -1350,7 +1349,6 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
   await prisma.snapshot.create({
     data: { ...filteredSnapshotData, playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
   });
-  setHooksEnabled(true);
 
   // Create a pre-transition-date test competition and add this player to it
   await prisma.competition.create({

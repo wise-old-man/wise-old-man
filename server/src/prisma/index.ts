@@ -33,8 +33,6 @@ function parseBigInt(bigint: bigint): number {
   return bigint !== null && bigint !== undefined && parseInt(bigint.toString());
 }
 
-let hooksEnabled = true;
-
 const prisma = new PrismaClient();
 
 const extendedClient = prisma.$extends({
@@ -134,15 +132,10 @@ const extendedClient = prisma.$extends({
 prisma.$use(async (params, next) => {
   const result = await next(params);
 
-  // These hooks are executed after the database operation has executed
-  if (hooksEnabled) routeAfterHook(params, result);
+  routeAfterHook(params, result);
 
   return result;
 });
-
-function setHooksEnabled(enabled: boolean) {
-  hooksEnabled = enabled;
-}
 
 type Achievement = Omit<PrismaAchievement, 'threshold' | 'accuracy'> & {
   threshold: number;
@@ -197,9 +190,7 @@ export {
   TrendDatapoint,
   // Enums
   Country,
-  NameChangeStatus,
-  // Utils
-  setHooksEnabled
+  NameChangeStatus
 };
 
 export default extendedClient;
