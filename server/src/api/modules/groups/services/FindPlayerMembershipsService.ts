@@ -1,14 +1,20 @@
 import prisma from '../../../../prisma';
+import { NotFoundError } from '../../../errors';
 import { omit } from '../../../util/objects';
 import { PaginationOptions } from '../../../util/validation';
+import { standardize } from '../../players/player.utils';
 import { MembershipWithGroup } from '../group.types';
 
 async function findPlayerMemberships(
-  playerId: number,
+  username: string,
   pagination: PaginationOptions
 ): Promise<MembershipWithGroup[]> {
   const memberships = await prisma.membership.findMany({
-    where: { playerId },
+    where: {
+      player: {
+        username: standardize(username)
+      }
+    },
     include: {
       group: {
         include: {
@@ -24,6 +30,16 @@ async function findPlayerMemberships(
     take: pagination.limit,
     skip: pagination.offset
   });
+
+  if (memberships.length === 0) {
+    const player = await prisma.player.findFirst({
+      where: { username: standardize(username) }
+    });
+
+    if (!player) {
+      throw new NotFoundError('Player not found.');
+    }
+  }
 
   return memberships.map(membership => {
     return {

@@ -1,23 +1,42 @@
-import { Metric, MetricMeasure, round } from '../../../../utils';
 import prisma, { Achievement } from '../../../../prisma';
-import { AchievementProgress, AchievementDefinition } from '../achievement.types';
-import { getAchievementDefinitions } from '../achievement.utils';
+import { Metric, MetricMeasure, round } from '../../../../utils';
+import { NotFoundError } from '../../../errors';
+import { standardize } from '../../players/player.utils';
 import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
+import { AchievementDefinition, AchievementProgress } from '../achievement.types';
+import { getAchievementDefinitions } from '../achievement.utils';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
 
-async function findPlayerAchievementProgress(playerId: number): Promise<AchievementProgress[]> {
+async function findPlayerAchievementProgress(username: string): Promise<AchievementProgress[]> {
+  const player = await prisma.player.findFirst({
+    where: {
+      username: standardize(username)
+    },
+    include: {
+      latestSnapshot: true
+    }
+  });
+
+  if (!player) {
+    throw new NotFoundError('Player not found.');
+  }
+
+  let latestSnapshot = player.latestSnapshot;
+  if (!latestSnapshot) {
+    latestSnapshot = await findPlayerSnapshot({ id: player.id });
+  }
+
   // Fetch all the player's achievements
   const achievements = await prisma.achievement.findMany({
-    where: { playerId }
+    where: {
+      playerId: player.id
+    }
   });
 
   // Map achievement names to achievement objects, for O(1) lookups
   const currentAchievementMap = new Map<string, Achievement>();
   achievements.forEach(achievement => currentAchievementMap.set(achievement.name, achievement));
-
-  // Find the player's latest snapshot
-  const latestSnapshot = await findPlayerSnapshot({ id: playerId });
 
   // Get all definitions and sort them so that related definitions are clustered
   const definitions = clusterDefinitions(ALL_DEFINITIONS);
@@ -41,7 +60,7 @@ async function findPlayerAchievementProgress(playerId: number): Promise<Achievem
 
     return {
       ...d,
-      playerId,
+      playerId: player.id,
       createdAt: existingAchievement?.createdAt || null,
       accuracy: existingAchievement?.accuracy || null,
       currentValue,
