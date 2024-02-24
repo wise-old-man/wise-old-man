@@ -26,7 +26,6 @@ import { changePlayerCountry } from './services/ChangePlayerCountryService';
 import { deletePlayer } from './services/DeletePlayerService';
 import { fetchPlayerDetails } from './services/FetchPlayerDetailsService';
 import { findPlayerArchives } from './services/FindPlayerArchivesService';
-import { importPlayerHistory } from './services/ImportPlayerHistoryService';
 import { searchPlayers } from './services/SearchPlayersService';
 import { updatePlayer } from './services/UpdatePlayerService';
 
@@ -99,7 +98,10 @@ router.get(
     const { id } = req.params;
 
     // Find the username for this player ID.
-    const query = await prisma.player.findFirst({ where: { id } });
+    const query = await prisma.player.findFirst({
+      where: { id },
+      select: { username: true }
+    });
 
     if (!query) {
       throw new NotFoundError('Player not found.');
@@ -108,27 +110,6 @@ router.get(
     const result = await fetchPlayerDetails(query.username);
 
     res.status(200).json(result);
-  })
-);
-
-router.post(
-  '/players/:username/import-history',
-  checkAdminPermission,
-  validateRequest({
-    params: z.object({
-      username: z.string()
-    })
-  }),
-  executeRequest(async (req, res) => {
-    const { username } = req.params;
-
-    const player = await resolvePlayer(username);
-    const { count } = await importPlayerHistory(player);
-
-    res.status(200).json({
-      count,
-      message: `Successfully imported ${count} snapshots from CML.`
-    });
   })
 );
 

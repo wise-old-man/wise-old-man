@@ -10,6 +10,7 @@ import * as playerUtils from '../../../src/api/modules/players/player.utils';
 import { findPlayers } from '../../../src/api/modules/players/services/FindPlayersService';
 import { reviewFlaggedPlayer } from '../../../src/api/modules/players/services/ReviewFlaggedPlayerService';
 import { setUpdateCooldown } from '../../../src/api/modules/players/services/UpdatePlayerService';
+import { importPlayerHistory } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
 import { formatSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
 import redisService from '../../../src/api/services/external/redis.service';
 import prisma from '../../../src/prisma';
@@ -876,41 +877,17 @@ describe('Player API', () => {
   });
 
   describe('2. Importing', () => {
-    it('should not import player (invalid admin password)', async () => {
-      const response = await api.post(`/players/psikoi/import-history`);
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
-    });
-
-    it('should not import player (incorrect admin password)', async () => {
-      const response = await api.post(`/players/psikoi/import-history`).send({ adminPassword: 'abc' });
-
-      expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
-    });
-
-    it('should not import player (player not found)', async () => {
-      const response = await api
-        .post(`/players/zezima/import-history`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
-
-      expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Player not found.');
-
-      expect(onPlayerImportedEvent).not.toHaveBeenCalled();
-    });
-
     it('should not import player (CML failed)', async () => {
       // Mock the history fetch from CML
       registerCMLMock(axiosMock, 404);
 
-      const response = await api
-        .post(`/players/psikoi/import-history`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+      const player = await prisma.player.findFirst({
+        where: {
+          username: 'psikoi'
+        }
+      });
 
-      expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Failed to load history from CML.');
+      await expect(importPlayerHistory(player)).rejects.toThrow('Failed to load history from CML.');
 
       expect(onPlayerImportedEvent).not.toHaveBeenCalled();
     });
@@ -922,16 +899,15 @@ describe('Player API', () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 200, globalData.cmlRawData);
 
-      const importResponse = await api
-        .post(`/players/psikoi/import-history`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
-
-      expect(importResponse.status).toBe(200);
-      expect(importResponse.body).toMatchObject({
-        count: 219,
-        message: 'Successfully imported 219 snapshots from CML.'
+      const player = await prisma.player.findFirst({
+        where: {
+          username: 'psikoi'
+        }
       });
 
+      const { count } = await importPlayerHistory(player);
+
+      expect(count).toBe(219);
       expect(onPlayerImportedEvent).toHaveBeenCalled();
 
       const detailsResponse = await api.get(`/players/psikoi`);
@@ -981,12 +957,13 @@ describe('Player API', () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 200, globalData.cmlRawData);
 
-      const importResponse = await api
-        .post(`/players/psikoi/import-history`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+      const player = await prisma.player.findFirst({
+        where: {
+          username: 'psikoi'
+        }
+      });
 
-      expect(importResponse.status).toBe(429);
-      expect(importResponse.body.message).toMatch('Imported too soon, please wait');
+      await expect(importPlayerHistory(player)).rejects.toThrow('Imported too soon, please wait');
 
       expect(onPlayerImportedEvent).not.toHaveBeenCalled();
 

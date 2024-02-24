@@ -4,19 +4,17 @@ import { Patron } from '../../../prisma';
 import { isValidDate } from '../../util/dates';
 
 const CAMPAIGN_ID = '4802084';
-
-const TIER_1_ID = '5548204';
 const TIER_2_ID = '21515077';
+
+const CANCEL_GRACE_PERIOD_DAYS = 3;
 
 const patreonUserSchema = z.object({
   id: z.string(),
   type: z.enum(['user']).or(z.string()),
   attributes: z.object({
-    email: z.string(),
     full_name: z.string(),
-    social_connections: z.object({
-      discord: z.object({ user_id: z.string() }).or(z.null())
-    })
+    email: z.string().optional(),
+    social_connections: z.object({ discord: z.object({ user_id: z.string() }).or(z.null()) }).optional()
   })
 });
 
@@ -43,6 +41,10 @@ const pledgesResponseSchema = z.object({
 const membersResponseSchema = z.object({
   data: z.array(
     z.object({
+      attributes: z.object({
+        last_charge_date: z.null().or(z.string().refine(isValidDate)),
+        patron_status: z.enum(['declined_patron', 'former_patron', 'active_patron']).or(z.null())
+      }),
       relationships: z.object({
         currently_entitled_tiers: z.object({
           data: z.array(z.object({ id: z.string() }))
@@ -54,74 +56,70 @@ const membersResponseSchema = z.object({
         })
       })
     })
-  )
+  ),
+  included: z.array(patreonUserSchema.or(z.object({ type: z.literal('tier') })))
 });
 
 type PledgesResponse = z.infer<typeof pledgesResponseSchema>;
 type MembersResponse = z.infer<typeof membersResponseSchema>;
 
 export async function getPatrons() {
-  const pledges = await fetchPledges(CAMPAIGN_ID);
   const members = await fetchMembers(CAMPAIGN_ID);
+  const pledges = await fetchPledges(CAMPAIGN_ID);
 
-  const patrons = parsePatronages(pledges);
+  const userMap = new Map<string, z.infer<typeof patreonUserSchema>>();
 
-  const tierMap = getTierMap(members);
-
-  patrons.forEach(patron => {
-    const tier = tierMap.get(patron.id);
-    if (tier) patron.tier = tier;
-  });
-
-  return patrons;
-}
-
-function getTierMap(membersResponse: MembersResponse) {
-  const userTierMap = new Map<string, 1 | 2>();
-
-  membersResponse.data.forEach(member => {
-    const userId = member.relationships.user.data.id;
-    const tiers = member.relationships.currently_entitled_tiers.data;
-    if (!tiers || tiers.length === 0) return;
-
-    let tier;
-    if (tiers[0].id === TIER_2_ID) {
-      tier = 2;
-    } else if (tiers[0].id === TIER_1_ID) {
-      tier = 1;
-    } else {
-      return;
-    }
-
-    userTierMap.set(userId, tier);
-  });
-
-  return userTierMap;
-}
-
-function parsePatronages(pledgesResponse: PledgesResponse) {
-  const userMap = new Map<string, PledgesResponse['included'][number]>();
-
-  pledgesResponse.included.forEach(object => {
+  members.included.forEach(object => {
     if (object.type !== 'user') return;
     userMap.set(object.id, object);
   });
 
+  pledges.included.forEach(object => {
+    if (object.type !== 'user') return;
+
+    const current = userMap.get(object.id);
+
+    if (current) {
+      current.attributes.email = object.attributes.email;
+    } else {
+      userMap.set(object.id, object);
+    }
+  });
+
   const patrons: Patron[] = [];
 
-  pledgesResponse.data.forEach(pledge => {
-    const userId = pledge.relationships.patron.data.id;
+  members.data.forEach(member => {
+    const { attributes, relationships } = member;
+
+    const userId = relationships.user.data.id;
     const user = userMap.get(userId);
 
-    if (!user || pledge.attributes.status !== 'valid') return;
+    if (!user) return;
+
+    const pledge = pledges.data.find(p => p.relationships.patron.data.id === userId);
+
+    const { patron_status, last_charge_date } = attributes;
+
+    // After unsubscribing (or payment failed), give users a grace period
+    // of 3 days to re-subscribe before revoking their benefits
+    if (patron_status !== 'active_patron') {
+      if (!last_charge_date || patron_status !== 'declined_patron') return;
+
+      const lastChargeDate = new Date(last_charge_date);
+      const daysSince = (Date.now() - lastChargeDate.getTime()) / 1000 / 60 / 60 / 24;
+
+      if (daysSince > CANCEL_GRACE_PERIOD_DAYS) return;
+    }
+
+    const isTier2 = relationships.currently_entitled_tiers.data.some(tier => tier.id === TIER_2_ID);
 
     patrons.push({
       id: userId,
       name: user.attributes.full_name,
-      email: user.attributes.email,
+      email: user.attributes.email || '',
       discordId: user.attributes.social_connections.discord?.user_id ?? null,
-      tier: 1,
-      createdAt: new Date(pledge.attributes.created_at),
+      tier: isTier2 ? 2 : 1,
+      createdAt: pledge ? new Date(pledge.attributes.created_at) : new Date(),
       playerId: undefined,
       groupId: undefined
     });
@@ -148,11 +146,11 @@ async function fetchPledges(campaignId: string): Promise<PledgesResponse> {
 }
 
 async function fetchMembers(campaignId: string): Promise<MembersResponse> {
-  const include = ['currently_entitled_tiers', 'user'];
-
   const url = new URL(`https://www.patreon.com/api/oauth2/v2/campaigns/${campaignId}/members`);
 
-  url.searchParams.set('include', include.join(','));
+  url.searchParams.set('include', ['currently_entitled_tiers', 'user'].join(','));
+  url.searchParams.set('fields[member]', ['last_charge_date', 'patron_status'].join(','));
+  url.searchParams.set('fields[user]', ['full_name', 'social_connections'].join(','));
   url.searchParams.set('page[count]', '200');
 
   const { data } = await axios.get(url.toString(), {
