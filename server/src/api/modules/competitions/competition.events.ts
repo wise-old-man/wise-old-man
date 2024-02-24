@@ -8,7 +8,7 @@ import { updateAllParticipants } from './services/UpdateAllParticipantsService';
 import { fetchCompetitionDetails } from './services/FetchCompetitionDetailsService';
 import { findPlayers } from '../players/services/FindPlayersService';
 
-async function onParticipantsJoined(participations: Participation[]) {
+async function onParticipantsJoined(participations: Pick<Participation, 'playerId' | 'competitionId'>[]) {
   const playerIds = participations.map(p => p.playerId);
 
   // Fetch all the newly added participants

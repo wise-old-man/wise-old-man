@@ -3,6 +3,7 @@ import { CompetitionType } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import logger from '../../../util/logging';
 import { findPlayers } from '../../players/services/FindPlayersService';
+import { onParticipantsJoined } from '../competition.events';
 import { Team } from '../competition.types';
 import {
   sanitizeTeams,
@@ -50,14 +51,17 @@ async function addTeams(id: number, teams: Team[]): Promise<{ count: number }> {
   // Map player usernames into IDs, for O(1) checks below
   const playerMap = Object.fromEntries(newPlayers.map(p => [p.username, p.id]));
 
-  // Turn all this data into a ({ teamName, playerId }) format, for DB insertion
   const newParticipations = newTeams
-    .map(t => t.participants.map(u => ({ teamName: t.name, playerId: playerMap[u] })))
+    .map(t => t.participants.map(u => ({ teamName: t.name, competitionId: id, playerId: playerMap[u] })))
     .flat();
 
   const { count } = await prisma.participation.createMany({
-    data: newParticipations.map(np => ({ ...np, competitionId: id }))
+    data: newParticipations
   });
+
+  if (newParticipations.length > 0) {
+    onParticipantsJoined(newParticipations);
+  }
 
   await prisma.competition.update({
     where: { id },

@@ -1,6 +1,7 @@
 import prisma from '../../../../prisma';
 import { calculatePastDates, getAchievementDefinitions } from '../achievement.utils';
 import { findPlayerSnapshots } from '../../snapshots/services/FindPlayerSnapshotsService';
+import { onAchievementsCreated } from '../achievement.events';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
 const UNKNOWN_DATE = new Date(0);
@@ -45,11 +46,10 @@ async function reevaluatePlayerAchievements(playerId: number): Promise<void> {
     }),
 
     // Re-add them with the correct date
-    prisma.achievement.createMany({
-      data: toUpdate,
-      skipDuplicates: true
-    })
+    prisma.achievement.createMany({ data: toUpdate, skipDuplicates: true })
   ]);
+
+  onAchievementsCreated(toUpdate);
 }
 
 export { reevaluatePlayerAchievements };

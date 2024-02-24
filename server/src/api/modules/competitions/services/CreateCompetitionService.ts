@@ -137,6 +137,10 @@ async function createCompetition(payload: CreateCompetitionPayload): Promise<Cre
 
   competitionEvents.onCompetitionCreated(formattedCompetition);
 
+  if (createdCompetition.participations.length > 0) {
+    competitionEvents.onParticipantsJoined(createdCompetition.participations);
+  }
+
   return {
     competition: formattedCompetition,
     verificationCode: code

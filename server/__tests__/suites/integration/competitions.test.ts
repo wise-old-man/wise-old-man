@@ -2130,6 +2130,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found repeated usernames: [psikoi, hydrox6]');
+
+      expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add teams (classic competition)', async () => {
@@ -2143,6 +2145,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Cannot add teams to a classic competition.');
+
+      expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should add teams', async () => {
@@ -2172,6 +2176,8 @@ describe('Competition API', () => {
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
         new Date(before.body.updatedAt).getTime()
       );
+
+      expect(onParticipantsJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 7 }));
     });
   });
 
