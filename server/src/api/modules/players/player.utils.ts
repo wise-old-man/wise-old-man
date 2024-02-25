@@ -1,7 +1,6 @@
 import { Period, PeriodProps, PlayerBuild, PlayerDetails } from '../../../utils';
 import prisma, { Player, PlayerArchive, Snapshot } from '../../../prisma';
 import { BadRequestError, NotFoundError } from '../../errors';
-import redisService from '../../services/external/redis.service';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
 import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
 import { formatSnapshot } from '../snapshots/snapshot.utils';
@@ -21,27 +20,6 @@ function formatPlayerDetails(player: Player, snapshot?: Snapshot, archive?: Play
   };
 }
 
-async function resolvePlayerId(username: string): Promise<number | null> {
-  if (!username || username.length === 0) {
-    throw new BadRequestError(`Parameter 'username' is undefined.`);
-  }
-
-  const cachedId = await getCachedPlayerId(username);
-  if (cachedId) return cachedId;
-
-  // Include username in the selected fields too, so that it can be cached for later
-  const player = await prisma.player.findFirst({
-    where: { username: standardize(username) },
-    select: { id: true, username: true }
-  });
-
-  if (!player) {
-    throw new NotFoundError('Player not found.');
-  }
-
-  return player.id;
-}
-
 async function resolvePlayer(username: string): Promise<Player | null> {
   if (!username || username.length === 0) {
     throw new BadRequestError('Undefined username.');
@@ -56,24 +34,6 @@ async function resolvePlayer(username: string): Promise<Player | null> {
   }
 
   return player;
-}
-
-async function getCachedPlayerId(username: string): Promise<number | null> {
-  if (!username || username.length === 0) return null;
-
-  const id = await redisService.getValue('player', standardize(username));
-  return id ? Number(id) : null;
-}
-
-async function setCachedPlayerId(username: string, id: number | null) {
-  if (!username || username.length === 0) return;
-
-  if (id !== null) {
-    // Store this username->ID in cache for an hour
-    await redisService.setValue('player', standardize(username), id, 3_600_000);
-  } else {
-    await redisService.deleteKey(`player:${standardize(username)}`);
-  }
 }
 
 /**
@@ -225,7 +185,5 @@ export {
   shouldImport,
   getBuild,
   resolvePlayer,
-  resolvePlayerId,
-  setCachedPlayerId,
   splitArchivalData
 };

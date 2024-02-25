@@ -19,7 +19,7 @@ import { findPlayerSnapshotTimeline } from '../snapshots/services/FindPlayerSnap
 import { findPlayerSnapshots } from '../snapshots/services/FindPlayerSnapshotsService';
 import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsService';
 import { formatSnapshot } from '../snapshots/snapshot.utils';
-import { resolvePlayer, resolvePlayerId } from './player.utils';
+import { resolvePlayer } from './player.utils';
 import { archivePlayer } from './services/ArchivePlayerService';
 import { assertPlayerType } from './services/AssertPlayerTypeService';
 import { changePlayerCountry } from './services/ChangePlayerCountryService';
@@ -322,8 +322,7 @@ router.get(
     const { username } = req.params;
     const { status } = req.query;
 
-    const playerId = await resolvePlayerId(username);
-    const results = await findPlayerParticipations(playerId, status);
+    const results = await findPlayerParticipations(username, status);
 
     res.status(200).json(results);
   })
@@ -343,8 +342,7 @@ router.get(
     const { username } = req.params;
     const { status } = req.query;
 
-    const playerId = await resolvePlayerId(username);
-    const results = await findPlayerParticipationsStandings(playerId, status);
+    const results = await findPlayerParticipationsStandings(username, status);
 
     res.status(200).json(results);
   })
@@ -360,8 +358,7 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const playerId = await resolvePlayerId(username);
-    const results = await findPlayerNameChanges(playerId);
+    const results = await findPlayerNameChanges(username);
 
     res.status(200).json(results);
   })

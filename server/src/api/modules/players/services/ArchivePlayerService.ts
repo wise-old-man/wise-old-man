@@ -100,8 +100,6 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
       throw new ServerError('Failed to archive player');
     });
 
-  await playerUtils.setCachedPlayerId(player.username, null);
-
   playerEvents.onPlayerArchived(result.archivedPlayer, player.displayName);
 
   return result;

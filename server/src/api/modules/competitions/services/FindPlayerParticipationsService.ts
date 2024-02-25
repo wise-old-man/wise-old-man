@@ -1,13 +1,24 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { omit } from '../../../util/objects';
 import { CompetitionStatus } from '../../../../utils';
+import { NotFoundError } from '../../../errors';
+import { omit } from '../../../util/objects';
+import { standardize } from '../../players/player.utils';
 import { ParticipationWithCompetition } from '../competition.types';
 
 async function findPlayerParticipations(
-  playerId: number,
+  username: string,
   status?: CompetitionStatus
 ): Promise<ParticipationWithCompetition[]> {
   const competitionQuery: PrismaTypes.CompetitionWhereInput = {};
+
+  const player = await prisma.player.findFirst({
+    where: { username: standardize(username) },
+    select: { id: true }
+  });
+
+  if (!player) {
+    throw new NotFoundError('Player not found.');
+  }
 
   if (status) {
     const now = new Date();
@@ -24,7 +35,7 @@ async function findPlayerParticipations(
 
   const participations = await prisma.participation.findMany({
     where: {
-      playerId,
+      playerId: player.id,
       competition: competitionQuery
     },
     include: {
