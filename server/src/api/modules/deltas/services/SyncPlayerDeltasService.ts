@@ -11,7 +11,6 @@ import {
 import prisma, { Delta, Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import * as deltaUtils from '../delta.utils';
 import * as deltaEvents from '../delta.events';
-import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 
 async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promise<void> {
   // Fetch all deltas for this player, and cache them into a <period, delta> map
@@ -21,9 +20,14 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
   // Build the update/create promise for a given period
   async function buildUpdatePromise(period: Period) {
     // Find the first snapshot within the period
-    const startSnapshot = await findPlayerSnapshot({
-      id: player.id,
-      minDate: new Date(Date.now() - PeriodProps[period].milliseconds)
+    const startSnapshot = await prisma.snapshot.findFirst({
+      where: {
+        playerId: player.id,
+        createdAt: { gte: new Date(Date.now() - PeriodProps[period].milliseconds) }
+      },
+      orderBy: {
+        createdAt: 'asc'
+      }
     });
 
     // The player only has one snapshot in this period, can't calculate diffs

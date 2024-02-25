@@ -4,7 +4,7 @@ import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
 import { standardize } from '../../players/player.utils';
-import { findPlayers } from '../../players/services/FindPlayersService';
+import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 import { onParticipantsJoined } from '../competition.events';
 import { CompetitionWithParticipations, Team } from '../competition.types';
@@ -158,7 +158,7 @@ async function recalculateParticipationsStart(competitionId: number, startDate: 
   ).map(p => p.playerId);
 
   // Find everyone's first snapshot AFTER the new start date
-  const playerSnapshots = await findGroupSnapshots({ playerIds, minDate: startDate });
+  const playerSnapshots = await findGroupSnapshots(playerIds, { minDate: startDate });
 
   // Map these snapshots for O(1) lookups
   const snapshotMap = new Map<number, Snapshot>(playerSnapshots.map(s => [s.playerId, s]));
@@ -182,7 +182,7 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
   ).map(p => p.playerId);
 
   // Find everyone's last snapshot BEFORE the new end date
-  const playerSnapshots = await findGroupSnapshots({ playerIds, maxDate: endDate });
+  const playerSnapshots = await findGroupSnapshots(playerIds, { maxDate: endDate });
 
   // Map these snapshots for O(1) lookups
   const snapshotMap = new Map<number, Snapshot>(playerSnapshots.map(s => [s.playerId, s]));
@@ -347,12 +347,14 @@ async function getParticipations(id: number, payload: EditCompetitionPayload) {
   validateParticipantDuplicates(payload.participants);
 
   // Find or create all players with the given usernames
-  const players = await findPlayers({
-    usernames: payload.participants,
-    createIfNotFound: true
-  });
+  const players = await findOrCreatePlayers(payload.participants);
 
-  return players.map(p => ({ playerId: p.id, competitionId: id, username: p.username, teamName: null }));
+  return players.map(p => ({
+    playerId: p.id,
+    competitionId: id,
+    username: p.username,
+    teamName: null
+  }));
 }
 
 async function getTeamsParticipations(id: number, payload: EditCompetitionPayload) {
@@ -367,10 +369,7 @@ async function getTeamsParticipations(id: number, payload: EditCompetitionPayloa
   validateParticipantDuplicates(newTeams.map(t => t.participants).flat());
 
   // Find or create all players with the given usernames
-  const players = await findPlayers({
-    usernames: newTeams.map(t => t.participants).flat(),
-    createIfNotFound: true
-  });
+  const players = await findOrCreatePlayers(newTeams.map(t => t.participants).flat());
 
   // Map player usernames into IDs, for O(1) checks below
   const playerMap = Object.fromEntries(players.map(p => [p.username, p.id]));

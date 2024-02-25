@@ -13,7 +13,6 @@ import { assertPlayerType } from './AssertPlayerTypeService';
 import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
 import { archivePlayer } from './ArchivePlayerService';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
-import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
 
 type UpdatablePlayerFields = PrismaTypes.XOR<
@@ -213,8 +212,14 @@ async function findOrCreate(username: string): Promise<[Player & { latestSnapsho
   if (player) {
     // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
     if (!player.latestSnapshot) {
-      const latestSnapshot = await findPlayerSnapshot({ id: player.id });
-      if (latestSnapshot) player.latestSnapshot = latestSnapshot;
+      const latestSnapshot = await prisma.snapshot.findFirst({
+        where: { playerId: player.id },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      if (latestSnapshot) {
+        player.latestSnapshot = latestSnapshot;
+      }
     }
 
     return [player, false];

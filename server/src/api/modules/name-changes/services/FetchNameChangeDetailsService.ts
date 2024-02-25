@@ -7,7 +7,6 @@ import { NameChange, NameChangeDetails } from '../name-change.types';
 import { standardize } from '../../players/player.utils';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
-import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
 import { formatSnapshot } from '../../snapshots/snapshot.utils';
 
@@ -51,7 +50,10 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
   }
 
   // Fetch the last snapshot from the old name
-  const oldStats = await findPlayerSnapshot({ id: oldPlayer.id });
+  const oldStats = await prisma.snapshot.findFirst({
+    where: { playerId: oldPlayer.id },
+    orderBy: { createdAt: 'desc' }
+  });
 
   if (!oldStats) {
     throw new ServerError('Old stats could not be found.');
@@ -65,9 +67,14 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
     // If the new name is already a tracked player and was tracked
     // since the old name's last snapshot, use this first "post change"
     // snapshot as a starting point
-    const postChangeSnapshot = await findPlayerSnapshot({
-      id: newPlayer.id,
-      minDate: oldStats.createdAt
+    const postChangeSnapshot = await prisma.snapshot.findFirst({
+      where: {
+        playerId: newPlayer.id,
+        createdAt: { gt: oldStats.createdAt }
+      },
+      orderBy: {
+        createdAt: 'asc'
+      }
     });
 
     if (postChangeSnapshot) {

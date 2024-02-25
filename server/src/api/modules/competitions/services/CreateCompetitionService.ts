@@ -12,7 +12,7 @@ import {
   validateInvalidParticipants,
   validateParticipantDuplicates
 } from '../competition.utils';
-import { findPlayers } from '../../players/services/FindPlayersService';
+import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
 interface CreateCompetitionPayload {
   title: string;
@@ -149,20 +149,14 @@ async function createCompetition(payload: CreateCompetitionPayload): Promise<Cre
 
 async function getParticipations(participants: string[]) {
   // Find or create all players with the given usernames
-  const players = await findPlayers({
-    usernames: participants,
-    createIfNotFound: true
-  });
+  const players = await findOrCreatePlayers(participants);
 
   return players.map(p => ({ playerId: p.id, teamName: null }));
 }
 
 async function getTeamsParticipations(teams: Team[]) {
   // Find or create all players with the given usernames
-  const players = await findPlayers({
-    usernames: teams.map(t => t.participants).flat(),
-    createIfNotFound: true
-  });
+  const players = await findOrCreatePlayers(teams.map(t => t.participants).flat());
 
   // Map player usernames into IDs, for O(1) checks below
   const playerMap = Object.fromEntries(players.map(p => [p.username, p.id]));

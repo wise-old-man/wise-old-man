@@ -2,7 +2,6 @@ import prisma, { Achievement } from '../../../../prisma';
 import { Metric, MetricMeasure, round } from '../../../../utils';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
-import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 import { AchievementDefinition, AchievementProgress } from '../achievement.types';
 import { getAchievementDefinitions } from '../achievement.utils';
 
@@ -23,8 +22,13 @@ async function findPlayerAchievementProgress(username: string): Promise<Achievem
   }
 
   let latestSnapshot = player.latestSnapshot;
+
+  // If this player has no populated latest snapshot, fetch it first
   if (!latestSnapshot) {
-    latestSnapshot = await findPlayerSnapshot({ id: player.id });
+    latestSnapshot = await prisma.snapshot.findFirst({
+      where: { playerId: player.id },
+      orderBy: { createdAt: 'desc' }
+    });
   }
 
   // Fetch all the player's achievements

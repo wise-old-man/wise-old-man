@@ -3,7 +3,6 @@ import { PlayerStatus } from '../../../../utils';
 import { NotFoundError } from '../../../errors';
 import { PlayerDetails } from '../player.types';
 import { formatPlayerDetails, standardize } from '../player.utils';
-import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 
 async function fetchPlayerDetails(username: string): Promise<PlayerDetails> {
   const player = await prisma.player.findFirst({
@@ -17,8 +16,14 @@ async function fetchPlayerDetails(username: string): Promise<PlayerDetails> {
 
   if (!player.latestSnapshot) {
     // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
-    const latestSnapshot = await findPlayerSnapshot({ id: player.id });
-    if (latestSnapshot) player.latestSnapshot = latestSnapshot;
+    const latestSnapshot = await prisma.snapshot.findFirst({
+      where: { playerId: player.id },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    if (latestSnapshot) {
+      player.latestSnapshot = latestSnapshot;
+    }
   }
 
   if (player.status !== PlayerStatus.ARCHIVED) {
