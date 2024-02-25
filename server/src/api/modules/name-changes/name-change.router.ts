@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { checkAdminPermission } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getPaginationSchema } from '../../util/validation';
-import { resolvePlayerId } from '../players/player.utils';
 import { NameChangeStatus } from './name-change.types';
 import { approveNameChange } from './services/ApproveNameChangeService';
 import { bulkSubmitNameChanges } from './services/BulkSubmitNameChangesService';
@@ -128,8 +127,7 @@ router.post(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const playerId = await resolvePlayerId(username);
-    const { count } = await clearNameChangeHistory(playerId);
+    const { count } = await clearNameChangeHistory(username);
 
     res.status(200).json({
       count,

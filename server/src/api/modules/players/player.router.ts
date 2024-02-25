@@ -19,7 +19,7 @@ import { findPlayerSnapshotTimeline } from '../snapshots/services/FindPlayerSnap
 import { findPlayerSnapshots } from '../snapshots/services/FindPlayerSnapshotsService';
 import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsService';
 import { formatSnapshot } from '../snapshots/snapshot.utils';
-import { resolvePlayer, resolvePlayerId } from './player.utils';
+import { standardize } from './player.utils';
 import { archivePlayer } from './services/ArchivePlayerService';
 import { assertPlayerType } from './services/AssertPlayerTypeService';
 import { changePlayerCountry } from './services/ChangePlayerCountryService';
@@ -123,7 +123,14 @@ router.post(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const player = await resolvePlayer(username);
+    const player = await prisma.player.findFirst({
+      where: { username: standardize(username) }
+    });
+
+    if (!player) {
+      throw new NotFoundError('Player not found.');
+    }
+
     const [, updatedPlayer, changed] = await assertPlayerType(player, true);
 
     res.status(200).json({ player: updatedPlayer, changed });
@@ -165,7 +172,13 @@ router.post(
     const { username } = req.params;
     const { untilLastChange } = req.body;
 
-    const player = await resolvePlayer(username);
+    const player = await prisma.player.findFirst({
+      where: { username: standardize(username) }
+    });
+
+    if (!player) {
+      throw new NotFoundError('Player not found.');
+    }
 
     await rollbackSnapshots(
       player.id,
@@ -191,7 +204,13 @@ router.post(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const player = await resolvePlayer(username);
+    const player = await prisma.player.findFirst({
+      where: { username: standardize(username) }
+    });
+
+    if (!player) {
+      throw new NotFoundError('Player not found.');
+    }
 
     const { archivedPlayer } = await archivePlayer(player);
 
@@ -242,7 +261,14 @@ router.get(
     const { username } = req.params;
     const { period, startDate, endDate, ...pagination } = req.query;
 
-    const player = await resolvePlayer(username);
+    const player = await prisma.player.findFirst({
+      where: { username: standardize(username) }
+    });
+
+    if (!player) {
+      throw new NotFoundError('Player not found.');
+    }
+
     const results = await findPlayerSnapshots(player.id, period, startDate, endDate, pagination);
 
     const formattedSnapshots = results.map(s => {
@@ -322,8 +348,7 @@ router.get(
     const { username } = req.params;
     const { status } = req.query;
 
-    const playerId = await resolvePlayerId(username);
-    const results = await findPlayerParticipations(playerId, status);
+    const results = await findPlayerParticipations(username, status);
 
     res.status(200).json(results);
   })
@@ -343,8 +368,7 @@ router.get(
     const { username } = req.params;
     const { status } = req.query;
 
-    const playerId = await resolvePlayerId(username);
-    const results = await findPlayerParticipationsStandings(playerId, status);
+    const results = await findPlayerParticipationsStandings(username, status);
 
     res.status(200).json(results);
   })
@@ -360,8 +384,7 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const playerId = await resolvePlayerId(username);
-    const results = await findPlayerNameChanges(playerId);
+    const results = await findPlayerNameChanges(username);
 
     res.status(200).json(results);
   })

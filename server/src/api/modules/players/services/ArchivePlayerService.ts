@@ -3,7 +3,7 @@ import { ServerError } from '../../../../api/errors';
 import logger from '../../../util/logging';
 import prisma, { NameChangeStatus, Player, setHooksEnabled } from '../../../../prisma';
 import * as discordService from '../../../services/external/discord.service';
-import * as playerUtils from '../player.utils';
+import { splitArchivalData } from '../player.utils';
 import * as playerEvents from '../player.events';
 import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 
@@ -13,13 +13,13 @@ interface ArchivePlayerResult {
 }
 
 async function archivePlayer(player: Player, createNewPlayer = true): Promise<ArchivePlayerResult> {
-  let splitData: Awaited<ReturnType<typeof playerUtils.splitArchivalData>> | null = null;
+  let splitData: Awaited<ReturnType<typeof splitArchivalData>> | null = null;
 
   if (createNewPlayer) {
     const latestSnapshot = await findPlayerSnapshot({ id: player.id });
 
     // Get all the memberships and participations that should be transfered to the new player
-    splitData = await playerUtils.splitArchivalData(player.id, latestSnapshot.createdAt);
+    splitData = await splitArchivalData(player.id, latestSnapshot.createdAt);
   }
 
   // Find a free random username for the archived player (archive#####)
@@ -99,8 +99,6 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
 
       throw new ServerError('Failed to archive player');
     });
-
-  await playerUtils.setCachedPlayerId(player.username, null);
 
   playerEvents.onPlayerArchived(result.archivedPlayer, player.displayName);
 
