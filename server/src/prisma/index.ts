@@ -21,7 +21,6 @@ import {
 } from '@prisma/client';
 import { DenyContext, SkipContext, isComputedMetric } from '../utils';
 import { NameChangeStatus } from './enum-adapter';
-import { routeAfterHook } from './hooks';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -126,15 +125,6 @@ const extendedClient = prisma.$extends({
       }
     }
   }
-});
-
-// Register Hooks
-prisma.$use(async (params, next) => {
-  const result = await next(params);
-
-  routeAfterHook(params, result);
-
-  return result;
 });
 
 type Achievement = Omit<PrismaAchievement, 'threshold' | 'accuracy'> & {
