@@ -1,6 +1,5 @@
 import { Period, PeriodProps, PlayerBuild, PlayerDetails } from '../../../utils';
 import prisma, { Player, PlayerArchive, Snapshot } from '../../../prisma';
-import { BadRequestError, NotFoundError } from '../../errors';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
 import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
 import { formatSnapshot } from '../snapshots/snapshot.utils';
@@ -18,22 +17,6 @@ function formatPlayerDetails(player: Player, snapshot?: Snapshot, archive?: Play
     archive: archive ? archive : null,
     latestSnapshot: formatSnapshot(snapshot, efficiency)
   };
-}
-
-async function resolvePlayer(username: string): Promise<Player | null> {
-  if (!username || username.length === 0) {
-    throw new BadRequestError('Undefined username.');
-  }
-
-  const player = await prisma.player.findFirst({
-    where: { username: standardize(username) }
-  });
-
-  if (!player) {
-    throw new NotFoundError('Player not found.');
-  }
-
-  return player;
 }
 
 /**
@@ -184,6 +167,5 @@ export {
   isValidUsername,
   shouldImport,
   getBuild,
-  resolvePlayer,
   splitArchivalData
 };
