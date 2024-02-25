@@ -1,7 +1,7 @@
 import { PlayerStatus } from '../../../../utils';
 import { ServerError } from '../../../../api/errors';
 import logger from '../../../util/logging';
-import prisma, { NameChangeStatus, Player, setHooksEnabled } from '../../../../prisma';
+import prisma, { NameChangeStatus, Player } from '../../../../prisma';
 import * as discordService from '../../../services/external/discord.service';
 import { splitArchivalData } from '../player.utils';
 import * as playerEvents from '../player.events';
@@ -64,9 +64,6 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
         }
       });
 
-      // Disable prisma hooks to ensure that we don't get any "player joined group/competition" events
-      setHooksEnabled(false);
-
       // Deny every pending name change for the archived player
       await transaction.nameChange.updateMany({
         where: { playerId: player.id, status: NameChangeStatus.PENDING },
@@ -88,8 +85,6 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
           data: { playerId: newPlayer.id }
         });
       }
-
-      setHooksEnabled(true);
 
       return { archivedPlayer, newPlayer };
     })
