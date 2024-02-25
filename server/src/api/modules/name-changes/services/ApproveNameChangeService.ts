@@ -43,7 +43,6 @@ async function approveNameChange(id: number): Promise<NameChange> {
   if (newPlayer && newPlayer.id !== oldPlayer.id) {
     // Archive the "new" profile, in case we need to restore some of this data later
     await archivePlayer(newPlayer, false);
-    await playerUtils.setCachedPlayerId(newPlayer.username, null);
   }
 
   // Attempt to transfer data between both accounts
@@ -88,10 +87,6 @@ async function approveNameChange(id: number): Promise<NameChange> {
   }
 
   playerEvents.onPlayerNameChanged(updatedPlayer, oldPlayer.displayName);
-
-  // Update the player ID caches
-  await playerUtils.setCachedPlayerId(nameChange.oldName, null);
-  await playerUtils.setCachedPlayerId(nameChange.newName, nameChange.playerId);
 
   logger.moderation(`[NameChange:${nameChange.id}] Approved`);
 
