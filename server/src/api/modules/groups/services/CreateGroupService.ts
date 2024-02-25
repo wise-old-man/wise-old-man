@@ -3,10 +3,10 @@ import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import { omit } from '../../../util/objects';
 import * as cryptService from '../../../services/external/crypt.service';
 import { BadRequestError, ServerError } from '../../../errors';
-import { GroupDetails } from '../group.types';
+import { ActivityType, GroupDetails } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
-import { onGroupCreated } from '../group.events';
+import { onGroupCreated, onMembersJoined } from '../group.events';
 import { findPlayers } from '../../players/services/FindPlayersService';
 
 type CreateGroupResult = { group: GroupDetails; verificationCode: string };
@@ -74,6 +74,10 @@ async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResu
   });
 
   onGroupCreated(createdGroup.id);
+
+  if (createdGroup.memberships.length > 0) {
+    onMembersJoined(createdGroup.memberships.map(m => ({ ...m, type: ActivityType.JOINED })));
+  }
 
   const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
 

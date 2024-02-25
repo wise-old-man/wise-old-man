@@ -1,5 +1,6 @@
 import prisma, { Snapshot } from '../../../../prisma';
 import { findPlayerSnapshots } from '../../snapshots/services/FindPlayerSnapshotsService';
+import { onAchievementsCreated } from '../achievement.events';
 import { calculatePastDates, getAchievementDefinitions } from '../achievement.utils';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
@@ -16,6 +17,8 @@ async function syncPlayerAchievements(playerId: number, previous: Snapshot | und
 
     // Add all missing achievements
     await prisma.achievement.createMany({ data: missingAchievements, skipDuplicates: true });
+
+    onAchievementsCreated(missingAchievements);
 
     return;
   }
@@ -71,11 +74,12 @@ async function syncPlayerAchievements(playerId: number, previous: Snapshot | und
     };
   });
 
+  const achievementsToAdd = [...missingAchievements, ...newAchievements];
+
   // Add all missing/new achievements
-  await prisma.achievement.createMany({
-    data: [...missingAchievements, ...newAchievements],
-    skipDuplicates: true
-  });
+  await prisma.achievement.createMany({ data: achievementsToAdd, skipDuplicates: true });
+
+  onAchievementsCreated(achievementsToAdd);
 }
 
 export { syncPlayerAchievements };

@@ -21,7 +21,6 @@ import {
 } from '@prisma/client';
 import { DenyContext, SkipContext, isComputedMetric } from '../utils';
 import { NameChangeStatus } from './enum-adapter';
-import { routeAfterHook } from './hooks';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -32,8 +31,6 @@ BigInt.prototype.toJSON = function () {
 function parseBigInt(bigint: bigint): number {
   return bigint !== null && bigint !== undefined && parseInt(bigint.toString());
 }
-
-let hooksEnabled = true;
 
 const prisma = new PrismaClient();
 
@@ -130,20 +127,6 @@ const extendedClient = prisma.$extends({
   }
 });
 
-// Register Hooks
-prisma.$use(async (params, next) => {
-  const result = await next(params);
-
-  // These hooks are executed after the database operation has executed
-  if (hooksEnabled) routeAfterHook(params, result);
-
-  return result;
-});
-
-function setHooksEnabled(enabled: boolean) {
-  hooksEnabled = enabled;
-}
-
 type Achievement = Omit<PrismaAchievement, 'threshold' | 'accuracy'> & {
   threshold: number;
   accuracy: number | null;
@@ -197,9 +180,7 @@ export {
   TrendDatapoint,
   // Enums
   Country,
-  NameChangeStatus,
-  // Utils
-  setHooksEnabled
+  NameChangeStatus
 };
 
 export default extendedClient;

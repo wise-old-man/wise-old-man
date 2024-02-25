@@ -1,11 +1,4 @@
-import prisma, {
-  Player,
-  Record,
-  NameChange,
-  NameChangeStatus,
-  PrismaTypes,
-  setHooksEnabled
-} from '../../../../prisma';
+import prisma, { Player, Record, NameChange, NameChangeStatus, PrismaTypes } from '../../../../prisma';
 import { ActivityType, MemberActivity, PlayerStatus } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
@@ -146,10 +139,6 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
     });
   }
 
-  // Disable prisma hooks to ensure that we don't get any "player joined group/competition" events,
-  // that wouldn't make sense because it's the same player, just under a different name, and about to be merged into one
-  setHooksEnabled(false);
-
   const result = await prisma
     .$transaction(async transaction => {
       // had to, ffs
@@ -190,12 +179,9 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
       return updatedPlayer as unknown as Player;
     })
     .catch(e => {
-      setHooksEnabled(true);
       logger.error('Failed to transfer name change data', e);
       throw new ServerError('Failed to transfer name change data');
     });
-
-  setHooksEnabled(true);
 
   return result;
 }

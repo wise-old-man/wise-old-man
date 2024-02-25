@@ -4,6 +4,7 @@ import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { validateInvalidParticipants, validateParticipantDuplicates } from '../competition.utils';
 import { findPlayers } from '../../players/services/FindPlayersService';
+import { onParticipantsJoined } from '../competition.events';
 
 async function addParticipants(id: number, participants: string[]): Promise<{ count: number }> {
   const competition = await prisma.competition.findFirst({
@@ -43,9 +44,15 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
     throw new BadRequestError('All players given are already competing.');
   }
 
+  const newParticipations = newPlayers.map(p => ({ playerId: p.id, competitionId: id }));
+
   const { count } = await prisma.participation.createMany({
-    data: newPlayers.map(p => ({ playerId: p.id, competitionId: id }))
+    data: newParticipations
   });
+
+  if (newParticipations.length > 0) {
+    onParticipantsJoined(newParticipations);
+  }
 
   await prisma.competition.update({
     where: { id },

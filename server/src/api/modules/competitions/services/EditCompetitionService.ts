@@ -1,19 +1,20 @@
+import prisma, { Participation, Player, PrismaPromise, PrismaTypes } from '../../../../prisma';
 import { CompetitionType, Metric, Snapshot } from '../../../../utils';
-import prisma, { Participation, PrismaTypes, PrismaPromise, Player } from '../../../../prisma';
+import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
-import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
+import { standardize } from '../../players/player.utils';
+import { findPlayers } from '../../players/services/FindPlayersService';
+import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
+import { onParticipantsJoined } from '../competition.events';
+import { CompetitionWithParticipations, Team } from '../competition.types';
 import {
   sanitizeTeams,
-  validateTeamDuplicates,
+  sanitizeTitle,
   validateInvalidParticipants,
   validateParticipantDuplicates,
-  sanitizeTitle
+  validateTeamDuplicates
 } from '../competition.utils';
-import { standardize } from '../../players/player.utils';
-import { CompetitionWithParticipations, Team } from '../competition.types';
-import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
-import { findPlayers } from '../../players/services/FindPlayersService';
 
 interface EditCompetitionPayload {
   title?: string;
@@ -26,6 +27,7 @@ interface EditCompetitionPayload {
 
 interface PartialParticipation {
   playerId: number;
+  competitionId: number;
   username: string;
   teamName?: string;
 }
@@ -79,9 +81,9 @@ async function editCompetition(
   let participations: PartialParticipation[] = null;
 
   if (participantsExist && competition.type === CompetitionType.CLASSIC) {
-    participations = await getParticipations(payload);
+    participations = await getParticipations(id, payload);
   } else if (teamsExist && competition.type === CompetitionType.TEAM) {
-    participations = await getTeamsParticipations(payload);
+    participations = await getTeamsParticipations(id, payload);
   }
 
   if (title) updatedCompetitionFields.title = sanitizeTitle(title);
@@ -89,12 +91,20 @@ async function editCompetition(
   if (endsAt) updatedCompetitionFields.endsAt = endsAt;
   if (metric) updatedCompetitionFields.metric = metric;
 
-  const updatedCompetition = await executeUpdate(id, participations, updatedCompetitionFields);
-
-  logger.moderation(`[Competition:${id}] Edited`);
+  const { updatedCompetition, addedParticipations } = await executeUpdate(
+    id,
+    participations,
+    updatedCompetitionFields
+  );
 
   if (!updatedCompetition) {
     throw new ServerError('Failed to edit competition. (EditCompetitionService)');
+  }
+
+  logger.moderation(`[Competition:${id}] Edited`);
+
+  if (addedParticipations.length > 0) {
+    onParticipantsJoined(addedParticipations);
   }
 
   // if start date changed
@@ -219,43 +229,46 @@ async function executeUpdate(
     }
   });
 
-  // Only update the participations if the consumer supplied an array
-  if (nextParticipations) {
-    const currentParticipations = await prisma.participation.findMany({
-      where: { competitionId: id },
-      include: { player: true }
-    });
-
-    // The usernames of all current (pre-edit) participants
-    const currentUsernames = currentParticipations.map(m => m.player.username);
-
-    // The usernames of all future (post-edit) participants
-    const nextUsernames = nextParticipations.map(p => standardize(p.username));
-
-    // These players should be added to the competition
-    const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
-
-    // These players should remain in the group
-    const keptUsernames = nextUsernames.filter(u => currentUsernames.includes(u));
-
-    const missingParticipations = nextParticipations.filter(p => missingUsernames.includes(p.username));
-    const keptParticipations = nextParticipations.filter(p => keptUsernames.includes(p.username));
-
-    const results = await prisma.$transaction([
-      // Remove any players that are no longer participants
-      removeExcessParticipations(id, nextUsernames, currentParticipations),
-      // Add any missing participations
-      addMissingParticipations(id, missingParticipations),
-      // Update any team changes
-      ...updateExistingTeams(id, currentParticipations, keptParticipations),
-      // Update the competition
-      competitionUpdatePromise
-    ]);
-
-    return results[results.length - 1] as Awaited<typeof competitionUpdatePromise>;
+  if (!nextParticipations) {
+    const updatedCompetition = await competitionUpdatePromise;
+    return { updatedCompetition, addedParticipations: [] };
   }
 
-  return await competitionUpdatePromise;
+  // Only update the participations if the consumer supplied an array
+  const currentParticipations = await prisma.participation.findMany({
+    where: { competitionId: id },
+    include: { player: true }
+  });
+
+  // The usernames of all current (pre-edit) participants
+  const currentUsernames = currentParticipations.map(m => m.player.username);
+
+  // The usernames of all future (post-edit) participants
+  const nextUsernames = nextParticipations.map(p => standardize(p.username));
+
+  // These players should be added to the competition
+  const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
+
+  // These players should remain in the group
+  const keptUsernames = nextUsernames.filter(u => currentUsernames.includes(u));
+
+  const missingParticipations = nextParticipations.filter(p => missingUsernames.includes(p.username));
+  const keptParticipations = nextParticipations.filter(p => keptUsernames.includes(p.username));
+
+  const results = await prisma.$transaction([
+    // Remove any players that are no longer participants
+    removeExcessParticipations(id, nextUsernames, currentParticipations),
+    // Add any missing participations
+    addMissingParticipations(id, missingParticipations),
+    // Update any team changes
+    ...updateExistingTeams(id, currentParticipations, keptParticipations),
+    // Update the competition
+    competitionUpdatePromise
+  ]);
+
+  const updatedCompetition = results[results.length - 1] as Awaited<typeof competitionUpdatePromise>;
+
+  return { updatedCompetition, addedParticipations: missingParticipations };
 }
 
 function updateExistingTeams(
@@ -327,7 +340,7 @@ function removeExcessParticipations(
   });
 }
 
-async function getParticipations(payload: EditCompetitionPayload) {
+async function getParticipations(id: number, payload: EditCompetitionPayload) {
   // throws an error if any participant is invalid
   validateInvalidParticipants(payload.participants);
   // throws an error if any participant is duplicated
@@ -339,10 +352,10 @@ async function getParticipations(payload: EditCompetitionPayload) {
     createIfNotFound: true
   });
 
-  return players.map(p => ({ playerId: p.id, username: p.username, teamName: null }));
+  return players.map(p => ({ playerId: p.id, competitionId: id, username: p.username, teamName: null }));
 }
 
-async function getTeamsParticipations(payload: EditCompetitionPayload) {
+async function getTeamsParticipations(id: number, payload: EditCompetitionPayload) {
   // ensures every team name is sanitized, and every username is standardized
   const newTeams = sanitizeTeams(payload.teams);
 
@@ -363,7 +376,14 @@ async function getTeamsParticipations(payload: EditCompetitionPayload) {
   const playerMap = Object.fromEntries(players.map(p => [p.username, p.id]));
 
   return newTeams
-    .map(t => t.participants.map(u => ({ playerId: playerMap[u], username: u, teamName: t.name })))
+    .map(t =>
+      t.participants.map(u => ({
+        playerId: playerMap[u],
+        competitionId: id,
+        username: u,
+        teamName: t.name
+      }))
+    )
     .flat();
 }
 
