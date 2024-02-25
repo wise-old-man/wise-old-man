@@ -22,8 +22,7 @@ import {
 import { DenyContext, SkipContext, isComputedMetric } from '../utils';
 import { NameChangeStatus } from './enum-adapter';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-expect-error -- Need this to add JSON parsing for bigint types
 BigInt.prototype.toJSON = function () {
   return parseBigInt(this);
 };

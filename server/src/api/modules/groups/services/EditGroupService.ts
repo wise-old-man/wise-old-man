@@ -333,7 +333,7 @@ async function updateSocialLinks(
   socialLinks: EditGroupPayload['socialLinks'],
   transaction: PrismaTypes.TransactionClient
 ) {
-  const existingId = await prisma.$queryRaw`
+  const existingId = await prisma.$queryRaw<{ id: number }[]>`
     SELECT "id" FROM public."groupSocialLinks" WHERE "groupId" = ${groupId} LIMIT 1
   `.then(rows => {
     return rows && Array.isArray(rows) && rows.length > 0 ? rows[0].id : null;
