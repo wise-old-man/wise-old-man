@@ -44,7 +44,7 @@ beforeAll(async () => {
   await resetRedis();
 
   // Fake the current date to be May 8th 2020 (when the CML history ends)
-  jest.useFakeTimers('modern').setSystemTime(new Date('2020-05-08T17:14:00.000Z'));
+  jest.useFakeTimers().setSystemTime(new Date('2020-05-08T17:14:00.000Z'));
 
   globalData.hiscoresRawDataP = await readFile(HISCORES_FILE_PATH_P);
   globalData.hiscoresRawDataLT = await readFile(HISCORES_FILE_PATH_LT);
