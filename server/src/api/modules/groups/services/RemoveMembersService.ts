@@ -1,9 +1,9 @@
 import prisma from '../../../../prisma';
 import { BadRequestError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
+import { standardize } from '../../players/player.utils';
 import * as groupEvents from '../group.events';
 import { ActivityType } from '../group.types';
-import { findPlayers } from '../../players/services/FindPlayersService';
 
 async function removeMembers(groupId: number, members: string[]): Promise<{ count: number }> {
   const groupMemberIds = (
@@ -13,15 +13,27 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
     })
   ).map(membership => membership.playerId);
 
-  const toRemovePlayerIds = (await findPlayers({ usernames: members }))
+  const playerIdsToRemove = (
+    await prisma.player.findMany({
+      where: {
+        username: { in: members.map(standardize) }
+      },
+      select: {
+        id: true
+      },
+      orderBy: {
+        username: 'asc'
+      }
+    })
+  )
     .map(p => p.id)
     .filter(id => groupMemberIds.includes(id));
 
-  if (!toRemovePlayerIds || !toRemovePlayerIds.length) {
+  if (!playerIdsToRemove || !playerIdsToRemove.length) {
     throw new BadRequestError('None of the players given were members of that group.');
   }
 
-  const newActivites = toRemovePlayerIds.map(playerId => {
+  const newActivites = playerIdsToRemove.map(playerId => {
     return {
       playerId,
       groupId,
@@ -34,7 +46,7 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
       const { count } = await transaction.membership.deleteMany({
         where: {
           groupId,
-          playerId: { in: toRemovePlayerIds }
+          playerId: { in: playerIdsToRemove }
         }
       });
 
@@ -61,7 +73,7 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
   groupEvents.onGroupUpdated(groupId);
   groupEvents.onMembersLeft(newActivites);
 
-  logger.moderation(`[Group:${groupId}] (${toRemovePlayerIds}) removed`);
+  logger.moderation(`[Group:${groupId}] (${playerIdsToRemove}) removed`);
 
   return { count: removedCount };
 }

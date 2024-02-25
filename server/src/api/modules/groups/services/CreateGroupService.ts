@@ -7,7 +7,7 @@ import { ActivityType, GroupDetails } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
 import { onGroupCreated, onMembersJoined } from '../group.events';
-import { findPlayers } from '../../players/services/FindPlayersService';
+import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
 type CreateGroupResult = { group: GroupDetails; verificationCode: string };
 
@@ -100,10 +100,7 @@ async function prepareMemberships(members: CreateGroupPayload['members']) {
   if (!members || members.length === 0) return [];
 
   // Find or create all players with the given usernames
-  const players = await findPlayers({
-    usernames: members.map(member => member.username),
-    createIfNotFound: true
-  });
+  const players = await findOrCreatePlayers(members.map(member => member.username));
 
   const usernameMap: { [username: string]: GroupRole } = {};
 

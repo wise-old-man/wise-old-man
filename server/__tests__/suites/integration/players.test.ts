@@ -7,7 +7,6 @@ import { getPlayerEfficiencyMap } from '../../../src/api/modules/efficiency/effi
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
-import { findPlayers } from '../../../src/api/modules/players/services/FindPlayersService';
 import { reviewFlaggedPlayer } from '../../../src/api/modules/players/services/ReviewFlaggedPlayerService';
 import { setUpdateCooldown } from '../../../src/api/modules/players/services/UpdatePlayerService';
 import { importPlayerHistory } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
@@ -24,6 +23,7 @@ import {
   resetRedis,
   sleep
 } from '../../utils';
+import { findOrCreatePlayers } from '../../../src/api/modules/players/services/FindOrCreatePlayersService';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -1517,10 +1517,7 @@ describe('Player API', () => {
     });
 
     it('should find all players or create', async () => {
-      const existingPlayers = await findPlayers({
-        usernames: ['PSIKOI', 'enriath', 'enrique'],
-        createIfNotFound: true
-      });
+      const existingPlayers = await findOrCreatePlayers(['PSIKOI', 'enriath', 'enrique']);
 
       expect(existingPlayers.length).toBe(3);
 
@@ -1528,10 +1525,7 @@ describe('Player API', () => {
       expect(existingPlayers[1].username).toBe('enriath');
       expect(existingPlayers[2].username).toBe('enrique');
 
-      const oneNewPlayer = await findPlayers({
-        usernames: ['PSIKOI', '_enriath ', 'enrique', 'Zezima'],
-        createIfNotFound: true
-      });
+      const oneNewPlayer = await findOrCreatePlayers(['PSIKOI', '_enriath ', 'enrique', 'Zezima']);
 
       expect(oneNewPlayer.length).toBe(4);
 

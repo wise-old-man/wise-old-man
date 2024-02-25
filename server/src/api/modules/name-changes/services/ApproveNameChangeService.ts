@@ -6,7 +6,6 @@ import { archivePlayer } from '../../players/services/ArchivePlayerService';
 import * as playerEvents from '../../players/player.events';
 import * as playerUtils from '../../players/player.utils';
 import { prepareRecordValue } from '../../records/record.utils';
-import { findPlayerSnapshot } from '../../snapshots/services/FindPlayerSnapshotService';
 
 async function approveNameChange(id: number): Promise<NameChange> {
   const nameChange = await prisma.nameChange.findFirst({
@@ -109,7 +108,14 @@ async function approveNameChange(id: number): Promise<NameChange> {
 }
 
 async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<Player> {
-  const transitionDate = (await findPlayerSnapshot({ id: oldPlayer.id })).createdAt;
+  const transitionDate = await prisma.snapshot
+    .findFirst({
+      where: { playerId: oldPlayer.id },
+      select: { createdAt: true },
+      orderBy: { createdAt: 'desc' }
+    })
+    .then(s => s.createdAt);
+
   const playerUpdateFields: PrismaTypes.PlayerUpdateInput = {};
 
   const newPlayerExists = newPlayer && oldPlayer.id !== newPlayer.id;

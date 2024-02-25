@@ -1,4 +1,4 @@
-import { Competition, Participation } from '../../../prisma';
+import prisma, { Competition, Participation } from '../../../prisma';
 import { CompetitionWithParticipations, PlayerType } from '../../../utils';
 import { jobManager, JobType, JobPriority } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
@@ -6,13 +6,12 @@ import metrics from '../../services/external/metrics.service';
 import { EventPeriodDelay } from '../../services/external/discord.service';
 import { updateAllParticipants } from './services/UpdateAllParticipantsService';
 import { fetchCompetitionDetails } from './services/FetchCompetitionDetailsService';
-import { findPlayers } from '../players/services/FindPlayersService';
 
 async function onParticipantsJoined(participations: Pick<Participation, 'playerId' | 'competitionId'>[]) {
-  const playerIds = participations.map(p => p.playerId);
-
   // Fetch all the newly added participants
-  const players = await findPlayers({ ids: playerIds });
+  const players = await prisma.player.findMany({
+    where: { id: { in: participations.map(p => p.playerId) } }
+  });
 
   // If couldn't find any players for these ids, ignore event
   if (!players || players.length === 0) return;

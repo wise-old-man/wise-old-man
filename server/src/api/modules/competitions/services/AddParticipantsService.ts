@@ -2,8 +2,8 @@ import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
+import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { validateInvalidParticipants, validateParticipantDuplicates } from '../competition.utils';
-import { findPlayers } from '../../players/services/FindPlayersService';
 import { onParticipantsJoined } from '../competition.events';
 
 async function addParticipants(id: number, participants: string[]): Promise<{ count: number }> {
@@ -33,10 +33,7 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
   ).map(p => p.playerId);
 
   // Find or create all players with the given usernames
-  const players = await findPlayers({
-    usernames: participants,
-    createIfNotFound: true
-  });
+  const players = await findOrCreatePlayers(participants);
 
   const newPlayers = existingIds.length === 0 ? players : players.filter(p => !existingIds.includes(p.id));
 
