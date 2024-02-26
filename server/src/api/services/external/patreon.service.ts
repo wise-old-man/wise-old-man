@@ -113,15 +113,19 @@ export async function getPatrons() {
 
     const isTier2 = relationships.currently_entitled_tiers.data.some(tier => tier.id === TIER_2_ID);
 
+    const discordId = user.attributes.social_connections
+      ? user.attributes.social_connections.discord?.user_id
+      : undefined;
+
     patrons.push({
       id: userId,
       name: user.attributes.full_name,
       email: user.attributes.email || '',
-      discordId: user.attributes.social_connections.discord?.user_id ?? null,
+      discordId: discordId ?? null,
       tier: isTier2 ? 2 : 1,
       createdAt: pledge ? new Date(pledge.attributes.created_at) : new Date(),
-      playerId: undefined,
-      groupId: undefined
+      playerId: null,
+      groupId: null
     });
   });
 

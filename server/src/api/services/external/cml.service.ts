@@ -45,7 +45,7 @@ async function fetchGroupInfo(id: number): Promise<CMLGroupData> {
       .toArray()
       .map(e => $(e));
 
-    const playerLinks = pageLinks.filter(e => e.attr('href').startsWith('track.php'));
+    const playerLinks = pageLinks.filter(e => e.attr('href')?.startsWith('track.php'));
 
     if (!playerLinks || playerLinks.length === 0) {
       throw new Error();
