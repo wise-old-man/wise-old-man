@@ -10,7 +10,7 @@ export function sanitizeTitle(title: string): string {
     .trim();
 }
 
-export function sanitizeTeams(teamInputs: Partial<Team>[]): Team[] {
+export function sanitizeTeams(teamInputs: Team[]): Team[] {
   // Sanitize the team inputs
   return teamInputs.map(t => ({
     name: sanitizeTitle(t.name),

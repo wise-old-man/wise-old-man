@@ -29,7 +29,7 @@ interface PartialParticipation {
   playerId: number;
   competitionId: number;
   username: string;
-  teamName?: string;
+  teamName: string | null;
 }
 
 async function editCompetition(
@@ -38,7 +38,7 @@ async function editCompetition(
 ): Promise<CompetitionWithParticipations> {
   const { title, metric, startsAt, endsAt, participants, teams } = payload;
 
-  if (participants?.length > 0 && teams?.length > 0) {
+  if (participants && participants.length > 0 && teams && teams.length > 0) {
     throw new BadRequestError('Cannot include both "participants" and "teams", they are mutually exclusive.');
   }
 
@@ -78,12 +78,12 @@ async function editCompetition(
     throw new BadRequestError("The competition type cannot be changed to 'classic'.");
   }
 
-  let participations: PartialParticipation[] = null;
+  let participations: PartialParticipation[] | null = null;
 
   if (participantsExist && competition.type === CompetitionType.CLASSIC) {
-    participations = await getParticipations(id, payload);
+    participations = await getParticipations(id, participants);
   } else if (teamsExist && competition.type === CompetitionType.TEAM) {
-    participations = await getTeamsParticipations(id, payload);
+    participations = await getTeamsParticipations(id, teams);
   }
 
   if (title) updatedCompetitionFields.title = sanitizeTitle(title);
@@ -165,9 +165,11 @@ async function recalculateParticipationsStart(competitionId: number, startDate: 
 
   // Update participations with the new start snapshot IDs
   for (const playerId of playerIds) {
+    const snapshot = snapshotMap.get(playerId);
+
     await prisma.participation.update({
       where: { playerId_competitionId: { competitionId, playerId } },
-      data: { startSnapshotId: snapshotMap.get(playerId) ? snapshotMap.get(playerId).id : null }
+      data: { startSnapshotId: snapshot ? snapshot.id : null }
     });
   }
 }
@@ -189,9 +191,11 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
 
   // Update participations with the new end snapshot IDs
   for (const playerId of playerIds) {
+    const snapshot = snapshotMap.get(playerId);
+
     await prisma.participation.update({
       where: { playerId_competitionId: { competitionId, playerId } },
-      data: { endSnapshotId: snapshotMap.get(playerId) ? snapshotMap.get(playerId).id : null }
+      data: { endSnapshotId: snapshot ? snapshot.id : null }
     });
   }
 }
@@ -340,14 +344,14 @@ function removeExcessParticipations(
   });
 }
 
-async function getParticipations(id: number, payload: EditCompetitionPayload) {
+async function getParticipations(id: number, participants: string[]) {
   // throws an error if any participant is invalid
-  validateInvalidParticipants(payload.participants);
+  validateInvalidParticipants(participants);
   // throws an error if any participant is duplicated
-  validateParticipantDuplicates(payload.participants);
+  validateParticipantDuplicates(participants);
 
   // Find or create all players with the given usernames
-  const players = await findOrCreatePlayers(payload.participants);
+  const players = await findOrCreatePlayers(participants);
 
   return players.map(p => ({
     playerId: p.id,
@@ -357,9 +361,9 @@ async function getParticipations(id: number, payload: EditCompetitionPayload) {
   }));
 }
 
-async function getTeamsParticipations(id: number, payload: EditCompetitionPayload) {
+async function getTeamsParticipations(id: number, teams: Team[]) {
   // ensures every team name is sanitized, and every username is standardized
-  const newTeams = sanitizeTeams(payload.teams);
+  const newTeams = sanitizeTeams(teams);
 
   // throws an error if any team name is duplicated
   validateTeamDuplicates(newTeams);
