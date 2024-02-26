@@ -7,7 +7,7 @@ export interface CalculateSumsPayload {
   dateISO: string;
 }
 
-class CalculateSumsJob implements JobDefinition<unknown> {
+class CalculateSumsJob implements JobDefinition<CalculateSumsPayload> {
   type: JobType;
 
   constructor() {

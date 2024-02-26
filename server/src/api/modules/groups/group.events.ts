@@ -15,7 +15,9 @@ function onGroupCreated(groupId: number) {
 }
 
 async function onMembersRolesChanged(events: MemberRoleChangeEvent[]) {
-  await metrics.trackEffect(discordService.dispatchMembersRolesChanged, events);
+  await metrics.trackEffect('dispatchMembersRolesChanged', async () => {
+    await discordService.dispatchMembersRolesChanged(events);
+  });
 }
 
 async function onMembersJoined(events: MemberJoinedEvent[]) {
@@ -23,7 +25,9 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
   const playerIds = events.map(m => m.playerId);
 
   // Add these new members to all upcoming and ongoing competitions
-  await metrics.trackEffect(addToGroupCompetitions, groupId, playerIds);
+  await metrics.trackEffect('addToGroupCompetitions', async () => {
+    await addToGroupCompetitions(groupId, playerIds);
+  });
 
   // Fetch all the newly added members
   const players = await prisma.player.findMany({
@@ -34,7 +38,9 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
   if (!players || players.length === 0) return;
 
   // Dispatch this event to the discord service
-  await metrics.trackEffect(discordService.dispatchMembersJoined, groupId, events, players);
+  await metrics.trackEffect('dispatchMembersJoined', async () => {
+    await discordService.dispatchMembersJoined(groupId, events, players);
+  });
 
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
@@ -48,10 +54,14 @@ async function onMembersLeft(events: MemberLeftEvent[]) {
   const playerIds = events.map(m => m.playerId);
 
   // Remove these players from ongoing/upcoming group competitions
-  await metrics.trackEffect(removeFromGroupCompetitions, groupId, playerIds);
+  await metrics.trackEffect('removeFromGroupCompetitions', async () => {
+    await removeFromGroupCompetitions(groupId, playerIds);
+  });
 
   // Dispatch this event to the discord service
-  await metrics.trackEffect(discordService.dispatchMembersLeft, groupId, playerIds);
+  await metrics.trackEffect('dispatchMembersLeft', async () => {
+    await discordService.dispatchMembersLeft(groupId, playerIds);
+  });
 }
 
 export { onGroupCreated, onGroupUpdated, onMembersJoined, onMembersLeft, onMembersRolesChanged };

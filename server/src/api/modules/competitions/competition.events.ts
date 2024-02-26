@@ -29,15 +29,21 @@ async function onParticipantsJoined(participations: Pick<Participation, 'playerI
 
 async function onCompetitionCreated(competition: CompetitionWithParticipations) {
   // Dispatch a competition created event to our discord bot API.
-  await metrics.trackEffect(discordService.dispatchCompetitionCreated, competition);
+  await metrics.trackEffect('dispatchCompetitionCreated', async () => {
+    discordService.dispatchCompetitionCreated(competition);
+  });
 }
 
 async function onCompetitionStarted(competition: Competition) {
   // Update all players when the competition starts
-  await metrics.trackEffect(updateAllParticipants, competition.id, true);
+  await metrics.trackEffect('updateAllParticipants', async () => {
+    await updateAllParticipants(competition.id, true);
+  });
 
   // Dispatch a competition started event to our discord bot API.
-  await metrics.trackEffect(discordService.dispatchCompetitionStarted, competition);
+  await metrics.trackEffect('dispatchCompetitionStarted', async () => {
+    discordService.dispatchCompetitionStarted(competition);
+  });
 
   jobManager.add({
     type: JobType.UPDATE_COMPETITION_SCORE,
@@ -50,7 +56,9 @@ async function onCompetitionEnded(competition: Competition) {
   if (!competitionDetails) return;
 
   // Dispatch a competition ended event to our discord bot API.
-  await metrics.trackEffect(discordService.dispatchCompetitionEnded, competitionDetails);
+  await metrics.trackEffect('dispatchCompetitionEnded', async () => {
+    discordService.dispatchCompetitionEnded(competitionDetails);
+  });
 
   jobManager.add({
     type: JobType.UPDATE_COMPETITION_SCORE,
@@ -60,12 +68,16 @@ async function onCompetitionEnded(competition: Competition) {
 
 async function onCompetitionStarting(competition: Competition, period: EventPeriodDelay) {
   // Dispatch a competition starting event to our discord bot API.
-  await metrics.trackEffect(discordService.dispatchCompetitionStarting, competition, period);
+  await metrics.trackEffect('dispatchCompetitionStarting', async () => {
+    discordService.dispatchCompetitionStarting(competition, period);
+  });
 }
 
 async function onCompetitionEnding(competition: Competition, period: EventPeriodDelay) {
   // Dispatch a competition ending event to our discord bot API.
-  await metrics.trackEffect(discordService.dispatchCompetitionEnding, competition, period);
+  await metrics.trackEffect('dispatchCompetitionEnding', async () => {
+    discordService.dispatchCompetitionEnding(competition, period);
+  });
 
   if (period.hours === 2) {
     // 2 hours before a competition ends, update any players that are actually competing in the competition,

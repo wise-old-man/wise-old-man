@@ -9,6 +9,8 @@
     "outDir": "dist",
     "skipLibCheck": true,
     "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
     "target": "es2016",
     "types": ["jest", "node"]
   },

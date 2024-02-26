@@ -29,7 +29,8 @@ import UpdateCompetitionScoreJob from './instances/UpdateCompetitionScoreJob';
 import UpdateGroupScoreJob from './instances/UpdateGroupScoreJob';
 import UpdatePlayerJob from './instances/UpdatePlayerJob';
 
-const JOBS: JobDefinition<unknown>[] = [
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const JOBS: JobDefinition<any>[] = [
   AssertPlayerTypeJob,
   AutoUpdatePatronGroupsJob,
   AutoUpdatePatronPlayersJob,

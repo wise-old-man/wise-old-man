@@ -71,19 +71,21 @@ class MetricsService {
     endTimerFn({ route, status, method, userAgent });
   }
 
-  async trackEffect(fn: (...args: unknown[]) => unknown, ...args: unknown[]) {
+  async trackEffect(effectName: string, fn: () => Promise<void>) {
     const startTime = Date.now();
     const endTimer = this.effectHistogram.startTimer();
 
     try {
-      await fn(...args);
-
-      logger.info(`Effect: ${fn.name} (${Date.now() - startTime} ms)`, args);
-      endTimer({ effectName: fn.name, status: 1 });
+      await fn();
+      logger.info(`Effect: ${fn.name} (${Date.now() - startTime} ms)`);
+      endTimer({ effectName, status: 1 });
     } catch (error) {
-      logger.error(`Effect: ${fn.name} (${Date.now() - startTime} ms)`, { ...args, error });
-      endTimer({ effectName: fn.name, status: 0 });
+      logger.error(`Effect: ${fn.name} (${Date.now() - startTime} ms)`, { error });
+      endTimer({ effectName, status: 0 });
+      throw error;
     }
+
+    logger.info(`Effect: ${effectName} (${Date.now() - startTime} ms)`);
   }
 
   async trackJob(jobType: JobType, handler: () => Promise<void>) {
