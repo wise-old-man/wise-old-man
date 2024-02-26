@@ -46,9 +46,9 @@ async function updateRankMaps(metric: ComputedMetric) {
 
       const algorithmType = getAlgorithmType({ type: playerType, build: playerBuild });
 
-      if (map.has(algorithmType)) {
-        const data = map.get(algorithmType);
+      const data = map.get(algorithmType);
 
+      if (data) {
         for (const [key, value] of Object.entries(obj)) {
           if (data[key]) {
             data[key] += value;

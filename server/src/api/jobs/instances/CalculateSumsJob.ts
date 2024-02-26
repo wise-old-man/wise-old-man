@@ -51,8 +51,10 @@ class CalculateSumsJob implements JobDefinition<unknown> {
 
       if (data.length === 0) continue;
 
-      const sum = calculateSum(data, trendDatapointMap.get(metric));
+      const datapoint = trendDatapointMap.get(metric);
+      if (!datapoint) continue;
 
+      const sum = calculateSum(data, datapoint);
       sumMap.set(metric, sum);
     }
 
@@ -107,8 +109,8 @@ function calculateSum(data: { rank: number; value: number }[], datapoint: TrendD
   }
 
   // Artificially add the first and last ranked players, if needed
-  const firstRanked = filteredData.at(0);
-  const lastRanked = filteredData.at(-1);
+  const firstRanked = filteredData[0];
+  const lastRanked = filteredData[filteredData.length - 1];
 
   if (firstRanked.rank !== 1) {
     filteredData.unshift({ rank: 1, value: Math.max(datapoint.maxValue, firstRanked.value) });
@@ -133,7 +135,7 @@ function calculateSum(data: { rank: number; value: number }[], datapoint: TrendD
   }
 
   // Add the last item to the sum, as its area has not been iterated over
-  areaSum += filteredData.at(-1).value;
+  areaSum += filteredData[filteredData.length - 1].value;
 
   return Math.round(areaSum);
 }

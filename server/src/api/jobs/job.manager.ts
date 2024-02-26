@@ -168,7 +168,8 @@ class JobManager {
         job.type,
         async bullJob => {
           await metricsService.trackJob(job.type, async () => {
-            const attemptTag = bullJob.opts.attempts > 0 ? `(#${bullJob.attemptsMade})` : '';
+            const maxAttempts = bullJob.opts.attempts || 1;
+            const attemptTag = maxAttempts > 0 ? `(#${bullJob.attemptsMade})` : '';
             logger.info(`Executing job: ${job.type} ${attemptTag}`, bullJob.data, true);
 
             await job.execute(bullJob.data);

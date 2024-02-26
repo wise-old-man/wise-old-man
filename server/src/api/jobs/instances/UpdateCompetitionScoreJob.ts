@@ -19,6 +19,10 @@ class UpdateCompetitionScoreJob implements JobDefinition<UpdateCompetitionScoreP
       where: { id: data.competitionId }
     });
 
+    if (!competition) {
+      return;
+    }
+
     const currentScore = competition.score;
     const newScore = await calculateScore(competition);
 
