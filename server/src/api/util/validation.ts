@@ -122,7 +122,10 @@ export const memberSchema = z.object(
   }
 );
 
-const urlSchema = z.string().url().or(z.null());
+const urlSchema = z.preprocess(
+  str => (str === '' ? null : str),
+  z.string().url().or(z.null())
+) as unknown as z.ZodUnion<[z.ZodString, z.ZodNull]>;
 
 export const socialLinksSchema = z.object({
   website: z.optional(urlSchema),

@@ -8,6 +8,7 @@
     "moduleResolution": "node",
     "outDir": "dist",
     "skipLibCheck": true,
+    "strictNullChecks": true,
     "sourceMap": true,
     "target": "es2016",
     "types": ["jest", "node"]
