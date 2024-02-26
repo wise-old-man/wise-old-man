@@ -6,8 +6,8 @@ import { calculatePlayerDeltas, emptyPlayerDelta, flattenPlayerDeltas } from '..
 import { standardize } from '../../players/player.utils';
 
 export interface FindPlayerDeltasResult {
-  startsAt: Date;
-  endsAt: Date;
+  startsAt: Date | null;
+  endsAt: Date | null;
   data: PlayerDeltasArray | PlayerDeltasMap;
 }
 
@@ -84,7 +84,7 @@ async function findPlayerDeltas(
   };
 }
 
-function parseStartDate(period: Period | string, minDate?: Date): Date {
+function parseStartDate(period: Period | string | undefined, minDate?: Date): Date {
   if (period) {
     const parsedPeriod = parsePeriodExpression(period);
 
@@ -93,6 +93,10 @@ function parseStartDate(period: Period | string, minDate?: Date): Date {
     }
 
     return new Date(Date.now() - parsedPeriod.durationMs);
+  }
+
+  if (!minDate) {
+    throw new BadRequestError('Invalid period and start/end dates.');
   }
 
   return minDate;

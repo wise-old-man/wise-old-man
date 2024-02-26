@@ -7,15 +7,16 @@ import { formatSnapshot } from '../snapshots/snapshot.utils';
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
-function formatPlayerDetails(player: Player, snapshot?: Snapshot, archive?: PlayerArchive): PlayerDetails {
-  const efficiency = getPlayerEfficiencyMap(snapshot, player);
-  const combatLevel = snapshotUtils.getCombatLevelFromSnapshot(snapshot);
-
+function formatPlayerDetails(
+  player: Player,
+  snapshot: Snapshot | null,
+  archive?: PlayerArchive | null
+): PlayerDetails {
   return {
     ...player,
-    combatLevel,
+    combatLevel: snapshot ? snapshotUtils.getCombatLevelFromSnapshot(snapshot) : 3,
     archive: archive ? archive : null,
-    latestSnapshot: formatSnapshot(snapshot, efficiency)
+    latestSnapshot: snapshot ? formatSnapshot(snapshot, getPlayerEfficiencyMap(snapshot, player)) : null
   };
 }
 
@@ -27,7 +28,6 @@ function formatPlayerDetails(player: Player, snapshot?: Snapshot, archive?: Play
  * "Hello_world  " -> "hello world"
  */
 function standardize(username: string): string {
-  if (!username || typeof username !== 'string') return null;
   return sanitize(username).toLowerCase();
 }
 
