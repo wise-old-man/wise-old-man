@@ -6,6 +6,7 @@ export class BadRequestError extends Error {
 
   constructor(message: string, data?: unknown) {
     super(message);
+    this.message = message;
     this.name = 'BadRequestError';
     this.statusCode = 400;
     this.data = data;
@@ -19,6 +20,7 @@ export class ForbiddenError extends Error {
 
   constructor(message: string) {
     super(message);
+    this.message = message;
     this.name = 'ForbiddenError';
     this.statusCode = 403;
   }
@@ -31,6 +33,7 @@ export class NotFoundError extends Error {
 
   constructor(message: string) {
     super(message);
+    this.message = message;
     this.name = 'NotFoundError';
     this.statusCode = 404;
   }
@@ -43,6 +46,7 @@ export class RateLimitError extends Error {
 
   constructor(message: string) {
     super(message);
+    this.message = message;
     this.name = 'RateLimitError';
     this.statusCode = 429;
   }
@@ -55,6 +59,7 @@ export class ServerError extends Error {
 
   constructor(message: string) {
     super(message);
+    this.message = message;
     this.name = 'ServerError';
     this.statusCode = 500;
   }
