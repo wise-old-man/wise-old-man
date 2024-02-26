@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const fs = require('fs');
+import fs from 'fs';
 
 /**
  * This is an extremely hacky script that mashes up some of Prisma's type declarations with my own.
