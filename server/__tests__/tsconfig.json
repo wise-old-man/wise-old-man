@@ -1,9 +1,6 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "strict": false,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
     "types": ["jest", "node"]
   },
   "exclude": ["../dist", "../node_modules"]

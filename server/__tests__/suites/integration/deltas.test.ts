@@ -96,7 +96,7 @@ describe('Deltas API', () => {
 
     it('should sync player deltas', async () => {
       // Fake the current date to be 3 days ago
-      jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 86_400_000 * 3));
+      jest.useFakeTimers().setSystemTime(new Date(Date.now() - 86_400_000 * 3));
 
       const firstTrackResponse = await api.post(`/players/psikoi`);
       expect(firstTrackResponse.status).toBe(201);
