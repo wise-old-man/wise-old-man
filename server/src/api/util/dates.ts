@@ -13,7 +13,7 @@ export function normalizeDate(date: Date) {
 }
 
 export function getDatesInBetween(start: Date, end: Date) {
-  const dates = [];
+  const dates: Date[] = [];
 
   let current = normalizeDate(start);
   while (current.getTime() <= normalizeDate(end).getTime()) {
