@@ -498,7 +498,7 @@ describe('Competition API', () => {
 
     it('should create (w/ participants)', async () => {
       // Fake the current date to be 20 minutes ago
-      jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 1_200_000));
+      jest.useFakeTimers().setSystemTime(new Date(Date.now() - 1_200_000));
 
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 10_000 + 604_800_000);
@@ -565,7 +565,7 @@ describe('Competition API', () => {
 
     it('should create (w/ participants)', async () => {
       // Fake the current date to be 2 days ago
-      jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 172_800_000));
+      jest.useFakeTimers().setSystemTime(new Date(Date.now() - 172_800_000));
 
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 10_000 + 432_000_000);
@@ -617,7 +617,7 @@ describe('Competition API', () => {
 
     it('should create (w/ teams)', async () => {
       // Fake the current date to be 2 days ago
-      jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 172_800_000));
+      jest.useFakeTimers().setSystemTime(new Date(Date.now() - 172_800_000));
 
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 10_000 + 174_000_000);
@@ -691,7 +691,7 @@ describe('Competition API', () => {
 
     it('should create (no teams)', async () => {
       // Fake the current date to be 2 days ago
-      jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 172_800_000));
+      jest.useFakeTimers().setSystemTime(new Date(Date.now() - 172_800_000));
 
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 100_000);
@@ -741,7 +741,7 @@ describe('Competition API', () => {
 
     it('should create (w/ teams and group)', async () => {
       // Fake the current date to be 2 days ago
-      jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 172_800_000));
+      jest.useFakeTimers().setSystemTime(new Date(Date.now() - 172_800_000));
 
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 30_000 + 174_000_000);
@@ -2311,7 +2311,7 @@ describe('Competition API', () => {
 
       // Competition started 20 (and 10s) minutes ago
       // Fake the current date to be 15 minutes ago
-      jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 900_000));
+      jest.useFakeTimers().setSystemTime(new Date(Date.now() - 900_000));
 
       // Track Lynx Titan once, this player won't be tracked again  (only 1 snapshot during competition)
       const trackResponse1 = await api.post('/players/lynx titan');
@@ -3208,7 +3208,7 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch('2 outdated (updated > 1h ago) players are being updated.');
 
       // Fake the current date to be 12h from now
-      jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() + 3_600_000 * 12));
+      jest.useFakeTimers().setSystemTime(new Date(Date.now() + 3_600_000 * 12));
 
       const secondResponse = await api
         .post(`/competitions/${globalData.testCompetitionStarted.id}/update-all`)

@@ -655,7 +655,7 @@ describe('Names API', () => {
       const newPlayerId = trackResponse.body.id;
 
       // Fake the current date to be 20 minutes ago
-      jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 1_200_000));
+      jest.useFakeTimers().setSystemTime(new Date(Date.now() - 1_200_000));
       // Create some (pre transition) fake data to test data transferral
       await seedPreTransitionData(oldPlayerId, newPlayerId);
 
