@@ -57,7 +57,6 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    // @ts-expect-error - Requires strictNullChecks:true
     const results = await createGroup(req.body);
     res.status(201).json(results);
   })
@@ -84,7 +83,6 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    // @ts-expect-error - Requires strictNullChecks:true
     const results = await editGroup(id, req.body);
     res.status(200).json(results);
   })
@@ -136,7 +134,6 @@ router.post(
     const { id } = req.params;
     const { members } = req.body;
 
-    // @ts-expect-error - Requires strictNullChecks:true
     const { count } = await addMembers(id, members);
 
     res.status(200).json({

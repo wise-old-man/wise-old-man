@@ -72,7 +72,7 @@ async function fetchGroupStatistics(groupId: number): Promise<GroupStatistics> {
 
   const averageStats = formatSnapshot(averageSnapshot, averageEfficiencyMap);
 
-  // @ ts-expect-error -- Remove latestSnapshot to prevent it from leaking in the API response
+  // @ts-expect-error -- Remove latestSnapshot to prevent it from leaking in the API response
   players.forEach(p => delete p.latestSnapshot);
 
   const metricLeaders = await getMetricLeaders(players, allSnapshots);

@@ -27,11 +27,11 @@ interface EditGroupPayload {
   bannerImage?: string;
   profileImage?: string;
   socialLinks?: {
-    website?: string;
-    discord?: string;
-    twitter?: string;
-    twitch?: string;
-    youtube?: string;
+    website?: string | null;
+    discord?: string | null;
+    twitter?: string | null;
+    twitch?: string | null;
+    youtube?: string | null;
   };
   members?: Array<{ username: string; role: GroupRole }>;
 }
@@ -138,7 +138,7 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     .$transaction(async tx => {
       const transaction = tx as unknown as PrismaTypes.TransactionClient;
 
-      if (payload.socialLinks) {
+      if (socialLinks) {
         await updateSocialLinks(groupId, socialLinks, transaction);
       }
 
@@ -189,7 +189,7 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
   };
 }
 
-async function updateMembers(groupId: number, members: EditGroupPayload['members']) {
+async function updateMembers(groupId: number, members: Array<{ username: string; role: GroupRole }>) {
   const memberships = await prisma.membership.findMany({
     where: { groupId },
     include: { player: true }
@@ -330,7 +330,7 @@ async function updateMembers(groupId: number, members: EditGroupPayload['members
 
 async function updateSocialLinks(
   groupId: number,
-  socialLinks: EditGroupPayload['socialLinks'],
+  socialLinks: NonNullable<EditGroupPayload['socialLinks']>,
   transaction: PrismaTypes.TransactionClient
 ) {
   const existingId = await prisma.$queryRaw<{ id: number }[]>`
@@ -375,7 +375,7 @@ async function addMissingMemberships(
   transaction: PrismaTypes.TransactionClient,
   groupId: number,
   missingPlayers: Player[],
-  memberInputs: EditGroupPayload['members']
+  memberInputs: Array<{ username: string; role: GroupRole }>
 ) {
   const roleMap: { [playerId: number]: GroupRole } = {};
 
@@ -407,7 +407,7 @@ async function addMissingMemberships(
 function calculateRoleChangeMaps(
   keptPlayers: Player[],
   currentMemberships: (Membership & { player: Player })[],
-  memberInputs: EditGroupPayload['members']
+  memberInputs: Array<{ username: string; role: GroupRole }>
 ) {
   // Note: reversing the array here to find the role that was last declared for a given username
   const reversedInputs = [...memberInputs].reverse();

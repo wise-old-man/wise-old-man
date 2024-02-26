@@ -110,17 +110,19 @@ export const teamSchema = z.object(
   }
 );
 
+const groupRoleSchema = z.nativeEnum(GroupRole);
+
 export const memberSchema = z.object(
   {
     username: z.string(),
-    role: z.optional(z.nativeEnum(GroupRole)).default(GroupRole.MEMBER)
+    role: z.optional(groupRoleSchema).default(GroupRole.MEMBER) as unknown as typeof groupRoleSchema
   },
   {
     invalid_type_error: 'Invalid members list. Must be an array of { username: string; role?: string; }.'
   }
 );
 
-const urlSchema = z.preprocess(str => (str === '' ? null : str), z.string().url().or(z.null()));
+const urlSchema = z.string().url().or(z.null());
 
 export const socialLinksSchema = z.object({
   website: z.optional(urlSchema),
