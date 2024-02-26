@@ -65,8 +65,8 @@ async function findPlayerAchievementProgress(username: string): Promise<Achievem
     return {
       ...d,
       playerId: player.id,
-      createdAt: existingAchievement?.createdAt || null,
-      accuracy: existingAchievement?.accuracy || null,
+      createdAt: existingAchievement ? existingAchievement.createdAt : null,
+      accuracy: existingAchievement ? existingAchievement.accuracy : null,
       currentValue,
       absoluteProgress,
       relativeProgress

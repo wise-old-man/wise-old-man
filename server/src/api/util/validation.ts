@@ -2,11 +2,6 @@ import { z } from 'zod';
 import { isValidDate } from './dates';
 import { GroupRole } from '../../utils';
 
-export type PaginationOptions = {
-  limit?: number;
-  offset?: number;
-};
-
 function enumErrorMap(path: Array<string | number>, options: Array<string | number>) {
   if (path.length === 1 && path[0] === 'country') {
     return {
@@ -69,6 +64,11 @@ z.setErrorMap((issue, ctx) => {
   return { message: ctx.defaultError };
 });
 
+export type PaginationOptions = {
+  limit: number;
+  offset: number;
+};
+
 export function getPaginationSchema(maxLimit = 50) {
   let limit = z.coerce.number().int().positive("Parameter 'limit' must be > 0.");
 
@@ -80,8 +80,10 @@ export function getPaginationSchema(maxLimit = 50) {
   }
 
   return z.object({
-    limit: z.optional(limit).default(20),
-    offset: z.optional(z.coerce.number().int().nonnegative("Parameter 'offset' must be >= 0.")).default(0)
+    limit: z.optional(limit).default(20) as unknown as z.ZodNumber,
+    offset: z
+      .optional(z.coerce.number().int().nonnegative("Parameter 'offset' must be >= 0."))
+      .default(0) as unknown as z.ZodNumber
   });
 }
 
