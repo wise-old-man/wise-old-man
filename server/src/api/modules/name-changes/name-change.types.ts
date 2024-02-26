@@ -50,7 +50,7 @@ export type NameChangeDetails = {
     ehpDiff: number;
     ehbDiff: number;
     oldStats: FormattedSnapshot;
-    newStats: FormattedSnapshot;
+    newStats: FormattedSnapshot | null;
   };
 };
 
