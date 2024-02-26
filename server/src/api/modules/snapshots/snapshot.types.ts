@@ -36,8 +36,8 @@ export interface ComputedMetricValue {
 }
 
 export interface MetricLeaders {
-  skills: MapOf<Skill, SkillValue & { player: Player | null }>;
-  bosses: MapOf<Boss, BossValue & { player: Player | null }>;
+  skills: MapOf<Skill, Omit<SkillValue, 'ehp'> & { player: Player | null }>;
+  bosses: MapOf<Boss, Omit<BossValue, 'ehb'> & { player: Player | null }>;
   activities: MapOf<Activity, ActivityValue & { player: Player | null }>;
   computed: MapOf<ComputedMetric, ComputedMetricValue & { player: Player | null }>;
 }

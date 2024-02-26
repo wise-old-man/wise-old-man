@@ -182,7 +182,7 @@ function average(snapshots: Snapshot[]): Snapshot {
     throw new ServerError('Invalid snapshots list. Failed to find average.');
   }
 
-  const base = {
+  const base: Partial<Snapshot> = {
     id: -1,
     playerId: -1,
     importedAt: null,

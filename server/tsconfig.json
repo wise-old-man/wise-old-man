@@ -12,6 +12,7 @@
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
+    "noImplicitAny": false,
     "target": "es2016",
     "types": ["jest", "node"]
   },

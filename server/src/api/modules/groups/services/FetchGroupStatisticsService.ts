@@ -87,7 +87,12 @@ async function getMetricLeaders(players: Player[], snapshots: Snapshot[]) {
 
   const playerMap = new Map<number, Player>(players.map(p => [p.id, p]));
 
-  const metricLeaders = { skills: {}, bosses: {}, activities: {}, computed: {} };
+  const metricLeaders = {
+    skills: {},
+    bosses: {},
+    activities: {},
+    computed: {}
+  };
 
   for (const skill of SKILLS) {
     const valueKey = getMetricValueKey(skill);
@@ -100,7 +105,7 @@ async function getMetricLeaders(players: Player[], snapshots: Snapshot[]) {
       experience,
       rank: snapshot[getMetricRankKey(skill)],
       level: skill === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(experience),
-      player: experience > -1 ? playerMap.get(snapshot.playerId) : null
+      player: experience > -1 ? playerMap.get(snapshot.playerId) || null : null
     };
   }
 
@@ -114,7 +119,7 @@ async function getMetricLeaders(players: Player[], snapshots: Snapshot[]) {
       metric: boss,
       kills,
       rank: snapshot[getMetricRankKey(boss)],
-      player: kills > -1 ? playerMap.get(snapshot.playerId) : null
+      player: kills > -1 ? playerMap.get(snapshot.playerId) || null : null
     };
   }
 
@@ -128,7 +133,7 @@ async function getMetricLeaders(players: Player[], snapshots: Snapshot[]) {
       metric: activity,
       score,
       rank: snapshot[getMetricRankKey(activity)],
-      player: score > -1 ? playerMap.get(snapshot.playerId) : null
+      player: score > -1 ? playerMap.get(snapshot.playerId) || null : null
     };
   }
 
@@ -141,7 +146,7 @@ async function getMetricLeaders(players: Player[], snapshots: Snapshot[]) {
       metric: computedMetric,
       value: val,
       rank: snapshot[getMetricRankKey(computedMetric)],
-      player: val > -1 ? playerMap.get(snapshot.playerId) : null
+      player: val > -1 ? playerMap.get(snapshot.playerId) || null : null
     };
   }
 
