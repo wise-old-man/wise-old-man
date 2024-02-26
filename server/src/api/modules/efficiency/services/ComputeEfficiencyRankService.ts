@@ -3,6 +3,7 @@ import {
   PLAYER_BUILDS,
   PLAYER_TYPES,
   Player,
+  PlayerBuild,
   PlayerStatus,
   PlayerType
 } from '../../../../utils';
@@ -127,7 +128,7 @@ function getTypeAndBuildMatches(player: Pick<Player, 'id' | 'type' | 'build'>) {
     build: player.build
   });
 
-  const matches = [];
+  const matches: Array<{ type: PlayerType; build: PlayerBuild }> = [];
 
   PLAYER_TYPES.forEach(type => {
     if (type === PlayerType.UNKNOWN) return;

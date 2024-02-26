@@ -13,8 +13,6 @@ interface ComputePlayerMetricsResult {
 }
 
 async function computePlayerMetrics(player: Pick<Player, 'id' | 'type' | 'build'>, snapshot: Snapshot) {
-  if (!snapshot) return null;
-
   const killcountMap = getKillcountMap(snapshot);
   const experienceMap = getExperienceMap(snapshot);
 
