@@ -42,7 +42,9 @@ async function addMembers(
   const newMemberships = newPlayers.map(player => {
     const role = members.find(m => standardize(m.username) === player.username)?.role;
 
-    if (!role) return;
+    if (!role) {
+      throw new ServerError('Failed to find role for player (AddMemberService).');
+    }
 
     return { groupId, playerId: player.id, role };
   });

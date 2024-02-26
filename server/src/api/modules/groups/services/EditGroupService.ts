@@ -33,7 +33,7 @@ interface EditGroupPayload {
     twitch?: string;
     youtube?: string;
   };
-  members?: Array<{ username: string; role?: GroupRole }>;
+  members?: Array<{ username: string; role: GroupRole }>;
 }
 
 async function editGroup(groupId: number, payload: EditGroupPayload): Promise<GroupDetails> {
@@ -299,12 +299,12 @@ async function updateMembers(groupId: number, members: EditGroupPayload['members
 
         // Register "player role changed" events
         changedRoleEvents.push(
-          ...roleUpdatesMap.get(role).map(id => ({
+          ...roleUpdatesMap.get(role)!.map(id => ({
             playerId: id,
             groupId,
             role,
             type: ActivityType.CHANGED_ROLE,
-            previousRole: currentRoleMap.get(id)
+            previousRole: currentRoleMap.get(id)!
           }))
         );
       }
@@ -416,8 +416,9 @@ function calculateRoleChangeMaps(
   const currentRoleMap = new Map<GroupRole, number[]>();
 
   currentMemberships.forEach(m => {
-    if (currentRoleMap.get(m.role)) {
-      currentRoleMap.set(m.role, [...currentRoleMap.get(m.role), m.playerId]);
+    const current = currentRoleMap.get(m.role);
+    if (current) {
+      current.push(m.playerId);
     } else {
       currentRoleMap.set(m.role, [m.playerId]);
     }
@@ -427,19 +428,21 @@ function calculateRoleChangeMaps(
     // Find the next role for this player
     const role = reversedInputs.find(m => standardize(m.username) === player.username)?.role;
 
-    if (!role) return null;
+    if (!role) return;
 
     // Find the current membership for this player
     const membership = currentMemberships.find(m => m.playerId === player.id);
 
     // Check if the role has changed
-    if (!membership || membership.role === role) return null;
+    if (!membership || membership.role === role) return;
 
     // Player role hasn't changed
     if (currentRoleMap.get(role)?.includes(player.id)) return;
 
-    if (newRoleMap.get(role)) {
-      newRoleMap.set(role, [...newRoleMap.get(role), player.id]);
+    const current = newRoleMap.get(role);
+
+    if (current) {
+      current.push(player.id);
     } else {
       newRoleMap.set(role, [player.id]);
     }
