@@ -13,5 +13,5 @@
     "target": "es2016",
     "types": ["jest", "node"]
   },
-  "exclude": ["node_modules", "dist", "__tests__"]
+  "exclude": ["node_modules", "dist"]
 }

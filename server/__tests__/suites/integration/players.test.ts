@@ -887,7 +887,7 @@ describe('Player API', () => {
         }
       });
 
-      await expect(importPlayerHistory(player)).rejects.toThrow('Failed to load history from CML.');
+      await expect(importPlayerHistory(player!)).rejects.toThrow('Failed to load history from CML.');
 
       expect(onPlayerImportedEvent).not.toHaveBeenCalled();
     });
@@ -905,7 +905,7 @@ describe('Player API', () => {
         }
       });
 
-      const { count } = await importPlayerHistory(player);
+      const { count } = await importPlayerHistory(player!);
 
       expect(count).toBe(219);
       expect(onPlayerImportedEvent).toHaveBeenCalled();
@@ -963,7 +963,7 @@ describe('Player API', () => {
         }
       });
 
-      await expect(importPlayerHistory(player)).rejects.toThrow('Imported too soon, please wait');
+      await expect(importPlayerHistory(player!)).rejects.toThrow('Imported too soon, please wait');
 
       expect(onPlayerImportedEvent).not.toHaveBeenCalled();
 
@@ -1381,13 +1381,13 @@ describe('Player API', () => {
       expect(playerSnapshotsAfter.length).toBe(223);
 
       // The last snapshot (sorted desc) should be different
-      expect(playerSnapshotsAfter.at(0).id).not.toBe(playerSnapshotsBefore.at(0).id);
+      expect(playerSnapshotsAfter.at(0)!.id).not.toBe(playerSnapshotsBefore.at(0)!.id);
 
       // The second to last snapshot (sorted desc) should be the same
-      expect(playerSnapshotsAfter.at(1).id).toBe(playerSnapshotsBefore.at(1).id);
+      expect(playerSnapshotsAfter.at(1)!.id).toBe(playerSnapshotsBefore.at(1)!.id);
 
       // The previous last snapshot shouldn't be on the new snapshots list anymore
-      const previousLastSnapshotId = playerSnapshotsBefore.at(0).id;
+      const previousLastSnapshotId = playerSnapshotsBefore.at(0)!.id;
       expect(playerSnapshotsAfter.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
     });
 
@@ -1447,10 +1447,10 @@ describe('Player API', () => {
       expect(playerSnapshotsAfter.length).toBe(223 - recentSnapshotsCount + 1);
 
       // The last snapshot (sorted desc) should be different
-      expect(playerSnapshotsAfter.at(0).id).not.toBe(playerSnapshotsBefore.at(0).id);
+      expect(playerSnapshotsAfter.at(0)!.id).not.toBe(playerSnapshotsBefore.at(0)!.id);
 
       // The previous last snapshot shouldn't be on the new snapshots list anymore
-      const previousLastSnapshotId = playerSnapshotsBefore.at(0).id;
+      const previousLastSnapshotId = playerSnapshotsBefore.at(0)!.id;
       expect(playerSnapshotsAfter.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
     });
   });
@@ -1936,9 +1936,9 @@ describe('Player API', () => {
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
 
-      const archivedPlayer = await prisma.player.findFirst({
+      const archivedPlayer = (await prisma.player.findFirst({
         where: { id: player.id }
-      });
+      }))!;
 
       const archivedDetailsResponse = await api.get(`/players/${archivedPlayer.username}`);
       expect(archivedDetailsResponse.status).toBe(200);
@@ -1979,9 +1979,9 @@ describe('Player API', () => {
         1001, 1002, 1003, 1005, 1007, 1009
       ]);
 
-      const newPlayer = await prisma.player.findFirst({
+      const newPlayer = (await prisma.player.findFirst({
         where: { username: player.username }
-      });
+      }))!;
 
       expect(newPlayer.status).toBe('active');
       expect(newPlayer.username).toBe(player.username);
@@ -2124,9 +2124,9 @@ describe('Player API', () => {
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
 
-      const archivedPlayer = await prisma.player.findFirst({
+      const archivedPlayer = (await prisma.player.findFirst({
         where: { id: player.id }
-      });
+      }))!;
 
       expect(archivedPlayer.status).toBe('archived');
       expect(archivedPlayer.username).toBe(archivedPlayer.displayName);
@@ -2160,9 +2160,9 @@ describe('Player API', () => {
         2001, 2002, 2003, 2005, 2007, 2009
       ]);
 
-      const newPlayer = await prisma.player.findFirst({
+      const newPlayer = (await prisma.player.findFirst({
         where: { username: player.username }
-      });
+      }))!;
 
       expect(newPlayer.status).toBe('active');
       expect(newPlayer.username).toBe(player.username);

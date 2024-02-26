@@ -33,7 +33,7 @@ const globalData = {
   cmlRawData: '',
   hiscoresRawDataA: '',
   hiscoresRawDataB: '',
-  expectedAchievements: []
+  expectedAchievements: [] as Achievement[]
 };
 
 beforeEach(() => {
@@ -170,7 +170,7 @@ describe('Achievements API', () => {
         }
       });
 
-      await importPlayerHistory(player);
+      await importPlayerHistory(player!);
 
       // Wait a bit for the onPlayerImported hook to fire
       await sleep(500);

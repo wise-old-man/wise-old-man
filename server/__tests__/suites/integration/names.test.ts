@@ -696,12 +696,12 @@ describe('Names API', () => {
         'USBC'
       );
 
-      const archive = await prisma.playerArchive.findFirst({
+      const archive = (await prisma.playerArchive.findFirst({
         where: {
           playerId: newPlayerId,
           previousUsername: 'usbc'
         }
-      });
+      }))!;
 
       const { archiveUsername } = archive;
 
@@ -925,22 +925,22 @@ describe('Names API', () => {
       expect(approveResponse.body.status).toBe('approved');
       expect(approveResponse.body.resolvedAt).not.toBe(null);
 
-      const archive = await prisma.playerArchive.findFirst({
+      const archive = (await prisma.playerArchive.findFirst({
         where: {
           playerId: trackPlayerResponse.body.id,
           previousUsername: 'nightfirecat'
         }
-      });
+      }))!;
 
       expect(archive).not.toBeNull();
       expect(archive.restoredAt).not.toBe(null);
       expect(archive.restoredUsername).toBe('ron');
 
-      const player = await prisma.player.findFirst({
+      const player = (await prisma.player.findFirst({
         where: {
           username: 'ron'
         }
-      });
+      }))!;
 
       expect(player).not.toBeNull();
       expect(player.displayName).toBe('Ron');
@@ -1111,7 +1111,7 @@ describe('Names API', () => {
         where: { id: submitResponse.body.id }
       });
 
-      expect(pendingNameChange.reviewContext).toBe(null);
+      expect(pendingNameChange!.reviewContext).toBe(null);
 
       await prisma.nameChange.update({
         where: { id: submitResponse.body.id },
@@ -1133,7 +1133,7 @@ describe('Names API', () => {
         where: { id: approveResponse.body.id }
       });
 
-      expect(approvedNameChange.reviewContext).toBe(null);
+      expect(approvedNameChange!.reviewContext).toBe(null);
     });
   });
 
