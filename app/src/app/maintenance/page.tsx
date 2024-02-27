@@ -1,10 +1,15 @@
 import DiscordIcon from "~/assets/discord.svg";
 
-export default function MaintenancePagr() {
+export default function MaintenancePage() {
+  const maintenanceMessage = process.env.MAINTENANCE_MODE_MESSAGE;
+
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-y-5">
-      <p className="max-w-sm text-center text-lg text-gray-200">
-        Wise Old Man is currently undergoing maintenance. Please check back later.
+      <p className="max-w-md text-center text-lg text-gray-200">
+        {maintenanceMessage && maintenanceMessage.length > 0
+          ? maintenanceMessage
+          : "Wise Old Man is currently undergoing maintenance. Please check back later."}
+         
       </p>
       <a
         href="https://wiseoldman.net/discord"

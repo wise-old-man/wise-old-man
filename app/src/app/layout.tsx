@@ -32,7 +32,7 @@ function RootLayout(props: PropsWithChildren) {
         <NavigationLoadingBar />
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
-            {process.env.MAINTENANCE_MODE ? (
+            {process.env.MAINTENANCE_MODE_ENABLED ? (
               <>{children}</>
             ) : (
               <>
