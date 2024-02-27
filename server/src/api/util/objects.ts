@@ -13,11 +13,12 @@ export function omit<T extends object, K extends keyof T>(
 
 export function mapValues<T extends object, TResult>(
   obj: T,
-  callback: (value: T[keyof T], key: string, collection: T) => TResult
+  callback: (value: T[keyof T], key: keyof T, collection: T) => TResult
 ): { [P in keyof T]: TResult } {
-  const clone = {};
+  const clone = {} as { [P in keyof T]: TResult };
 
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach(k => {
+    const key = k as keyof T;
     clone[key] = callback(obj[key], key, obj);
   });
 

@@ -15,12 +15,12 @@ class AutoUpdatePatronGroupsJob implements JobDefinition<unknown> {
       return;
     }
 
-    const patronGroupIds = (
-      await prisma.patron.findMany({
+    const patronGroupIds = await prisma.patron
+      .findMany({
         where: { groupId: { not: null } },
         select: { groupId: true }
       })
-    ).map(p => p.groupId);
+      .then(res => res.map(p => p.groupId).filter(Boolean));
 
     const dayAgo = new Date(Date.now() - PeriodProps[Period.DAY].milliseconds);
 

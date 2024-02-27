@@ -54,7 +54,7 @@ async function findGroupDeltas(
 
   const results = Array.from(playerSnapshotMap.keys())
     .map(playerId => {
-      const { player, startSnapshot, endSnapshot } = playerSnapshotMap.get(playerId);
+      const { player, startSnapshot, endSnapshot } = playerSnapshotMap.get(playerId)!;
 
       if (!player || !startSnapshot || !endSnapshot) {
         return null;
@@ -69,7 +69,7 @@ async function findGroupDeltas(
         endDate: endSnapshot.createdAt
       };
     })
-    .filter(r => r !== null)
+    .filter(Boolean)
     .sort((a, b) => b.data.gained - a.data.gained);
 
   if (pagination) {
@@ -79,14 +79,8 @@ async function findGroupDeltas(
   return results;
 }
 
-type PlayerMapValue = {
-  player: Player & { latestSnapshot?: Snapshot };
-  startSnapshot: Snapshot | null;
-  endSnapshot: Snapshot | null;
-};
-
 async function buildPlayerSnapshotMap(
-  players: Array<Player & { latestSnapshot?: Snapshot }>,
+  players: Array<Player & { latestSnapshot: Snapshot | null }>,
   period?: Period | string,
   minDate?: Date,
   maxDate?: Date
@@ -100,13 +94,22 @@ async function buildPlayerSnapshotMap(
     startSnapshots = await findStartingSnapshots(playerIds, period);
     endSnapshots = players.map(p => p.latestSnapshot).filter(Boolean);
   } else {
-    const [start, end] = await findEdgeSnapshots(playerIds, minDate, maxDate);
+    const [start, end] = await findEdgeSnapshots(playerIds, minDate!, maxDate!);
     startSnapshots = start;
     endSnapshots = end;
   }
 
-  const playerMap = new Map<number, PlayerMapValue>(
-    players.map(p => [p.id, { player: p, startSnapshot: null, endSnapshot: null }])
+  const playerMap = new Map(
+    players.map(player => {
+      return [
+        player.id,
+        {
+          player,
+          startSnapshot: null as Snapshot | null,
+          endSnapshot: null as Snapshot | null
+        }
+      ];
+    })
   );
 
   startSnapshots.forEach(s => {

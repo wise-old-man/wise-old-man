@@ -1,14 +1,13 @@
-import { PlayerType } from '../../../../utils';
 import prisma, { NameChangeStatus } from '../../../../prisma';
+import { PlayerType } from '../../../../utils';
 import { NotFoundError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
-import * as snapshotUtils from '../../snapshots/snapshot.utils';
-import { NameChange, NameChangeDetails } from '../name-change.types';
-import { standardize } from '../../players/player.utils';
-import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
+import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
+import { standardize } from '../../players/player.utils';
 import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
-import { formatSnapshot } from '../../snapshots/snapshot.utils';
+import { formatSnapshot, getNegativeGains } from '../../snapshots/snapshot.utils';
+import { NameChange, NameChangeDetails } from '../name-change.types';
 
 async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
   const nameChange = await prisma.nameChange.findFirst({ where: { id } });
@@ -82,12 +81,11 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
     }
   }
 
-  const afterDate = newStats && newStats.createdAt ? newStats.createdAt : new Date();
+  const afterDate = newStats ? newStats.createdAt : new Date();
   const timeDiff = afterDate.getTime() - oldStats.createdAt.getTime();
   const hoursDiff = timeDiff / 1000 / 60 / 60;
 
   const oldPlayerComputedMetrics = await computePlayerMetrics(oldPlayer, oldStats);
-  const newPlayerComputedMetrics = await computePlayerMetrics(newPlayer || { ...oldPlayer, id: 1 }, newStats);
 
   oldStats.ehpValue = oldPlayerComputedMetrics.ehpValue;
   oldStats.ehpRank = oldPlayerComputedMetrics.ehpRank;
@@ -95,24 +93,37 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
   oldStats.ehbValue = oldPlayerComputedMetrics.ehbValue;
   oldStats.ehbRank = oldPlayerComputedMetrics.ehbRank;
 
-  if (newPlayerComputedMetrics) {
-    newStats.ehpValue = newPlayerComputedMetrics.ehpValue;
-    newStats.ehpRank = newPlayerComputedMetrics.ehpRank;
-    newStats.ehbValue = newPlayerComputedMetrics.ehbValue;
-    newStats.ehbRank = newPlayerComputedMetrics.ehbRank;
+  // If new stats cannot be found on the hiscores or our database, there's nothing to compare oldStats to.
+  if (!newStats) {
+    return {
+      nameChange: nameChange as NameChange,
+      data: {
+        isNewOnHiscores: !!newHiscores,
+        isOldOnHiscores: !!oldHiscores,
+        isNewTracked: !!newPlayer,
+        negativeGains: null,
+        hasNegativeGains: false,
+        timeDiff,
+        hoursDiff,
+        ehpDiff: 0,
+        ehbDiff: 0,
+        oldStats: formatSnapshot(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
+        newStats: null
+      }
+    };
   }
 
-  const ehpDiff = newStats ? newStats.ehpValue - oldStats.ehpValue : 0;
-  const ehbDiff = newStats ? newStats.ehbValue - oldStats.ehbValue : 0;
+  const newPlayerComputedMetrics = await computePlayerMetrics(
+    newPlayer || { ...oldPlayer, id: -1 },
+    newStats
+  );
 
-  const negativeGains = newStats ? snapshotUtils.getNegativeGains(oldStats, newStats) : null;
+  newStats.ehpValue = newPlayerComputedMetrics.ehpValue;
+  newStats.ehpRank = newPlayerComputedMetrics.ehpRank;
+  newStats.ehbValue = newPlayerComputedMetrics.ehbValue;
+  newStats.ehbRank = newPlayerComputedMetrics.ehbRank;
 
-  const oldPlayerEfficiencyMap = getPlayerEfficiencyMap(oldStats, oldPlayer);
-  const newPlayerEfficiencyMap = getPlayerEfficiencyMap(newStats, newPlayer);
-
-  if (!newPlayer && newStats) {
-    delete newStats.playerId;
-  }
+  const negativeGains = getNegativeGains(oldStats, newStats);
 
   return {
     nameChange: nameChange as NameChange,
@@ -124,10 +135,10 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
       hasNegativeGains: !!negativeGains,
       timeDiff,
       hoursDiff,
-      ehpDiff,
-      ehbDiff,
-      oldStats: formatSnapshot(oldStats, oldPlayerEfficiencyMap),
-      newStats: formatSnapshot(newStats, newPlayerEfficiencyMap)
+      ehpDiff: newStats.ehpValue - oldStats.ehpValue,
+      ehbDiff: newStats.ehbValue - oldStats.ehbValue,
+      oldStats: formatSnapshot(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
+      newStats: newPlayer ? formatSnapshot(newStats, getPlayerEfficiencyMap(newStats, newPlayer)) : null
     }
   };
 }

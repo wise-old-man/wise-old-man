@@ -17,8 +17,8 @@ class AutoUpdatePatronPlayersJob implements JobDefinition<unknown> {
 
     const dayAgo = new Date(Date.now() - PeriodProps[Period.DAY].milliseconds);
 
-    const outdatedPatronPlayers = (
-      await prisma.patron.findMany({
+    const outdatedPatronPlayers = await prisma.patron
+      .findMany({
         where: {
           playerId: { not: null },
           player: {
@@ -29,7 +29,7 @@ class AutoUpdatePatronPlayersJob implements JobDefinition<unknown> {
           player: true
         }
       })
-    ).map(p => p.player);
+      .then(res => res.map(p => p.player).filter(Boolean));
 
     // Execute the update action for every member
     outdatedPatronPlayers.forEach(({ username }) => {

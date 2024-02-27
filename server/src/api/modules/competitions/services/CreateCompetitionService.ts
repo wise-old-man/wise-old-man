@@ -38,13 +38,13 @@ async function createCompetition(payload: CreateCompetitionPayload): Promise<Cre
     throw new BadRequestError('Invalid dates: All start and end dates must be in the future.');
   }
 
-  if (participants?.length > 0 && !!groupId) {
+  if (participants && participants.length > 0 && !!groupId) {
     throw new BadRequestError(
       `Cannot include both "participants" and "groupId", they are mutually exclusive. All group members will be registered as participants instead.`
     );
   }
 
-  if (participants?.length > 0 && teams?.length > 0) {
+  if (participants && participants.length > 0 && teams && teams.length > 0) {
     throw new BadRequestError('Cannot include both "participants" and "teams", they are mutually exclusive.');
   }
 
@@ -52,7 +52,7 @@ async function createCompetition(payload: CreateCompetitionPayload): Promise<Cre
   const isTeamCompetition = teams && teams.length > 0;
   const hasParticipants = participants && participants.length > 0;
 
-  let participations: { playerId: number; teamName?: string }[] = [];
+  let participations: { playerId: number; teamName: string | null }[] = [];
 
   if (hasParticipants) {
     // throws an error if any participant is invalid
@@ -173,7 +173,7 @@ async function getGroupParticipations(groupId: number) {
   return memberships.map(m => ({ playerId: m.playerId, teamName: null }));
 }
 
-async function validateGroupVerification(groupId: number, groupVerificationCode: string) {
+async function validateGroupVerification(groupId: number, groupVerificationCode: string | undefined) {
   if (!groupVerificationCode) {
     throw new BadRequestError('Invalid group verification code.');
   }

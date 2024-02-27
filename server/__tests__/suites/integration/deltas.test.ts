@@ -195,16 +195,16 @@ describe('Deltas API', () => {
 
       jest.resetAllMocks();
 
-      const dayDeltas = await prisma.delta.findFirst({
+      const dayDeltas = (await prisma.delta.findFirst({
         where: { playerId: firstTrackResponse.body.id, period: 'day' }
-      });
+      }))!;
 
       expect(dayDeltas.nex).toBe(1);
       expect(dayDeltas.tzkal_zuk).toBe(1);
       expect(dayDeltas.bounty_hunter_hunter).toBe(4); //  bh went from -1 (unranked) to 5 (min=2), make sure it's 4 gained, not 6
       expect(dayDeltas.soul_wars_zeal).toBe(4); // soul wars went from -1 (unranked) to 203 (min=200), make sure it's 4 gained, not 204
       expect(dayDeltas.last_man_standing).toBe(0); // LMS went DOWN from 500 to 450, don't show negative gains
-      expect(dayDeltas.ehb).toBeLessThan(monthDeltas.ehb); // gained less boss kc, expect ehb gains to be lesser
+      expect(dayDeltas.ehb).toBeLessThan(monthDeltas!.ehb); // gained less boss kc, expect ehb gains to be lesser
       expect(parseInt(dayDeltas.overall.toString())).toBe(0); // overall went from -1 to 300m, show 0 gains
 
       const fourthTrackResponse = await api.post(`/players/psikoi`);

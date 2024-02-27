@@ -29,7 +29,8 @@ import UpdateCompetitionScoreJob from './instances/UpdateCompetitionScoreJob';
 import UpdateGroupScoreJob from './instances/UpdateGroupScoreJob';
 import UpdatePlayerJob from './instances/UpdatePlayerJob';
 
-const JOBS: JobDefinition<unknown>[] = [
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const JOBS: JobDefinition<any>[] = [
   AssertPlayerTypeJob,
   AutoUpdatePatronGroupsJob,
   AutoUpdatePatronPlayersJob,
@@ -168,7 +169,8 @@ class JobManager {
         job.type,
         async bullJob => {
           await metricsService.trackJob(job.type, async () => {
-            const attemptTag = bullJob.opts.attempts > 0 ? `(#${bullJob.attemptsMade})` : '';
+            const maxAttempts = bullJob.opts.attempts || 1;
+            const attemptTag = maxAttempts > 0 ? `(#${bullJob.attemptsMade})` : '';
             logger.info(`Executing job: ${job.type} ${attemptTag}`, bullJob.data, true);
 
             await job.execute(bullJob.data);

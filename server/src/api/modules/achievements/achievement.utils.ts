@@ -49,7 +49,7 @@ function formatThreshold(threshold: number): string {
 }
 
 function getAchievementDefinitions(): AchievementDefinition[] {
-  const definitions = [];
+  const definitions: AchievementDefinition[] = [];
 
   ACHIEVEMENT_TEMPLATES.forEach(({ thresholds, name, metric, measure, getCurrentValue }) => {
     thresholds.forEach(threshold => {

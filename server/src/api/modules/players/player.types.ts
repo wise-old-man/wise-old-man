@@ -3,8 +3,8 @@ import { FormattedSnapshot } from '../snapshots/snapshot.types';
 
 export interface PlayerDetails extends Player {
   combatLevel: number;
-  archive?: PlayerArchive;
-  latestSnapshot: FormattedSnapshot;
+  archive: PlayerArchive | null;
+  latestSnapshot: FormattedSnapshot | null;
 }
 
 export interface FlaggedPlayerReviewContext {

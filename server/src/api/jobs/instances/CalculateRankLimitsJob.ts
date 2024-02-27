@@ -16,7 +16,7 @@ export interface CalculateRankLimitsPayload {
  *
  * To achieve this, we need to query our own data to find the limits for each metric for each day.
  */
-class CalculateRankLimitsJob implements JobDefinition<unknown> {
+class CalculateRankLimitsJob implements JobDefinition<CalculateRankLimitsPayload> {
   type: JobType;
 
   constructor() {

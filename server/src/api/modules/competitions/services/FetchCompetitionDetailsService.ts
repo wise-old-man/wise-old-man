@@ -1,13 +1,6 @@
 import prisma from '../../../../prisma';
 import { omit } from '../../../util/objects';
-import {
-  getMetricValueKey,
-  isComputedMetric,
-  isSkill,
-  MeasuredDeltaProgress,
-  Metric,
-  Skill
-} from '../../../../utils';
+import { getMetricValueKey, isComputedMetric, isSkill, Metric, Skill } from '../../../../utils';
 import { NotFoundError } from '../../../errors';
 import { CompetitionDetails } from '../competition.types';
 import * as deltaUtils from '../../deltas/delta.utils';
@@ -69,21 +62,34 @@ async function calculateParticipantsStandings(competitionId: number, metric: Met
     .map(p => {
       const { player, startSnapshot, endSnapshot } = p;
 
-      const diff = deltaUtils.calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
+      // Omit the snapshot information from the participation, as to not leak it in the API response
+      const sanitizedParticipation = omit(
+        p,
+        'startSnapshotId',
+        'endSnapshotId',
+        'startSnapshot',
+        'endSnapshot'
+      );
 
-      const standing = {
-        ...omit(p, 'startSnapshotId', 'endSnapshotId', 'startSnapshot', 'endSnapshot'),
-        progress: diff,
-        levels: undefined as MeasuredDeltaProgress | undefined
-      };
-
-      if (isSkill(metric) && startSnapshot && endSnapshot) {
-        standing.levels = deltaUtils.calculateLevelDiff(metric, startSnapshot, endSnapshot, diff);
-      } else {
-        standing.levels = { gained: 0, start: -1, end: -1 };
+      if (!startSnapshot || !endSnapshot) {
+        return {
+          ...sanitizedParticipation,
+          progress: { gained: 0, start: -1, end: -1 },
+          levels: { gained: 0, start: -1, end: -1 }
+        };
       }
 
-      return standing;
+      const progress = deltaUtils.calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
+
+      const levels = isSkill(metric)
+        ? deltaUtils.calculateLevelDiff(metric, startSnapshot, endSnapshot, progress)
+        : { gained: 0, start: -1, end: -1 };
+
+      return {
+        ...sanitizedParticipation,
+        progress,
+        levels
+      };
     })
     .sort((a, b) => b.progress.gained - a.progress.gained || b.progress.start - a.progress.start);
 }

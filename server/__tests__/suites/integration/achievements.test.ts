@@ -33,7 +33,7 @@ const globalData = {
   cmlRawData: '',
   hiscoresRawDataA: '',
   hiscoresRawDataB: '',
-  expectedAchievements: []
+  expectedAchievements: [] as Achievement[]
 };
 
 beforeEach(() => {
@@ -47,7 +47,7 @@ beforeAll(async () => {
   globalData.cmlRawData = await readFile(CML_FILE_PATH);
   globalData.hiscoresRawDataA = await readFile(HISCORES_FILE_PATH_A);
   globalData.hiscoresRawDataB = await readFile(HISCORES_FILE_PATH_B);
-  globalData.expectedAchievements = JSON.parse(await readFile(ACHIEVEMENTS_FILE_PATH));
+  globalData.expectedAchievements = JSON.parse(await readFile(ACHIEVEMENTS_FILE_PATH)) as Achievement[];
 
   // Mock the history fetch from CML to always fail with a 404 status code
   registerCMLMock(axiosMock, 404);
@@ -170,7 +170,7 @@ describe('Achievements API', () => {
         }
       });
 
-      await importPlayerHistory(player);
+      await importPlayerHistory(player!);
 
       // Wait a bit for the onPlayerImported hook to fire
       await sleep(500);

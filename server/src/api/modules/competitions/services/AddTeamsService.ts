@@ -76,19 +76,23 @@ async function fetchCurrentTeams(id: number): Promise<Team[]> {
     select: { teamName: true, player: { select: { username: true } } }
   });
 
-  const teamNameMap: { [teamName: string]: string[] } = {};
+  const teamNameMap = new Map<string, string[]>();
 
   participations.forEach(p => {
-    if (p.teamName in teamNameMap) {
-      teamNameMap[p.teamName] = [...teamNameMap[p.teamName], p.player.username];
+    if (!p.teamName) return;
+
+    const current = teamNameMap.get(p.teamName);
+
+    if (current) {
+      current.push(p.player.username);
     } else {
-      teamNameMap[p.teamName] = [p.player.username];
+      teamNameMap.set(p.teamName, [p.player.username]);
     }
   });
 
-  return Object.keys(teamNameMap).map(teamName => ({
+  return Array.from(teamNameMap.keys()).map(teamName => ({
     name: teamName,
-    participants: teamNameMap[teamName]
+    participants: teamNameMap.get(teamName) || []
   }));
 }
 

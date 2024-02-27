@@ -155,7 +155,7 @@ describe('Patrons API', () => {
         id: 'some-patreon-id',
         discordId: 'some-discord-id',
         tier: 2,
-        playerId: existingPatronage.playerId,
+        playerId: existingPatronage!.playerId,
         groupId: createResponse.body.group.id
       });
     });

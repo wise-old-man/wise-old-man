@@ -2,7 +2,7 @@ import prisma from '../../../../prisma';
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import { omit } from '../../../util/objects';
 import * as cryptService from '../../../services/external/crypt.service';
-import { BadRequestError, ServerError } from '../../../errors';
+import { BadRequestError } from '../../../errors';
 import { ActivityType, GroupDetails } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
@@ -16,7 +16,7 @@ interface CreateGroupPayload {
   clanChat?: string;
   homeworld?: number;
   description?: string;
-  members: Array<{ username: string; role?: GroupRole }>;
+  members: Array<{ username: string; role: GroupRole }>;
 }
 
 async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResult> {
@@ -57,7 +57,6 @@ async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResu
       clanChat,
       homeworld: payload.homeworld,
       verificationHash: hash,
-
       memberships: {
         createMany: {
           data: memberships
@@ -100,27 +99,13 @@ async function prepareMemberships(members: CreateGroupPayload['members']) {
   if (!members || members.length === 0) return [];
 
   // Find or create all players with the given usernames
-  const players = await findOrCreatePlayers(members.map(member => member.username));
+  const players = await findOrCreatePlayers(members.map(m => m.username));
 
-  const usernameMap: { [username: string]: GroupRole } = {};
+  const usernameRoleMap = new Map<string, GroupRole>(members.map(m => [standardize(m.username), m.role]));
 
-  members.forEach(member => {
-    usernameMap[standardize(member.username)] = member.role;
+  return players.map(player => {
+    return { playerId: player.id, role: usernameRoleMap.get(player.username)! };
   });
-
-  const memberships: { playerId: number; role: GroupRole }[] = [];
-
-  players.forEach(player => {
-    const role = usernameMap[player.username];
-
-    if (!role) {
-      throw new ServerError('Failed to construct memberships (CreateGroupService)');
-    }
-
-    memberships.push({ playerId: player.id, role });
-  });
-
-  return memberships;
 }
 
 export { createGroup };

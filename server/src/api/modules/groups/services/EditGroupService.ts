@@ -27,13 +27,13 @@ interface EditGroupPayload {
   bannerImage?: string;
   profileImage?: string;
   socialLinks?: {
-    website?: string;
-    discord?: string;
-    twitter?: string;
-    twitch?: string;
-    youtube?: string;
+    website?: string | null;
+    discord?: string | null;
+    twitter?: string | null;
+    twitch?: string | null;
+    youtube?: string | null;
   };
-  members?: Array<{ username: string; role?: GroupRole }>;
+  members?: Array<{ username: string; role: GroupRole }>;
 }
 
 async function editGroup(groupId: number, payload: EditGroupPayload): Promise<GroupDetails> {
@@ -138,7 +138,7 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     .$transaction(async tx => {
       const transaction = tx as unknown as PrismaTypes.TransactionClient;
 
-      if (payload.socialLinks) {
+      if (socialLinks) {
         await updateSocialLinks(groupId, socialLinks, transaction);
       }
 
@@ -189,7 +189,7 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
   };
 }
 
-async function updateMembers(groupId: number, members: EditGroupPayload['members']) {
+async function updateMembers(groupId: number, members: Array<{ username: string; role: GroupRole }>) {
   const memberships = await prisma.membership.findMany({
     where: { groupId },
     include: { player: true }
@@ -299,12 +299,12 @@ async function updateMembers(groupId: number, members: EditGroupPayload['members
 
         // Register "player role changed" events
         changedRoleEvents.push(
-          ...roleUpdatesMap.get(role).map(id => ({
+          ...roleUpdatesMap.get(role)!.map(id => ({
             playerId: id,
             groupId,
             role,
             type: ActivityType.CHANGED_ROLE,
-            previousRole: currentRoleMap.get(id)
+            previousRole: currentRoleMap.get(id)!
           }))
         );
       }
@@ -330,10 +330,10 @@ async function updateMembers(groupId: number, members: EditGroupPayload['members
 
 async function updateSocialLinks(
   groupId: number,
-  socialLinks: EditGroupPayload['socialLinks'],
+  socialLinks: NonNullable<EditGroupPayload['socialLinks']>,
   transaction: PrismaTypes.TransactionClient
 ) {
-  const existingId = await prisma.$queryRaw`
+  const existingId = await prisma.$queryRaw<{ id: number }[]>`
     SELECT "id" FROM public."groupSocialLinks" WHERE "groupId" = ${groupId} LIMIT 1
   `.then(rows => {
     return rows && Array.isArray(rows) && rows.length > 0 ? rows[0].id : null;
@@ -375,7 +375,7 @@ async function addMissingMemberships(
   transaction: PrismaTypes.TransactionClient,
   groupId: number,
   missingPlayers: Player[],
-  memberInputs: EditGroupPayload['members']
+  memberInputs: Array<{ username: string; role: GroupRole }>
 ) {
   const roleMap: { [playerId: number]: GroupRole } = {};
 
@@ -407,7 +407,7 @@ async function addMissingMemberships(
 function calculateRoleChangeMaps(
   keptPlayers: Player[],
   currentMemberships: (Membership & { player: Player })[],
-  memberInputs: EditGroupPayload['members']
+  memberInputs: Array<{ username: string; role: GroupRole }>
 ) {
   // Note: reversing the array here to find the role that was last declared for a given username
   const reversedInputs = [...memberInputs].reverse();
@@ -416,8 +416,9 @@ function calculateRoleChangeMaps(
   const currentRoleMap = new Map<GroupRole, number[]>();
 
   currentMemberships.forEach(m => {
-    if (currentRoleMap.get(m.role)) {
-      currentRoleMap.set(m.role, [...currentRoleMap.get(m.role), m.playerId]);
+    const current = currentRoleMap.get(m.role);
+    if (current) {
+      current.push(m.playerId);
     } else {
       currentRoleMap.set(m.role, [m.playerId]);
     }
@@ -427,19 +428,21 @@ function calculateRoleChangeMaps(
     // Find the next role for this player
     const role = reversedInputs.find(m => standardize(m.username) === player.username)?.role;
 
-    if (!role) return null;
+    if (!role) return;
 
     // Find the current membership for this player
     const membership = currentMemberships.find(m => m.playerId === player.id);
 
     // Check if the role has changed
-    if (!membership || membership.role === role) return null;
+    if (!membership || membership.role === role) return;
 
     // Player role hasn't changed
     if (currentRoleMap.get(role)?.includes(player.id)) return;
 
-    if (newRoleMap.get(role)) {
-      newRoleMap.set(role, [...newRoleMap.get(role), player.id]);
+    const current = newRoleMap.get(role);
+
+    if (current) {
+      current.push(player.id);
     } else {
       newRoleMap.set(role, [player.id]);
     }

@@ -1628,7 +1628,10 @@ describe('Group API', () => {
 
       expect(onMembersRolesChangedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 1 }));
       const event = onMembersRolesChangedEvent.mock.calls[0][0][0];
-      const playerSethmare = await prisma.player.findFirst({ where: { username: 'sethmare' } });
+
+      const playerSethmare = (await prisma.player.findFirst({
+        where: { username: 'sethmare' }
+      }))!;
 
       expect(event).toEqual({
         groupId: globalData.testGroupNoLeaders.id,
@@ -1638,10 +1641,10 @@ describe('Group API', () => {
         previousRole: 'magician'
       });
 
-      const latestActivity = await prisma.memberActivity.findFirst({
+      const latestActivity = (await prisma.memberActivity.findFirst({
         where: { groupId: globalData.testGroupNoLeaders.id },
         orderBy: { createdAt: 'desc' }
-      });
+      }))!;
 
       expect(latestActivity.type).toBe('changed_role');
       expect(latestActivity.role).toBe('dragon');
@@ -2482,7 +2485,7 @@ describe('Group API', () => {
         ...Object.values(response.body.metricLeaders.bosses),
         ...Object.values(response.body.metricLeaders.activities),
         ...Object.values(response.body.metricLeaders.computed)
-      ].map(m => m['player']);
+      ].map(m => m!['player']);
 
       for (let i = 0; i < metricLeaderPlayers.length; i++) {
         if (metricLeaderPlayers[i]) {

@@ -124,8 +124,8 @@ function calculateEfficiencyDiff(
   endMap: Map<Skill | Boss, number>
 ) {
   // Calculate EHP/EHB diffs
-  const startEfficiency = startMap.get(metric);
-  const endEfficiency = endMap.get(metric);
+  const startEfficiency = startMap.get(metric)!;
+  const endEfficiency = endMap.get(metric)!;
 
   return {
     gained: round(endEfficiency - startEfficiency, 5),

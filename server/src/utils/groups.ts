@@ -14,7 +14,7 @@ const PRIVELEGED_GROUP_ROLES: GroupRole[] = [
 
 type GroupRolePropsMap = MapOf<GroupRole, { name: string; isPriveleged: boolean }>;
 
-const GroupRoleProps: GroupRolePropsMap = mapValues(
+const GroupRoleProps = mapValues(
   {
     [GroupRole.ACHIEVER]: { name: 'Achiever' },
     [GroupRole.ADAMANT]: { name: 'Adamant' },
@@ -286,11 +286,11 @@ const GroupRoleProps: GroupRolePropsMap = mapValues(
     [GroupRole.ZEALOT]: { name: 'Zealot' },
     [GroupRole.ZENYTE]: { name: 'Zenyte' }
   },
-  (props, key: GroupRole) => ({
+  (props, key) => ({
     ...props,
     isPriveleged: PRIVELEGED_GROUP_ROLES.includes(key)
   })
-);
+) as GroupRolePropsMap;
 
 function findGroupRole(roleName: string): GroupRole | null {
   for (const [key, value] of Object.entries(GroupRoleProps)) {

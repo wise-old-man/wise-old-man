@@ -27,7 +27,9 @@ async function checkIsBanned(username: string) {
  * Fetches the player data from the Hiscores API.
  */
 async function fetchHiscoresData(username: string, type: PlayerType = PlayerType.REGULAR): Promise<string> {
-  const url = `${OSRS_HISCORES_URLS[type]}?player=${username}`;
+  const hiscoresType = type === PlayerType.UNKNOWN ? PlayerType.REGULAR : type;
+
+  const url = `${OSRS_HISCORES_URLS[hiscoresType]}?player=${username}`;
 
   try {
     const data = await fetchWithProxy(url);
@@ -57,8 +59,8 @@ async function fetchWithProxy(url: string) {
 
     try {
       const { data } = await axios({
-        url: proxy ? url.replace('https', 'http') : url,
-        proxy
+        url: proxy != null ? url.replace('https', 'http') : url,
+        proxy: proxy != null ? proxy : false
       });
 
       return data;

@@ -13,7 +13,7 @@ import {
   sleep,
   modifyRawHiscoresData
 } from '../../utils';
-import { SnapshotDataSource } from '../../../src/api/modules/snapshots/snapshot.types';
+import { Snapshot, SnapshotDataSource } from '../../../src/api/modules/snapshots/snapshot.types';
 import { buildSnapshot } from '../../../src/api/modules/snapshots/services/BuildSnapshotService';
 import { findPlayerSnapshots } from '../../../src/api/modules/snapshots/services/FindPlayerSnapshotsService';
 import { saveAllSnapshots } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
@@ -36,7 +36,7 @@ const globalData = {
   secondaryPlayerId: -1,
   testGroupId: -1,
   testGroupCode: '',
-  snapshots: []
+  snapshots: [] as Snapshot[]
 };
 
 beforeAll(async () => {
@@ -71,10 +71,6 @@ afterAll(async () => {
 
 describe('Snapshots API', () => {
   describe('1 - Creating from OSRS Hiscores', () => {
-    it('should not create snapshot (invalid input)', async () => {
-      await expect(buildSnapshot(1, null)).rejects.toThrow();
-    });
-
     it('should not create snapshot (hiscores change)', async () => {
       const [firstLine, ...rest] = globalData.hiscoresRawDataLT.split('\n');
       const rawDataMinusOneLine = rest.join('\n');
@@ -156,7 +152,7 @@ describe('Snapshots API', () => {
 
   describe('2 - Creating from CrystalMathLabs', () => {
     it('should not create snapshot (invalid input)', async () => {
-      await expect(buildSnapshot(1, null, SnapshotDataSource.CRYSTAL_MATH_LABS)).rejects.toThrow();
+      await expect(buildSnapshot(1, '', SnapshotDataSource.CRYSTAL_MATH_LABS)).rejects.toThrow();
     });
 
     it('should not create snapshot (CML changed)', async () => {
@@ -251,9 +247,6 @@ describe('Snapshots API', () => {
 
   describe('3 - Snapshot Utils', () => {
     it('should detect changes between snapshots', () => {
-      // Invalid params
-      expect(utils.hasChanged(null, globalData.snapshots[0])).toBe(true);
-      expect(utils.hasChanged(globalData.snapshots[0], null)).toBe(false);
       // No changes between these
       expect(utils.hasChanged(globalData.snapshots[1], globalData.snapshots[0])).toBe(false);
       // Some changes between these
@@ -325,7 +318,12 @@ describe('Snapshots API', () => {
       };
 
       const result = utils.getExcessiveGains(globalData.snapshots[10], bigGains);
-      expect(result.ehbDiff + result.ehpDiff).toBeGreaterThan(result.hoursDiff);
+
+      if (!result) {
+        expect(result).not.toBeNull();
+      } else {
+        expect(result.ehbDiff + result.ehpDiff).toBeGreaterThan(result.hoursDiff);
+      }
     });
   });
 
@@ -353,7 +351,8 @@ describe('Snapshots API', () => {
 
     it('should fetch all snapshots (limited)', async () => {
       const result = await findPlayerSnapshots(globalData.testPlayerId, undefined, undefined, undefined, {
-        limit: 10
+        limit: 10,
+        offset: 0
       });
 
       expect(result.length).toBe(10);

@@ -6,7 +6,9 @@ async function onDeltaUpdated(delta: Delta, isPotentialRecord: boolean) {
   if (!isPotentialRecord) return;
 
   // Check if this new delta is an all time record for this player
-  await metrics.trackEffect(syncPlayerRecords, delta);
+  await metrics.trackEffect('syncPlayerRecords', async () => {
+    await syncPlayerRecords(delta);
+  });
 }
 
 export { onDeltaUpdated };

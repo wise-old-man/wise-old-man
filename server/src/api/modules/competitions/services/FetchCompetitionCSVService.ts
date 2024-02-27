@@ -28,7 +28,7 @@ async function fetchCompetitionCSV(
     return getTeamsCSV(competitionDetails);
   }
 
-  return getTeamCSV(competitionDetails, teamName);
+  return getTeamCSV(competitionDetails, teamName!);
 }
 
 type TeamRow = {
@@ -62,7 +62,7 @@ function getParticipantsCSV(competitionDetails: CompetitionDetails): string {
   ];
 
   if (competitionDetails.type === CompetitionType.TEAM) {
-    columns.splice(2, 0, { header: 'Team', resolveCell: row => row.teamName });
+    columns.splice(2, 0, { header: 'Team', resolveCell: row => row.teamName! });
   }
 
   const headers = columns.map(c => c.header).join(',');
@@ -75,34 +75,26 @@ function getParticipantsCSV(competitionDetails: CompetitionDetails): string {
 }
 
 function getTeamsCSV(competitionDetails: CompetitionDetails): string {
-  const teamNames = [...new Set(competitionDetails.participations.map(p => p.teamName))];
+  const teamNames = [...new Set(competitionDetails.participations.map(p => p.teamName!))];
 
   // Mapping these to ensure every team is unique by name
-  const teamMap = Object.fromEntries(
-    teamNames.map(t => [
-      t,
-      {
-        name: t,
-        participants: [] as ParticipationWithPlayerAndProgress[]
-      }
-    ])
-  );
+  const teamMap = new Map<string, ParticipationWithPlayerAndProgress[]>(teamNames.map(name => [name, []]));
 
   competitionDetails.participations.forEach(p => {
-    teamMap[p.teamName].participants.push(p);
+    teamMap.get(p.teamName!)?.push(p);
   });
 
-  const teamsList = Object.values(teamMap)
-    .map(t => {
+  const teamsList = Array.from(teamMap.entries())
+    .map(([name, participants]) => {
       // Sort participants by most gained, and add team rank
-      const sortedParticipants = t.participants
+      const sortedParticipants = participants
         .sort((a, b) => b.progress.gained - a.progress.gained)
         .map((p, i) => ({ ...p, teamRank: i + 1 }));
 
-      const totalGained = t.participants.map(p => p.progress.gained).reduce((a, c) => a + c);
-      const avgGained = totalGained / t.participants.length;
+      const totalGained = participants.map(p => p.progress.gained).reduce((a, c) => a + c);
+      const avgGained = totalGained / participants.length;
 
-      return { ...t, participants: sortedParticipants, totalGained, avgGained };
+      return { name, participants: sortedParticipants, totalGained, avgGained };
     })
     .sort((a, b) => b.totalGained - a.totalGained); // Sort teams by most total gained
 

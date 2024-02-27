@@ -13,22 +13,14 @@ export interface SkillValue {
   rank: number;
   level: number;
   experience: number;
-  ehp?: number;
-}
-
-export interface SkillValueWithPlayer extends SkillValue {
-  player: Player;
+  ehp: number;
 }
 
 export interface BossValue {
   metric: Boss;
   rank: number;
   kills: number;
-  ehb?: number;
-}
-
-export interface BossValueWithPlayer extends BossValue {
-  player: Player;
+  ehb: number;
 }
 
 export interface ActivityValue {
@@ -37,25 +29,17 @@ export interface ActivityValue {
   score: number;
 }
 
-export interface ActivityValueWithPlayer extends ActivityValue {
-  player: Player;
-}
-
 export interface ComputedMetricValue {
   metric: ComputedMetric;
   rank: number;
   value: number;
 }
 
-export interface ComputedMetricValueWithPlayer extends ComputedMetricValue {
-  player: Player;
-}
-
 export interface MetricLeaders {
-  skills: MapOf<Skill, SkillValueWithPlayer>;
-  bosses: MapOf<Boss, BossValueWithPlayer>;
-  activities: MapOf<Activity, ActivityValueWithPlayer>;
-  computed: MapOf<ComputedMetric, ComputedMetricValueWithPlayer>;
+  skills: MapOf<Skill, Omit<SkillValue, 'ehp'> & { player: Player | null }>;
+  bosses: MapOf<Boss, Omit<BossValue, 'ehb'> & { player: Player | null }>;
+  activities: MapOf<Activity, ActivityValue & { player: Player | null }>;
+  computed: MapOf<ComputedMetric, ComputedMetricValue & { player: Player | null }>;
 }
 
 export interface FormattedSnapshot {

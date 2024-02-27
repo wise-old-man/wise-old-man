@@ -42,11 +42,21 @@ export function getRates(metric: ComputedMetric, type: EfficiencyAlgorithmType) 
 
   const algorithm = ALGORITHMS.get(type || EfficiencyAlgorithmType.MAIN);
 
+  if (!algorithm) {
+    throw new Error('Invalid algorithm type');
+  }
+
   return metric === Metric.EHB ? algorithm.bossMetas : algorithm.skillMetas;
 }
 
 export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>) {
-  return ALGORITHMS.get(getAlgorithmType(player));
+  const algorithm = ALGORITHMS.get(getAlgorithmType(player));
+
+  if (!algorithm) {
+    throw new Error('Invalid algorithm type');
+  }
+
+  return algorithm;
 }
 
 export function getAlgorithmType(player?: Pick<Player, 'type' | 'build'>) {
@@ -103,8 +113,6 @@ function getPlayerEHP(snapshot: Snapshot, player?: Pick<Player, 'type' | 'build'
 }
 
 function getPlayerEfficiencyMap(snapshot: Snapshot, player: Pick<Player, 'type' | 'build'>) {
-  if (!snapshot) return null;
-
   const algorithm = getAlgorithm(player);
 
   return new Map([

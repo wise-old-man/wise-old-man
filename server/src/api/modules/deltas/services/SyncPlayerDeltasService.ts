@@ -44,14 +44,14 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
       ...Object.fromEntries(BOSSES.map(b => [b, periodDiffs.bosses[b].kills.gained])),
       ...Object.fromEntries(ACTIVITIES.map(a => [a, periodDiffs.activities[a].score.gained])),
       ...Object.fromEntries(COMPUTED_METRICS.map(c => [c, periodDiffs.computed[c].value.gained]))
-    };
+    } as Delta;
 
     // Find the existing cached delta for this period
     const currentDelta = playerDeltasMap.get(period);
 
     // If has no gains in any metric, delete this delta from the database,
     // as it will never be used in leaderboards
-    if (!METRICS.some(metric => newDelta[metric] > 0)) {
+    if (!METRICS.some(metric => newDelta[metric]! > 0)) {
       await prisma.delta
         .delete({
           where: { playerId_period: { playerId: player.id, period } }
@@ -69,7 +69,7 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
     let hasImprovements = false;
 
     METRICS.forEach(metric => {
-      if (currentDelta && newDelta[metric] > currentDelta[metric]) {
+      if (currentDelta && newDelta[metric]! > currentDelta[metric]) {
         hasImprovements = true;
       }
     });

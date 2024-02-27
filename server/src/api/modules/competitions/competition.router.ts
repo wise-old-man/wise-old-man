@@ -55,7 +55,6 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    // @ts-expect-error - Requires strictNullChecks:true
     const result = await createCompetition(req.body);
     res.status(201).json(result);
   })
@@ -80,7 +79,6 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    // @ts-expect-error - Requires strictNullChecks:true
     const result = await editCompetition(id, req.body);
     res.status(200).json(result);
   })

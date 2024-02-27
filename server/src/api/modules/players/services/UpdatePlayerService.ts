@@ -66,7 +66,7 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
 
       // If it failed to load their stats, and the player isn't unranked,
       // we should start a background job to check (a few times) if they're really unranked
-      if (player.status !== PlayerStatus.UNRANKED && player.status !== PlayerStatus.BANNED) {
+      if (!isNew && player.status !== PlayerStatus.UNRANKED && player.status !== PlayerStatus.BANNED) {
         jobManager.add({
           type: JobType.CHECK_PLAYER_RANKED,
           payload: { username: player.username }
@@ -78,7 +78,7 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
   }
 
   // There has been a significant change in this player's stats, mark it as flagged
-  if (!skipFlagChecks && !snapshotUtils.withinRange(previousSnapshot, currentStats)) {
+  if (!skipFlagChecks && previousSnapshot && !snapshotUtils.withinRange(previousSnapshot, currentStats)) {
     logger.moderation(`[Player:${username}] Flagged`);
 
     if (player.status !== PlayerStatus.FLAGGED) {
@@ -92,7 +92,7 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
   }
 
   // The player has gained exp/kc/scores since the last update
-  const hasChanged = snapshotUtils.hasChanged(previousSnapshot, currentStats);
+  const hasChanged = !previousSnapshot || snapshotUtils.hasChanged(previousSnapshot, currentStats);
 
   // If this player (IM/HCIM/UIM/FSW) hasn't gained exp in a while, we should review their type.
   // This is because when players de-iron, their ironman stats stay frozen, so they don't gain exp.
@@ -205,8 +205,12 @@ async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> 
 
 async function findOrCreate(username: string): Promise<[Player & { latestSnapshot?: Snapshot }, boolean]> {
   const player = await prisma.player.findFirst({
-    where: { username: standardize(username) },
-    include: { latestSnapshot: true }
+    where: {
+      username: standardize(username)
+    },
+    include: {
+      latestSnapshot: true
+    }
   });
 
   if (player) {
@@ -222,7 +226,13 @@ async function findOrCreate(username: string): Promise<[Player & { latestSnapsho
       }
     }
 
-    return [player, false];
+    return [
+      {
+        ...player,
+        latestSnapshot: player.latestSnapshot ?? undefined
+      },
+      false
+    ];
   }
 
   const cleanUsername = standardize(username);
