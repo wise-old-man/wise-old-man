@@ -207,9 +207,7 @@ function PlayerSkillsTable(
 }
 
 function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): ColumnDef<SkillValue>[] {
-  const hasSpecialEhp = (player: Player) => {
-    return ['f2p', 'f2p_lvl3', 'lvl3'].includes(player.build) || player.type !== PlayerType.REGULAR;
-  }
+  const hasSpecialEhp = player.type !== PlayerType.REGULAR || ['f2p', 'f2p_lvl3', 'lvl3'].includes(player.build);
 
   return [
     {
@@ -223,7 +221,7 @@ function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): 
           <div className="flex items-center gap-x-2">
             <MetricIconSmall metric={row.original.metric} />
             {MetricProps[row.original.metric].name}
-            {(row.original.metric as Metric) === Metric.EHP && hasSpecialEhp(player) && (
+            {(row.original.metric as Metric) === Metric.EHP && hasSpecialEhp && (
               <Tooltip>
                 <TooltipTrigger>
                   <span>(Special)</span>
