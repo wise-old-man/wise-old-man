@@ -59,7 +59,7 @@ const nextConfig = withBundleAnalyzer(
         },
       ];
 
-      if (process.env.MAINTENANCE_MODE) {
+      if (process.env.MAINTENANCE_MODE_ENABLED) {
         return [
           ...externalRedirects,
           {
