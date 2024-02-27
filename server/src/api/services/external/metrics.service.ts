@@ -20,12 +20,6 @@ class MetricsService {
 
     prometheus.collectDefaultMetrics({ register: this.registry });
 
-    this.setupEffectHistogram();
-    this.setupHttpHistogram();
-    this.setupJobHistogram();
-  }
-
-  private setupEffectHistogram() {
     this.effectHistogram = new prometheus.Histogram({
       name: 'effect_duration_seconds',
       help: 'Duration of effects in microseconds',
@@ -33,10 +27,6 @@ class MetricsService {
       buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10, 30]
     });
 
-    this.registry.registerMetric(this.effectHistogram);
-  }
-
-  private setupHttpHistogram() {
     this.httpHistogram = new prometheus.Histogram({
       name: 'http_request_duration_seconds',
       help: 'Duration of HTTP requests in microseconds',
@@ -44,10 +34,6 @@ class MetricsService {
       buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10, 30]
     });
 
-    this.registry.registerMetric(this.httpHistogram);
-  }
-
-  private setupJobHistogram() {
     this.jobHistogram = new prometheus.Histogram({
       name: 'job_duration_seconds',
       help: 'Duration of jobs in microseconds',
@@ -56,9 +42,11 @@ class MetricsService {
     });
 
     this.registry.registerMetric(this.jobHistogram);
+    this.registry.registerMetric(this.httpHistogram);
+    this.registry.registerMetric(this.effectHistogram);
   }
 
-  reduceUserAgent(userAgent: string, details: UserAgentDetails) {
+  reduceUserAgent(userAgent: string | undefined, details: UserAgentDetails | undefined) {
     if (!userAgent) return 'Other';
 
     const ownAgents = ['WiseOldMan Webapp', 'WiseOldMan Discord Bot', 'WiseOldMan RuneLite Plugin'];
@@ -83,19 +71,21 @@ class MetricsService {
     endTimerFn({ route, status, method, userAgent });
   }
 
-  async trackEffect(fn: (...args: unknown[]) => unknown, ...args: unknown[]) {
+  async trackEffect(effectName: string, fn: () => Promise<void>) {
     const startTime = Date.now();
     const endTimer = this.effectHistogram.startTimer();
 
     try {
-      await fn(...args);
-
-      logger.info(`Effect: ${fn.name} (${Date.now() - startTime} ms)`, args);
-      endTimer({ effectName: fn.name, status: 1 });
+      await fn();
+      logger.info(`Effect: ${fn.name} (${Date.now() - startTime} ms)`);
+      endTimer({ effectName, status: 1 });
     } catch (error) {
-      logger.error(`Effect: ${fn.name} (${Date.now() - startTime} ms)`, { ...args, error });
-      endTimer({ effectName: fn.name, status: 0 });
+      logger.error(`Effect: ${fn.name} (${Date.now() - startTime} ms)`, { error });
+      endTimer({ effectName, status: 0 });
+      throw error;
     }
+
+    logger.info(`Effect: ${effectName} (${Date.now() - startTime} ms)`);
   }
 
   async trackJob(jobType: JobType, handler: () => Promise<void>) {

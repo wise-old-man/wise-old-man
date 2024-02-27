@@ -10,7 +10,7 @@ const BASE_MAX_HOURS = 504;
 const BASE_MIN_TOTAL_LEVEL = 700;
 
 async function autoReviewNameChange(id: number): Promise<void> {
-  let details: NameChangeDetails;
+  let details: NameChangeDetails | null = null;
 
   try {
     details = await fetchNameChangeDetails(id);
@@ -21,7 +21,7 @@ async function autoReviewNameChange(id: number): Promise<void> {
     }
   }
 
-  if (!details || details.nameChange.status !== NameChangeStatus.PENDING) return;
+  if (!details || !details.data || details.nameChange.status !== NameChangeStatus.PENDING) return;
 
   const { data, nameChange } = details;
   const { isNewOnHiscores, negativeGains, hoursDiff, ehpDiff, ehbDiff, oldStats } = data;

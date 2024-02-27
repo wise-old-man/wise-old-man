@@ -30,7 +30,7 @@ async function buildFromRS(playerId: number, rawCSV: string) {
     throw new ServerError('The OSRS Hiscores were updated. Please wait for a fix.');
   }
 
-  const snapshotFields = {
+  const snapshotFields: Partial<Snapshot> = {
     playerId,
     createdAt: new Date()
   };
@@ -84,7 +84,7 @@ async function buildFromCML(playerId: number, rawCSV: string) {
     throw new ServerError('The CML API was updated. Please wait for a fix.');
   }
 
-  const snapshotFields = {
+  const snapshotFields: Partial<Snapshot> = {
     playerId,
     importedAt: new Date(),
     createdAt: new Date(parseInt(timestamp, 10) * 1000) // CML stores timestamps in seconds, we need milliseconds

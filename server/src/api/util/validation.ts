@@ -2,11 +2,6 @@ import { z } from 'zod';
 import { isValidDate } from './dates';
 import { GroupRole } from '../../utils';
 
-export type PaginationOptions = {
-  limit?: number;
-  offset?: number;
-};
-
 function enumErrorMap(path: Array<string | number>, options: Array<string | number>) {
   if (path.length === 1 && path[0] === 'country') {
     return {
@@ -69,6 +64,11 @@ z.setErrorMap((issue, ctx) => {
   return { message: ctx.defaultError };
 });
 
+export type PaginationOptions = {
+  limit: number;
+  offset: number;
+};
+
 export function getPaginationSchema(maxLimit = 50) {
   let limit = z.coerce.number().int().positive("Parameter 'limit' must be > 0.");
 
@@ -80,8 +80,10 @@ export function getPaginationSchema(maxLimit = 50) {
   }
 
   return z.object({
-    limit: z.optional(limit).default(20),
-    offset: z.optional(z.coerce.number().int().nonnegative("Parameter 'offset' must be >= 0.")).default(0)
+    limit: z.optional(limit).default(20) as unknown as z.ZodNumber,
+    offset: z
+      .optional(z.coerce.number().int().nonnegative("Parameter 'offset' must be >= 0."))
+      .default(0) as unknown as z.ZodNumber
   });
 }
 
@@ -108,17 +110,22 @@ export const teamSchema = z.object(
   }
 );
 
+const groupRoleSchema = z.nativeEnum(GroupRole);
+
 export const memberSchema = z.object(
   {
     username: z.string(),
-    role: z.optional(z.nativeEnum(GroupRole)).default(GroupRole.MEMBER)
+    role: z.optional(groupRoleSchema).default(GroupRole.MEMBER) as unknown as typeof groupRoleSchema
   },
   {
     invalid_type_error: 'Invalid members list. Must be an array of { username: string; role?: string; }.'
   }
 );
 
-const urlSchema = z.preprocess(str => (str === '' ? null : str), z.string().url().or(z.null()));
+const urlSchema = z.preprocess(
+  str => (str === '' ? null : str),
+  z.string().url().or(z.null())
+) as unknown as z.ZodUnion<[z.ZodString, z.ZodNull]>;
 
 export const socialLinksSchema = z.object({
   website: z.optional(urlSchema),

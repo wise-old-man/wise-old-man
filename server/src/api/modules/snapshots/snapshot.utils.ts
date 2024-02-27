@@ -18,8 +18,7 @@ import {
   Activity,
   ComputedMetric,
   MapOf,
-  MetricValueKey,
-  Player
+  MetricValueKey
 } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
@@ -27,23 +26,16 @@ import logger from '../../util/logging';
 import { getPlayerEHP, getPlayerEHB } from '../../modules/efficiency/efficiency.utils';
 import {
   ActivityValue,
-  ActivityValueWithPlayer,
   BossValue,
-  BossValueWithPlayer,
   ComputedMetricValue,
-  ComputedMetricValueWithPlayer,
   FormattedSnapshot,
-  MetricLeaders,
-  SkillValue,
-  SkillValueWithPlayer
+  SkillValue
 } from './snapshot.types';
 
 // On this date, the Bounty Hunter was updated and scores were reset.
 const BOUNTY_HUNTER_UPDATE_DATE = new Date('2023-05-24T10:30:00.000Z');
 
-function formatSnapshot(snapshot: Snapshot, efficiencyMap?: Map<Skill | Boss, number>): FormattedSnapshot {
-  if (!snapshot) return null;
-
+function formatSnapshot(snapshot: Snapshot, efficiencyMap: Map<Skill | Boss, number>): FormattedSnapshot {
   const { id, playerId, createdAt, importedAt } = snapshot;
 
   return {
@@ -60,12 +52,9 @@ function formatSnapshot(snapshot: Snapshot, efficiencyMap?: Map<Skill | Boss, nu
             metric: s,
             experience,
             rank: snapshot[getMetricRankKey(s)],
-            level: s === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(experience)
+            level: s === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(experience),
+            ehp: efficiencyMap.get(s) || 0
           };
-
-          if (efficiencyMap && efficiencyMap.get(s) !== undefined) {
-            value.ehp = efficiencyMap.get(s);
-          }
 
           return [s, value];
         })
@@ -75,12 +64,9 @@ function formatSnapshot(snapshot: Snapshot, efficiencyMap?: Map<Skill | Boss, nu
           const value: BossValue = {
             metric: b,
             kills: snapshot[getMetricValueKey(b)],
-            rank: snapshot[getMetricRankKey(b)]
+            rank: snapshot[getMetricRankKey(b)],
+            ehb: efficiencyMap.get(b) || 0
           };
-
-          if (efficiencyMap && efficiencyMap.get(b) !== undefined) {
-            value.ehb = efficiencyMap.get(b);
-          }
 
           return [b, value];
         })
@@ -119,11 +105,6 @@ function formatSnapshot(snapshot: Snapshot, efficiencyMap?: Map<Skill | Boss, nu
  * EHP (maximum efficiency).
  */
 function withinRange(before: Snapshot, after: Snapshot): boolean {
-  // If this is the player's first snapshot
-  if (!before) return true;
-
-  if (!after) return false;
-
   const negativeGains = !!getNegativeGains(before, after);
   const excessiveGains = !!getExcessiveGains(before, after);
 
@@ -140,9 +121,6 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
  * Checks whether there has been gains between two snapshots
  */
 function hasChanged(before: Snapshot, after: Snapshot): boolean {
-  if (!before) return true;
-  if (!after) return false;
-
   // EHP and EHB can fluctuate without the player's envolvement
   const metricsToIgnore = [Metric.EHP, Metric.EHB];
   const isValidKey = (key: MetricValueKey) => !metricsToIgnore.map(getMetricValueKey).includes(key);
@@ -204,7 +182,7 @@ function average(snapshots: Snapshot[]): Snapshot {
     throw new ServerError('Invalid snapshots list. Failed to find average.');
   }
 
-  const base = {
+  const base: Partial<Snapshot> = {
     id: -1,
     playerId: -1,
     importedAt: null,
@@ -226,140 +204,6 @@ function average(snapshots: Snapshot[]): Snapshot {
   });
 
   return base as Snapshot;
-}
-
-/**
- * Assigns the player property of each metric leader from the given players
- * array using the leader id map to lookup leaders player id.
- *
- * The player field will be left null, if the leader had a rank of -1.
- * This indicates there was no actual leader.
- */
-function assignPlayersToMetricLeaders(
-  leaders: MetricLeaders,
-  leaderIdMap: Map<Metric, number>,
-  players: Player[]
-): void {
-  const playerMap = new Map<number, Player>();
-  players.forEach(p => playerMap.set(p.id, p));
-
-  const assignPlayer = (
-    leader:
-      | SkillValueWithPlayer
-      | BossValueWithPlayer
-      | ComputedMetricValueWithPlayer
-      | ActivityValueWithPlayer
-  ) => {
-    if (leader.rank > -1) {
-      leader.player = playerMap.get(leaderIdMap.get(leader.metric));
-    }
-  };
-
-  Object.values(leaders.skills).forEach(assignPlayer);
-  Object.values(leaders.bosses).forEach(assignPlayer);
-  Object.values(leaders.computed).forEach(assignPlayer);
-  Object.values(leaders.activities).forEach(assignPlayer);
-}
-
-/**
- * Gets the metric leaders for each metric from the given snapshots.
- *
- * The `player` field will be null, you are expected to assign those yourself.
- * See helper function `assignPlayersToMetricLeaders`.
- *
- * @returns the metric leaders and a mapping of metric to the leaders player id.
- */
-function getMetricLeaders(snapshots: Snapshot[]) {
-  if (!snapshots || snapshots.length === 0) {
-    throw new ServerError('Invalid snapshots list. Failed to find metric leaders.');
-  }
-
-  const leaderIdMap = new Map<Metric, number>();
-  const metricLeaders = {
-    skills: Object.fromEntries(
-      SKILLS.map(s => {
-        const valueKey = getMetricValueKey(s);
-        const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
-        const experience = snapshot[valueKey];
-
-        if (experience > -1) {
-          leaderIdMap.set(s, snapshot.playerId);
-        }
-
-        const value: SkillValueWithPlayer = {
-          metric: s,
-          experience,
-          rank: snapshot[getMetricRankKey(s)],
-          level: s === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(experience),
-          player: null
-        };
-
-        return [s, value];
-      })
-    ),
-    bosses: Object.fromEntries(
-      BOSSES.map(b => {
-        const valueKey = getMetricValueKey(b);
-        const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
-        const kills = snapshot[valueKey];
-
-        if (kills > -1) {
-          leaderIdMap.set(b, snapshot.playerId);
-        }
-
-        const value: BossValueWithPlayer = {
-          metric: b,
-          kills,
-          rank: snapshot[getMetricRankKey(b)],
-          player: null
-        };
-
-        return [b, value];
-      })
-    ),
-    activities: Object.fromEntries(
-      ACTIVITIES.map(a => {
-        const valueKey = getMetricValueKey(a);
-        const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
-        const score = snapshot[valueKey];
-
-        if (score > -1) {
-          leaderIdMap.set(a, snapshot.playerId);
-        }
-
-        const value: ActivityValueWithPlayer = {
-          metric: a,
-          score,
-          rank: snapshot[getMetricRankKey(a)],
-          player: null
-        };
-
-        return [a, value];
-      })
-    ),
-    computed: Object.fromEntries(
-      COMPUTED_METRICS.map(c => {
-        const valueKey = getMetricValueKey(c);
-        const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
-        const value = snapshot[valueKey];
-
-        if (value > -1) {
-          leaderIdMap.set(c, snapshot.playerId);
-        }
-
-        const metric: ComputedMetricValueWithPlayer = {
-          metric: c,
-          value,
-          rank: snapshot[getMetricRankKey(c)],
-          player: null
-        };
-
-        return [c, metric];
-      })
-    )
-  } as MetricLeaders;
-
-  return { metricLeaders, leaderIdMap };
 }
 
 function getCombatLevelFromSnapshot(snapshot: Snapshot) {
@@ -432,7 +276,5 @@ export {
   get200msCount,
   getMinimumExp,
   getTotalLevel,
-  getCombatLevelFromSnapshot,
-  getMetricLeaders,
-  assignPlayersToMetricLeaders
+  getCombatLevelFromSnapshot
 };

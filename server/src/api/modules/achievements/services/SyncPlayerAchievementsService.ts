@@ -15,6 +15,10 @@ async function syncPlayerAchievements(playerId: number, previous: Snapshot | und
       }
     );
 
+    if (missingAchievements.length === 0) {
+      return;
+    }
+
     // Add all missing achievements
     await prisma.achievement.createMany({ data: missingAchievements, skipDuplicates: true });
 
@@ -75,6 +79,10 @@ async function syncPlayerAchievements(playerId: number, previous: Snapshot | und
   });
 
   const achievementsToAdd = [...missingAchievements, ...newAchievements];
+
+  if (achievementsToAdd.length === 0) {
+    return;
+  }
 
   // Add all missing/new achievements
   await prisma.achievement.createMany({ data: achievementsToAdd, skipDuplicates: true });

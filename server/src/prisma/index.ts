@@ -22,14 +22,13 @@ import {
 import { DenyContext, SkipContext, isComputedMetric } from '../utils';
 import { NameChangeStatus } from './enum-adapter';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-expect-error - This is a polyfill for BigInt support in JSON
 BigInt.prototype.toJSON = function () {
-  return parseBigInt(this);
+  return parseBigInt(this as unknown as bigint);
 };
 
 function parseBigInt(bigint: bigint): number {
-  return bigint !== null && bigint !== undefined && parseInt(bigint.toString());
+  return parseInt(bigint.toString());
 }
 
 const prisma = new PrismaClient();

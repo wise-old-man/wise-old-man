@@ -68,8 +68,16 @@ class RoutingHandler {
 
     // Catch and convert Zod errors to (400) BadRequest errors
     this.router.use((error, _req, _res, next) => {
-      if (error && Array.isArray(error) && error.length > 0 && error[0].errors instanceof ZodError) {
-        next(new BadRequestError(error[0].errors?.issues?.[0]?.message));
+      if (!error || !Array.isArray(error) || error.length === 0) {
+        next(error);
+        return;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const zodError = (error[0] as any).errors as ZodError;
+
+      if (zodError instanceof ZodError) {
+        next(new BadRequestError(zodError?.issues?.[0]?.message));
         return;
       }
 

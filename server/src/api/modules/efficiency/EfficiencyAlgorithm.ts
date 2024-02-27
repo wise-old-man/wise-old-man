@@ -52,16 +52,16 @@ class EfficiencyAlgorithm {
   }
 
   calculateEHP(stats: Map<Skill, number>) {
-    return this.calculateEHPMap(stats).get(Skill.OVERALL);
+    return this.calculateEHPMap(stats).get(Skill.OVERALL)!;
   }
 
   calculateTT200mAll(stats: Map<Skill, number>) {
-    return this.maximumEHPMap.get(Skill.OVERALL) - this.calculateEHPMap(stats).get(Skill.OVERALL);
+    return this.maximumEHPMap.get(Skill.OVERALL)! - this.calculateEHPMap(stats).get(Skill.OVERALL)!;
   }
 
   calculateTTM(stats: Map<Skill, number>) {
     const maxedStats = new Map(REAL_SKILLS.map(s => [s, SKILL_EXP_AT_99]));
-    const cappedStats = new Map(REAL_SKILLS.map(s => [s, Math.min(stats.get(s), SKILL_EXP_AT_99)]));
+    const cappedStats = new Map(REAL_SKILLS.map(s => [s, Math.min(stats.get(s)!, SKILL_EXP_AT_99)]));
 
     return this.calculateEHP(maxedStats) - this.calculateEHP(cappedStats);
   }
@@ -90,8 +90,8 @@ class EfficiencyAlgorithm {
       });
 
       [...bonusSkills, originSkill].forEach(bonusSkill => {
-        const startExp = fixedStats.get(bonusSkill) + startBonusExp.get(bonusSkill);
-        const endExp = MAX_SKILL_EXP - endBonusExp.get(bonusSkill);
+        const startExp = fixedStats.get(bonusSkill)! + startBonusExp.get(bonusSkill)!;
+        const endExp = MAX_SKILL_EXP - endBonusExp.get(bonusSkill)!;
 
         if (endExp - startExp <= 0 && bonusSkill !== originSkill) {
           return;
@@ -103,15 +103,15 @@ class EfficiencyAlgorithm {
         const startBonusesReset = this.calculateBonusExp(resetStats, BonusType.START);
         const endBonusesReset = this.calculateBonusExp(resetStats, BonusType.END);
 
-        const startExpReset = resetStats.get(bonusSkill) + startBonusesReset.get(bonusSkill);
-        const endExpReset = MAX_SKILL_EXP - endBonusesReset.get(bonusSkill);
+        const startExpReset = resetStats.get(bonusSkill)! + startBonusesReset.get(bonusSkill)!;
+        const endExpReset = MAX_SKILL_EXP - endBonusesReset.get(bonusSkill)!;
 
         const diff =
           this.calculateSkillTime(bonusSkill, startExpReset, endExpReset) -
           this.calculateSkillTime(bonusSkill, startExp, endExp);
 
         if (endExp - startExp <= 0) {
-          timeSum += Math.min(this.maximumEHPMap.get(bonusSkill), diff);
+          timeSum += Math.min(this.maximumEHPMap.get(bonusSkill)!, diff);
         } else {
           timeSum += diff;
         }
@@ -163,7 +163,7 @@ class EfficiencyAlgorithm {
           const driftNetBonus = this.getDriftNetScaledBonus(stats);
 
           if (driftNetBonus) {
-            map.set(Skill.FISHING, map.get(Skill.FISHING) + driftNetBonus);
+            map.set(Skill.FISHING, map.get(Skill.FISHING)! + driftNetBonus);
             return;
           }
         }
@@ -173,7 +173,7 @@ class EfficiencyAlgorithm {
           const swimmingBonus = this.getSwimmingScaledBonus(stats);
 
           if (swimmingBonus) {
-            map.set(Skill.AGILITY, map.get(Skill.AGILITY) + swimmingBonus);
+            map.set(Skill.AGILITY, map.get(Skill.AGILITY)! + swimmingBonus);
             return;
           }
         }
@@ -181,12 +181,12 @@ class EfficiencyAlgorithm {
         const expCap = Math.min(b.endExp, MAX_SKILL_EXP);
 
         const originStart =
-          Math.max(stats.get(b.originSkill), b.startExp) + (isStart ? map.get(b.originSkill) : 0);
+          Math.max(stats.get(b.originSkill)!, b.startExp) + (isStart ? map.get(b.originSkill)! : 0);
 
-        const originEnd = !isStart ? expCap - map.get(b.originSkill) : expCap;
+        const originEnd = !isStart ? expCap - map.get(b.originSkill)! : expCap;
         const bonusToApply = Math.max(0, originEnd - originStart) * b.ratio;
 
-        map.set(b.bonusSkill, Math.min(MAX_SKILL_EXP, map.get(b.bonusSkill) + bonusToApply));
+        map.set(b.bonusSkill, Math.min(MAX_SKILL_EXP, map.get(b.bonusSkill)! + bonusToApply));
       });
 
     return map;
@@ -218,23 +218,23 @@ class EfficiencyAlgorithm {
     stats: Map<Skill, number>,
     originSkill: Skill,
     bonusSkill: Skill,
-    originSkillMethod: SkillMetaMethod,
-    bonusSkillMethod: SkillMetaMethod,
-    bonusRatio: number
+    originSkillMethod: SkillMetaMethod | undefined,
+    bonusSkillMethod: SkillMetaMethod | undefined,
+    bonusRatio: number | undefined
   ) {
     if (!originSkillMethod || !bonusSkillMethod || !bonusRatio) return 0;
 
-    const originSkillStart = Math.max(originSkillMethod.startExp, stats.get(originSkill));
+    const originSkillStart = Math.max(originSkillMethod.startExp, stats.get(originSkill)!);
 
     const originExpLeft = MAX_SKILL_EXP - originSkillStart;
 
     const realTime =
       this.calculateSkillTime(originSkill, originSkillStart, MAX_SKILL_EXP, true) +
-      this.calculateSkillTime(bonusSkill, stats.get(bonusSkill), MAX_SKILL_EXP, true);
+      this.calculateSkillTime(bonusSkill, stats.get(bonusSkill)!, MAX_SKILL_EXP, true);
 
     const fakeTime =
       this.calculateSkillTime(originSkill, originSkillStart, MAX_SKILL_EXP, false) +
-      this.calculateSkillTime(bonusSkill, stats.get(bonusSkill), MAX_SKILL_EXP, false);
+      this.calculateSkillTime(bonusSkill, stats.get(bonusSkill)!, MAX_SKILL_EXP, false);
 
     const excessBonuses = (realTime - fakeTime) * bonusSkillMethod.rate;
     const fakeBonusLeft = originExpLeft * bonusRatio;
@@ -285,8 +285,8 @@ class EfficiencyAlgorithm {
     const endBonusExp = this.calculateBonusExp(zeroStats, BonusType.END);
 
     REAL_SKILLS.forEach(skill => {
-      const startExp = zeroStats.get(skill) + startBonusExp.get(skill);
-      const endExp = MAX_SKILL_EXP - endBonusExp.get(skill);
+      const startExp = zeroStats.get(skill)! + startBonusExp.get(skill)!;
+      const endExp = MAX_SKILL_EXP - endBonusExp.get(skill)!;
 
       map.set(skill, this.calculateSkillTime(skill, startExp, endExp));
     });

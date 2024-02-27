@@ -48,13 +48,15 @@ async function fetchGroupHiscores(
   return memberships
     .filter(m => !!m.player.latestSnapshot)
     .map(({ player }) => {
+      const snapshot = player.latestSnapshot!;
+
       let data: GroupHiscoresEntry['data'];
 
-      const rank = player.latestSnapshot[rankKey];
-      const value = player.latestSnapshot[valueKey];
+      const rank = snapshot[rankKey];
+      const value = snapshot[valueKey];
 
       if (measure === MetricMeasure.EXPERIENCE) {
-        const lvl = metric === Metric.OVERALL ? getTotalLevel(player.latestSnapshot) : getLevel(value);
+        const lvl = metric === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(value);
         data = { rank, experience: value, level: lvl };
       } else if (measure === MetricMeasure.KILLS) {
         data = { rank, kills: value };

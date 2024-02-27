@@ -20,6 +20,10 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
       orderBy: { createdAt: 'desc' }
     });
 
+    if (!latestSnapshot) {
+      throw new ServerError('Failed to archive player (latest snapshot not found).');
+    }
+
     // Get all the memberships and participations that should be transfered to the new player
     splitData = await splitArchivalData(player.id, latestSnapshot.createdAt);
   }
@@ -72,20 +76,22 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
         data: { status: NameChangeStatus.DENIED }
       });
 
-      // Transfer all post-last-snapshot memberships to the new player
-      for (const groupId of splitData.newPlayerGroupIds) {
-        await transaction.membership.update({
-          where: { playerId_groupId: { playerId: player.id, groupId } },
-          data: { playerId: newPlayer.id }
-        });
-      }
+      if (splitData) {
+        // Transfer all post-last-snapshot memberships to the new player
+        for (const groupId of splitData.newPlayerGroupIds) {
+          await transaction.membership.update({
+            where: { playerId_groupId: { playerId: player.id, groupId } },
+            data: { playerId: newPlayer.id }
+          });
+        }
 
-      // Transfer all post-last-snapshot participations to the new player
-      for (const competitionId of splitData.newPlayerCompetitionIds) {
-        await transaction.participation.update({
-          where: { playerId_competitionId: { playerId: player.id, competitionId } },
-          data: { playerId: newPlayer.id }
-        });
+        // Transfer all post-last-snapshot participations to the new player
+        for (const competitionId of splitData.newPlayerCompetitionIds) {
+          await transaction.participation.update({
+            where: { playerId_competitionId: { playerId: player.id, competitionId } },
+            data: { playerId: newPlayer.id }
+          });
+        }
       }
 
       return { archivedPlayer, newPlayer };
@@ -103,9 +109,9 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
 }
 
 async function findAvailableArchiveUsername() {
-  let archiveUsername = undefined;
+  let archiveUsername: string | undefined = undefined;
 
-  while (!archiveUsername) {
+  do {
     const randomUsername = `archive${Math.floor(Math.random() * 99999)}`;
 
     const existingPlayer = await prisma.player.findFirst({
@@ -115,7 +121,7 @@ async function findAvailableArchiveUsername() {
     if (!existingPlayer) {
       archiveUsername = randomUsername;
     }
-  }
+  } while (!archiveUsername);
 
   return archiveUsername;
 }

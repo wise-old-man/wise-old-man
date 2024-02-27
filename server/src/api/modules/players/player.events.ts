@@ -9,24 +9,33 @@ import { syncParticipations } from '../competitions/services/SyncParticipationsS
 import { syncPlayerDeltas } from '../deltas/services/SyncPlayerDeltasService';
 
 async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerReviewContext) {
-  await metrics.trackEffect(discordService.dispatchPlayerFlaggedReview, player, flaggedContext);
+  await metrics.trackEffect('dispatchPlayerFlaggedReview', async () => {
+    discordService.dispatchPlayerFlaggedReview(player, flaggedContext);
+  });
 }
 
 async function onPlayerArchived(player: Player, previousDisplayName: string) {
-  const successMessage = `🟢 \`${previousDisplayName}\` has been archived. (\`${player.username}\`)`;
-  await metrics.trackEffect(discordService.sendMonitoringMessage, successMessage);
+  await metrics.trackEffect('sendMonitoringMessage', async () => {
+    await discordService.sendMonitoringMessage(
+      `🟢 \`${previousDisplayName}\` has been archived. (\`${player.username}\`)`
+    );
+  });
 }
 
 async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
   if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
     // Dispatch a "HCIM player died" event to our discord bot API.
-    await metrics.trackEffect(discordService.dispatchHardcoreDied, player);
+    await metrics.trackEffect('dispatchHardcoreDied', async () => {
+      await discordService.dispatchHardcoreDied(player);
+    });
   }
 }
 
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
   // Dispatch a "Player name changed" event to our discord bot API.
-  await metrics.trackEffect(discordService.dispatchNameChanged, player, previousDisplayName);
+  await metrics.trackEffect('dispatchNameChanged', async () => {
+    await discordService.dispatchNameChanged(player, previousDisplayName);
+  });
 
   // Setup jobs to assert the player's account type and auto-update them
   jobManager.add({
@@ -47,25 +56,28 @@ async function onPlayerUpdated(
   hasChanged: boolean
 ) {
   // Update this player's competition participations (gains)
-  await metrics.trackEffect(syncParticipations, player.id, current.id);
+  await metrics.trackEffect('syncParticipations', async () => {
+    await syncParticipations(player.id, current.id);
+  });
 
   // Only sync achievements if the player gained any exp/kc this update
   if (hasChanged) {
-    // Check for new achievements
-    await metrics.trackEffect(syncPlayerAchievements, player.id, previous, current);
+    await metrics.trackEffect('syncPlayerAchievements', async () => {
+      syncPlayerAchievements(player.id, previous, current);
+    });
   }
 
   // Update this player's deltas (gains)
-  await metrics.trackEffect(syncPlayerDeltas, player, current);
-
-  // Disabled for now. CML seems to have disabled their API (or blocked us)
-  // // Attempt to import this player's history from CML
-  // await metrics.trackEffect(importPlayerHistory, player);
+  await metrics.trackEffect('syncPlayerDeltas', async () => {
+    await syncPlayerDeltas(player, current);
+  });
 }
 
 async function onPlayerImported(playerId: number) {
   // Reevaluate this player's achievements to try and find earlier completion dates
-  await metrics.trackEffect(reevaluatePlayerAchievements, playerId);
+  await metrics.trackEffect('reevaluatePlayerAchievements', async () => {
+    await reevaluatePlayerAchievements(playerId);
+  });
 }
 
 export {

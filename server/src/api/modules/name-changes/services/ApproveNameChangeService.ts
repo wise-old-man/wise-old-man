@@ -64,18 +64,20 @@ async function approveNameChange(id: number): Promise<NameChange> {
       }
     });
 
-    await prisma.playerArchive.update({
-      data: {
-        restoredAt: new Date(),
-        restoredUsername: updatedPlayer.username
-      },
-      where: {
-        playerId_createdAt: {
-          playerId: archive.playerId,
-          createdAt: archive.createdAt
+    if (archive) {
+      await prisma.playerArchive.update({
+        data: {
+          restoredAt: new Date(),
+          restoredUsername: updatedPlayer.username
+        },
+        where: {
+          playerId_createdAt: {
+            playerId: archive.playerId,
+            createdAt: archive.createdAt
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   playerEvents.onPlayerNameChanged(updatedPlayer, oldPlayer.displayName);
@@ -107,14 +109,18 @@ async function approveNameChange(id: number): Promise<NameChange> {
   return updatedNameChange as NameChange;
 }
 
-async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<Player> {
+async function transferPlayerData(
+  oldPlayer: Player,
+  newPlayer: Player | null,
+  newName: string
+): Promise<Player> {
   const transitionDate = await prisma.snapshot
     .findFirst({
       where: { playerId: oldPlayer.id },
       select: { createdAt: true },
       orderBy: { createdAt: 'desc' }
     })
-    .then(s => s.createdAt);
+    .then(s => s!.createdAt);
 
   const playerUpdateFields: PrismaTypes.PlayerUpdateInput = {};
 
