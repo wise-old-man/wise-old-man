@@ -11,7 +11,6 @@ import * as playerEvents from '../player.events';
 import { PlayerDetails } from '../player.types';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
-import { archivePlayer } from './ArchivePlayerService';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
 
@@ -82,10 +81,11 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
     logger.moderation(`[Player:${username}] Flagged`);
 
     if (player.status !== PlayerStatus.FLAGGED) {
-      const handled = await handlePlayerFlagged(player, previousSnapshot, currentStats);
-      // If the flag was properly handled (via a player archive),
-      // call this function recursively, so that the new player can be tracked
-      if (handled) return updatePlayer(player.username);
+      // const handled =
+      await handlePlayerFlagged(player, previousSnapshot, currentStats);
+      // // If the flag was properly handled (via a player archive),
+      // // call this function recursively, so that the new player can be tracked
+      // if (handled) return updatePlayer(player.username);
     }
 
     throw new ServerError('Failed to update: Player is flagged.');
@@ -176,8 +176,8 @@ async function handlePlayerFlagged(player: Player, previousStats: Snapshot, reje
     return false;
   }
 
-  // no context, we know this is a name transfer and can be auto-archived
-  await archivePlayer(player);
+  // // no context, we know this is a name transfer and can be auto-archived
+  // await archivePlayer(player);
 
   return true;
 }
