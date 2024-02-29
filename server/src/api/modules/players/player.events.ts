@@ -32,6 +32,11 @@ async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
 }
 
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
+  // Reevaluate this player's achievements to try and find earlier completion dates as there might be new data
+  await metrics.trackEffect('reevaluatePlayerAchievements', async () => {
+    await reevaluatePlayerAchievements(player.id);
+  });
+
   // Dispatch a "Player name changed" event to our discord bot API.
   await metrics.trackEffect('dispatchNameChanged', async () => {
     await discordService.dispatchNameChanged(player, previousDisplayName);
