@@ -207,6 +207,8 @@ function PlayerSkillsTable(
 }
 
 function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): ColumnDef<SkillValue>[] {
+  const hasSpecialEhp = player.type !== PlayerType.REGULAR || ['f2p', 'f2p_lvl3', 'lvl3'].includes(player.build);
+
   return [
     {
       accessorKey: "skill",
@@ -214,13 +216,12 @@ function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): 
         return <TableSortButton column={column}>Skill</TableSortButton>;
       },
       cell: ({ row }) => {
-        const isSpecialEHP = player.type !== PlayerType.REGULAR || player.build !== PlayerBuild.MAIN;
 
         return (
           <div className="flex items-center gap-x-2">
             <MetricIconSmall metric={row.original.metric} />
             {MetricProps[row.original.metric].name}
-            {(row.original.metric as Metric) === Metric.EHP && isSpecialEHP && (
+            {(row.original.metric as Metric) === Metric.EHP && hasSpecialEhp && (
               <Tooltip>
                 <TooltipTrigger>
                   <span>(Special)</span>
