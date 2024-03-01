@@ -16,8 +16,18 @@
     "type": "git",
     "url": "https://github.com/wise-old-man/wise-old-man.git"
   },
-  "main": "dist/index.js",
+  "main": "dist/cjs/index.cjs",
   "types": "dist/index.d.ts",
+  "module": "dist/es/index.js",
+  "type": "module",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/es/index.mjs",
+      "default": "./dist/cjs/index.cjs"
+    }
+  },
   "files": [
     "dist"
   ],
