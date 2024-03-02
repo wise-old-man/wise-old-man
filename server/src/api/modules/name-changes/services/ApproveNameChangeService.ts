@@ -169,6 +169,9 @@ async function transferPlayerData(
         // Transfer all participations from the newPlayer (post transition date) to the old player
         await transferParticipations(tx, oldPlayer.id, newPlayer.id, transitionDate);
 
+        // Transfer all approved name changes from the newPlayer (post transition date) to the old player
+        await transferNameChanges(tx, oldPlayer.id, newPlayer.id, transitionDate);
+
         // Transfer all records from the newPlayer (post transition date) to the old player
         await transferRecords(tx, oldPlayer.id, oldRecords, newRecords);
 
@@ -299,6 +302,25 @@ function transferSnapshots(
     where: {
       playerId: newPlayerId,
       createdAt: { gte: transitionDate }
+    },
+    data: {
+      playerId: oldPlayerId
+    }
+  });
+}
+
+function transferNameChanges(
+  transaction: PrismaTypes.TransactionClient,
+  oldPlayerId: number,
+  newPlayerId: number,
+  transitionDate: Date
+) {
+  // Transfer all approved name changes (post transition) to the old player id
+  return transaction.nameChange.updateMany({
+    where: {
+      playerId: newPlayerId,
+      status: NameChangeStatus.APPROVED,
+      resolvedAt: { gte: transitionDate }
     },
     data: {
       playerId: oldPlayerId
