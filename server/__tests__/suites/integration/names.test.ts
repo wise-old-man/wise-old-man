@@ -822,6 +822,22 @@ describe('Names API', () => {
         metric: 'herblore'
       });
 
+      // Check if none of the pre-transition name changes have been transfered
+      const mainNameChangesResponse = await api.get(`/players/USBC/names`);
+
+      expect(mainNameChangesResponse.status).toBe(200);
+      expect(mainNameChangesResponse.body.length).toBe(2);
+      expect(mainNameChangesResponse.body[0]).toMatchObject({
+        newName: 'usbc',
+        oldName: 'wtv post',
+        status: 'approved'
+      });
+      expect(mainNameChangesResponse.body[1]).toMatchObject({
+        newName: 'USBC',
+        oldName: 'psikoi',
+        status: 'approved'
+      });
+
       const detailsResponse = await api.get(`/players/USBC`);
 
       expect(detailsResponse.status).toBe(200);
@@ -1190,7 +1206,7 @@ describe('Names API', () => {
       const fetchResponse = await api.get(`/groups/${globalData.testGroupId}/name-changes`);
 
       expect(fetchResponse.status).toBe(200);
-      expect(fetchResponse.body.length).toBe(4); // 3 name changes from Jakesterwars, 1 from USBC
+      expect(fetchResponse.body.length).toBe(5); // 3 name changes from Jakesterwars, 2 from USBC
       expect(fetchResponse.body[0].player.username).toBe('usbc');
 
       const fetchResponseLimited = await api
@@ -1309,8 +1325,8 @@ describe('Names API', () => {
         .send({ adminPassword: process.env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
-      expect(response.body.count).toBe(4);
-      expect(response.body.message).toMatch('Successfully deleted 4 name changes.');
+      expect(response.body.count).toBe(5);
+      expect(response.body.message).toMatch('Successfully deleted 5 name changes.');
 
       const fetchResponse = await api.get(`/players/usbc/names`);
       expect(fetchResponse.status).toBe(200);
@@ -1322,7 +1338,48 @@ describe('Names API', () => {
 async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
   const mockDate = new Date();
 
+  const newPlayer = await prisma.player.findFirst({
+    where: {
+      id: newPlayerId
+    }
+  });
+
+  if (!newPlayer) {
+    throw new Error('New player not found');
+  }
+
   await prisma.player.update({ where: { id: newPlayerId }, data: { country: 'PT' } });
+
+  // Pending name change
+  await prisma.nameChange.create({
+    data: {
+      oldName: 'idk',
+      newName: newPlayer.username,
+      playerId: newPlayerId
+    }
+  });
+
+  // Approved name change, 20 mins before the mock date
+  await prisma.nameChange.create({
+    data: {
+      oldName: 'wtv',
+      status: 'approved',
+      resolvedAt: new Date(mockDate.getTime() - 1_200_000),
+      newName: newPlayer.username,
+      playerId: newPlayerId
+    }
+  });
+
+  // Denied name change, 10 mins before the mock date
+  await prisma.nameChange.create({
+    data: {
+      oldName: 'pls',
+      status: 'denied',
+      resolvedAt: new Date(mockDate.getTime() - 600_000),
+      newName: newPlayer.username,
+      playerId: newPlayerId
+    }
+  });
 
   // Create a few pre-transition-date records
   await prisma.record.createMany({
@@ -1377,6 +1434,47 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
 }
 
 async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) {
+  const newPlayer = await prisma.player.findFirst({
+    where: {
+      id: newPlayerId
+    }
+  });
+
+  if (!newPlayer) {
+    throw new Error('New player not found');
+  }
+
+  // Pending name change
+  await prisma.nameChange.create({
+    data: {
+      oldName: 'idk post',
+      newName: newPlayer.username,
+      playerId: newPlayerId
+    }
+  });
+
+  // Approved name change
+  await prisma.nameChange.create({
+    data: {
+      oldName: 'wtv post',
+      status: 'approved',
+      resolvedAt: new Date(Date.now() + 300_000),
+      newName: newPlayer.username,
+      playerId: newPlayerId
+    }
+  });
+
+  // Denied name change
+  await prisma.nameChange.create({
+    data: {
+      oldName: 'pls post',
+      status: 'denied',
+      resolvedAt: new Date(Date.now() + 600_000),
+      newName: newPlayer.username,
+      playerId: newPlayerId
+    }
+  });
+
   // Create a few post-transition-date records
   await prisma.record.createMany({
     data: [
