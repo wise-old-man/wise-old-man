@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import axios from 'axios';
-import { Patron } from '../../../prisma';
 import { isValidDate } from '../../util/dates';
 
 const CAMPAIGN_ID = '4802084';
@@ -86,29 +85,33 @@ export async function getPatrons() {
     }
   });
 
-  const patrons: Patron[] = [];
-
-  members.data.forEach(member => {
+  const patrons = members.data.map(member => {
     const { attributes, relationships } = member;
 
     const userId = relationships.user.data.id;
     const user = userMap.get(userId);
 
-    if (!user) return;
+    if (!user) return null;
 
     const pledge = pledges.data.find(p => p.relationships.patron.data.id === userId);
 
     const { patron_status, last_charge_date } = attributes;
 
+    let isInGracePeriod = false;
+
     // After unsubscribing (or payment failed), give users a grace period
     // of 3 days to re-subscribe before revoking their benefits
     if (patron_status !== 'active_patron') {
-      if (!last_charge_date || patron_status !== 'declined_patron') return;
+      if (!last_charge_date || patron_status !== 'declined_patron') return null;
 
       const lastChargeDate = new Date(last_charge_date);
       const daysSince = (Date.now() - lastChargeDate.getTime()) / 1000 / 60 / 60 / 24;
 
-      if (daysSince > CANCEL_GRACE_PERIOD_DAYS) return;
+      if (daysSince > CANCEL_GRACE_PERIOD_DAYS) {
+        return null;
+      }
+
+      isInGracePeriod = true;
     }
 
     const isTier2 = relationships.currently_entitled_tiers.data.some(tier => tier.id === TIER_2_ID);
@@ -117,19 +120,22 @@ export async function getPatrons() {
       ? user.attributes.social_connections.discord?.user_id
       : undefined;
 
-    patrons.push({
-      id: userId,
-      name: user.attributes.full_name,
-      email: user.attributes.email || '',
-      discordId: discordId ?? null,
-      tier: isTier2 ? 2 : 1,
-      createdAt: pledge ? new Date(pledge.attributes.created_at) : new Date(),
-      playerId: null,
-      groupId: null
-    });
+    return {
+      patron: {
+        id: userId,
+        name: user.attributes.full_name,
+        email: user.attributes.email || '',
+        discordId: discordId ?? null,
+        tier: isTier2 ? 2 : 1,
+        createdAt: pledge ? new Date(pledge.attributes.created_at) : new Date(),
+        playerId: null,
+        groupId: null
+      },
+      isInGracePeriod
+    };
   });
 
-  return patrons;
+  return patrons.filter(Boolean);
 }
 
 async function fetchPledges(campaignId: string): Promise<PledgesResponse> {
