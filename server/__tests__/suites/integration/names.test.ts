@@ -355,6 +355,19 @@ describe('Names API', () => {
       });
     });
 
+    it('should fetch details (valid newStats, newPlayer not tracked)', async () => {
+      const updateResponse = await api.post(`/names`).send({ oldName: 'Psikoi', newName: 'vessel' });
+      expect(updateResponse.status).toBe(201);
+
+      // Get the name change details
+      const response = await api.get(`/names/${updateResponse.body.id}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.oldStats).not.toBeNull();
+      // Even if newPlayer cannot be found on our db, newStats might still be gathered from newName's hiscores
+      expect(response.body.data.newStats).not.toBeNull();
+    });
+
     it('should fetch details (approved name change, no data)', async () => {
       const response = await api.get(`/names/${globalData.secondNameChangeId}`);
 
@@ -393,11 +406,11 @@ describe('Names API', () => {
       const response = await api.get(`/names`);
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(6);
-      expect(response.body.filter(n => n.status === 'pending').length).toBe(4);
+      expect(response.body.length).toBe(7);
+      expect(response.body.filter(n => n.status === 'pending').length).toBe(5);
       expect(response.body.filter(n => n.status === 'approved').length).toBe(2);
-      expect(response.body.filter(n => n.oldName === 'Zezima').length).toBe(1);
-      expect(response.body.filter(n => n.oldName === 'psikoi').length).toBe(2);
+      expect(response.body.filter(n => n.oldName.toLowerCase() === 'zezima').length).toBe(1);
+      expect(response.body.filter(n => n.oldName.toLowerCase() === 'psikoi').length).toBe(3);
     });
 
     it('should fetch list (filtered by status)', async () => {
@@ -1325,8 +1338,8 @@ describe('Names API', () => {
         .send({ adminPassword: process.env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
-      expect(response.body.count).toBe(5);
-      expect(response.body.message).toMatch('Successfully deleted 5 name changes.');
+      expect(response.body.count).toBe(6);
+      expect(response.body.message).toMatch('Successfully deleted 6 name changes.');
 
       const fetchResponse = await api.get(`/players/usbc/names`);
       expect(fetchResponse.status).toBe(200);
