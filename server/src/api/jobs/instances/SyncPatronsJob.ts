@@ -29,23 +29,23 @@ async function syncPatrons() {
   const toDelete: Patron[] = [];
 
   const patrons = await getPatrons();
-  const newPatronIds = patrons.map(p => p.id);
+  const newPatronIds = patrons.map(p => p.patron.id);
 
   const updatedFieldsMap = new Map<string, string>();
 
   patrons.forEach(p => {
-    const match = currentPatrons.find(cp => cp.id === p.id);
+    const match = currentPatrons.find(cp => cp.id === p.patron.id);
 
     if (!match) {
-      toAdd.push(p);
-    } else if (needsUpdate(p, match)) {
-      toUpdate.push(p);
+      toAdd.push(p.patron);
+    } else if (!p.isInGracePeriod && needsUpdate(p.patron, match)) {
+      toUpdate.push(p.patron);
 
       // Keep track of which of these fields was updated (we only care about notifications for these)
-      if (p.tier !== match.tier) {
-        updatedFieldsMap.set(p.id, 'tier');
-      } else if (p.discordId !== match.discordId) {
-        updatedFieldsMap.set(p.id, 'discordId');
+      if (p.patron.tier !== match.tier) {
+        updatedFieldsMap.set(p.patron.id, 'tier');
+      } else if (p.patron.discordId !== match.discordId) {
+        updatedFieldsMap.set(p.patron.id, 'discordId');
       }
     }
   });
@@ -94,7 +94,7 @@ async function syncPatrons() {
   });
 
   Array.from(updatedFieldsMap.entries()).forEach(([patronId, field]) => {
-    const p = patrons.find(patron => patron.id === patronId);
+    const p = patrons.find(patron => patron.patron.id === patronId)?.patron;
     if (!p) return;
 
     const discordTag = p.discordId ? `<@${p.discordId}>` : '';
@@ -181,14 +181,7 @@ async function syncBenefits() {
 }
 
 function needsUpdate(a: Patron, b: Patron) {
-  // When member unsubscribes, their pledge is no longer returned by the Patreon API,
-  // and we lose access to their email address. In this case, we return it as an empty string.
-  // Because of this, we should only update the email if the new one is not empty.
-  if (a.email !== b.email && a.email.length > 0) {
-    return true;
-  }
-
-  return a.name !== b.name || a.tier !== b.tier || a.discordId !== b.discordId;
+  return a.name !== b.name || a.email !== b.email || a.tier !== b.tier || a.discordId !== b.discordId;
 }
 
 export default new SyncPatronsJob();
