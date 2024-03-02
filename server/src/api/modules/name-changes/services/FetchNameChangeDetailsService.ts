@@ -138,7 +138,7 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
       ehpDiff: newStats.ehpValue - oldStats.ehpValue,
       ehbDiff: newStats.ehbValue - oldStats.ehbValue,
       oldStats: formatSnapshot(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
-      newStats: newPlayer ? formatSnapshot(newStats, getPlayerEfficiencyMap(newStats, newPlayer)) : null
+      newStats: formatSnapshot(newStats, getPlayerEfficiencyMap(newStats, newPlayer ?? oldPlayer))
     }
   };
 }
