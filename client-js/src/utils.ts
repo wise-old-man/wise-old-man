@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import customParseFormatPlugin from 'dayjs/plugin/customParseFormat';
+import customParseFormatPlugin from 'dayjs/plugin/customParseFormat.js';
 
 dayjs.extend(customParseFormatPlugin);
 
