@@ -266,7 +266,7 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
       leftEvents.push(
         ...excessMemberships
           .filter(m => !ignoreFromLeft.includes(m.playerId))
-          .map(m => ({ playerId: m.playerId, groupId: m.groupId, type: ActivityType.LEFT }))
+          .map(m => ({ playerId: m.playerId, groupId: m.groupId, type: ActivityType.LEFT, role: m.role }))
       );
 
       // Add any missing memberships
@@ -276,7 +276,7 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
       joinedEvents.push(
         ...addedPlayerIds
           .filter(id => !ignoreFromJoined.includes(id.playerId))
-          .map(pId => ({ ...pId, type: ActivityType.JOINED }))
+          .map(pId => ({ ...pId, type: ActivityType.JOINED, role: pId.role }))
       );
 
       const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, members);

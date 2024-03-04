@@ -584,11 +584,12 @@ model Snapshot {
 }
 
 model MemberActivity {
-  groupId   Int
-  playerId  Int
-  type      ActivityType
-  role      GroupRole?
-  createdAt DateTime     @default(now()) @db.Timestamptz(6)
+  groupId      Int
+  playerId     Int
+  type         ActivityType
+  role         GroupRole?
+  createdAt    DateTime     @default(now()) @db.Timestamptz(6)
+  previousRole GroupRole?
 
   // Relations
   group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)

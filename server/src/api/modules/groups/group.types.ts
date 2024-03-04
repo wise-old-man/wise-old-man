@@ -80,13 +80,11 @@ export interface TempleGroupData {
   leaders: string[];
 }
 
-export type MemberRoleChangeEvent = Omit<MemberActivity, 'createdAt'> & {
-  previousRole: GroupRole;
-};
+export type MemberRoleChangeEvent = Omit<MemberActivity, 'createdAt'>;
 
-export type MemberJoinedEvent = Omit<MemberActivity, 'createdAt'>;
+export type MemberJoinedEvent = Omit<MemberActivity, 'createdAt' | 'previousRole'>;
 
-export type MemberLeftEvent = Omit<MemberActivity, 'createdAt' | 'role'>;
+export type MemberLeftEvent = Omit<MemberActivity, 'createdAt' | 'previousRole'>;
 
 export type MemberActivityWithPlayer = MemberActivity & {
   player: Player;

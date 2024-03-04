@@ -37,7 +37,8 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
     return {
       playerId,
       groupId,
-      type: ActivityType.LEFT
+      type: ActivityType.LEFT,
+      role: null
     };
   });
 

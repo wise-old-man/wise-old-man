@@ -16,6 +16,7 @@ export type MemberActivity = {
   playerId: number;
   type: ActivityType;
   role?: GroupRole;
+  previousRole?: GroupRole;
   createdAt: Date;
 };
 
