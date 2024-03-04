@@ -158,11 +158,11 @@ export const Metric = {
   ...ComputedMetric
 } as const;
 
-export type Skill = typeof Skill[keyof typeof Skill];
-export type Activity = typeof Activity[keyof typeof Activity];
-export type Boss = typeof Boss[keyof typeof Boss];
-export type ComputedMetric = typeof ComputedMetric[keyof typeof ComputedMetric];
-export type Metric = typeof Metric[keyof typeof Metric];
+export type Skill = (typeof Skill)[keyof typeof Skill];
+export type Activity = (typeof Activity)[keyof typeof Activity];
+export type Boss = (typeof Boss)[keyof typeof Boss];
+export type ComputedMetric = (typeof ComputedMetric)[keyof typeof ComputedMetric];
+export type Metric = (typeof Metric)[keyof typeof Metric];
 
 export const NameChangeStatus = {
   PENDING: 'pending',
@@ -170,7 +170,7 @@ export const NameChangeStatus = {
   APPROVED: 'approved'
 } as const;
 
-export type NameChangeStatus = typeof NameChangeStatus[keyof typeof NameChangeStatus];
+export type NameChangeStatus = (typeof NameChangeStatus)[keyof typeof NameChangeStatus];
 
 export const Period = {
   FIVE_MIN: 'five_min',
@@ -180,7 +180,7 @@ export const Period = {
   YEAR: 'year'
 } as const;
 
-export type Period = typeof Period[keyof typeof Period];
+export type Period = (typeof Period)[keyof typeof Period];
 
 export const PlayerType = {
   UNKNOWN: 'unknown',
@@ -190,7 +190,7 @@ export const PlayerType = {
   ULTIMATE: 'ultimate'
 } as const;
 
-export type PlayerType = typeof PlayerType[keyof typeof PlayerType];
+export type PlayerType = (typeof PlayerType)[keyof typeof PlayerType];
 
 export const PlayerBuild = {
   MAIN: 'main',
@@ -202,7 +202,7 @@ export const PlayerBuild = {
   HP10: 'hp10'
 } as const;
 
-export type PlayerBuild = typeof PlayerBuild[keyof typeof PlayerBuild];
+export type PlayerBuild = (typeof PlayerBuild)[keyof typeof PlayerBuild];
 
 export const PlayerStatus = {
   ACTIVE: 'active',
@@ -212,14 +212,14 @@ export const PlayerStatus = {
   BANNED: 'banned'
 } as const;
 
-export type PlayerStatus = typeof PlayerStatus[keyof typeof PlayerStatus];
+export type PlayerStatus = (typeof PlayerStatus)[keyof typeof PlayerStatus];
 
 export const CompetitionType = {
   CLASSIC: 'classic',
   TEAM: 'team'
 } as const;
 
-export type CompetitionType = typeof CompetitionType[keyof typeof CompetitionType];
+export type CompetitionType = (typeof CompetitionType)[keyof typeof CompetitionType];
 
 export const GroupRole = {
   ACHIEVER: 'achiever',
@@ -493,7 +493,7 @@ export const GroupRole = {
   ZENYTE: 'zenyte'
 } as const;
 
-export type GroupRole = typeof GroupRole[keyof typeof GroupRole];
+export type GroupRole = (typeof GroupRole)[keyof typeof GroupRole];
 
 export const Country = {
   AD: 'AD',
@@ -747,7 +747,7 @@ export const Country = {
   ZW: 'ZW'
 } as const;
 
-export type Country = typeof Country[keyof typeof Country];
+export type Country = (typeof Country)[keyof typeof Country];
 
 export const ActivityType = {
   JOINED: 'joined',
@@ -755,4 +755,4 @@ export const ActivityType = {
   CHANGED_ROLE: 'changed_role'
 } as const;
 
-export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
+export type ActivityType = (typeof ActivityType)[keyof typeof ActivityType];
