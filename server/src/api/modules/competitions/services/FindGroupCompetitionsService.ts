@@ -20,25 +20,30 @@ async function findGroupCompetitions(groupId: number): Promise<CompetitionListIt
   }
 
   const competitions = await prisma.competition.findMany({
-    where: { groupId },
-    include: {
-      _count: {
-        select: {
-          participations: true
-        }
-      }
-    }
+    where: { groupId }
   });
+
+  const participantCounts = await prisma.participation.groupBy({
+    by: ['competitionId'],
+    where: {
+      competitionId: {
+        in: competitions.map(c => c.id)
+      }
+    },
+    _count: true
+  });
+
+  const participantCountsMap = new Map(participantCounts.map(p => [p.competitionId, p._count]));
 
   return sortCompetitions(
     competitions.map(c => {
       return {
-        ...omit(c, '_count', 'verificationHash'),
+        ...omit(c, 'verificationHash'),
         group: {
           ...omit(group, '_count', 'verificationHash'),
           memberCount: group._count.memberships
         },
-        participantCount: c._count.participations
+        participantCount: participantCountsMap.get(c.id) ?? 0
       };
     })
   );
