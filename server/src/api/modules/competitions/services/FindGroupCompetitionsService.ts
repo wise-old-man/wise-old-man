@@ -4,18 +4,24 @@ import { NotFoundError } from '../../../errors';
 import { CompetitionListItem } from '../competition.types';
 
 async function findGroupCompetitions(groupId: number): Promise<CompetitionListItem[]> {
+  const group = await prisma.group.findFirst({
+    where: { id: groupId },
+    include: {
+      _count: {
+        select: {
+          memberships: true
+        }
+      }
+    }
+  });
+
+  if (!group) {
+    throw new NotFoundError('Group not found.');
+  }
+
   const competitions = await prisma.competition.findMany({
     where: { groupId },
     include: {
-      group: {
-        include: {
-          _count: {
-            select: {
-              memberships: true
-            }
-          }
-        }
-      },
       _count: {
         select: {
           participations: true
@@ -24,28 +30,14 @@ async function findGroupCompetitions(groupId: number): Promise<CompetitionListIt
     }
   });
 
-  if (!competitions || competitions.length === 0) {
-    const group = await prisma.group.findFirst({
-      where: { id: groupId }
-    });
-
-    if (!group) {
-      throw new NotFoundError('Group not found.');
-    }
-
-    return [];
-  }
-
   return sortCompetitions(
     competitions.map(c => {
       return {
         ...omit(c, '_count', 'verificationHash'),
-        group: c.group
-          ? {
-              ...omit(c.group, '_count', 'verificationHash'),
-              memberCount: c.group._count.memberships
-            }
-          : undefined,
+        group: {
+          ...omit(group, '_count', 'verificationHash'),
+          memberCount: group._count.memberships
+        },
         participantCount: c._count.participations
       };
     })
