@@ -52,15 +52,18 @@ async function scheduleStarting(delayMs: number): Promise<void> {
   competitionsStarting.forEach((c, index) => {
     const eventDelay = Math.max(0, c.startsAt.getTime() - delayMs - Date.now());
 
-    setTimeout(() => {
-      // If competition is starting in < 1min, schedule the "started" event instead
-      if (delayMs === 0) {
-        competitionEvents.onCompetitionStarted(c);
-      } else {
-        competitionEvents.onCompetitionStarting(c, getEventPeriodDelay(delayMs));
-      }
-      // stagger each event by 500ms to avoid overloading the database
-    }, eventDelay + index * 500);
+    setTimeout(
+      () => {
+        // If competition is starting in < 1min, schedule the "started" event instead
+        if (delayMs === 0) {
+          competitionEvents.onCompetitionStarted(c);
+        } else {
+          competitionEvents.onCompetitionStarting(c, getEventPeriodDelay(delayMs));
+        }
+        // stagger each event by 500ms to avoid overloading the database
+      },
+      eventDelay + index * 500
+    );
   });
 }
 
@@ -80,15 +83,18 @@ async function scheduleEnding(delayMs: number): Promise<void> {
   competitionsEnding.forEach((c, index) => {
     const eventDelay = Math.max(0, c.endsAt.getTime() - delayMs - Date.now());
 
-    setTimeout(() => {
-      // If competition is ending in < 1min, schedule the "ended" event instead
-      if (delayMs === 0) {
-        competitionEvents.onCompetitionEnded(c);
-      } else {
-        competitionEvents.onCompetitionEnding(c, getEventPeriodDelay(delayMs));
-      }
-      // stagger each event by 500ms to avoid overloading the database
-    }, eventDelay + index * 500);
+    setTimeout(
+      () => {
+        // If competition is ending in < 1min, schedule the "ended" event instead
+        if (delayMs === 0) {
+          competitionEvents.onCompetitionEnded(c);
+        } else {
+          competitionEvents.onCompetitionEnding(c, getEventPeriodDelay(delayMs));
+        }
+        // stagger each event by 500ms to avoid overloading the database
+      },
+      eventDelay + index * 500
+    );
   });
 }
 
