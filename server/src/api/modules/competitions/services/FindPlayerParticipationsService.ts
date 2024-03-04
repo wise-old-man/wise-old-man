@@ -39,41 +39,54 @@ async function findPlayerParticipations(
       competition: competitionQuery
     },
     include: {
-      competition: {
-        include: {
-          group: {
-            include: {
-              _count: {
-                select: {
-                  memberships: true
-                }
-              }
-            }
-          },
-          _count: {
-            select: {
-              participations: true
-            }
-          }
-        }
-      }
+      competition: true
     },
     orderBy: [{ competition: { score: 'desc' } }, { createdAt: 'desc' }]
   });
 
+  const groups = await prisma.group.findMany({
+    where: {
+      id: { in: participations.map(p => p.competition.groupId).filter(Boolean) }
+    },
+    include: {
+      _count: {
+        select: {
+          memberships: true
+        }
+      }
+    }
+  });
+
+  const participantCounts = await prisma.participation.groupBy({
+    by: ['competitionId'],
+    where: {
+      competitionId: {
+        in: participations.map(c => c.competitionId)
+      }
+    },
+    _count: true
+  });
+
+  const groupsMap = new Map(groups.map(g => [g.id, g]));
+  const participantCountsMap = new Map(participantCounts.map(p => [p.competitionId, p._count]));
+
   return sortCompetitions(
     participations.map(participation => {
+      const group = participation.competition.groupId
+        ? groupsMap.get(participation.competition.groupId)
+        : undefined;
+
       return {
         ...omit(participation, 'startSnapshotId', 'endSnapshotId'),
         competition: {
-          ...omit(participation.competition, '_count', 'verificationHash'),
-          group: participation.competition.group
+          ...omit(participation.competition, 'verificationHash'),
+          group: group
             ? {
-                ...omit(participation.competition.group, '_count', 'verificationHash'),
-                memberCount: participation.competition.group._count.memberships
+                ...omit(group, '_count', 'verificationHash'),
+                memberCount: group._count.memberships
               }
             : undefined,
-          participantCount: participation.competition._count.participations
+          participantCount: participantCountsMap.get(participation.competitionId) ?? 0
         }
       };
     })
