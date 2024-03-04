@@ -1,5 +1,12 @@
-import prisma, { Player, Record, NameChange, NameChangeStatus, PrismaTypes } from '../../../../prisma';
-import { ActivityType, MemberActivity, PlayerStatus } from '../../../../utils';
+import prisma, {
+  Player,
+  Record,
+  NameChange,
+  NameChangeStatus,
+  PrismaTypes,
+  Participation
+} from '../../../../prisma';
+import { ActivityType, MemberActivity, Membership, PlayerStatus } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { archivePlayer } from '../../players/services/ArchivePlayerService';
@@ -129,6 +136,8 @@ async function transferPlayerData(
   let oldRecords: Record[] = [];
   let newRecords: Record[] = [];
   let memberActivity: MemberActivity[] = [];
+  let oldMemberships: Membership[] = [];
+  let oldParticipations: Participation[] = [];
 
   if (newPlayerExists) {
     // Fetch all of older player's records, to compare to the new ones
@@ -149,6 +158,18 @@ async function transferPlayerData(
         ]
       }
     });
+
+    oldMemberships = await prisma.membership.findMany({
+      where: {
+        playerId: oldPlayer.id
+      }
+    });
+
+    oldParticipations = await prisma.participation.findMany({
+      where: {
+        playerId: oldPlayer.id
+      }
+    });
   }
 
   const result = await prisma
@@ -164,10 +185,10 @@ async function transferPlayerData(
         await deduplicateGroupActivity(tx, memberActivity);
 
         // Transfer all memberships from the newPlayer (post transition date) to the old player
-        await transferMemberships(tx, oldPlayer.id, newPlayer.id, transitionDate);
+        await transferMemberships(tx, oldPlayer.id, newPlayer.id, transitionDate, oldMemberships);
 
         // Transfer all participations from the newPlayer (post transition date) to the old player
-        await transferParticipations(tx, oldPlayer.id, newPlayer.id, transitionDate);
+        await transferParticipations(tx, oldPlayer.id, newPlayer.id, transitionDate, oldParticipations);
 
         // Transfer all approved name changes from the newPlayer (post transition date) to the old player
         await transferNameChanges(tx, oldPlayer.id, newPlayer.id, transitionDate);
@@ -332,12 +353,14 @@ function transferMemberships(
   transaction: PrismaTypes.TransactionClient,
   oldPlayerId: number,
   newPlayerId: number,
-  transitionDate: Date
+  transitionDate: Date,
+  oldMemberships: Membership[]
 ) {
   // Transfer all memberships (post transition) to the old player id
   return transaction.membership.updateMany({
     where: {
       playerId: newPlayerId,
+      groupId: { notIn: oldMemberships.map(m => m.groupId) }, // Only if old player isn't already on the group
       createdAt: { gte: transitionDate }
     },
     data: {
@@ -350,12 +373,14 @@ function transferParticipations(
   transaction: PrismaTypes.TransactionClient,
   oldPlayerId: number,
   newPlayerId: number,
-  transitionDate: Date
+  transitionDate: Date,
+  oldParticipations: Participation[]
 ) {
   // Transfer all participations (post transition) to the old player id
   return transaction.participation.updateMany({
     where: {
       playerId: newPlayerId,
+      competitionId: { notIn: oldParticipations.map(m => m.competitionId) }, // Only if old player isn't already on the comp
       createdAt: { gte: transitionDate }
     },
     data: {

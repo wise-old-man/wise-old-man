@@ -795,9 +795,9 @@ describe('Names API', () => {
       const mainGroupsResponse = await api.get(`/players/USBC/groups`);
 
       expect(mainGroupsResponse.status).toBe(200);
-      expect(mainGroupsResponse.body.length).toBe(1);
+      expect(mainGroupsResponse.body.length).toBe(2);
       expect(mainGroupsResponse.body[0]).toMatchObject({
-        role: 'archer',
+        role: 'medic', // Did not transfer newPlayer's "archer" membership, we kept oldPlayer's "medic" membership
         group: { name: 'Test Transfer Group' }
       });
 
@@ -807,8 +807,12 @@ describe('Names API', () => {
       const archivedGroupsResponse = await api.get(`/players/${archiveUsername}/groups`);
 
       expect(archivedGroupsResponse.status).toBe(200);
-      expect(archivedGroupsResponse.body.length).toBe(1);
+      expect(archivedGroupsResponse.body.length).toBe(2);
       expect(archivedGroupsResponse.body[0]).toMatchObject({
+        role: 'archer', // This membership was left behind because oldPlayer was already on this group
+        group: { name: 'Test Transfer Group' }
+      });
+      expect(archivedGroupsResponse.body[1]).toMatchObject({
         role: 'beast',
         group: { name: 'Test Transfer Group (Pre)' }
       });
@@ -817,10 +821,14 @@ describe('Names API', () => {
       const mainCompetitionsResponse = await api.get(`/players/USBC/competitions`);
 
       expect(mainCompetitionsResponse.status).toBe(200);
-      expect(mainCompetitionsResponse.body.length).toBe(1);
+      expect(mainCompetitionsResponse.body.length).toBe(2);
       expect(mainCompetitionsResponse.body[0].competition).toMatchObject({
         title: 'Test Comp',
         metric: 'thieving'
+      });
+      expect(mainCompetitionsResponse.body[1].competition).toMatchObject({
+        title: 'Test Comp (Pre)',
+        metric: 'herblore'
       });
 
       // Before the name change happened, the "newPlayer" was in a competition called "Test Comp (Pre)".
@@ -829,8 +837,12 @@ describe('Names API', () => {
       const archivedCompetitionsResponse = await api.get(`/players/${archiveUsername}/competitions`);
 
       expect(archivedCompetitionsResponse.status).toBe(200);
-      expect(archivedCompetitionsResponse.body.length).toBe(1);
+      expect(archivedCompetitionsResponse.body.length).toBe(2);
       expect(archivedCompetitionsResponse.body[0].competition).toMatchObject({
+        title: 'Test Comp',
+        metric: 'thieving'
+      });
+      expect(archivedCompetitionsResponse.body[1].competition).toMatchObject({
         title: 'Test Comp (Pre)',
         metric: 'herblore'
       });
@@ -1429,7 +1441,10 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
       startsAt: new Date(Date.now() + 100_000),
       endsAt: new Date(Date.now() + 400_000),
       participations: {
-        create: [{ playerId: newPlayerId, createdAt: mockDate }]
+        create: [
+          { playerId: newPlayerId, createdAt: mockDate },
+          { playerId: oldPlayerId, createdAt: mockDate }
+        ]
       }
     }
   });
@@ -1440,7 +1455,10 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
       name: 'Test Transfer Group (Pre)',
       verificationHash: '',
       memberships: {
-        create: [{ playerId: newPlayerId, role: 'beast', createdAt: mockDate }]
+        create: [
+          { playerId: newPlayerId, role: 'beast', createdAt: mockDate },
+          { playerId: oldPlayerId, role: 'beast', createdAt: mockDate }
+        ]
       }
     }
   });
@@ -1521,7 +1539,10 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
       startsAt: new Date(Date.now() + 100_000),
       endsAt: new Date(Date.now() + 400_000),
       participations: {
-        create: [{ playerId: newPlayerId }]
+        create: [
+          { playerId: newPlayerId }, // this should not be transfered as oldPlayer is already on this comp
+          { playerId: oldPlayerId }
+        ]
       }
     }
   });
@@ -1532,7 +1553,10 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
       name: 'Test Transfer Group',
       verificationHash: '',
       memberships: {
-        create: [{ playerId: newPlayerId, role: 'archer' }]
+        create: [
+          { playerId: newPlayerId, role: 'archer' }, // this should not be transfered as oldPlayer is already on this group
+          { playerId: oldPlayerId, role: 'medic' }
+        ]
       }
     }
   });
