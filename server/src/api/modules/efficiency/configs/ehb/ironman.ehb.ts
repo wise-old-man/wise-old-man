@@ -31,7 +31,7 @@ export default [
   { boss: Boss.KREEARRA, rate: 30 },
   { boss: Boss.KRIL_TSUTSAROTH, rate: 28 },
   { boss: Boss.MIMIC, rate: 60 },
-  { boss: Boss.NEX, rate: 12 },
+  { boss: Boss.NEX, rate: 20 },
   { boss: Boss.NIGHTMARE, rate: 11 },
   { boss: Boss.OBOR, rate: 12 },
   { boss: Boss.PHANTOM_MUSPAH, rate: 25 },

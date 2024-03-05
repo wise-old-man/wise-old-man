@@ -25,7 +25,7 @@ export default [
   { boss: Boss.KRAKEN, rate: 100 },
   { boss: Boss.KREEARRA, rate: 40 },
   { boss: Boss.KRIL_TSUTSAROTH, rate: 65 },
-  { boss: Boss.NEX, rate: 13 },
+  { boss: Boss.NEX, rate: 23.5 },
   { boss: Boss.NIGHTMARE, rate: 14 },
   { boss: Boss.PHANTOM_MUSPAH, rate: 26 },
   { boss: Boss.PHOSANIS_NIGHTMARE, rate: 7 },
