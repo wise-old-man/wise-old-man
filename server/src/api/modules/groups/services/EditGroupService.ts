@@ -310,11 +310,7 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
       }
 
       await transaction.memberActivity.createMany({
-        data: [
-          ...leftEvents,
-          ...joinedEvents.map(a => ({ ...a, role: null })),
-          ...changedRoleEvents.map(p => omit(p, 'previousRole'))
-        ]
+        data: [...leftEvents, ...joinedEvents, ...changedRoleEvents]
       });
     })
     .catch(error => {
