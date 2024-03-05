@@ -2,8 +2,9 @@ import prisma from '../../../prisma';
 import { PlayerStatus } from '../../../utils';
 import { BadRequestError } from '../../errors';
 import * as jagexService from '../../services/external/jagex.service';
-import jobManager from '../job.manager';
 import { JobType, JobDefinition, JobOptions } from '../job.types';
+import experimentalJobManager from '../../../jobs/job.manager';
+import { CheckPlayerBannedJob } from '../../../jobs/instances/CheckPlayerBannedJob';
 
 export interface CheckPlayerRankedPayload {
   username: string;
@@ -51,10 +52,7 @@ class CheckPlayerRankedJob implements JobDefinition<CheckPlayerRankedPayload> {
 
     // Being unranked could also mean a player is banned, so if we determine
     // that they're not on the hiscores, check if they're banned on RuneMetrics.
-    jobManager.add({
-      type: JobType.CHECK_PLAYER_BANNED,
-      payload: { username: data.username }
-    });
+    await experimentalJobManager.add(new CheckPlayerBannedJob(data.username));
   }
 }
 
