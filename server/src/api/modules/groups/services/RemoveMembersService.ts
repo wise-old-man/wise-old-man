@@ -13,10 +13,7 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
 
   const groupMemberIds = groupMemberIdAndRoles.map(x => x.playerId);
 
-  const groupMemberRoleLookup = groupMemberIdAndRoles.reduce((acc, obj) => {
-    acc[obj.playerId] = obj.role;
-    return acc;
-  }, {});
+  const groupMemberRoleLookup = new Map(groupMemberIdAndRoles.map(g => [g.playerId, g.role]));
 
   const playerIdsToRemove = (
     await prisma.player.findMany({
@@ -43,7 +40,7 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
       playerId,
       groupId,
       type: ActivityType.LEFT,
-      role: groupMemberRoleLookup[playerId]
+      role: groupMemberRoleLookup.get(playerId) ?? null
     };
   });
 
