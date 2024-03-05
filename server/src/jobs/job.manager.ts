@@ -91,8 +91,14 @@ class JobManager {
 
       const worker = new Worker(
         jobName,
-        bullJob => {
-          return this.processJob(bullJob, jobType);
+        async bullJob => {
+          try {
+            logger.info('Processing job', { jobName }, true);
+            await this.processJob(bullJob, jobType);
+          } catch (error) {
+            logger.error('Failed to process job', { jobName, error }, true);
+            throw error;
+          }
         },
         {
           limiter: options?.rateLimiter,
@@ -132,8 +138,12 @@ class JobManager {
         throw new Error(`No job implementation found for type "${jobName}".`);
       }
 
-      logger.info('Scheduling cron job', { jobName, interval: cron.interval }, true);
-      matchingQueue.add(jobName, {}, { repeat: { pattern: cron.interval } });
+      try {
+        logger.info('Scheduling cron job', { jobName, interval: cron.interval }, true);
+        await matchingQueue.add(jobName, {}, { repeat: { pattern: cron.interval } });
+      } catch (error) {
+        logger.error('Failed to schedule cron job', { jobName, error, interval: cron.interval }, true);
+      }
     }
   }
 
