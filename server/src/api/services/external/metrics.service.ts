@@ -88,14 +88,14 @@ class MetricsService {
     logger.info(`Effect: ${effectName} (${Date.now() - startTime} ms)`);
   }
 
-  async trackJob(jobType: JobType, handler: () => Promise<void>) {
+  async trackJob(jobType: JobType | string, handler: () => Promise<void>) {
     const endTimer = this.jobHistogram.startTimer();
 
     try {
       await handler();
-      endTimer({ jobName: jobType.toString(), status: 1 });
+      endTimer({ jobName: String(jobType), status: 1 });
     } catch (error) {
-      endTimer({ jobName: jobType.toString(), status: 0 });
+      endTimer({ jobName: String(jobType), status: 0 });
       throw error;
     }
   }

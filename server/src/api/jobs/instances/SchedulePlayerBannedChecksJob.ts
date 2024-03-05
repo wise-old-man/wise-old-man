@@ -1,7 +1,8 @@
-import prisma from '../../../prisma';
 import { Period, PeriodProps } from '../../..//utils';
-import { JobType, JobDefinition } from '../job.types';
-import { jobManager } from '..';
+import prisma from '../../../prisma';
+import { JobDefinition, JobType } from '../job.types';
+import { CheckPlayerBannedJob } from '../../../jobs/instances/CheckPlayerBannedJob';
+import experimentalJobManager from '../../../jobs/job.manager';
 
 const CHECKS_PER_DAY = 100;
 
@@ -31,12 +32,11 @@ async function checkForBans() {
   // Distribute the checks evenly throughout the day
   const cooldown = Math.floor(PeriodProps[Period.DAY].milliseconds / randomUnrankedPlayers.length);
 
-  randomUnrankedPlayers.forEach((p, i) => {
-    jobManager.add(
-      { type: JobType.CHECK_PLAYER_BANNED, payload: { username: p.username } },
-      { delay: i * cooldown + 30_000 } // offset by 30s to ensure it doesn't compete with the other checks for rate limits
-    );
-  });
+  for (let i = 0; i < randomUnrankedPlayers.length; i++) {
+    const { username } = randomUnrankedPlayers[i];
+    // offset by 30s to ensure it doesn't compete with the other checks for rate limits
+    experimentalJobManager.add(new CheckPlayerBannedJob(username).setDelay(i * cooldown + 30_000));
+  }
 }
 
 async function confirmBans() {
@@ -49,12 +49,11 @@ async function confirmBans() {
   // Distribute the checks evenly throughout the day
   const cooldown = Math.floor(PeriodProps[Period.DAY].milliseconds / randomBannedPlayers.length);
 
-  randomBannedPlayers.forEach((p, i) => {
-    jobManager.add(
-      { type: JobType.CHECK_PLAYER_BANNED, payload: { username: p.username } },
-      { delay: i * cooldown }
-    );
-  });
+  for (let i = 0; i < randomBannedPlayers.length; i++) {
+    const { username } = randomBannedPlayers[i];
+    // offset by 30s to ensure it doesn't compete with the other checks for rate limits
+    experimentalJobManager.add(new CheckPlayerBannedJob(username).setDelay(i * cooldown));
+  }
 }
 
 export default new SchedulePlayerBannedChecksJob();

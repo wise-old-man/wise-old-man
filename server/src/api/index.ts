@@ -5,6 +5,7 @@ import express, { Express } from 'express';
 import { RateLimiterRedis } from 'rate-limiter-flexible';
 import userAgent from 'express-useragent';
 import { jobManager } from './jobs';
+import experimentalJobManager from '../jobs/job.manager';
 import router from './routing';
 import metricsService from './services/external/metrics.service';
 import redisService from './services/external/redis.service';
@@ -28,6 +29,7 @@ class API {
     this.express = express();
 
     jobManager.init();
+    experimentalJobManager.init();
 
     if (process.env.NODE_ENV !== 'test') {
       this.setupServices();
@@ -38,8 +40,9 @@ class API {
   }
 
   async shutdown() {
-    redisService.shutdown();
     await jobManager.shutdown();
+    await experimentalJobManager.shutdown();
+    redisService.shutdown();
   }
 
   private setupMiddlewares() {
