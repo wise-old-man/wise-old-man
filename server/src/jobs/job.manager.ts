@@ -81,10 +81,12 @@ class JobManager {
       const { jobName, options } = new jobType();
 
       const scheduler = new QueueScheduler(jobName, {
+        prefix: 'experimental',
         connection: redisConfig
       });
 
       const queue = new Queue(jobName, {
+        prefix: 'experimental',
         connection: redisConfig,
         defaultJobOptions: { removeOnComplete: true, removeOnFail: true, ...(options || {}) }
       });
@@ -101,6 +103,7 @@ class JobManager {
           }
         },
         {
+          prefix: 'experimental',
           limiter: options?.rateLimiter,
           connection: redisConfig,
           autorun: false
