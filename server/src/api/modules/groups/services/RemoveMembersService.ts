@@ -14,7 +14,7 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
   const groupMemberIds = groupMemberIdAndRoles.map(x => x.playerId);
 
   const groupMemberRoleLookup = groupMemberIdAndRoles.reduce((acc, obj) => {
-    acc[obj.playerId] = obj;
+    acc[obj.playerId] = obj.role;
     return acc;
   }, {});
 
