@@ -53,7 +53,8 @@ async function addMembers(
     return {
       groupId: membership.groupId,
       playerId: membership.playerId,
-      type: ActivityType.JOINED
+      type: ActivityType.JOINED,
+      role: membership.role
     };
   });
 

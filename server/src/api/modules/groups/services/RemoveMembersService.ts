@@ -6,12 +6,14 @@ import * as groupEvents from '../group.events';
 import { ActivityType } from '../group.types';
 
 async function removeMembers(groupId: number, members: string[]): Promise<{ count: number }> {
-  const groupMemberIds = (
-    await prisma.membership.findMany({
-      where: { groupId },
-      select: { playerId: true }
-    })
-  ).map(membership => membership.playerId);
+  const groupMemberIdAndRoles = await prisma.membership.findMany({
+    where: { groupId },
+    select: { playerId: true, role: true }
+  });
+
+  const groupMemberIds = groupMemberIdAndRoles.map(x => x.playerId);
+
+  const groupMemberRoleLookup = new Map(groupMemberIdAndRoles.map(g => [g.playerId, g.role]));
 
   const playerIdsToRemove = (
     await prisma.player.findMany({
@@ -37,7 +39,8 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
     return {
       playerId,
       groupId,
-      type: ActivityType.LEFT
+      type: ActivityType.LEFT,
+      role: groupMemberRoleLookup.get(playerId) ?? null
     };
   });
 

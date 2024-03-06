@@ -62,7 +62,8 @@ async function changeMemberRole(
           groupId: membership.groupId,
           playerId: membership.playerId,
           type: ActivityType.CHANGED_ROLE,
-          role: newRole
+          role: newRole,
+          previousRole: membership.role
         }
       });
 
