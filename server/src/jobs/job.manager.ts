@@ -119,6 +119,12 @@ class JobManager {
       worker.run();
     }
 
+    // If running through pm2 (production), only run cronjobs on the first CPU core.
+    // Otherwise, on a 4 core server, every cronjob would run 4x as often.
+    if (getThreadIndex() !== 0 && process.env.NODE_ENV !== 'development') {
+      return;
+    }
+
     for (const queue of this.queues) {
       logger.info('Checking Cron Queue', { queueName: queue.name }, true);
       const activeJobs = await queue.getRepeatableJobs();
@@ -129,14 +135,9 @@ class JobManager {
       }
     }
 
-    // If running through pm2 (production), only run cronjobs on the first CPU core.
-    // Otherwise, on a 4 core server, every cronjob would run 4x as often.
-    if (getThreadIndex() !== 0 && process.env.NODE_ENV !== 'development') {
-      return;
-    }
-
     for (const cron of CRON_CONFIG) {
-      const { jobName } = new cron.job();
+      const jobName = cron.job.name;
+
       const matchingQueue = this.queues.find(q => q.name === jobName);
 
       if (!matchingQueue) {
