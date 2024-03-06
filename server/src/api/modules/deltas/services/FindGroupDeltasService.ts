@@ -126,10 +126,10 @@ async function buildPlayerSnapshotMap(
 }
 
 async function findEdgeSnapshots(playerIds: number[], minDate: Date, maxDate: Date) {
-  return await Promise.all([
-    findGroupSnapshots(playerIds, { minDate }),
-    findGroupSnapshots(playerIds, { maxDate })
-  ]);
+  const startSnapshot = await findGroupSnapshots(playerIds, { minDate });
+  const endSnapshot = await findGroupSnapshots(playerIds, { maxDate });
+
+  return [startSnapshot, endSnapshot];
 }
 
 async function findStartingSnapshots(playerIds: number[], period: string) {

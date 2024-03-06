@@ -17,6 +17,7 @@ import { Snapshot, SnapshotDataSource } from '../../../src/api/modules/snapshots
 import { buildSnapshot } from '../../../src/api/modules/snapshots/services/BuildSnapshotService';
 import { findPlayerSnapshots } from '../../../src/api/modules/snapshots/services/FindPlayerSnapshotsService';
 import { saveAllSnapshots } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
+import { resolveSequentially } from '../../../src/api/util/objects';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -219,10 +220,8 @@ describe('Snapshots API', () => {
 
       const cml = globalData.cmlRawDataP.split('\n').filter(r => r.length);
 
-      const snapshots = await Promise.all(
-        cml.map(row => {
-          return buildSnapshot(globalData.testPlayerId, row, SnapshotDataSource.CRYSTAL_MATH_LABS);
-        })
+      const snapshots = await resolveSequentially(
+        cml.map(row => buildSnapshot(globalData.testPlayerId, row, SnapshotDataSource.CRYSTAL_MATH_LABS))
       );
 
       const { count } = await saveAllSnapshots(snapshots);

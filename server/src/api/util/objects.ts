@@ -24,3 +24,15 @@ export function mapValues<T extends object, TResult>(
 
   return clone as { [P in keyof T]: TResult };
 }
+
+// Sequential alternative to Promise.all
+// Note: The types for this really only work if all promises return the same awaited type
+export async function resolveSequentially<T>(promises: Array<Promise<T>>): Promise<T[]> {
+  const results: T[] = [];
+
+  for (const promise of promises) {
+    results.push(await promise);
+  }
+
+  return results;
+}

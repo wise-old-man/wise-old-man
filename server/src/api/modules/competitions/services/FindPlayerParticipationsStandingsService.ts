@@ -1,4 +1,4 @@
-import { omit } from '../../../util/objects';
+import { omit, resolveSequentially } from '../../../util/objects';
 import { findPlayerParticipations } from './FindPlayerParticipationsService';
 import { ParticipationWithCompetitionAndStandings } from '../competition.types';
 import { calculateParticipantsStandings } from './FetchCompetitionDetailsService';
@@ -11,7 +11,7 @@ async function findPlayerParticipationsStandings(
 ): Promise<ParticipationWithCompetitionAndStandings[]> {
   const participations = await findPlayerParticipations(username, status);
 
-  const competitionsStandings = await Promise.all(
+  const standings = await resolveSequentially(
     participations.map(async p => {
       return {
         competition: p.competition,
@@ -20,7 +20,7 @@ async function findPlayerParticipationsStandings(
     })
   );
 
-  const playerParticipations = competitionsStandings.map(c => {
+  const playerParticipations = standings.map(c => {
     const playerIndex = c.participants.findIndex(p => p.player.username === standardize(username));
 
     if (playerIndex === -1) {
