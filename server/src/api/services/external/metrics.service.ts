@@ -1,7 +1,6 @@
 import { Details as UserAgentDetails } from 'express-useragent';
 import prometheus, { Histogram, Registry } from 'prom-client';
 import { getThreadIndex } from '../../../env';
-import logger from '../../util/logging';
 import { JobType } from '../../jobs';
 
 type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
@@ -72,15 +71,12 @@ class MetricsService {
   }
 
   async trackEffect(effectName: string, fn: () => Promise<void>) {
-    const startTime = Date.now();
     const endTimer = this.effectHistogram.startTimer();
 
     try {
       await fn();
-      logger.info(`Effect: ${effectName} (${Date.now() - startTime} ms)`);
       endTimer({ effectName, status: 1 });
     } catch (error) {
-      logger.error(`Effect: ${effectName} (${Date.now() - startTime} ms)`, { error });
       endTimer({ effectName, status: 0 });
       throw error;
     }
