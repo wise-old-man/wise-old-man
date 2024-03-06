@@ -1071,7 +1071,7 @@ describe('Names API', () => {
 
       expect(firstGroupActivityResponse.body[0]).toMatchObject({
         groupId: createGroupResponse.body.group.id,
-        role: null,
+        role: 'cook',
         type: 'left',
         player: {
           username: 'vukovi'
@@ -1080,7 +1080,7 @@ describe('Names API', () => {
 
       expect(firstGroupActivityResponse.body[1]).toMatchObject({
         groupId: createGroupResponse.body.group.id,
-        role: null,
+        role: 'cook',
         type: 'joined',
         player: {
           username: 'boston manor'
@@ -1089,7 +1089,7 @@ describe('Names API', () => {
 
       expect(firstGroupActivityResponse.body[2]).toMatchObject({
         groupId: createGroupResponse.body.group.id,
-        role: null,
+        role: 'cook',
         type: 'joined',
         player: {
           username: 'vukovi'
@@ -1122,7 +1122,7 @@ describe('Names API', () => {
 
       expect(secondGroupActivityResponse.body[0]).toMatchObject({
         groupId: createGroupResponse.body.group.id,
-        role: null,
+        role: 'cook',
         type: 'joined',
         createdAt: firstGroupActivityResponse.body[2].createdAt,
         player: {

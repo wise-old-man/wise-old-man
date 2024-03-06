@@ -695,13 +695,15 @@ describe('Group API', () => {
       expect(leftEvents[0]).toEqual({
         groupId: globalData.testGroupOneLeader.id,
         playerId: before.body.memberships.find(m => m.player.username === 'test player').playerId,
+        role: 'leader',
         type: 'left'
       });
 
       expect(leftEvents[1]).toEqual({
         groupId: globalData.testGroupOneLeader.id,
         playerId: before.body.memberships.find(m => m.player.username === 'alt player').playerId,
-        type: 'left'
+        type: 'left',
+        role: 'captain'
       });
 
       // 3 new players added
@@ -763,35 +765,35 @@ describe('Group API', () => {
       expect(latestActivities[0]).toMatchObject({
         groupId: globalData.testGroupOneLeader.id,
         playerId: before.body.memberships.find(m => m.player.username === 'test player').playerId,
-        role: null,
+        role: 'leader',
         type: 'left'
       });
 
       expect(latestActivities[1]).toMatchObject({
         groupId: globalData.testGroupOneLeader.id,
         playerId: before.body.memberships.find(m => m.player.username === 'alt player').playerId,
-        role: null,
+        role: 'captain',
         type: 'left'
       });
 
       expect(latestActivities[2]).toMatchObject({
         groupId: globalData.testGroupOneLeader.id,
         playerId: response.body.memberships.find(m => m.player.username === 'psikoi').playerId,
-        role: null,
+        role: 'achiever',
         type: 'joined'
       });
 
       expect(latestActivities[3]).toMatchObject({
         groupId: globalData.testGroupOneLeader.id,
         playerId: response.body.memberships.find(m => m.player.username === 'alexsuperfly').playerId,
-        role: null,
+        role: 'leader',
         type: 'joined'
       });
 
       expect(latestActivities[4]).toMatchObject({
         groupId: globalData.testGroupOneLeader.id,
         playerId: response.body.memberships.find(m => m.player.username === 'rorro').playerId,
-        role: null,
+        role: 'member',
         type: 'joined'
       });
 
@@ -799,6 +801,7 @@ describe('Group API', () => {
         groupId: globalData.testGroupOneLeader.id,
         playerId: response.body.memberships.find(m => m.player.username === 'zezima').playerId,
         role: 'firemaker',
+        previousRole: 'member',
         type: 'changed_role'
       });
     });
@@ -943,13 +946,15 @@ describe('Group API', () => {
       expect(leftEvents[0]).toEqual({
         groupId: id,
         playerId: memberships.find(m => m.player.username === 'cookmeplox').playerId,
+        role: 'cook',
         type: 'left'
       });
 
       expect(leftEvents[1]).toEqual({
         groupId: id,
         playerId: memberships.find(m => m.player.username === 'riblet').playerId,
-        type: 'left'
+        type: 'left',
+        role: 'deputy_owner'
       });
 
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -1089,6 +1094,7 @@ describe('Group API', () => {
 
       expect(leftEvents[0]).toEqual({
         groupId: id,
+        role: 'member',
         playerId: createResponse.body.group.memberships.find(m => m.player.username === 'k').playerId,
         type: 'left'
       });
@@ -1880,12 +1886,14 @@ describe('Group API', () => {
       expect(leftEvents[0]).toEqual({
         groupId: globalData.testGroupNoLeaders.id,
         playerId: before.body.memberships.find(m => m.player.username === 'sethmare').playerId,
+        role: 'dragon',
         type: 'left'
       });
 
       expect(leftEvents[1]).toEqual({
         groupId: globalData.testGroupNoLeaders.id,
         playerId: before.body.memberships.find(m => m.player.username === 'zezima').playerId,
+        role: 'member',
         type: 'left'
       });
 
@@ -2338,31 +2346,31 @@ describe('Group API', () => {
 
       expect(response.body[0]).toMatchObject({
         player: { username: 'test player' },
-        role: null,
+        role: 'leader',
         type: 'left'
       });
 
       expect(response.body[1]).toMatchObject({
         player: { username: 'alt player' },
-        role: null,
+        role: 'captain',
         type: 'left'
       });
 
       expect(response.body[2]).toMatchObject({
         player: { username: 'psikoi' },
-        role: null,
+        role: 'achiever',
         type: 'joined'
       });
 
       expect(response.body[3]).toMatchObject({
         player: { username: 'alexsuperfly' },
-        role: null,
+        role: 'leader',
         type: 'joined'
       });
 
       expect(response.body[4]).toMatchObject({
         player: { username: 'rorro' },
-        role: null,
+        role: 'member',
         type: 'joined'
       });
 
@@ -2385,19 +2393,19 @@ describe('Group API', () => {
 
       expect(response.body[0]).toMatchObject({
         player: { username: 'psikoi' },
-        role: null,
+        role: 'achiever',
         type: 'joined'
       });
 
       expect(response.body[1]).toMatchObject({
         player: { username: 'alexsuperfly' },
-        role: null,
+        role: 'leader',
         type: 'joined'
       });
 
       expect(response.body[2]).toMatchObject({
         player: { username: 'rorro' },
-        role: null,
+        role: 'member',
         type: 'joined'
       });
     });
