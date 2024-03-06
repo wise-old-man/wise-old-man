@@ -120,9 +120,11 @@ class JobManager {
     }
 
     for (const queue of this.queues) {
+      logger.info('Checking Cron Queue', { queueName: queue.name }, true);
       const activeJobs = await queue.getRepeatableJobs();
 
       for (const job of activeJobs) {
+        logger.info('Clearing Cron Job', { jobKey: job.key }, true);
         await queue.removeRepeatableByKey(job.key);
       }
     }
