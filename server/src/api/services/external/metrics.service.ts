@@ -77,15 +77,13 @@ class MetricsService {
 
     try {
       await fn();
-      logger.info(`Effect: ${fn.name} (${Date.now() - startTime} ms)`);
+      logger.info(`Effect: ${effectName} (${Date.now() - startTime} ms)`);
       endTimer({ effectName, status: 1 });
     } catch (error) {
-      logger.error(`Effect: ${fn.name} (${Date.now() - startTime} ms)`, { error });
+      logger.error(`Effect: ${effectName} (${Date.now() - startTime} ms)`, { error });
       endTimer({ effectName, status: 0 });
       throw error;
     }
-
-    logger.info(`Effect: ${effectName} (${Date.now() - startTime} ms)`);
   }
 
   async trackJob(jobType: JobType | string, handler: () => Promise<void>) {
