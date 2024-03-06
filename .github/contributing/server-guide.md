@@ -74,11 +74,7 @@ cp .env.example .env
 By default the example files contain the following example snippets
 
 ```
-CORE_DATABASE=wise-old-man_LOCAL
-
-DB_HOST=localhost
-
-POSTGRES_PORT=5432
+CORE_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/wise-old-man_LOCAL?schema=public
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 
@@ -89,11 +85,14 @@ PGADMIN_DEFAULT_EMAIL=test@wiseoldman.net
 PGADMIN_DEFAULT_PASSWORD=postgres
 PGADMIN_PORT=54321
 
-CORE_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${POSTGRES_PORT}/${CORE_DATABASE}?schema=public
+# ADMIN_PASSWORD=
 
-ADMIN_PASSWORD=123abc
+# DISCORD_BOT_API_URL=
 
-DISCORD_BOT_API_URL=
+# DISCORD_MONITORING_WEBHOOK_URL=
+# DISCORD_PATREON_WEBHOOK_URL=
+
+# PATREON_BEARER_TOKEN=
 ```
 
 <br />
