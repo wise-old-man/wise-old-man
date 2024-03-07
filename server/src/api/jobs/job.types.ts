@@ -1,6 +1,5 @@
 import { JobsOptions as BullJobOptions, RateLimiterOptions } from 'bullmq';
 import { AssertPlayerTypePayload } from './instances/AssertPlayerTypeJob';
-import { CheckPlayerBannedPayload } from './instances/CheckPlayerBannedJob';
 import { CheckPlayerRankedPayload } from './instances/CheckPlayerRankedJob';
 import { InvalidatePeriodDeltasPayload } from './instances/InvalidatePeriodDeltasJob';
 import { ReviewNameChangePayload } from './instances/ReviewNameChangeJob';
@@ -17,7 +16,6 @@ export enum JobType {
   CALCULATE_SUMS = 'CALCULATE_SUMS',
   CALCULATE_RANK_LIMITS = 'CALCULATE_RANK_LIMITS',
   CALCULATE_COMPUTED_METRIC_RANK_TABLES = 'CALCULATE_COMPUTED_METRIC_RANK_TABLES',
-  CHECK_PLAYER_BANNED = 'CHECK_PLAYER_BANNED',
   CHECK_PLAYER_RANKED = 'CHECK_PLAYER_RANKED',
   INVALIDATE_PERIOD_DELTAS = 'INVALIDATE_PERIOD_DELTAS',
   SYNC_API_KEYS = 'SYNC_API_KEYS',
@@ -38,7 +36,6 @@ export enum JobType {
 
 export type JobPayload = {
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypePayload;
-  [JobType.CHECK_PLAYER_BANNED]: CheckPlayerBannedPayload;
   [JobType.CHECK_PLAYER_RANKED]: CheckPlayerRankedPayload;
   [JobType.INVALIDATE_PERIOD_DELTAS]: InvalidatePeriodDeltasPayload;
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangePayload;

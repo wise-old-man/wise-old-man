@@ -11,7 +11,6 @@ import AutoUpdatePatronPlayersJob from './instances/AutoUpdatePatronPlayersJob';
 import CalculateComputedMetricRankTablesJob from './instances/CalculateComputedMetricRankTablesJob';
 import CalculateRankLimitsJob from './instances/CalculateRankLimitsJob';
 import CalculateSumsJob from './instances/CalculateSumsJob';
-import CheckPlayerBannedJob from './instances/CheckPlayerBannedJob';
 import CheckPlayerRankedJob from './instances/CheckPlayerRankedJob';
 import InvalidatePeriodDeltasJob from './instances/InvalidatePeriodDeltasJob';
 import SyncApiKeysJob from './instances/SyncApiKeysJob';
@@ -37,7 +36,6 @@ const JOBS: JobDefinition<any>[] = [
   CalculateComputedMetricRankTablesJob,
   CalculateRankLimitsJob,
   CalculateSumsJob,
-  CheckPlayerBannedJob,
   CheckPlayerRankedJob,
   InvalidatePeriodDeltasJob,
   ReviewNameChangeJob,
