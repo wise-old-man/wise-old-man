@@ -1536,7 +1536,7 @@ describe('Player API', () => {
     });
   });
 
-  describe.skip('10. Archiving', () => {
+  describe('10. Archiving', () => {
     it("shouldn't auto-archive, send discord flagged report instead (excessive gains)", async () => {
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
@@ -2193,7 +2193,7 @@ describe('Player API', () => {
     });
   });
 
-  describe.skip('11. View archives', () => {
+  describe('11. View archives', () => {
     it('should not fetch archives (player not found)', async () => {
       const response = await api.get(`/players/alexsuperfly/archives`);
 
