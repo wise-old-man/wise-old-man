@@ -3,9 +3,11 @@ import { z } from 'zod';
 import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period } from '../../../utils';
 import { NotFoundError, ServerError } from '../../errors';
+import { JobType } from '../../jobs';
+import jobManager from '../../jobs/job.manager';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
-import { getPaginationSchema, getDateSchema } from '../../util/validation';
+import { getDateSchema, getPaginationSchema } from '../../util/validation';
 import { findPlayerAchievementProgress } from '../achievements/services/FindPlayerAchievementProgressService';
 import { findPlayerAchievements } from '../achievements/services/FindPlayerAchievementsService';
 import { findPlayerParticipations } from '../competitions/services/FindPlayerParticipationsService';
@@ -219,6 +221,8 @@ router.post(
     } catch (e) {
       throw new ServerError('Failed to update new player post-archive.');
     }
+
+    jobManager.add({ type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW }, { delay: 10_000 });
 
     res.status(200).json(archivedPlayer);
   })

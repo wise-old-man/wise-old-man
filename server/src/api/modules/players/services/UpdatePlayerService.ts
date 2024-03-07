@@ -1,18 +1,19 @@
 import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
-import { PlayerType, PlayerBuild, PlayerStatus } from '../../../../utils';
+import { PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
-import { jobManager, JobType } from '../../../jobs';
-import logger from '../../../util/logging';
-import { formatPlayerDetails, getBuild, sanitize, standardize, validateUsername } from '../player.utils';
-import redisService from '../../../services/external/redis.service';
+import { JobType, jobManager } from '../../../jobs';
 import * as jagexService from '../../../services/external/jagex.service';
+import redisService from '../../../services/external/redis.service';
+import logger from '../../../util/logging';
+import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
+import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
 import { PlayerDetails } from '../player.types';
+import { formatPlayerDetails, getBuild, sanitize, standardize, validateUsername } from '../player.utils';
+import { archivePlayer } from './ArchivePlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
-import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
-import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
 
 type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
@@ -81,11 +82,10 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
     logger.moderation(`[Player:${username}] Flagged`);
 
     if (player.status !== PlayerStatus.FLAGGED) {
-      // const handled =
-      await handlePlayerFlagged(player, previousSnapshot, currentStats);
-      // // If the flag was properly handled (via a player archive),
-      // // call this function recursively, so that the new player can be tracked
-      // if (handled) return updatePlayer(player.username);
+      const handled = await handlePlayerFlagged(player, previousSnapshot, currentStats);
+      // If the flag was properly handled (via a player archive),
+      // call this function recursively, so that the new player can be tracked
+      if (handled) return updatePlayer(player.username);
     }
 
     throw new ServerError('Failed to update: Player is flagged.');
@@ -176,8 +176,8 @@ async function handlePlayerFlagged(player: Player, previousStats: Snapshot, reje
     return false;
   }
 
-  // // no context, we know this is a name transfer and can be auto-archived
-  // await archivePlayer(player);
+  // no context, we know this is a name transfer and can be auto-archived
+  await archivePlayer(player);
 
   return true;
 }
