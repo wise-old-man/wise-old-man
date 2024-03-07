@@ -55,10 +55,10 @@ const JOBS: JobDefinition<any>[] = [
 ];
 
 const CRON_JOBS = [
-  {
-    type: JobType.SCHEDULE_COMPETITION_EVENTS,
-    interval: '* * * * *' // every 1 min
-  },
+  // {
+  //   type: JobType.SCHEDULE_COMPETITION_EVENTS,
+  //   interval: '* * * * *' // every 1 min
+  // },
   // {
   //   type: JobType.SYNC_API_KEYS, // moved to the experimental job manager, for monitoring
   //   interval: '* * * * *' // every 1 min

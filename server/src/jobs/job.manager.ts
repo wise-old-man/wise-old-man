@@ -4,15 +4,20 @@ import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
+import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
 import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
 import { Job, JobPriority } from './job.utils';
 
-const JOBS: (typeof Job)[] = [SyncApiKeysJob, CheckPlayerBannedJob];
+const JOBS: (typeof Job)[] = [SyncApiKeysJob, ScheduleCompetitionEventsJob, CheckPlayerBannedJob];
 
 const CRON_CONFIG = [
   {
-    interval: '* * * * *',
+    interval: '* * * * *', // every 1 min
     job: SyncApiKeysJob
+  },
+  {
+    interval: '* * * * *', // every 1 min
+    job: ScheduleCompetitionEventsJob
   }
 ];
 
@@ -91,24 +96,12 @@ class JobManager {
         defaultJobOptions: { removeOnComplete: true, removeOnFail: true, ...(options || {}) }
       });
 
-      const worker = new Worker(
-        jobName,
-        async bullJob => {
-          try {
-            logger.info('Processing job', { jobName }, true);
-            await this.processJob(bullJob, jobType);
-          } catch (error) {
-            logger.error('Failed to process job', { jobName, error }, true);
-            throw error;
-          }
-        },
-        {
-          prefix: 'experimental',
-          limiter: options?.rateLimiter,
-          connection: redisConfig,
-          autorun: false
-        }
-      );
+      const worker = new Worker(jobName, bullJob => this.processJob(bullJob, jobType), {
+        prefix: 'experimental',
+        limiter: options?.rateLimiter,
+        connection: redisConfig,
+        autorun: false
+      });
 
       this.schedulers.push(scheduler);
       this.queues.push(queue);
@@ -126,11 +119,9 @@ class JobManager {
     }
 
     for (const queue of this.queues) {
-      logger.info('Checking Cron Queue', { queueName: queue.name }, true);
       const activeJobs = await queue.getRepeatableJobs();
 
       for (const job of activeJobs) {
-        logger.info('Clearing Cron Job', { jobKey: job.key }, true);
         await queue.removeRepeatableByKey(job.key);
       }
     }
@@ -144,12 +135,8 @@ class JobManager {
         throw new Error(`No job implementation found for type "${jobName}".`);
       }
 
-      try {
-        logger.info('Scheduling cron job', { jobName, interval: cron.interval }, true);
-        await matchingQueue.add(jobName, {}, { repeat: { pattern: cron.interval } });
-      } catch (error) {
-        logger.error('Failed to schedule cron job', { jobName, error, interval: cron.interval }, true);
-      }
+      logger.info('Scheduling cron job', { jobName, interval: cron.interval }, true);
+      await matchingQueue.add(jobName, {}, { repeat: { pattern: cron.interval } });
     }
   }
 
