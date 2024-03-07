@@ -45,6 +45,7 @@ export type JobPayload = {
   [JobType.UPDATE_COMPETITION_SCORE]: UpdateCompetitionScorePayload;
   [JobType.UPDATE_GROUP_SCORE]: UpdateGroupScorePayload;
   [JobType.UPDATE_PLAYER]: UpdatePlayerJobPayload;
+  [JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW]: undefined;
   [JobType.SYNC_PATRONS]: undefined;
   [JobType.CALCULATE_RANK_LIMITS]: CalculateRankLimitsPayload;
   [JobType.CALCULATE_SUMS]: CalculateSumsPayload;
