@@ -1,5 +1,4 @@
-import prisma from '../../../prisma';
-import redisService from '../../services/external/redis.service';
+import { SyncApiKeysJob as NewSyncApiKeysJob } from '../../../jobs/instances/SyncApiKeysJob';
 import { JobType, JobDefinition } from '../job.types';
 
 class SyncApiKeysJob implements JobDefinition<unknown> {
@@ -10,12 +9,10 @@ class SyncApiKeysJob implements JobDefinition<unknown> {
   }
 
   async execute() {
-    const apiKeys = await prisma.apiKey.findMany();
-
-    // Cache all these api keys in Redis, so that they can be quickly accessed on every API request
-    for (const key of apiKeys) {
-      await redisService.setValue('api-key', key.id, String(key.master));
-    }
+    // We're migrating to a new job manager, but jobs for the current one are still in-queue
+    // so to prevent duplicating code, just use the old job manager to execute the job on the new one
+    // Once this old job is no longer in use, we can remove this entire file.
+    await new NewSyncApiKeysJob().execute();
   }
 }
 

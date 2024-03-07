@@ -6,9 +6,15 @@ import { getThreadIndex } from '../env';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
 import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
+import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { Job, JobPriority } from './job.utils';
 
-const JOBS: (typeof Job)[] = [SyncApiKeysJob, ScheduleCompetitionEventsJob, CheckPlayerBannedJob];
+const JOBS: (typeof Job)[] = [
+  SyncApiKeysJob,
+  SyncPatronsJob,
+  ScheduleCompetitionEventsJob,
+  CheckPlayerBannedJob
+];
 
 const CRON_CONFIG = [
   {
@@ -18,6 +24,10 @@ const CRON_CONFIG = [
   {
     interval: '* * * * *', // every 1 min
     job: ScheduleCompetitionEventsJob
+  },
+  {
+    interval: '* * * * *', // every 1 min
+    job: SyncPatronsJob
   }
 ];
 
