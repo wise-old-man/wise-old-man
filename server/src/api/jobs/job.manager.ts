@@ -11,7 +11,6 @@ import AutoUpdatePatronPlayersJob from './instances/AutoUpdatePatronPlayersJob';
 import CalculateComputedMetricRankTablesJob from './instances/CalculateComputedMetricRankTablesJob';
 import CalculateRankLimitsJob from './instances/CalculateRankLimitsJob';
 import CalculateSumsJob from './instances/CalculateSumsJob';
-import CheckPlayerBannedJob from './instances/CheckPlayerBannedJob';
 import CheckPlayerRankedJob from './instances/CheckPlayerRankedJob';
 import InvalidatePeriodDeltasJob from './instances/InvalidatePeriodDeltasJob';
 import SyncApiKeysJob from './instances/SyncApiKeysJob';
@@ -37,7 +36,6 @@ const JOBS: JobDefinition<any>[] = [
   CalculateComputedMetricRankTablesJob,
   CalculateRankLimitsJob,
   CalculateSumsJob,
-  CheckPlayerBannedJob,
   CheckPlayerRankedJob,
   InvalidatePeriodDeltasJob,
   ReviewNameChangeJob,
@@ -57,26 +55,26 @@ const JOBS: JobDefinition<any>[] = [
 ];
 
 const CRON_JOBS = [
-  {
-    type: JobType.SCHEDULE_COMPETITION_EVENTS,
-    interval: '* * * * *' // every 1 min
-  },
+  // {
+  //   type: JobType.SCHEDULE_COMPETITION_EVENTS,
+  //   interval: '* * * * *' // every 1 min
+  // },
   // {
   //   type: JobType.SYNC_API_KEYS, // moved to the experimental job manager, for monitoring
   //   interval: '* * * * *' // every 1 min
   // },
-  {
-    type: JobType.SYNC_PATRONS,
-    interval: '* * * * *' // every 1 min
-  },
-  {
-    type: JobType.AUTO_UPDATE_PATRON_PLAYERS,
-    interval: '*/5 * * * *' // every 5 mins
-  },
-  {
-    type: JobType.AUTO_UPDATE_PATRON_GROUPS,
-    interval: '*/5 * * * *' // every 5 mins
-  },
+  // {
+  //   type: JobType.SYNC_PATRONS,
+  //   interval: '* * * * *' // every 1 min
+  // },
+  // {
+  //   type: JobType.AUTO_UPDATE_PATRON_PLAYERS,
+  //   interval: '*/5 * * * *' // every 5 mins
+  // },
+  // {
+  //   type: JobType.AUTO_UPDATE_PATRON_GROUPS,
+  //   interval: '*/5 * * * *' // every 5 mins
+  // },
   {
     type: JobType.SCHEDULE_DELTA_INVALIDATIONS,
     interval: '0 */6 * * *' // every 6 hours
