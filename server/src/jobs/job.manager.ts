@@ -3,6 +3,7 @@ import metricsService from '../api/services/external/metrics.service';
 import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
+import { AutoUpdatePatronPlayersJob } from './instances/AutoUpdatePatronPlayersJob';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
 import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
@@ -10,10 +11,11 @@ import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { Job, JobPriority } from './job.utils';
 
 const JOBS: (typeof Job)[] = [
-  SyncApiKeysJob,
-  SyncPatronsJob,
+  AutoUpdatePatronPlayersJob,
+  CheckPlayerBannedJob,
   ScheduleCompetitionEventsJob,
-  CheckPlayerBannedJob
+  SyncApiKeysJob,
+  SyncPatronsJob
 ];
 
 const CRON_CONFIG = [
@@ -28,6 +30,10 @@ const CRON_CONFIG = [
   {
     interval: '* * * * *', // every 1 min
     job: SyncPatronsJob
+  },
+  {
+    interval: '*/5 * * * *', // every 5 mins
+    job: AutoUpdatePatronPlayersJob
   }
 ];
 

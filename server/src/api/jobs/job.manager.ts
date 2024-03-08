@@ -67,10 +67,10 @@ const CRON_JOBS = [
   //   type: JobType.SYNC_PATRONS,
   //   interval: '* * * * *' // every 1 min
   // },
-  {
-    type: JobType.AUTO_UPDATE_PATRON_PLAYERS,
-    interval: '*/5 * * * *' // every 5 mins
-  },
+  // {
+  //   type: JobType.AUTO_UPDATE_PATRON_PLAYERS,
+  //   interval: '*/5 * * * *' // every 5 mins
+  // },
   {
     type: JobType.AUTO_UPDATE_PATRON_GROUPS,
     interval: '*/5 * * * *' // every 5 mins
