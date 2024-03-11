@@ -11,14 +11,7 @@ import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { Job, JobPriority } from './job.utils';
 
-const JOBS: (typeof Job)[] = [
-  AutoUpdatePatronGroupsJob,
-  AutoUpdatePatronPlayersJob,
-  CheckPlayerBannedJob,
-  ScheduleCompetitionEventsJob,
-  SyncApiKeysJob,
-  SyncPatronsJob
-];
+const DISPATCHABLE_JOBS = [CheckPlayerBannedJob, SyncApiKeysJob, SyncPatronsJob] as const;
 
 const CRON_CONFIG = [
   {
@@ -41,7 +34,7 @@ const CRON_CONFIG = [
     interval: '*/5 * * * *', // every 5 mins
     job: AutoUpdatePatronGroupsJob
   }
-];
+] as const;
 
 class JobManager {
   private queues: Queue[];
@@ -54,7 +47,7 @@ class JobManager {
     this.schedulers = [];
   }
 
-  async add(job: Job) {
+  async add(job: InstanceType<(typeof DISPATCHABLE_JOBS)[number]>) {
     if (process.env.NODE_ENV === 'test') return;
 
     const matchingQueue = this.queues.find(queue => queue.name === job.jobName);
@@ -104,8 +97,19 @@ class JobManager {
   }
 
   async init() {
-    for (const jobType of JOBS) {
-      const { jobName, options } = new jobType();
+    const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
+
+    const jobsToInit = [...DISPATCHABLE_JOBS];
+
+    if (isMainThread) {
+      // Only initialize queues and workers for cron jobs if we're running this on the "main" thread.
+      jobsToInit.push(
+        ...CRON_CONFIG.map(c => c.job).filter(c => !jobsToInit.map(j => j.name).includes(c.name))
+      );
+    }
+
+    for (const jobType of jobsToInit) {
+      const { jobName, options } = new (jobType as typeof Job)();
 
       const scheduler = new QueueScheduler(jobName, {
         prefix: 'experimental',
@@ -134,9 +138,9 @@ class JobManager {
       worker.run();
     }
 
-    // If running through pm2 (production), only run cronjobs on the first CPU core.
+    // If running through pm2 (production), only run cronjobs on the "main" thread (index 0).
     // Otherwise, on a 4 core server, every cronjob would run 4x as often.
-    if (getThreadIndex() !== 0 && process.env.NODE_ENV !== 'development') {
+    if (!isMainThread) {
       return;
     }
 
