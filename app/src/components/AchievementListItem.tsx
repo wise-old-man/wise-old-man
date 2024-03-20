@@ -11,7 +11,7 @@ export function AchievementListItem(props: AchievementProgress) {
         <span className="line-clamp-1 text-sm font-medium">{props.name}</span>
         <span className="line-clamp-1 text-xs text-gray-200">
           {props.createdAt ? (
-            <AchievementDate {...props} />
+            <AchievementDate {...props} createdAt={props.createdAt} />
           ) : (
             <span className="leading-[1.125rem]">
               {formatNumber(props.threshold - Math.max(0, props.currentValue), true)} left

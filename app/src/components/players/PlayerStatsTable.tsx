@@ -173,9 +173,16 @@ function PlayerSkillsTable(
   props: PropsWithChildren<{ player: PlayerDetails; showVirtualLevels: boolean }>
 ) {
   const { children, player, showVirtualLevels } = props;
-  const skillValues = Object.values(player.latestSnapshot.data.skills)
-  .map(v => (showVirtualLevels && v.metric === Skill.OVERALL) 
-    ? { ...v, level: getVirtualTotalLevel(player.latestSnapshot.data.skills)} : v);
+
+  if (!player.latestSnapshot) {
+    throw new Error("Player does not have a valid snapshot.");
+  }
+
+  const skillValues = Object.values(player.latestSnapshot.data.skills).map((v) =>
+    showVirtualLevels && v.metric === Skill.OVERALL
+      ? { ...v, level: getVirtualTotalLevel(player.latestSnapshot!.data.skills) }
+      : v
+  );
 
   const rows = [
     {
@@ -185,7 +192,7 @@ function PlayerSkillsTable(
       ehp: player.latestSnapshot.data.computed.ehp.value,
       rank: player.latestSnapshot.data.computed.ehp.rank,
     },
-    ...skillValues
+    ...skillValues,
   ];
 
   // Filter out skills based on player build
@@ -207,7 +214,8 @@ function PlayerSkillsTable(
 }
 
 function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): ColumnDef<SkillValue>[] {
-  const hasSpecialEhp = player.type !== PlayerType.REGULAR || ['f2p', 'f2p_lvl3', 'lvl3'].includes(player.build);
+  const hasSpecialEhp =
+    player.type !== PlayerType.REGULAR || ["f2p", "f2p_lvl3", "lvl3"].includes(player.build);
 
   return [
     {
@@ -216,7 +224,6 @@ function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): 
         return <TableSortButton column={column}>Skill</TableSortButton>;
       },
       cell: ({ row }) => {
-
         return (
           <div className="flex items-center gap-x-2">
             <MetricIconSmall metric={row.original.metric} />
@@ -341,6 +348,10 @@ function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): 
 function PlayerBossesTable(props: PropsWithChildren<{ player: PlayerDetails }>) {
   const { children, player } = props;
 
+  if (!player.latestSnapshot) {
+    throw new Error("Player does not have a valid snapshot.");
+  }
+
   const rows = [
     {
       metric: Metric.EHB as Boss,
@@ -464,6 +475,10 @@ function getBossColumnDefinitions(player: Player): ColumnDef<BossValue>[] {
 
 function PlayerActivitiesTable(props: PropsWithChildren<{ player: PlayerDetails }>) {
   const { children, player } = props;
+
+  if (!player.latestSnapshot) {
+    throw new Error("Player does not have a valid snapshot.");
+  }
 
   const rows = Object.values(player.latestSnapshot.data.activities);
 
