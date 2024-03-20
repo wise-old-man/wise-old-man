@@ -1,4 +1,5 @@
 import {
+  Achievement,
   AchievementProgress,
   METRICS,
   Metric,
@@ -189,10 +190,7 @@ function ProgressTableRow(props: ProgressTableRowProps) {
                 </TooltipTrigger>
                 <TooltipContent className="p-0">
                   {a.createdAt ? (
-                    <AchievementAccuracyTooltip
-                      achievement={{ ...a, createdAt: a.createdAt }}
-                      showTitle
-                    />
+                    <AchievementAccuracyTooltip achievement={{ ...a } as Achievement} showTitle />
                   ) : (
                     <IncompleteAchievementTooltip achievement={a} />
                   )}
