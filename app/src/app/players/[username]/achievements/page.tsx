@@ -1,4 +1,5 @@
 import {
+  Achievement,
   AchievementProgress,
   METRICS,
   Metric,
@@ -189,7 +190,7 @@ function ProgressTableRow(props: ProgressTableRowProps) {
                 </TooltipTrigger>
                 <TooltipContent className="p-0">
                   {a.createdAt ? (
-                    <AchievementAccuracyTooltip achievement={a} showTitle />
+                    <AchievementAccuracyTooltip achievement={{ ...a } as Achievement} showTitle />
                   ) : (
                     <IncompleteAchievementTooltip achievement={a} />
                   )}
@@ -212,8 +213,8 @@ function RecentAchievements(props: RecentAchievementsProps) {
   const { metricType, achievements } = props;
 
   const recentAchievements = achievements
-    .filter((a) => !metricType || MetricProps[a.metric].type === metricType)
-    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .filter((a) => a.createdAt && (!metricType || MetricProps[a.metric].type === metricType))
+    .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime())
     .slice(0, 5);
 
   if (recentAchievements.length === 0) return null;
