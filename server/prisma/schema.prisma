@@ -118,6 +118,7 @@ model Delta {
   kraken                           Int       @default(0)
   kreearra                         Int       @default(0)
   kril_tsutsaroth                  Int       @default(0)
+  lunar_chests                     Int       @default(0)
   mimic                            Int       @default(0)
   nex                              Int       @default(0)
   nightmare                        Int       @default(0)
@@ -128,6 +129,7 @@ model Delta {
   scorpia                          Int       @default(0)
   scurrius                         Int       @default(0)
   skotizo                          Int       @default(0)
+  sol_heredit                      Int       @default(0)
   spindel                          Int       @default(0)
   tempoross                        Int       @default(0)
   the_gauntlet                     Int       @default(0)
@@ -162,6 +164,7 @@ model Delta {
   pvp_arena                        Int       @default(0)
   soul_wars_zeal                   Int       @default(0)
   guardians_of_the_rift            Int       @default(0)
+  colosseum_glory                  Int       @default(0)
   ehp                              Float     @default(0)
   ehb                              Float     @default(0)
 
@@ -502,6 +505,8 @@ model Snapshot {
   kreearraKills                         Int       @default(-1)
   kril_tsutsarothRank                   Int       @default(-1)
   kril_tsutsarothKills                  Int       @default(-1)
+  lunar_chestsRank                      Int       @default(-1)
+  lunar_chestsKills                     Int       @default(-1)
   mimicRank                             Int       @default(-1)
   mimicKills                            Int       @default(-1)
   nightmareRank                         Int       @default(-1)
@@ -518,6 +523,8 @@ model Snapshot {
   scurriusKills                         Int       @default(-1)
   skotizoRank                           Int       @default(-1)
   skotizoKills                          Int       @default(-1)
+  sol_hereditRank                       Int       @default(-1)
+  sol_hereditKills                      Int       @default(-1)
   spindelRank                           Int       @default(-1)
   spindelKills                          Int       @default(-1)
   the_gauntletRank                      Int       @default(-1)
@@ -570,6 +577,8 @@ model Snapshot {
   nexRank                               Int       @default(-1)
   guardians_of_the_riftScore            Int       @default(-1)
   guardians_of_the_riftRank             Int       @default(-1)
+  colosseum_gloryScore                  Int       @default(-1)
+  colosseum_gloryRank                   Int       @default(-1)
 
   // Relations
   player                     Player          @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -1286,6 +1295,7 @@ enum Metric {
   kraken
   kreearra
   kril_tsutsaroth
+  lunar_chests
   mimic
   nex
   nightmare
@@ -1295,6 +1305,7 @@ enum Metric {
   scorpia
   scurrius
   skotizo
+  sol_heredit
   spindel
   the_gauntlet
   the_corrupted_gauntlet
@@ -1320,6 +1331,7 @@ enum Metric {
   theatre_of_blood_hard_mode
   phosanis_nightmare
   guardians_of_the_rift
+  colosseum_glory
 
   @@map("metric")
 }

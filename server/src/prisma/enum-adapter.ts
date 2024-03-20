@@ -81,7 +81,8 @@ export const Activity = {
   LAST_MAN_STANDING: 'last_man_standing',
   PVP_ARENA: 'pvp_arena',
   SOUL_WARS_ZEAL: 'soul_wars_zeal',
-  GUARDIANS_OF_THE_RIFT: 'guardians_of_the_rift'
+  GUARDIANS_OF_THE_RIFT: 'guardians_of_the_rift',
+  COLOSSEUM_GLORY: 'colosseum_glory'
 } as const;
 
 export const Boss = {
@@ -114,6 +115,7 @@ export const Boss = {
   KRAKEN: 'kraken',
   KREEARRA: 'kreearra',
   KRIL_TSUTSAROTH: 'kril_tsutsaroth',
+  LUNAR_CHESTS: 'lunar_chests',
   MIMIC: 'mimic',
   NEX: 'nex',
   NIGHTMARE: 'nightmare',
@@ -124,6 +126,7 @@ export const Boss = {
   SCORPIA: 'scorpia',
   SCURRIUS: 'scurrius',
   SKOTIZO: 'skotizo',
+  SOL_HEREDIT: 'sol_heredit',
   SPINDEL: 'spindel',
   TEMPOROSS: 'tempoross',
   THE_GAUNTLET: 'the_gauntlet',

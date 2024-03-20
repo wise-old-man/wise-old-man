@@ -112,6 +112,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
     [Boss.KRAKEN]: { name: 'Kraken' },
     [Boss.KREEARRA]: { name: "Kree'Arra" },
     [Boss.KRIL_TSUTSAROTH]: { name: "K'ril Tsutsaroth" },
+    [Boss.LUNAR_CHESTS]: { name: 'Lunar Chests' },
     [Boss.MIMIC]: { name: 'Mimic', minimumValue: 1 },
     [Boss.NEX]: { name: 'Nex' },
     [Boss.NIGHTMARE]: { name: 'Nightmare' },
@@ -122,6 +123,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
     [Boss.SCORPIA]: { name: 'Scorpia' },
     [Boss.SCURRIUS]: { name: 'Scurrius' },
     [Boss.SKOTIZO]: { name: 'Skotizo' },
+    [Boss.SOL_HEREDIT]: { name: 'Sol Heredit' },
     [Boss.SPINDEL]: { name: 'Spindel' },
     [Boss.TEMPOROSS]: { name: 'Tempoross' },
     [Boss.THE_GAUNTLET]: { name: 'The Gauntlet' },
@@ -167,7 +169,8 @@ const ActivityProps: MapOf<Activity, ActivityProperties> = mapValues(
     [Activity.LAST_MAN_STANDING]: { name: 'Last Man Standing', minimumValue: 500 },
     [Activity.PVP_ARENA]: { name: 'PvP Arena', minimumValue: 2525 },
     [Activity.SOUL_WARS_ZEAL]: { name: 'Soul Wars Zeal', minimumValue: 200 },
-    [Activity.GUARDIANS_OF_THE_RIFT]: { name: 'Guardians of the Rift', minimumValue: 2 }
+    [Activity.GUARDIANS_OF_THE_RIFT]: { name: 'Guardians of the Rift', minimumValue: 2 },
+    [Activity.COLOSSEUM_GLORY]: { name: 'Colosseum Glory', minimumValue: 300 }
   },
   props => ({
     ...props,
