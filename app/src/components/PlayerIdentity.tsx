@@ -1,9 +1,6 @@
 import React from "react";
 import {
-  Activity,
   CountryProps,
-  GroupRoleProps,
-  MemberActivityWithPlayer,
   Player,
   PlayerBuild,
   PlayerBuildProps,
@@ -14,7 +11,7 @@ import {
 import Link from "next/link";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
-import { Flag, GroupRoleIcon, PlayerTypeIcon } from "./Icon";
+import { Flag, PlayerTypeIcon } from "./Icon";
 import { Badge } from "./Badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
