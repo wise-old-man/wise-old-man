@@ -1,6 +1,9 @@
 import React from "react";
 import {
+  Activity,
   CountryProps,
+  GroupRoleProps,
+  MemberActivityWithPlayer,
   Player,
   PlayerBuild,
   PlayerBuildProps,
@@ -11,7 +14,7 @@ import {
 import Link from "next/link";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
-import { Flag, PlayerTypeIcon } from "./Icon";
+import { Flag, GroupRoleIcon, PlayerTypeIcon } from "./Icon";
 import { Badge } from "./Badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
@@ -22,10 +25,11 @@ interface PlayerIdentityProps {
   caption?: JSX.Element | string | undefined;
   renderTooltip?: boolean;
   href?: string;
+  activity?: MemberActivityWithPlayer;
 }
 
 export function PlayerIdentity(props: PlayerIdentityProps) {
-  const { player, caption, href, renderTooltip = true } = props;
+  const { player, caption, href, renderTooltip = true, activity } = props;
 
   let icon: React.ReactNode;
 
@@ -73,16 +77,16 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
         </div>
       </div>
       {renderTooltip && (
-        <TooltipContent className="min-w-[16rem] max-w-lg p-0">
-          <PlayerIdentityTooltip player={player} />
+        <TooltipContent className="min-w-[16rem] max-w-xl p-0 sm:max-w-2xl">
+          <PlayerIdentityTooltip player={player} activity={activity} />
         </TooltipContent>
       )}
     </Tooltip>
   );
 }
 
-export function PlayerIdentityTooltip(props: { player: Player }) {
-  const { player } = props;
+export function PlayerIdentityTooltip(props: { player: Player; activity?: MemberActivityWithPlayer }) {
+  const { player, activity } = props;
 
   const updatedTimeago = `Updated ${timeago.format(player.updatedAt || new Date())}`;
 
@@ -117,9 +121,9 @@ export function PlayerIdentityTooltip(props: { player: Player }) {
           </span>
         )}
       </div>
-      <div className="flex divide-x divide-gray-500">
+      <div className="flex flex-col divide-y divide-gray-500 md:flex-row md:divide-x">
         {player.patron && (
-          <div className="flex items-center px-4">
+          <div className="flex items-center justify-center py-4 md:px-4">
             <a href="https://wiseoldman.net/patreon" target="_blank" rel="noopener noreferrer">
               <Badge variant="gold">Patreon Supporter</Badge>
             </a>
@@ -132,6 +136,15 @@ export function PlayerIdentityTooltip(props: { player: Player }) {
             <span>{PlayerTypeProps[player.type].name}</span>
           </div>
         </div>
+        {activity && activity.previousRole && (
+          <div className="flex min-w-[5rem] flex-col px-4 py-3">
+            <span className="mb-1 text-xs text-gray-200">Prev. Role</span>
+            <div className="flex items-center gap-x-2">
+              <GroupRoleIcon role={activity.previousRole} />
+              <span>{GroupRoleProps[activity.previousRole].name}</span>
+            </div>
+          </div>
+        )}
         {player.build !== PlayerBuild.MAIN && (
           <div className="flex min-w-[5rem] flex-col px-4 py-3">
             <span className="mb-1 text-xs text-gray-200">Build</span>

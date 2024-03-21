@@ -40,7 +40,7 @@ export function GroupActivityItem(props: GroupActivityItemProps) {
 
   return (
     <div className="flex items-center justify-between gap-x-3 px-4 py-3">
-      <PlayerIdentity player={activity.player} caption={typeElement} />
+      <PlayerIdentity player={activity.player} caption={typeElement} activity={activity} />
       <Tooltip>
         <TooltipTrigger asChild>
           <span className="shrink-0 text-xs text-gray-200">{timeago.format(activity.createdAt)}</span>
