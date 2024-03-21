@@ -75,18 +75,18 @@ const CRON_JOBS = [
   //   type: JobType.AUTO_UPDATE_PATRON_GROUPS,
   //   interval: '*/5 * * * *' // every 5 mins
   // },
-  {
-    type: JobType.SCHEDULE_DELTA_INVALIDATIONS,
-    interval: '0 */6 * * *' // every 6 hours
-  },
-  {
-    type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES,
-    interval: '0 */12 * * *' // every 12 hours
-  },
-  {
-    type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW,
-    interval: '0 * * * *' // every hour
-  },
+  // {
+  //   type: JobType.SCHEDULE_DELTA_INVALIDATIONS,
+  //   interval: '0 */6 * * *' // every 6 hours
+  // },
+  // {
+  //   type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES,
+  //   interval: '0 */12 * * *' // every 12 hours
+  // },
+  // {
+  //   type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW,
+  //   interval: '0 * * * *' // every hour
+  // },
   {
     type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
     interval: '0 8 * * *' // everyday at 8AM

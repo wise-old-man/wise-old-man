@@ -7,18 +7,20 @@ import { AutoUpdatePatronGroupsJob } from './instances/AutoUpdatePatronGroupsJob
 import { AutoUpdatePatronPlayersJob } from './instances/AutoUpdatePatronPlayersJob';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
+import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalidationsJob';
+import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
 import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
+import { ScheduleCompetitionScoreUpdatesJob } from './instances/ScheduleCompetitionScoreUpdatesJob';
+import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { Job, JobPriority } from './job.utils';
 
-const JOBS: (typeof Job)[] = [
-  AutoUpdatePatronGroupsJob,
-  AutoUpdatePatronPlayersJob,
+const DISPATCHABLE_JOBS = [
   CheckPlayerBannedJob,
-  ScheduleCompetitionEventsJob,
   SyncApiKeysJob,
-  SyncPatronsJob
-];
+  SyncPatronsJob,
+  UpdateCompetitionScoreJob
+] as const;
 
 const CRON_CONFIG = [
   {
@@ -40,8 +42,20 @@ const CRON_CONFIG = [
   {
     interval: '*/5 * * * *', // every 5 mins
     job: AutoUpdatePatronGroupsJob
+  },
+  {
+    interval: '0 * * * *', // every hour
+    job: ScheduleFlaggedPlayerReviewJob
+  },
+  {
+    interval: '0 */6 * * *', // every 6 hours
+    job: ScheduleDeltaInvalidationsJob
+  },
+  {
+    interval: '0 */12 * * *', // every 12 hours
+    job: ScheduleCompetitionScoreUpdatesJob
   }
-];
+] as const;
 
 class JobManager {
   private queues: Queue[];
@@ -54,7 +68,7 @@ class JobManager {
     this.schedulers = [];
   }
 
-  async add(job: Job) {
+  async add(job: InstanceType<(typeof DISPATCHABLE_JOBS)[number]>) {
     if (process.env.NODE_ENV === 'test') return;
 
     const matchingQueue = this.queues.find(queue => queue.name === job.jobName);
@@ -104,8 +118,19 @@ class JobManager {
   }
 
   async init() {
-    for (const jobType of JOBS) {
-      const { jobName, options } = new jobType();
+    const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
+
+    const jobsToInit = [...DISPATCHABLE_JOBS];
+
+    if (isMainThread) {
+      // Only initialize queues and workers for cron jobs if we're running this on the "main" thread.
+      jobsToInit.push(
+        ...CRON_CONFIG.map(c => c.job).filter(c => !jobsToInit.map(j => j.name).includes(c.name))
+      );
+    }
+
+    for (const jobType of jobsToInit) {
+      const { jobName, options } = new (jobType as typeof Job)();
 
       const scheduler = new QueueScheduler(jobName, {
         prefix: 'experimental',
@@ -134,9 +159,9 @@ class JobManager {
       worker.run();
     }
 
-    // If running through pm2 (production), only run cronjobs on the first CPU core.
+    // If running through pm2 (production), only run cronjobs on the "main" thread (index 0).
     // Otherwise, on a 4 core server, every cronjob would run 4x as often.
-    if (getThreadIndex() !== 0 && process.env.NODE_ENV !== 'development') {
+    if (!isMainThread) {
       return;
     }
 
