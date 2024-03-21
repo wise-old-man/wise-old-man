@@ -7,6 +7,7 @@ import { AutoUpdatePatronGroupsJob } from './instances/AutoUpdatePatronGroupsJob
 import { AutoUpdatePatronPlayersJob } from './instances/AutoUpdatePatronPlayersJob';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
+import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalidationsJob';
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
 import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
@@ -24,10 +25,6 @@ const CRON_CONFIG = [
     job: ScheduleCompetitionEventsJob
   },
   {
-    interval: '0 * * * *', // every hour
-    job: ScheduleFlaggedPlayerReviewJob
-  },
-  {
     interval: '* * * * *', // every 1 min
     job: SyncPatronsJob
   },
@@ -38,6 +35,14 @@ const CRON_CONFIG = [
   {
     interval: '*/5 * * * *', // every 5 mins
     job: AutoUpdatePatronGroupsJob
+  },
+  {
+    interval: '0 * * * *', // every hour
+    job: ScheduleFlaggedPlayerReviewJob
+  },
+  {
+    interval: '0 */6 * * *', // every 6 hours
+    job: ScheduleDeltaInvalidationsJob
   }
 ] as const;
 
