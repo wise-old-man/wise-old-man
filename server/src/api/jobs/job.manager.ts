@@ -79,10 +79,10 @@ const CRON_JOBS = [
   //   type: JobType.SCHEDULE_DELTA_INVALIDATIONS,
   //   interval: '0 */6 * * *' // every 6 hours
   // },
-  {
-    type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES,
-    interval: '0 */12 * * *' // every 12 hours
-  },
+  // {
+  //   type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES,
+  //   interval: '0 */12 * * *' // every 12 hours
+  // },
   // {
   //   type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW,
   //   interval: '0 * * * *' // every hour
