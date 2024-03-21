@@ -7,7 +7,7 @@ import apiServer from '../../../src/api';
 import * as nameChangeEvents from '../../../src/api/modules/name-changes/name-change.events';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
-import { buildSnapshot } from '../../../src/api/modules/snapshots/services/BuildSnapshotService';
+import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -1417,7 +1417,7 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await buildSnapshot(oldPlayerId, globalData.hiscoresRawData);
+  const snapshotData = await parseHiscoresSnapshot(oldPlayerId, globalData.hiscoresRawData);
 
   METRICS.forEach(m => {
     filteredSnapshotData[getMetricValueKey(m)] = snapshotData[getMetricValueKey(m)];
@@ -1518,7 +1518,7 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await buildSnapshot(oldPlayerId, globalData.hiscoresRawData);
+  const snapshotData = await parseHiscoresSnapshot(oldPlayerId, globalData.hiscoresRawData);
 
   METRICS.forEach(m => {
     filteredSnapshotData[getMetricValueKey(m)] = snapshotData[getMetricValueKey(m)];

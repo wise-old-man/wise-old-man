@@ -1,11 +1,11 @@
-import { Period, PeriodProps, Player } from '../../../../utils';
 import prisma from '../../../../prisma';
+import { Period, PeriodProps, Player } from '../../../../utils';
 import { RateLimitError } from '../../../errors';
-import * as playerUtils from '../player.utils';
 import * as cmlService from '../../../services/external/cml.service';
+import { SnapshotFragment } from '../../snapshots/snapshot.types';
+import { parseCMLSnapshot } from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
-import { SnapshotDataSource, SnapshotFragment } from '../../snapshots/snapshot.types';
-import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
+import * as playerUtils from '../player.utils';
 
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 
@@ -53,9 +53,7 @@ async function importCMLHistorySince(id: number, username: string, time: number)
   const history = await cmlService.getCMLHistory(username, time);
 
   // Convert the CML csv data to Snapshot instances
-  const snapshots = await Promise.all(
-    history.map(row => buildSnapshot(id, row, SnapshotDataSource.CRYSTAL_MATH_LABS))
-  );
+  const snapshots = await Promise.all(history.map(row => parseCMLSnapshot(id, row)));
 
   // Ignore any CML snapshots past May 10th 2020 (when we introduced boss tracking)
   const pastSnapshots = snapshots.filter(s => s.createdAt < new Date('2020-05-10'));

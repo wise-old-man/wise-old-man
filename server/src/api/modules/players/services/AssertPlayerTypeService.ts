@@ -1,10 +1,10 @@
-import { BadRequestError, ServerError } from '../../../errors';
 import prisma, { Player } from '../../../../prisma';
 import { PlayerType } from '../../../../utils';
-import logger from '../../../util/logging';
+import { BadRequestError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
+import logger from '../../../util/logging';
+import { parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
-import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
 
 type AssertPlayerTypeResult = [type: PlayerType, player: Player, changed: boolean];
 
@@ -68,7 +68,7 @@ async function getOverallExperience(player: Pick<Player, 'username' | 'type'>, t
 
     // Convert the csv data to a Snapshot instance
     // The playerId doesn't matter here, this snapshot won't be saved to this id
-    const snapshot = await buildSnapshot(1, hiscoresCSV);
+    const snapshot = await parseHiscoresSnapshot(1, hiscoresCSV);
 
     return snapshot.overallExperience;
   } catch (e) {
