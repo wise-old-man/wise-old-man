@@ -22,14 +22,14 @@ import WarningFilledIcon from "~/assets/warning_filled.svg";
 
 interface PlayerIdentityProps {
   player: Player;
-  caption?: JSX.Element | string | undefined;
+  caption?: React.JSX.Element | string | undefined;
   renderTooltip?: boolean;
   href?: string;
-  activity?: MemberActivityWithPlayer;
+  moreContextTooltip?: React.JSX.Element | null;
 }
 
 export function PlayerIdentity(props: PlayerIdentityProps) {
-  const { player, caption, href, renderTooltip = true, activity } = props;
+  const { player, caption, href, renderTooltip = true, moreContextTooltip } = props;
 
   let icon: React.ReactNode;
 
@@ -78,15 +78,15 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
       </div>
       {renderTooltip && (
         <TooltipContent className="min-w-[16rem] max-w-xl p-0 sm:max-w-2xl">
-          <PlayerIdentityTooltip player={player} activity={activity} />
+          <PlayerIdentityTooltip player={player} moreContextTooltip={moreContextTooltip} />
         </TooltipContent>
       )}
     </Tooltip>
   );
 }
 
-export function PlayerIdentityTooltip(props: { player: Player; activity?: MemberActivityWithPlayer }) {
-  const { player, activity } = props;
+export function PlayerIdentityTooltip(props: { player: Player; moreContextTooltip?: React.ReactNode }) {
+  const { player, moreContextTooltip } = props;
 
   const updatedTimeago = `Updated ${timeago.format(player.updatedAt || new Date())}`;
 
@@ -136,14 +136,8 @@ export function PlayerIdentityTooltip(props: { player: Player; activity?: Member
             <span>{PlayerTypeProps[player.type].name}</span>
           </div>
         </div>
-        {activity && activity.previousRole && (
-          <div className="flex min-w-[5rem] flex-col px-4 py-3">
-            <span className="mb-1 text-xs text-gray-200">Prev. Role</span>
-            <div className="flex items-center gap-x-2">
-              <GroupRoleIcon role={activity.previousRole} />
-              <span>{GroupRoleProps[activity.previousRole].name}</span>
-            </div>
-          </div>
+        {moreContextTooltip && (
+          <div className="flex min-w-[5rem] flex-col px-4 py-3">{moreContextTooltip}</div>
         )}
         {player.build !== PlayerBuild.MAIN && (
           <div className="flex min-w-[5rem] flex-col px-4 py-3">
