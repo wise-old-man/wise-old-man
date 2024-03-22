@@ -212,8 +212,16 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
 
   const withinRange = !negativeGains && !excessiveGains;
 
+
   if (!withinRange) {
-    logger.debug(`Flagged: id:${before.playerId} not within range`, { negativeGains, excessiveGains }, true);
+    logger.debug(
+      `Flagged: id:${before.playerId} not within range`,
+      {
+        negativeGains: getNegativeGains(before, after),
+        excessiveGains
+      },
+      true
+    );
   }
 
   return withinRange;
