@@ -123,7 +123,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
     [Boss.SCORPIA]: { name: 'Scorpia' },
     [Boss.SCURRIUS]: { name: 'Scurrius' },
     [Boss.SKOTIZO]: { name: 'Skotizo' },
-    [Boss.SOL_HEREDIT]: { name: 'Sol Heredit', minimumValue: 1 },
+    [Boss.SOL_HEREDIT]: { name: 'Sol Heredit' },
     [Boss.SPINDEL]: { name: 'Spindel' },
     [Boss.TEMPOROSS]: { name: 'Tempoross' },
     [Boss.THE_GAUNTLET]: { name: 'The Gauntlet' },
