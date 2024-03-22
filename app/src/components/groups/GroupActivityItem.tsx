@@ -5,6 +5,18 @@ import { PlayerIdentity } from "../PlayerIdentity";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 import ArrowBottomRightIcon from "~/assets/arrow_bottom_right.svg";
+import React from "react";
+
+const MoreContextTooltip = ({ activity }: { activity: MemberActivityWithPlayer }) =>
+  activity.previousRole ? (
+    <>
+      <span className="mb-1 text-xs text-gray-200">Prev. Role</span>
+      <div className="flex items-center gap-x-2">
+        <GroupRoleIcon role={activity.previousRole} />
+        <span>{GroupRoleProps[activity.previousRole].name}</span>
+      </div>
+    </>
+  ) : null;
 
 interface GroupActivityItemProps {
   activity: MemberActivityWithPlayer;
@@ -40,7 +52,11 @@ export function GroupActivityItem(props: GroupActivityItemProps) {
 
   return (
     <div className="flex items-center justify-between gap-x-3 px-4 py-3">
-      <PlayerIdentity player={activity.player} caption={typeElement} />
+      <PlayerIdentity
+        player={activity.player}
+        caption={typeElement}
+        moreContextTooltip={activity.previousRole && <MoreContextTooltip activity={activity} />}
+      />
       <Tooltip>
         <TooltipTrigger asChild>
           <span className="shrink-0 text-xs text-gray-200">{timeago.format(activity.createdAt)}</span>

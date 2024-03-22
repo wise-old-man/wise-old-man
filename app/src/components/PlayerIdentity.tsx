@@ -19,13 +19,14 @@ import WarningFilledIcon from "~/assets/warning_filled.svg";
 
 interface PlayerIdentityProps {
   player: Player;
-  caption?: JSX.Element | string | undefined;
+  caption?: React.JSX.Element | string | undefined;
   renderTooltip?: boolean;
   href?: string;
+  moreContextTooltip?: React.JSX.Element | null;
 }
 
 export function PlayerIdentity(props: PlayerIdentityProps) {
-  const { player, caption, href, renderTooltip = true } = props;
+  const { player, caption, href, renderTooltip = true, moreContextTooltip } = props;
 
   let icon: React.ReactNode;
 
@@ -73,16 +74,16 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
         </div>
       </div>
       {renderTooltip && (
-        <TooltipContent className="min-w-[16rem] max-w-lg p-0">
-          <PlayerIdentityTooltip player={player} />
+        <TooltipContent className="min-w-[16rem] max-w-xl p-0 sm:max-w-2xl">
+          <PlayerIdentityTooltip player={player} moreContextTooltip={moreContextTooltip} />
         </TooltipContent>
       )}
     </Tooltip>
   );
 }
 
-export function PlayerIdentityTooltip(props: { player: Player }) {
-  const { player } = props;
+export function PlayerIdentityTooltip(props: { player: Player; moreContextTooltip?: React.ReactNode }) {
+  const { player, moreContextTooltip } = props;
 
   const updatedTimeago = `Updated ${timeago.format(player.updatedAt || new Date())}`;
 
@@ -117,9 +118,9 @@ export function PlayerIdentityTooltip(props: { player: Player }) {
           </span>
         )}
       </div>
-      <div className="flex divide-x divide-gray-500">
+      <div className="flex flex-col divide-y divide-gray-500 md:flex-row md:divide-x">
         {player.patron && (
-          <div className="flex items-center px-4">
+          <div className="flex items-center justify-center py-4 md:px-4">
             <a href="https://wiseoldman.net/patreon" target="_blank" rel="noopener noreferrer">
               <Badge variant="gold">Patreon Supporter</Badge>
             </a>
@@ -132,6 +133,9 @@ export function PlayerIdentityTooltip(props: { player: Player }) {
             <span>{PlayerTypeProps[player.type].name}</span>
           </div>
         </div>
+        {moreContextTooltip && (
+          <div className="flex min-w-[5rem] flex-col px-4 py-3">{moreContextTooltip}</div>
+        )}
         {player.build !== PlayerBuild.MAIN && (
           <div className="flex min-w-[5rem] flex-col px-4 py-3">
             <span className="mb-1 text-xs text-gray-200">Build</span>
