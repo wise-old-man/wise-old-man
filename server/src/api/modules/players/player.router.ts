@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import { ScheduleFlaggedPlayerReviewJob } from '../../../jobs/instances/ScheduleFlaggedPlayerReviewJob';
+import experimentalJobManager from '../../../jobs/job.manager';
 import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period } from '../../../utils';
 import { NotFoundError, ServerError } from '../../errors';
-import { JobType } from '../../jobs';
-import jobManager from '../../jobs/job.manager';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getDateSchema, getPaginationSchema } from '../../util/validation';
@@ -222,7 +222,7 @@ router.post(
       throw new ServerError('Failed to update new player post-archive.');
     }
 
-    jobManager.add({ type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW }, { delay: 10_000 });
+    experimentalJobManager.add(new ScheduleFlaggedPlayerReviewJob().setDelay(10_000));
 
     res.status(200).json(archivedPlayer);
   })

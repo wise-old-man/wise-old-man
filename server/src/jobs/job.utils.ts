@@ -41,4 +41,9 @@ export class Job {
     this.options.priority = priority;
     return this;
   }
+
+  public unsetInstanceId() {
+    this.instanceId = undefined;
+    return this;
+  }
 }

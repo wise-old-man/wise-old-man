@@ -1,7 +1,5 @@
-import prisma from '../../../prisma';
-import { Period, PeriodProps } from '../../..//utils';
+import { ScheduleGroupScoreUpdatesJob as NewScheduleGroupScoreUpdatesJob } from '../../../jobs/instances/ScheduleGroupScoreUpdatesJob';
 import { JobType, JobDefinition } from '../job.types';
-import { jobManager } from '..';
 
 class ScheduleGroupScoreUpdatesJob implements JobDefinition<unknown> {
   type: JobType;
@@ -11,19 +9,10 @@ class ScheduleGroupScoreUpdatesJob implements JobDefinition<unknown> {
   }
 
   async execute() {
-    const allGroups = await prisma.group.findMany({
-      select: { id: true }
-    });
-
-    // Distribute these evenly throughout the day, with a variable cooldown between each
-    const cooldown = Math.floor(PeriodProps[Period.DAY].milliseconds / allGroups.length);
-
-    allGroups.forEach((group, i) => {
-      jobManager.add(
-        { type: JobType.UPDATE_GROUP_SCORE, payload: { groupId: group.id } },
-        { delay: i * cooldown }
-      );
-    });
+    // We're migrating to a new job manager, but jobs for the current one are still in-queue
+    // so to prevent duplicating code, just use the old job manager to execute the job on the new one
+    // Once this old job is no longer in use, we can remove this entire file.
+    await new NewScheduleGroupScoreUpdatesJob().execute();
   }
 }
 
