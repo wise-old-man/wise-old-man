@@ -6,7 +6,6 @@ import * as jagexService from '../../../services/external/jagex.service';
 import redisService from '../../../services/external/redis.service';
 import logger from '../../../util/logging';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
-import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
 import { PlayerDetails } from '../player.types';
@@ -18,7 +17,7 @@ import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
 type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
   PrismaTypes.PlayerUncheckedUpdateInput
->;
+> & { type?: PlayerType };
 
 let UPDATE_COOLDOWN = process.env.NODE_ENV === 'test' ? 0 : 60;
 
@@ -52,7 +51,7 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
 
   // Fetch the new player stats from the hiscores API
   try {
-    currentStats = await fetchStats(player, updatedPlayerFields.type as PlayerType);
+    currentStats = await fetchStats(player, updatedPlayerFields.type, previousSnapshot);
   } catch (error) {
     if (error.statusCode === 400) {
       // If failed to load this player's stats from the hiscores, and they're not "regular" or "unknown"
@@ -193,12 +192,12 @@ async function reviewType(player: Player) {
   return changed;
 }
 
-async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> {
+async function fetchStats(player: Player, type?: PlayerType, previousStats?: Snapshot): Promise<Snapshot> {
   // Load data from OSRS hiscores
   const hiscoresCSV = await jagexService.fetchHiscoresData(player.username, type || player.type);
 
   // Convert the csv data to a Snapshot instance
-  const newSnapshot = await buildSnapshot(player.id, hiscoresCSV);
+  const newSnapshot = await snapshotUtils.parseHiscoresSnapshot(player.id, hiscoresCSV, previousStats);
 
   return newSnapshot;
 }
