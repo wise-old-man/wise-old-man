@@ -36,6 +36,12 @@ import BullhornIcon from "~/assets/bullhorn.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 
 export default async function LandingPage() {
+  // This landing page requires API data to get pre-built. This would fail if the API is down,
+  // so we can just have it pre-build an empty page instead.
+  if (process.env.MAINTENANCE_MODE_ENABLED) {
+    return null;
+  }
+
   return (
     <div>
       <HeroSection />
@@ -49,7 +55,7 @@ export default async function LandingPage() {
   );
 }
 
-async function HeroSection() {
+function HeroSection() {
   return (
     <section className="relative flex w-full items-center justify-center bg-[#10141f] py-10 md:py-0">
       <div className="absolute inset-0 mx-auto max-w-[100vw] bg-hero-gradient lg:max-w-7xl" />
