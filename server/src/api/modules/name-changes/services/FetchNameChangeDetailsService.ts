@@ -5,8 +5,7 @@ import * as jagexService from '../../../services/external/jagex.service';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import { standardize } from '../../players/player.utils';
-import { buildSnapshot } from '../../snapshots/services/BuildSnapshotService';
-import { formatSnapshot, getNegativeGains } from '../../snapshots/snapshot.utils';
+import { parseHiscoresSnapshot, formatSnapshot, getNegativeGains } from '../../snapshots/snapshot.utils';
 import { NameChange, NameChangeDetails } from '../name-change.types';
 
 async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
@@ -60,7 +59,7 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
 
   // Fetch either the first snapshot of the new name, or the current hiscores stats
   // Note: this playerId isn't needed, and won't be used or exposed to the user
-  let newStats = newHiscores ? await buildSnapshot(1, newHiscores) : null;
+  let newStats = newHiscores ? await parseHiscoresSnapshot(1, newHiscores) : null;
 
   if (newPlayer) {
     // If the new name is already a tracked player and was tracked

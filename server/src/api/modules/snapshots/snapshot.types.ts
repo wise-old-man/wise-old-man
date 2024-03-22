@@ -3,11 +3,6 @@ import { Snapshot } from '../../../prisma';
 
 export type SnapshotFragment = Omit<Snapshot, 'id'>;
 
-export enum SnapshotDataSource {
-  HISCORES,
-  CRYSTAL_MATH_LABS
-}
-
 export interface SkillValue {
   metric: Skill;
   rank: number;

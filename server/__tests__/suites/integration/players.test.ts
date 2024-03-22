@@ -1,4 +1,3 @@
-import { buildSnapshot } from '.../../../src/api/modules/snapshots/services/BuildSnapshotService';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import supertest from 'supertest';
@@ -10,7 +9,7 @@ import * as playerUtils from '../../../src/api/modules/players/player.utils';
 import { reviewFlaggedPlayer } from '../../../src/api/modules/players/services/ReviewFlaggedPlayerService';
 import { setUpdateCooldown } from '../../../src/api/modules/players/services/UpdatePlayerService';
 import { importPlayerHistory } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
-import { formatSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
+import { parseHiscoresSnapshot, formatSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
 import redisService from '../../../src/api/services/external/redis.service';
 import prisma from '../../../src/prisma';
 import { BOSSES, Metric, PlayerStatus, PlayerType } from '../../../src/utils';
@@ -1549,7 +1548,7 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await buildSnapshot(player.id, globalData.hiscoresRawData);
+      const previousSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
 
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metric.RUNECRAFTING, value: 50_000_000 },
@@ -1562,7 +1561,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await buildSnapshot(player.id, modifiedRawData);
+      const rejectedSnapshot = await parseHiscoresSnapshot(player.id, modifiedRawData);
 
       // Manually set overall ranks and exp for de-iron checks later on
       previousSnapshot.overallRank = 10_000;
@@ -1672,7 +1671,7 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await buildSnapshot(player.id, globalData.hiscoresRawData);
+      const previousSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metric.ZULRAH, value: 1615 }, // zulrah kc dropped from 1646 to 1615
@@ -1684,7 +1683,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await buildSnapshot(player.id, modifiedRejectedRawData);
+      const rejectedSnapshot = await parseHiscoresSnapshot(player.id, modifiedRejectedRawData);
 
       const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
 
@@ -1758,7 +1757,7 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await buildSnapshot(player.id, globalData.hiscoresRawData);
+      const previousSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
 
       await sleep(500);
 
@@ -1775,7 +1774,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await buildSnapshot(player.id, modifiedRejectedRawData);
+      const rejectedSnapshot = await parseHiscoresSnapshot(player.id, modifiedRejectedRawData);
 
       const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
@@ -1815,7 +1814,7 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await buildSnapshot(player.id, modifiedPreviousRawData);
+      const previousSnapshot = await parseHiscoresSnapshot(player.id, modifiedPreviousRawData);
 
       await sleep(500);
 
@@ -1824,7 +1823,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await buildSnapshot(player.id, globalData.hiscoresRawData);
+      const rejectedSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
 
       const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
@@ -1862,7 +1861,7 @@ describe('Player API', () => {
       // pre changes setup
       const groupId = await setupPreTransitionData(1000, player.id);
 
-      const previousSnapshot = await buildSnapshot(player.id, globalData.hiscoresRawData);
+      const previousSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
 
       await prisma.snapshot.create({ data: previousSnapshot });
 
@@ -1881,7 +1880,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await buildSnapshot(player.id, modifiedRejectedRawData);
+      const rejectedSnapshot = await parseHiscoresSnapshot(player.id, modifiedRejectedRawData);
 
       const submitNameChangeResponse = await api.post(`/names`).send({
         oldName: 'Greg Hirsch',
@@ -2049,7 +2048,7 @@ describe('Player API', () => {
       // pre changes setup
       const groupId = await setupPreTransitionData(2000, player.id);
 
-      const previousSnapshot = await buildSnapshot(player.id, globalData.hiscoresRawData);
+      const previousSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
 
       await prisma.snapshot.create({ data: previousSnapshot });
 
@@ -2068,7 +2067,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await buildSnapshot(player.id, modifiedRejectedRawData);
+      const rejectedSnapshot = await parseHiscoresSnapshot(player.id, modifiedRejectedRawData);
 
       const submitNameChangeResponse = await api.post(`/names`).send({
         oldName: 'TomWambsgans',
