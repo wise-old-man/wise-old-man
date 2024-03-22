@@ -23,7 +23,6 @@ import {
 } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
-import logger from '../../util/logging';
 import { getPlayerEHP, getPlayerEHB } from '../../modules/efficiency/efficiency.utils';
 import {
   ActivityValue,
@@ -65,7 +64,9 @@ async function parseHiscoresSnapshot(playerId: number, rawCSV: string, previous?
     if (s === Metric.OVERALL && expNum === 0) {
       // Sometimes the hiscores return 0 as unranked, but we want to be consistent and keep -1 as the "unranked" value
       expNum = -1;
-    } else if (expNum === -1 && previous && previous[getMetricValueKey(s)] > -1) {
+    }
+
+    if (expNum === -1 && previous && previous[getMetricValueKey(s)] > -1) {
       // If the player was previously ranked in this skill, and then somehow became unranked, just fallback to the previous value
       expNum = previous[getMetricValueKey(s)];
     }
@@ -207,24 +208,7 @@ function formatSnapshot(snapshot: Snapshot, efficiencyMap: Map<Skill | Boss, num
  * EHP (maximum efficiency).
  */
 function withinRange(before: Snapshot, after: Snapshot): boolean {
-  const negativeGains = !!getNegativeGains(before, after);
-  const excessiveGains = !!getExcessiveGains(before, after);
-
-  const withinRange = !negativeGains && !excessiveGains;
-
-
-  if (!withinRange) {
-    logger.debug(
-      `Flagged: id:${before.playerId} not within range`,
-      {
-        negativeGains: getNegativeGains(before, after),
-        excessiveGains
-      },
-      true
-    );
-  }
-
-  return withinRange;
+  return !getNegativeGains(before, after) && !getExcessiveGains(before, after);
 }
 
 /**
