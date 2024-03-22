@@ -1,8 +1,5 @@
-import prisma from '../../../prisma';
-import { GroupDetails, PRIVELEGED_GROUP_ROLES } from '../../../utils';
-import { findGroupCompetitions } from '../../modules/competitions/services/FindGroupCompetitionsService';
-import { fetchGroupDetails } from '../../modules/groups/services/FetchGroupDetailsService';
-import { JobDefinition, JobType } from '../job.types';
+import { UpdateGroupScoreJob as NewUpdateGroupScoreJob } from '../../../jobs/instances/UpdateGroupScoreJob';
+import { JobType, JobDefinition } from '../job.types';
 
 export interface UpdateGroupScorePayload {
   groupId: number;
@@ -16,102 +13,11 @@ class UpdateGroupScoreJob implements JobDefinition<UpdateGroupScorePayload> {
   }
 
   async execute(data: UpdateGroupScorePayload) {
-    const groupDetails = await fetchGroupDetails(data.groupId);
-
-    const currentScore = groupDetails.score;
-    const newScore = await calculateScore(groupDetails);
-
-    if (newScore !== currentScore) {
-      await prisma.group.update({
-        where: { id: data.groupId },
-        data: { score: newScore }
-      });
-    }
+    // We're migrating to a new job manager, but jobs for the current one are still in-queue
+    // so to prevent duplicating code, just use the old job manager to execute the job on the new one
+    // Once this old job is no longer in use, we can remove this entire file.
+    await new NewUpdateGroupScoreJob(data.groupId).execute();
   }
-}
-
-async function calculateScore(group: GroupDetails): Promise<number> {
-  let score = 0;
-
-  const now = new Date();
-  const { memberships } = group;
-
-  if (!memberships || memberships.length === 0) {
-    return score;
-  }
-
-  const competitions = await findGroupCompetitions(group.id);
-  const averageOverallExp = memberships.reduce((acc, cur) => acc + cur.player.exp, 0) / memberships.length;
-
-  // If has atleast one leader
-  if (memberships.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.role)).length >= 1) {
-    score += 30;
-  }
-
-  // If has atleast 10 players
-  if (memberships.length >= 10) {
-    score += 20;
-
-    // If has atleast 50 players
-    if (memberships.length >= 50) {
-      score += 40;
-    }
-  }
-
-  // If average member overall exp > 30m
-  if (averageOverallExp >= 30_000_000) {
-    score += 30;
-
-    // If average member overall exp > 100m
-    if (averageOverallExp >= 100_000_000) {
-      score += 60;
-    }
-  }
-
-  // If has a clan chat
-  if (group.clanChat && group.clanChat.length > 0) {
-    score += 50;
-  }
-
-  // If has a description
-  if (group.description && group.description.length > 0) {
-    score += 40;
-  }
-
-  // If has a homeworld
-  if (group.homeworld && group.homeworld > 0) {
-    score += 20;
-  }
-
-  // If is verified (clan leader is in our discord)
-  if (group.verified) {
-    score += 100;
-  }
-
-  // If is a patreon supporter
-  if (group.patron) {
-    score += 50;
-
-    if (group.profileImage) {
-      score += 20;
-    }
-
-    if (group.bannerImage) {
-      score += 10;
-    }
-  }
-
-  // If has atleast one ongoing competition
-  if (competitions.filter(c => c.startsAt <= now && c.endsAt >= now).length >= 1) {
-    score += 50;
-  }
-
-  // If has atleast one upcoming competition
-  if (competitions.filter(c => c.startsAt >= now).length >= 1) {
-    score += 30;
-  }
-
-  return score;
 }
 
 export default new UpdateGroupScoreJob();

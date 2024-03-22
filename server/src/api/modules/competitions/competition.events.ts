@@ -48,7 +48,7 @@ async function onCompetitionStarted(competition: Competition) {
   });
 
   // Trigger a score update job, without any instance id, so that it doesn't get deduplicated.
-  experimentalJobManager.add(new UpdateCompetitionScoreJob(competition.id).unsetInstanceId());
+  await experimentalJobManager.add(new UpdateCompetitionScoreJob(competition.id).unsetInstanceId());
 }
 
 async function onCompetitionEnded(competition: Competition) {
@@ -61,7 +61,7 @@ async function onCompetitionEnded(competition: Competition) {
   });
 
   // Trigger a score update job, without any instance id, so that it doesn't get deduplicated.
-  experimentalJobManager.add(new UpdateCompetitionScoreJob(competition.id).unsetInstanceId());
+  await experimentalJobManager.add(new UpdateCompetitionScoreJob(competition.id).unsetInstanceId());
 }
 
 async function onCompetitionStarting(competition: Competition, period: EventPeriodDelay) {

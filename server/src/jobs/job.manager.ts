@@ -11,14 +11,17 @@ import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalida
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
 import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
+import { ScheduleGroupScoreUpdatesJob } from './instances/ScheduleGroupScoreUpdatesJob';
 import { ScheduleCompetitionScoreUpdatesJob } from './instances/ScheduleCompetitionScoreUpdatesJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
+import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
 import { Job, JobPriority } from './job.utils';
 
 const DISPATCHABLE_JOBS = [
   CheckPlayerBannedJob,
   SyncApiKeysJob,
   SyncPatronsJob,
+  UpdateGroupScoreJob,
   UpdateCompetitionScoreJob
 ] as const;
 
@@ -52,8 +55,12 @@ const CRON_CONFIG = [
     job: ScheduleDeltaInvalidationsJob
   },
   {
-    interval: '0 */12 * * *', // every 12 hours
+    interval: '0 8 * * *', // everyday at 8AM
     job: ScheduleCompetitionScoreUpdatesJob
+  },
+  {
+    interval: '0 8 * * *', // everyday at 8AM
+    job: ScheduleGroupScoreUpdatesJob
   }
 ] as const;
 
