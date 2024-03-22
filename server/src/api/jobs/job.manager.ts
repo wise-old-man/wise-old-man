@@ -98,11 +98,11 @@ const CRON_JOBS = [
   {
     type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS,
     interval: '0 8 * * *' // everyday at 8AM
-  },
-  {
-    type: JobType.CALCULATE_COMPUTED_METRIC_RANK_TABLES,
-    interval: '0 8 * * *' // everyday at 8AM
   }
+  // {
+  //   type: JobType.CALCULATE_COMPUTED_METRIC_RANK_TABLES,
+  //   interval: '0 8 * * *' // everyday at 8AM
+  // }
   // {
   // type: JobType.SCHEDULE_TREND_CALCS,
   // interval: '0 */12 * * *' // every 12 hours

@@ -5,6 +5,7 @@ import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
 import { AutoUpdatePatronGroupsJob } from './instances/AutoUpdatePatronGroupsJob';
 import { AutoUpdatePatronPlayersJob } from './instances/AutoUpdatePatronPlayersJob';
+import { CalculateComputedMetricRankTablesJob } from './instances/CalculateComputedMetricRankTablesJob';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
 import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalidationsJob';
@@ -61,6 +62,10 @@ const CRON_CONFIG = [
   {
     interval: '0 8 * * *', // everyday at 8AM
     job: ScheduleGroupScoreUpdatesJob
+  },
+  {
+    interval: '0 8 * * *', // everyday at 8AM
+    job: CalculateComputedMetricRankTablesJob
   }
 ] as const;
 
