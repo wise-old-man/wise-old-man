@@ -1,11 +1,13 @@
+import { UpdateCompetitionScoreJob } from '../../../jobs/instances/UpdateCompetitionScoreJob';
+import experimentalJobManager from '../../../jobs/job.manager';
 import prisma, { Competition, Participation } from '../../../prisma';
 import { CompetitionWithParticipations, PlayerType } from '../../../utils';
-import { jobManager, JobType, JobPriority } from '../../jobs';
+import { JobPriority, JobType, jobManager } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
-import metrics from '../../services/external/metrics.service';
 import { EventPeriodDelay } from '../../services/external/discord.service';
-import { updateAllParticipants } from './services/UpdateAllParticipantsService';
+import metrics from '../../services/external/metrics.service';
 import { fetchCompetitionDetails } from './services/FetchCompetitionDetailsService';
+import { updateAllParticipants } from './services/UpdateAllParticipantsService';
 
 async function onParticipantsJoined(participations: Pick<Participation, 'playerId' | 'competitionId'>[]) {
   // Fetch all the newly added participants
@@ -45,10 +47,8 @@ async function onCompetitionStarted(competition: Competition) {
     discordService.dispatchCompetitionStarted(competition);
   });
 
-  jobManager.add({
-    type: JobType.UPDATE_COMPETITION_SCORE,
-    payload: { competitionId: competition.id }
-  });
+  // Trigger a score update job, without any instance id, so that it doesn't get deduplicated.
+  experimentalJobManager.add(new UpdateCompetitionScoreJob(competition.id).unsetInstanceId());
 }
 
 async function onCompetitionEnded(competition: Competition) {
@@ -60,10 +60,8 @@ async function onCompetitionEnded(competition: Competition) {
     discordService.dispatchCompetitionEnded(competitionDetails);
   });
 
-  jobManager.add({
-    type: JobType.UPDATE_COMPETITION_SCORE,
-    payload: { competitionId: competition.id }
-  });
+  // Trigger a score update job, without any instance id, so that it doesn't get deduplicated.
+  experimentalJobManager.add(new UpdateCompetitionScoreJob(competition.id).unsetInstanceId());
 }
 
 async function onCompetitionStarting(competition: Competition, period: EventPeriodDelay) {
@@ -127,10 +125,10 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
 }
 
 export {
-  onParticipantsJoined,
   onCompetitionCreated,
-  onCompetitionStarted,
   onCompetitionEnded,
+  onCompetitionEnding,
+  onCompetitionStarted,
   onCompetitionStarting,
-  onCompetitionEnding
+  onParticipantsJoined
 };
