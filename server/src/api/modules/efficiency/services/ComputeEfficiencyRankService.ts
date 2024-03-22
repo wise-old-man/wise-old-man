@@ -1,3 +1,5 @@
+import { RANK_RESOLUTION } from '../../../../jobs/instances/CalculateComputedMetricRankTablesJob';
+import prisma from '../../../../prisma';
 import {
   ComputedMetric,
   PLAYER_BUILDS,
@@ -8,8 +10,6 @@ import {
   PlayerType
 } from '../../../../utils';
 import redisService from '../../../services/external/redis.service';
-import prisma from '../../../../prisma';
-import { RANK_RESOLUTION } from '../../../jobs/instances/CalculateComputedMetricRankTablesJob';
 import { getAlgorithmType } from '../efficiency.utils';
 
 async function computeEfficiencyRank(

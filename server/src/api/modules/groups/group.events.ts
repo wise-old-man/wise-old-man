@@ -1,17 +1,21 @@
+import { UpdateGroupScoreJob } from '../../../jobs/instances/UpdateGroupScoreJob';
+import experimentalJobManager from '../../../jobs/job.manager';
 import prisma from '../../../prisma';
 import { MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType } from '../../../utils';
-import { jobManager, JobType } from '../../jobs';
-import metrics from '../../services/external/metrics.service';
+import { JobType, jobManager } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
+import metrics from '../../services/external/metrics.service';
 import { addToGroupCompetitions } from '../competitions/services/AddToGroupCompetitionsService';
 import { removeFromGroupCompetitions } from '../competitions/services/RemoveFromGroupCompetitionsService';
 
-function onGroupUpdated(groupId: number) {
-  jobManager.add({ type: JobType.UPDATE_GROUP_SCORE, payload: { groupId } });
+async function onGroupUpdated(groupId: number) {
+  // Trigger a score update job, without any instance id, so that it doesn't get deduplicated.
+  await experimentalJobManager.add(new UpdateGroupScoreJob(groupId).unsetInstanceId());
 }
 
-function onGroupCreated(groupId: number) {
-  jobManager.add({ type: JobType.UPDATE_GROUP_SCORE, payload: { groupId } });
+async function onGroupCreated(groupId: number) {
+  // Trigger a score update job, without any instance id, so that it doesn't get deduplicated.
+  await experimentalJobManager.add(new UpdateGroupScoreJob(groupId).unsetInstanceId());
 }
 
 async function onMembersRolesChanged(events: MemberRoleChangeEvent[]) {
