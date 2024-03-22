@@ -1,3 +1,4 @@
+import { omit } from '../../api/util/objects';
 import { onGroupUpdated } from '../../api/modules/groups/group.events';
 import { sendPatreonUpdateMessage } from '../../api/services/external/discord.service';
 import { getPatrons } from '../../api/services/external/patreon.service';
@@ -23,6 +24,11 @@ async function syncPatrons() {
   const toDelete: Patron[] = [];
 
   const patrons = await getPatrons();
+
+  if (patrons.every(p => p.patron.discordId === null)) {
+    throw new Error("Found no Discord IDs in the patrons list. This is likely an outage on Patreon's side.");
+  }
+
   const newPatronIds = patrons.map(p => p.patron.id);
 
   const updatedFieldsMap = new Map<string, string>();
@@ -71,7 +77,7 @@ async function syncPatrons() {
       for (const patron of toUpdate) {
         await transaction.patron.update({
           where: { id: patron.id },
-          data: patron
+          data: omit(patron, 'groupId', 'playerId')
         });
       }
     }
