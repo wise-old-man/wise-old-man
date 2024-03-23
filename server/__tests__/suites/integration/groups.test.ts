@@ -2227,7 +2227,6 @@ describe('Group API', () => {
 
       expect(anotherTrackResponse.body.ttm).toBe(0);
       expect(anotherTrackResponse.body.ehp).toBeGreaterThan(trackResponse.body.ehp);
-      expect(anotherTrackResponse.body.ehp).toBeGreaterThan(trackResponse.body.ehp);
 
       const skillHiscoresResponse = await api
         .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
