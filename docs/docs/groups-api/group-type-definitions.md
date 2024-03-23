@@ -126,6 +126,7 @@ Used as an input for group modification endpoints (create, edit, add members, et
 
 | Field      | Type    | Description                                  |
 | :--------- | :------ | :------------------------------------------- |
+| type       | string  | The type of this hiscores item ('skill').    |
 | rank       | integer | The player's rank in a specific skill.       |
 | level      | integer | The player's level in a specific skill.      |
 | experience | long    | The player's experience in a specific skill. |
@@ -134,19 +135,21 @@ Used as an input for group modification endpoints (create, edit, add members, et
 
 ### `(Object)` Group Hiscores Boss Item
 
-| Field | Type    | Description                             |
-| :---- | :------ | :-------------------------------------- |
-| rank  | integer | The player's rank in a specific boss.   |
-| kills | integer | The player's kills for a specific boss. |
+| Field | Type    | Description                              |
+| :---- | :------ | :--------------------------------------- |
+| type  | string  | The type of this hiscores item ('boss'). |
+| rank  | integer | The player's rank in a specific boss.    |
+| kills | integer | The player's kills for a specific boss.  |
 
 <br />
 
 ### `(Object)` Group Hiscores Activity Item
 
-| Field | Type    | Description                                |
-| :---- | :------ | :----------------------------------------- |
-| rank  | integer | The player's rank in a specific activity.  |
-| score | integer | The player's score in a specific activity. |
+| Field | Type    | Description                                  |
+| :---- | :------ | :------------------------------------------- |
+| type  | string  | The type of this hiscores item ('activity'). |
+| rank  | integer | The player's rank in a specific activity.    |
+| score | integer | The player's score in a specific activity.   |
 
 <br />
 
@@ -154,6 +157,7 @@ Used as an input for group modification endpoints (create, edit, add members, et
 
 | Field | Type    | Description                                       |
 | :---- | :------ | :------------------------------------------------ |
+| type  | string  | The type of this hiscores item ('computed').      |
 | rank  | integer | The player's rank in a specific computed metric.  |
 | value | integer | The player's value in a specific computed metric. |
 
