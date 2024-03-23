@@ -57,13 +57,13 @@ async function fetchGroupHiscores(
 
       if (measure === MetricMeasure.EXPERIENCE) {
         const lvl = metric === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(value);
-        data = { rank, experience: value, level: lvl };
+        data = { rank, experience: value, level: lvl, type: 'skill' };
       } else if (measure === MetricMeasure.KILLS) {
-        data = { rank, kills: value };
+        data = { rank, kills: value, type: 'boss' };
       } else if (measure === MetricMeasure.SCORE) {
-        data = { rank, score: value };
+        data = { rank, score: value, type: 'activity' };
       } else {
-        data = { rank, value: value };
+        data = { rank, value: value, type: 'computed' };
       }
 
       return {
