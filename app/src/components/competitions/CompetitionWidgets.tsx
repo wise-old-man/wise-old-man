@@ -213,7 +213,7 @@ function CompetitionDuration(props: CompetitionDurationProps) {
 
   const duration = durationBetween(props.startsAt, props.endsAt);
   const hasThreeDurationSegments = useMemo(
-    () => duration.days && duration.hours && duration.minutes,
+    () => duration.days > 0 && duration.hours > 0 && duration.minutes > 0,
     [duration]
   );
 
