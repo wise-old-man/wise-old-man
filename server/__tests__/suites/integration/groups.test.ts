@@ -1207,6 +1207,54 @@ describe('Group API', () => {
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
       expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
+
+    it('should edit group role order', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        roleOrders: [
+          { role: 'member', index: 1 },
+          { role: 'air', index: 2 }
+        ]
+      });
+
+      expect(response.status).toBe(200);
+
+      const response2 = await api.get(`/groups/${globalData.testGroupOneLeader.id}`).send();
+
+      expect(response2.status).toBe(200);
+      expect(response2.body.roleOrders.length).toBe(2);
+
+      const overwriteResponse = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        roleOrders: [{ role: 'beast', index: 1 }]
+      });
+
+      expect(overwriteResponse.status).toBe(200);
+
+      const overwriteResponse2 = await api.get(`/groups/${globalData.testGroupOneLeader.id}`).send();
+      expect(overwriteResponse2.status).toBe(200);
+      expect(overwriteResponse2.body.roleOrders.length).toBe(1);
+    });
+
+    it('should not create role order if same index or role', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        roleOrders: [
+          { role: 'member', index: 1 },
+          { role: 'air', index: 1 }
+        ]
+      });
+      expect(response.status).toBe(400);
+
+      const response2 = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        roleOrders: [
+          { role: 'air', index: 1 },
+          { role: 'air', index: 2 }
+        ]
+      });
+      expect(response2.status).toBe(400);
+    });
   });
 
   describe('3 - Search Groups', () => {

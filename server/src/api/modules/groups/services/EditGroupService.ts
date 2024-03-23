@@ -34,7 +34,7 @@ interface EditGroupPayload {
     youtube?: string | null;
   };
   members?: Array<{ username: string; role: GroupRole }>;
-  roleOrder?: Array<{ role: GroupRole; index: number }>;
+  roleOrders?: Array<{ role: GroupRole; index: number }>;
 }
 
 async function editGroup(groupId: number, payload: EditGroupPayload): Promise<GroupDetails> {
@@ -47,7 +47,7 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     bannerImage,
     profileImage,
     socialLinks,
-    roleOrder
+    roleOrders
   } = payload;
 
   if (clanChat && !isValidUsername(clanChat)) {
@@ -63,7 +63,7 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     !bannerImage &&
     !profileImage &&
     !socialLinks &&
-    !roleOrder
+    !roleOrders
   ) {
     throw new BadRequestError('Nothing to update.');
   }
@@ -91,6 +91,19 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     throw new BadRequestError(
       'Cannot upload images from external sources. Please upload an image via the website.'
     );
+  }
+
+  if (roleOrders) {
+    const uniqueIndexes = new Set(roleOrders.map(x => x.index));
+    const uniqueRoles = new Set(roleOrders.map(x => x.role));
+
+    if (uniqueIndexes.size < roleOrders.length) {
+      throw new BadRequestError('Role Order must contain unique indexes for each role');
+    }
+
+    if (uniqueRoles.size < roleOrders.length) {
+      throw new BadRequestError('Role Order must contain unique roles');
+    }
   }
 
   const updatedGroupFields: PrismaTypes.GroupUpdateInput = {};
@@ -154,8 +167,8 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
         await updateSocialLinks(groupId, socialLinks, transaction);
       }
 
-      if (roleOrder) {
-        await updateGroupRoleOrder(groupId, roleOrder, transaction);
+      if (roleOrders) {
+        await updateGroupRoleOrder(groupId, roleOrders, transaction);
       }
 
       await transaction.group.update({
@@ -467,30 +480,18 @@ export { editGroup };
 
 async function updateGroupRoleOrder(
   groupId: number,
-  roleOrder: Array<{ role: GroupRole; index: number }>,
+  roleOrders: Array<{ role: GroupRole; index: number }>,
   transaction: PrismaTypes.TransactionClient
 ) {
-  const uniqueIndexes = new Set(roleOrder.map(x => x.index));
-  const uniqueRoles = new Set(roleOrder.map(x => x.role));
-
-  if (uniqueIndexes.size < roleOrder.length) {
-    throw new BadRequestError('Role Order must contain unique indexes for each role');
-  }
-
-  if (uniqueRoles.size < roleOrder.length) {
-    throw new BadRequestError('Role Order must contain unique roles');
-  }
-
   // TODO: unsure if there's a better way to delete/replace records using prisma
-  const orderWithGroupId = roleOrder.map(x => ({ ...x, groupId: groupId }));
+  const orderWithGroupId = roleOrders.map(x => ({ ...x, groupId: groupId }));
+  const bar = [...orderWithGroupId];
 
   await transaction.groupRoleOrder.deleteMany({
     where: { groupId }
   });
 
   await transaction.groupRoleOrder.createMany({
-    data: {
-      ...orderWithGroupId
-    }
+    data: orderWithGroupId
   });
 }

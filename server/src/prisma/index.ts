@@ -159,7 +159,9 @@ type NameChange = Omit<PrismaNameChange, 'reviewContext'> & {
 
 type GroupSocialLinks = Omit<PrismaGroupSocialLinks, 'id' | 'groupId' | 'createdAt' | 'updatedAt'>;
 
-// type GroupRoleOrder = Omit<PrismaGroupRoleOrde, ''>;
+type GroupRoleOrder = Omit<PrismaGroupRoleOrder, 'index'> & {
+  index: number;
+};
 
 export {
   Prisma as PrismaTypes,
@@ -180,6 +182,7 @@ export {
   MemberActivity,
   GroupSocialLinks,
   TrendDatapoint,
+  GroupRoleOrder,
   // Enums
   Country,
   NameChangeStatus

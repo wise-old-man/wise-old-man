@@ -84,7 +84,7 @@ router.put(
       profileImage: z.optional(z.string().max(255).url()),
       socialLinks: z.optional(socialLinksSchema),
       members: z.optional(z.array(memberSchema)),
-      roleOrder: z.optional(z.array(groupRoleOrderSchema))
+      roleOrders: z.optional(z.array(groupRoleOrderSchema))
     })
   }),
   executeRequest(async (req, res) => {

@@ -1,17 +1,11 @@
 -- CreateTable
 CREATE TABLE "groupRoleOrder" (
     "groupId" INTEGER NOT NULL,
-    "role" "group_role" NOT NULL DEFAULT 'member',
+    "role" "group_role" NOT NULL,
     "index" INTEGER NOT NULL,
 
-    CONSTRAINT "groupRoleOrder_pkey" PRIMARY KEY ("groupId")
+    CONSTRAINT "groupRoleOrder_pkey" PRIMARY KEY ("groupId","role","index")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "groupRoleOrder_role_key" ON "groupRoleOrder"("role");
-
--- CreateIndex
-CREATE UNIQUE INDEX "groupRoleOrder_index_key" ON "groupRoleOrder"("index");
 
 -- CreateIndex
 CREATE INDEX "group_role_order_group_id" ON "groupRoleOrder"("groupId");

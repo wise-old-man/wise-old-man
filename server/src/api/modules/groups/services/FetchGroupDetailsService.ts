@@ -12,7 +12,8 @@ async function fetchGroupDetails(id: number): Promise<GroupDetails> {
       memberships: {
         include: { player: true }
       },
-      socialLinks: true
+      socialLinks: true,
+      roleOrders: true
     }
   });
 
