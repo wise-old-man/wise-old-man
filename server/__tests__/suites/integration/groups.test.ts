@@ -1212,17 +1212,26 @@ describe('Group API', () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
         roleOrders: [
-          { role: 'member', index: 1 },
-          { role: 'air', index: 2 }
+          { role: 'air', index: 2 },
+          { role: 'member', index: 1 }
         ]
       });
 
       expect(response.status).toBe(200);
 
-      const response2 = await api.get(`/groups/${globalData.testGroupOneLeader.id}`).send();
+      const response2 = await api.get(`/groups/${globalData.testGroupOneLeader.id}`);
 
       expect(response2.status).toBe(200);
       expect(response2.body.roleOrders.length).toBe(2);
+      // ensure the server sorts
+      expect(response2.body.roleOrders[0]).toMatchObject({
+        role: 'member',
+        index: 1
+      });
+      expect(response2.body.roleOrders[1]).toMatchObject({
+        role: 'air',
+        index: 2
+      });
 
       const overwriteResponse = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
@@ -1231,7 +1240,7 @@ describe('Group API', () => {
 
       expect(overwriteResponse.status).toBe(200);
 
-      const overwriteResponse2 = await api.get(`/groups/${globalData.testGroupOneLeader.id}`).send();
+      const overwriteResponse2 = await api.get(`/groups/${globalData.testGroupOneLeader.id}`);
       expect(overwriteResponse2.status).toBe(200);
       expect(overwriteResponse2.body.roleOrders.length).toBe(1);
     });

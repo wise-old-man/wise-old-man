@@ -13,7 +13,11 @@ async function fetchGroupDetails(id: number): Promise<GroupDetails> {
         include: { player: true }
       },
       socialLinks: true,
-      roleOrders: true
+      roleOrders: {
+        orderBy: {
+          index: 'asc'
+        }
+      }
     }
   });
 
