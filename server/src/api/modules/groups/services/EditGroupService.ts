@@ -485,7 +485,6 @@ async function updateGroupRoleOrder(
 ) {
   // TODO: unsure if there's a better way to delete/replace records using prisma
   const orderWithGroupId = roleOrders.map(x => ({ ...x, groupId: groupId }));
-  const bar = [...orderWithGroupId];
 
   await transaction.groupRoleOrder.deleteMany({
     where: { groupId }
