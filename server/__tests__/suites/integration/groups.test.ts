@@ -2295,6 +2295,7 @@ describe('Group API', () => {
       expect(skillHiscoresResponse.body[0]).toMatchObject({
         player: { username: 'alexsuperfly' },
         data: {
+          type: 'skill',
           experience: 200_000_000,
           level: 99
         }
@@ -2303,6 +2304,7 @@ describe('Group API', () => {
       expect(skillHiscoresResponse.body[1]).toMatchObject({
         player: { username: 'psikoi' },
         data: {
+          type: 'skill',
           experience: 19_288_604,
           level: 99
         }
@@ -2311,6 +2313,7 @@ describe('Group API', () => {
       expect(skillHiscoresResponse.body[2]).toMatchObject({
         player: { username: 'zezima' },
         data: {
+          type: 'skill',
           experience: 5_500_000,
           level: 90
         }
@@ -2329,6 +2332,7 @@ describe('Group API', () => {
       expect(activityHiscoresResponse.body.length).toBe(3);
       expect(activityHiscoresResponse.body[0].data.score).toBeDefined();
       expect(activityHiscoresResponse.body[0].data.rank).toBeDefined();
+      expect(activityHiscoresResponse.body[0].data.type).toBe('activity');
 
       const computedMetricsHiscoresResponse = await api
         .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
@@ -2338,6 +2342,7 @@ describe('Group API', () => {
       expect(computedMetricsHiscoresResponse.body.length).toBe(3);
       expect(computedMetricsHiscoresResponse.body[0].data.value).toBeDefined();
       expect(computedMetricsHiscoresResponse.body[0].data.rank).toBeDefined();
+      expect(computedMetricsHiscoresResponse.body[0].data.type).toBe('computed');
     });
 
     it('should view hiscores (w/ limit & offset)', async () => {
@@ -2351,6 +2356,7 @@ describe('Group API', () => {
       expect(response.body[0]).toMatchObject({
         player: { username: 'zezima' },
         data: {
+          type: 'boss',
           kills: 100
         }
       });
