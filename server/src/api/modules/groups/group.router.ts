@@ -3,7 +3,13 @@ import { z } from 'zod';
 import { GroupRole, Metric, MigrationDataSource, Period } from '../../../utils';
 import { checkAdminPermission, checkGroupVerificationCode } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
-import { getPaginationSchema, getDateSchema, memberSchema, socialLinksSchema } from '../../util/validation';
+import {
+  getPaginationSchema,
+  getDateSchema,
+  memberSchema,
+  socialLinksSchema,
+  groupRoleOrderSchema
+} from '../../util/validation';
 import { findGroupCompetitions } from '../competitions/services/FindGroupCompetitionsService';
 import { addMembers } from './services/AddMembersService';
 import { changeMemberRole } from './services/ChangeMemberRoleService';
@@ -77,7 +83,8 @@ router.put(
       bannerImage: z.optional(z.string().max(255).url()),
       profileImage: z.optional(z.string().max(255).url()),
       socialLinks: z.optional(socialLinksSchema),
-      members: z.optional(z.array(memberSchema))
+      members: z.optional(z.array(memberSchema)),
+      roleOrder: z.optional(z.array(groupRoleOrderSchema))
     })
   }),
   executeRequest(async (req, res) => {

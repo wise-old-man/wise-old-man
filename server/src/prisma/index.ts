@@ -17,7 +17,8 @@ import {
   Prisma,
   Country,
   MemberActivity,
-  GroupSocialLinks as PrismaGroupSocialLinks
+  GroupSocialLinks as PrismaGroupSocialLinks,
+  GroupRoleOrder as PrismaGroupRoleOrder
 } from '@prisma/client';
 import { DenyContext, SkipContext, isComputedMetric } from '../utils';
 import { NameChangeStatus } from './enum-adapter';
@@ -157,6 +158,8 @@ type NameChange = Omit<PrismaNameChange, 'reviewContext'> & {
 };
 
 type GroupSocialLinks = Omit<PrismaGroupSocialLinks, 'id' | 'groupId' | 'createdAt' | 'updatedAt'>;
+
+// type GroupRoleOrder = Omit<PrismaGroupRoleOrde, ''>;
 
 export {
   Prisma as PrismaTypes,

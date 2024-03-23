@@ -34,10 +34,21 @@ interface EditGroupPayload {
     youtube?: string | null;
   };
   members?: Array<{ username: string; role: GroupRole }>;
+  roleOrder?: Array<{ role: GroupRole; index: number }>;
 }
 
 async function editGroup(groupId: number, payload: EditGroupPayload): Promise<GroupDetails> {
-  const { name, clanChat, homeworld, description, members, bannerImage, profileImage, socialLinks } = payload;
+  const {
+    name,
+    clanChat,
+    homeworld,
+    description,
+    members,
+    bannerImage,
+    profileImage,
+    socialLinks,
+    roleOrder
+  } = payload;
 
   if (clanChat && !isValidUsername(clanChat)) {
     throw new BadRequestError("Invalid 'clanChat'. Cannot contain special characters.");
@@ -51,7 +62,8 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     !members &&
     !bannerImage &&
     !profileImage &&
-    !socialLinks
+    !socialLinks &&
+    !roleOrder
   ) {
     throw new BadRequestError('Nothing to update.');
   }
@@ -140,6 +152,10 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
 
       if (socialLinks) {
         await updateSocialLinks(groupId, socialLinks, transaction);
+      }
+
+      if (roleOrder) {
+        await updateGroupRoleOrder(groupId, roleOrder, transaction);
       }
 
       await transaction.group.update({
@@ -448,3 +464,33 @@ function calculateRoleChangeMaps(
 }
 
 export { editGroup };
+
+async function updateGroupRoleOrder(
+  groupId: number,
+  roleOrder: Array<{ role: GroupRole; index: number }>,
+  transaction: PrismaTypes.TransactionClient
+) {
+  const uniqueIndexes = new Set(roleOrder.map(x => x.index));
+  const uniqueRoles = new Set(roleOrder.map(x => x.role));
+
+  if (uniqueIndexes.size < roleOrder.length) {
+    throw new BadRequestError('Role Order must contain unique indexes for each role');
+  }
+
+  if (uniqueRoles.size < roleOrder.length) {
+    throw new BadRequestError('Role Order must contain unique roles');
+  }
+
+  // TODO: unsure if there's a better way to delete/replace records using prisma
+  const orderWithGroupId = roleOrder.map(x => ({ ...x, groupId: groupId }));
+
+  await transaction.groupRoleOrder.deleteMany({
+    where: { groupId }
+  });
+
+  await transaction.groupRoleOrder.createMany({
+    data: {
+      ...orderWithGroupId
+    }
+  });
+}
