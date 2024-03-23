@@ -1,5 +1,5 @@
 import { Job as BullJob, Queue, QueueScheduler, Worker } from 'bullmq';
-import metricsService from '../api/services/external/metrics.service';
+import prometheus from '../api/services/external/prometheus.service';
 import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
@@ -21,6 +21,7 @@ import { Job, JobPriority } from './job.utils';
 const DISPATCHABLE_JOBS = [
   CheckPlayerBannedJob,
   SyncApiKeysJob,
+  ScheduleFlaggedPlayerReviewJob,
   SyncPatronsJob,
   UpdateGroupScoreJob,
   UpdateCompetitionScoreJob
@@ -113,7 +114,7 @@ class JobManager {
     try {
       logger.info(`Executing job: ${bullJob.name} ${attemptTag}`, instance.instanceId, true);
 
-      await metricsService.trackJob(bullJob.name, async () => {
+      await prometheus.trackJob(bullJob.name, async () => {
         await instance.execute();
       });
 

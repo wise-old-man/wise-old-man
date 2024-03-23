@@ -7,7 +7,7 @@ import userAgent from 'express-useragent';
 import { jobManager } from './jobs';
 import experimentalJobManager from '../jobs/job.manager';
 import router from './routing';
-import metricsService from './services/external/metrics.service';
+import prometheus from './services/external/prometheus.service';
 import redisService from './services/external/redis.service';
 
 const RATE_LIMIT_MAX_REQUESTS = 20;
@@ -100,11 +100,11 @@ class API {
     this.express.use((req, res, next) => {
       // Browsers block sending a custom user agent, so we're sending a custom header in our webapp
       const userAgentHeader = req.get('X-User-Agent') || req.get('User-Agent');
-      const userAgent = metricsService.reduceUserAgent(userAgentHeader, req.useragent);
+      const userAgent = prometheus.reduceUserAgent(userAgentHeader, req.useragent);
 
       res.locals.userAgent = userAgent;
 
-      const endTimer = metricsService.trackHttpRequestStarted();
+      const endTimer = prometheus.trackHttpRequestStarted();
 
       res.on('finish', () => {
         if (!req.route) return;
@@ -117,7 +117,7 @@ class API {
 
         const origin = res.locals.apiKey ? `${res.locals.apiKey}-${userAgent}` : userAgent;
 
-        metricsService.trackHttpRequestEnded(endTimer, route, status, method, origin);
+        prometheus.trackHttpRequestEnded(endTimer, route, status, method, origin);
       });
 
       next();
