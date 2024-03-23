@@ -1266,6 +1266,19 @@ describe('Group API', () => {
     });
   });
 
+  it('should delete role order (given empty array)', async () => {
+    const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+      verificationCode: globalData.testGroupOneLeader.verificationCode,
+      roleOrders: []
+    });
+    expect(response.status).toBe(200);
+
+    const overwriteResponse2 = await api.get(`/groups/${globalData.testGroupOneLeader.id}`);
+
+    expect(response.status).toBe(200);
+    expect(overwriteResponse2.body.roleOrders.length).toBe(0);
+  });
+
   describe('3 - Search Groups', () => {
     it('should search groups', async () => {
       await prisma.group.update({
@@ -2127,7 +2140,7 @@ describe('Group API', () => {
       expect(response.body.memberships.length).toBe(0);
     });
 
-    it('should view details', async () => {
+    it('should view details (no role ordering)', async () => {
       const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}`);
 
       expect(response.status).toBe(200);
@@ -2168,6 +2181,63 @@ describe('Group API', () => {
         role: 'member',
         player: { username: 'rorro' }
       });
+    });
+  });
+
+  it('should view details (with role ordering)', async () => {
+    // set order
+    const roleOrderResponse = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+      verificationCode: globalData.testGroupOneLeader.verificationCode,
+      roleOrders: [
+        { role: 'leader', index: 1 },
+        { role: 'artisan', index: 2 },
+        { role: 'member', index: 3 },
+        { role: 'firemaker', index: 4 },
+        { role: 'achiever', index: 5 }
+      ]
+    });
+
+    expect(roleOrderResponse.status).toBe(200);
+
+    const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}`);
+
+    expect(response.status).toBe(200);
+
+    expect(response.body.verificationHash).not.toBeDefined();
+
+    expect(response.body).toMatchObject({
+      clanChat: 'wiseoldman',
+      description: 'when I was a young boy, my father took me into the city to see a marching band',
+      homeworld: 302,
+      memberCount: 5
+    });
+
+    expect(response.body.memberships.length).toBe(5);
+
+    // this order is determined by the roleOrder defined on the group
+    expect(response.body.memberships[0]).toMatchObject({
+      role: 'leader',
+      player: { username: 'alexsuperfly' }
+    });
+
+    expect(response.body.memberships[1]).toMatchObject({
+      role: 'artisan',
+      player: { username: 'swampletics' }
+    });
+
+    expect(response.body.memberships[2]).toMatchObject({
+      role: 'member',
+      player: { username: 'rorro' }
+    });
+
+    expect(response.body.memberships[3]).toMatchObject({
+      role: 'firemaker',
+      player: { username: 'zezima' }
+    });
+
+    expect(response.body.memberships[4]).toMatchObject({
+      role: 'achiever',
+      player: { username: 'psikoi' }
     });
   });
 
