@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import {
   CompetitionDetails,
@@ -212,11 +212,18 @@ function CompetitionDuration(props: CompetitionDurationProps) {
   const { showUTC } = props;
 
   const duration = durationBetween(props.startsAt, props.endsAt);
+  const hasThreeDurationSegments = useMemo(
+    () => duration.days && duration.hours && duration.minutes,
+    [duration]
+  );
 
   const durationSegments = [];
-  if (duration.days > 0) durationSegments.push(`${duration.days} days`);
-  if (duration.hours > 0) durationSegments.push(`${duration.hours} hours`);
-  if (duration.minutes > 0) durationSegments.push(`${duration.minutes} minutes`);
+  if (duration.days > 0)
+    durationSegments.push(`${duration.days}${hasThreeDurationSegments ? "d" : " days"}`);
+  if (duration.hours > 0)
+    durationSegments.push(`${duration.hours}${hasThreeDurationSegments ? "h" : " hours"}`);
+  if (duration.minutes > 0)
+    durationSegments.push(`${duration.minutes}${hasThreeDurationSegments ? "m" : " minutes"}`);
 
   return (
     <div className="flex h-24 w-full flex-col items-center overflow-hidden rounded-lg border border-gray-500 bg-gray-800 shadow-md">
