@@ -212,10 +212,7 @@ function CompetitionDuration(props: CompetitionDurationProps) {
   const { showUTC } = props;
 
   const duration = durationBetween(props.startsAt, props.endsAt);
-  const hasThreeDurationSegments = useMemo(
-    () => duration.days > 0 && duration.hours > 0 && duration.minutes > 0,
-    [duration]
-  );
+  const hasThreeDurationSegments = duration.days > 0 && duration.hours > 0 && duration.minutes > 0;
 
   const durationSegments = [];
   if (duration.days > 0)
