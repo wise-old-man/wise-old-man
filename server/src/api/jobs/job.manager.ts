@@ -2,7 +2,7 @@ import { JobsOptions, Queue, QueueScheduler, Worker } from 'bullmq';
 import { getThreadIndex } from '../../env';
 import redisConfig from '../../config/redis.config';
 import logger from '../util/logging';
-import metricsService from '../services/external/metrics.service';
+import prometheus from '../services/external/prometheus.service';
 import redisService from '../services/external/redis.service';
 import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.types';
 import AssertPlayerTypeJob from './instances/AssertPlayerTypeJob';
@@ -166,7 +166,7 @@ class JobManager {
       const worker = new Worker(
         job.type,
         async bullJob => {
-          await metricsService.trackJob(job.type, async () => {
+          await prometheus.trackJob(job.type, async () => {
             const maxAttempts = bullJob.opts.attempts || 1;
             const attemptTag = maxAttempts > 0 ? `(#${bullJob.attemptsMade})` : '';
             logger.info(`Executing job: ${job.type} ${attemptTag}`, bullJob.data, true);

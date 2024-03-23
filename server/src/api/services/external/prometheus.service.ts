@@ -7,7 +7,7 @@ type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
 type EffectParams = 'effectName' | 'status';
 type JobParams = 'jobName' | 'status';
 
-class MetricsService {
+class PrometheusService {
   private registry: Registry;
   private jobHistogram: Histogram<JobParams>;
   private httpHistogram: Histogram<HttpParams>;
@@ -99,4 +99,4 @@ class MetricsService {
   }
 }
 
-export default new MetricsService();
+export default new PrometheusService();

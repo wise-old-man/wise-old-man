@@ -4,7 +4,7 @@ import prisma from '../../../prisma';
 import { MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType } from '../../../utils';
 import { JobType, jobManager } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
-import metrics from '../../services/external/metrics.service';
+import prometheus from '../../services/external/prometheus.service';
 import { addToGroupCompetitions } from '../competitions/services/AddToGroupCompetitionsService';
 import { removeFromGroupCompetitions } from '../competitions/services/RemoveFromGroupCompetitionsService';
 
@@ -19,7 +19,7 @@ async function onGroupCreated(groupId: number) {
 }
 
 async function onMembersRolesChanged(events: MemberRoleChangeEvent[]) {
-  await metrics.trackEffect('dispatchMembersRolesChanged', async () => {
+  await prometheus.trackEffect('dispatchMembersRolesChanged', async () => {
     await discordService.dispatchMembersRolesChanged(events);
   });
 }
@@ -29,7 +29,7 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
   const playerIds = events.map(m => m.playerId);
 
   // Add these new members to all upcoming and ongoing competitions
-  await metrics.trackEffect('addToGroupCompetitions', async () => {
+  await prometheus.trackEffect('addToGroupCompetitions', async () => {
     await addToGroupCompetitions(groupId, playerIds);
   });
 
@@ -42,7 +42,7 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
   if (!players || players.length === 0) return;
 
   // Dispatch this event to the discord service
-  await metrics.trackEffect('dispatchMembersJoined', async () => {
+  await prometheus.trackEffect('dispatchMembersJoined', async () => {
     await discordService.dispatchMembersJoined(groupId, events, players);
   });
 
@@ -58,12 +58,12 @@ async function onMembersLeft(events: MemberLeftEvent[]) {
   const playerIds = events.map(m => m.playerId);
 
   // Remove these players from ongoing/upcoming group competitions
-  await metrics.trackEffect('removeFromGroupCompetitions', async () => {
+  await prometheus.trackEffect('removeFromGroupCompetitions', async () => {
     await removeFromGroupCompetitions(groupId, playerIds);
   });
 
   // Dispatch this event to the discord service
-  await metrics.trackEffect('dispatchMembersLeft', async () => {
+  await prometheus.trackEffect('dispatchMembersLeft', async () => {
     await discordService.dispatchMembersLeft(groupId, playerIds);
   });
 }

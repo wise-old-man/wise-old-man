@@ -12,7 +12,7 @@ import nameRouter from './modules/name-changes/name-change.router';
 import patronRouter from './modules/patrons/patron.router';
 import playerRouter from './modules/players/player.router';
 import recordRouter from './modules/records/record.router';
-import metricsService from './services/external/metrics.service';
+import prometheus from './services/external/prometheus.service';
 import logger from './util/logging';
 import { metricAbbreviation } from './util/middlewares';
 
@@ -52,7 +52,7 @@ class RoutingHandler {
     this.router.use(recordRouter);
 
     this.router.get('/metrics', async (_req, res) => {
-      const metrics = await metricsService.getMetrics();
+      const metrics = await prometheus.getMetrics();
       res.json({ threadIndex: getThreadIndex(), data: metrics });
     });
   }
