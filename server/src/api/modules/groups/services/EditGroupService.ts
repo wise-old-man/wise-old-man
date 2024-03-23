@@ -1,5 +1,5 @@
 import prisma, { Membership, PrismaTypes, Player } from '../../../../prisma';
-import { GroupRole, MembershipWithPlayer, NameChangeStatus, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
+import { GroupRole, NameChangeStatus } from '../../../../utils';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
 import { BadRequestError, ServerError } from '../../../errors';
@@ -11,7 +11,7 @@ import {
   MemberRoleChangeEvent
 } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
-import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
+import { buildDefaultSocialLinks, sanitizeName, sortMembers } from '../group.utils';
 import { onMembersRolesChanged, onMembersJoined, onMembersLeft, onGroupUpdated } from '../group.events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
@@ -209,22 +209,7 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
 
   logger.moderation(`[Group:${groupId}] Edited`);
 
-  const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
-
-  let sortedMemberships = [] as MembershipWithPlayer[];
-  if (updatedGroup.roleOrders.length) {
-    // this assumes roleOrders is sorted by index ascending out of the database
-    sortedMemberships = [...updatedGroup.memberships].sort(
-      (a, b) =>
-        (updatedGroup.roleOrders.find(order => order.role === a.role)?.index ?? 0) -
-        (updatedGroup.roleOrders.find(order => order.role === b.role)?.index ?? 0)
-    );
-  } else {
-    // fallback to priority if there is no roleOrders Records
-    sortedMemberships = [...updatedGroup.memberships].sort(
-      (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
-    );
-  }
+  const sortedMemberships = sortMembers(updatedGroup);
 
   return {
     ...omit(updatedGroup, 'verificationHash'),
