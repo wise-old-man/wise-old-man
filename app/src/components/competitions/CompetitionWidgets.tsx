@@ -212,15 +212,15 @@ function CompetitionDuration(props: CompetitionDurationProps) {
   const { showUTC } = props;
 
   const duration = durationBetween(props.startsAt, props.endsAt);
-  const hasThreeDurationSegments = duration.days > 0 && duration.hours > 0 && duration.minutes > 0;
+  const shouldShortenDuration = duration.days > 0 && duration.hours > 0 && duration.minutes > 0;
 
   const durationSegments = [];
   if (duration.days > 0)
-    durationSegments.push(`${duration.days}${hasThreeDurationSegments ? "d" : " days"}`);
+    durationSegments.push(`${duration.days}${shouldShortenDuration ? "d" : " days"}`);
   if (duration.hours > 0)
-    durationSegments.push(`${duration.hours}${hasThreeDurationSegments ? "h" : " hours"}`);
+    durationSegments.push(`${duration.hours}${shouldShortenDuration ? "h" : " hours"}`);
   if (duration.minutes > 0)
-    durationSegments.push(`${duration.minutes}${hasThreeDurationSegments ? "m" : " minutes"}`);
+    durationSegments.push(`${duration.minutes}${shouldShortenDuration ? "m" : " minutes"}`);
 
   return (
     <div className="flex h-24 w-full flex-col items-center overflow-hidden rounded-lg border border-gray-500 bg-gray-800 shadow-md">
