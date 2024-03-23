@@ -192,7 +192,8 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
       memberships: {
         include: { player: true }
       },
-      socialLinks: true
+      socialLinks: true,
+      roleOrders: true
     }
   });
 
@@ -214,7 +215,8 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     ...omit(updatedGroup, 'verificationHash'),
     socialLinks: updatedGroup.socialLinks[0] ?? buildDefaultSocialLinks(),
     memberCount: sortedMemberships.length,
-    memberships: sortedMemberships
+    memberships: sortedMemberships,
+    roleOrders: updatedGroup.roleOrders
   };
 }
 

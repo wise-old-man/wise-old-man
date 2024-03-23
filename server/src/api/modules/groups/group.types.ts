@@ -11,6 +11,7 @@ export interface GroupListItem extends Omit<Group, 'verificationHash'> {
 export interface GroupDetails extends GroupListItem {
   socialLinks?: GroupSocialLinks;
   memberships: MembershipWithPlayer[];
+  roleOrders?: GroupRoleOrder[];
 }
 
 export interface MembershipWithGroup extends Membership {

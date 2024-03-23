@@ -30,7 +30,8 @@ async function fetchGroupDetails(id: number): Promise<GroupDetails> {
     // Sort the members list by role
     memberships: group.memberships.sort(
       (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
-    )
+    ),
+    roleOrders: group.roleOrders
   };
 }
 

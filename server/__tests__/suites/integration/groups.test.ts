@@ -1236,7 +1236,7 @@ describe('Group API', () => {
       expect(overwriteResponse2.body.roleOrders.length).toBe(1);
     });
 
-    it('should not create role order if same index or role', async () => {
+    it('should not edit role order (if same index or role)', async () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
         roleOrders: [
