@@ -21,6 +21,7 @@ import { Job, JobPriority } from './job.utils';
 const DISPATCHABLE_JOBS = [
   CheckPlayerBannedJob,
   SyncApiKeysJob,
+  ScheduleFlaggedPlayerReviewJob,
   SyncPatronsJob,
   UpdateGroupScoreJob,
   UpdateCompetitionScoreJob
