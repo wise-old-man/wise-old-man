@@ -5,7 +5,7 @@ import { CompetitionWithParticipations, PlayerType } from '../../../utils';
 import { JobPriority, JobType, jobManager } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import { EventPeriodDelay } from '../../services/external/discord.service';
-import metrics from '../../services/external/metrics.service';
+import prometheus from '../../services/external/prometheus.service';
 import { fetchCompetitionDetails } from './services/FetchCompetitionDetailsService';
 import { updateAllParticipants } from './services/UpdateAllParticipantsService';
 
@@ -31,19 +31,19 @@ async function onParticipantsJoined(participations: Pick<Participation, 'playerI
 
 async function onCompetitionCreated(competition: CompetitionWithParticipations) {
   // Dispatch a competition created event to our discord bot API.
-  await metrics.trackEffect('dispatchCompetitionCreated', async () => {
+  await prometheus.trackEffect('dispatchCompetitionCreated', async () => {
     discordService.dispatchCompetitionCreated(competition);
   });
 }
 
 async function onCompetitionStarted(competition: Competition) {
   // Update all players when the competition starts
-  await metrics.trackEffect('updateAllParticipants', async () => {
+  await prometheus.trackEffect('updateAllParticipants', async () => {
     await updateAllParticipants(competition.id, true);
   });
 
   // Dispatch a competition started event to our discord bot API.
-  await metrics.trackEffect('dispatchCompetitionStarted', async () => {
+  await prometheus.trackEffect('dispatchCompetitionStarted', async () => {
     discordService.dispatchCompetitionStarted(competition);
   });
 
@@ -56,7 +56,7 @@ async function onCompetitionEnded(competition: Competition) {
   if (!competitionDetails) return;
 
   // Dispatch a competition ended event to our discord bot API.
-  await metrics.trackEffect('dispatchCompetitionEnded', async () => {
+  await prometheus.trackEffect('dispatchCompetitionEnded', async () => {
     discordService.dispatchCompetitionEnded(competitionDetails);
   });
 
@@ -66,14 +66,14 @@ async function onCompetitionEnded(competition: Competition) {
 
 async function onCompetitionStarting(competition: Competition, period: EventPeriodDelay) {
   // Dispatch a competition starting event to our discord bot API.
-  await metrics.trackEffect('dispatchCompetitionStarting', async () => {
+  await prometheus.trackEffect('dispatchCompetitionStarting', async () => {
     discordService.dispatchCompetitionStarting(competition, period);
   });
 }
 
 async function onCompetitionEnding(competition: Competition, period: EventPeriodDelay) {
   // Dispatch a competition ending event to our discord bot API.
-  await metrics.trackEffect('dispatchCompetitionEnding', async () => {
+  await prometheus.trackEffect('dispatchCompetitionEnding', async () => {
     discordService.dispatchCompetitionEnding(competition, period);
   });
 

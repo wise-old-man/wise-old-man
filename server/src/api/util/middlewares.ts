@@ -6,8 +6,9 @@ import { submitNameChange } from '../modules/name-changes/services/SubmitNameCha
 import redisService from '../services/external/redis.service';
 import * as cryptService from '../services/external/crypt.service';
 import logger from '../util/logging';
+import prometheusService from '../services/external/prometheus.service';
 
-export function metricAbbreviation(req: Request, _res: Response, next: NextFunction) {
+export function metricAbbreviation(req: Request, res: Response, next: NextFunction) {
   if (!req) {
     return next();
   }
@@ -18,6 +19,12 @@ export function metricAbbreviation(req: Request, _res: Response, next: NextFunct
 
     if (!isMetric(metric)) {
       req.body.metric = parseMetricAbbreviation(metric) || metric;
+
+      if (req.body.metric !== metric) {
+        // Metric was corrected
+        // Tracking this temporarily to see if it's safe to deprecate
+        prometheusService.incrementMetricCorrectionCounter(res.locals.userAgent, req.originalUrl, req.method);
+      }
     }
   }
 
@@ -27,6 +34,12 @@ export function metricAbbreviation(req: Request, _res: Response, next: NextFunct
 
     if (!isMetric(metric)) {
       req.query.metric = parseMetricAbbreviation(metric) || metric;
+
+      if (req.query.metric !== metric) {
+        // Metric was corrected
+        // Tracking this temporarily to see if it's safe to deprecate
+        prometheusService.incrementMetricCorrectionCounter(res.locals.userAgent, req.originalUrl, req.method);
+      }
     }
   }
 
