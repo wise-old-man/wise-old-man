@@ -139,6 +139,8 @@ class JobManager {
       }
 
       instance.onFailure(error);
+
+      throw error;
     }
   }
 

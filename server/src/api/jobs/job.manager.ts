@@ -54,61 +54,6 @@ const JOBS: JobDefinition<any>[] = [
   UpdatePlayerJob
 ];
 
-const CRON_JOBS = [
-  // {
-  //   type: JobType.SCHEDULE_COMPETITION_EVENTS,
-  //   interval: '* * * * *' // every 1 min
-  // },
-  // {
-  //   type: JobType.SYNC_API_KEYS, // moved to the experimental job manager, for monitoring
-  //   interval: '* * * * *' // every 1 min
-  // },
-  // {
-  //   type: JobType.SYNC_PATRONS,
-  //   interval: '* * * * *' // every 1 min
-  // },
-  // {
-  //   type: JobType.AUTO_UPDATE_PATRON_PLAYERS,
-  //   interval: '*/5 * * * *' // every 5 mins
-  // },
-  // {
-  //   type: JobType.AUTO_UPDATE_PATRON_GROUPS,
-  //   interval: '*/5 * * * *' // every 5 mins
-  // },
-  // {
-  //   type: JobType.SCHEDULE_DELTA_INVALIDATIONS,
-  //   interval: '0 */6 * * *' // every 6 hours
-  // },
-  // {
-  //   type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES,
-  //   interval: '0 */12 * * *' // every 12 hours
-  // },
-  // {
-  //   type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW,
-  //   interval: '0 * * * *' // every hour
-  // },
-  // {
-  //   type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
-  //   interval: '0 8 * * *' // everyday at 8AM
-  // },
-  // {
-  //   type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS,
-  //   interval: '0 8 * * *' // everyday at 8AM
-  // },
-  // {
-  //   type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS,
-  //   interval: '0 8 * * *' // everyday at 8AM
-  // }
-  // {
-  //   type: JobType.CALCULATE_COMPUTED_METRIC_RANK_TABLES,
-  //   interval: '0 8 * * *' // everyday at 8AM
-  // }
-  // {
-  // type: JobType.SCHEDULE_TREND_CALCS,
-  // interval: '0 */12 * * *' // every 12 hours
-  // }
-];
-
 class JobManager {
   private queues: Queue[];
   private workers: Worker[];
@@ -212,17 +157,6 @@ class JobManager {
         await Promise.all(activeJobs.map(job => queue.removeRepeatableByKey(job.key)));
       })
     );
-
-    // Reactivate all cron jobs
-    CRON_JOBS.forEach(cron => {
-      const matchingQueue = this.queues.find(q => q.name === cron.type);
-
-      if (!matchingQueue) {
-        throw new Error(`No job implementation found for type "${cron.type}".`);
-      }
-
-      matchingQueue.add(cron.type, {}, { repeat: { pattern: cron.interval } });
-    });
   }
 
   init() {

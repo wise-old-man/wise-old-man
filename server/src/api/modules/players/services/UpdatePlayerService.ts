@@ -1,7 +1,8 @@
+import { CheckPlayerRankedJob } from '../../../../jobs/instances/CheckPlayerRankedJob';
+import experimentalJobManager from '../../../../jobs/job.manager';
 import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import { PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
-import { JobType, jobManager } from '../../../jobs';
 import * as jagexService from '../../../services/external/jagex.service';
 import redisService from '../../../services/external/redis.service';
 import logger from '../../../util/logging';
@@ -66,10 +67,7 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
       // If it failed to load their stats, and the player isn't unranked,
       // we should start a background job to check (a few times) if they're really unranked
       if (!isNew && player.status !== PlayerStatus.UNRANKED && player.status !== PlayerStatus.BANNED) {
-        jobManager.add({
-          type: JobType.CHECK_PLAYER_RANKED,
-          payload: { username: player.username }
-        });
+        experimentalJobManager.add(new CheckPlayerRankedJob(player.username));
       }
     }
 
