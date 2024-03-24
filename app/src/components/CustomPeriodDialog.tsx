@@ -29,11 +29,71 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
   );
 
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(new Date()));
+  const [invalidStartDate, setInvalidStartDate] = useState(false);
+
+  const [invalidEndDate, setInvalidEndDate] = useState(false);
+  const [startDateAfterEndDate, setStartDateAfterEndDate] = useState(false);
+
+  const earliestDate = toCalendarDate(new Date(2013, 0, 1));
+  const typeEnum = { START_DATE: 'start', END_DATE: 'end' };
+
+  const errorLabels = {
+    start: "Start date must be after " + earliestDate.toString(),
+    endFuture: "End date must not be in the future",
+    endBeforeStart: "End date must be after start date"
+  };
+
+ function resetStates() {
+    setInvalidStartDate(false);
+    setInvalidEndDate(false);
+    setStartDateAfterEndDate(false);
+ }
+
+ function getLabel(type: string) {
+  const isError = type === typeEnum.START_DATE ? invalidStartDate : invalidEndDate || startDateAfterEndDate;
+  const label = type === typeEnum.START_DATE ? "Start date" : "End date";
+  const errorText = type === typeEnum.START_DATE ? errorLabels.start : invalidEndDate ? errorLabels.endFuture : errorLabels.endBeforeStart;
+  const className = `mb-2 block text-xs ${isError ? "text-red-500" : "text-gray-200"}`;
+  return <Label className={className}>{isError ? errorText : label}</Label>;
+}
+
+ function setEndDateTime(dateTime: Date) {
+  setEndTime(new Time(dateTime.getHours(), dateTime.getMinutes()));
+  setEndDate(toCalendarDate(dateTime));
+}
+
+function validateDate(date: DateValue, time: TimeValue, type: string) {
+  const dateTime = toDate(date, time);
+  if (type === typeEnum.START_DATE && dateTime.getFullYear() < earliestDate.year) {
+    setInvalidStartDate(true);
+    setStartDate(earliestDate);
+    return false;
+  }
+  if (type === typeEnum.END_DATE) {
+    if (dateTime < toDate(startDate, startTime)) {
+      setStartDateAfterEndDate(true);
+      setEndDateTime(toDate(startDate, startTime));
+      return false;
+    }
+    if (dateTime > new Date()) {
+      setInvalidEndDate(true);
+      setEndDateTime(new Date());
+      return false;
+    }
+  }
+  resetStates();
+  return true;
+}
 
   function handleSelection() {
+    resetStates();
+
+    if (!validateDate(startDate, startTime, typeEnum.START_DATE)) return;
+    if (!validateDate(endDate, endTime, typeEnum.END_DATE)) return;
+
+
     const startDateTime = toDate(startDate, startTime);
     const endDateTime = toDate(endDate, endTime);
-
     onSelected(startDateTime, endDateTime);
   }
 
@@ -61,7 +121,7 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
         >
           <div className="flex grow gap-x-4">
             <div className="grow">
-              <Label className="mb-2 block text-xs text-gray-200">Start date</Label>
+              { getLabel(typeEnum.START_DATE) }
               <DateTimePicker inDialog value={startDate} onChange={setStartDate} />
             </div>
             <div className="grow">
@@ -71,8 +131,8 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
           </div>
           <div className="mt-5 flex grow gap-x-4">
             <div className="grow">
-              <Label className="mb-2 block text-xs text-gray-200">End date</Label>
-              <DateTimePicker inDialog value={endDate} onChange={setEndDate} />
+              {getLabel(typeEnum.END_DATE)}
+              <DateTimePicker inDialog value={endDate} onChange={setEndDate}/>
             </div>
             <div className="grow">
               <Label className="mb-2 block text-xs text-gray-200">End time</Label>
