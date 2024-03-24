@@ -7,22 +7,26 @@ import { AutoUpdatePatronGroupsJob } from './instances/AutoUpdatePatronGroupsJob
 import { AutoUpdatePatronPlayersJob } from './instances/AutoUpdatePatronPlayersJob';
 import { CalculateComputedMetricRankTablesJob } from './instances/CalculateComputedMetricRankTablesJob';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
+import { CheckPlayerRankedJob } from './instances/CheckPlayerRankedJob';
+import { CheckPlayerTypeJob } from './instances/CheckPlayerTypeJob';
+import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
+import { ScheduleBannedPlayerChecksJob } from './instances/ScheduleBannedPlayerChecksJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
+import { ScheduleCompetitionScoreUpdatesJob } from './instances/ScheduleCompetitionScoreUpdatesJob';
 import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalidationsJob';
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
+import { ScheduleGroupScoreUpdatesJob } from './instances/ScheduleGroupScoreUpdatesJob';
+import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
 import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
-import { ScheduleGroupScoreUpdatesJob } from './instances/ScheduleGroupScoreUpdatesJob';
-import { ScheduleCompetitionScoreUpdatesJob } from './instances/ScheduleCompetitionScoreUpdatesJob';
-import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
-import { ScheduleBannedPlayerChecksJob } from './instances/ScheduleBannedPlayerChecksJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
-import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import { Job, JobPriority } from './job.utils';
 
 const DISPATCHABLE_JOBS = [
   CheckPlayerBannedJob,
+  CheckPlayerRankedJob,
+  CheckPlayerTypeJob,
   ReviewNameChangeJob,
   ScheduleFlaggedPlayerReviewJob,
   SyncApiKeysJob,
