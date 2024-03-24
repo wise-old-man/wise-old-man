@@ -14,17 +14,20 @@ import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { ScheduleGroupScoreUpdatesJob } from './instances/ScheduleGroupScoreUpdatesJob';
 import { ScheduleCompetitionScoreUpdatesJob } from './instances/ScheduleCompetitionScoreUpdatesJob';
+import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
+import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import { Job, JobPriority } from './job.utils';
 
 const DISPATCHABLE_JOBS = [
   CheckPlayerBannedJob,
-  SyncApiKeysJob,
+  ReviewNameChangeJob,
   ScheduleFlaggedPlayerReviewJob,
+  SyncApiKeysJob,
   SyncPatronsJob,
-  UpdateGroupScoreJob,
-  UpdateCompetitionScoreJob
+  UpdateCompetitionScoreJob,
+  UpdateGroupScoreJob
 ] as const;
 
 const CRON_CONFIG = [
@@ -67,6 +70,10 @@ const CRON_CONFIG = [
   {
     interval: '0 8 * * *', // everyday at 8AM
     job: CalculateComputedMetricRankTablesJob
+  },
+  {
+    interval: '0 8 * * *', // everyday at 8AM
+    job: ScheduleNameChangeReviewsJob
   }
 ] as const;
 

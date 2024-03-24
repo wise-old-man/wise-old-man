@@ -1,11 +1,9 @@
 import { NameChange } from '../../../prisma';
-import { jobManager, JobType } from '../../jobs';
+import experimentalJobManager from '../../../jobs/job.manager';
+import { ReviewNameChangeJob } from '../../../jobs/instances/ReviewNameChangeJob';
 
 async function onNameChangeSubmitted(nameChange: NameChange) {
-  jobManager.add({
-    type: JobType.REVIEW_NAME_CHANGE,
-    payload: { id: nameChange.id }
-  });
+  experimentalJobManager.add(new ReviewNameChangeJob(nameChange.id));
 }
 
 export { onNameChangeSubmitted };

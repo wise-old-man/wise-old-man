@@ -91,10 +91,10 @@ const CRON_JOBS = [
   //   type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
   //   interval: '0 8 * * *' // everyday at 8AM
   // },
-  {
-    type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS,
-    interval: '0 8 * * *' // everyday at 8AM
-  },
+  // {
+  //   type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS,
+  //   interval: '0 8 * * *' // everyday at 8AM
+  // },
   {
     type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS,
     interval: '0 8 * * *' // everyday at 8AM
