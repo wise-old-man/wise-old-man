@@ -485,13 +485,11 @@ async function updateGroupRoleOrder(
   roleOrders: Array<{ role: GroupRole; index: number }>,
   transaction: PrismaTypes.TransactionClient
 ) {
-  const orderWithGroupId = roleOrders.map(x => ({ ...x, groupId: groupId }));
-
   await transaction.groupRoleOrder.deleteMany({
     where: { groupId }
   });
 
   await transaction.groupRoleOrder.createMany({
-    data: orderWithGroupId
+    data: roleOrders.map(x => ({ ...x, groupId: groupId }))
   });
 }

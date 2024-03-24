@@ -21,18 +21,17 @@ function buildDefaultSocialLinks() {
 
 function sortMembers(group: Omit<GroupDetails, 'socialLinks' | 'memberCount'>): MembershipWithPlayer[] {
   if (group.roleOrders && group.roleOrders.length) {
+    const roleOrderMap = new Map(group.roleOrders.map(r => [r.role, r.index]));
     // this assumes roleOrders is sorted by index ascending out of the database
     return [...group.memberships].sort(
-      (a, b) =>
-        (group.roleOrders?.find(order => order.role === a.role)?.index ?? 0) -
-        (group.roleOrders?.find(order => order.role === b.role)?.index ?? 0)
-    );
-  } else {
-    const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
-    // fallback to priority if there is no roleOrders Records
-    return [...group.memberships].sort(
-      (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
+      (a, b) => (roleOrderMap.get(a.role) ?? 0) - (roleOrderMap.get(b.role) ?? 0)
     );
   }
+
+  const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
+  // fallback to priority if there is no roleOrders Records
+  return [...group.memberships].sort(
+    (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
+  );
 }
 export { sanitizeName, buildDefaultSocialLinks, sortMembers };

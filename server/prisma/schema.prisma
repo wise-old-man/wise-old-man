@@ -221,7 +221,7 @@ model GroupRoleOrder {
   // Indices
   @@index([groupId], map: "group_role_order_group_id")
   // Map
-  @@map("groupRoleOrder")
+  @@map("groupRoleOrders")
 }
 
 model Membership {
