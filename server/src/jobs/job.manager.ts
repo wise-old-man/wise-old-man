@@ -15,6 +15,7 @@ import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { ScheduleGroupScoreUpdatesJob } from './instances/ScheduleGroupScoreUpdatesJob';
 import { ScheduleCompetitionScoreUpdatesJob } from './instances/ScheduleCompetitionScoreUpdatesJob';
 import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
+import { ScheduleBannedPlayerChecksJob } from './instances/ScheduleBannedPlayerChecksJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
 import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
@@ -74,6 +75,10 @@ const CRON_CONFIG = [
   {
     interval: '0 8 * * *', // everyday at 8AM
     job: ScheduleNameChangeReviewsJob
+  },
+  {
+    interval: '0 8 * * *', // everyday at 8AM
+    job: ScheduleBannedPlayerChecksJob
   }
 ] as const;
 
