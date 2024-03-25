@@ -111,7 +111,7 @@ class JobManager {
       const worker = new Worker(
         job.type,
         async bullJob => {
-          await prometheus.trackJob(job.type, async () => {
+          await prometheus.trackJob(job.type, 'current', async () => {
             const maxAttempts = bullJob.opts.attempts || 1;
             const attemptTag = maxAttempts > 0 ? `(#${bullJob.attemptsMade})` : '';
             logger.info(`Executing job: ${job.type} ${attemptTag}`, bullJob.data, true);

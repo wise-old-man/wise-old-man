@@ -132,7 +132,7 @@ class JobManager {
     try {
       logger.info(`Executing job: ${bullJob.name} ${attemptTag}`, instance.instanceId, true);
 
-      await prometheus.trackJob(bullJob.name, async () => {
+      await prometheus.trackJob(bullJob.name, 'experimental', async () => {
         await instance.execute();
       });
 

@@ -5,7 +5,7 @@ import { JobType } from '../../jobs';
 
 type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
 type EffectParams = 'effectName' | 'status';
-type JobParams = 'jobName' | 'status';
+type JobParams = 'jobName' | 'status' | 'version';
 
 class PrometheusService {
   private registry: Registry;
@@ -106,14 +106,14 @@ class PrometheusService {
     }
   }
 
-  async trackJob(jobType: JobType | string, handler: () => Promise<void>) {
+  async trackJob(jobType: JobType | string, version: string, handler: () => Promise<void>) {
     const endTimer = this.jobHistogram.startTimer();
 
     try {
       await handler();
-      endTimer({ jobName: String(jobType), status: 1 });
+      endTimer({ jobName: String(jobType), version, status: 1 });
     } catch (error) {
-      endTimer({ jobName: String(jobType), status: 0 });
+      endTimer({ jobName: String(jobType), version, status: 0 });
       throw error;
     }
   }
