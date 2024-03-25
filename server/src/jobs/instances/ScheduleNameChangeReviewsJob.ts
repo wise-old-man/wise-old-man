@@ -16,7 +16,7 @@ class ScheduleNameChangeReviewsJob extends Job {
     const cooldown = Math.floor(PeriodProps[Period.DAY].milliseconds / pending.length);
 
     for (let i = 0; i < pending.length; i++) {
-      await jobManager.add(new ReviewNameChangeJob(pending[i].id).setDelay(i * cooldown));
+      jobManager.add(new ReviewNameChangeJob(pending[i].id).setDelay(i * cooldown));
     }
   }
 }

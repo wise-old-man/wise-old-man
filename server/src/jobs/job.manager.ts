@@ -151,6 +151,8 @@ class JobManager {
   }
 
   async init() {
+    if (process.env.NODE_ENV === 'test') return;
+
     const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
 
     const jobsToInit = [...DISPATCHABLE_JOBS];

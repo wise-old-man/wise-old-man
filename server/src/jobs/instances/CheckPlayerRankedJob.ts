@@ -44,7 +44,7 @@ class CheckPlayerRankedJob extends Job {
 
     // Being unranked could also mean a player is banned, so if we determine
     // that they're not on the hiscores, check if they're banned on RuneMetrics.
-    await jobManager.add(new CheckPlayerBannedJob(this.username));
+    jobManager.add(new CheckPlayerBannedJob(this.username));
   }
 }
 

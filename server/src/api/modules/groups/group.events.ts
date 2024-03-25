@@ -10,12 +10,12 @@ import { removeFromGroupCompetitions } from '../competitions/services/RemoveFrom
 
 async function onGroupUpdated(groupId: number) {
   // Trigger a score update job, without any instance id, so that it doesn't get deduplicated.
-  await experimentalJobManager.add(new UpdateGroupScoreJob(groupId).unsetInstanceId());
+  experimentalJobManager.add(new UpdateGroupScoreJob(groupId).unsetInstanceId());
 }
 
 async function onGroupCreated(groupId: number) {
   // Trigger a score update job, without any instance id, so that it doesn't get deduplicated.
-  await experimentalJobManager.add(new UpdateGroupScoreJob(groupId).unsetInstanceId());
+  experimentalJobManager.add(new UpdateGroupScoreJob(groupId).unsetInstanceId());
 }
 
 async function onMembersRolesChanged(events: MemberRoleChangeEvent[]) {
