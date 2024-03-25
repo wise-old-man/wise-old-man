@@ -17,7 +17,7 @@ class ScheduleCompetitionScoreUpdatesJob extends Job {
     const cooldown = Math.floor(PeriodProps[Period.DAY].milliseconds / 2 / competitions.length);
 
     for (let i = 0; i < competitions.length; i++) {
-      await jobManager.add(new UpdateCompetitionScoreJob(competitions[i].id).setDelay(i * cooldown));
+      jobManager.add(new UpdateCompetitionScoreJob(competitions[i].id).setDelay(i * cooldown));
     }
   }
 }
