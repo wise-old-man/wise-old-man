@@ -1,6 +1,7 @@
+import { UpdatePlayerJob } from '../../../../jobs/instances/UpdatePlayerJob';
+import experimentalJobManager from '../../../../jobs/job.manager';
 import prisma, { Player } from '../../../../prisma';
-import { jobManager, JobType } from '../../../jobs';
-import { NotFoundError, BadRequestError } from '../../../errors';
+import { BadRequestError, NotFoundError } from '../../../errors';
 
 // The first and last 6h of a competition are considered a priority period
 const PRIORITY_PERIOD = 6;
@@ -45,13 +46,10 @@ async function updateAllParticipants(
     );
   }
 
-  // Execute the update action for every participant
-  outdatedPlayers.forEach(({ username }) => {
-    jobManager.add({
-      type: JobType.UPDATE_PLAYER,
-      payload: { username }
-    });
-  });
+  // Schedule an update job for every participant
+  for (const player of outdatedPlayers) {
+    experimentalJobManager.add(new UpdatePlayerJob(player.username));
+  }
 
   return { outdatedCount: outdatedPlayers.length, cooldownDuration };
 }

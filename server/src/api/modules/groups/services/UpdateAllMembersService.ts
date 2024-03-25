@@ -1,7 +1,8 @@
+import { UpdatePlayerJob } from '../../../../jobs/instances/UpdatePlayerJob';
+import experimentalJobManager from '../../../../jobs/job.manager';
 import prisma, { Player } from '../../../../prisma';
 import { Period, PeriodProps } from '../../../../utils';
-import { NotFoundError, BadRequestError } from '../../../errors';
-import { jobManager, JobType } from '../../../jobs';
+import { BadRequestError, NotFoundError } from '../../../errors';
 
 async function updateAllMembers(groupId: number): Promise<number> {
   const outdatedPlayers = await getOutdatedMembers(groupId);
@@ -18,10 +19,10 @@ async function updateAllMembers(groupId: number): Promise<number> {
     throw new BadRequestError('This group has no outdated members (updated over 24h ago).');
   }
 
-  // Execute the update action for every member
-  outdatedPlayers.forEach(({ username }) => {
-    jobManager.add({ type: JobType.UPDATE_PLAYER, payload: { username } });
-  });
+  // Schedule an update job for every member
+  for (const player of outdatedPlayers) {
+    experimentalJobManager.add(new UpdatePlayerJob(player.username));
+  }
 
   return outdatedPlayers.length;
 }

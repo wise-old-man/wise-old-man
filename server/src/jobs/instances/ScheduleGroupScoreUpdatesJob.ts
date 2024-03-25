@@ -14,7 +14,7 @@ class ScheduleGroupScoreUpdatesJob extends Job {
     const cooldown = Math.floor(PeriodProps[Period.DAY].milliseconds / groups.length);
 
     for (let i = 0; i < groups.length; i++) {
-      await jobManager.add(new UpdateGroupScoreJob(groups[i].id).setDelay(i * cooldown));
+      jobManager.add(new UpdateGroupScoreJob(groups[i].id).setDelay(i * cooldown));
     }
   }
 }
