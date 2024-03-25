@@ -21,6 +21,7 @@ import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
+import { UpdatePlayerJob } from './instances/UpdatePlayerJob';
 import { Job, JobPriority } from './job.utils';
 
 const DISPATCHABLE_JOBS = [
@@ -32,7 +33,8 @@ const DISPATCHABLE_JOBS = [
   SyncApiKeysJob,
   SyncPatronsJob,
   UpdateCompetitionScoreJob,
-  UpdateGroupScoreJob
+  UpdateGroupScoreJob,
+  UpdatePlayerJob
 ] as const;
 
 const CRON_CONFIG = [

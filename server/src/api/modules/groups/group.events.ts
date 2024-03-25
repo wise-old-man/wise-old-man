@@ -1,8 +1,8 @@
 import { UpdateGroupScoreJob } from '../../../jobs/instances/UpdateGroupScoreJob';
+import { UpdatePlayerJob } from '../../../jobs/instances/UpdatePlayerJob';
 import experimentalJobManager from '../../../jobs/job.manager';
 import prisma from '../../../prisma';
 import { MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType } from '../../../utils';
-import { JobType, jobManager } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import prometheus from '../../services/external/prometheus.service';
 import { addToGroupCompetitions } from '../competitions/services/AddToGroupCompetitionsService';
@@ -49,7 +49,7 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
     if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) return;
-    jobManager.add({ type: JobType.UPDATE_PLAYER, payload: { username } });
+    experimentalJobManager.add(new UpdatePlayerJob(username));
   });
 }
 
