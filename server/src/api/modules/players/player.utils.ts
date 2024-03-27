@@ -31,8 +31,13 @@ function standardize(username: string): string {
   return sanitize(username).toLowerCase();
 }
 
-function sanitize(username: string): string {
-  return username.replace(/[-_\s]/g, ' ').trim();
+function sanitize(username: string, includeUnderscore?: boolean): string {
+  return includeUnderscore
+    ? username
+        .replace(/^_+|_+$/g, '')
+        .replace(/_/g, ' ')
+        .trim()
+    : username.replace(/[-_\s]/g, ' ').trim();
 }
 
 function validateUsername(username: string): Error | null {
@@ -53,7 +58,7 @@ function validateUsername(username: string): Error | null {
   }
 
   // If has any special characters
-  if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(standardized)) {
+  if (!new RegExp(/^[a-zA-Z0-9_ ]{1,12}$/).test(standardized)) {
     return new Error('Username cannot contain any special characters.');
   }
 
