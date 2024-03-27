@@ -1,6 +1,8 @@
-import { Snapshot, Player } from '../../../prisma';
+import { CheckPlayerTypeJob } from '../../../jobs/instances/CheckPlayerTypeJob';
+import { UpdatePlayerJob } from '../../../jobs/instances/UpdatePlayerJob';
+import experimentalJobManager from '../../../jobs/job.manager';
+import { Player, Snapshot } from '../../../prisma';
 import { FlaggedPlayerReviewContext, PlayerType } from '../../../utils';
-import { jobManager, JobType } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import prometheus from '../../services/external/prometheus.service';
 import { reevaluatePlayerAchievements } from '../achievements/services/ReevaluatePlayerAchievementsService';
@@ -43,15 +45,8 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
   });
 
   // Setup jobs to assert the player's account type and auto-update them
-  jobManager.add({
-    type: JobType.UPDATE_PLAYER,
-    payload: { username: player.username }
-  });
-
-  jobManager.add({
-    type: JobType.ASSERT_PLAYER_TYPE,
-    payload: { playerId: player.id }
-  });
+  experimentalJobManager.add(new UpdatePlayerJob(player.username));
+  experimentalJobManager.add(new CheckPlayerTypeJob(player.username));
 }
 
 async function onPlayerUpdated(
@@ -86,10 +81,10 @@ async function onPlayerImported(playerId: number) {
 }
 
 export {
-  onPlayerFlagged,
   onPlayerArchived,
-  onPlayerTypeChanged,
+  onPlayerFlagged,
+  onPlayerImported,
   onPlayerNameChanged,
-  onPlayerUpdated,
-  onPlayerImported
+  onPlayerTypeChanged,
+  onPlayerUpdated
 };

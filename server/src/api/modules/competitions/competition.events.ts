@@ -1,8 +1,9 @@
 import { UpdateCompetitionScoreJob } from '../../../jobs/instances/UpdateCompetitionScoreJob';
+import { UpdatePlayerJob } from '../../../jobs/instances/UpdatePlayerJob';
 import experimentalJobManager from '../../../jobs/job.manager';
+import { JobPriority } from '../../../jobs/job.utils';
 import prisma, { Competition, Participation } from '../../../prisma';
 import { CompetitionWithParticipations, PlayerType } from '../../../utils';
-import { JobPriority, JobType, jobManager } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import { EventPeriodDelay } from '../../services/external/discord.service';
 import prometheus from '../../services/external/prometheus.service';
@@ -21,11 +22,7 @@ async function onParticipantsJoined(participations: Pick<Participation, 'playerI
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
     if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) return;
-
-    jobManager.add({
-      type: JobType.UPDATE_PLAYER,
-      payload: { username }
-    });
+    experimentalJobManager.add(new UpdatePlayerJob(username));
   });
 }
 
@@ -48,7 +45,7 @@ async function onCompetitionStarted(competition: Competition) {
   });
 
   // Trigger a score update job, without any instance id, so that it doesn't get deduplicated.
-  await experimentalJobManager.add(new UpdateCompetitionScoreJob(competition.id).unsetInstanceId());
+  experimentalJobManager.add(new UpdateCompetitionScoreJob(competition.id).unsetInstanceId());
 }
 
 async function onCompetitionEnded(competition: Competition) {
@@ -61,7 +58,7 @@ async function onCompetitionEnded(competition: Competition) {
   });
 
   // Trigger a score update job, without any instance id, so that it doesn't get deduplicated.
-  await experimentalJobManager.add(new UpdateCompetitionScoreJob(competition.id).unsetInstanceId());
+  experimentalJobManager.add(new UpdateCompetitionScoreJob(competition.id).unsetInstanceId());
 }
 
 async function onCompetitionStarting(competition: Competition, period: EventPeriodDelay) {
@@ -85,14 +82,8 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
     const competitionDetails = await fetchCompetitionDetails(competition.id);
 
     competitionDetails.participations
-      // Only update players that have gained xp
-      .filter(p => p.progress.gained > 0)
-      .forEach(p => {
-        jobManager.add({
-          type: JobType.UPDATE_PLAYER,
-          payload: { username: p.player.username }
-        });
-      });
+      .filter(p => p.progress.gained > 0) // Only update players that have gained xp
+      .forEach(p => experimentalJobManager.add(new UpdatePlayerJob(p.player.username)));
 
     return;
   }
@@ -113,13 +104,7 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
         return !p.player.updatedAt || Date.now() - p.player.updatedAt.getTime() > 1000 * 60 * 60 * 24;
       })
       .forEach(p => {
-        jobManager.add(
-          {
-            type: JobType.UPDATE_PLAYER,
-            payload: { username: p.player.username }
-          },
-          { priority: JobPriority.LOW }
-        );
+        experimentalJobManager.add(new UpdatePlayerJob(p.player.username).setPriority(JobPriority.LOW));
       });
   }
 }

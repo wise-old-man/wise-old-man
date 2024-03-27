@@ -1,8 +1,8 @@
-import { jobManager as oldJobManager } from '../../api/jobs';
-import { JobPriority, JobType } from '../../api/jobs/job.types';
+import jobManager from '../job.manager';
 import prisma from '../../prisma';
 import { Period, PeriodProps } from '../../utils';
-import { Job } from '../job.utils';
+import { Job, JobPriority } from '../job.utils';
+import { UpdatePlayerJob } from './UpdatePlayerJob';
 
 class AutoUpdatePatronPlayersJob extends Job {
   async execute() {
@@ -28,10 +28,7 @@ class AutoUpdatePatronPlayersJob extends Job {
 
     // Execute the update action for every member
     outdatedPatronPlayers.forEach(({ username }) => {
-      oldJobManager.add(
-        { type: JobType.UPDATE_PLAYER, payload: { username } },
-        { priority: JobPriority.HIGH }
-      );
+      jobManager.add(new UpdatePlayerJob(username).setPriority(JobPriority.HIGH));
     });
   }
 }

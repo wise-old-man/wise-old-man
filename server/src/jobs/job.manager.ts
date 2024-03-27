@@ -7,24 +7,34 @@ import { AutoUpdatePatronGroupsJob } from './instances/AutoUpdatePatronGroupsJob
 import { AutoUpdatePatronPlayersJob } from './instances/AutoUpdatePatronPlayersJob';
 import { CalculateComputedMetricRankTablesJob } from './instances/CalculateComputedMetricRankTablesJob';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
+import { CheckPlayerRankedJob } from './instances/CheckPlayerRankedJob';
+import { CheckPlayerTypeJob } from './instances/CheckPlayerTypeJob';
+import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
+import { ScheduleBannedPlayerChecksJob } from './instances/ScheduleBannedPlayerChecksJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
+import { ScheduleCompetitionScoreUpdatesJob } from './instances/ScheduleCompetitionScoreUpdatesJob';
 import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalidationsJob';
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
+import { ScheduleGroupScoreUpdatesJob } from './instances/ScheduleGroupScoreUpdatesJob';
+import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
 import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
-import { ScheduleGroupScoreUpdatesJob } from './instances/ScheduleGroupScoreUpdatesJob';
-import { ScheduleCompetitionScoreUpdatesJob } from './instances/ScheduleCompetitionScoreUpdatesJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
+import { UpdatePlayerJob } from './instances/UpdatePlayerJob';
 import { Job, JobPriority } from './job.utils';
 
 const DISPATCHABLE_JOBS = [
   CheckPlayerBannedJob,
-  SyncApiKeysJob,
+  CheckPlayerRankedJob,
+  CheckPlayerTypeJob,
+  ReviewNameChangeJob,
   ScheduleFlaggedPlayerReviewJob,
+  SyncApiKeysJob,
   SyncPatronsJob,
+  UpdateCompetitionScoreJob,
   UpdateGroupScoreJob,
-  UpdateCompetitionScoreJob
+  UpdatePlayerJob
 ] as const;
 
 const CRON_CONFIG = [
@@ -67,6 +77,14 @@ const CRON_CONFIG = [
   {
     interval: '0 8 * * *', // everyday at 8AM
     job: CalculateComputedMetricRankTablesJob
+  },
+  {
+    interval: '0 8 * * *', // everyday at 8AM
+    job: ScheduleNameChangeReviewsJob
+  },
+  {
+    interval: '0 8 * * *', // everyday at 8AM
+    job: ScheduleBannedPlayerChecksJob
   }
 ] as const;
 
@@ -114,7 +132,7 @@ class JobManager {
     try {
       logger.info(`Executing job: ${bullJob.name} ${attemptTag}`, instance.instanceId, true);
 
-      await prometheus.trackJob(bullJob.name, async () => {
+      await prometheus.trackJob(bullJob.name, 'experimental', async () => {
         await instance.execute();
       });
 
@@ -127,10 +145,14 @@ class JobManager {
       }
 
       instance.onFailure(error);
+
+      throw error;
     }
   }
 
   async init() {
+    if (process.env.NODE_ENV === 'test') return;
+
     const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
 
     const jobsToInit = [...DISPATCHABLE_JOBS];
