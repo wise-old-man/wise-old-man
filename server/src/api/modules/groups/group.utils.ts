@@ -1,4 +1,4 @@
-import { GroupDetails, MembershipWithPlayer } from './group.types';
+import { MembershipWithPlayer } from './group.types';
 import { PRIVELEGED_GROUP_ROLES } from '../../../utils';
 import { GroupRoleOrder } from '@prisma/client';
 

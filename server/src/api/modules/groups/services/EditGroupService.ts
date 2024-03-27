@@ -209,7 +209,7 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
 
   logger.moderation(`[Group:${groupId}] Edited`);
 
-  const sortedMemberships = sortMembers(updatedGroup);
+  const sortedMemberships = sortMembers(updatedGroup.memberships, updatedGroup.roleOrders);
 
   return {
     ...omit(updatedGroup, 'verificationHash'),
