@@ -6,6 +6,7 @@ import { RateLimiterRedis } from 'rate-limiter-flexible';
 import userAgent from 'express-useragent';
 import { jobManager } from './jobs';
 import experimentalJobManager from '../jobs/job.manager';
+import newExperimentalJobManager from '../jobs-new/job.manager';
 import router from './routing';
 import prometheus from './services/external/prometheus.service';
 import redisService from './services/external/redis.service';
@@ -30,6 +31,7 @@ class API {
 
     jobManager.init();
     experimentalJobManager.init();
+    newExperimentalJobManager.init();
 
     if (process.env.NODE_ENV !== 'test') {
       this.setupServices();
@@ -42,6 +44,7 @@ class API {
   async shutdown() {
     await jobManager.shutdown();
     await experimentalJobManager.shutdown();
+    await newExperimentalJobManager.shutdown();
     redisService.shutdown();
   }
 
