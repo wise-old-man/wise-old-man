@@ -143,3 +143,8 @@ export function getDateSchema(propName: string) {
     })
     .pipe(z.coerce.date()) as unknown as z.ZodDate;
 }
+
+export const groupRoleOrderSchema = z.object({
+  role: groupRoleSchema,
+  index: z.number()
+});

@@ -65,6 +65,11 @@ export type Group = {
   updatedAt: Date;
 };
 
+export type GroupRoleOrder = {
+  role: GroupRole;
+  index: number;
+};
+
 type Participation = {
   playerId: number;
   competitionId: number;
