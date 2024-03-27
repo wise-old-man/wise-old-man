@@ -29,7 +29,7 @@ async function fetchGroupDetails(id: number): Promise<GroupDetails> {
     socialLinks: group.socialLinks[0] ?? buildDefaultSocialLinks(),
     memberCount: group.memberships.length,
     // Sort the members list by role
-    memberships: sortMembers(group),
+    memberships: sortMembers(group.memberships, group.roleOrders),
     roleOrders: group.roleOrders
   };
 }
