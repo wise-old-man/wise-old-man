@@ -5,8 +5,8 @@ import { GroupRole } from '../../utils';
 function enumErrorMap(path: Array<string | number>, options: Array<string | number>) {
   if (path.length === 1 && path[0] === 'country') {
     return {
-      message: `Invalid enum value for 'country'. You must either supply a valid country code, according to the ISO 3166-1 standard. \
-      Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2`
+      message: `Invalid enum value for 'country'. You must either supply a valid country code, according to the ISO 3166-1/ISO 3166-2 standard. \
+      Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 or https://en.wikipedia.org/wiki/ISO_3166-2:GB`
     };
   }
 
