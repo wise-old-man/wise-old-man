@@ -3,7 +3,7 @@ import prisma from '../../prisma';
 import { PlayerStatus } from '../../utils';
 import { Job } from '../job.utils';
 
-class ScheduleFlaggedPlayerReviewJob extends Job {
+export class ScheduleFlaggedPlayerReviewJob extends Job<unknown> {
   async execute() {
     // Find a flagged player
     const flaggedPlayer = await prisma.player.findFirst({
@@ -30,5 +30,3 @@ class ScheduleFlaggedPlayerReviewJob extends Job {
     await updatePlayer(flaggedPlayer.username);
   }
 }
-
-export { ScheduleFlaggedPlayerReviewJob };

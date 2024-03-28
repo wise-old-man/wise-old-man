@@ -1,10 +1,8 @@
-import jobManager from '../job.manager';
 import prisma from '../../prisma';
 import { Period, PeriodProps } from '../../utils';
 import { Job, JobPriority } from '../job.utils';
-import { UpdatePlayerJob } from './UpdatePlayerJob';
 
-class AutoUpdatePatronPlayersJob extends Job {
+export class AutoUpdatePatronPlayersJob extends Job<unknown> {
   async execute() {
     if (process.env.NODE_ENV === 'development') {
       return;
@@ -28,9 +26,7 @@ class AutoUpdatePatronPlayersJob extends Job {
 
     // Execute the update action for every member
     outdatedPatronPlayers.forEach(({ username }) => {
-      jobManager.add(new UpdatePlayerJob(username).setPriority(JobPriority.HIGH));
+      this.jobManager.add('UpdatePlayerJob', { username }, { priority: JobPriority.HIGH });
     });
   }
 }
-
-export { AutoUpdatePatronPlayersJob };
