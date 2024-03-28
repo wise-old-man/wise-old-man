@@ -100,7 +100,7 @@ class JobManager {
 
     await matchingQueue.add(jobName, payload, opts);
 
-    logger.info(`[${PREFIX}] Added job: ${jobName}`, opts.jobId, true);
+    logger.info(`Added job: ${jobName}`, opts.jobId, true);
   }
 
   getUniqueJobId(payload: unknown) {
@@ -116,15 +116,15 @@ class JobManager {
     const attemptTag = maxAttempts > 1 ? `(#${bullJob.attemptsMade})` : '';
 
     try {
-      logger.info(`[${PREFIX}] Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
+      logger.info(`Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
 
-      await prometheus.trackJob(bullJob.name, PREFIX, async () => {
+      await prometheus.trackJob(bullJob.name, async () => {
         await jobHandler.execute(bullJob.data);
       });
 
       await jobHandler.onSuccess(bullJob.data);
     } catch (error) {
-      logger.error(`[${PREFIX}] Failed job: ${bullJob.name}`, { ...bullJob.data, error }, true);
+      logger.error(`Failed job: ${bullJob.name}`, { ...bullJob.data, error }, true);
 
       await jobHandler.onFailure(bullJob.data, error);
 
@@ -201,7 +201,7 @@ class JobManager {
         throw new Error(`No job implementation found for type "${jobName}".`);
       }
 
-      logger.info(`[${PREFIX}] Scheduling cron job`, { jobName, interval }, true);
+      logger.info(`Scheduling cron job`, { jobName, interval }, true);
       await matchingQueue.add(jobName, {}, { repeat: { pattern: interval } });
     }
   }

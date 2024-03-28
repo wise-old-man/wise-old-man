@@ -4,7 +4,7 @@ import { getThreadIndex } from '../../../env';
 
 type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
 type EffectParams = 'effectName' | 'status';
-type JobParams = 'jobName' | 'status' | 'version';
+type JobParams = 'jobName' | 'status';
 
 class PrometheusService {
   private registry: Registry;
@@ -105,14 +105,14 @@ class PrometheusService {
     }
   }
 
-  async trackJob(jobName: string, version: string, handler: () => Promise<void>) {
+  async trackJob(jobName: string, handler: () => Promise<void>) {
     const endTimer = this.jobHistogram.startTimer();
 
     try {
       await handler();
-      endTimer({ jobName, version, status: 1 });
+      endTimer({ jobName, status: 1 });
     } catch (error) {
-      endTimer({ jobName, version, status: 0 });
+      endTimer({ jobName, status: 0 });
       throw error;
     }
   }
