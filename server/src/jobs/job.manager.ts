@@ -67,7 +67,7 @@ const CRON_CONFIG = [
   { interval: '0 8 * * *', jobName: 'CalculateComputedMetricRankTablesJob' }
 ] satisfies CronJob[];
 
-const PREFIX = 'experimental_v2';
+const PREFIX = 'jobs';
 
 class JobManager {
   private queues: Queue[];
