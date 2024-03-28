@@ -1,4 +1,5 @@
 import { getAlgorithmType } from '../../api/modules/efficiency/efficiency.utils';
+import redisService from '../../api/services/external/redis.service';
 import prisma from '../../prisma';
 import {
   ComputedMetric,
@@ -9,8 +10,6 @@ import {
   PlayerType
 } from '../../utils';
 import { Job } from '../job.utils';
-
-import redisService from '../../api/services/external/redis.service';
 
 // The higher the resolution, the more accurate the estimates are, but the more memory is used
 export const RANK_RESOLUTION = 10;
