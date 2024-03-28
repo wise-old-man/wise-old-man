@@ -6,11 +6,11 @@ import prometheus from '../../services/external/prometheus.service';
 import { addToGroupCompetitions } from '../competitions/services/AddToGroupCompetitionsService';
 import { removeFromGroupCompetitions } from '../competitions/services/RemoveFromGroupCompetitionsService';
 
-async function onGroupUpdated(groupId: number) {
-  jobManager.add('UpdateGroupScoreJob', { groupId }, { skipDedupe: true });
+async function onGroupCreated(groupId: number) {
+  jobManager.add('UpdateGroupScoreJob', { groupId });
 }
 
-async function onGroupCreated(groupId: number) {
+async function onGroupUpdated(groupId: number) {
   jobManager.add('UpdateGroupScoreJob', { groupId }, { skipDedupe: true });
 }
 

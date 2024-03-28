@@ -95,12 +95,20 @@ class JobManager {
     };
 
     if (payload && !opts.skipDedupe) {
-      opts.jobId = `${jobName}_${JSON.stringify(payload)}`;
+      opts.jobId = this.getUniqueJobId(payload);
     }
 
     await matchingQueue.add(jobName, payload, opts);
 
     logger.info(`[${PREFIX}] Added job: ${jobName}`, opts.jobId, true);
+  }
+
+  getUniqueJobId(payload: unknown) {
+    if (typeof payload === 'object' && Object.keys(payload as object).length > 0) {
+      return Object.values(payload as object)[0];
+    }
+
+    return JSON.stringify(payload);
   }
 
   async handleJob(bullJob: BullJob, jobHandler: Job<unknown>) {
