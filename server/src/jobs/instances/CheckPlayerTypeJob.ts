@@ -2,14 +2,16 @@ import { NotFoundError } from '../../api/errors';
 import { standardize } from '../../api/modules/players/player.utils';
 import { assertPlayerType } from '../../api/modules/players/services/AssertPlayerTypeService';
 import prisma from '../../prisma';
+import type { JobManager } from '../job.manager';
 import { Job } from '../job.utils';
 
-class CheckPlayerTypeJob extends Job {
-  private username: string;
+type CheckPlayerTypeJobPayload = {
+  username: string;
+};
 
-  constructor(username: string) {
-    super(username);
-    this.username = username;
+export class CheckPlayerTypeJob extends Job<CheckPlayerTypeJobPayload> {
+  constructor(jobManager: JobManager) {
+    super(jobManager);
 
     this.options = {
       rateLimiter: { max: 1, duration: 5000 },
@@ -18,9 +20,9 @@ class CheckPlayerTypeJob extends Job {
     };
   }
 
-  async execute() {
+  async execute(payload: CheckPlayerTypeJobPayload) {
     const player = await prisma.player.findFirst({
-      where: { username: standardize(this.username) }
+      where: { username: standardize(payload.username) }
     });
 
     if (!player) {
@@ -30,5 +32,3 @@ class CheckPlayerTypeJob extends Job {
     await assertPlayerType(player, true);
   }
 }
-
-export { CheckPlayerTypeJob };
