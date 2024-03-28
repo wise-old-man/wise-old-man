@@ -1,7 +1,6 @@
 import { Details as UserAgentDetails } from 'express-useragent';
 import prometheus, { Counter, Histogram, Registry } from 'prom-client';
 import { getThreadIndex } from '../../../env';
-import { JobType } from '../../jobs';
 
 type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
 type EffectParams = 'effectName' | 'status';
@@ -106,14 +105,14 @@ class PrometheusService {
     }
   }
 
-  async trackJob(jobType: JobType | string, version: string, handler: () => Promise<void>) {
+  async trackJob(jobName: string, version: string, handler: () => Promise<void>) {
     const endTimer = this.jobHistogram.startTimer();
 
     try {
       await handler();
-      endTimer({ jobName: String(jobType), version, status: 1 });
+      endTimer({ jobName, version, status: 1 });
     } catch (error) {
-      endTimer({ jobName: String(jobType), version, status: 0 });
+      endTimer({ jobName, version, status: 0 });
       throw error;
     }
   }
