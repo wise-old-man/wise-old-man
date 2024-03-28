@@ -1,4 +1,4 @@
-import { RANK_RESOLUTION } from '../../../../jobs-new/instances/CalculateComputedMetricRankTablesJob';
+import { RANK_RESOLUTION } from '../../../../jobs/instances/CalculateComputedMetricRankTablesJob';
 import prisma from '../../../../prisma';
 import {
   ComputedMetric,

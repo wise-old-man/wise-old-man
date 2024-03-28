@@ -4,7 +4,7 @@ import cors from 'cors';
 import express, { Express } from 'express';
 import { RateLimiterRedis } from 'rate-limiter-flexible';
 import userAgent from 'express-useragent';
-import newJobManager from '../jobs-new/job.manager';
+import jobManager from '../jobs/job.manager';
 import router from './routing';
 import prometheus from './services/external/prometheus.service';
 import redisService from './services/external/redis.service';
@@ -28,7 +28,7 @@ class API {
     this.express = express();
 
     setTimeout(() => {
-      newJobManager.init();
+      jobManager.init();
     }, 1000);
 
     if (process.env.NODE_ENV !== 'test') {
@@ -40,7 +40,7 @@ class API {
   }
 
   async shutdown() {
-    await newJobManager.shutdown();
+    await jobManager.shutdown();
     redisService.shutdown();
   }
 

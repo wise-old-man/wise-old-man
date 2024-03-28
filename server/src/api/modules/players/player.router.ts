@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import newJobManager from '../../../jobs-new/job.manager';
+import jobManager from '../../../jobs/job.manager';
 import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period } from '../../../utils';
 import { NotFoundError, ServerError } from '../../errors';
@@ -222,7 +222,7 @@ router.post(
       throw new ServerError('Failed to update new player post-archive.');
     }
 
-    newJobManager.add('ScheduleFlaggedPlayerReviewJob', undefined, { delay: 10_000 });
+    jobManager.add('ScheduleFlaggedPlayerReviewJob', undefined, { delay: 10_000 });
 
     res.status(200).json(archivedPlayer);
   })
