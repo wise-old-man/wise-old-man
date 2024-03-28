@@ -155,7 +155,7 @@ class JobManager {
 
     const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
 
-    const jobsToInit = [...DISPATCHABLE_JOBS];
+    const jobsToInit = [...DISPATCHABLE_JOBS].filter(Boolean);
 
     if (isMainThread) {
       // Only initialize queues and workers for cron jobs if we're running this on the "main" thread.

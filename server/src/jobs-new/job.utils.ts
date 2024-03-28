@@ -15,11 +15,12 @@ export interface Options extends JobsOptions {
 
 export class Job<T> {
   public name: string;
-  public options: Options | undefined;
+  public options: Options;
   public jobManager: JobManager;
 
   constructor(jobManager: JobManager) {
     this.jobManager = jobManager;
+    this.options = {};
     this.name = this.constructor.name;
   }
 

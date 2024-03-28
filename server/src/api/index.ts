@@ -29,9 +29,11 @@ class API {
   constructor() {
     this.express = express();
 
-    jobManager.init();
-    experimentalJobManager.init();
-    newExperimentalJobManager.init();
+    setTimeout(() => {
+      jobManager.init();
+      experimentalJobManager.init();
+      newExperimentalJobManager.init();
+    }, 1000);
 
     if (process.env.NODE_ENV !== 'test') {
       this.setupServices();

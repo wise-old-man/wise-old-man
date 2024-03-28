@@ -3,21 +3,65 @@ import prometheus from '../api/services/external/prometheus.service';
 import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
-import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJobs';
+import { AutoUpdatePatronGroupsJob } from './instances/AutoUpdatePatronGroupsJob';
+import { AutoUpdatePatronPlayersJob } from './instances/AutoUpdatePatronPlayersJob';
+import { CalculateComputedMetricRankTablesJob } from './instances/CalculateComputedMetricRankTablesJob';
+import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
+import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
+import { ScheduleBannedPlayerChecksJob } from './instances/ScheduleBannedPlayerChecksJob';
+import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
+import { ScheduleCompetitionScoreUpdatesJob } from './instances/ScheduleCompetitionScoreUpdatesJob';
+import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalidationsJob';
+import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
+import { ScheduleGroupScoreUpdatesJob } from './instances/ScheduleGroupScoreUpdatesJob';
+import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
+import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
+import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
+import { UpdatePlayerJob } from './instances/UpdatePlayerJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
 
 const JOBS_MAP = {
-  UpdateGroupScoreJob,
+  AutoUpdatePatronGroupsJob,
+  AutoUpdatePatronPlayersJob,
+  CalculateComputedMetricRankTablesJob,
   CheckPlayerBannedJob,
-  SyncPatronsJob
+  ReviewNameChangeJob,
+  ScheduleBannedPlayerChecksJob,
+  ScheduleCompetitionEventsJob,
+  ScheduleCompetitionScoreUpdatesJob,
+  ScheduleDeltaInvalidationsJob,
+  ScheduleFlaggedPlayerReviewJob,
+  ScheduleGroupScoreUpdatesJob,
+  ScheduleNameChangeReviewsJob,
+  SyncApiKeysJob,
+  SyncPatronsJob,
+  UpdateCompetitionScoreJob,
+  UpdateGroupScoreJob,
+  UpdatePlayerJob
 };
 
-const CRON_CONFIG = {
-  SyncPatronsJob: '* * * * *' // every 1 min
-};
+const CRON_CONFIG = [
+  // every 1 min
+  { interval: '* * * * *', jobName: 'SyncApiKeysJob' },
+  { interval: '* * * * *', jobName: 'SyncPatronsJob' },
+  { interval: '* * * * *', jobName: 'ScheduleCompetitionEventsJob' },
+  // every 5 mins
+  { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
+  { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
+  // every hour
+  { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
+  // every 6 hours
+  { interval: '0 */6 * * *', jobName: 'ScheduleDeltaInvalidationsJob' },
+  // everyday at 8 AM
+  { interval: '0 8 * * *', jobName: 'ScheduleNameChangeReviewsJob' },
+  { interval: '0 8 * * *', jobName: 'ScheduleGroupScoreUpdatesJob' },
+  { interval: '0 8 * * *', jobName: 'ScheduleBannedPlayerChecksJob' },
+  { interval: '0 8 * * *', jobName: 'ScheduleCompetitionScoreUpdatesJob' },
+  { interval: '0 8 * * *', jobName: 'CalculateComputedMetricRankTablesJob' }
+] satisfies CronJob[];
 
 const PREFIX = 'experimental_v2';
 
@@ -42,7 +86,7 @@ class JobManager {
     }
 
     const opts = {
-      ...options,
+      ...(options || {}),
       priority: options?.priority || JobPriority.MEDIUM
     };
 
@@ -52,7 +96,7 @@ class JobManager {
 
     await matchingQueue.add(jobName, payload, opts);
 
-    logger.info(`Added job: ${jobName}`, opts.jobId, true);
+    logger.info(`[${PREFIX}] Added job: ${jobName}`, opts.jobId, true);
   }
 
   async handleJob(bullJob: BullJob, jobHandler: Job<unknown>) {
@@ -60,7 +104,7 @@ class JobManager {
     const attemptTag = maxAttempts > 1 ? `(#${bullJob.attemptsMade})` : '';
 
     try {
-      logger.info(`Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
+      logger.info(`[${PREFIX}] Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
 
       await prometheus.trackJob(bullJob.name, PREFIX, async () => {
         await jobHandler.execute(bullJob.data);
@@ -68,7 +112,7 @@ class JobManager {
 
       await jobHandler.onSuccess(bullJob.data);
     } catch (error) {
-      logger.error(`Failed job: ${bullJob.name}`, { ...bullJob.data, error }, true);
+      logger.error(`[${PREFIX}] Failed job: ${bullJob.name}`, { ...bullJob.data, error }, true);
 
       await jobHandler.onFailure(bullJob.data, error);
 
@@ -89,7 +133,7 @@ class JobManager {
 
     if (isMainThread) {
       // Only initialize queues and workers for cron jobs if we're running this on the "main" thread.
-      const cronJobs = Object.keys(CRON_CONFIG).filter(c => !jobsToInit.map(j => j.name).includes(c));
+      const cronJobs = CRON_CONFIG.map(c => c.jobName).filter(c => !jobsToInit.map(j => j.name).includes(c));
       jobsToInit.push(...cronJobs.map(c => JOBS_MAP[c]));
     }
 
@@ -138,14 +182,14 @@ class JobManager {
       }
     }
 
-    for (const [jobName, interval] of Object.entries(CRON_CONFIG)) {
+    for (const { interval, jobName } of CRON_CONFIG) {
       const matchingQueue = this.queues.find(q => q.name === jobName);
 
       if (!matchingQueue) {
         throw new Error(`No job implementation found for type "${jobName}".`);
       }
 
-      logger.info('Scheduling cron job', { jobName, interval }, true);
+      logger.info(`[${PREFIX}] Scheduling cron job`, { jobName, interval }, true);
       await matchingQueue.add(jobName, {}, { repeat: { pattern: interval } });
     }
   }
@@ -169,6 +213,11 @@ type JobPayloadType<T extends ValueOf<typeof JOBS_MAP>> = Parameters<ExtractInst
 
 type JobPayloadMapper = {
   [K in keyof typeof JOBS_MAP]: JobPayloadType<(typeof JOBS_MAP)[K]>;
+};
+
+type CronJob = {
+  interval: string;
+  jobName: keyof typeof JOBS_MAP;
 };
 
 export type { JobManager };
