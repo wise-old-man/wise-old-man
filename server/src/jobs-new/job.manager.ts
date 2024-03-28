@@ -7,6 +7,8 @@ import { AutoUpdatePatronGroupsJob } from './instances/AutoUpdatePatronGroupsJob
 import { AutoUpdatePatronPlayersJob } from './instances/AutoUpdatePatronPlayersJob';
 import { CalculateComputedMetricRankTablesJob } from './instances/CalculateComputedMetricRankTablesJob';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
+import { CheckPlayerRankedJob } from './instances/CheckPlayerRankedJob';
+import { CheckPlayerTypeJob } from './instances/CheckPlayerTypeJob';
 import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import { ScheduleBannedPlayerChecksJob } from './instances/ScheduleBannedPlayerChecksJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
@@ -28,6 +30,8 @@ const JOBS_MAP = {
   AutoUpdatePatronPlayersJob,
   CalculateComputedMetricRankTablesJob,
   CheckPlayerBannedJob,
+  CheckPlayerRankedJob,
+  CheckPlayerTypeJob,
   ReviewNameChangeJob,
   ScheduleBannedPlayerChecksJob,
   ScheduleCompetitionEventsJob,

@@ -160,7 +160,9 @@ class JobManager {
     if (isMainThread) {
       // Only initialize queues and workers for cron jobs if we're running this on the "main" thread.
       jobsToInit.push(
-        ...CRON_CONFIG.map(c => c.job).filter(c => !jobsToInit.map(j => j.name).includes(c.name))
+        ...CRON_CONFIG.map(c => c.job)
+          .filter(Boolean)
+          .filter(c => !jobsToInit.map(j => j.name).includes(c.name))
       );
     }
 

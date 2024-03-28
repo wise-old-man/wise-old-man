@@ -1,5 +1,4 @@
-import { SyncPatronsJob } from '../../../../jobs/instances/SyncPatronsJob';
-import experimentalJobManager from '../../../../jobs/job.manager';
+import newJobManager from '../../../../jobs-new/job.manager';
 import prisma, { Patron } from '../../../../prisma';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
@@ -59,7 +58,7 @@ async function claimPatreonBenefits(
     }
   });
 
-  experimentalJobManager.add(new SyncPatronsJob());
+  newJobManager.add('SyncPatronsJob');
 
   return updatedPatron;
 }

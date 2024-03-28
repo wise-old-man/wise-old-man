@@ -1,5 +1,4 @@
-import { CheckPlayerRankedJob } from '../../../../jobs/instances/CheckPlayerRankedJob';
-import experimentalJobManager from '../../../../jobs/job.manager';
+import newJobManager from '../../../../jobs-new/job.manager';
 import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import { PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
@@ -67,7 +66,7 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
       // If it failed to load their stats, and the player isn't unranked,
       // we should start a background job to check (a few times) if they're really unranked
       if (!isNew && player.status !== PlayerStatus.UNRANKED && player.status !== PlayerStatus.BANNED) {
-        experimentalJobManager.add(new CheckPlayerRankedJob(player.username));
+        newJobManager.add('CheckPlayerRankedJob', { username: player.username });
       }
     }
 
