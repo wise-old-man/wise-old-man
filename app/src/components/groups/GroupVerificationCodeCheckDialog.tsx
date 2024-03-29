@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "~/utils/styling";
 import { useMutation } from "@tanstack/react-query";
 import { GroupListItem } from "@wise-old-man/utils";
@@ -24,7 +25,7 @@ interface GroupVerificationCodeCheckDialogProps {
 
 export function GroupVerificationCodeCheckDialog(props: GroupVerificationCodeCheckDialogProps) {
   const { group, isOpen, isEditingGroupCompetition = false, onValidated } = props;
-
+  const router = useRouter();
   const toast = useToast();
   const client = useWOMClient();
   const [verificationCode, setVerificationCode] = useState("");
@@ -112,11 +113,12 @@ export function GroupVerificationCodeCheckDialog(props: GroupVerificationCodeChe
             disabled={checkMutation.isPending}
             onChange={(e) => setVerificationCode(e.target.value)}
           />
-          <div className="flex">
+          <div className="mt-4 flex justify-end gap-x-2">
+            <Button type="button" onClick={() => router.back()}>
+              Cancel
+            </Button>
             <Button
-              size="lg"
               variant="blue"
-              className="mt-4 grow justify-center"
               disabled={verificationCode.length === 0 || checkMutation.isPending || hasValidated}
             >
               {hasValidated ? "Please wait..." : checkMutation.isPending ? "Checking..." : "Confirm"}
