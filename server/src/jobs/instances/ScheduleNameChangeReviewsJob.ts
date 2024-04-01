@@ -1,10 +1,8 @@
-import { NameChangeStatus, Period, PeriodProps } from '../../utils';
 import prisma from '../../prisma';
+import { NameChangeStatus, Period, PeriodProps } from '../../utils';
 import { Job } from '../job.utils';
-import jobManager from '../job.manager';
-import { ReviewNameChangeJob } from './ReviewNameChangeJob';
 
-class ScheduleNameChangeReviewsJob extends Job {
+export class ScheduleNameChangeReviewsJob extends Job<unknown> {
   async execute() {
     const pending = await prisma.nameChange.findMany({
       where: { status: NameChangeStatus.PENDING },
@@ -16,9 +14,8 @@ class ScheduleNameChangeReviewsJob extends Job {
     const cooldown = Math.floor(PeriodProps[Period.DAY].milliseconds / pending.length);
 
     for (let i = 0; i < pending.length; i++) {
-      jobManager.add(new ReviewNameChangeJob(pending[i].id).setDelay(i * cooldown));
+      const nameChangeId = pending[i].id;
+      this.jobManager.add('ReviewNameChangeJob', { nameChangeId }, { delay: i * cooldown });
     }
   }
 }
-
-export { ScheduleNameChangeReviewsJob };

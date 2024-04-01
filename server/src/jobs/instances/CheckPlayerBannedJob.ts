@@ -2,22 +2,21 @@ import { standardize } from '../../api/modules/players/player.utils';
 import { checkIsBanned } from '../../api/services/external/jagex.service';
 import prisma from '../../prisma';
 import { PlayerStatus } from '../../utils';
+import type { JobManager } from '../job.manager';
 import { Job } from '../job.utils';
 
-class CheckPlayerBannedJob extends Job {
-  private username: string;
+type CheckPlayerBannedJobPayload = {
+  username: string;
+};
 
-  constructor(username: string) {
-    super(username);
-    this.username = username;
-
-    this.options = {
-      rateLimiter: { max: 1, duration: 5000 }
-    };
+export class CheckPlayerBannedJob extends Job<CheckPlayerBannedJobPayload> {
+  constructor(jobManager: JobManager) {
+    super(jobManager);
+    this.options.rateLimiter = { max: 1, duration: 5000 };
   }
 
-  async execute() {
-    const username = standardize(this.username);
+  async execute(payload: CheckPlayerBannedJobPayload) {
+    const username = standardize(payload.username);
 
     const player = await prisma.player.findFirst({
       where: { username }
@@ -43,5 +42,3 @@ class CheckPlayerBannedJob extends Job {
     }
   }
 }
-
-export { CheckPlayerBannedJob };

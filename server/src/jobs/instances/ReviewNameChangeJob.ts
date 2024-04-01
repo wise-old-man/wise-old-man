@@ -1,21 +1,18 @@
 import { autoReviewNameChange } from '../../api/modules/name-changes/services/AutoReviewNameChangeService';
+import type { JobManager } from '../job.manager';
 import { Job } from '../job.utils';
 
-class ReviewNameChangeJob extends Job {
-  private nameChangeId: number;
+type ReviewNameChangeJobPayload = {
+  nameChangeId: number;
+};
 
-  constructor(nameChangeId: number) {
-    super(nameChangeId);
-    this.nameChangeId = nameChangeId;
-
-    this.options = {
-      rateLimiter: { max: 1, duration: 5000 }
-    };
+export class ReviewNameChangeJob extends Job<ReviewNameChangeJobPayload> {
+  constructor(jobManager: JobManager) {
+    super(jobManager);
+    this.options.rateLimiter = { max: 1, duration: 5000 };
   }
 
-  async execute() {
-    await autoReviewNameChange(this.nameChangeId);
+  async execute(payload: ReviewNameChangeJobPayload) {
+    await autoReviewNameChange(payload.nameChangeId);
   }
 }
-
-export { ReviewNameChangeJob };

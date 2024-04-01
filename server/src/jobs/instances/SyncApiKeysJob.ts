@@ -2,7 +2,7 @@ import redisService from '../../api/services/external/redis.service';
 import prisma from '../../prisma';
 import { Job } from '../job.utils';
 
-class SyncApiKeysJob extends Job {
+export class SyncApiKeysJob extends Job<unknown> {
   async execute() {
     const apiKeys = await prisma.apiKey.findMany();
 
@@ -12,5 +12,3 @@ class SyncApiKeysJob extends Job {
     }
   }
 }
-
-export { SyncApiKeysJob };

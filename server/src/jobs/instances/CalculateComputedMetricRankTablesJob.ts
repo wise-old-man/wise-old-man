@@ -14,7 +14,7 @@ import { Job } from '../job.utils';
 // The higher the resolution, the more accurate the estimates are, but the more memory is used
 export const RANK_RESOLUTION = 10;
 
-class CalculateComputedMetricRankTablesJob extends Job {
+export class CalculateComputedMetricRankTablesJob extends Job<unknown> {
   async execute() {
     await updateRankMaps(ComputedMetric.EHP);
     await updateRankMaps(ComputedMetric.EHB);
@@ -69,5 +69,3 @@ async function getRankTableEntries(metric: ComputedMetric, type: PlayerType, bui
       ORDER BY "threshold" DESC
     `);
 }
-
-export { CalculateComputedMetricRankTablesJob };

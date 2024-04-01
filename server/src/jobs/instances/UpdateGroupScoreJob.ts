@@ -4,16 +4,13 @@ import prisma from '../../prisma';
 import { GroupDetails, PRIVELEGED_GROUP_ROLES } from '../../utils';
 import { Job } from '../job.utils';
 
-class UpdateGroupScoreJob extends Job {
-  private groupId: number;
+type UpdateGroupScoreJobPayload = {
+  groupId: number;
+};
 
-  constructor(groupId: number) {
-    super(groupId);
-    this.groupId = groupId;
-  }
-
-  async execute() {
-    const groupDetails = await fetchGroupDetails(this.groupId);
+export class UpdateGroupScoreJob extends Job<UpdateGroupScoreJobPayload> {
+  async execute(payload: UpdateGroupScoreJobPayload) {
+    const groupDetails = await fetchGroupDetails(payload.groupId);
 
     const currentScore = groupDetails.score;
     const newScore = await calculateScore(groupDetails);
@@ -21,7 +18,7 @@ class UpdateGroupScoreJob extends Job {
     if (newScore === currentScore) return;
 
     await prisma.group.update({
-      where: { id: this.groupId },
+      where: { id: payload.groupId },
       data: { score: newScore }
     });
   }
@@ -110,5 +107,3 @@ async function calculateScore(group: GroupDetails): Promise<number> {
 
   return score;
 }
-
-export { UpdateGroupScoreJob };

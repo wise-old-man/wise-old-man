@@ -2,7 +2,7 @@ import prisma from '../../prisma';
 import { PERIODS, Period, PeriodProps } from '../../utils';
 import { Job } from '../job.utils';
 
-class ScheduleDeltaInvalidationsJob extends Job {
+export class ScheduleDeltaInvalidationsJob extends Job<unknown> {
   async execute() {
     for (const period of PERIODS) {
       let thresholdMs = PeriodProps[period].milliseconds;
@@ -22,5 +22,3 @@ class ScheduleDeltaInvalidationsJob extends Job {
     }
   }
 }
-
-export { ScheduleDeltaInvalidationsJob };

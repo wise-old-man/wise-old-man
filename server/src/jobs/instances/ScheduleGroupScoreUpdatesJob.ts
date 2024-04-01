@@ -1,10 +1,8 @@
-import { Period, PeriodProps } from '../../utils';
 import prisma from '../../prisma';
+import { Period, PeriodProps } from '../../utils';
 import { Job } from '../job.utils';
-import jobManager from '../job.manager';
-import { UpdateGroupScoreJob } from './UpdateGroupScoreJob';
 
-class ScheduleGroupScoreUpdatesJob extends Job {
+export class ScheduleGroupScoreUpdatesJob extends Job<unknown> {
   async execute() {
     const groups = await prisma.group.findMany({
       select: { id: true }
@@ -14,9 +12,8 @@ class ScheduleGroupScoreUpdatesJob extends Job {
     const cooldown = Math.floor(PeriodProps[Period.DAY].milliseconds / groups.length);
 
     for (let i = 0; i < groups.length; i++) {
-      jobManager.add(new UpdateGroupScoreJob(groups[i].id).setDelay(i * cooldown));
+      const groupId = groups[i].id;
+      this.jobManager.add('UpdateGroupScoreJob', { groupId }, { delay: i * cooldown });
     }
   }
 }
-
-export { ScheduleGroupScoreUpdatesJob };

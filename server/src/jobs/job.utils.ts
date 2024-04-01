@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { JobsOptions, RateLimiterOptions } from 'bullmq';
+import type { JobManager } from './job.manager';
 
 export enum JobPriority {
   LOW = 3,
@@ -6,44 +8,32 @@ export enum JobPriority {
   HIGH = 1
 }
 
-interface Options extends JobsOptions {
+export interface Options extends JobsOptions {
   rateLimiter?: RateLimiterOptions;
+  skipDedupe?: boolean;
 }
 
-export class Job {
-  public jobName: string;
+export class Job<T> {
+  public name: string;
   public options: Options;
-  public instanceId: string | undefined;
+  public jobManager: JobManager;
 
-  constructor(instanceId?: unknown) {
-    this.jobName = this.constructor.name;
+  constructor(jobManager: JobManager) {
+    this.jobManager = jobManager;
     this.options = {};
-
-    if (instanceId) {
-      // Any job that provides an instanceId will be deduplicated in the queue
-      // Ex: if two instances of UpdatePlayerJob("psikoi") were to be added,
-      // the second one would be discarded while the first one is still in queue or processing.
-      this.instanceId = String(instanceId);
-    }
+    this.name = this.constructor.name;
   }
 
-  async execute(): Promise<void> {}
-  async onSuccess(): Promise<void> {}
-  async onFailure(_error: Error): Promise<void> {}
-  async onFailedAllAttempts(_error: Error): Promise<void> {}
-
-  public setDelay(milliseconds: number): Job {
-    this.options.delay = milliseconds;
-    return this;
-  }
-
-  public setPriority(priority: JobPriority): Job {
-    this.options.priority = priority;
-    return this;
-  }
-
-  public unsetInstanceId() {
-    this.instanceId = undefined;
-    return this;
-  }
+  async execute(payload: T): Promise<void> {}
+  async onSuccess(payload: T): Promise<void> {}
+  async onFailure(payload: T, error: Error): Promise<void> {}
+  async onFailedAllAttempts(payload: T, error: Error): Promise<void> {}
 }
+
+export type ExtractInstanceType<T> = T extends new (...args: unknown[]) => infer R
+  ? R
+  : T extends { prototype: infer P }
+    ? P
+    : unknown;
+
+export type ValueOf<T> = T[keyof T];

@@ -4,24 +4,26 @@ import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerSer
 import prisma from '../../prisma';
 import { PlayerStatus, PlayerType } from '../../utils';
 import { Job } from '../job.utils';
+import type { JobManager } from '../job.manager';
 
-class UpdatePlayerJob extends Job {
-  private username: string;
+type UpdatePlayerJobPayload = {
+  username: string;
+};
 
-  constructor(username: string) {
-    super(username);
-    this.username = username;
+export class UpdatePlayerJob extends Job<UpdatePlayerJobPayload> {
+  constructor(jobManager: JobManager) {
+    super(jobManager);
 
     this.options = {
-      rateLimiter: { max: 1, duration: 5000 },
       attempts: 3,
-      backoff: 30_000
+      backoff: 30_000,
+      rateLimiter: { max: 1, duration: 250 }
     };
   }
 
-  async execute() {
-    await updatePlayer(this.username).catch(async error => {
-      if (await shouldRetry(this.username, error)) {
+  async execute(payload: UpdatePlayerJobPayload) {
+    await updatePlayer(payload.username).catch(async error => {
+      if (await shouldRetry(payload.username, error)) {
         throw error;
       }
     });
@@ -79,5 +81,3 @@ async function shouldRetry(username: string, error: Error) {
 
   return true;
 }
-
-export { UpdatePlayerJob };

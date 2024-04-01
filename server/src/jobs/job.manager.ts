@@ -22,71 +22,52 @@ import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
 import { UpdatePlayerJob } from './instances/UpdatePlayerJob';
+import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
 
-const DISPATCHABLE_JOBS = [
+const JOBS_MAP = {
+  AutoUpdatePatronGroupsJob,
+  AutoUpdatePatronPlayersJob,
+  CalculateComputedMetricRankTablesJob,
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
   CheckPlayerTypeJob,
   ReviewNameChangeJob,
+  ScheduleBannedPlayerChecksJob,
+  ScheduleCompetitionEventsJob,
+  ScheduleCompetitionScoreUpdatesJob,
+  ScheduleDeltaInvalidationsJob,
   ScheduleFlaggedPlayerReviewJob,
+  ScheduleGroupScoreUpdatesJob,
+  ScheduleNameChangeReviewsJob,
   SyncApiKeysJob,
   SyncPatronsJob,
   UpdateCompetitionScoreJob,
   UpdateGroupScoreJob,
   UpdatePlayerJob
-] as const;
+};
 
 const CRON_CONFIG = [
-  {
-    interval: '* * * * *', // every 1 min
-    job: SyncApiKeysJob
-  },
-  {
-    interval: '* * * * *', // every 1 min
-    job: ScheduleCompetitionEventsJob
-  },
-  {
-    interval: '* * * * *', // every 1 min
-    job: SyncPatronsJob
-  },
-  {
-    interval: '*/5 * * * *', // every 5 mins
-    job: AutoUpdatePatronPlayersJob
-  },
-  {
-    interval: '*/5 * * * *', // every 5 mins
-    job: AutoUpdatePatronGroupsJob
-  },
-  {
-    interval: '0 * * * *', // every hour
-    job: ScheduleFlaggedPlayerReviewJob
-  },
-  {
-    interval: '0 */6 * * *', // every 6 hours
-    job: ScheduleDeltaInvalidationsJob
-  },
-  {
-    interval: '0 8 * * *', // everyday at 8AM
-    job: ScheduleCompetitionScoreUpdatesJob
-  },
-  {
-    interval: '0 8 * * *', // everyday at 8AM
-    job: ScheduleGroupScoreUpdatesJob
-  },
-  {
-    interval: '0 8 * * *', // everyday at 8AM
-    job: CalculateComputedMetricRankTablesJob
-  },
-  {
-    interval: '0 8 * * *', // everyday at 8AM
-    job: ScheduleNameChangeReviewsJob
-  },
-  {
-    interval: '0 8 * * *', // everyday at 8AM
-    job: ScheduleBannedPlayerChecksJob
-  }
-] as const;
+  // every 1 min
+  { interval: '* * * * *', jobName: 'SyncApiKeysJob' },
+  { interval: '* * * * *', jobName: 'SyncPatronsJob' },
+  { interval: '* * * * *', jobName: 'ScheduleCompetitionEventsJob' },
+  // every 5 mins
+  { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
+  { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
+  // every hour
+  { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
+  // every 6 hours
+  { interval: '0 */6 * * *', jobName: 'ScheduleDeltaInvalidationsJob' },
+  // everyday at 8 AM
+  { interval: '0 8 * * *', jobName: 'ScheduleNameChangeReviewsJob' },
+  { interval: '0 8 * * *', jobName: 'ScheduleGroupScoreUpdatesJob' },
+  { interval: '0 8 * * *', jobName: 'ScheduleBannedPlayerChecksJob' },
+  { interval: '0 8 * * *', jobName: 'ScheduleCompetitionScoreUpdatesJob' },
+  { interval: '0 8 * * *', jobName: 'CalculateComputedMetricRankTablesJob' }
+] satisfies CronJob[];
+
+const PREFIX = 'jobs';
 
 class JobManager {
   private queues: Queue[];
@@ -99,52 +80,57 @@ class JobManager {
     this.schedulers = [];
   }
 
-  async add(job: InstanceType<(typeof DISPATCHABLE_JOBS)[number]>) {
+  async add<T extends keyof JobPayloadMapper>(jobName: T, payload?: JobPayloadMapper[T], options?: Options) {
     if (process.env.NODE_ENV === 'test') return;
 
-    const matchingQueue = this.queues.find(queue => queue.name === job.jobName);
+    const matchingQueue = this.queues.find(queue => queue.name === jobName);
 
     if (!matchingQueue) {
-      throw new Error(`No job implementation found for "${job.jobName}".`);
+      throw new Error(`No job implementation found for "${jobName}".`);
     }
 
     const opts = {
-      ...job.options,
-      priority: job.options.priority || JobPriority.MEDIUM
+      ...(options || {}),
+      priority: options?.priority || JobPriority.MEDIUM
     };
 
-    if (job.instanceId) {
-      opts.jobId = job.instanceId;
+    if (payload && !opts.skipDedupe) {
+      opts.jobId = this.getUniqueJobId(payload);
     }
 
-    await matchingQueue.add(job.jobName, job, opts);
+    await matchingQueue.add(jobName, payload, opts);
 
-    logger.info(`Added job: ${job.jobName}`, job.instanceId, true);
+    logger.info(`Added job: ${jobName}`, opts.jobId, true);
   }
 
-  private async processJob(bullJob: BullJob, jobType: typeof Job) {
-    const instance = new jobType();
-    Object.assign(instance, bullJob.data);
+  getUniqueJobId(payload: unknown) {
+    if (typeof payload === 'object' && Object.keys(payload as object).length > 0) {
+      return Object.values(payload as object)[0];
+    }
 
+    return JSON.stringify(payload);
+  }
+
+  async handleJob(bullJob: BullJob, jobHandler: Job<unknown>) {
     const maxAttempts = bullJob.opts.attempts || 1;
     const attemptTag = maxAttempts > 1 ? `(#${bullJob.attemptsMade})` : '';
 
     try {
-      logger.info(`Executing job: ${bullJob.name} ${attemptTag}`, instance.instanceId, true);
+      logger.info(`Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
 
-      await prometheus.trackJob(bullJob.name, 'experimental', async () => {
-        await instance.execute();
+      await prometheus.trackJob(bullJob.name, async () => {
+        await jobHandler.execute(bullJob.data);
       });
 
-      instance.onSuccess();
+      await jobHandler.onSuccess(bullJob.data);
     } catch (error) {
       logger.error(`Failed job: ${bullJob.name}`, { ...bullJob.data, error }, true);
 
-      if (bullJob.attemptsMade >= maxAttempts) {
-        instance.onFailedAllAttempts(error);
-      }
+      await jobHandler.onFailure(bullJob.data, error);
 
-      instance.onFailure(error);
+      if (bullJob.attemptsMade >= maxAttempts) {
+        await jobHandler.onFailedAllAttempts(bullJob.data, error);
+      }
 
       throw error;
     }
@@ -155,31 +141,31 @@ class JobManager {
 
     const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
 
-    const jobsToInit = [...DISPATCHABLE_JOBS];
+    const jobsToInit = [...Object.values(JOBS_MAP)];
 
     if (isMainThread) {
       // Only initialize queues and workers for cron jobs if we're running this on the "main" thread.
-      jobsToInit.push(
-        ...CRON_CONFIG.map(c => c.job).filter(c => !jobsToInit.map(j => j.name).includes(c.name))
-      );
+      const cronJobs = CRON_CONFIG.map(c => c.jobName).filter(c => !jobsToInit.map(j => j.name).includes(c));
+      jobsToInit.push(...cronJobs.map(c => JOBS_MAP[c]));
     }
 
-    for (const jobType of jobsToInit) {
-      const { jobName, options } = new (jobType as typeof Job)();
+    for (const jobClass of jobsToInit) {
+      const jobHandler = new jobClass(this);
+      const { name, options } = jobHandler;
 
-      const scheduler = new QueueScheduler(jobName, {
-        prefix: 'experimental',
+      const scheduler = new QueueScheduler(name, {
+        prefix: PREFIX,
         connection: redisConfig
       });
 
-      const queue = new Queue(jobName, {
-        prefix: 'experimental',
+      const queue = new Queue(name, {
+        prefix: PREFIX,
         connection: redisConfig,
         defaultJobOptions: { removeOnComplete: true, removeOnFail: true, ...(options || {}) }
       });
 
-      const worker = new Worker(jobName, bullJob => this.processJob(bullJob, jobType), {
-        prefix: 'experimental',
+      const worker = new Worker(name, bullJob => this.handleJob(bullJob, jobHandler), {
+        prefix: PREFIX,
         limiter: options?.rateLimiter,
         connection: redisConfig,
         autorun: false
@@ -208,17 +194,15 @@ class JobManager {
       }
     }
 
-    for (const cron of CRON_CONFIG) {
-      const jobName = cron.job.name;
-
+    for (const { interval, jobName } of CRON_CONFIG) {
       const matchingQueue = this.queues.find(q => q.name === jobName);
 
       if (!matchingQueue) {
         throw new Error(`No job implementation found for type "${jobName}".`);
       }
 
-      logger.info('Scheduling cron job', { jobName, interval: cron.interval }, true);
-      await matchingQueue.add(jobName, {}, { repeat: { pattern: cron.interval } });
+      logger.info(`Scheduling cron job`, { jobName, interval }, true);
+      await matchingQueue.add(jobName, {}, { repeat: { pattern: interval } });
     }
   }
 
@@ -237,4 +221,16 @@ class JobManager {
   }
 }
 
+type JobPayloadType<T extends ValueOf<typeof JOBS_MAP>> = Parameters<ExtractInstanceType<T>['execute']>[0];
+
+type JobPayloadMapper = {
+  [K in keyof typeof JOBS_MAP]: JobPayloadType<(typeof JOBS_MAP)[K]>;
+};
+
+type CronJob = {
+  interval: string;
+  jobName: keyof typeof JOBS_MAP;
+};
+
+export type { JobManager };
 export default new JobManager();

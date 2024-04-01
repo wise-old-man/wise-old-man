@@ -1,6 +1,4 @@
-import { UpdateGroupScoreJob } from '../../../jobs/instances/UpdateGroupScoreJob';
-import { UpdatePlayerJob } from '../../../jobs/instances/UpdatePlayerJob';
-import experimentalJobManager from '../../../jobs/job.manager';
+import jobManager from '../../../jobs/job.manager';
 import prisma from '../../../prisma';
 import { MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
@@ -8,14 +6,12 @@ import prometheus from '../../services/external/prometheus.service';
 import { addToGroupCompetitions } from '../competitions/services/AddToGroupCompetitionsService';
 import { removeFromGroupCompetitions } from '../competitions/services/RemoveFromGroupCompetitionsService';
 
-async function onGroupUpdated(groupId: number) {
-  // Trigger a score update job, without any instance id, so that it doesn't get deduplicated.
-  experimentalJobManager.add(new UpdateGroupScoreJob(groupId).unsetInstanceId());
+async function onGroupCreated(groupId: number) {
+  jobManager.add('UpdateGroupScoreJob', { groupId });
 }
 
-async function onGroupCreated(groupId: number) {
-  // Trigger a score update job, without any instance id, so that it doesn't get deduplicated.
-  experimentalJobManager.add(new UpdateGroupScoreJob(groupId).unsetInstanceId());
+async function onGroupUpdated(groupId: number) {
+  jobManager.add('UpdateGroupScoreJob', { groupId }, { skipDedupe: true });
 }
 
 async function onMembersRolesChanged(events: MemberRoleChangeEvent[]) {
@@ -49,8 +45,10 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
     if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) return;
-    experimentalJobManager.add(new UpdatePlayerJob(username));
+    jobManager.add('UpdatePlayerJob', { username });
   });
+
+  jobManager.add('UpdateGroupScoreJob', { groupId }, { skipDedupe: true });
 }
 
 async function onMembersLeft(events: MemberLeftEvent[]) {
@@ -66,6 +64,8 @@ async function onMembersLeft(events: MemberLeftEvent[]) {
   await prometheus.trackEffect('dispatchMembersLeft', async () => {
     await discordService.dispatchMembersLeft(groupId, playerIds);
   });
+
+  jobManager.add('UpdateGroupScoreJob', { groupId }, { skipDedupe: true });
 }
 
 export { onGroupCreated, onGroupUpdated, onMembersJoined, onMembersLeft, onMembersRolesChanged };
