@@ -2278,10 +2278,10 @@ describe('Group API', () => {
 
       // Check the table body
       expect(rows[1]).toMatch('alexsuperfly,leader,');
-      expect(rows[2]).toMatch('psikoi,achiever');
-      expect(rows[3]).toMatch('swampletics,artisan');
+      expect(rows[2]).toMatch('swampletics,artisan');
+      expect(rows[3]).toMatch('rorro,member');
       expect(rows[4]).toMatch('zezima,firemaker');
-      expect(rows[5]).toMatch('rorro,member');
+      expect(rows[5]).toMatch('psikoi,achiever');
     });
   });
 
