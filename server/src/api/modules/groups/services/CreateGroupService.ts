@@ -89,7 +89,8 @@ async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResu
       ...omit(createdGroup, 'verificationHash'),
       socialLinks: buildDefaultSocialLinks(),
       memberCount: sortedMemberships.length,
-      memberships: sortedMemberships
+      memberships: sortedMemberships,
+      roleOrders: []
     },
     verificationCode: code
   };
