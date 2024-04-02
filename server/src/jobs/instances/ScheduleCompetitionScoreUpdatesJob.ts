@@ -1,10 +1,8 @@
-import { Period, PeriodProps } from '../../utils';
 import prisma from '../../prisma';
+import { Period, PeriodProps } from '../../utils';
 import { Job } from '../job.utils';
-import jobManager from '../job.manager';
-import { UpdateCompetitionScoreJob } from './UpdateCompetitionScoreJob';
 
-class ScheduleCompetitionScoreUpdatesJob extends Job {
+export class ScheduleCompetitionScoreUpdatesJob extends Job<unknown> {
   async execute() {
     const competitions = await prisma.competition.findMany({
       where: {
@@ -13,13 +11,12 @@ class ScheduleCompetitionScoreUpdatesJob extends Job {
       select: { id: true }
     });
 
-    // Distribute these evenly throughout the 12h, with a variable cooldown between each
-    const cooldown = Math.floor(PeriodProps[Period.DAY].milliseconds / 2 / competitions.length);
+    // Distribute these evenly throughout the 24h, with a variable cooldown between each
+    const cooldown = Math.floor(PeriodProps[Period.DAY].milliseconds / competitions.length);
 
     for (let i = 0; i < competitions.length; i++) {
-      jobManager.add(new UpdateCompetitionScoreJob(competitions[i].id).setDelay(i * cooldown));
+      const competitionId = competitions[i].id;
+      this.jobManager.add('UpdateCompetitionScoreJob', { competitionId }, { delay: i * cooldown });
     }
   }
 }
-
-export { ScheduleCompetitionScoreUpdatesJob };

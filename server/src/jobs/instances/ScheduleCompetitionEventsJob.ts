@@ -21,7 +21,7 @@ const START_TIME_INTERVALS = [360, 5, 0];
 // 12h, 2h, 30min, now
 const END_TIME_INTERVALS = [720, 120, 30, 0];
 
-class ScheduleCompetitionEventsJob extends Job {
+export class ScheduleCompetitionEventsJob extends Job<unknown> {
   async execute() {
     // Schedule "starting" and "started" events for each interval
     for (const start of START_TIME_INTERVALS) {
@@ -101,5 +101,3 @@ function getEventPeriodDelay(delayMs: number): EventPeriodDelay {
   const minutes = delayMs / 1000 / 60;
   return minutes < 60 ? { minutes } : { hours: minutes / 60 };
 }
-
-export { ScheduleCompetitionEventsJob };

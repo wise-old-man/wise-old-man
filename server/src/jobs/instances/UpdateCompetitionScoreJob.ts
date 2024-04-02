@@ -3,17 +3,14 @@ import prisma, { Competition } from '../../prisma';
 import { Metric, isActivity, isBoss, isSkill } from '../../utils';
 import { Job } from '../job.utils';
 
-class UpdateCompetitionScoreJob extends Job {
-  private competitionId: number;
+type UpdateCompetitionScoreJobPayload = {
+  competitionId: number;
+};
 
-  constructor(competitionId: number) {
-    super(competitionId);
-    this.competitionId = competitionId;
-  }
-
-  async execute() {
+export class UpdateCompetitionScoreJob extends Job<UpdateCompetitionScoreJobPayload> {
+  async execute(payload: UpdateCompetitionScoreJobPayload) {
     const competition = await prisma.competition.findFirst({
-      where: { id: this.competitionId }
+      where: { id: payload.competitionId }
     });
 
     if (!competition) {
@@ -128,5 +125,3 @@ async function calculateScore(competition: Competition): Promise<number> {
 
   return score;
 }
-
-export { UpdateCompetitionScoreJob };

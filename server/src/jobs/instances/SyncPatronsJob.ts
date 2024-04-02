@@ -1,11 +1,11 @@
-import { omit } from '../../api/util/objects';
 import { onGroupUpdated } from '../../api/modules/groups/group.events';
 import { sendPatreonUpdateMessage } from '../../api/services/external/discord.service';
 import { getPatrons } from '../../api/services/external/patreon.service';
+import { omit } from '../../api/util/objects';
 import prisma, { Patron } from '../../prisma';
 import { Job } from '../job.utils';
 
-class SyncPatronsJob extends Job {
+export class SyncPatronsJob extends Job<unknown> {
   async execute() {
     if (!process.env.PATREON_BEARER_TOKEN || process.env.NODE_ENV === 'development') {
       return;
@@ -183,5 +183,3 @@ async function syncBenefits() {
 function needsUpdate(a: Patron, b: Patron) {
   return a.name !== b.name || a.email !== b.email || a.tier !== b.tier || a.discordId !== b.discordId;
 }
-
-export { SyncPatronsJob };

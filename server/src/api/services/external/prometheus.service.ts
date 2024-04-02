@@ -1,11 +1,10 @@
 import { Details as UserAgentDetails } from 'express-useragent';
 import prometheus, { Counter, Histogram, Registry } from 'prom-client';
 import { getThreadIndex } from '../../../env';
-import { JobType } from '../../jobs';
 
 type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
 type EffectParams = 'effectName' | 'status';
-type JobParams = 'jobName' | 'status' | 'version';
+type JobParams = 'jobName' | 'status';
 
 class PrometheusService {
   private registry: Registry;
@@ -50,7 +49,7 @@ class PrometheusService {
     this.jobHistogram = new prometheus.Histogram({
       name: 'job_duration_seconds',
       help: 'Duration of jobs in microseconds',
-      labelNames: ['jobName', 'status'],
+      labelNames: ['jobName', 'version', 'status'],
       buckets: [0.1, 0.5, 1, 5, 10, 30, 60]
     });
 
@@ -106,14 +105,14 @@ class PrometheusService {
     }
   }
 
-  async trackJob(jobType: JobType | string, version: string, handler: () => Promise<void>) {
+  async trackJob(jobName: string, handler: () => Promise<void>) {
     const endTimer = this.jobHistogram.startTimer();
 
     try {
       await handler();
-      endTimer({ jobName: String(jobType), version, status: 1 });
+      endTimer({ jobName, status: 1 });
     } catch (error) {
-      endTimer({ jobName: String(jobType), version, status: 0 });
+      endTimer({ jobName, status: 0 });
       throw error;
     }
   }
