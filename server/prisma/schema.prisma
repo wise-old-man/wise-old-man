@@ -779,6 +779,9 @@ enum Country {
   FR
   GA
   GB
+  GB_NIR
+  GB_SCT
+  GB_WLS
   GD
   GE
   GF
