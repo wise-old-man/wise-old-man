@@ -343,7 +343,7 @@ function CountrySelect(props: CountrySelectProps) {
         startTransition(() => {
           if (!val) return onCountrySelected(undefined);
 
-          const [code] = val.split("_");
+          const [code] = val.split("/");
           if (code && isCountry(code)) onCountrySelected(code);
         });
       }}
@@ -363,7 +363,7 @@ function CountrySelect(props: CountrySelectProps) {
           <ComboboxItemGroup label="Countries">
             <ComboboxItem>Any country</ComboboxItem>
             {COUNTRY_CODES.map((c) => (
-              <ComboboxItem key={c} value={`${c}_${CountryProps[c].name}`}>
+              <ComboboxItem key={c} value={`${c}/${CountryProps[c].name}`}>
                 <CountryIcon country={c} />
                 <span className="line-clamp-1">{CountryProps[c].name}</span>
               </ComboboxItem>
