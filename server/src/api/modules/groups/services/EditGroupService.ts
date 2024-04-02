@@ -1,5 +1,5 @@
 import prisma, { Membership, PrismaTypes, Player } from '../../../../prisma';
-import { GroupRole, NameChangeStatus, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
+import { GroupRole, NameChangeStatus } from '../../../../utils';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
 import { BadRequestError, ServerError } from '../../../errors';
@@ -11,7 +11,7 @@ import {
   MemberRoleChangeEvent
 } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
-import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
+import { buildDefaultSocialLinks, sanitizeName, sortMembers } from '../group.utils';
 import { onMembersRolesChanged, onMembersJoined, onMembersLeft, onGroupUpdated } from '../group.events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
@@ -34,10 +34,21 @@ interface EditGroupPayload {
     youtube?: string | null;
   };
   members?: Array<{ username: string; role: GroupRole }>;
+  roleOrders?: Array<{ role: GroupRole; index: number }>;
 }
 
 async function editGroup(groupId: number, payload: EditGroupPayload): Promise<GroupDetails> {
-  const { name, clanChat, homeworld, description, members, bannerImage, profileImage, socialLinks } = payload;
+  const {
+    name,
+    clanChat,
+    homeworld,
+    description,
+    members,
+    bannerImage,
+    profileImage,
+    socialLinks,
+    roleOrders
+  } = payload;
 
   if (clanChat && !isValidUsername(clanChat)) {
     throw new BadRequestError("Invalid 'clanChat'. Cannot contain special characters.");
@@ -51,7 +62,8 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     !members &&
     !bannerImage &&
     !profileImage &&
-    !socialLinks
+    !socialLinks &&
+    !roleOrders
   ) {
     throw new BadRequestError('Nothing to update.');
   }
@@ -79,6 +91,19 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     throw new BadRequestError(
       'Cannot upload images from external sources. Please upload an image via the website.'
     );
+  }
+
+  if (roleOrders) {
+    const uniqueIndexes = new Set(roleOrders.map(x => x.index));
+    const uniqueRoles = new Set(roleOrders.map(x => x.role));
+
+    if (uniqueIndexes.size < roleOrders.length) {
+      throw new BadRequestError('Role Order must contain unique indexes for each role');
+    }
+
+    if (uniqueRoles.size < roleOrders.length) {
+      throw new BadRequestError('Role Order must contain unique roles');
+    }
   }
 
   const updatedGroupFields: PrismaTypes.GroupUpdateInput = {};
@@ -142,6 +167,10 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
         await updateSocialLinks(groupId, socialLinks, transaction);
       }
 
+      if (roleOrders) {
+        await updateGroupRoleOrder(groupId, roleOrders, transaction);
+      }
+
       await transaction.group.update({
         where: {
           id: groupId
@@ -163,7 +192,12 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
       memberships: {
         include: { player: true }
       },
-      socialLinks: true
+      socialLinks: true,
+      roleOrders: {
+        orderBy: {
+          index: 'asc'
+        }
+      }
     }
   });
 
@@ -175,17 +209,14 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
 
   logger.moderation(`[Group:${groupId}] Edited`);
 
-  const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
-
-  const sortedMemberships = updatedGroup.memberships.sort(
-    (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
-  );
+  const sortedMemberships = sortMembers(updatedGroup.memberships, updatedGroup.roleOrders);
 
   return {
     ...omit(updatedGroup, 'verificationHash'),
     socialLinks: updatedGroup.socialLinks[0] ?? buildDefaultSocialLinks(),
     memberCount: sortedMemberships.length,
-    memberships: sortedMemberships
+    memberships: sortedMemberships,
+    roleOrders: updatedGroup.roleOrders
   };
 }
 
@@ -448,3 +479,17 @@ function calculateRoleChangeMaps(
 }
 
 export { editGroup };
+
+async function updateGroupRoleOrder(
+  groupId: number,
+  roleOrders: Array<{ role: GroupRole; index: number }>,
+  transaction: PrismaTypes.TransactionClient
+) {
+  await transaction.groupRoleOrder.deleteMany({
+    where: { groupId }
+  });
+
+  await transaction.groupRoleOrder.createMany({
+    data: roleOrders.map(x => ({ ...x, groupId: groupId }))
+  });
+}

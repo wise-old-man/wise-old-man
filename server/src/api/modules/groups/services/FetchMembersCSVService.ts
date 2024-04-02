@@ -1,7 +1,7 @@
 import prisma from '../../../../prisma';
 import { formatDate } from '../../../util/dates';
-import { PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
+import { sortMembers } from '../group.utils';
 
 async function fetchGroupMembersCSV(groupId: number): Promise<string> {
   const memberships = await prisma.membership.findMany({
@@ -13,35 +13,34 @@ async function fetchGroupMembersCSV(groupId: number): Promise<string> {
     }
   });
 
-  if (!memberships || memberships.length === 0) {
-    const group = await prisma.group.findFirst({
-      where: { id: groupId }
-    });
-
-    if (!group) {
-      throw new NotFoundError('Group not found.');
+  const group = await prisma.group.findFirst({
+    where: { id: groupId },
+    include: {
+      roleOrders: true
     }
+  });
 
+  if (!group) {
+    throw new NotFoundError('Group not found.');
+  }
+
+  if (!memberships || memberships.length === 0) {
     throw new BadRequestError('Group has no members.');
   }
 
-  const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
-
   const headers = ['Player', 'Role', 'Experience', 'Last progressed', 'Last updated'].join(',');
 
-  const rows = memberships
-    .sort((a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role))
-    .map(membership => {
-      const { role, player } = membership;
+  const rows = sortMembers(memberships, group.roleOrders).map(membership => {
+    const { role, player } = membership;
 
-      return [
-        player.displayName,
-        role,
-        player.exp,
-        player.lastChangedAt ? formatDate(player.lastChangedAt, 'MM/DD/YYYY HH:mm:ss') : '',
-        player.updatedAt ? formatDate(player.updatedAt, 'MM/DD/YYYY HH:mm:ss') : ''
-      ].join(',');
-    });
+    return [
+      player.displayName,
+      role,
+      player.exp,
+      player.lastChangedAt ? formatDate(player.lastChangedAt, 'MM/DD/YYYY HH:mm:ss') : '',
+      player.updatedAt ? formatDate(player.updatedAt, 'MM/DD/YYYY HH:mm:ss') : ''
+    ].join(',');
+  });
 
   return [headers, ...rows].join('\n');
 }
