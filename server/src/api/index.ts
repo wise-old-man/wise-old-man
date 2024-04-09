@@ -2,10 +2,11 @@ import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 import cors from 'cors';
 import express, { Express } from 'express';
-import { RateLimiterRedis } from 'rate-limiter-flexible';
 import userAgent from 'express-useragent';
+import { RateLimiterRedis } from 'rate-limiter-flexible';
 import jobManager from '../jobs/job.manager';
 import router from './routing';
+import { parseUserAgent } from './util/user-agents';
 import prometheus from './services/external/prometheus.service';
 import redisService from './services/external/redis.service';
 
@@ -97,7 +98,7 @@ class API {
     this.express.use((req, res, next) => {
       // Browsers block sending a custom user agent, so we're sending a custom header in our webapp
       const userAgentHeader = req.get('X-User-Agent') || req.get('User-Agent');
-      const userAgent = prometheus.reduceUserAgent(userAgentHeader, req.useragent);
+      const userAgent = parseUserAgent(userAgentHeader, req.useragent);
 
       res.locals.userAgent = userAgent;
 

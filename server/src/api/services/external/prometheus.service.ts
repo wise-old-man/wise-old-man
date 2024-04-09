@@ -1,4 +1,3 @@
-import { Details as UserAgentDetails } from 'express-useragent';
 import prometheus, { Counter, Histogram, Registry } from 'prom-client';
 import { getThreadIndex } from '../../../env';
 
@@ -66,17 +65,6 @@ class PrometheusService {
 
   incrementMetricCorrectionCounter(userAgent: string, route: string, method: string) {
     this.metricCorrectionCounter.labels({ userAgent, route, method }).inc();
-  }
-
-  reduceUserAgent(userAgent: string | undefined, details: UserAgentDetails | undefined) {
-    if (!userAgent) return 'Other';
-
-    const ownAgents = ['WiseOldMan Webapp', 'WiseOldMan Discord Bot', 'WiseOldMan RuneLite Plugin'];
-
-    if (ownAgents.includes(userAgent)) return userAgent;
-    if (userAgent.startsWith('RuneLite')) return 'RuneLite';
-
-    return details?.browser || 'Other';
   }
 
   trackHttpRequestStarted() {
