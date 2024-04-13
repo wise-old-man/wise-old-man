@@ -1,7 +1,7 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useWOMClient } from "~/hooks/useWOMClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../Dialog";
 import { MemberActivityWithPlayer } from "@wise-old-man/utils";
@@ -45,6 +45,7 @@ export function GroupActivityDialog(props: GroupActivityDialogProps) {
   const { groupId, initialData } = props;
 
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const isOpen = searchParams.get("dialog") === "group-activity";
@@ -63,11 +64,18 @@ export function GroupActivityDialog(props: GroupActivityDialogProps) {
 
   const activity = [...initialData, ...(data ? data : [])];
 
+  function handleClose() {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("dialog");
+
+    router.replace(`${pathname}?${nextParams.toString()}`);
+  }
+
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(val) => {
-        if (!val) router.back();
+        if (!val) handleClose();
       }}
     >
       <DialogContent className="gap-y-0 px-0 pb-0">

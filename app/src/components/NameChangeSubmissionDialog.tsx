@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "~/hooks/useToast";
 import { useWOMClient } from "~/hooks/useWOMClient";
@@ -18,15 +18,23 @@ interface NameChangeSubmissionDialogProps {
 
 export function NameChangeSubmissionDialog(props: NameChangeSubmissionDialogProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const isOpen = searchParams.get("dialog") === "submit-name";
+
+  function handleClose() {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("dialog");
+
+    router.replace(`${pathname}?${nextParams.toString()}`);
+  }
 
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(val) => {
-        if (!val) router.back();
+        if (!val) handleClose();
       }}
     >
       <DialogContent>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Input } from "../Input";
 import { Button } from "../Button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../Accordion";
@@ -17,6 +17,7 @@ export function ExportGroupMembersDialog(props: ExportGroupMembersDialogProps) {
   const { groupId } = props;
 
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [hasCopied, setCopied] = useState(false);
@@ -27,12 +28,19 @@ export function ExportGroupMembersDialog(props: ExportGroupMembersDialogProps) {
   const url = `${basePath}/groups/${groupId}/csv`;
   const importFormula = `=IMPORTDATA("${url}")`;
 
+  function handleClose() {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("dialog");
+
+    router.replace(`${pathname}?${nextParams.toString()}`);
+  }
+
   return (
     <Dialog
       open={searchParams.get("dialog") === "export"}
       onOpenChange={(val) => {
         if (!val) {
-          router.back();
+          handleClose();
           setCopied(false);
         }
       }}
