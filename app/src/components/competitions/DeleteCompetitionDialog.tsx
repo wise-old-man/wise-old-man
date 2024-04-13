@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "~/hooks/useToast";
@@ -74,13 +74,6 @@ function DeleteCompetitionForm(props: DeleteCompetitionFormProps) {
       }
     },
   });
-
-  // Clear the inputs when the form is unmounted
-  useEffect(() => {
-    return () => {
-      setVerificationCode("");
-    };
-  }, []);
 
   return (
     <form

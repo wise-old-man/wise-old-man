@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMutation } from "@tanstack/react-query";
@@ -43,9 +43,8 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
 
   const searchParams = useSearchParams();
 
-  const columnDefs = useMemo(() => getColumnDefinitions(metric, competition), [metric, competition]);
-
   const rows = competition.participations.filter((p) => !teamName || p.teamName === teamName);
+  const columns = getColumnDefinitions(metric, competition);
 
   const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
 
@@ -57,7 +56,7 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
 
   return (
     <DataTable
-      columns={columnDefs}
+      columns={columns}
       data={showOnlyOutdated ? outdatedParticipants : rows}
       enablePagination
       defaultPageSize={teamName ? 10 : 20}

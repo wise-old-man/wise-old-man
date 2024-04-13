@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
+import { useTransition } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -54,7 +54,7 @@ export function GroupHiscoresTable(props: GroupHiscoresTableProps) {
   const searchParams = useSearchParams();
 
   const page = getPageParam(searchParams.get("page")) || 1;
-  const columnDefs = useMemo(() => getColumnDefinitions(page, metric), [page, metric]);
+  const columns = getColumnDefinitions(page, metric);
 
   function handleMetricChanged(metric: Metric) {
     const nextParams = new URLSearchParams(searchParams);
@@ -73,7 +73,7 @@ export function GroupHiscoresTable(props: GroupHiscoresTableProps) {
 
   return (
     <DataTable
-      columns={columnDefs}
+      columns={columns}
       data={hiscores}
       enablePagination
       headerSlot={

@@ -1,6 +1,6 @@
 "use client";
 
-import { PropsWithChildren, useMemo, useTransition } from "react";
+import { PropsWithChildren, useTransition } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -195,21 +195,14 @@ function PlayerSkillsTable(
     ...skillValues,
   ];
 
+  const columns = getSkillColumnDefinitions(player, showVirtualLevels);
+
   // Filter out skills based on player build
   const hiddenMetrics = getBuildHiddenMetrics(player.build);
   const filteredRows = rows.filter((row) => !hiddenMetrics.includes(row.metric));
 
-  const columnDefs = useMemo(
-    () => getSkillColumnDefinitions(player, showVirtualLevels),
-    [player, showVirtualLevels]
-  );
-
   return (
-    <DataTable
-      columns={columnDefs}
-      data={filteredRows}
-      headerSlot={<TableTitle>{children}</TableTitle>}
-    />
+    <DataTable columns={columns} data={filteredRows} headerSlot={<TableTitle>{children}</TableTitle>} />
   );
 }
 
@@ -362,9 +355,9 @@ function PlayerBossesTable(props: PropsWithChildren<{ player: PlayerDetails }>) 
     ...Object.values(player.latestSnapshot.data.bosses),
   ];
 
-  const columnDefs = useMemo(() => getBossColumnDefinitions(player), [player]);
+  const columns = getBossColumnDefinitions(player);
 
-  return <DataTable columns={columnDefs} data={rows} headerSlot={<TableTitle>{children}</TableTitle>} />;
+  return <DataTable columns={columns} data={rows} headerSlot={<TableTitle>{children}</TableTitle>} />;
 }
 
 function getBossColumnDefinitions(player: Player): ColumnDef<BossValue>[] {

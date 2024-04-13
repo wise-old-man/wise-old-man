@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { MAX_SKILL_EXP, SkillMetaMethod } from "@wise-old-man/utils";
 import { TableTitle } from "../Table";
@@ -47,12 +46,12 @@ function getColumnDefinitions(methods: SkillMetaMethod[]): ColumnDef<SkillMetaMe
 export function ExpRatesTable(props: { methods: SkillMetaMethod[] }) {
   const { methods } = props;
 
-  const columnDefs = useMemo(() => getColumnDefinitions(methods), [methods]);
+  const columns = getColumnDefinitions(methods);
 
   return (
     <DataTable
       data={methods}
-      columns={columnDefs}
+      columns={columns}
       headerSlot={
         <TableTitle>
           <span className="text-base font-medium">Experience rates</span>

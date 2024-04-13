@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "~/hooks/useToast";
@@ -89,14 +89,6 @@ function SubmitNameChangeForm(props: NameChangeSubmissionDialogProps) {
   });
 
   const canSubmit = oldName.length > 0 && newName.length > 0 && !oldNameError && !newNameError;
-
-  // Clear the inputs when the form is unmounted
-  useEffect(() => {
-    return () => {
-      setOldName(props.oldName || "");
-      setNewName("");
-    };
-  }, [props]);
 
   return (
     <form

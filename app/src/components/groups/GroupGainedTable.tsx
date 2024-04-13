@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
+import { useTransition } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -58,7 +58,7 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
   const searchParams = useSearchParams();
 
   const page = getPageParam(searchParams.get("page")) || 1;
-  const columnDefs = useMemo(() => getColumnDefinitions(page, metric), [page, metric]);
+  const columns = getColumnDefinitions(page, metric);
 
   function handleMetricChanged(metric: Metric) {
     const nextParams = new URLSearchParams(searchParams);
@@ -98,7 +98,7 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
 
   return (
     <DataTable
-      columns={columnDefs}
+      columns={columns}
       data={gains}
       enablePagination
       headerSlot={

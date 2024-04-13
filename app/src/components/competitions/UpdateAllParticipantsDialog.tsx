@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "~/hooks/useToast";
@@ -66,13 +66,6 @@ function UpdateAllParticipantsForm(props: UpdateAllParticipantsDialogProps) {
       }
     },
   });
-
-  // Clear the inputs when the form is unmounted
-  useEffect(() => {
-    return () => {
-      setVerificationCode("");
-    };
-  }, []);
 
   if (updateMutation.data) {
     const count = Number(updateMutation.data.message.split(" ")[0]);
