@@ -8,6 +8,10 @@ interface PageProps {
   };
 }
 
+export const metadata = {
+  title: "EHB Rates",
+};
+
 export async function generateStaticParams() {
   const types = Object.values(EfficiencyAlgorithmType);
 
