@@ -97,7 +97,7 @@ function ImportFromTempleForm(props: ImportFromTempleDialogProps) {
       )}
       {!!data && (
         <pre className="custom-scroll mt-3 max-h-[20vh] overflow-y-auto rounded-md border border-gray-500 p-3 font-sans text-sm leading-7">
-          {data.members.join("\n")}
+          {[...(data.leaders || []), ...data.members].join("\n")}
         </pre>
       )}
       <Button size="lg" disabled={!data} variant="blue" className="mt-4 justify-center">
