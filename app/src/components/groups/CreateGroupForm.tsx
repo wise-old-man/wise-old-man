@@ -32,8 +32,6 @@ import { GroupRoleIcon } from "~/components/Icon";
 import { Label } from "~/components/Label";
 import { PlayerSearch } from "~/components/PlayerSearch";
 import { GroupInformationForm } from "~/components/groups/GroupInformationForm";
-import { ImportFromCMLDialog } from "~/components/groups/ImportFromCMLDialog";
-import { ImportFromTempleDialog } from "~/components/groups/ImportFromTempleDialog";
 import { ImportFromFileDialog } from "~/components/groups/ImportFromFileDialog";
 import { EmptyGroupDialog } from "~/components/groups/EmptyGroupDialog";
 import { SaveGroupVerificationCodeDialog } from "~/components/groups/SaveGroupVerificationCodeDialog";
@@ -43,7 +41,7 @@ import ArrowRightIcon from "~/assets/arrow_right.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 
 type FormStep = "info" | "import" | "members";
-type ImportSource = "none" | "cml" | "templeosrs" | "file";
+type ImportSource = "none" | "file";
 
 const CreateGroupContext = createContext({
   step: "info" as FormStep,
@@ -160,8 +158,6 @@ export function CreateGroupForm() {
                   <div>
                     Import selection:{" "}
                     <span className="text-blue-400">
-                      {importSource === "templeosrs" && "TempleOSRS"}
-                      {importSource === "cml" && "CrystalMathLabs"}
                       {importSource === "file" && "Text file"}
                       {importSource === "none" && "None (manual)"}
                     </span>
@@ -222,22 +218,33 @@ function GroupImportOptions() {
   return (
     <div>
       <Label className="text-sm font-normal text-gray-200">
-        You can import an existing members list from...
+        How would you like to add your group members?
       </Label>
-      <div className="mt-4 flex flex-wrap items-center gap-4">
-        <Button onClick={() => handleSelectImportSource("templeosrs")}>TempleOSRS</Button>
-        <Button onClick={() => handleSelectImportSource("cml")}>CrystalMathLabs</Button>
-        <Button onClick={() => handleSelectImportSource("file")}>Copy / paste a text file</Button>
-      </div>
-      <Label className="mb-4 mt-7 block text-sm font-normal text-gray-200">
-        Or, you can add all your members manually
-      </Label>
-      <Button onClick={() => handleSelectImportSource("none")}>Add manually</Button>
-      <div className="mt-10 border-t border-gray-500 py-5">
-        <Button variant="outline" onClick={() => setStep("info")}>
-          <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
-          Previous
-        </Button>
+      <div className="mt-3 flex flex-col gap-4">
+        <button
+          onClick={() => handleSelectImportSource("file")}
+          className="flex items-center justify-between rounded-lg border border-gray-500 bg-gray-700 px-5 py-3 text-left hover:bg-gray-600"
+        >
+          <div>
+            <span className="text-base font-semibold">Import from file</span>
+            <p className="mt-1 text-sm text-gray-200">
+              Copy / paste a list of usernames from a text file
+            </p>
+          </div>
+          <ArrowRightIcon className="h-5 w-5" />
+        </button>
+        <button
+          onClick={() => handleSelectImportSource("none")}
+          className="flex items-center justify-between rounded-lg border border-gray-500 bg-gray-700 px-5 py-3 text-left hover:bg-gray-600"
+        >
+          <div>
+            <span className="text-base font-semibold">Add players manually</span>
+            <p className="mt-1 text-sm text-gray-200">
+              Add all member usernames and their roles manually
+            </p>
+          </div>
+          <ArrowRightIcon className="h-5 w-5" />
+        </button>
       </div>
     </div>
   );
@@ -328,30 +335,6 @@ function GroupMembersForm(props: GroupMembersFormProps) {
         </div>
       </div>
 
-      <ImportFromCMLDialog
-        isOpen={showingImportDialog && importSource === "cml"}
-        onClose={() => {
-          setStep("import");
-          setImportSource(undefined);
-          setShowingImportDialog(false);
-        }}
-        onSubmit={(members) => {
-          setMembers(members);
-          setShowingImportDialog(false);
-        }}
-      />
-      <ImportFromTempleDialog
-        isOpen={showingImportDialog && importSource === "templeosrs"}
-        onClose={() => {
-          setStep("import");
-          setImportSource(undefined);
-          setShowingImportDialog(false);
-        }}
-        onSubmit={(members) => {
-          setMembers(members);
-          setShowingImportDialog(false);
-        }}
-      />
       <ImportFromFileDialog
         isOpen={showingImportDialog && importSource === "file"}
         onClose={() => {
