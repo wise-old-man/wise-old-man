@@ -4,8 +4,15 @@ import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cn } from "~/utils/styling";
 import CloseIcon from "~/assets/close.svg";
+import { ClientOnly } from "./ClientOnly";
 
-const Dialog = DialogPrimitive.Root;
+const Dialog = ({ children, ...props }: DialogPrimitive.DialogProps) => {
+  return (
+    <ClientOnly>
+      <DialogPrimitive.Root {...props}>{children}</DialogPrimitive.Root>
+    </ClientOnly>
+  );
+};
 
 const DialogTrigger = DialogPrimitive.Trigger;
 
