@@ -77,6 +77,7 @@ export function EditCompetitionForm(props: EditCompetitionFormProps) {
       {competition.group ? (
         <GroupVerificationCodeCheckDialog
           group={competition.group}
+          competitionId={competition.id}
           isOpen={!verificationCode}
           onValidated={setVerificationCode}
           isEditingGroupCompetition

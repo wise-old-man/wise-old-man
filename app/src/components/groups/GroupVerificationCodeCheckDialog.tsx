@@ -20,14 +20,18 @@ interface GroupVerificationCodeCheckDialogProps {
   isOpen: boolean;
   isEditingGroupCompetition?: boolean;
   group: GroupListItem;
+  competitionId?: number;
   onValidated: (code: string) => void;
 }
 
 export function GroupVerificationCodeCheckDialog(props: GroupVerificationCodeCheckDialogProps) {
   const { group, isOpen, isEditingGroupCompetition = false, onValidated } = props;
+
   const router = useRouter();
+
   const toast = useToast();
   const client = useWOMClient();
+
   const [verificationCode, setVerificationCode] = useState("");
 
   const checkMutation = useMutation({
@@ -53,10 +57,23 @@ export function GroupVerificationCodeCheckDialog(props: GroupVerificationCodeChe
     },
   });
 
+  function handleClose() {
+    if (isEditingGroupCompetition && props.competitionId) {
+      router.push(`/competitions/${props.competitionId}`);
+    } else {
+      router.push(`/groups/${group.id}`);
+    }
+  }
+
   const hasValidated = !!checkMutation.data;
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(val) => {
+        if (!val) handleClose();
+      }}
+    >
       <DialogContent className="w-[28rem]" hideClose>
         <DialogHeader>
           <DialogTitle>Verification check</DialogTitle>
@@ -114,7 +131,7 @@ export function GroupVerificationCodeCheckDialog(props: GroupVerificationCodeChe
             onChange={(e) => setVerificationCode(e.target.value)}
           />
           <div className="mt-4 flex justify-end gap-x-2">
-            <Button type="button" onClick={() => router.back()}>
+            <Button type="button" onClick={handleClose}>
               Cancel
             </Button>
             <Button
