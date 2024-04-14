@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "~/hooks/useToast";
 import { useWOMClient } from "~/hooks/useWOMClient";
@@ -20,15 +20,23 @@ interface UpdateAllMembersDialogProps {
 
 export function UpdateAllMembersDialog(props: UpdateAllMembersDialogProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const isOpen = searchParams.get("dialog") === "update-all";
+
+  function handleClose() {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("dialog");
+
+    router.replace(`${pathname}?${nextParams.toString()}`);
+  }
 
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(val) => {
-        if (!val) router.back();
+        if (!val) handleClose();
       }}
     >
       <DialogContent>
@@ -66,13 +74,6 @@ function UpdateAllMembersForm(props: UpdateAllMembersDialogProps) {
       }
     },
   });
-
-  // Clear the inputs when the form is unmounted
-  useEffect(() => {
-    return () => {
-      setVerificationCode("");
-    };
-  }, []);
 
   if (updateMutation.data) {
     const count = Number(updateMutation.data.message.split(" ")[0]);

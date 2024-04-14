@@ -1,11 +1,11 @@
 "use client";
 
-import { Suspense } from "react";
 import { AppProgressBar as LoadingProgressBar } from "next-nprogress-bar";
+import { ClientOnly } from "./ClientOnly";
 
 export function NavigationLoadingBar() {
   return (
-    <Suspense>
+    <ClientOnly>
       <LoadingProgressBar
         height="3px"
         color="#3b82f6"
@@ -13,6 +13,6 @@ export function NavigationLoadingBar() {
         shallowRouting
         delay={150}
       />
-    </Suspense>
+    </ClientOnly>
   );
 }

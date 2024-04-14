@@ -28,7 +28,7 @@ export function GroupCard(props: GroupListItem) {
               {props.verified && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <VerifiedIcon className="h-4 w-4" />
+                    <VerifiedIcon className="h-4 w-4 shrink-0" />
                   </TooltipTrigger>
                   <TooltipContent>This group is verified on our Discord server.</TooltipContent>
                 </Tooltip>

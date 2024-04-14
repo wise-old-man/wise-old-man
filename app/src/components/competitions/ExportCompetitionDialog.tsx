@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { isMetric } from "@wise-old-man/utils";
 import { Input } from "../Input";
 import { Button } from "../Button";
@@ -43,21 +43,28 @@ export function ExportCompetitionDialog(props: ExportCompetitionDialogProps) {
   const { competitionId } = props;
 
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [hasCopied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const url = buildExportUrl(competitionId, new URLSearchParams(searchParams));
-
   const importFormula = `=IMPORTDATA("${url}")`;
+
+  function handleClose() {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("dialog");
+
+    router.replace(`${pathname}?${nextParams.toString()}`);
+  }
 
   return (
     <Dialog
       open={searchParams.get("dialog") === "export"}
       onOpenChange={(val) => {
         if (!val) {
-          router.back();
+          handleClose();
           setCopied(false);
         }
       }}

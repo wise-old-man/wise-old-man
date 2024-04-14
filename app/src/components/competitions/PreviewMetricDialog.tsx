@@ -60,11 +60,18 @@ export function PreviewMetricDialog(props: PreviewMetricDialogProps) {
     router.push(`${pathname}?${nextParams.toString()}`);
   }
 
+  function handleClose() {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("dialog");
+
+    router.replace(`${pathname}?${nextParams.toString()}`);
+  }
+
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(val) => {
-        if (!val) router.back();
+        if (!val) handleClose();
       }}
     >
       <DialogContent allowScroll>

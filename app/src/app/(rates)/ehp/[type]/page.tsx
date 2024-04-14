@@ -16,6 +16,10 @@ interface PageProps {
   };
 }
 
+export const metadata = {
+  title: "EHP Rates",
+};
+
 export async function generateStaticParams() {
   const types = Object.values(EfficiencyAlgorithmType);
   return types.map((type) => ({ params: { type } }));

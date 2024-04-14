@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "~/hooks/useToast";
 import { useWOMClient } from "~/hooks/useWOMClient";
@@ -19,15 +19,23 @@ interface DeleteGroupDialogProps {
 
 export function DeleteGroupDialog(props: DeleteGroupDialogProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const isOpen = searchParams.get("dialog") === "delete";
+
+  function handleClose() {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("dialog");
+
+    router.replace(`${pathname}?${nextParams.toString()}`);
+  }
 
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(val) => {
-        if (!val) router.back();
+        if (!val) handleClose();
       }}
     >
       <DialogContent className="w-[28rem]">
@@ -39,7 +47,7 @@ export function DeleteGroupDialog(props: DeleteGroupDialogProps) {
         </DialogHeader>
         <DeleteGroupForm
           groupId={props.groupId}
-          onQuit={() => router.back()}
+          onQuit={() => handleClose()}
           onSubmitted={() => router.push("/groups")}
         />
       </DialogContent>
@@ -74,13 +82,6 @@ function DeleteGroupForm(props: DeleteGroupFormProps) {
       }
     },
   });
-
-  // Clear the inputs when the form is unmounted
-  useEffect(() => {
-    return () => {
-      setVerificationCode("");
-    };
-  }, []);
 
   return (
     <form

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../Dialog";
 
 import PluginButton from "../../../public/img/plugin_sync_button.png";
@@ -9,15 +9,23 @@ import PluginSettings from "../../../public/img/plugin_sync_settings.png";
 
 export function RuneLiteSyncDialog() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const isOpen = searchParams.get("dialog") === "runelite-sync";
+
+  function handleClose() {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("dialog");
+
+    router.replace(`${pathname}?${nextParams.toString()}`);
+  }
 
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(val) => {
-        if (!val) router.back();
+        if (!val) handleClose();
       }}
     >
       <DialogContent className="custom-scroll max-h-[70vh] !max-w-[50rem] overflow-y-auto">
