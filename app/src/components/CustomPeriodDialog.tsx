@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Time } from "@internationalized/date";
 import { Period, PeriodProps } from "@wise-old-man/utils";
 import { DateValue, TimeValue } from "@react-aria/datepicker";
@@ -10,6 +10,7 @@ import { DateTimePicker, TimeField, toCalendarDate, toDate } from "./DatePicker"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./Dialog";
 
 import LoadingIcon from "~/assets/loading.svg";
+import { isAfter2013 } from "~/utils/dates";
 
 interface CustomPeriodDialogProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
 
   const [startTime, setStartTime] = useState<TimeValue>(new Time(12, 0));
   const [endTime, setEndTime] = useState<TimeValue>(new Time(12, 0));
+  const [isDateRangeInvalid, setIsDateRangeInvalid] = useState<boolean>();
 
   const [startDate, setStartDate] = useState<DateValue>(
     toCalendarDate(new Date(Date.now() - PeriodProps[Period.WEEK].milliseconds))
@@ -30,12 +32,22 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
 
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(new Date()));
 
+  function handleChange() {
+    const startDateTime = toDate(startDate, startTime);
+    const endDateTime = toDate(endDate, endTime);
+
+    const isInvalid = !isAfter2013(startDateTime) || !isAfter2013(endDateTime);
+    setIsDateRangeInvalid(isInvalid);
+  }
+
   function handleSelection() {
     const startDateTime = toDate(startDate, startTime);
     const endDateTime = toDate(endDate, endTime);
 
     onSelected(startDateTime, endDateTime);
   }
+
+  useEffect(handleChange, [startDate, startTime, endDate, endTime]);
 
   return (
     <Dialog
@@ -49,7 +61,7 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
           <DialogTitle>Select a custom period</DialogTitle>
           <DialogDescription>
             Define a custom period by selecting a start and end date. These are displayed in your local
-            time.
+            time. The earliest selectable date is January 1, 2013.
           </DialogDescription>
         </DialogHeader>
         <form
@@ -57,6 +69,9 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
           onSubmit={(e) => {
             e.preventDefault();
             handleSelection();
+          }}
+          onChange={() => {
+            handleChange();
           }}
         >
           <div className="flex grow gap-x-4">
@@ -80,12 +95,19 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
             </div>
           </div>
           <div className="mt-5 w-full grow border-t border-gray-700">
-            <Button disabled={isPending} size="lg" variant="blue" className="mt-5 w-full justify-center">
+            <Button
+              disabled={isPending || isDateRangeInvalid}
+              size="lg"
+              variant="blue"
+              className="mt-5 w-full justify-center"
+            >
               {isPending ? (
                 <>
                   <LoadingIcon className="-ml-2 mr-2 h-5 w-5 animate-spin" />
                   Loading...
                 </>
+              ) : isDateRangeInvalid ? (
+                <>Invalid Date Range</>
               ) : (
                 <>Confirm</>
               )}
