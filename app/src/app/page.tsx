@@ -334,7 +334,7 @@ async function RuneliteSection() {
         <RuneliteFeatureCard
           icon={<SearchIcon className="h-5 w-5" />}
           title="Lookup players"
-          description="Check our another player's stats on WOM, including Efficiency metrics."
+          description="Check out another player's stats on WOM, including Efficiency metrics."
         />
         <div className="flex items-center justify-center rounded-lg border border-gray-500 p-6 text-center">
           <div>
@@ -461,7 +461,7 @@ function HowToStep(props: HowToStepProps) {
 
   return (
     <div className="flex flex-col gap-x-6 gap-y-3 pb-16 md:flex-row md:items-center">
-      <Image src={image} width={168} height={116} alt={title} />
+      <Image src={image} width={168} height={116} alt="" />
       <div className="flex flex-col">
         <span className="text-lg font-semibold">{title}</span>
         <p className="mt-2 max-w-xs text-body text-gray-200">{description}</p>
