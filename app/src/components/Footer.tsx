@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Container } from "./Container";
 
-import GithubIcon from "~/assets/github.svg";
+import GitHubIcon from "~/assets/github.svg";
 import TwitterIcon from "~/assets/twitter.svg";
 import DiscordIcon from "~/assets/discord.svg";
 import PatreonIcon from "~/assets/patreon.svg";
@@ -11,7 +11,7 @@ const SOCIAL_LINKS = [
   { label: "Discord", href: "https://wiseoldman.net/discord", icon: DiscordIcon },
   { label: "Twitter", href: "https://twitter.com/RubenPsikoi", icon: TwitterIcon },
   { label: "Patreon", href: "https://wiseoldman.net/patreon", icon: PatreonIcon },
-  { label: "Github", href: "https://wiseoldman.net/github", icon: GithubIcon },
+  { label: "GitHub", href: "https://wiseoldman.net/github", icon: GitHubIcon },
 ];
 
 const navigation = {
