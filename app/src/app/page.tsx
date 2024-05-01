@@ -29,7 +29,7 @@ import SyncIcon from "~/assets/sync.svg";
 import DoorIcon from "~/assets/door.svg";
 import BellIcon from "~/assets/bell.svg";
 import SearchIcon from "~/assets/search.svg";
-import GithubIcon from "~/assets/github.svg";
+import GitHubIcon from "~/assets/github.svg";
 import PatreonIcon from "~/assets/patreon.svg";
 import DiscordIcon from "~/assets/discord.svg";
 import BullhornIcon from "~/assets/bullhorn.svg";
@@ -416,18 +416,16 @@ function CommunitySection() {
       </p>
       <div className="flex flex-col items-center gap-5 md:flex-row">
         <a
-          aria-label="GitHub"
           href="https://wiseoldman.net/github"
           target="_blank"
           rel="noopener noreferrer"
         >
           <Button>
-            <GithubIcon className="-ml-2 h-4 w-4" />
+            <GitHubIcon className="-ml-2 h-4 w-4" />
             Contribute on GitHub
           </Button>
         </a>
         <a
-          aria-label="Discord"
           href="https://wiseoldman.net/discord"
           target="_blank"
           rel="noopener noreferrer"
@@ -438,7 +436,6 @@ function CommunitySection() {
           </Button>
         </a>
         <a
-          aria-label="Patreon"
           href="https://wiseoldman.net/patreon"
           target="_blank"
           rel="noopener noreferrer"
