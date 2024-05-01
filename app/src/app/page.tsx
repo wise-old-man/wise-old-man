@@ -79,7 +79,7 @@ function HeroSection() {
             src={WomCharacterImage}
             width={359}
             height={441}
-            alt="Wise Old Man - In-game NPC"
+            alt=""
             className="translate-y-[2rem]"
           />
         </div>
