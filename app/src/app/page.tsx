@@ -103,25 +103,25 @@ async function StatsDisplay() {
     <div className="relative z-20 -mt-5 flex w-full items-center">
       <div className="mx-auto rounded-xl bg-gray-900 bg-gradient-to-b from-gray-500 to-gray-900 p-px">
         <div className="mx-auto flex items-center rounded-xl bg-gray-900 py-5">
-          <article className="flex flex-col items-center px-6 sm:px-8">
+          <div className="flex flex-col items-center px-6 sm:px-8" role="group">
             <span className="text-base font-bold md:text-xl">{playerCount}</span>
             <span className="mt-1 text-xs text-gray-200">Players</span>
-          </article>
-          <div className="h-6 w-px bg-gray-500" />
-          <article className="flex flex-col items-center px-6 sm:px-8">
+          </div>
+          <div className="h-6 w-px bg-gray-500" aria-hidden="true" />
+          <div className="flex flex-col items-center px-6 sm:px-8" role="group">
             <span className="text-base font-bold md:text-xl">{snapshotsCount}</span>
             <span className="mt-1 text-xs text-gray-200">Snapshots</span>
-          </article>
-          <div className="h-6 w-px bg-gray-500" />
-          <article className="flex flex-col items-center px-6 sm:px-8">
+          </div>
+          <div className="h-6 w-px bg-gray-500" aria-hidden="true" />
+          <div className="flex flex-col items-center px-6 sm:px-8" role="group">
             <span className="text-base font-bold md:text-xl">{groupsCount}</span>
             <span className="mt-1 text-xs text-gray-200">Groups</span>
-          </article>
-          <div className="hidden h-6 w-px bg-gray-500 xs:block" />
-          <article className="hidden flex-col items-center px-6 xs:flex sm:px-8">
+          </div>
+          <div className="hidden h-6 w-px bg-gray-500 xs:block" aria-hidden="true" />
+          <div className="hidden flex-col items-center px-6 xs:flex sm:px-8" role="group">
             <span className="text-base font-bold md:text-xl">{competitionsCount}</span>
             <span className="mt-1 text-xs text-gray-200">Competitions</span>
-          </article>
+          </div>
         </div>
       </div>
     </div>
