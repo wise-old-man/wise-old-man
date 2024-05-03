@@ -28,7 +28,7 @@ export function PlayerTypeIcon(props: { playerType: PlayerType; className?: stri
     <Image
       width={10}
       height={13}
-      alt={playerType}
+      alt=""
       src={`/img/player_types/${playerType}.png`}
       className={cn("shrink-0", className)}
       style={{ imageRendering: "pixelated" }}

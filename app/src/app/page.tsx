@@ -29,7 +29,7 @@ import SyncIcon from "~/assets/sync.svg";
 import DoorIcon from "~/assets/door.svg";
 import BellIcon from "~/assets/bell.svg";
 import SearchIcon from "~/assets/search.svg";
-import GithubIcon from "~/assets/github.svg";
+import GitHubIcon from "~/assets/github.svg";
 import PatreonIcon from "~/assets/patreon.svg";
 import DiscordIcon from "~/assets/discord.svg";
 import BullhornIcon from "~/assets/bullhorn.svg";
@@ -79,7 +79,7 @@ function HeroSection() {
             src={WomCharacterImage}
             width={359}
             height={441}
-            alt="Wise Old Man - In-game NPC"
+            alt=""
             className="translate-y-[2rem]"
           />
         </div>
@@ -103,22 +103,22 @@ async function StatsDisplay() {
     <div className="relative z-20 -mt-5 flex w-full items-center">
       <div className="mx-auto rounded-xl bg-gray-900 bg-gradient-to-b from-gray-500 to-gray-900 p-px">
         <div className="mx-auto flex items-center rounded-xl bg-gray-900 py-5">
-          <div className="flex flex-col items-center px-6 sm:px-8">
+          <div className="flex flex-col items-center px-6 sm:px-8" role="group">
             <span className="text-base font-bold md:text-xl">{playerCount}</span>
             <span className="mt-1 text-xs text-gray-200">Players</span>
           </div>
-          <div className="h-6 w-px bg-gray-500" />
-          <div className="flex flex-col items-center px-6 sm:px-8">
+          <div className="h-6 w-px bg-gray-500" aria-hidden="true" />
+          <div className="flex flex-col items-center px-6 sm:px-8" role="group">
             <span className="text-base font-bold md:text-xl">{snapshotsCount}</span>
             <span className="mt-1 text-xs text-gray-200">Snapshots</span>
           </div>
-          <div className="h-6 w-px bg-gray-500" />
-          <div className="flex flex-col items-center px-6 sm:px-8">
+          <div className="h-6 w-px bg-gray-500" aria-hidden="true" />
+          <div className="flex flex-col items-center px-6 sm:px-8" role="group">
             <span className="text-base font-bold md:text-xl">{groupsCount}</span>
             <span className="mt-1 text-xs text-gray-200">Groups</span>
           </div>
-          <div className="hidden h-6 w-px bg-gray-500 xs:block" />
-          <div className="hidden flex-col items-center px-6 xs:flex sm:px-8">
+          <div className="hidden h-6 w-px bg-gray-500 xs:block" aria-hidden="true" />
+          <div className="hidden flex-col items-center px-6 xs:flex sm:px-8" role="group">
             <span className="text-base font-bold md:text-xl">{competitionsCount}</span>
             <span className="mt-1 text-xs text-gray-200">Competitions</span>
           </div>
@@ -148,7 +148,7 @@ function PlayersSection() {
                 src={PlayersChartOverlayImage}
                 width={178}
                 height={72}
-                alt="99 Ranged Achievement"
+                alt=""
                 className="absolute -right-[5.2rem] bottom-[3.2rem] hidden sm:block md:hidden xl:block"
               />
               {/* <div className="absolute inset-0 translate-y-[2.5rem] bg-gradient-to-b from-gray-900/0 to-gray-900/80" /> */}
@@ -196,7 +196,7 @@ function GroupsSection() {
             src={GroupsCompetitionsImage}
             width={1053}
             height={285}
-            alt="Group Competitions"
+            alt=""
             className="mx-auto translate-y-1"
           />
         </div>
@@ -208,7 +208,7 @@ function GroupsSection() {
             src={GroupsRankingsImage}
             width={1041}
             height={351}
-            alt="Group Rankings"
+            alt=""
             className="mx-auto"
           />
         </div>
@@ -222,7 +222,7 @@ function GroupsSection() {
             src={GroupsChangesImage}
             width={647}
             height={330}
-            alt="Group Member list changes"
+            alt=""
             className="mx-auto w-full max-w-xs"
           />
         </div>
@@ -240,7 +240,7 @@ function GroupsSection() {
             src={GroupsDiscoveredImage}
             width={753}
             height={327}
-            alt="Ruthless Clan - Group card"
+            alt=""
             className="mx-auto max-w-[18rem] translate-x-px translate-y-1"
           />
         </div>
@@ -259,19 +259,19 @@ function DiscordSection() {
           </h2>
           <div className="mb-8 mt-7 flex flex-col gap-y-3">
             <div className="flex items-center gap-x-3">
-              <Image src={WomPhatImage} alt="-" />
+              <Image src={WomPhatImage} alt="" />
               <span className="text-sm text-gray-100">Updates on competitions</span>
             </div>
             <div className="flex items-center gap-x-3">
-              <Image src={WomPhatImage} alt="-" />
+              <Image src={WomPhatImage} alt="" />
               <span className="text-sm text-gray-100">New member achievements</span>
             </div>
             <div className="flex items-center gap-x-3">
-              <Image src={WomPhatImage} alt="-" />
+              <Image src={WomPhatImage} alt="" />
               <span className="text-sm text-gray-100">HCIM Deaths</span>
             </div>
             <div className="flex items-center gap-x-3">
-              <Image src={WomPhatImage} alt="-" />
+              <Image src={WomPhatImage} alt="" />
               <span className="text-sm text-gray-100">Member list changes</span>
             </div>
           </div>
@@ -286,12 +286,12 @@ function DiscordSection() {
           </a>
         </div>
         <div className="relative mx-auto mt-10 w-[388px] md:absolute md:bottom-0 md:right-16 md:mt-0">
-          <Image src={FeaturesDiscordBack} alt="Wise Old Man - Discord Features" />
+          <Image src={FeaturesDiscordBack} alt="" />
           <div className="absolute bottom-0 top-0 w-[388px] bg-gradient-to-t from-gray-800 to-gray-800/0" />
           <div className="absolute bottom-0 top-0 hidden w-[388px] bg-gradient-to-r from-gray-800 to-gray-800/0 md:block xl:hidden" />
           <Image
             src={FeaturesDiscordFront}
-            alt="Wise Old Man - Discord Features (Overlay)"
+            alt=""
             className="absolute -right-24 bottom-28 w-[243px]"
           />
         </div>
@@ -334,7 +334,7 @@ async function RuneliteSection() {
         <RuneliteFeatureCard
           icon={<SearchIcon className="h-5 w-5" />}
           title="Lookup players"
-          description="Check our another player's stats on WOM, including Efficiency metrics."
+          description="Check out another player's stats on WOM, including Efficiency metrics."
         />
         <div className="flex items-center justify-center rounded-lg border border-gray-500 p-6 text-center">
           <div>
@@ -416,18 +416,16 @@ function CommunitySection() {
       </p>
       <div className="flex flex-col items-center gap-5 md:flex-row">
         <a
-          aria-label="GitHub"
           href="https://wiseoldman.net/github"
           target="_blank"
           rel="noopener noreferrer"
         >
           <Button>
-            <GithubIcon className="-ml-2 h-4 w-4" />
+            <GitHubIcon className="-ml-2 h-4 w-4" />
             Contribute on GitHub
           </Button>
         </a>
         <a
-          aria-label="Discord"
           href="https://wiseoldman.net/discord"
           target="_blank"
           rel="noopener noreferrer"
@@ -438,7 +436,6 @@ function CommunitySection() {
           </Button>
         </a>
         <a
-          aria-label="Patreon"
           href="https://wiseoldman.net/patreon"
           target="_blank"
           rel="noopener noreferrer"
@@ -464,7 +461,7 @@ function HowToStep(props: HowToStepProps) {
 
   return (
     <div className="flex flex-col gap-x-6 gap-y-3 pb-16 md:flex-row md:items-center">
-      <Image src={image} width={168} height={116} alt={title} />
+      <Image src={image} width={168} height={116} alt="" />
       <div className="flex flex-col">
         <span className="text-lg font-semibold">{title}</span>
         <p className="mt-2 max-w-xs text-body text-gray-200">{description}</p>
