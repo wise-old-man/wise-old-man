@@ -1,5 +1,5 @@
 import prisma, { NameChangeStatus } from '../../../../prisma';
-import { PlayerType } from '../../../../utils';
+import { PlayerType, PlayerBuild } from '../../../../utils';
 import { NotFoundError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
@@ -84,7 +84,14 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
   const timeDiff = afterDate.getTime() - oldStats.createdAt.getTime();
   const hoursDiff = timeDiff / 1000 / 60 / 60;
 
-  const oldPlayerComputedMetrics = await computePlayerMetrics(oldPlayer, oldStats);
+  const oldPlayerComputedMetrics = await computePlayerMetrics(
+    {
+      id: -1,
+      type: PlayerType.REGULAR,
+      build: PlayerBuild.MAIN
+    },
+    oldStats
+  );
 
   oldStats.ehpValue = oldPlayerComputedMetrics.ehpValue;
   oldStats.ehpRank = oldPlayerComputedMetrics.ehpRank;
@@ -113,7 +120,11 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
   }
 
   const newPlayerComputedMetrics = await computePlayerMetrics(
-    newPlayer || { ...oldPlayer, id: -1 },
+    {
+      id: -1,
+      type: PlayerType.REGULAR,
+      build: PlayerBuild.MAIN
+    },
     newStats
   );
 
