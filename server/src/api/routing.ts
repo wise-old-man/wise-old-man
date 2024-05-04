@@ -14,31 +14,26 @@ import playerRouter from './modules/players/player.router';
 import recordRouter from './modules/records/record.router';
 import prometheus from './services/external/prometheus.service';
 import logger from './util/logging';
-import { metricAbbreviation } from './util/middlewares';
 
 class RoutingHandler {
   router: express.Router;
 
   constructor() {
     this.router = express.Router();
-    this.setupMiddlewares();
     this.setupRoutes();
     this.setupFallbacks();
   }
 
-  setupMiddlewares() {
+  setupRoutes() {
     this.router.use((_, res, next) => {
       res.locals.requestStartTime = Date.now();
       next();
     });
 
-    // Handle metric abbreviations (tob -> theatre_of_blood)
-    this.router.use(metricAbbreviation);
-  }
-
-  setupRoutes() {
     // A simple ping/test endpoint
-    this.router.get('/', (_req, res) => res.json(process.env.npm_package_version));
+    this.router.get('/', (_req, res) => {
+      res.json(process.env.npm_package_version);
+    });
 
     // Register all the modules to the router
     this.router.use(competitionRouter);

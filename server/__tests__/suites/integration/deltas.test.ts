@@ -302,15 +302,6 @@ describe('Deltas API', () => {
       expect(dayOverallGains.experience).toMatchObject({ start: 300242115, end: 300242115, gained: 0 });
     });
 
-    it('should fetch (custom period + array formatting)', async () => {
-      const response = await api
-        .get(`/players/psikoi/gained`)
-        .query({ period: '5m2w3d', formatting: 'array' });
-
-      expect(response.status).toBe(200);
-      expect(response.body.data.skills.find(s => s.metric === 'smithing').experience.gained).toBe(50_000);
-    });
-
     it('should not fetch deltas between (min date greater than max date)', async () => {
       const response = await api.get(`/players/psikoi/gained`).query({
         startDate: new Date('2021-12-14T04:15:36.000Z'),
@@ -319,18 +310,6 @@ describe('Deltas API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Min date must be before the max date.');
-    });
-
-    it('should fetch deltas between (array formatting)', async () => {
-      const response = await api.get(`/players/psikoi/gained`).query({
-        startDate: new Date('2015-12-14T04:15:36.000Z'),
-        endDate: new Date('2025-12-14T04:15:36.000Z'),
-        formatting: 'array'
-      });
-
-      expect(response.status).toBe(200);
-      expect(response.body.period).toBeUndefined();
-      expect(response.body.data.skills.find(s => s.metric === 'smithing').experience.gained).toBe(50_000);
     });
   });
 

@@ -6,8 +6,6 @@ import type {
   PlayerCompetitionsFilter
 } from '../api-types';
 import {
-  PlayerDeltasMap,
-  PlayerDeltasArray,
   Record,
   Player,
   PlayerDetails,
@@ -116,18 +114,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A map of each metric's gained data.
    */
   getPlayerGains(username: string, options: TimeRangeFilter) {
-    return this.getRequest<GetPlayerGainsResponse<PlayerDeltasMap>>(`/players/${username}/gained`, options);
-  }
-
-  /**
-   * Fetches a player's gains, for a specific period or time range, as an array.
-   * @returns An array of each metric's gained data.
-   */
-  getPlayerGainsAsArray(username: string, options: TimeRangeFilter) {
-    return this.getRequest<GetPlayerGainsResponse<PlayerDeltasArray>>(`/players/${username}/gained`, {
-      ...options,
-      formatting: 'array'
-    });
+    return this.getRequest<GetPlayerGainsResponse>(`/players/${username}/gained`, options);
   }
 
   /**

@@ -1,50 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import prisma from '../../prisma';
-import { isMetric, parseMetricAbbreviation } from '../../utils';
 import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../errors';
 import { submitNameChange } from '../modules/name-changes/services/SubmitNameChangeService';
 import redisService from '../services/external/redis.service';
 import * as cryptService from '../services/external/crypt.service';
 import logger from '../util/logging';
-import prometheusService from '../services/external/prometheus.service';
-
-export function metricAbbreviation(req: Request, res: Response, next: NextFunction) {
-  if (!req) {
-    return next();
-  }
-
-  // Swap any metric abbreviations in the request body
-  if (req.body && req.body.metric) {
-    const metric = req.body.metric.toLowerCase();
-
-    if (!isMetric(metric)) {
-      req.body.metric = parseMetricAbbreviation(metric) || metric;
-
-      if (req.body.metric !== metric) {
-        // Metric was corrected
-        // Tracking this temporarily to see if it's safe to deprecate
-        prometheusService.incrementMetricCorrectionCounter(res.locals.userAgent, req.originalUrl, req.method);
-      }
-    }
-  }
-
-  // Swap any metric abbreviations in the request query
-  if (req.query && req.query.metric) {
-    const metric = String(req.query.metric).toLowerCase();
-
-    if (!isMetric(metric)) {
-      req.query.metric = parseMetricAbbreviation(metric) || metric;
-
-      if (req.query.metric !== metric) {
-        // Metric was corrected
-        // Tracking this temporarily to see if it's safe to deprecate
-        prometheusService.incrementMetricCorrectionCounter(res.locals.userAgent, req.originalUrl, req.method);
-      }
-    }
-  }
-
-  next();
-}
 
 export async function detectRuneLiteNameChange(req: unknown, res: Response, next: NextFunction) {
   if (!req) {

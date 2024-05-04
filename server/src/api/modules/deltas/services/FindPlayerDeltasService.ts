@@ -1,22 +1,21 @@
 import prisma from '../../../../prisma';
 import { Period, parsePeriodExpression } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import { PlayerDeltasArray, PlayerDeltasMap } from '../delta.types';
-import { calculatePlayerDeltas, emptyPlayerDelta, flattenPlayerDeltas } from '../delta.utils';
+import { PlayerDeltasMap } from '../delta.types';
+import { calculatePlayerDeltas, emptyPlayerDelta } from '../delta.utils';
 import { standardize } from '../../players/player.utils';
 
 export interface FindPlayerDeltasResult {
   startsAt: Date | null;
   endsAt: Date | null;
-  data: PlayerDeltasArray | PlayerDeltasMap;
+  data: PlayerDeltasMap;
 }
 
 async function findPlayerDeltas(
   username: string,
   period?: Period | string,
   minDate?: Date,
-  maxDate?: Date,
-  formatting?: 'array' | 'map'
+  maxDate?: Date
 ): Promise<FindPlayerDeltasResult> {
   if (!period && (!minDate || !maxDate)) {
     throw new BadRequestError('Invalid period and start/end dates.');
@@ -71,7 +70,7 @@ async function findPlayerDeltas(
     return {
       startsAt: null,
       endsAt: null,
-      data: formatting === 'array' ? flattenPlayerDeltas(emptyPlayerDelta()) : emptyPlayerDelta()
+      data: emptyPlayerDelta()
     };
   }
 
@@ -80,7 +79,7 @@ async function findPlayerDeltas(
   return {
     startsAt: startSnapshot.createdAt,
     endsAt: endSnapshot.createdAt,
-    data: formatting === 'array' ? flattenPlayerDeltas(data) : data
+    data
   };
 }
 

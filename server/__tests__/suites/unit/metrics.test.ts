@@ -13,7 +13,6 @@ import {
   getMetricName,
   getMinimumValue,
   getParentEfficiencyMetric,
-  parseMetricAbbreviation,
   MetricMeasure
 } from '../../../src/utils';
 
@@ -104,12 +103,5 @@ describe('Util - Metrics', () => {
     expect(getParentEfficiencyMetric(Metric.ZALCANO)).toBe(Metric.EHB);
     expect(getParentEfficiencyMetric(Metric.WOODCUTTING)).toBe(Metric.EHP);
     expect(getParentEfficiencyMetric(Metric.SOUL_WARS_ZEAL)).toBe(null);
-  });
-
-  test('parseMetricAbbreviation', () => {
-    expect(parseMetricAbbreviation('')).toBe(null);
-    expect(parseMetricAbbreviation('agility')).toBe(Metric.AGILITY);
-    expect(parseMetricAbbreviation('SIRE')).toBe(Metric.ABYSSAL_SIRE);
-    expect(parseMetricAbbreviation('corp')).toBe(Metric.CORPOREAL_BEAST);
   });
 });
