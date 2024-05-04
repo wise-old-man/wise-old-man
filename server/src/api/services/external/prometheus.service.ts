@@ -10,7 +10,6 @@ class PrometheusService {
   private jobHistogram: Histogram<JobParams>;
   private httpHistogram: Histogram<HttpParams>;
   private effectHistogram: Histogram<EffectParams>;
-  private arrayFormattingCounter: Counter<'userAgent'>;
   private metricCorrectionCounter: Counter<'userAgent' | 'route' | 'method'>;
 
   constructor() {
@@ -18,12 +17,6 @@ class PrometheusService {
     this.registry.setDefaultLabels({ app: 'wise-old-man', threadIndex: getThreadIndex() });
 
     prometheus.collectDefaultMetrics({ register: this.registry });
-
-    this.arrayFormattingCounter = new prometheus.Counter({
-      name: 'array_formatting',
-      help: 'Temporary counter for tracking purposes.',
-      labelNames: ['userAgent']
-    });
 
     this.metricCorrectionCounter = new prometheus.Counter({
       name: 'metric_correction',
@@ -52,15 +45,10 @@ class PrometheusService {
       buckets: [0.1, 0.5, 1, 5, 10, 30, 60]
     });
 
-    this.registry.registerMetric(this.arrayFormattingCounter);
     this.registry.registerMetric(this.metricCorrectionCounter);
     this.registry.registerMetric(this.jobHistogram);
     this.registry.registerMetric(this.httpHistogram);
     this.registry.registerMetric(this.effectHistogram);
-  }
-
-  incrementArrayFormattingCounter(userAgent: string) {
-    this.arrayFormattingCounter.labels({ userAgent }).inc();
   }
 
   incrementMetricCorrectionCounter(userAgent: string, route: string, method: string) {

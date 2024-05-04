@@ -4,7 +4,6 @@ import jobManager from '../../../jobs/job.manager';
 import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period } from '../../../utils';
 import { NotFoundError, ServerError } from '../../errors';
-import prometheusService from '../../services/external/prometheus.service';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getDateSchema, getPaginationSchema } from '../../util/validation';
@@ -403,20 +402,14 @@ router.get(
     query: z.object({
       period: z.optional(z.nativeEnum(Period).or(z.string())),
       startDate: z.optional(getDateSchema('startDate')),
-      endDate: z.optional(getDateSchema('endDate')),
-      formatting: z.optional(z.enum(['array', 'map']).default('map')) // consider deprecating this soon
+      endDate: z.optional(getDateSchema('endDate'))
     })
   }),
   executeRequest(async (req, res) => {
     const { username } = req.params;
-    const { period, startDate, endDate, formatting } = req.query;
+    const { period, startDate, endDate } = req.query;
 
-    if (formatting === 'array') {
-      // Tracking this temporarily to see if it's safe to deprecate
-      prometheusService.incrementArrayFormattingCounter(res.locals.userAgent);
-    }
-
-    const results = await findPlayerDeltas(username, period, startDate, endDate, formatting);
+    const results = await findPlayerDeltas(username, period, startDate, endDate);
     res.status(200).json(results);
   })
 );

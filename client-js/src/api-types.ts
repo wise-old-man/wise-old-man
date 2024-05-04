@@ -1,6 +1,5 @@
 import { GroupSocialLinks } from '../../server/src/prisma';
 import {
-  PlayerDeltasArray,
   PlayerDeltasMap,
   Country,
   Metric,
@@ -169,11 +168,11 @@ export interface AssertPlayerTypeResponse {
   changed: boolean;
 }
 
-export type GetPlayerGainsResponse<T extends PlayerDeltasArray | PlayerDeltasMap> = {
+export interface GetPlayerGainsResponse {
   startsAt: Date;
   endsAt: Date;
-  data: T;
-};
+  data: PlayerDeltasMap;
+}
 
 /**
  * Efficiency Client Types

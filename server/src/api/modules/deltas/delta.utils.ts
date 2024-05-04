@@ -27,7 +27,6 @@ import {
   ActivityDelta,
   BossDelta,
   MeasuredDeltaProgress,
-  PlayerDeltasArray,
   PlayerDeltasMap,
   SkillDelta,
   ComputedMetricDelta
@@ -38,15 +37,6 @@ const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 });
 
 export function parseNum(metric: Metric, val: string) {
   return isComputedMetric(metric) ? parseFloat(val) : parseInt(val);
-}
-
-export function flattenPlayerDeltas(deltas: PlayerDeltasMap): PlayerDeltasArray {
-  return {
-    skills: Object.values(deltas.skills),
-    bosses: Object.values(deltas.bosses),
-    activities: Object.values(deltas.activities),
-    computed: Object.values(deltas.computed)
-  };
 }
 
 /**

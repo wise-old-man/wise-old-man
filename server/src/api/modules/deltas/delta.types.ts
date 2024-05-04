@@ -33,13 +33,6 @@ export interface ComputedMetricDelta {
   value: MeasuredDeltaProgress;
 }
 
-export interface PlayerDeltasArray {
-  skills: Array<SkillDelta>;
-  bosses: Array<BossDelta>;
-  activities: Array<ActivityDelta>;
-  computed: Array<ComputedMetricDelta>;
-}
-
 export interface PlayerDeltasMap {
   skills: MapOf<Skill, SkillDelta>;
   bosses: MapOf<Boss, BossDelta>;
