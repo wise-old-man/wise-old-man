@@ -1,4 +1,4 @@
-import prometheus, { Counter, Histogram, Registry } from 'prom-client';
+import prometheus, { Histogram, Registry } from 'prom-client';
 import { getThreadIndex } from '../../../env';
 
 type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
@@ -10,19 +10,12 @@ class PrometheusService {
   private jobHistogram: Histogram<JobParams>;
   private httpHistogram: Histogram<HttpParams>;
   private effectHistogram: Histogram<EffectParams>;
-  private metricCorrectionCounter: Counter<'userAgent' | 'route' | 'method'>;
 
   constructor() {
     this.registry = new prometheus.Registry();
     this.registry.setDefaultLabels({ app: 'wise-old-man', threadIndex: getThreadIndex() });
 
     prometheus.collectDefaultMetrics({ register: this.registry });
-
-    this.metricCorrectionCounter = new prometheus.Counter({
-      name: 'metric_correction',
-      help: 'Temporary counter for tracking purposes.',
-      labelNames: ['userAgent', 'route', 'method']
-    });
 
     this.effectHistogram = new prometheus.Histogram({
       name: 'effect_duration_seconds',
@@ -45,14 +38,9 @@ class PrometheusService {
       buckets: [0.1, 0.5, 1, 5, 10, 30, 60]
     });
 
-    this.registry.registerMetric(this.metricCorrectionCounter);
     this.registry.registerMetric(this.jobHistogram);
     this.registry.registerMetric(this.httpHistogram);
     this.registry.registerMetric(this.effectHistogram);
-  }
-
-  incrementMetricCorrectionCounter(userAgent: string, route: string, method: string) {
-    this.metricCorrectionCounter.labels({ userAgent, route, method }).inc();
   }
 
   trackHttpRequestStarted() {
