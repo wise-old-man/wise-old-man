@@ -1,10 +1,7 @@
 import axios from 'axios';
-import * as cheerio from 'cheerio';
-import { NotFoundError, ServerError } from '../../errors';
-import { CMLGroupData } from '../../modules/groups/group.types';
+import { ServerError } from '../../errors';
 
 const HISTORY_URL = 'https://crystalmathlabs.com/tracker/api.php?type=datapoints';
-const GROUP_INFO_URL = 'https://www.crystalmathlabs.com/tracker/virtualhiscores.php?page=statistics';
 
 /**
  * Fetches the player history from the CML API.
@@ -28,43 +25,4 @@ async function getCMLHistory(username: string, time: number): Promise<string[]> 
   }
 }
 
-async function fetchGroupInfo(id: number): Promise<CMLGroupData> {
-  const URL = `${GROUP_INFO_URL}&group=${id}`;
-
-  try {
-    const { data } = await axios.get(URL);
-
-    if (!data || !data.length) {
-      throw new Error();
-    }
-
-    const $ = cheerio.load(data.toString('latin1'));
-
-    const pageLinks = $('#contentwrap > #content')
-      .find('a')
-      .toArray()
-      .map(e => $(e));
-
-    const playerLinks = pageLinks.filter(e => e.attr('href')?.startsWith('track.php'));
-
-    if (!playerLinks || playerLinks.length === 0) {
-      throw new Error();
-    }
-
-    const playerNames = [...new Set(playerLinks.map(e => e.text()))];
-
-    const linkSplit = pageLinks[0].text().split('Create competition from');
-
-    if (!linkSplit || linkSplit.length !== 2) {
-      throw new Error();
-    }
-
-    const groupName = linkSplit[1].trim();
-
-    return { name: groupName, members: playerNames };
-  } catch (error) {
-    throw new NotFoundError('Found no CrystalMathLabs members to import.');
-  }
-}
-
-export { getCMLHistory, fetchGroupInfo };
+export { getCMLHistory };

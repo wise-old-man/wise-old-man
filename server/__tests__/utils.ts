@@ -37,10 +37,6 @@ function registerCMLMock(adapter: MockAdapter, statusCode: number, rawData?: str
   return adapter.onGet(new RegExp(`crystalmathlabs.com`)).reply(statusCode, rawData || '');
 }
 
-function registerTempleMock(adapter: MockAdapter, statusCode: number, rawData?: string) {
-  return adapter.onGet(new RegExp(`templeosrs.com`)).reply(statusCode, rawData || '');
-}
-
 function registerHiscoresMock(adapter: MockAdapter, config: HiscoresMockConfig) {
   let localAdapter = adapter;
 
@@ -89,7 +85,6 @@ export {
   sleep,
   readFile,
   registerCMLMock,
-  registerTempleMock,
   registerHiscoresMock,
   modifyRawHiscoresData
 };

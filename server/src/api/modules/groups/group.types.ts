@@ -69,22 +69,6 @@ export interface GroupStatistics {
   metricLeaders: MetricLeaders;
 }
 
-export enum MigrationDataSource {
-  TEMPLE_OSRS,
-  CRYSTAL_MATH_LABS
-}
-
-export interface CMLGroupData {
-  name: string;
-  members: string[];
-}
-
-export interface TempleGroupData {
-  name: string;
-  members: string[];
-  leaders: string[];
-}
-
 export type MemberRoleChangeEvent = Omit<MemberActivity, 'createdAt'>;
 
 export type MemberJoinedEvent = Omit<MemberActivity, 'createdAt' | 'previousRole'>;

@@ -12,7 +12,6 @@ import {
   registerHiscoresMock,
   readFile,
   modifyRawHiscoresData,
-  registerTempleMock,
   sleep
 } from '../../utils';
 
@@ -25,14 +24,10 @@ const onMembersRolesChangedEvent = jest.spyOn(groupEvents, 'onMembersRolesChange
 
 const P_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 const LT_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/lynx_titan_hiscores.txt`;
-const TEMPLE_GROUP_FILE_PATH = `${__dirname}/../../data/temple/omnia_group.json`;
-const CML_GROUP_FILE_PATH = `${__dirname}/../../data/cml/rspt_group_cml.txt`;
 
 const globalData = {
   pHiscoresRawData: '',
   ltHiscoresRawData: '',
-  templeGroupRawData: '',
-  cmlGroupRawData: '',
   testGroupNoMembers: {
     id: -1,
     name: '',
@@ -65,8 +60,6 @@ beforeAll(async () => {
 
   globalData.pHiscoresRawData = await readFile(P_HISCORES_FILE_PATH);
   globalData.ltHiscoresRawData = await readFile(LT_HISCORES_FILE_PATH);
-  globalData.templeGroupRawData = await readFile(TEMPLE_GROUP_FILE_PATH);
-  globalData.cmlGroupRawData = await readFile(CML_GROUP_FILE_PATH);
 
   // Mock the history fetch from CML to always fail with a 404 status code
   registerCMLMock(axiosMock, 404);
@@ -2822,77 +2815,6 @@ describe('Group API', () => {
         id: globalData.testGroupOneLeader.id,
         verified: true
       });
-    });
-  });
-
-  describe('17 - Migrate from Temple', () => {
-    it('should not migrate from temple (404 error)', async () => {
-      // Setup the TempleOSRS request to return our mock raw data
-      registerTempleMock(axiosMock, 404);
-
-      const response = await api.get('/groups/migrate/temple/3');
-      expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Found no TempleOSRS members to import.');
-    });
-
-    it('should not migrate from temple (503 error)', async () => {
-      // Setup the TempleOSRS request to return our mock raw data
-      registerTempleMock(axiosMock, 503);
-
-      const response = await api.get('/groups/migrate/temple/3');
-      expect(response.status).toBe(500);
-      expect(response.body.message).toBe('Failed to load TempleOSRS. Possible server failure on their end.');
-    });
-
-    it('should migrate from temple', async () => {
-      // Setup the TempleOSRS request to return our mock raw data
-      registerTempleMock(axiosMock, 200, globalData.templeGroupRawData);
-
-      const response = await api.get('/groups/migrate/temple/3');
-
-      expect(response.status).toBe(200);
-      expect(response.body.name).toBe('Omnia');
-      expect(response.body.members.length).toBe(89);
-      expect(response.body.leaders.length).toBe(4);
-    });
-  });
-
-  describe('18 - Migrate from CML', () => {
-    it('should not migrate from cml (404 error)', async () => {
-      // Setup the CML request to return our mock raw data
-      registerCMLMock(axiosMock, 404);
-
-      const response = await api.get('/groups/migrate/cml/3');
-      expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Found no CrystalMathLabs members to import.');
-    });
-
-    it('should not migrate from cml (empty data)', async () => {
-      // Setup the CML request to return our mock raw data
-      registerCMLMock(axiosMock, 200);
-
-      const response = await api.get('/groups/migrate/cml/3');
-      expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Found no CrystalMathLabs members to import.');
-    });
-
-    it('should not migrate from cml (no players link found)', async () => {
-      // Setup the CML request to return our mock raw data
-      registerCMLMock(axiosMock, 200, 'random page content');
-
-      const response = await api.get('/groups/migrate/cml/3');
-      expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Found no CrystalMathLabs members to import.');
-    });
-
-    it('should migrate from cml', async () => {
-      // Setup the CML request to return our mock raw data
-      registerCMLMock(axiosMock, 200, globalData.cmlGroupRawData);
-
-      const response = await api.get('/groups/migrate/cml/3');
-      expect(response.status).toBe(200);
-      expect(response.body.name).toBe('RSPT MEMBERLIST');
-      expect(response.body.members.length).toBe(52);
     });
   });
 });

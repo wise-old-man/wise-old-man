@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { GroupRole, Metric, MigrationDataSource, Period } from '../../../utils';
+import { GroupRole, Metric, Period } from '../../../utils';
 import { checkAdminPermission, checkGroupVerificationCode } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import {
@@ -21,7 +21,6 @@ import { fetchGroupDetails } from './services/FetchGroupDetailsService';
 import { fetchGroupHiscores } from './services/FetchGroupHiscoresService';
 import { fetchGroupStatistics } from './services/FetchGroupStatisticsService';
 import { fetchGroupMembersCSV } from './services/FetchMembersCSVService';
-import { migrateGroup } from './services/MigrateGroupService';
 import { removeMembers } from './services/RemoveMembersService';
 import { resetGroupCode } from './services/ResetGroupCodeService';
 import { searchGroups } from './services/SearchGroupsService';
@@ -406,36 +405,6 @@ router.put(
     const { id } = req.params;
 
     const result = await verifyGroup(id);
-    res.status(200).json(result);
-  })
-);
-
-router.get(
-  '/groups/migrate/temple/:externalId',
-  validateRequest({
-    params: z.object({
-      externalId: z.coerce.number().int().positive()
-    })
-  }),
-  executeRequest(async (req, res) => {
-    const { externalId } = req.params;
-
-    const result = await migrateGroup(externalId, MigrationDataSource.TEMPLE_OSRS);
-    res.status(200).json(result);
-  })
-);
-
-router.get(
-  '/groups/migrate/cml/:externalId',
-  validateRequest({
-    params: z.object({
-      externalId: z.coerce.number().int().positive()
-    })
-  }),
-  executeRequest(async (req, res) => {
-    const { externalId } = req.params;
-
-    const result = await migrateGroup(externalId, MigrationDataSource.CRYSTAL_MATH_LABS);
     res.status(200).json(result);
   })
 );
