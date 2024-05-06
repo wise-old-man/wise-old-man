@@ -9,6 +9,7 @@ import { Button } from "./Button";
 import { DateTimePicker, TimeField, toCalendarDate, toDate } from "./DatePicker";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./Dialog";
 
+import WarningFilledIcon from "~/assets/warning_filled.svg";
 import LoadingIcon from "~/assets/loading.svg";
 import { isAfter2013 } from "~/utils/dates";
 
@@ -32,22 +33,17 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
 
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(new Date()));
 
-  function handleChange() {
+  function handleSelection() {
+    setIsDateRangeInvalid(false);
+
     const startDateTime = toDate(startDate, startTime);
     const endDateTime = toDate(endDate, endTime);
 
     const isInvalid = !isAfter2013(startDateTime) || !isAfter2013(endDateTime);
     setIsDateRangeInvalid(isInvalid);
+
+    if (!isInvalid) onSelected(startDateTime, endDateTime);
   }
-
-  function handleSelection() {
-    const startDateTime = toDate(startDate, startTime);
-    const endDateTime = toDate(endDate, endTime);
-
-    onSelected(startDateTime, endDateTime);
-  }
-
-  useEffect(handleChange, [startDate, startTime, endDate, endTime]);
 
   return (
     <Dialog
@@ -61,7 +57,7 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
           <DialogTitle>Select a custom period</DialogTitle>
           <DialogDescription>
             Define a custom period by selecting a start and end date. These are displayed in your local
-            time. The earliest selectable date is January 1, 2013.
+            time.
           </DialogDescription>
         </DialogHeader>
         <form
@@ -69,9 +65,6 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
           onSubmit={(e) => {
             e.preventDefault();
             handleSelection();
-          }}
-          onChange={() => {
-            handleChange();
           }}
         >
           <div className="flex grow gap-x-4">
@@ -95,19 +88,18 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
             </div>
           </div>
           <div className="mt-5 w-full grow border-t border-gray-700">
-            <Button
-              disabled={isPending || isDateRangeInvalid}
-              size="lg"
-              variant="blue"
-              className="mt-5 w-full justify-center"
-            >
+            {isDateRangeInvalid && (
+              <div className="mt-5 flex flex-row">
+                <WarningFilledIcon className="mx-1 mt-1 h-4 w-4 text-red-500" />
+                <div className="text-red-500">Date range must be after Jan 1, 2013</div>
+              </div>
+            )}
+            <Button disabled={isPending} size="lg" variant="blue" className="mt-5 w-full justify-center">
               {isPending ? (
                 <>
                   <LoadingIcon className="-ml-2 mr-2 h-5 w-5 animate-spin" />
                   Loading...
                 </>
-              ) : isDateRangeInvalid ? (
-                <>Invalid Date Range</>
               ) : (
                 <>Confirm</>
               )}
