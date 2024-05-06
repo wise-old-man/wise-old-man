@@ -34,8 +34,6 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(new Date()));
 
   function handleSelection() {
-    setIsDateRangeInvalid(false);
-
     const startDateTime = toDate(startDate, startTime);
     const endDateTime = toDate(endDate, endTime);
 
