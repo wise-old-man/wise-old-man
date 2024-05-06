@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Time } from "@internationalized/date";
 import { Period, PeriodProps } from "@wise-old-man/utils";
 import { DateValue, TimeValue } from "@react-aria/datepicker";
