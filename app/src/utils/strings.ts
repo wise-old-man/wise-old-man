@@ -17,3 +17,24 @@ export function standardizeUsername(username: string): string {
 function sanitizeUsername(username: string): string {
   return username.replace(/[-_\s]/g, " ").trim();
 }
+
+/**
+ * Get a number's Ordinal Suffix
+ * 1 -> "st"
+ * 2 -> "nd"
+ * 3 -> "rd"
+ * 4 - 20 -> "th"
+ */
+export const getOrdinalSuffix = (number: number) => {
+  if (number > 3 && number < 21) return "th";
+  switch (number % 10) {
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
+  }
+};
