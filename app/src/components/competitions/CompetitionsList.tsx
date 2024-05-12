@@ -130,7 +130,9 @@ function CompetitionAttributes(props: { competition: CompetitionListItem; showHo
   }`;
 
   const rankLabel =
-    competition.rank === -1 ? "" : ` · ${competition.rank}${getOrdinalSuffix(competition.rank)} place`;
+    competition.rank && competition.rank !== -1
+      ? ` · ${competition.rank}${getOrdinalSuffix(competition.rank)} place`
+      : "";
 
   return (
     <span className="truncate text-xs text-gray-200">

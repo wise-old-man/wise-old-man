@@ -55,11 +55,9 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
       };
     });
 
-  const upcoming = mappedCompetitions
-    .filter((c) => getCompetitionStatus(c) === CompetitionStatus.UPCOMING)
-    .map((c) => {
-      return { ...c, rank: -1 };
-    });
+  const upcoming = mappedCompetitions.filter(
+    (c) => getCompetitionStatus(c) === CompetitionStatus.UPCOMING
+  );
 
   const finished = mappedCompetitions
     .filter((c) => getCompetitionStatus(c) === CompetitionStatus.FINISHED)
