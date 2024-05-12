@@ -4,6 +4,7 @@ import { timeago } from "~/utils/dates";
 import { Badge } from "../Badge";
 import { MetricIcon } from "../Icon";
 import { ListTable, ListTableCell, ListTableRow } from "../ListTable";
+import { getOrdinalSuffix } from "~/utils/strings";
 
 interface CompetitionsListProps {
   showHost?: boolean;
@@ -128,6 +129,9 @@ function CompetitionAttributes(props: { competition: CompetitionListItem; showHo
     competition.participantCount === 1 ? "participant" : "participants"
   }`;
 
+  const rankLabel =
+    competition.rank === -1 ? "" : ` · ${competition.rank}${getOrdinalSuffix(competition.rank)} place`;
+
   return (
     <span className="truncate text-xs text-gray-200">
       {competition.group && showHost ? (
@@ -140,7 +144,11 @@ function CompetitionAttributes(props: { competition: CompetitionListItem; showHo
           >
             {competition.group.name}
           </Link>
-          <span> · {participantLabel}</span>
+          <span>
+            {" "}
+            · {participantLabel}
+            {rankLabel}
+          </span>
         </>
       ) : (
         <>{participantLabel}</>

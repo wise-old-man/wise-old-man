@@ -1,7 +1,12 @@
-import { CompetitionStatus } from "@wise-old-man/utils";
+import { CompetitionStatus, PlayerCompetitionsFilter } from "@wise-old-man/utils";
 import { Label } from "~/components/Label";
 import { CompetitionsList } from "~/components/competitions/CompetitionsList";
-import { getCompetitionStatus, getPlayerCompetitions, getPlayerDetails } from "~/services/wiseoldman";
+import {
+  getCompetitionStatus,
+  getPlayerCompetitionStandings,
+  getPlayerCompetitions,
+  getPlayerDetails,
+} from "~/services/wiseoldman";
 
 export const dynamic = "force-dynamic";
 
@@ -24,9 +29,10 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
 
   const username = decodeURI(params.username);
 
-  const [player, competitions] = await Promise.all([
+  const [player, competitions, competitionStandings] = await Promise.all([
     getPlayerDetails(username),
     getPlayerCompetitions(username),
+    getPlayerCompetitionStandings(username, { status: CompetitionStatus.FINISHED }),
   ]);
 
   if (!competitions || competitions.length === 0) {
@@ -45,9 +51,14 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
   const upcoming = mappedCompetitions.filter(
     (c) => getCompetitionStatus(c) === CompetitionStatus.UPCOMING
   );
-  const finished = mappedCompetitions.filter(
-    (c) => getCompetitionStatus(c) === CompetitionStatus.FINISHED
-  );
+  const finished = mappedCompetitions
+    .filter((c) => getCompetitionStatus(c) === CompetitionStatus.FINISHED)
+    .map((c) => {
+      return {
+        ...c,
+        rank: competitionStandings.find((cs) => c.id === cs.competitionId)?.rank || -1,
+      };
+    });
 
   return (
     <div className="-mt-2 flex flex-col gap-y-7">
