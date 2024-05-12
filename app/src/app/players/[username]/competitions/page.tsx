@@ -29,10 +29,11 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
 
   const username = decodeURI(params.username);
 
-  const [player, competitions, competitionStandings] = await Promise.all([
+  const [player, competitions, finishedCompStandings, ongoingCompStandings] = await Promise.all([
     getPlayerDetails(username),
     getPlayerCompetitions(username),
     getPlayerCompetitionStandings(username, { status: CompetitionStatus.FINISHED }),
+    getPlayerCompetitionStandings(username, { status: CompetitionStatus.ONGOING }),
   ]);
 
   if (!competitions || competitions.length === 0) {
@@ -45,18 +46,25 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
 
   const mappedCompetitions = competitions.map((c) => c.competition);
 
-  const ongoing = mappedCompetitions.filter(
-    (c) => getCompetitionStatus(c) === CompetitionStatus.ONGOING
-  );
+  const ongoing = mappedCompetitions
+    .filter((c) => getCompetitionStatus(c) === CompetitionStatus.ONGOING)
+    .map((c) => {
+      return {
+        ...c,
+        rank: ongoingCompStandings.find((cs) => c.id === cs.competitionId)?.rank || -1,
+      };
+    });
+
   const upcoming = mappedCompetitions.filter(
     (c) => getCompetitionStatus(c) === CompetitionStatus.UPCOMING
   );
+
   const finished = mappedCompetitions
     .filter((c) => getCompetitionStatus(c) === CompetitionStatus.FINISHED)
     .map((c) => {
       return {
         ...c,
-        rank: competitionStandings.find((cs) => c.id === cs.competitionId)?.rank || -1,
+        rank: finishedCompStandings.find((cs) => c.id === cs.competitionId)?.rank || -1,
       };
     });
 
