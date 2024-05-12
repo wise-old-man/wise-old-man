@@ -3,6 +3,8 @@ import en from "javascript-time-ago/locale/en";
 
 Timeago.addDefaultLocale(en);
 
+export const minDate = new Date(2013, 0, 1); // Jan 1, 2013
+
 export const timeago = new Timeago("en-US");
 
 export const MONTHS = [
@@ -76,4 +78,8 @@ export function formatDate(date: Date, options?: Intl.DateTimeFormatOptions) {
 
 export function isValidDate(dateString: string) {
   return !Number.isNaN(new Date(dateString).getTime());
+}
+
+export function isAfter2013(date: Date) {
+  return date > minDate;
 }
