@@ -44,29 +44,19 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
     );
   }
 
-  const mappedCompetitions = competitions.map((c) => c.competition);
+  const upcoming = competitions
+    .map((c) => c.competition)
+    .filter((c) => getCompetitionStatus(c) === CompetitionStatus.UPCOMING);
 
-  const ongoing = mappedCompetitions
-    .filter((c) => getCompetitionStatus(c) === CompetitionStatus.ONGOING)
-    .map((c) => {
-      return {
-        ...c,
-        rank: ongoingCompStandings.find((cs) => c.id === cs.competitionId)?.rank || -1,
-      };
-    });
+  const ongoing = ongoingCompStandings.map((c) => ({
+    ...c.competition,
+    rank: c.rank,
+  }));
 
-  const upcoming = mappedCompetitions.filter(
-    (c) => getCompetitionStatus(c) === CompetitionStatus.UPCOMING
-  );
-
-  const finished = mappedCompetitions
-    .filter((c) => getCompetitionStatus(c) === CompetitionStatus.FINISHED)
-    .map((c) => {
-      return {
-        ...c,
-        rank: finishedCompStandings.find((cs) => c.id === cs.competitionId)?.rank || -1,
-      };
-    });
+  const finished = finishedCompStandings.map((c) => ({
+    ...c.competition,
+    rank: c.rank,
+  }));
 
   return (
     <div className="-mt-2 flex flex-col gap-y-7">
