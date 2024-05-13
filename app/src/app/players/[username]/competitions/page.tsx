@@ -32,8 +32,8 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
   const [player, competitions, finishedCompStandings, ongoingCompStandings] = await Promise.all([
     getPlayerDetails(username),
     getPlayerCompetitions(username),
-    getPlayerCompetitionStandings(username, { status: CompetitionStatus.FINISHED }),
-    getPlayerCompetitionStandings(username, { status: CompetitionStatus.ONGOING }),
+    getPlayerCompetitionStandings(username, CompetitionStatus.FINISHED),
+    getPlayerCompetitionStandings(username, CompetitionStatus.ONGOING),
   ]);
 
   if (!competitions || competitions.length === 0) {

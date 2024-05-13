@@ -12,7 +12,6 @@ import {
   EfficiencyLeaderboardsFilter,
   CompetitionType,
   NameChangeStatus,
-  PlayerCompetitionsFilter,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 
@@ -146,11 +145,9 @@ export const getPlayerCompetitions = cache((username: string) => {
   return handleNotFound(apiClient.players.getPlayerCompetitions(username));
 });
 
-export const getPlayerCompetitionStandings = cache(
-  (username: string, filter: PlayerCompetitionsFilter) => {
-    return handleNotFound(apiClient.players.getPlayerCompetitionStandings(username, filter));
-  }
-);
+export const getPlayerCompetitionStandings = cache((username: string, status: CompetitionStatus) => {
+  return handleNotFound(apiClient.players.getPlayerCompetitionStandings(username, { status }));
+});
 
 export const getPlayerDetails = cache((username: string) => {
   return handleNotFound(apiClient.players.getPlayerDetails(username));
