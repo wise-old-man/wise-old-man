@@ -23,18 +23,17 @@ function sanitizeUsername(username: string): string {
  * 1 -> "st"
  * 2 -> "nd"
  * 3 -> "rd"
- * 4 - 20 -> "th"
  */
 export const getOrdinalSuffix = (number: number) => {
-  if (number > 3 && number < 21) return "th";
-  switch (number % 10) {
-    case 1:
-      return "st";
-    case 2:
-      return "nd";
-    case 3:
-      return "rd";
-    default:
-      return "th";
+  if (number % 10 == 1 && number % 100 != 11) {
+    return "st";
   }
+  if (number % 10 == 2 && number % 100 != 12) {
+    return "nd";
+  }
+  if (number % 10 == 3 && number % 100 != 13) {
+    return "rd";
+  }
+
+  return "th";
 };
