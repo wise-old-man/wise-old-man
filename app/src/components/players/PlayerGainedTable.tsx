@@ -19,7 +19,7 @@ import {
   SkillDelta,
   isPeriod,
 } from "@wise-old-man/utils";
-import { formatDatetime, minDate } from "~/utils/dates";
+import { formatDatetime } from "~/utils/dates";
 import { TimeRangeFilter } from "~/services/wiseoldman";
 import { getBuildHiddenMetrics } from "~/utils/metrics";
 import {
