@@ -9,12 +9,24 @@ import { Dialog, DialogContent } from "../Dialog";
 
 import ExpandIcon from "~/assets/expand.svg";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "../Dropdown";
+
+import TableCogIcon from "~/assets/table_cog.svg";
+import { Checkbox } from "../Checkbox";
+import { Label } from "../Label";
 
 interface ExpandableChartPanelProps extends PropsWithChildren {
   id: string;
   className?: string;
   titleSlot: React.ReactNode;
   descriptionSlot: React.ReactNode;
+  optionsSlot?: React.ReactNode;
 }
 
 export function ExpandableChartPanel(props: ExpandableChartPanelProps) {
@@ -62,16 +74,19 @@ function ChartPanel(props: ExpandableChartPanelProps & { isExpanded: boolean }) 
           <p className="text-xs text-gray-200 md:text-body">{props.descriptionSlot}</p>
         </div>
         {!props.isExpanded && (
-          <QueryLink query={{ expand: props.id }} scroll={false}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" iconButton className="!h-8">
-                  <ExpandIcon className="h-4 w-4 text-gray-200" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Expand</TooltipContent>
-            </Tooltip>
-          </QueryLink>
+          <div>
+            {props.optionsSlot && <span className={cn("px-5")}> {props.optionsSlot}</span>}
+            <QueryLink query={{ expand: props.id }} scroll={false}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" iconButton className="!h-8">
+                    <ExpandIcon className="h-4 w-4 text-gray-200" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Expand</TooltipContent>
+              </Tooltip>
+            </QueryLink>
+          </div>
         )}
       </div>
       {props.children}
