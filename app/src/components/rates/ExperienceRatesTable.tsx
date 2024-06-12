@@ -1,13 +1,19 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MAX_SKILL_EXP, SkillMetaMethod } from "@wise-old-man/utils";
+import { MAX_SKILL_EXP, SkillMetaMethod, getLevel } from "@wise-old-man/utils";
 import { TableTitle } from "../Table";
 import { DataTable } from "../DataTable";
 import { FormattedNumber } from "../FormattedNumber";
 
 function getColumnDefinitions(methods: SkillMetaMethod[]): ColumnDef<SkillMetaMethod>[] {
   return [
+    {
+      id: "level",
+      header: () => "Level",
+      cell: ({ row }) =>
+        `${getLevel(row.original.startExp)} - ${getLevel(row.getValue("endExp"), true)}`,
+    },
     {
       id: "startExp",
       header: () => "Starting exp.",
