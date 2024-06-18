@@ -17,7 +17,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 29_500,
+        rate: 8_365,
         description: '4t Trees'
       },
       {
@@ -42,12 +42,12 @@ export default [
       },
       {
         startExp: 101_333,
-        rate: 100_000,
+        rate: 98_000,
         description: '2t Oaks (rune axe)'
       },
       {
         startExp: 302_288,
-        rate: 110_000,
+        rate: 105_000,
         description: '2t Oaks (100% success)'
       }
     ],
@@ -133,23 +133,28 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 45_000,
-        description: 'Best Logs @ GE'
+        rate: 20_000,
+        description: 'Logs @ GE'
+      },
+      {
+        startExp: 2_411,
+        rate: 40_000,
+        description: 'Oak logs @ GE'
       },
       {
         startExp: 13_363,
-        rate: 130_000,
-        description: 'Best Logs @ GE'
+        rate: 100_000,
+        description: 'Willow logs @ GE'
       },
       {
         startExp: 61_512,
-        rate: 195_750,
-        description: 'Best Logs @ GE'
+        rate: 198_650,
+        description: 'Maple logs @ GE'
       },
       {
         startExp: 273_742,
         rate: 298_000,
-        description: 'Best Logs @ GE'
+        description: 'Yew logs @ GE'
       }
     ],
     bonuses: []

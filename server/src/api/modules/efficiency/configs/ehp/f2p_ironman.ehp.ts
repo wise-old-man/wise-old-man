@@ -11,67 +11,42 @@ export default [
       },
       {
         startExp: 4_825,
-        rate: 15_000,
+        rate: 14_000,
         description: 'Minotaurs'
       },
       {
         startExp: 37_224,
-        rate: 41_100,
+        rate: 31_200,
         description: 'Hill Giants'
       },
       {
         startExp: 101_333,
-        rate: 46_400,
+        rate: 36_000,
         description: 'Hill Giants'
       },
       {
         startExp: 273_742,
-        rate: 47_600,
+        rate: 40_600,
         description: 'Hill Giants'
       },
       {
         startExp: 737_627,
-        rate: 48_400,
-        description: 'Hill Giants'
-      },
-      {
-        startExp: 1_210_421,
-        rate: 48_800,
+        rate: 43_000,
         description: 'Hill Giants'
       },
       {
         startExp: 1_629_200,
-        rate: 49_000,
-        description: 'Hill Giants'
-      },
-      {
-        startExp: 2_192_818,
-        rate: 49_200,
-        description: 'Hill Giants'
-      },
-      {
-        startExp: 3_258_594,
-        rate: 49_400,
-        description: 'Hill Giants'
-      },
-      {
-        startExp: 3_972_294,
-        rate: 49_500,
+        rate: 48_600,
         description: 'Hill Giants'
       },
       {
         startExp: 5_346_332,
-        rate: 49_650,
-        description: 'Hill Giants'
-      },
-      {
-        startExp: 7_944_614,
-        rate: 49_850,
+        rate: 49_600,
         description: 'Hill Giants'
       },
       {
         startExp: 13_034_431,
-        rate: 49_600,
+        rate: 50_500,
         description: 'Ogresses & Hill Giants'
       }
     ],
@@ -79,10 +54,18 @@ export default [
       {
         originSkill: Skill.ATTACK,
         bonusSkill: Skill.PRAYER,
+        startExp: 4_825,
+        endExp: 37_224,
+        end: true,
+        ratio: 0.1125
+      },
+      {
+        originSkill: Skill.ATTACK,
+        bonusSkill: Skill.PRAYER,
         startExp: 37_224,
         endExp: 101_333,
         end: true,
-        ratio: 0.1267
+        ratio: 0.1322
       },
       {
         originSkill: Skill.ATTACK,
@@ -90,7 +73,7 @@ export default [
         startExp: 101_333,
         endExp: 273_742,
         end: true,
-        ratio: 0.1244
+        ratio: 0.1289
       },
       {
         originSkill: Skill.ATTACK,
@@ -98,31 +81,23 @@ export default [
         startExp: 273_742,
         endExp: 737_627,
         end: true,
-        ratio: 0.124
+        ratio: 0.1264
       },
       {
         originSkill: Skill.ATTACK,
         bonusSkill: Skill.PRAYER,
         startExp: 737_627,
-        endExp: 1_210_421,
-        end: true,
-        ratio: 0.1237
-      },
-      {
-        originSkill: Skill.ATTACK,
-        bonusSkill: Skill.PRAYER,
-        startExp: 1_210_421,
         endExp: 1_629_200,
         end: true,
-        ratio: 0.1236
+        ratio: 0.1254
       },
       {
         originSkill: Skill.ATTACK,
         bonusSkill: Skill.PRAYER,
         startExp: 1_629_200,
-        endExp: 2_192_818,
+        endExp: 5_346_332,
         end: true,
-        ratio: 0.1235
+        ratio: 0.1233
       },
       {
         originSkill: Skill.ATTACK,
@@ -135,18 +110,10 @@ export default [
       {
         originSkill: Skill.ATTACK,
         bonusSkill: Skill.PRAYER,
-        startExp: 3_972_294,
-        endExp: 7_944_614,
-        end: true,
-        ratio: 0.1233
-      },
-      {
-        originSkill: Skill.ATTACK,
-        bonusSkill: Skill.PRAYER,
-        startExp: 7_944_614,
+        startExp: 5_346_332,
         endExp: 13_034_431,
         end: true,
-        ratio: 0.1232
+        ratio: 0.1229
       },
       {
         originSkill: Skill.ATTACK,
@@ -154,7 +121,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.1151
+        ratio: 0.1119
       },
       {
         originSkill: Skill.ATTACK,
@@ -170,7 +137,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.0107
+        ratio: 0.0086
       }
     ]
   },
@@ -189,7 +156,7 @@ export default [
       },
       {
         startExp: 37_224,
-        rate: 49_500,
+        rate: 50_300,
         description: 'Ogresses & Hill Giants'
       }
     ],
@@ -197,10 +164,26 @@ export default [
       {
         originSkill: Skill.DEFENCE,
         bonusSkill: Skill.PRAYER,
+        startExp: 18_650,
+        endExp: 37_224,
+        end: true,
+        ratio: 0.0457
+      },
+      {
+        originSkill: Skill.DEFENCE,
+        bonusSkill: Skill.PRAYER,
         startExp: 37_224,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.1151
+        ratio: 0.1126
+      },
+      {
+        originSkill: Skill.DEFENCE,
+        bonusSkill: Skill.CRAFTING,
+        startExp: 18_650,
+        endExp: 37_224,
+        end: true,
+        ratio: 0.0326
       },
       {
         originSkill: Skill.DEFENCE,
@@ -208,7 +191,7 @@ export default [
         startExp: 37_224,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.0107
+        ratio: 0.0083
       }
     ]
   },
@@ -222,72 +205,52 @@ export default [
       },
       {
         startExp: 18_650,
-        rate: 13_000,
+        rate: 14_000,
         description: 'Cows/Minotaurs'
       },
       {
         startExp: 37_224,
-        rate: 24_900,
+        rate: 23_300,
         description: 'Hill Giants'
       },
       {
         startExp: 101_333,
-        rate: 28_400,
+        rate: 27_300,
         description: 'Hill Giants'
       },
       {
         startExp: 273_742,
-        rate: 33_000,
+        rate: 32_000,
         description: 'Hill Giants'
       },
       {
         startExp: 737_627,
-        rate: 36_500,
-        description: 'Hill Giants'
-      },
-      {
-        startExp: 1_210_421,
-        rate: 37_500,
+        rate: 36_600,
         description: 'Hill Giants'
       },
       {
         startExp: 1_629_200,
-        rate: 38_900,
-        description: 'Hill Giants'
-      },
-      {
-        startExp: 2_192_818,
-        rate: 40_450,
+        rate: 42_000,
         description: 'Hill Giants'
       },
       {
         startExp: 3_258_594,
-        rate: 41_900,
-        description: 'Hill Giants'
-      },
-      {
-        startExp: 3_972_294,
-        rate: 42_900,
+        rate: 44_800,
         description: 'Hill Giants'
       },
       {
         startExp: 5_346_332,
-        rate: 44_200,
+        rate: 46_600,
         description: 'Hill Giants'
       },
       {
-        startExp: 7_944_614,
-        rate: 45_900,
-        description: 'Hill Giants'
-      },
-      {
-        startExp: 11_805_606,
-        rate: 49_900,
+        startExp: 8_771_558,
+        rate: 49_600,
         description: 'Hill Giants'
       },
       {
         startExp: 13_034_431,
-        rate: 49_800,
+        rate: 51_000,
         description: 'Ogresses & Hill Giants'
       }
     ],
@@ -295,10 +258,18 @@ export default [
       {
         originSkill: Skill.STRENGTH,
         bonusSkill: Skill.PRAYER,
+        startExp: 18_650,
+        endExp: 37_224,
+        end: true,
+        ratio: 0.1125
+      },
+      {
+        originSkill: Skill.STRENGTH,
+        bonusSkill: Skill.PRAYER,
         startExp: 37_224,
         endExp: 101_333,
         end: true,
-        ratio: 0.1394
+        ratio: 0.1407
       },
       {
         originSkill: Skill.STRENGTH,
@@ -306,7 +277,7 @@ export default [
         startExp: 101_333,
         endExp: 273_742,
         end: true,
-        ratio: 0.1354
+        ratio: 0.1358
       },
       {
         originSkill: Skill.STRENGTH,
@@ -314,79 +285,39 @@ export default [
         startExp: 273_742,
         endExp: 737_627,
         end: true,
-        ratio: 0.1315
+        ratio: 0.1316
       },
       {
         originSkill: Skill.STRENGTH,
         bonusSkill: Skill.PRAYER,
         startExp: 737_627,
-        endExp: 1_210_421,
-        end: true,
-        ratio: 0.1291
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 1_210_421,
-        endExp: 1_629_200,
+        endExp: 3_258_594,
         end: true,
         ratio: 0.1285
       },
       {
         originSkill: Skill.STRENGTH,
         bonusSkill: Skill.PRAYER,
-        startExp: 1_629_200,
-        endExp: 2_192_818,
-        end: true,
-        ratio: 0.1278
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 2_192_818,
-        endExp: 3_258_594,
-        end: true,
-        ratio: 0.127
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
         startExp: 3_258_594,
-        endExp: 3_972_294,
-        end: true,
-        ratio: 0.1263
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 3_972_294,
         endExp: 5_346_332,
-        end: true,
-        ratio: 0.1259
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 5_346_332,
-        endExp: 7_944_614,
-        end: true,
-        ratio: 0.1252
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 7_944_614,
-        endExp: 11_805_606,
         end: true,
         ratio: 0.1246
       },
       {
         originSkill: Skill.STRENGTH,
         bonusSkill: Skill.PRAYER,
-        startExp: 11_805_606,
+        startExp: 5_346_332,
+        endExp: 8_771_558,
+        end: true,
+        ratio: 0.1239
+      },
+      {
+        originSkill: Skill.STRENGTH,
+        bonusSkill: Skill.PRAYER,
+        startExp: 8_771_558,
         endExp: 13_034_431,
         end: true,
-        ratio: 0.1232
+        ratio: 0.1229
       },
       {
         originSkill: Skill.STRENGTH,
@@ -394,7 +325,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.1151
+        ratio: 0.1117
       },
       {
         originSkill: Skill.STRENGTH,
@@ -402,7 +333,7 @@ export default [
         startExp: 37_224,
         endExp: 13_034_431,
         end: true,
-        ratio: 0.0071
+        ratio: 0.0047
       },
       {
         originSkill: Skill.STRENGTH,
@@ -410,7 +341,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.0107
+        ratio: 0.1117
       }
     ]
   },
@@ -419,102 +350,77 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 2_500,
+        rate: 3_000,
         description: 'Chickens'
       },
       {
         startExp: 388,
-        rate: 6_000,
+        rate: 5_500,
         description: 'Cows'
       },
       {
         startExp: 4_470,
-        rate: 10_000,
+        rate: 11_200,
         description: 'Minotaurs'
       },
       {
         startExp: 13_363,
-        rate: 15_000,
+        rate: 14_200,
         description: 'Minotaurs'
       },
       {
         startExp: 37_224,
-        rate: 22_850,
+        rate: 21_900,
         description: 'Hill Giants'
       },
       {
         startExp: 101_333,
-        rate: 19_950,
-        description: 'Ogresses'
+        rate: 27_900,
+        description: 'Hill Giants'
       },
       {
-        startExp: 184_040,
-        rate: 23_450,
-        description: 'Ogresses'
+        startExp: 166_636,
+        rate: 30_800,
+        description: 'Hill Giants'
       },
       {
-        startExp: 273_742,
-        rate: 24_400,
-        description: 'Ogresses'
-      },
-      {
-        startExp: 368_599,
-        rate: 27_050,
-        description: 'Ogresses'
+        startExp: 302_288,
+        rate: 33_800,
+        description: 'Hill Giants'
       },
       {
         startExp: 547_953,
-        rate: 30_100,
-        description: 'Ogresses'
-      },
-      {
-        startExp: 737_627,
-        rate: 30_550,
+        rate: 31_200,
         description: 'Ogresses'
       },
       {
         startExp: 992_895,
-        rate: 33_250,
+        rate: 34_400,
         description: 'Ogresses'
       },
       {
-        startExp: 1_475_581,
-        rate: 34_000,
+        startExp: 1_798_808,
+        rate: 37_600,
         description: 'Ogresses'
       },
       {
-        startExp: 1_986_068,
-        rate: 36_900,
+        startExp: 3_258_594,
+        rate: 40_900,
         description: 'Ogresses'
       },
       {
-        startExp: 2_673_114,
-        rate: 37_300,
+        startExp: 5_902_831,
+        rate: 44_000,
         description: 'Ogresses'
       },
       {
-        startExp: 3_972_294,
-        rate: 40_300,
-        description: 'Ogresses'
-      },
-      {
-        startExp: 5_346_332,
-        rate: 40_650,
-        description: 'Ogresses'
-      },
-      {
-        startExp: 7_944_614,
-        rate: 43_400,
-        description: 'Ogresses'
-      },
-      {
-        startExp: 10_692_629,
-        rate: 46_350,
+        startExp: 9_684_577,
+        rate: 47_000,
         description: 'Ogresses'
       },
       {
         startExp: 13_034_431,
-        rate: 45_100,
+        rate: 45_700,
         description: 'Ogresses & Obor'
       }
     ],
@@ -523,6 +429,22 @@ export default [
         originSkill: Skill.RANGED,
         bonusSkill: Skill.PRAYER,
         startExp: 0,
+        endExp: 388,
+        end: true,
+        ratio: 0.375
+      },
+      {
+        originSkill: Skill.RANGED,
+        bonusSkill: Skill.PRAYER,
+        startExp: 388,
+        endExp: 4_470,
+        end: true,
+        ratio: 0.14
+      },
+      {
+        originSkill: Skill.RANGED,
+        bonusSkill: Skill.PRAYER,
+        startExp: 4_470,
         endExp: 37_224,
         end: true,
         ratio: 0.1125
@@ -533,12 +455,36 @@ export default [
         startExp: 37_224,
         endExp: 101_333,
         end: true,
-        ratio: 0.1416
+        ratio: 0.1429
       },
       {
         originSkill: Skill.RANGED,
         bonusSkill: Skill.PRAYER,
         startExp: 101_333,
+        endExp: 166_636,
+        end: true,
+        ratio: 0.1352
+      },
+      {
+        originSkill: Skill.RANGED,
+        bonusSkill: Skill.PRAYER,
+        startExp: 166_636,
+        endExp: 302_288,
+        end: true,
+        ratio: 0.1326
+      },
+      {
+        originSkill: Skill.RANGED,
+        bonusSkill: Skill.PRAYER,
+        startExp: 302_288,
+        endExp: 547_953,
+        end: true,
+        ratio: 0.1303
+      },
+      {
+        originSkill: Skill.RANGED,
+        bonusSkill: Skill.PRAYER,
+        startExp: 547_953,
         endExp: 13_034_431,
         end: true,
         ratio: 0.0457
@@ -549,20 +495,20 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.0418
+        ratio: 0.0523
       },
       {
         originSkill: Skill.RANGED,
         bonusSkill: Skill.CRAFTING,
         startExp: 37_224,
-        endExp: 101_333,
+        endExp: 547_953,
         end: true,
-        ratio: 0.0071
+        ratio: 0.0047
       },
       {
         originSkill: Skill.RANGED,
         bonusSkill: Skill.CRAFTING,
-        startExp: 101_333,
+        startExp: 547_953,
         endExp: 13_034_431,
         end: true,
         ratio: 0.0326
@@ -573,7 +519,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.0298
+        ratio: 0.0366
       }
     ]
   },
@@ -582,7 +528,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 14_000,
+        rate: 13_400,
         description: 'Boneyard'
       }
     ],
@@ -603,11 +549,20 @@ export default [
       },
       {
         startExp: 33_648,
-        rate: 42_000,
-        description: 'Crumble ankous'
+        rate: 43_500,
+        description: 'Fire bolt moss giants'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.MAGIC,
+        bonusSkill: Skill.PRAYER,
+        startExp: 33_648,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.0516
+      }
+    ]
   },
   {
     skill: Skill.COOKING,
@@ -630,7 +585,7 @@ export default [
       },
       {
         startExp: 2_411,
-        rate: 33_000,
+        rate: 35_000,
         description: '2t Oaks (steel axe)'
       },
       {
@@ -640,28 +595,23 @@ export default [
       },
       {
         startExp: 14_833,
-        rate: 63_000,
+        rate: 60_000,
         description: '2t Oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 82_000,
+        rate: 80_000,
         description: '2t Oaks (rune axe)'
       },
       {
         startExp: 101_333,
-        rate: 90_000,
+        rate: 98_000,
         description: '2t Oaks (rune axe)'
       },
       {
         startExp: 302_288,
-        rate: 100_000,
+        rate: 105_000,
         description: '2t Oaks (100% success)'
-      },
-      {
-        startExp: 13_034_431,
-        rate: 110_000,
-        description: '2t Oaks (forestry events give more xp at higher lvl)'
       }
     ],
     bonuses: []
@@ -828,31 +778,31 @@ export default [
       {
         startExp: 0,
         rate: 38_175,
-        description: "Knight's Sword (assumes 20 min completion)"
+        description: "Knight's sword (assumes 20 min completion)"
       },
       {
         startExp: 12_725,
-        rate: 14_250,
+        rate: 14_800,
         description: 'Telegrab nats & Superheating iron with snow (56% mining success)'
       },
       {
         startExp: 24_463,
-        rate: 17_750,
+        rate: 18_500,
         description: 'Telegrab nats & Superheating iron with snow (70% mining success)'
       },
       {
         startExp: 50_000,
-        rate: 20_000,
+        rate: 20_800,
         description: 'Telegrab nats & Superheating iron with snow (80% mining success)'
       },
       {
         startExp: 106_000,
-        rate: 22_000,
+        rate: 23_000,
         description: 'Telegrab nats & Superheating iron with snow (90% mining success)'
       },
       {
         startExp: 334_700,
-        rate: 24_000,
+        rate: 25_000,
         description: 'Telegrab nats & Superheating iron with snow (100% mining success)'
       }
     ],
@@ -871,7 +821,7 @@ export default [
         startExp: 12_725,
         endExp: 200_000_000,
         end: true,
-        ratio: 1.66
+        ratio: 1.64
       }
     ]
   },

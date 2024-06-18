@@ -42,12 +42,12 @@ export default [
       },
       {
         startExp: 101_333,
-        rate: 100_000,
+        rate: 98_000,
         description: '2t Oaks (rune axe)'
       },
       {
         startExp: 302_288,
-        rate: 110_000,
+        rate: 105_000,
         description: '2t Oaks (100% success)'
       }
     ],
