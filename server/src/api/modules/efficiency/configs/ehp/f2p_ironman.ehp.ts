@@ -35,7 +35,7 @@ export default [
         description: 'Hill Giants'
       },
       {
-        startExp: 1_629_200,
+        startExp: 1_986_068,
         rate: 48_600,
         description: 'Hill Giants'
       },
@@ -87,25 +87,17 @@ export default [
         originSkill: Skill.ATTACK,
         bonusSkill: Skill.PRAYER,
         startExp: 737_627,
-        endExp: 1_629_200,
+        endExp: 1_986_068,
         end: true,
         ratio: 0.1254
       },
       {
         originSkill: Skill.ATTACK,
         bonusSkill: Skill.PRAYER,
-        startExp: 1_629_200,
+        startExp: 1_986_068,
         endExp: 5_346_332,
         end: true,
         ratio: 0.1233
-      },
-      {
-        originSkill: Skill.ATTACK,
-        bonusSkill: Skill.PRAYER,
-        startExp: 2_192_818,
-        endExp: 3_972_294,
-        end: true,
-        ratio: 0.1234
       },
       {
         originSkill: Skill.ATTACK,
@@ -129,7 +121,7 @@ export default [
         startExp: 37_224,
         endExp: 13_034_431,
         end: true,
-        ratio: 0.0071
+        ratio: 0.0047
       },
       {
         originSkill: Skill.ATTACK,
@@ -229,7 +221,7 @@ export default [
         description: 'Hill Giants'
       },
       {
-        startExp: 1_629_200,
+        startExp: 1_986_068,
         rate: 42_000,
         description: 'Hill Giants'
       },
@@ -291,9 +283,17 @@ export default [
         originSkill: Skill.STRENGTH,
         bonusSkill: Skill.PRAYER,
         startExp: 737_627,
-        endExp: 3_258_594,
+        endExp: 1_986_068,
         end: true,
         ratio: 0.1285
+      },
+      {
+        originSkill: Skill.STRENGTH,
+        bonusSkill: Skill.PRAYER,
+        startExp: 1_986_068,
+        endExp: 3_258_594,
+        end: true,
+        ratio: 0.1258
       },
       {
         originSkill: Skill.STRENGTH,
@@ -341,7 +341,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.1117
+        ratio: 0.0086
       }
     ]
   },
