@@ -278,7 +278,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 29_500,
+        rate: 8_365,
         description: '4t Trees'
       },
       {
@@ -303,18 +303,13 @@ export default [
       },
       {
         startExp: 101_333,
-        rate: 100_000,
+        rate: 98_000,
         description: '2t oaks (rune axe)'
       },
       {
         startExp: 302_288,
-        rate: 110_000,
+        rate: 105_000,
         description: '2t oaks (100% success)'
-      },
-      {
-        startExp: 13_034_431,
-        rate: 85_000,
-        description: 'Cake scatter willows + forestry events'
       }
     ],
     bonuses: [
@@ -448,33 +443,54 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 45_000,
-        description: 'Best logs @ GE w/ Vile ashes'
+        rate: 20_000,
+        description: 'Logs @ GE w/scatter'
+      },
+      {
+        startExp: 2_411,
+        rate: 40_000,
+        description: 'Oak logs @ GE w/scatter'
       },
       {
         startExp: 13_363,
-        rate: 130_500,
-        description: 'Best logs @ GE w/ Vile ashes'
+        rate: 100_000,
+        description: 'Willow logs @ GE w/scatter'
       },
       {
         startExp: 61_512,
         rate: 195_750,
-        description: 'Best logs @ GE w/ Vile ashes'
+        description: 'Maple logs @ GE w/scatter'
       },
       {
         startExp: 273_742,
         rate: 293_625,
-        description: 'Best logs @ GE w/ Vile ashes + big bones'
+        description: 'Yew logs @ GE w/scatter'
       }
     ],
     bonuses: [
       {
         originSkill: Skill.FIREMAKING,
         bonusSkill: Skill.PRAYER,
+        startExp: 0,
+        endExp: 2_411,
+        end: false,
+        ratio: 0.625
+      },
+      {
+        originSkill: Skill.FIREMAKING,
+        bonusSkill: Skill.PRAYER,
+        startExp: 2_411,
+        endExp: 13_363,
+        end: false,
+        ratio: 0.4167
+      },
+      {
+        originSkill: Skill.FIREMAKING,
+        bonusSkill: Skill.PRAYER,
         startExp: 13_363,
         endExp: 61_512,
         end: false,
-        ratio: 0.427
+        ratio: 0.2788
       },
       {
         originSkill: Skill.FIREMAKING,
@@ -482,7 +498,7 @@ export default [
         startExp: 61_512,
         endExp: 273_742,
         end: false,
-        ratio: 0.285
+        ratio: 0.1852
       },
       {
         originSkill: Skill.FIREMAKING,
@@ -490,7 +506,7 @@ export default [
         startExp: 273_742,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.2
+        ratio: 0.1235
       }
     ]
   },
@@ -571,38 +587,28 @@ export default [
       },
       {
         startExp: 2_411,
-        rate: 40_500,
-        description: '4t leather double roll at hobgoblin mine'
+        rate: 50_000,
+        description: '3t Iron w/ Cake (All Rocks)'
       },
       {
-        startExp: 13_363,
-        rate: 45_500,
-        description: '4t leather double roll at hobgoblin mine'
+        startExp: 5_018,
+        rate: 52_800,
+        description: '3t Iron w/ Cake (All Rocks)'
       },
       {
-        startExp: 37_224,
-        rate: 48_000,
-        description: '3.33t snow mining at al kharid'
+        startExp: 14_833,
+        rate: 56_700,
+        description: '3t Iron w/ Cake (All Rocks)'
       },
       {
-        startExp: 101_333,
-        rate: 54_000,
-        description: '3.33t snow mining at al kharid'
-      },
-      {
-        startExp: 247_886,
-        rate: 56_000,
-        description: '3.5t superheat mining'
+        startExp: 41_171,
+        rate: 60_000,
+        description: '3t Iron w/ Cake (Adjacent Rocks)'
       },
       {
         startExp: 302_288,
-        rate: 57_000,
-        description: '3.5t superheat mining'
-      },
-      {
-        startExp: 142_000_000,
-        rate: 57_000,
-        description: '3t cake scatter iron at mining guild'
+        rate: 64_000,
+        description: '3t Iron w/ Cake (Adjacent Rocks)'
       }
     ],
     bonuses: [
