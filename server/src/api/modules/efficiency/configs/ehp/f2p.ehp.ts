@@ -225,7 +225,7 @@ export default [
     skill: Skill.MAGIC,
     methods: [
       {
-        startExp: 0,
+        startExp: 200_000_000,
         rate: 0,
         description: 'Bonus XP'
       }
@@ -236,7 +236,7 @@ export default [
     skill: Skill.COOKING,
     methods: [
       {
-        startExp: 0,
+        startExp: 200_000_000,
         rate: 0,
         description: 'Bonus XP'
       }
