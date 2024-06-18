@@ -215,8 +215,8 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 105_000,
-        description: 'Bury Big bones & Vile ashes'
+        rate: 160_000,
+        description: 'Bury Big bones & Vile ashes during clan wars melees'
       }
     ],
     bonuses: []
@@ -225,29 +225,9 @@ export default [
     skill: Skill.MAGIC,
     methods: [
       {
-        startExp: 0,
-        rate: 15_000,
-        description: 'Misc. Spells'
-      },
-      {
-        startExp: 5_018,
-        rate: 60_000,
-        description: 'Low Alchemy'
-      },
-      {
-        startExp: 50_339,
-        rate: 100_000,
-        description: 'Superheat Gold'
-      },
-      {
-        startExp: 166_636,
-        rate: 165_000,
-        description: 'Alchemy + Falador Teleport + Fire Blast Splashing'
-      },
-      {
-        startExp: 3_258_594,
-        rate: 180_000,
-        description: 'Alchemy + Teleblock'
+        startExp: 200_000_000,
+        rate: 0,
+        description: 'Bonus XP'
       }
     ],
     bonuses: []
@@ -256,19 +236,9 @@ export default [
     skill: Skill.COOKING,
     methods: [
       {
-        startExp: 0,
-        rate: 100_000,
-        description: '1t Beef'
-      },
-      {
-        startExp: 22_406,
-        rate: 450_000,
-        description: 'Wines (Incl. Avg. Rate of Failure)'
-      },
-      {
-        startExp: 605_032,
-        rate: 500_000,
-        description: 'Wines'
+        startExp: 200_000_000,
+        rate: 0,
+        description: 'Bonus XP'
       }
     ],
     bonuses: []
@@ -284,7 +254,7 @@ export default [
       {
         startExp: 2_411,
         rate: 35_000,
-        description: '2t Oaks (steel axe)'
+        description: '2t oaks (steel axe)'
       },
       {
         startExp: 5_018,
@@ -312,56 +282,7 @@ export default [
         description: '2t oaks (100% success)'
       }
     ],
-    bonuses: [
-      {
-        originSkill: Skill.WOODCUTTING,
-        bonusSkill: Skill.MAGIC,
-        startExp: 5_018,
-        endExp: 14_833,
-        end: false,
-        ratio: 1.54
-      },
-      {
-        originSkill: Skill.WOODCUTTING,
-        bonusSkill: Skill.MAGIC,
-        startExp: 14_833,
-        endExp: 41_171,
-        end: false,
-        ratio: 0.9
-      },
-      {
-        originSkill: Skill.WOODCUTTING,
-        bonusSkill: Skill.MAGIC,
-        startExp: 41_171,
-        endExp: 101_333,
-        end: false,
-        ratio: 0.675
-      },
-      {
-        originSkill: Skill.WOODCUTTING,
-        bonusSkill: Skill.MAGIC,
-        startExp: 101_333,
-        endExp: 302_288,
-        end: false,
-        ratio: 0.54
-      },
-      {
-        originSkill: Skill.WOODCUTTING,
-        bonusSkill: Skill.MAGIC,
-        startExp: 302_288,
-        endExp: 13_034_431,
-        end: false,
-        ratio: 0.49
-      },
-      {
-        originSkill: Skill.WOODCUTTING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 13_034_431,
-        endExp: 200_000_000,
-        end: false,
-        ratio: 0.47
-      }
-    ]
+    bonuses: []
   },
   {
     skill: Skill.FISHING,
@@ -427,16 +348,7 @@ export default [
         description: '3t fish 0t cook trout+salmon'
       }
     ],
-    bonuses: [
-      {
-        originSkill: Skill.FISHING,
-        bonusSkill: Skill.COOKING,
-        startExp: 0,
-        endExp: 200_000_000,
-        end: false,
-        ratio: 1.15
-      }
-    ]
+    bonuses: []
   },
   {
     skill: Skill.FIREMAKING,
@@ -643,7 +555,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 75_000,
+        rate: 65_000,
         description: 'Various'
       }
     ],
