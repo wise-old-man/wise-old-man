@@ -46,7 +46,7 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 50_500,
+        rate: 50_100,
         description: 'Ogresses & Hill Giants'
       }
     ],
@@ -148,7 +148,7 @@ export default [
       },
       {
         startExp: 37_224,
-        rate: 50_300,
+        rate: 50_000,
         description: 'Ogresses & Hill Giants'
       }
     ],
@@ -242,7 +242,7 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 51_000,
+        rate: 50_600,
         description: 'Ogresses & Hill Giants'
       }
     ],
