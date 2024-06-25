@@ -113,7 +113,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.1119
+        ratio: 0.112
       },
       {
         originSkill: Skill.ATTACK,
@@ -167,7 +167,7 @@ export default [
         startExp: 37_224,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.1126
+        ratio: 0.1127
       },
       {
         originSkill: Skill.DEFENCE,
@@ -325,7 +325,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.1117
+        ratio: 0.1118
       },
       {
         originSkill: Skill.STRENGTH,
