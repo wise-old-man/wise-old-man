@@ -12,90 +12,54 @@ const patreonUserSchema = z.object({
   type: z.enum(['user']).or(z.string()),
   attributes: z.object({
     full_name: z.string(),
-    email: z.string().optional(),
     social_connections: z.object({ discord: z.object({ user_id: z.string() }).or(z.null()) }).optional()
   })
 });
 
-const pledgesResponseSchema = z.object({
-  data: z.array(
-    z.object({
-      attributes: z.object({
-        created_at: z.string().refine(isValidDate),
-        status: z.enum(['valid', 'declined']).or(z.string())
+const memberDataSchema = z.array(
+  z.object({
+    attributes: z.object({
+      last_charge_date: z.null().or(z.string().refine(isValidDate)),
+      patron_status: z.enum(['declined_patron', 'former_patron', 'active_patron']).or(z.null()),
+      email: z.string(),
+      pledge_relationship_start: z.string().refine(isValidDate)
+    }),
+    relationships: z.object({
+      currently_entitled_tiers: z.object({
+        data: z.array(z.object({ id: z.string() }))
       }),
-      relationships: z.object({
-        patron: z.object({
-          data: z.object({
-            id: z.string(),
-            type: z.enum(['user']).or(z.string())
-          })
+      user: z.object({
+        data: z.object({
+          id: z.string()
         })
       })
     })
-  ),
-  included: z.array(patreonUserSchema)
-});
+  })
+);
+
+const memberIncludedSchema = z.array(patreonUserSchema.or(z.object({ type: z.literal('tier') })));
 
 const membersResponseSchema = z.object({
-  data: z.array(
-    z.object({
-      attributes: z.object({
-        last_charge_date: z.null().or(z.string().refine(isValidDate)),
-        patron_status: z.enum(['declined_patron', 'former_patron', 'active_patron']).or(z.null())
-      }),
-      relationships: z.object({
-        currently_entitled_tiers: z.object({
-          data: z.array(z.object({ id: z.string() }))
-        }),
-        user: z.object({
-          data: z.object({
-            id: z.string()
-          })
-        })
-      })
-    })
-  ),
-  included: z.array(patreonUserSchema.or(z.object({ type: z.literal('tier') })))
+  data: memberDataSchema,
+  included: memberIncludedSchema,
+  meta: z.object({
+    pagination: z.object({ cursors: z.object({ next: z.string().or(z.null()) }), total: z.number() })
+  })
 });
 
-type PledgesResponse = z.infer<typeof pledgesResponseSchema>;
 type MembersResponse = z.infer<typeof membersResponseSchema>;
 
 export async function getPatrons() {
   const members = await fetchMembers(CAMPAIGN_ID);
-  const pledges = await fetchPledges(CAMPAIGN_ID);
+  const { data, included } = members;
 
-  const userMap = new Map<string, z.infer<typeof patreonUserSchema>>();
-
-  members.included.forEach(object => {
-    if (object.type !== 'user') return;
-    userMap.set(object.id, object);
-  });
-
-  pledges.included.forEach(object => {
-    if (object.type !== 'user') return;
-
-    const current = userMap.get(object.id);
-
-    if (current) {
-      current.attributes.email = object.attributes.email;
-    } else {
-      userMap.set(object.id, object);
-    }
-  });
-
-  const patrons = members.data.map(member => {
+  const patrons = data.map(member => {
     const { attributes, relationships } = member;
+    const { email, patron_status, last_charge_date, pledge_relationship_start } = attributes;
+    const { currently_entitled_tiers, user } = relationships;
 
-    const userId = relationships.user.data.id;
-    const user = userMap.get(userId);
-
-    if (!user) return null;
-
-    const pledge = pledges.data.find(p => p.relationships.patron.data.id === userId);
-
-    const { patron_status, last_charge_date } = attributes;
+    const userAttributes = included.filter(i => i.type === 'user' && i.id === user.data.id)[0];
+    const { full_name, social_connections } = userAttributes['attributes'];
 
     let isInGracePeriod = false;
 
@@ -114,20 +78,17 @@ export async function getPatrons() {
       isInGracePeriod = true;
     }
 
-    const isTier2 = relationships.currently_entitled_tiers.data.some(tier => tier.id === TIER_2_ID);
-
-    const discordId = user.attributes.social_connections
-      ? user.attributes.social_connections.discord?.user_id
-      : undefined;
+    const isTier2 = currently_entitled_tiers.data.some(tier => tier.id === TIER_2_ID);
+    const discordId = social_connections ? social_connections.discord?.user_id : undefined;
 
     return {
       patron: {
-        id: userId,
-        name: user.attributes.full_name,
-        email: user.attributes.email || '',
+        id: user.data.id,
+        name: full_name,
+        email: email,
         discordId: discordId ?? null,
         tier: isTier2 ? 2 : 1,
-        createdAt: pledge ? new Date(pledge.attributes.created_at) : new Date(),
+        createdAt: new Date(pledge_relationship_start),
         playerId: null,
         groupId: null
       },
@@ -138,36 +99,40 @@ export async function getPatrons() {
   return patrons.filter(Boolean);
 }
 
-async function fetchPledges(campaignId: string): Promise<PledgesResponse> {
-  const fields = ['status', 'created_at'];
-
-  const url = new URL(`https://www.patreon.com/api/oauth2/api/campaigns/${campaignId}/pledges`);
-  url.searchParams.set('include', 'patron.null');
-  url.searchParams.set('fields[pledge]', fields.join(','));
-  url.searchParams.set('page[count]', '200');
-
-  const { data } = await axios.get(url.toString(), {
-    headers: {
-      Authorization: `Bearer ${process.env.PATREON_BEARER_TOKEN}`
-    }
-  });
-
-  return pledgesResponseSchema.parse(data);
-}
-
-async function fetchMembers(campaignId: string): Promise<MembersResponse> {
+async function fetchMembers(campaignId: string): Promise<Omit<MembersResponse, 'meta'>> {
   const url = new URL(`https://www.patreon.com/api/oauth2/v2/campaigns/${campaignId}/members`);
 
   url.searchParams.set('include', ['currently_entitled_tiers', 'user'].join(','));
-  url.searchParams.set('fields[member]', ['last_charge_date', 'patron_status'].join(','));
+  url.searchParams.set(
+    'fields[member]',
+    ['last_charge_date', 'patron_status', 'email', 'pledge_relationship_start'].join(',')
+  );
   url.searchParams.set('fields[user]', ['full_name', 'social_connections'].join(','));
   url.searchParams.set('page[count]', '200');
 
-  const { data } = await axios.get(url.toString(), {
-    headers: {
-      Authorization: `Bearer ${process.env.PATREON_BEARER_TOKEN}`
-    }
-  });
+  const result: { data: z.infer<typeof memberDataSchema>; included: z.infer<typeof memberIncludedSchema> } = {
+    data: [],
+    included: []
+  };
 
-  return membersResponseSchema.parse(data);
+  for (;;) {
+    const { data: response } = await axios.get(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${process.env.PATREON_BEARER_TOKEN}`
+      }
+    });
+
+    const parsedData = membersResponseSchema.parse(response);
+
+    result.data.push(...parsedData.data);
+    result.included.push(...parsedData.included);
+
+    if (parsedData.meta.pagination.cursors.next === null) {
+      break;
+    }
+
+    url.searchParams.set('page[cursor]', response.meta.pagination.cursors.next);
+  }
+
+  return result;
 }
