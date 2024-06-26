@@ -75,7 +75,7 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
     router.replace(`/groups/${group.id}/gained?${nextParams.toString()}`, { scroll: false });
   }
 
-  function handlePeriodChanged(newPeriod: Period | "custom") {
+  function handlePeriodChanged(newPeriod: Period | "custom" | "all_time") {
     const nextParams = new URLSearchParams(searchParams);
 
     // Reset pagination if params change
@@ -83,6 +83,11 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
 
     if (newPeriod === "custom") {
       nextParams.set("dialog", "custom_period");
+    } else if (newPeriod === "all_time") {
+      nextParams.delete("period");
+      nextParams.delete("dialog");
+      nextParams.set("startDate", group.createdAt.toISOString());
+      nextParams.set("endDate", new Date().toISOString());
     } else if (newPeriod) {
       nextParams.set("period", newPeriod);
       nextParams.delete("startDate");
@@ -299,7 +304,7 @@ function MetricSelect(props: MetricSelectProps) {
 
 interface PeriodSelectProps {
   period?: Period;
-  onPeriodSelected: (period: Period | "custom") => void;
+  onPeriodSelected: (period: Period | "custom" | "all_time") => void;
 }
 
 function PeriodSelect(props: PeriodSelectProps) {
@@ -314,7 +319,7 @@ function PeriodSelect(props: PeriodSelectProps) {
         startTransition(() => {
           if (val === undefined) {
             onPeriodSelected(Period.WEEK);
-          } else if (isPeriod(val) || val === "custom") {
+          } else if (isPeriod(val) || val === "custom" || val === "all_time") {
             onPeriodSelected(val);
           }
         });
@@ -333,6 +338,7 @@ function PeriodSelect(props: PeriodSelectProps) {
                 {PeriodProps[period].name}
               </ComboboxItem>
             ))}
+            <ComboboxItem value="all_time">All Time</ComboboxItem>
             <ComboboxItem value="custom">Select custom period...</ComboboxItem>
           </ComboboxItemGroup>
         </ComboboxItemsContainer>
