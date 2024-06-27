@@ -85,7 +85,7 @@ export async function getPatrons() {
       return null;
     }
 
-    const { full_name, social_connections } = userAttributes['attributes'];
+    const { full_name, social_connections } = userAttributes.attributes;
 
     let isInGracePeriod = false;
 
