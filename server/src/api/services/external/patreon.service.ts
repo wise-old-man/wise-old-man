@@ -7,58 +7,84 @@ const TIER_2_ID = '21515077';
 
 const CANCEL_GRACE_PERIOD_DAYS = 3;
 
-const patreonUserSchema = z.object({
+const userSchema = z.object({
   id: z.string(),
-  type: z.enum(['user']).or(z.string()),
+  type: z.literal('user'),
   attributes: z.object({
     full_name: z.string(),
-    social_connections: z.object({ discord: z.object({ user_id: z.string() }).or(z.null()) }).optional()
+    social_connections: z.optional(
+      z.object({
+        discord: z.object({ user_id: z.string() }).or(z.null())
+      })
+    )
   })
+});
+
+const tierSchema = z.object({
+  id: z.string(),
+  type: z.literal('tier')
 });
 
 const memberDataSchema = z.array(
   z.object({
     attributes: z.object({
+      email: z.string(),
       last_charge_date: z.null().or(z.string().refine(isValidDate)),
       patron_status: z.enum(['declined_patron', 'former_patron', 'active_patron']).or(z.null()),
-      email: z.string(),
       pledge_relationship_start: z.string().refine(isValidDate)
     }),
     relationships: z.object({
       currently_entitled_tiers: z.object({
-        data: z.array(z.object({ id: z.string() }))
+        data: z.array(tierSchema)
       }),
       user: z.object({
         data: z.object({
-          id: z.string()
+          id: z.string(),
+          type: z.literal('user')
         })
       })
     })
   })
 );
 
-const memberIncludedSchema = z.array(patreonUserSchema.or(z.object({ type: z.literal('tier') })));
-
 const membersResponseSchema = z.object({
   data: memberDataSchema,
-  included: memberIncludedSchema,
+  included: z.array(userSchema.or(tierSchema)),
   meta: z.object({
-    pagination: z.object({ cursors: z.object({ next: z.string().or(z.null()) }), total: z.number() })
+    pagination: z.object({
+      cursors: z.object({
+        next: z.string().or(z.null())
+      }),
+      total: z.number()
+    })
   })
 });
 
 type MembersResponse = z.infer<typeof membersResponseSchema>;
+type PatreonUser = z.infer<typeof userSchema>;
 
 export async function getPatrons() {
   const members = await fetchMembers(CAMPAIGN_ID);
   const { data, included } = members;
+
+  const userMap = new Map<string, PatreonUser>();
+  included.forEach(i => {
+    if (i.type === 'user') {
+      userMap.set(i.id, i);
+    }
+  });
 
   const patrons = data.map(member => {
     const { attributes, relationships } = member;
     const { email, patron_status, last_charge_date, pledge_relationship_start } = attributes;
     const { currently_entitled_tiers, user } = relationships;
 
-    const userAttributes = included.filter(i => i.type === 'user' && i.id === user.data.id)[0];
+    const userAttributes = userMap.get(user.data.id);
+
+    if (!userAttributes) {
+      return null;
+    }
+
     const { full_name, social_connections } = userAttributes['attributes'];
 
     let isInGracePeriod = false;
@@ -110,12 +136,14 @@ async function fetchMembers(campaignId: string): Promise<Omit<MembersResponse, '
   url.searchParams.set('fields[user]', ['full_name', 'social_connections'].join(','));
   url.searchParams.set('page[count]', '200');
 
-  const result: { data: z.infer<typeof memberDataSchema>; included: z.infer<typeof memberIncludedSchema> } = {
+  const result: Pick<MembersResponse, 'data' | 'included'> = {
     data: [],
     included: []
   };
 
-  for (;;) {
+  // Check at max 10 pages
+  // (I don't trust Patreon API, so I'd rather not get stuck in an infinite loop if they mess up)
+  for (let i = 0; i < 10; i++) {
     const { data: response } = await axios.get(url.toString(), {
       headers: {
         Authorization: `Bearer ${process.env.PATREON_BEARER_TOKEN}`
