@@ -277,7 +277,7 @@ export default [
         description: '2t oaks (rune axe)'
       },
       {
-        startExp: 302_288,
+        startExp: 273_742,
         rate: 105_000,
         description: '2t oaks (100% success)'
       }
