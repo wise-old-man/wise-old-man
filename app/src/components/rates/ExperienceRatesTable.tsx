@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MAX_SKILL_EXP, SkillMetaMethod } from "@wise-old-man/utils";
+import { MAX_SKILL_EXP, SKILL_EXP_AT_99, SkillMetaMethod, getLevel } from "@wise-old-man/utils";
 import { TableTitle } from "../Table";
 import { DataTable } from "../DataTable";
 import { FormattedNumber } from "../FormattedNumber";
@@ -11,7 +11,12 @@ function getColumnDefinitions(methods: SkillMetaMethod[]): ColumnDef<SkillMetaMe
     {
       id: "startExp",
       header: () => "Starting exp.",
-      cell: ({ row }) => <FormattedNumber value={row.original.startExp} />,
+      cell: ({ row }) => (
+        <>
+          <FormattedNumber value={row.original.startExp} />
+          {` (Lv. ${getLevel(row.original.startExp, true)})`}
+        </>
+      ),
     },
     {
       id: "endExp",
@@ -19,7 +24,16 @@ function getColumnDefinitions(methods: SkillMetaMethod[]): ColumnDef<SkillMetaMe
       accessorFn: (_, index) => {
         return index < methods.length - 1 ? methods[index + 1].startExp : MAX_SKILL_EXP;
       },
-      cell: ({ row }) => <FormattedNumber value={row.getValue("endExp")} />,
+      cell: ({ row }) => (
+        <>
+          <FormattedNumber value={row.getValue("endExp")} />
+          {` (Lv. ${
+            (row.getValue("endExp") as number) > SKILL_EXP_AT_99
+              ? "99+"
+              : getLevel(row.getValue("endExp"))
+          })`}
+        </>
+      ),
     },
     {
       id: "rate",
