@@ -741,7 +741,7 @@ export default [
       },
       {
         startExp: 6_291,
-        rate: 20_000,
+        rate: 19_500,
         description: 'Silver tiaras at Varrock Southwest mine'
       }
     ],
