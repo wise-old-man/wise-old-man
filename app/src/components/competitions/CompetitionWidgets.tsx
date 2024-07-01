@@ -89,7 +89,7 @@ function TopParticipantWidget(props: TopParticipantWidgetrops) {
 
   if (!topParticipant) {
     return (
-      <div className="flex h-24 w-full items-center justify-center overflow-hidden rounded-lg border border-gray-500 px-5 text-gray-400">
+      <div className="flex h-28 w-full items-center justify-center overflow-hidden rounded-lg border border-gray-500 px-5 text-gray-400">
         No participants
       </div>
     );
@@ -100,7 +100,7 @@ function TopParticipantWidget(props: TopParticipantWidgetrops) {
   const { player, progress } = topParticipant;
 
   return (
-    <div className="flex h-24 w-full items-center overflow-hidden rounded-lg border border-gray-500 bg-gray-800 px-5 shadow-md">
+    <div className="flex h-28 w-full items-center overflow-hidden rounded-lg border border-gray-500 bg-gray-800 px-5 shadow-md">
       <div className="flex w-full items-end justify-between">
         <div className="flex flex-col gap-y-px">
           <span className="text-base font-medium text-white">{player.displayName}</span>
@@ -133,7 +133,7 @@ function GainedWidget(props: GainedWidgetProps) {
   const value = showAverage ? Math.floor(total / participations.length) : total;
 
   return (
-    <div className="relative flex h-24 w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-500 px-6">
+    <div className="relative flex h-28 w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-500 px-6">
       <Image
         alt={metric}
         fill
@@ -172,7 +172,7 @@ function CompetitionCountdown(props: CompetitionCountdownProps) {
   const { days, hours, minutes, seconds } = durationBetween(new Date(), isOngoing ? endsAt : startsAt);
 
   return (
-    <div className="relative flex h-24 w-full items-center justify-around overflow-hidden rounded-lg border border-gray-500 bg-gray-800 px-3 shadow-md">
+    <div className="relative flex h-28 w-full items-center justify-around overflow-hidden rounded-lg border border-gray-500 bg-gray-800 px-3 shadow-md">
       <div className="flex flex-col items-center">
         <span className="text-2xl font-medium">{padNumber(days)}</span>
         <span className="text-xs text-gray-200">days</span>
@@ -223,7 +223,7 @@ function CompetitionDuration(props: CompetitionDurationProps) {
     durationSegments.push(`${duration.minutes}${shouldShortenDuration ? "m" : " minutes"}`);
 
   return (
-    <div className="flex h-24 w-full flex-col items-center overflow-hidden rounded-lg border border-gray-500 bg-gray-800 shadow-md">
+    <div className="flex h-28 w-full flex-col items-center overflow-hidden rounded-lg border border-gray-500 bg-gray-800 shadow-md">
       <div className="grid w-full grow grid-cols-2 items-center divide-x divide-gray-500">
         <div className="flex flex-col py-3 pl-3">
           <span className="text-xs text-gray-200">Start</span>
@@ -231,7 +231,7 @@ function CompetitionDuration(props: CompetitionDurationProps) {
             <LocalDate
               locale="UTC"
               isoDate={(showUTC ? convertToUTC(props.startsAt) : props.startsAt).toISOString()}
-              formatOptions={{ month: "short", day: "numeric", hour: "numeric", minute: "numeric" }}
+              formatOptions={{ month: "short", day: "numeric", hour: "numeric", minute: "numeric", year: "numeric" }}
             />
           </span>
         </div>
@@ -241,7 +241,7 @@ function CompetitionDuration(props: CompetitionDurationProps) {
             <LocalDate
               locale="UTC"
               isoDate={(showUTC ? convertToUTC(props.endsAt) : props.endsAt).toISOString()}
-              formatOptions={{ month: "short", day: "numeric", hour: "numeric", minute: "numeric" }}
+              formatOptions={{ month: "short", day: "numeric", hour: "numeric", minute: "numeric", year: "numeric" }}
             />
           </span>
         </div>
