@@ -459,7 +459,7 @@ export default [
       {
         startExp: 0,
         rate: 38_175,
-        description: "Knight's Sword"
+        description: "Knight's Sword (20 min completion)"
       },
       {
         startExp: 12_725,
@@ -527,26 +527,10 @@ export default [
       {
         originSkill: Skill.MINING,
         bonusSkill: Skill.SMITHING,
-        startExp: 247_886,
+        startExp: 2_411,
         endExp: 142_000_000,
         end: false,
-        ratio: 0.321
-      },
-      {
-        originSkill: Skill.MINING,
-        bonusSkill: Skill.MAGIC,
-        startExp: 247_886,
-        endExp: 142_000_000,
-        end: false,
-        ratio: 1.363
-      },
-      {
-        originSkill: Skill.MINING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 142_000_000,
-        endExp: 200_000_000,
-        end: false,
-        ratio: 0.54
+        ratio: 0.0786
       }
     ]
   },
