@@ -432,22 +432,22 @@ export default [
       },
       {
         startExp: 4_470,
-        rate: 137_200,
+        rate: 139_000,
         description: 'Sapphires'
       },
       {
         startExp: 9_730,
-        rate: 185_220,
+        rate: 187_650,
         description: 'Emeralds'
       },
       {
         startExp: 20_224,
-        rate: 233_240,
+        rate: 236_300,
         description: 'Rubies'
       },
       {
         startExp: 50_339,
-        rate: 295_000,
+        rate: 298_850,
         description: 'Diamonds'
       }
     ],
