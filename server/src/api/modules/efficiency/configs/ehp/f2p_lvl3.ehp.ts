@@ -148,12 +148,12 @@ export default [
       },
       {
         startExp: 61_512,
-        rate: 198_650,
+        rate: 197_000,
         description: 'Maple logs @ GE'
       },
       {
         startExp: 273_742,
-        rate: 298_000,
+        rate: 296_000,
         description: 'Yew logs @ GE'
       }
     ],
@@ -169,22 +169,22 @@ export default [
       },
       {
         startExp: 4_470,
-        rate: 137_200,
+        rate: 139_000,
         description: 'Sapphires'
       },
       {
         startExp: 9_730,
-        rate: 185_220,
+        rate: 187_650,
         description: 'Emeralds'
       },
       {
         startExp: 20_224,
-        rate: 233_240,
+        rate: 236_300,
         description: 'Rubies'
       },
       {
         startExp: 50_339,
-        rate: 295_000,
+        rate: 298_850,
         description: 'Diamonds'
       }
     ],
@@ -195,8 +195,8 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 12_725,
-        description: "Knight's Sword"
+        rate: 38_175,
+        description: "Knight's Sword (20 min completion)"
       },
       {
         startExp: 12_725,
@@ -251,12 +251,12 @@ export default [
       },
       {
         startExp: 41_171,
-        rate: 59_400,
+        rate: 60_000,
         description: '3t Iron w/ Cake (Adjacent Rocks)'
       },
       {
         startExp: 302_288,
-        rate: 61_500,
+        rate: 64_000,
         description: '3t Iron w/ Cake (Adjacent Rocks)'
       }
     ],
@@ -267,7 +267,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 75_000,
+        rate: 65_000,
         description: 'Various'
       }
     ],
