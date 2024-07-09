@@ -2,7 +2,6 @@ import prisma, { Player } from '../../../../prisma';
 import { PlayerType } from '../../../../utils';
 import { BadRequestError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
-import logger from '../../../util/logging';
 import { parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
 
@@ -18,8 +17,6 @@ async function assertPlayerType(player: Player, updateIfChanged = false): Promis
     });
 
     playerEvents.onPlayerTypeChanged(updatedPlayer, player.type);
-
-    logger.moderation(`[Player:${player.username}] Type updated to ${confirmedType}`);
 
     return [confirmedType, updatedPlayer, true];
   }

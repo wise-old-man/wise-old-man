@@ -1,7 +1,6 @@
 import { DenyContext } from '../../../../utils';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import logger from '../../../util/logging';
 
 async function denyNameChange(id: number, reviewContext: DenyContext): Promise<NameChange> {
   const nameChange = await prisma.nameChange.findFirst({
@@ -24,8 +23,6 @@ async function denyNameChange(id: number, reviewContext: DenyContext): Promise<N
       reviewContext
     }
   });
-
-  logger.moderation(`[NameChange:${nameChange.id}] Denied ${reviewContext.reason}`, reviewContext);
 
   return updatedNameChange as NameChange;
 }

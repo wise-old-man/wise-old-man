@@ -1,6 +1,5 @@
 import { Metric, NameChangeDetails, SkipContext } from '../../../../utils';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
-import logger from '../../../util/logging';
 import * as playerUtils from '../../players/player.utils';
 import { approveNameChange } from './ApproveNameChangeService';
 import { denyNameChange } from './DenyNameChangeService';
@@ -144,8 +143,6 @@ async function skipReview(id: number, skipContext: SkipContext) {
     where: { id },
     data: { reviewContext: skipContext }
   });
-
-  logger.moderation(`[NameChange:${id}] Skipped ${skipContext.reason}`, skipContext);
 }
 
 export { autoReviewNameChange };

@@ -88,8 +88,6 @@ async function addMembers(
 
   groupEvents.onGroupUpdated(groupId);
 
-  logger.moderation(`[Group:${groupId}] (${newMemberships.map(m => m.playerId)}) joined`);
-
   return { count: addedCount };
 }
 

@@ -1,6 +1,5 @@
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../services/external/crypt.service';
-import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
 async function resetCompetitionCode(id: number): Promise<{ newCode: string }> {
@@ -21,8 +20,6 @@ async function resetCompetitionCode(id: number): Promise<{ newCode: string }> {
   const [code, hash] = await cryptService.generateVerification();
 
   await prisma.competition.update({ where: { id }, data: { verificationHash: hash } });
-
-  logger.moderation(`[Competition:${id}] Code reset`);
 
   return { newCode: code };
 }

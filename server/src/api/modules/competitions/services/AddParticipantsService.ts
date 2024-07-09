@@ -1,6 +1,5 @@
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
-import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { validateInvalidParticipants, validateParticipantDuplicates } from '../competition.utils';
@@ -55,8 +54,6 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
     where: { id },
     data: { updatedAt: new Date() }
   });
-
-  logger.moderation(`[Competition:${id}] (${newPlayers.map(p => p.id)}) joined`);
 
   return { count };
 }

@@ -207,8 +207,6 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
 
   onGroupUpdated(groupId);
 
-  logger.moderation(`[Group:${groupId}] Edited`);
-
   const sortedMemberships = sortMembers(updatedGroup.memberships, updatedGroup.roleOrders);
 
   return {

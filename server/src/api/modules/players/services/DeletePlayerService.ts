@@ -1,6 +1,5 @@
 import prisma, { Player } from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
-import logger from '../../../util/logging';
 import { standardize } from '../player.utils';
 
 async function deletePlayer(username: string): Promise<Player> {
@@ -8,8 +7,6 @@ async function deletePlayer(username: string): Promise<Player> {
     const deletedPlayer = await prisma.player.delete({
       where: { username: standardize(username) }
     });
-
-    logger.moderation(`[Player:${deletedPlayer.username}] Deleted`);
 
     return deletedPlayer;
   } catch (error) {
