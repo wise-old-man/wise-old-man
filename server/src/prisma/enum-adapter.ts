@@ -762,3 +762,26 @@ export const ActivityType = {
 } as const;
 
 export type ActivityType = (typeof ActivityType)[keyof typeof ActivityType];
+
+export const GroupTags = {
+  FRIENDS_CHAT: 'friends_chat',
+  SOCIAL: 'social',
+  EASY_GOING: 'easy_going',
+  EVENTS: 'events',
+  PVM: 'pvm',
+  PVP: 'pvp',
+  SKILLING: 'skilling',
+  INCLUSIVE: 'inclusive',
+  IRONMAN: 'ironman',
+  GROUP_IRONMAN: 'group_ironman',
+  QUESTS: 'quests',
+  MINIGAMES: 'minigames',
+  NOOB_FRIENDLY: 'noob_friendly',
+  DISCORD_REQUIRED: 'discord_required',
+  WORLDWIDE: 'worldwide',
+  EUROPE: 'europe',
+  AMERICA: 'america',
+  AUSTRALIA: 'australia'
+} as const;
+
+export type GroupTags = (typeof GroupTags)[keyof typeof GroupTags];

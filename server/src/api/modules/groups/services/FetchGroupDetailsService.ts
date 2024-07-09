@@ -16,6 +16,11 @@ async function fetchGroupDetails(id: number): Promise<GroupDetails> {
         orderBy: {
           index: 'asc'
         }
+      },
+      tags: {
+        orderBy: {
+          index: 'asc'
+        }
       }
     }
   });
@@ -30,7 +35,8 @@ async function fetchGroupDetails(id: number): Promise<GroupDetails> {
     memberCount: group.memberships.length,
     // Sort the members list by role
     memberships: sortMembers(group.memberships, group.roleOrders),
-    roleOrders: group.roleOrders
+    roleOrders: group.roleOrders,
+    tags: group.tags
   };
 }
 

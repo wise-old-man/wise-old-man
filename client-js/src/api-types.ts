@@ -16,7 +16,8 @@ import {
   GroupRole,
   GroupDetails,
   CompetitionCSVTableType,
-  GroupRoleOrder
+  GroupRoleOrder,
+  GroupTag
 } from '../../server/src/utils';
 
 export interface GenericCountMessageResponse {
@@ -65,6 +66,7 @@ export type EditGroupPayload = Partial<CreateGroupPayload> & {
   profileImage?: string;
   socialLinks?: Partial<GroupSocialLinks>;
   roleOrders?: Array<GroupRoleOrder>;
+  tags?: Array<GroupTag>;
 };
 
 export interface CreateGroupResponse {

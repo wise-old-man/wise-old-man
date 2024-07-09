@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { isValidDate } from './dates';
 import { GroupRole } from '../../utils';
+import { GroupTags } from '../../prisma/enum-adapter';
 
 function enumErrorMap(path: Array<string | number>, options: Array<string | number>) {
   if (path.length === 1 && path[0] === 'country') {
@@ -146,5 +147,10 @@ export function getDateSchema(propName: string) {
 
 export const groupRoleOrderSchema = z.object({
   role: groupRoleSchema,
+  index: z.number()
+});
+
+export const groupTagSchema = z.object({
+  tag: z.nativeEnum(GroupTags),
   index: z.number()
 });

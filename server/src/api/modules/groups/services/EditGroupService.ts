@@ -14,6 +14,7 @@ import { isValidUsername, sanitize, standardize } from '../../players/player.uti
 import { buildDefaultSocialLinks, sanitizeName, sortMembers } from '../group.utils';
 import { onMembersRolesChanged, onMembersJoined, onMembersLeft, onGroupUpdated } from '../group.events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
+import { GroupTags } from '../../../../prisma/enum-adapter';
 
 // Only allow images from our DigitalOcean bucket CDN, to make sure people don't
 // upload unresize, or uncompressed images. They musgt edit images on the website.
@@ -35,6 +36,7 @@ interface EditGroupPayload {
   };
   members?: Array<{ username: string; role: GroupRole }>;
   roleOrders?: Array<{ role: GroupRole; index: number }>;
+  tags?: Array<{ tag: GroupTags; index: number }>;
 }
 
 async function editGroup(groupId: number, payload: EditGroupPayload): Promise<GroupDetails> {
@@ -47,7 +49,8 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     bannerImage,
     profileImage,
     socialLinks,
-    roleOrders
+    roleOrders,
+    tags
   } = payload;
 
   if (clanChat && !isValidUsername(clanChat)) {
@@ -63,7 +66,8 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     !bannerImage &&
     !profileImage &&
     !socialLinks &&
-    !roleOrders
+    !roleOrders &&
+    !tags
   ) {
     throw new BadRequestError('Nothing to update.');
   }
@@ -102,6 +106,19 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     }
 
     if (uniqueRoles.size < roleOrders.length) {
+      throw new BadRequestError('Role Order must contain unique roles');
+    }
+  }
+
+  if (tags) {
+    const uniqueIndexes = new Set(tags.map(x => x.index));
+    const uniqueTags = new Set(tags.map(x => x.tag));
+
+    if (uniqueIndexes.size < tags.length) {
+      throw new BadRequestError('Role Order must contain unique indexes for each role');
+    }
+
+    if (uniqueTags.size < tags.length) {
       throw new BadRequestError('Role Order must contain unique roles');
     }
   }
@@ -197,6 +214,11 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
         orderBy: {
           index: 'asc'
         }
+      },
+      tags: {
+        orderBy: {
+          index: 'asc'
+        }
       }
     }
   });
@@ -216,7 +238,8 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     socialLinks: updatedGroup.socialLinks[0] ?? buildDefaultSocialLinks(),
     memberCount: sortedMemberships.length,
     memberships: sortedMemberships,
-    roleOrders: updatedGroup.roleOrders
+    roleOrders: updatedGroup.roleOrders,
+    tags: updatedGroup.tags
   };
 }
 
@@ -491,5 +514,19 @@ async function updateGroupRoleOrder(
 
   await transaction.groupRoleOrder.createMany({
     data: roleOrders.map(x => ({ ...x, groupId: groupId }))
+  });
+}
+
+async function updateGroupTags(
+  groupId: number,
+  tags: Array<{ tag: GroupTags; index: number }>,
+  transaction: PrismaTypes.TransactionClient
+) {
+  await transaction.groupRoleOrder.deleteMany({
+    where: { groupId }
+  });
+
+  await transaction.groupTag.createMany({
+    data: tags.map(x => ({ ...x, groupId: groupId }))
   });
 }

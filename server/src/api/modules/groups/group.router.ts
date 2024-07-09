@@ -8,7 +8,8 @@ import {
   getDateSchema,
   memberSchema,
   socialLinksSchema,
-  groupRoleOrderSchema
+  groupRoleOrderSchema,
+  groupTagSchema
 } from '../../util/validation';
 import { findGroupCompetitions } from '../competitions/services/FindGroupCompetitionsService';
 import { addMembers } from './services/AddMembersService';
@@ -58,7 +59,8 @@ router.post(
       clanChat: z.optional(z.string().min(1).max(12)),
       homeworld: z.optional(z.number().int().positive()),
       description: z.optional(z.string().min(1).max(100)),
-      members: z.array(memberSchema)
+      members: z.array(memberSchema),
+      tags: z.optional(z.array(groupTagSchema))
     })
   }),
   executeRequest(async (req, res) => {
@@ -83,7 +85,8 @@ router.put(
       profileImage: z.optional(z.string().max(255).url()),
       socialLinks: z.optional(socialLinksSchema),
       members: z.optional(z.array(memberSchema)),
-      roleOrders: z.optional(z.array(groupRoleOrderSchema))
+      roleOrders: z.optional(z.array(groupRoleOrderSchema)),
+      tags: z.optional(z.array(groupTagSchema))
     })
   }),
   executeRequest(async (req, res) => {

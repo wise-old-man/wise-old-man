@@ -8,6 +8,7 @@ import { isValidUsername, sanitize, standardize } from '../../players/player.uti
 import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
 import { onGroupCreated, onMembersJoined } from '../group.events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
+import { GroupTags } from '../../../../prisma/enum-adapter';
 
 type CreateGroupResult = { group: GroupDetails; verificationCode: string };
 
@@ -17,6 +18,7 @@ interface CreateGroupPayload {
   homeworld?: number;
   description?: string;
   members: Array<{ username: string; role: GroupRole }>;
+  tags?: Array<{ tag: GroupTags; index: number }>;
 }
 
 async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResult> {
@@ -61,12 +63,22 @@ async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResu
         createMany: {
           data: memberships
         }
+      },
+      tags: {
+        createMany: {
+          data: payload.tags ?? []
+        }
       }
     },
     include: {
       memberships: {
         include: {
           player: true
+        }
+      },
+      tags: {
+        orderBy: {
+          index: 'asc'
         }
       }
     }
