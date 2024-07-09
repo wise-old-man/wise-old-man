@@ -70,6 +70,11 @@ export type GroupRoleOrder = {
   index: number;
 };
 
+export type GroupTag = {
+  role: GroupTag;
+  index: number;
+};
+
 type Participation = {
   playerId: number;
   competitionId: number;

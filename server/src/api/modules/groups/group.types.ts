@@ -1,6 +1,7 @@
 import { GroupRole } from '../../../utils';
 import { Group, Membership, Player, MemberActivity, GroupSocialLinks, GroupRoleOrder } from '../../../prisma';
 import { MetricLeaders, FormattedSnapshot } from '../snapshots/snapshot.types';
+import { GroupTag } from '@prisma/client';
 
 export { ActivityType } from '../../../prisma/enum-adapter';
 
@@ -12,6 +13,7 @@ export interface GroupDetails extends GroupListItem {
   socialLinks: GroupSocialLinks;
   memberships: MembershipWithPlayer[];
   roleOrders: GroupRoleOrder[];
+  tags: GroupTag[];
 }
 
 export interface MembershipWithGroup extends Membership {
@@ -79,4 +81,4 @@ export type MemberActivityWithPlayer = MemberActivity & {
   player: Player;
 };
 
-export { Group, Membership, MemberActivity, GroupRoleOrder };
+export { Group, Membership, MemberActivity, GroupRoleOrder, GroupTag };
