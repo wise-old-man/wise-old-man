@@ -9,9 +9,6 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /wise-old-man/app
 
-# Install PM2 globally
-RUN npm install --global pm2
-
 # Copy "package.json" and "package-lock.json" before other files
 # Utilise Docker cache to save re-installing dependencies if unchanged
 COPY ./package*.json ./
@@ -31,6 +28,9 @@ FROM base AS runner
 WORKDIR /wise-old-man/app
 
 ENV NODE_ENV production
+
+# Install PM2 globally
+RUN npm install --global pm2
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
