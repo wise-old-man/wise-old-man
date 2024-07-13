@@ -49,6 +49,9 @@ const JOBS_MAP = {
   UpdatePlayerJob
 };
 
+// Jobs to run when the server starts up
+const STARTUP_JOBS = ['CheckMissingComputedTablesJob'] satisfies Array<keyof typeof JOBS_MAP>;
+
 const CRON_CONFIG = [
   // every 1 min
   { interval: '* * * * *', jobName: 'SyncApiKeysJob' },
@@ -149,6 +152,9 @@ class JobManager {
       // Only initialize queues and workers for cron jobs if we're running this on the "main" thread.
       const cronJobs = CRON_CONFIG.map(c => c.jobName).filter(c => !jobsToInit.map(j => j.name).includes(c));
       jobsToInit.push(...cronJobs.map(c => JOBS_MAP[c]));
+
+      const startupJobs = STARTUP_JOBS.filter(c => !jobsToInit.map(j => j.name).includes(c));
+      jobsToInit.push(...startupJobs.map(c => JOBS_MAP[c]));
     }
 
     for (const jobClass of jobsToInit) {
@@ -205,6 +211,17 @@ class JobManager {
 
       logger.info(`Scheduling cron job`, { jobName, interval }, true);
       await matchingQueue.add(jobName, {}, { repeat: { pattern: interval } });
+    }
+
+    for (const jobName of STARTUP_JOBS) {
+      const matchingQueue = this.queues.find(q => q.name === jobName);
+
+      if (!matchingQueue) {
+        throw new Error(`No job implementation found for type "${jobName}".`);
+      }
+
+      logger.info(`Scheduling startup job`, { jobName }, true);
+      await matchingQueue.add(jobName, {}, { priority: JobPriority.HIGH });
     }
   }
 

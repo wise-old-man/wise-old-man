@@ -26,7 +26,9 @@ export class CheckMissingComputedTablesJob extends Job<unknown> {
     }
 
     if (isMissingData) {
-      this.jobManager.add('CalculateComputedMetricRankTablesJob');
+      setTimeout(() => {
+        this.jobManager.add('CalculateComputedMetricRankTablesJob');
+      }, 10_000);
     }
   }
 }
