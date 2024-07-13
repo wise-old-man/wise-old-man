@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prod": "pm2-runtime server.js -i 4"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.456.0",
