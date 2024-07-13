@@ -3,7 +3,7 @@ import { MAINTENANCE_MODE } from "../../../config";
 import DiscordIcon from "~/assets/discord.svg";
 
 export default function MaintenancePage() {
-  const maintenanceMessage = MAINTENANCE_MODE.message as unknown as string | null;
+  const maintenanceMessage = MAINTENANCE_MODE.message as string | undefined;
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-y-5">
