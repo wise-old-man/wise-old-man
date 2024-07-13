@@ -8,6 +8,7 @@ const withSvgr = require("next-plugin-svgr");
 
 const nextConfig = withBundleAnalyzer(
   withSvgr({
+    output: process.env.BUILD_STANDALONE === "true" ? "standalone" : undefined,
     logging: {
       fetches: {
         fullUrl: true,

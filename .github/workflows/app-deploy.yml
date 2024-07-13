@@ -1,25 +1,19 @@
-name: (API) Production Deployment
+name: (App) Production Deployment
 
 on:
   push:
     branches:
       - master
     paths:
-      - "server/**"
+      - "app/**"
 
 jobs:
-  build-api-image:
+  build-app-image:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Get current npm version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
-        with:
-          path: server
 
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.ORG_DOCKER_USERNAME }} -p ${{ secrets.ORG_DOCKER_PASSWORD }}
@@ -27,11 +21,11 @@ jobs:
       - name: Build Docker Images and Push To Docker Hub
         run: |
           cd server
-          docker build . -f Dockerfile -t wiseoldman/api:latest -t wiseoldman/api:${{steps.package-version.outputs.current-version}}
-          docker push -a wiseoldman/api
+          docker build . -f Dockerfile.prod -t wiseoldman/app:latest
+          docker push wiseoldman/app
   deploy:
     name: Pull & Restart Docker Container
-    needs: [build-api-image]
+    needs: [build-app-image]
     runs-on: ubuntu-latest
     steps:
       - name: Restart docker
@@ -43,7 +37,7 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd wise-old-man
-            docker image rm wiseoldman/api
-            docker-compose pull api
-            docker-compose up -d --no-deps --build api
+            docker image rm wiseoldman/app
+            docker-compose pull app
+            docker-compose up -d --no-deps --build app
             docker image prune
