@@ -4,6 +4,8 @@ import { apiClient } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { HeroPlayerForm } from "~/components/home/HeroPlayerForm";
 
+import { MAINTENANCE_MODE } from "../../config";
+
 import GroupsChangesImage from "../../public/img/homepage_groups_changes.png";
 import GroupsRankingsImage from "../../public/img/homepage_groups_rankings.png";
 import GroupsInactivitySVG from "../../public/img/homepage_groups_inactivity.svg";
@@ -38,7 +40,7 @@ import ArrowRightIcon from "~/assets/arrow_right.svg";
 export default async function LandingPage() {
   // This landing page requires API data to get pre-built. This would fail if the API is down,
   // so we can just have it pre-build an empty page instead.
-  if (process.env.NEXT_PUBLIC_MAINTENANCE_MODE_ENABLED) {
+  if (MAINTENANCE_MODE.enabled) {
     return null;
   }
 
