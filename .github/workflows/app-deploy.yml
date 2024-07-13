@@ -20,7 +20,7 @@ jobs:
 
       - name: Build Docker Images and Push To Docker Hub
         run: |
-          cd server
+          cd app
           docker build . -f Dockerfile -t wiseoldman/app:latest
           docker push wiseoldman/app
   deploy:
