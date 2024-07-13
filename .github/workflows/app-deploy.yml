@@ -21,7 +21,7 @@ jobs:
       - name: Build Docker Images and Push To Docker Hub
         run: |
           cd server
-          docker build . -f Dockerfile.prod -t wiseoldman/app:latest
+          docker build . -f Dockerfile -t wiseoldman/app:latest
           docker push wiseoldman/app
   deploy:
     name: Pull & Restart Docker Container
