@@ -46,5 +46,8 @@ jobs:
       - name: Install dependencies
         run: npm i
 
+      - name: Build app
+        run: npm run build
+
       - name: Run tsc
         run: npx tsc
