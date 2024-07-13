@@ -36,6 +36,12 @@ class API {
 
     this.setupMiddlewares();
     this.setupRouting();
+
+    // TODO: make this not so hacky
+    // Shortly after the server has finished starting up, schedule some server-init jobs
+    setTimeout(() => {
+      jobManager.add('CheckMissingComputedTablesJob');
+    }, 5000);
   }
 
   async shutdown() {

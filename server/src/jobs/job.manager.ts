@@ -6,6 +6,7 @@ import { getThreadIndex } from '../env';
 import { AutoUpdatePatronGroupsJob } from './instances/AutoUpdatePatronGroupsJob';
 import { AutoUpdatePatronPlayersJob } from './instances/AutoUpdatePatronPlayersJob';
 import { CalculateComputedMetricRankTablesJob } from './instances/CalculateComputedMetricRankTablesJob';
+import { CheckMissingComputedTablesJob } from './instances/CheckMissingComputedTablesJob';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
 import { CheckPlayerRankedJob } from './instances/CheckPlayerRankedJob';
 import { CheckPlayerTypeJob } from './instances/CheckPlayerTypeJob';
@@ -29,6 +30,7 @@ const JOBS_MAP = {
   AutoUpdatePatronGroupsJob,
   AutoUpdatePatronPlayersJob,
   CalculateComputedMetricRankTablesJob,
+  CheckMissingComputedTablesJob,
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
   CheckPlayerTypeJob,
