@@ -57,7 +57,7 @@ const nextConfig = withBundleAnalyzer(
         },
       ];
 
-      if (process.env.MAINTENANCE_MODE_ENABLED) {
+      if (process.env.NEXT_PUBLIC_MAINTENANCE_MODE_ENABLED) {
         return [
           ...externalRedirects,
           {

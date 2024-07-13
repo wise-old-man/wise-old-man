@@ -1,7 +1,7 @@
 import DiscordIcon from "~/assets/discord.svg";
 
 export default function MaintenancePage() {
-  const maintenanceMessage = process.env.MAINTENANCE_MODE_MESSAGE;
+  const maintenanceMessage = process.env.NEXT_PUBLIC_MAINTENANCE_MODE_MESSAGE;
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-y-5">
