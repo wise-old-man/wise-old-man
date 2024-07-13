@@ -1,5 +1,5 @@
 const MAINTENANCE_MODE = {
-  enabled: false,
+  enabled: true,
   message: undefined,
 };
 
