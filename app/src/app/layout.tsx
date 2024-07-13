@@ -1,5 +1,6 @@
 import { PropsWithChildren } from "react";
 import { Inter } from "next/font/google";
+
 import { Footer } from "~/components/Footer";
 import { Navigation } from "~/components/Navigation";
 import { TooltipProvider } from "~/components/Tooltip";
@@ -7,6 +8,9 @@ import { ToastManager } from "~/components/ToastManager";
 import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { ReactQueryProvider } from "~/components/ReactQueryProvider";
 import { NavigationLoadingBar } from "~/components/NavigationLoadingBar";
+
+import { MAINTENANCE_MODE } from "../../config";
+
 import "../globals.css";
 
 const inter = Inter({
@@ -32,7 +36,7 @@ function RootLayout(props: PropsWithChildren) {
         <NavigationLoadingBar />
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
-            {process.env.NEXT_PUBLIC_MAINTENANCE_MODE_ENABLED ? (
+            {MAINTENANCE_MODE.enabled ? (
               <>{children}</>
             ) : (
               <>

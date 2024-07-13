@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 
+const { MAINTENANCE_MODE } = require("./config");
+
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
@@ -57,7 +59,7 @@ const nextConfig = withBundleAnalyzer(
         },
       ];
 
-      if (process.env.NEXT_PUBLIC_MAINTENANCE_MODE_ENABLED) {
+      if (MAINTENANCE_MODE.enabled) {
         return [
           ...externalRedirects,
           {
