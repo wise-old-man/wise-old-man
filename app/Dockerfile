@@ -1,3 +1,6 @@
+# Production Dockerfile
+# This is not needed for local development, just run `npm run dev` and visit http://localhost:3000
+
 FROM node:18-alpine AS base
 
 # Install dependencies only when needed
