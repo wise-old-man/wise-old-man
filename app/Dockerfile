@@ -22,6 +22,7 @@ COPY . .
 
 # Build app
 ENV BUILD_STANDALONE true
+ENV NEXT_PUBLIC_MAINTENANCE_MODE_ENABLED true
 RUN npm run build
 
 FROM base AS runner
