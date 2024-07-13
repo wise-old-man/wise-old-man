@@ -1,5 +1,6 @@
 "use client";
 
+import { revalidatePath } from "next/cache";
 import { useMutation } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import {
