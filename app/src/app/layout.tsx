@@ -9,9 +9,10 @@ import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { ReactQueryProvider } from "~/components/ReactQueryProvider";
 import { NavigationLoadingBar } from "~/components/NavigationLoadingBar";
 
-import { MAINTENANCE_MODE } from "../../config";
+import { MAINTENANCE_MODE, ANNOUNCEMENT_BANNER } from "../../config";
 
 import "../globals.css";
+import { TopBanner } from "~/components/TopBanner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -34,6 +35,14 @@ function RootLayout(props: PropsWithChildren) {
     <html lang="en" className={inter.variable}>
       <body>
         <NavigationLoadingBar />
+
+        {ANNOUNCEMENT_BANNER.enabled && ANNOUNCEMENT_BANNER.message && (
+          <TopBanner
+            body={<>{ANNOUNCEMENT_BANNER.message}</>}
+            color={ANNOUNCEMENT_BANNER.color as any}
+          />
+        )}
+
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
             {MAINTENANCE_MODE.enabled ? (

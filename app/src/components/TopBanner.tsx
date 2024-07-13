@@ -1,13 +1,25 @@
+import { cn } from "~/utils/styling";
+
 interface TopBannerProps {
   body: JSX.Element;
   cta?: JSX.Element;
+  color?: "blue" | "yellow";
 }
 
 export function TopBanner(props: TopBannerProps) {
+  const { cta, body, color = "blue" } = props;
+
   return (
-    <div className="flex items-center justify-between gap-x-4 bg-blue-600 p-3">
-      <span className="text-sm">{props.body}</span>
-      {props.cta}
+    <div
+      className={cn(
+        "flex items-center gap-x-4 p-3",
+        !!cta ? "justify-between" : "justify-center",
+        color === "blue" && "bg-blue-600",
+        color === "yellow" && "bg-yellow-600"
+      )}
+    >
+      <span className="text-sm">{body}</span>
+      {cta}
     </div>
   );
 }
