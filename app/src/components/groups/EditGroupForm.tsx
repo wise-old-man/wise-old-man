@@ -1,6 +1,5 @@
 "use client";
 
-import { revalidatePath } from "next/cache";
 import { useMutation } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -149,8 +148,7 @@ function ImagesSection(props: EditGroupFormProps & { verificationCode: string })
     onSuccess: () => {
       startTransition(() => {
         router.refresh();
-        revalidatePath("/");
-        
+
         toast.toast({ variant: "success", title: "Group edited successfully!" });
       });
     },
