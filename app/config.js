@@ -4,9 +4,9 @@ const MAINTENANCE_MODE = {
 };
 
 const ANNOUNCEMENT_BANNER = {
-  enabled: true,
-  color: "yellow",
-  message: `We are currently experiencing some slow loading times and caching issues. We are aware and will fix ASAP.`,
+  enabled: false,
+  color: undefined,
+  message: undefined,
 };
 
 module.exports = {

@@ -2,7 +2,7 @@ version: '3'
 services:
   redis:
     container_name: redis
-    image: redis/redis-stack
+    image: redis/redis-stack-server:7.0.6-RC8
     env_file:
       - ./.env
     expose:
