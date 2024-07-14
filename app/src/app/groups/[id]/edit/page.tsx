@@ -2,6 +2,7 @@ import { getGroupDetails } from "~/services/wiseoldman";
 import { EditGroupForm } from "~/components/groups/EditGroupForm";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

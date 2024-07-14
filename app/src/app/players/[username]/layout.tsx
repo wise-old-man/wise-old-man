@@ -34,6 +34,7 @@ import ExternalIcon from "~/assets/external.svg";
 import WarningFilledIcon from "~/assets/warning_filled.svg";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

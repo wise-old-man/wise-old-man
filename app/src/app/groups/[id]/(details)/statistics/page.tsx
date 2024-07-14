@@ -2,6 +2,7 @@ import { GroupAverageStatsTable } from "~/components/groups/GroupAverageStatsTab
 import { getGroupDetails, getGroupStatistics } from "~/services/wiseoldman";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

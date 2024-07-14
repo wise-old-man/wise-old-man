@@ -33,6 +33,7 @@ import OverflowIcon from "~/assets/overflow.svg";
 import VerifiedIcon from "~/assets/verified.svg";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

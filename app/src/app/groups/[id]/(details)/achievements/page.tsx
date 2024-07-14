@@ -4,6 +4,7 @@ import { getGroupAchievements, getGroupDetails } from "~/services/wiseoldman";
 import { GroupAchievementsTable } from "~/components/groups/GroupAchievementsTable";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

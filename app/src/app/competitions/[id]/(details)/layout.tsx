@@ -29,6 +29,7 @@ import { CompetitionDetailsNavigation } from "~/components/competitions/Competit
 import OverflowIcon from "~/assets/overflow.svg";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {
