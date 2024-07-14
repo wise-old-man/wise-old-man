@@ -1,7 +1,6 @@
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import logger from '../../../util/logging';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { onParticipantsJoined } from '../competition.events';
 import { Team } from '../competition.types';
@@ -64,8 +63,6 @@ async function addTeams(id: number, teams: Team[]): Promise<{ count: number }> {
     where: { id },
     data: { updatedAt: new Date() }
   });
-
-  logger.moderation(`[Competition:${id}] (${newParticipations.map(p => p.playerId)}) joined`);
 
   return { count };
 }

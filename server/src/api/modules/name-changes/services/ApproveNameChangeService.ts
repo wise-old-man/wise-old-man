@@ -89,8 +89,6 @@ async function approveNameChange(id: number): Promise<NameChange> {
 
   playerEvents.onPlayerNameChanged(updatedPlayer, oldPlayer.displayName);
 
-  logger.moderation(`[NameChange:${nameChange.id}] Approved`);
-
   if (newPlayer && newPlayer.id !== oldPlayer.id) {
     const archivedNewPlayer = await prisma.player.findFirst({
       where: {

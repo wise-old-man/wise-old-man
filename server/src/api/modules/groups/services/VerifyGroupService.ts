@@ -1,7 +1,6 @@
 import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 import { omit } from '../../../util/objects';
-import logger from '../../../util/logging';
 import { GroupListItem } from '../group.types';
 import { onGroupUpdated } from '../group.events';
 
@@ -18,8 +17,6 @@ async function verifyGroup(groupId: number): Promise<GroupListItem> {
         }
       }
     });
-
-    logger.moderation(`[Group:${groupId}] Verified`);
 
     onGroupUpdated(groupId);
 

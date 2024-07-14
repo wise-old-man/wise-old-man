@@ -4,7 +4,6 @@ import { PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
 import redisService from '../../../services/external/redis.service';
-import logger from '../../../util/logging';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
@@ -75,8 +74,6 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
 
   // There has been a significant change in this player's stats, mark it as flagged
   if (!skipFlagChecks && previousSnapshot && !snapshotUtils.withinRange(previousSnapshot, currentStats)) {
-    logger.moderation(`[Player:${username}] Flagged`);
-
     if (player.status !== PlayerStatus.FLAGGED) {
       const handled = await handlePlayerFlagged(player, previousSnapshot, currentStats);
       // If the flag was properly handled (via a player archive),
@@ -179,8 +176,6 @@ async function handlePlayerFlagged(player: Player, previousStats: Snapshot, reje
 }
 
 async function reviewType(player: Player) {
-  logger.moderation(`[Player:${player.username}] Reviewing type`);
-
   const [, , changed] = await assertPlayerType(player, true);
 
   // Store the current timestamp in Redis, so that we don't review this player again for 7 days

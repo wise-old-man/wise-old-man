@@ -76,8 +76,6 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
   groupEvents.onGroupUpdated(groupId);
   groupEvents.onMembersLeft(newActivites);
 
-  logger.moderation(`[Group:${groupId}] (${playerIdsToRemove}) removed`);
-
   return { count: removedCount };
 }
 
