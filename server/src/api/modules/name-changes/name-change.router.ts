@@ -11,6 +11,7 @@ import { denyNameChange } from './services/DenyNameChangeService';
 import { fetchNameChangeDetails } from './services/FetchNameChangeDetailsService';
 import { searchNameChanges } from './services/SearchNameChangesService';
 import { submitNameChange } from './services/SubmitNameChangeService';
+import logger from '../../util/logging';
 
 const router = Router();
 
@@ -45,6 +46,11 @@ router.post(
 
     const result = await submitNameChange(oldName, newName);
     res.status(201).json(result);
+
+    logger.moderation(`Submitted name change ${result.oldName} -> ${result.newName}`, {
+      timestamp: new Date().toISOString(),
+      ip: req.ip
+    });
   })
 );
 

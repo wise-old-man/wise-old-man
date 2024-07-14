@@ -30,6 +30,7 @@ import { findGroupDeltas } from '../deltas/services/FindGroupDeltasService';
 import { findGroupRecords } from '../records/services/FindGroupRecordsService';
 import { findGroupAchievements } from '../achievements/services/FindGroupAchievementsService';
 import { findGroupNameChanges } from '../name-changes/services/FindGroupNameChangesService';
+import logger from '../../util/logging';
 
 const router = Router();
 
@@ -62,8 +63,13 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    const results = await createGroup(req.body);
-    res.status(201).json(results);
+    const result = await createGroup(req.body);
+    res.status(201).json(result);
+
+    logger.moderation(`Created group ${result.group.id}`, {
+      timestamp: new Date().toISOString(),
+      ip: req.ip
+    });
   })
 );
 
@@ -89,8 +95,13 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const results = await editGroup(id, req.body);
-    res.status(200).json(results);
+    const result = await editGroup(id, req.body);
+    res.status(200).json(result);
+
+    logger.moderation(`Edited group ${result.id}`, {
+      timestamp: new Date().toISOString(),
+      ip: req.ip
+    });
   })
 );
 
