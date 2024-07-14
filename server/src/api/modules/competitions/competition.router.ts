@@ -61,7 +61,7 @@ router.post(
 
     logger.moderation(`Created competition ${result.competition.id}`, {
       timestamp: new Date().toISOString(),
-      ip: req.ip
+      ip: req.headers['x-forwarded-for'] || req.ip
     });
   })
 );
@@ -90,7 +90,7 @@ router.put(
 
     logger.moderation(`Edited competition ${result.id}`, {
       timestamp: new Date().toISOString(),
-      ip: req.ip
+      ip: req.headers['x-forwarded-for'] || req.ip
     });
   })
 );
