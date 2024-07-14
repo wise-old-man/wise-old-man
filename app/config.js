@@ -5,7 +5,7 @@ const MAINTENANCE_MODE = {
 
 const ANNOUNCEMENT_BANNER = {
   enabled: false,
-  color: undefined,
+  color: undefined, // "blue" / "yellow" / undefined
   message: undefined,
 };
 
