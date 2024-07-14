@@ -6,6 +6,7 @@ import { getGroupDetails, getGroupRecords } from "~/services/wiseoldman";
 import { getMetricParam, getPageParam, getPeriodParam } from "~/utils/params";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

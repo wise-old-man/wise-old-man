@@ -4,6 +4,7 @@ import { CompetitionsList } from "~/components/competitions/CompetitionsList";
 import { getCompetitionStatus, getPlayerCompetitions, getPlayerDetails } from "~/services/wiseoldman";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

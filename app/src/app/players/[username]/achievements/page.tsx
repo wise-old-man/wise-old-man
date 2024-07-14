@@ -25,6 +25,7 @@ import { AchievementAccuracyTooltip, IncompleteAchievementTooltip } from "~/comp
 import { getBuildHiddenMetrics } from "~/utils/metrics";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

@@ -7,6 +7,7 @@ import { CompetitionWidgets } from "~/components/competitions/CompetitionWidgets
 import { CompetitionStatusWarning } from "~/components/competitions/CompetitionStatusWarning";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

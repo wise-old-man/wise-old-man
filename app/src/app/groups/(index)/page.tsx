@@ -6,6 +6,7 @@ import { getPageParam, getSearchParam } from "~/utils/params";
 const RESULTS_PER_PAGE = 15;
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   searchParams: {

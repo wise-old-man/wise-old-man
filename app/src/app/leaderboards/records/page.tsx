@@ -12,6 +12,7 @@ import {
 import { formatDate } from "~/utils/dates";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   searchParams: {

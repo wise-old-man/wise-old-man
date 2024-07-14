@@ -39,6 +39,7 @@ import { ChartViewSelect } from "~/components/players/ChartViewSelect";
 import { calculateGainBuckets } from "~/utils/calcs";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

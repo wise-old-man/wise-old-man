@@ -31,8 +31,6 @@ export const metadata = {
 function RootLayout(props: PropsWithChildren) {
   const { children } = props;
 
-  console.log(process.env);
-
   return (
     <html lang="en" className={inter.variable}>
       <body>

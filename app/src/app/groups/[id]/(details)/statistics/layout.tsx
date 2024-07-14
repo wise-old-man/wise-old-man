@@ -4,6 +4,7 @@ import { getGroupStatistics } from "~/services/wiseoldman";
 import { GroupStatisticsNavigation } from "~/components/groups/GroupStatisticsNavigation";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {
