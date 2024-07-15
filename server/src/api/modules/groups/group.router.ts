@@ -21,6 +21,7 @@ import { fetchGroupDetails } from './services/FetchGroupDetailsService';
 import { fetchGroupHiscores } from './services/FetchGroupHiscoresService';
 import { fetchGroupStatistics } from './services/FetchGroupStatisticsService';
 import { fetchGroupMembersCSV } from './services/FetchMembersCSVService';
+import { toggleGroupVisibility } from './services/ToggleGroupVisibilityService';
 import { removeMembers } from './services/RemoveMembersService';
 import { resetGroupCode } from './services/ResetGroupCodeService';
 import { searchGroups } from './services/SearchGroupsService';
@@ -416,6 +417,26 @@ router.put(
     const { id } = req.params;
 
     const result = await verifyGroup(id);
+    res.status(200).json(result);
+  })
+);
+
+router.put(
+  '/groups/:id/visibility',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      id: z.coerce.number().int().positive()
+    }),
+    body: z.object({
+      visible: z.boolean()
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const { id } = req.params;
+    const { visible } = req.body;
+
+    const result = await toggleGroupVisibility(id, visible);
     res.status(200).json(result);
   })
 );

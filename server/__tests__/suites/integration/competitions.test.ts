@@ -3328,7 +3328,74 @@ describe('Competition API', () => {
     });
   });
 
-  describe('16 - Delete', () => {
+  describe('16 - Toggle visibility', () => {
+    it('should not toggle visibility (invalid admin password)', async () => {
+      const response = await api.put(`/competitions/100000/visibility`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+    });
+
+    it('should not toggle visibility (undefined visibility state)', async () => {
+      const response = await api.put(`/competitions/100000/visibility`).send({
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'visible' is undefined.");
+    });
+
+    it('should not toggle visibility (incorrect admin password)', async () => {
+      const response = await api.put(`/competitions/100000/visibility`).send({
+        adminPassword: 'abcdef'
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
+    it('should not toggle visibility (group not found)', async () => {
+      const response = await api.put(`/competitions/100000/visibility`).send({
+        visible: true,
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Competition not found.');
+    });
+
+    it('should toggle visibility (true)', async () => {
+      const response = await api
+        .put(`/competitions/${globalData.testCompetitionOngoing.id}/visibility`)
+        .send({
+          visible: true,
+          adminPassword: process.env.ADMIN_PASSWORD
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        id: globalData.testCompetitionOngoing.id,
+        visible: true
+      });
+    });
+
+    it('should toggle visibility (false)', async () => {
+      const response = await api
+        .put(`/competitions/${globalData.testCompetitionOngoing.id}/visibility`)
+        .send({
+          visible: false,
+          adminPassword: process.env.ADMIN_PASSWORD
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        id: globalData.testCompetitionOngoing.id,
+        visible: false
+      });
+    });
+  });
+
+  describe('18 - Delete', () => {
     it('should not delete (competition not found)', async () => {
       const response = await api.delete(`/competitions/123456789`).send({
         verificationCode: 'xxx-xxx-xxx'
@@ -3425,7 +3492,7 @@ describe('Competition API', () => {
     });
   });
 
-  describe('17 - Group Event Side Effects', () => {
+  describe('18 - Group Event Side Effects', () => {
     it('should remove from group competitions', async () => {
       const createGroupResponse = await api.post('/groups').send({
         name: 'Test 123',
