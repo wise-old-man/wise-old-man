@@ -33,6 +33,239 @@ describe('General API', () => {
     });
   });
 
+  describe('Fetch global stats', () => {
+    it('should create API key', async () => {
+      const player = await prisma.player.create({
+        data: {
+          username: 'test9876',
+          displayName: 'test9876'
+        }
+      });
+
+      await prisma.snapshot.createMany({
+        data: Array.from(Array(100).keys()).map(i => ({ playerId: player.id, overallExperience: i }))
+      });
+
+      await prisma.player.createMany({
+        data: Array.from(Array(50).keys()).map(i => ({ username: String(i), displayName: String(i) }))
+      });
+
+      await prisma.group.createMany({
+        data: Array.from(Array(15).keys()).map(i => ({ name: String(i), verificationHash: String(i) }))
+      });
+
+      await prisma.competition.createMany({
+        data: Array.from(Array(30).keys()).map(i => ({
+          title: String(i),
+          verificationHash: String(i),
+          metric: 'magic',
+          startsAt: new Date(),
+          endsAt: new Date()
+        }))
+      });
+
+      // Run postgres analyze to update table statistics
+      await prisma.$queryRaw`ANALYZE`;
+
+      const response = await api.get(`/stats`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        players: 51,
+        snapshots: 100,
+        groups: 15,
+        competitions: 30
+      });
+    });
+  });
+
+  describe('Toggle under attack mode', () => {
+    it('should not toggle under attack mode (invalid admin password)', async () => {
+      const response = await api.post('/under-attack-mode').send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+    });
+
+    it('should not toggle under attack mode (incorrect admin password)', async () => {
+      const response = await api.post('/under-attack-mode').send({ adminPassword: 'abc' });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
+    it('should not toggle under attack mode (undefined state)', async () => {
+      const response = await api
+        .post('/under-attack-mode')
+        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'state' is undefined.");
+    });
+
+    it('should toggle under attack mode (on)', async () => {
+      const createGroupResponse1 = await api.post('/groups').send({
+        name: 'Hello 1',
+        description: '123',
+        clanChat: '123',
+        homeworld: 492,
+        members: [{ username: 'Psikoi', role: 'short_green_guy' }]
+      });
+
+      expect(createGroupResponse1.status).toBe(201);
+      expect(createGroupResponse1.body.group.visible).toBe(true);
+
+      const createCompetitionResponse1 = await api.post('/competitions').send({
+        title: 'Hello Comp 1',
+        metric: 'magic',
+        type: 'classic',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
+        participants: ['psikoi']
+      });
+
+      expect(createCompetitionResponse1.status).toBe(201);
+      expect(createCompetitionResponse1.body.competition.visible).toBe(true);
+
+      const playerGroupsResponse1 = await api.get('/players/psikoi/groups');
+      expect(playerGroupsResponse1.status).toBe(200);
+      expect(playerGroupsResponse1.body.length).toBe(1);
+
+      const playerCompetitionsResponse1 = await api.get('/players/psikoi/competitions');
+      expect(playerCompetitionsResponse1.status).toBe(200);
+      expect(playerCompetitionsResponse1.body.length).toBe(1);
+
+      const response = await api.post('/under-attack-mode').send({
+        state: true,
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBe(true);
+
+      // Make sure it's been stored in redis memory
+      expect(await redisService.getValue('under_attack_mode', 'state')).toBe('true');
+
+      // When we're under attack, hide newly created groups by default
+      const createGroupResponse2 = await api.post('/groups').send({
+        name: 'Hello 2',
+        description: '123',
+        clanChat: '123',
+        homeworld: 492,
+        members: [{ username: 'Psikoi', role: 'short_green_guy' }]
+      });
+
+      expect(createGroupResponse2.status).toBe(201);
+      expect(createGroupResponse2.body.group.visible).toBe(false);
+
+      const createCompetitionResponse2 = await api.post('/competitions').send({
+        title: 'Hello Comp 2',
+        metric: 'magic',
+        type: 'classic',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
+        participants: ['psikoi']
+      });
+      expect(createCompetitionResponse2.status).toBe(201);
+      expect(createCompetitionResponse2.body.competition.visible).toBe(false);
+
+      // A new group has been created, but it shouldn't appear in the player's groups, so count remains 1
+      const playerGroupsResponse2 = await api.get('/players/psikoi/groups');
+      expect(playerGroupsResponse2.status).toBe(200);
+      expect(playerGroupsResponse2.body.length).toBe(1);
+
+      // A new competition has been created, but it shouldn't appear in the player's competitions, so count remains 1
+      const playerCompetitionsResponse2 = await api.get('/players/psikoi/competitions');
+      expect(playerCompetitionsResponse2.status).toBe(200);
+      expect(playerCompetitionsResponse2.body.length).toBe(1);
+
+      // Verify a group
+      await prisma.group.update({
+        where: {
+          id: createGroupResponse1.body.group.id
+        },
+        data: {
+          verified: true
+        }
+      });
+
+      // Competitions created from a verified group don't get hidden by default
+      const createCompetitionResponse3 = await api.post('/competitions').send({
+        title: 'Hello Comp 3',
+        metric: 'magic',
+        type: 'classic',
+        groupId: createGroupResponse1.body.group.id,
+        groupVerificationCode: createGroupResponse1.body.verificationCode,
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000)
+      });
+      expect(createCompetitionResponse3.status).toBe(201);
+      expect(createCompetitionResponse3.body.competition.visible).toBe(true);
+
+      const editGroupNameResponse = await api.put(`/groups/${createGroupResponse1.body.group.id}`).send({
+        name: 'Something else!',
+        verificationCode: createGroupResponse1.body.verificationCode
+      });
+
+      expect(editGroupNameResponse.status).toBe(400);
+      expect(editGroupNameResponse.body.message).toMatch('Our system is currently under attack');
+
+      const editGroupDescription = await api.put(`/groups/${createGroupResponse1.body.group.id}`).send({
+        description: 'Something else!',
+        verificationCode: createGroupResponse1.body.verificationCode
+      });
+
+      expect(editGroupDescription.status).toBe(400);
+      expect(editGroupDescription.body.message).toMatch('Our system is currently under attack');
+
+      const editCompetitionTitleResponse = await api
+        .put(`/competitions/${createCompetitionResponse3.body.competition.id}`)
+        .send({
+          title: 'Something else!',
+          verificationCode: createGroupResponse1.body.verificationCode
+        });
+
+      expect(editCompetitionTitleResponse.status).toBe(400);
+      expect(editCompetitionTitleResponse.body.message).toMatch('Our system is currently under attack');
+    });
+
+    it('should toggle under attack mode (off)', async () => {
+      const response = await api.post('/under-attack-mode').send({
+        state: false,
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBe(false);
+
+      // Make sure it's been stored in redis memory
+      expect(await redisService.getValue('under_attack_mode', 'state')).toBe('false');
+
+      // No longer under attack, no need to hide newly created groups by default
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Hello',
+        description: '123',
+        clanChat: '123',
+        homeworld: 492,
+        members: []
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+      expect(createGroupResponse.body.group.visible).toBe(true);
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Hello Comp',
+        metric: 'magic',
+        type: 'classic',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
+        participants: ['psikoi']
+      });
+      expect(createCompetitionResponse.status).toBe(201);
+      expect(createCompetitionResponse.body.competition.visible).toBe(true);
+    });
+  });
+
   describe('Create API key', () => {
     it('should not create API key (invalid admin password)', async () => {
       const response = await api.post(`/api-key`).send({});
@@ -188,52 +421,6 @@ describe('General API', () => {
 
       expect(successCount).toBe(500);
       expect(rateLimitedCount).toBe(0);
-    });
-  });
-
-  describe('Fetch global stats', () => {
-    it('should create API key', async () => {
-      const player = await prisma.player.create({
-        data: {
-          username: 'test9876',
-          displayName: 'test9876'
-        }
-      });
-
-      await prisma.snapshot.createMany({
-        data: Array.from(Array(100).keys()).map(i => ({ playerId: player.id, overallExperience: i }))
-      });
-
-      await prisma.player.createMany({
-        data: Array.from(Array(50).keys()).map(i => ({ username: String(i), displayName: String(i) }))
-      });
-
-      await prisma.group.createMany({
-        data: Array.from(Array(15).keys()).map(i => ({ name: String(i), verificationHash: String(i) }))
-      });
-
-      await prisma.competition.createMany({
-        data: Array.from(Array(30).keys()).map(i => ({
-          title: String(i),
-          verificationHash: String(i),
-          metric: 'magic',
-          startsAt: new Date(),
-          endsAt: new Date()
-        }))
-      });
-
-      // Run postgres analyze to update table statistics
-      await prisma.$queryRaw`ANALYZE`;
-
-      const response = await api.get(`/stats`);
-
-      expect(response.status).toBe(200);
-      expect(response.body).toMatchObject({
-        players: 51,
-        snapshots: 100,
-        groups: 15,
-        competitions: 30
-      });
     });
   });
 });

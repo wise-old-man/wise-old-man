@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import prisma, { Achievement, Competition, Player } from '../../../prisma';
-import { FlaggedPlayerReviewContext, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
+import { FlaggedPlayerReviewContext, Group, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
 import {
   CompetitionDetails,
+  CompetitionListItem,
   CompetitionWithParticipations
 } from '../../modules/competitions/competition.types';
 import logger from '../../util/logging';
@@ -154,6 +155,18 @@ async function dispatchMembersRolesChanged(events: MemberRoleChangeEvent[]) {
   });
 }
 
+async function dispatchHiddenGroupCreated(group: Group) {
+  dispatch('HIDDEN_GROUP_CREATED', {
+    group
+  });
+}
+
+async function dispatchHiddenCompetitionCreated(competition: CompetitionListItem) {
+  dispatch('HIDDEN_COMPETITION_CREATED', {
+    competition
+  });
+}
+
 /**
  * Select all new group members and dispatch them to our discord API,
  * so that it can notify any relevant guilds/servers.
@@ -272,6 +285,8 @@ export {
   dispatchMembersRolesChanged,
   dispatchNameChanged,
   dispatchPlayerFlaggedReview,
+  dispatchHiddenGroupCreated,
+  dispatchHiddenCompetitionCreated,
   sendMonitoringMessage,
   sendPatreonUpdateMessage
 };

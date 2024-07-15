@@ -13,6 +13,9 @@ async function findPlayerMemberships(
     where: {
       player: {
         username: standardize(username)
+      },
+      group: {
+        visible: true
       }
     },
     include: {

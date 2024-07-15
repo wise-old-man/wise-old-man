@@ -57,6 +57,7 @@ export type Group = {
   homeworld: number | null;
   verified: boolean;
   patron: boolean;
+  visible: boolean;
   profileImage: string | null;
   bannerImage: string | null;
   score: number;
@@ -89,6 +90,7 @@ type Competition = {
   endsAt: Date;
   groupId: number | null;
   score: number;
+  visible: boolean;
   verificationHash: string;
   createdAt: Date | null;
   updatedAt: Date | null;

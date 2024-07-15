@@ -34,7 +34,7 @@ async function calculateScore(competition: Competition): Promise<number> {
   let score = 0;
 
   // If has ended
-  if (competition.endsAt < now) {
+  if (competition.endsAt < now || !competition.visible) {
     return score;
   }
 
