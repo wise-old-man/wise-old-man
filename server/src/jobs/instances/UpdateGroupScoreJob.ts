@@ -30,7 +30,7 @@ async function calculateScore(group: GroupDetails): Promise<number> {
   const now = new Date();
   const { memberships } = group;
 
-  if (!memberships || memberships.length === 0) {
+  if (!memberships || memberships.length === 0 || !group.visible) {
     return score;
   }
 

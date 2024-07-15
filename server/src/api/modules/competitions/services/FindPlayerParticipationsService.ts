@@ -9,7 +9,9 @@ async function findPlayerParticipations(
   username: string,
   status?: CompetitionStatus
 ): Promise<ParticipationWithCompetition[]> {
-  const competitionQuery: PrismaTypes.CompetitionWhereInput = {};
+  const competitionQuery: PrismaTypes.CompetitionWhereInput = {
+    visible: true
+  };
 
   const player = await prisma.player.findFirst({
     where: { username: standardize(username) },
