@@ -1,13 +1,14 @@
 import prisma from '../../../../prisma';
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
-import { omit } from '../../../util/objects';
-import * as cryptService from '../../../services/external/crypt.service';
 import { BadRequestError } from '../../../errors';
-import { ActivityType, GroupDetails } from '../group.types';
+import * as cryptService from '../../../services/external/crypt.service';
+import redisService from '../../../services/external/redis.service';
+import { omit } from '../../../util/objects';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
-import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
-import { onGroupCreated, onMembersJoined } from '../group.events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
+import { onGroupCreated, onMembersJoined } from '../group.events';
+import { ActivityType, GroupDetails } from '../group.types';
+import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
 
 type CreateGroupResult = { group: GroupDetails; verificationCode: string };
 
@@ -50,6 +51,8 @@ async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResu
   const [code, hash] = await cryptService.generateVerification();
   const memberships = await prepareMemberships(payload.members);
 
+  const isUnderAttackModeEnabled = (await redisService.getValue('under_attack_mode', 'state')) === 'true';
+
   const createdGroup = await prisma.group.create({
     data: {
       name,
@@ -57,6 +60,7 @@ async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResu
       clanChat,
       homeworld: payload.homeworld,
       verificationHash: hash,
+      visible: isUnderAttackModeEnabled ? false : true,
       memberships: {
         createMany: {
           data: memberships
