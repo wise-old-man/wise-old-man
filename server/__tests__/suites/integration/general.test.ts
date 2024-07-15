@@ -34,6 +34,57 @@ describe('General API', () => {
   });
 
   describe('Create API key', () => {
+    it('should not toggle under attack mode (invalid admin password)', async () => {
+      const response = await api.post('/under-attack-mode').send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+    });
+
+    it('should not toggle under attack mode (incorrect admin password)', async () => {
+      const response = await api.post('/under-attack-mode').send({ adminPassword: 'abc' });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
+    it('should not toggle under attack mode (undefined state)', async () => {
+      const response = await api
+        .post('/under-attack-mode')
+        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'state' is undefined.");
+    });
+
+    it('should toggle under attack mode (on)', async () => {
+      const response = await api.post('/under-attack-mode').send({
+        state: true,
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBe(true);
+
+      // Make sure it's been stored in redis memory
+      expect(await redisService.getValue('under_attack_mode', 'state')).toBe('true');
+    });
+
+    it('should toggle under attack mode (off)', async () => {
+      const response = await api.post('/under-attack-mode').send({
+        state: false,
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBe(false);
+
+      // Make sure it's been stored in redis memory
+      expect(await redisService.getValue('under_attack_mode', 'state')).toBe('false');
+    });
+  });
+
+  describe('Toggle under attack mode', () => {
     it('should not create API key (invalid admin password)', async () => {
       const response = await api.post(`/api-key`).send({});
 
