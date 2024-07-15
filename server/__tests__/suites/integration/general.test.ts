@@ -201,6 +201,32 @@ describe('General API', () => {
       });
       expect(createCompetitionResponse3.status).toBe(201);
       expect(createCompetitionResponse3.body.competition.visible).toBe(true);
+
+      const editGroupNameResponse = await api.put(`/groups/${createGroupResponse1.body.group.id}`).send({
+        name: 'Something else!',
+        verificationCode: createGroupResponse1.body.verificationCode
+      });
+
+      expect(editGroupNameResponse.status).toBe(400);
+      expect(editGroupNameResponse.body.message).toMatch('Our system is currently under attack');
+
+      const editGroupDescription = await api.put(`/groups/${createGroupResponse1.body.group.id}`).send({
+        description: 'Something else!',
+        verificationCode: createGroupResponse1.body.verificationCode
+      });
+
+      expect(editGroupDescription.status).toBe(400);
+      expect(editGroupDescription.body.message).toMatch('Our system is currently under attack');
+
+      const editCompetitionTitleResponse = await api
+        .put(`/competitions/${createCompetitionResponse3.body.competition.id}`)
+        .send({
+          title: 'Something else!',
+          verificationCode: createGroupResponse1.body.verificationCode
+        });
+
+      expect(editCompetitionTitleResponse.status).toBe(400);
+      expect(editCompetitionTitleResponse.body.message).toMatch('Our system is currently under attack');
     });
 
     it('should toggle under attack mode (off)', async () => {

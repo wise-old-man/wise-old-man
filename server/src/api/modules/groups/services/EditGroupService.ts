@@ -1,8 +1,12 @@
-import prisma, { Membership, PrismaTypes, Player } from '../../../../prisma';
+import prisma, { Membership, Player, PrismaTypes } from '../../../../prisma';
 import { GroupRole, NameChangeStatus } from '../../../../utils';
+import { BadRequestError, ServerError } from '../../../errors';
+import redisService from '../../../services/external/redis.service';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
-import { BadRequestError, ServerError } from '../../../errors';
+import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
+import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
+import { onGroupUpdated, onMembersJoined, onMembersLeft, onMembersRolesChanged } from '../group.events';
 import {
   ActivityType,
   GroupDetails,
@@ -10,10 +14,7 @@ import {
   MemberLeftEvent,
   MemberRoleChangeEvent
 } from '../group.types';
-import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { buildDefaultSocialLinks, sanitizeName, sortMembers } from '../group.utils';
-import { onMembersRolesChanged, onMembersJoined, onMembersLeft, onGroupUpdated } from '../group.events';
-import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
 // Only allow images from our DigitalOcean bucket CDN, to make sure people don't
 // upload unresize, or uncompressed images. They musgt edit images on the website.
@@ -128,7 +129,15 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     }
   }
 
+  const isUnderAttackModeEnabled = (await redisService.getValue('under_attack_mode', 'state')) === 'true';
+
   if (name) {
+    if (isUnderAttackModeEnabled && name !== group.name) {
+      throw new BadRequestError(
+        'Our system is currently under attack by malicious parties. Group name changes are disabled temporarily.'
+      );
+    }
+
     const sanitizedName = sanitizeName(name);
 
     // Check for duplicate names
@@ -144,6 +153,12 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
   }
 
   if (description) {
+    if (isUnderAttackModeEnabled && description !== group.description) {
+      throw new BadRequestError(
+        'Our system is currently under attack by malicious parties. Group description changes are disabled temporarily.'
+      );
+    }
+
     updatedGroupFields.description = description ? sanitizeName(description) : null;
   }
 
