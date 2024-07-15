@@ -31,7 +31,9 @@ async function onCompetitionCreated(competition: CompetitionWithParticipations) 
     discordService.dispatchCompetitionCreated(competition);
   });
 
-  discordService.dispatchHiddenCompetitionCreated(omit(competition, 'participations'));
+  if (!competition.visible) {
+    discordService.dispatchHiddenCompetitionCreated(omit(competition, 'participations'));
+  }
 }
 
 async function onCompetitionStarted(competition: Competition) {
