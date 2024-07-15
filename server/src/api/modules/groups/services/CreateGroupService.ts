@@ -76,7 +76,7 @@ async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResu
     }
   });
 
-  onGroupCreated(createdGroup.id);
+  onGroupCreated(omit(createdGroup, 'memberships'));
 
   if (createdGroup.memberships.length > 0) {
     onMembersJoined(createdGroup.memberships.map(m => ({ ...m, type: ActivityType.JOINED })));
