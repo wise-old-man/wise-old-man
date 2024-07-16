@@ -87,7 +87,7 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
 }
 
 function Header(props: CompetitionDetails) {
-  const { id, metric, title, type, group, visible } = props;
+  const { id, metric, title, type, group } = props;
 
   const status = getCompetitionStatus(props);
 
