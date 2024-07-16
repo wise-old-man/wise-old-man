@@ -69,7 +69,7 @@ router.post(
 
     logger.moderation(`Created group ${result.group.id}`, {
       timestamp: new Date().toISOString(),
-      ip: req.headers['x-forwarded-for'] || req.ip
+      ip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip
     });
   })
 );
@@ -101,7 +101,7 @@ router.put(
 
     logger.moderation(`Edited group ${result.id}`, {
       timestamp: new Date().toISOString(),
-      ip: req.headers['x-forwarded-for'] || req.ip
+      ip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip
     });
   })
 );
