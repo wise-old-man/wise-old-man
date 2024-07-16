@@ -49,7 +49,7 @@ router.post(
 
     logger.moderation(`Submitted name change ${result.oldName} -> ${result.newName}`, {
       timestamp: new Date().toISOString(),
-      ip: req.headers['x-forwarded-for'] || req.ip
+      ip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip
     });
   })
 );
