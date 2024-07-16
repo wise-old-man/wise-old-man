@@ -13,6 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { UpdateAllMembersDialog } from "~/components/groups/UpdateAllMembersDialog";
 import { GroupDetailsNavigation } from "~/components/groups/GroupDetailsNavigation";
 import { ExportGroupMembersDialog } from "~/components/groups/ExportGroupMembersDialog";
+import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -83,6 +84,31 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
         </>
       )}
       <Header {...group} />
+
+      {!group.visible && (
+        <Alert variant="warn" className="mt-10 border-orange-700 bg-orange-900/10">
+          <div>
+            <AlertTitle>This page has limited visibility</AlertTitle>
+            <AlertDescription>
+              <p>
+                We are temporarily limiting visibility of all new groups and competitions to prevent
+                harassment. Progress gained with the group or competition will still be tracked. If this
+                message persists for several hours,{" "}
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://wiseoldman.net/discord"
+                  className="text-white underline"
+                >
+                  contact us on Discord
+                </a>
+                {" for help."}
+              </p>
+            </AlertDescription>
+          </div>
+        </Alert>
+      )}
+
       <div className="custom-scroll pointer-events-auto relative mt-10 overflow-x-auto bg-gray-900">
         <GroupDetailsNavigation id={id} />
       </div>
