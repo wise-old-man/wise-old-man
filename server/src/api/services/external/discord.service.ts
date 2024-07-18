@@ -1,7 +1,12 @@
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import prisma, { Achievement, Competition, Player } from '../../../prisma';
-import { FlaggedPlayerReviewContext, Group, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
+import {
+  FlaggedPlayerReviewContext,
+  GroupListItem,
+  MemberJoinedEvent,
+  MemberRoleChangeEvent
+} from '../../../utils';
 import {
   CompetitionDetails,
   CompetitionListItem,
@@ -155,7 +160,7 @@ async function dispatchMembersRolesChanged(events: MemberRoleChangeEvent[]) {
   });
 }
 
-async function dispatchHiddenGroupCreated(group: Group) {
+async function dispatchHiddenGroupCreated(group: GroupListItem) {
   dispatch('HIDDEN_GROUP_CREATED', {
     group
   });
