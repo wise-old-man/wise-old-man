@@ -1,12 +1,18 @@
 import jobManager from '../../../jobs/job.manager';
 import prisma from '../../../prisma';
-import { Group, MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType } from '../../../utils';
+import {
+  GroupListItem,
+  MemberJoinedEvent,
+  MemberLeftEvent,
+  MemberRoleChangeEvent,
+  PlayerType
+} from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
 import prometheus from '../../services/external/prometheus.service';
 import { addToGroupCompetitions } from '../competitions/services/AddToGroupCompetitionsService';
 import { removeFromGroupCompetitions } from '../competitions/services/RemoveFromGroupCompetitionsService';
 
-async function onGroupCreated(group: Group) {
+async function onGroupCreated(group: GroupListItem) {
   jobManager.add('UpdateGroupScoreJob', { groupId: group.id });
 
   if (!group.visible) {

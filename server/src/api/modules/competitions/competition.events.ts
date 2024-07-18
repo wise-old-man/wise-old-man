@@ -32,7 +32,7 @@ async function onCompetitionCreated(competition: CompetitionWithParticipations) 
   });
 
   if (!competition.visible) {
-    discordService.dispatchHiddenCompetitionCreated(omit(competition, 'participations'));
+    discordService.dispatchHiddenCompetitionCreated({ ...omit(competition, 'participations') });
   }
 }
 
