@@ -2039,6 +2039,15 @@ describe('Group API', () => {
       expect(response.body.message).toBe('Group not found.');
     });
 
+    it('should not delete (group not found with admin perms)', async () => {
+      const response = await api.delete(`/groups/123456789`).send({
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Group not found.');
+    });
+
     it('should not delete (invalid verification code)', async () => {
       const response = await api.delete(`/groups/123456789`);
 
