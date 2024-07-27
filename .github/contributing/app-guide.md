@@ -54,7 +54,7 @@ This should add a _package-lock.json_ file and a _node_modules_ directory inside
 Copy the example file to configure the development app
 
 ```
-cp .env.example .env
+cp .env.local.example .env.local
 ```
 
 By default the example file contains the following snippet
