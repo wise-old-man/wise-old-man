@@ -24,6 +24,10 @@ const nextConfig = withBundleAnalyzer(
           protocol: "https",
           hostname: "wiseoldman.ams3.cdn.digitaloceanspaces.com",
         },
+        {
+          protocol: "https",
+          hostname: "img.wiseoldman.net",
+        },
       ],
     },
     async redirects() {
