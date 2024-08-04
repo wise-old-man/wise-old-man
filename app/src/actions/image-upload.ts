@@ -9,9 +9,8 @@ const PROFILE_IMAGE_HEIGHT = 120;
 const BANNER_IMAGE_WIDTH = 1184;
 const BANNER_IMAGE_HEIGHT = 144;
 
-const DO_SPACES_REGION = "ams3";
-const DO_SPACES_BUCKET = "wiseoldman";
-const DO_SPACES_ENDPOINT = "https://ams3.digitaloceanspaces.com";
+const CLOUDFLARE_R2_BUCKET = "wiseoldman";
+const CLOUDFLARE_R2_ENDPOINT = "https://13b21f75511ce31dd03fe199ab998062.r2.cloudflarestorage.com";
 
 const COMPRESSION_QUALITY = 80;
 
@@ -50,25 +49,30 @@ async function processImage(file: File, width: number, height: number) {
 }
 
 async function uploadToS3(fileName: string, buffer: Buffer) {
-  if (!process.env.DO_SPACES_ACCESS_KEY_ID || !process.env.DO_SPACES_SECRET_ACCESS_KEY) {
-    throw new Error("Missing Digital Ocean Spaces credentials");
+  if (!process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || !process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY) {
+    throw new Error("Missing Cloudflare R2 credentials");
   }
 
   const s3Client = new S3({
+    region: "auto",
     forcePathStyle: false,
-    endpoint: DO_SPACES_ENDPOINT,
-    region: DO_SPACES_REGION,
+    endpoint: CLOUDFLARE_R2_ENDPOINT,
     credentials: {
-      accessKeyId: process.env.DO_SPACES_ACCESS_KEY_ID ?? "",
-      secretAccessKey: process.env.DO_SPACES_SECRET_ACCESS_KEY ?? "",
+      accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID ?? "",
+      secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY ?? "",
     },
   });
 
   await s3Client.send(
-    new PutObjectCommand({ Bucket: DO_SPACES_BUCKET, Key: fileName, Body: buffer, ACL: "public-read" })
+    new PutObjectCommand({
+      Bucket: CLOUDFLARE_R2_BUCKET,
+      Key: fileName,
+      Body: buffer,
+      ACL: "public-read",
+    })
   );
 
-  return `https://${DO_SPACES_BUCKET}.${DO_SPACES_REGION}.cdn.digitaloceanspaces.com/${fileName}`;
+  return `https://img.wiseoldman.net/${fileName}`;
 }
 
 export async function uploadProfileImage(formData: FormData) {
