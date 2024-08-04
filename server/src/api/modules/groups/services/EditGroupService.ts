@@ -16,9 +16,9 @@ import {
 } from '../group.types';
 import { buildDefaultSocialLinks, sanitizeName, sortMembers } from '../group.utils';
 
-// Only allow images from our DigitalOcean bucket CDN, to make sure people don't
+// Only allow images from our Cloudflare R2 CDN, to make sure people don't
 // upload unresize, or uncompressed images. They musgt edit images on the website.
-const ALLOWED_IMAGE_PATH = 'https://wiseoldman.ams3.cdn.digitaloceanspaces.com';
+const ALLOWED_IMAGE_PATH = 'https://img.wiseoldman.net';
 
 interface EditGroupPayload {
   name?: string;
