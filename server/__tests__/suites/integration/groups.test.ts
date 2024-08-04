@@ -1111,13 +1111,11 @@ describe('Group API', () => {
 
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
-        profileImage: 'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_profile_image.png'
+        profileImage: 'https://img.wiseoldman.net/some_fake_profile_image.png'
       });
 
       expect(response.status).toBe(200);
-      expect(response.body.profileImage).toBe(
-        'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_profile_image.png'
-      );
+      expect(response.body.profileImage).toBe('https://img.wiseoldman.net/some_fake_profile_image.png');
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -1137,13 +1135,11 @@ describe('Group API', () => {
 
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
-        bannerImage: 'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_banner_image.png'
+        bannerImage: 'https://img.wiseoldman.net/some_fake_banner_image.png'
       });
 
       expect(response.status).toBe(200);
-      expect(response.body.bannerImage).toBe(
-        'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_banner_image.png'
-      );
+      expect(response.body.bannerImage).toBe('https://img.wiseoldman.net/some_fake_banner_image.png');
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
