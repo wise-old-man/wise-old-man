@@ -94,6 +94,7 @@ model Delta {
   construction                     Int       @default(0)
   abyssal_sire                     Int       @default(0)
   alchemical_hydra                 Int       @default(0)
+  araxxor                          Int       @default(0)
   artio                            Int       @default(0)
   barrows_chests                   Int       @default(0)
   bryophyta                        Int       @default(0)
@@ -474,6 +475,8 @@ model Snapshot {
   abyssal_sireKills                     Int       @default(-1)
   alchemical_hydraRank                  Int       @default(-1)
   alchemical_hydraKills                 Int       @default(-1)
+  araxxorRank                           Int       @default(-1)
+  araxxorKills                          Int       @default(-1)
   artioRank                             Int       @default(-1)
   artioKills                            Int       @default(-1)
   barrows_chestsRank                    Int       @default(-1)
@@ -1294,6 +1297,7 @@ enum Metric {
   pvp_arena
   abyssal_sire
   alchemical_hydra
+  araxxor
   artio
   barrows_chests
   bryophyta

@@ -85,6 +85,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
   {
     [Boss.ABYSSAL_SIRE]: { name: 'Abyssal Sire' },
     [Boss.ALCHEMICAL_HYDRA]: { name: 'Alchemical Hydra' },
+    [Boss.ARAXXOR]: { name: 'Araxxor' },
     [Boss.ARTIO]: { name: 'Artio' },
     [Boss.BARROWS_CHESTS]: { name: 'Barrows Chests' },
     [Boss.BRYOPHYTA]: { name: 'Bryophyta', isMembers: false },
