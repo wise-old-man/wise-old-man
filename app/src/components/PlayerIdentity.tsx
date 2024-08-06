@@ -114,7 +114,7 @@ export function PlayerIdentityTooltip(props: { player: Player; moreContextToolti
         )}
         {player.type === PlayerType.UNKNOWN && (
           <span className="mt-4 text-xs text-gray-200">
-            This player is could not be found on the hiscores.
+            This player could not be found on the hiscores.
           </span>
         )}
       </div>
