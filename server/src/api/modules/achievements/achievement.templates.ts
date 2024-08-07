@@ -153,6 +153,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
+    name: '{threshold} Araxxor kills',
+    metric: Metric.ARAXXOR,
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
     name: '{threshold} Artio kills',
     metric: Metric.ARTIO,
     thresholds: [500, 1000, 5000, 10_000]

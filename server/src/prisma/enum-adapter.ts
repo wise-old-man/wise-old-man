@@ -88,6 +88,7 @@ export const Activity = {
 export const Boss = {
   ABYSSAL_SIRE: 'abyssal_sire',
   ALCHEMICAL_HYDRA: 'alchemical_hydra',
+  ARAXXOR: 'araxxor',
   ARTIO: 'artio',
   BARROWS_CHESTS: 'barrows_chests',
   BRYOPHYTA: 'bryophyta',
