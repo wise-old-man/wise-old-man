@@ -3,7 +3,7 @@ import * as Tracing from '@sentry/tracing';
 import cors from 'cors';
 import express, { Express } from 'express';
 import userAgent from 'express-useragent';
-import { RateLimiterRedis } from 'rate-limiter-flexible';
+import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
 import jobManager from '../jobs/job.manager';
 import router from './routing';
 import { parseUserAgent } from './util/user-agents';
@@ -87,11 +87,15 @@ class API {
       rateLimiter
         .consume(apiKey ?? req.ip, isMasterKey ? 0 : isTrustedOrigin ? 1 : RATE_LIMIT_TRUSTED_RATIO)
         .then(() => next())
-        .catch(() =>
+        .catch(e => {
+          if (!(e instanceof RateLimiterRes)) {
+            return next();
+          }
+
           res.status(429).json({
             message: 'Too Many Requests. Please check https://docs.wiseoldman.net/#rate-limits--api-keys.'
-          })
-        );
+          });
+        });
     });
 
     // Register each http request for metrics processing

@@ -1,6 +1,5 @@
-import prisma, { Player } from '../../../../prisma';
-import { NotFoundError } from '../../../errors';
-import logger from '../../../util/logging';
+import prisma, { Player, PrismaTypes } from '../../../../prisma';
+import { NotFoundError, ServerError } from '../../../errors';
 import { standardize } from '../player.utils';
 
 async function deletePlayer(username: string): Promise<Player> {
@@ -9,12 +8,14 @@ async function deletePlayer(username: string): Promise<Player> {
       where: { username: standardize(username) }
     });
 
-    logger.moderation(`[Player:${deletedPlayer.username}] Deleted`);
-
     return deletedPlayer;
   } catch (error) {
-    // Failed to find player with that username or id
-    throw new NotFoundError('Player not found.');
+    if (error instanceof PrismaTypes.PrismaClientKnownRequestError && error.code === 'P2025') {
+      // Failed to find player with that username
+      throw new NotFoundError('Player not found.');
+    }
+
+    throw new ServerError('Failed to delete player.');
   }
 }
 

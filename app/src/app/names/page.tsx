@@ -10,6 +10,7 @@ import { searchNameChanges } from "~/services/wiseoldman";
 import { getNameChangeStatusParam, getPageParam, getSearchParam } from "~/utils/params";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 import InfoIcon from "~/assets/info.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";

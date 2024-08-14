@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 
+const { MAINTENANCE_MODE } = require("./config");
+
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
@@ -8,6 +10,9 @@ const withSvgr = require("next-plugin-svgr");
 
 const nextConfig = withBundleAnalyzer(
   withSvgr({
+    cacheHandler: process.env.NODE_ENV === "production" ? require.resolve("./cache-handler") : undefined,
+    cacheMaxMemorySize: 0,
+    output: process.env.BUILD_STANDALONE === "true" ? "standalone" : undefined,
     logging: {
       fetches: {
         fullUrl: true,
@@ -17,7 +22,7 @@ const nextConfig = withBundleAnalyzer(
       remotePatterns: [
         {
           protocol: "https",
-          hostname: "wiseoldman.ams3.cdn.digitaloceanspaces.com",
+          hostname: "img.wiseoldman.net",
         },
       ],
     },
@@ -56,7 +61,7 @@ const nextConfig = withBundleAnalyzer(
         },
       ];
 
-      if (process.env.MAINTENANCE_MODE_ENABLED) {
+      if (MAINTENANCE_MODE.enabled) {
         return [
           ...externalRedirects,
           {

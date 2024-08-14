@@ -1,7 +1,7 @@
 import prisma, { Participation, Player, PrismaPromise, PrismaTypes } from '../../../../prisma';
 import { CompetitionType, Metric, Snapshot } from '../../../../utils';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
-import logger from '../../../util/logging';
+import redisService from '../../../services/external/redis.service';
 import { omit } from '../../../util/objects';
 import { standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -86,7 +86,18 @@ async function editCompetition(
     participations = await getTeamsParticipations(id, teams);
   }
 
-  if (title) updatedCompetitionFields.title = sanitizeTitle(title);
+  if (title) {
+    updatedCompetitionFields.title = sanitizeTitle(title);
+
+    const isUnderAttackModeEnabled = (await redisService.getValue('under_attack_mode', 'state')) === 'true';
+
+    if (isUnderAttackModeEnabled && title !== competition.title) {
+      throw new BadRequestError(
+        'Our system is currently under attack by malicious parties. Group description changes are disabled temporarily.'
+      );
+    }
+  }
+
   if (startsAt) updatedCompetitionFields.startsAt = startsAt;
   if (endsAt) updatedCompetitionFields.endsAt = endsAt;
   if (metric) updatedCompetitionFields.metric = metric;
@@ -100,8 +111,6 @@ async function editCompetition(
   if (!updatedCompetition) {
     throw new ServerError('Failed to edit competition. (EditCompetitionService)');
   }
-
-  logger.moderation(`[Competition:${id}] Edited`);
 
   if (addedParticipations.length > 0) {
     onParticipantsJoined(addedParticipations);

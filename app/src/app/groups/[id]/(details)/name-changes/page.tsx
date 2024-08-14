@@ -4,6 +4,7 @@ import { getGroupDetails, getGroupNameChanges } from "~/services/wiseoldman";
 import { GroupNameChangesTable } from "~/components/groups/GroupNameChangesTable";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const RESULTS_PER_PAGE = 20;
 

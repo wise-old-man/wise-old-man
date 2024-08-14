@@ -42,6 +42,7 @@ model Competition {
   endsAt           DateTime        @db.Timestamptz(6)
   groupId          Int?
   score            Int             @default(0)
+  visible          Boolean         @default(true)
   verificationHash String          @db.VarChar(255)
   createdAt        DateTime?       @default(now()) @db.Timestamptz(6)
   updatedAt        DateTime?       @updatedAt @db.Timestamptz(6)
@@ -187,6 +188,7 @@ model Group {
   homeworld        Int?
   verified         Boolean  @default(false)
   patron           Boolean  @default(false)
+  visible          Boolean  @default(true)
   profileImage     String?  @db.VarChar(255)
   bannerImage      String?  @db.VarChar(255)
   score            Int      @default(0)

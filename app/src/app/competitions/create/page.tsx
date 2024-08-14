@@ -2,6 +2,7 @@ import { CreateCompetitionForm } from "~/components/competitions/CreateCompetiti
 import { getGroupDetails } from "~/services/wiseoldman";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata = {
   title: "Create a new competition",

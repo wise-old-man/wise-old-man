@@ -19,6 +19,7 @@ import {
 } from "~/components/Dropdown";
 import { MetricIcon } from "~/components/Icon";
 import { QueryLink } from "~/components/QueryLink";
+import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import { CompetitionPreviewWarning } from "~/components/competitions/CompetitionPreviewWarning";
 import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
 import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
@@ -29,6 +30,7 @@ import { CompetitionDetailsNavigation } from "~/components/competitions/Competit
 import OverflowIcon from "~/assets/overflow.svg";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {
@@ -44,6 +46,30 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
 
   return (
     <Container>
+      {!competition.visible && (
+        <Alert variant="warn" className="mb-10 border-orange-700 bg-orange-900/10">
+          <div>
+            <AlertTitle>This page has limited visibility</AlertTitle>
+            <AlertDescription>
+              <p>
+                We are temporarily limiting visibility of all new groups and competitions to prevent
+                harassment. Progress gained with the group or competition will still be tracked. If this
+                message persists for several hours,{" "}
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://wiseoldman.net/discord"
+                  className="text-white underline"
+                >
+                  contact us on Discord
+                </a>
+                {" for help."}
+              </p>
+            </AlertDescription>
+          </div>
+        </Alert>
+      )}
+
       <Header {...competition} />
       <div className="mt-7">
         <CompetitionDetailsNavigation competition={competition} />

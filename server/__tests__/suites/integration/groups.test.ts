@@ -1111,13 +1111,11 @@ describe('Group API', () => {
 
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
-        profileImage: 'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_profile_image.png'
+        profileImage: 'https://img.wiseoldman.net/some_fake_profile_image.png'
       });
 
       expect(response.status).toBe(200);
-      expect(response.body.profileImage).toBe(
-        'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_profile_image.png'
-      );
+      expect(response.body.profileImage).toBe('https://img.wiseoldman.net/some_fake_profile_image.png');
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -1137,13 +1135,11 @@ describe('Group API', () => {
 
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
-        bannerImage: 'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_banner_image.png'
+        bannerImage: 'https://img.wiseoldman.net/some_fake_banner_image.png'
       });
 
       expect(response.status).toBe(200);
-      expect(response.body.bannerImage).toBe(
-        'https://wiseoldman.ams3.cdn.digitaloceanspaces.com/images/some_fake_banner_image.png'
-      );
+      expect(response.body.bannerImage).toBe('https://img.wiseoldman.net/some_fake_banner_image.png');
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -2039,6 +2035,15 @@ describe('Group API', () => {
       expect(response.body.message).toBe('Group not found.');
     });
 
+    it('should not delete (group not found with admin perms)', async () => {
+      const response = await api.delete(`/groups/123456789`).send({
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Group not found.');
+    });
+
     it('should not delete (invalid verification code)', async () => {
       const response = await api.delete(`/groups/123456789`);
 
@@ -2814,6 +2819,69 @@ describe('Group API', () => {
       expect(response.body).toMatchObject({
         id: globalData.testGroupOneLeader.id,
         verified: true
+      });
+    });
+  });
+
+  describe('16 - Toggle visibility', () => {
+    it('should not toggle visibility (invalid admin password)', async () => {
+      const response = await api.put(`/groups/100000/visibility`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+    });
+
+    it('should not toggle visibility (undefined visibility state)', async () => {
+      const response = await api.put(`/groups/100000/visibility`).send({
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'visible' is undefined.");
+    });
+
+    it('should not toggle visibility (incorrect admin password)', async () => {
+      const response = await api.put(`/groups/100000/visibility`).send({
+        adminPassword: 'abcdef'
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
+    it('should not toggle visibility (group not found)', async () => {
+      const response = await api.put(`/groups/100000/visibility`).send({
+        visible: true,
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Group not found.');
+    });
+
+    it('should toggle visibility (true)', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/visibility`).send({
+        visible: true,
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        id: globalData.testGroupOneLeader.id,
+        visible: true
+      });
+    });
+
+    it('should toggle visibility (false)', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/visibility`).send({
+        visible: false,
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        id: globalData.testGroupOneLeader.id,
+        visible: false
       });
     });
   });

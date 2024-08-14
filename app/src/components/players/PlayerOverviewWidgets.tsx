@@ -1,4 +1,4 @@
-import { Metric, PlayerDetails, formatNumber, isMetric } from "@wise-old-man/utils";
+import { Metric, PlayerDetails, PlayerStatus, formatNumber, isMetric } from "@wise-old-man/utils";
 import { Label } from "../Label";
 import { MetricIconSmall } from "../Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
@@ -16,10 +16,14 @@ export function PlayerOverviewWidgets(props: PlayerDetails) {
       <Stat metric={Metric.OVERALL} label="Overall exp." value={data.skills.overall.experience} />
       <Stat metric={Metric.EHP} label="EHP" value={data.computed.ehp.value || 0} />
       <Stat metric={Metric.EHB} label="EHB" value={data.computed.ehb.value || 0} />
-      {props.ttm === 0 ? (
-        <Stat metric="tt200m" label="Time to 200m all" value={props.tt200m} />
-      ) : (
-        <Stat metric="ttm" label="Time to max" value={props.ttm} />
+      {props.status !== PlayerStatus.ARCHIVED && (
+        <>
+          {props.ttm === 0 ? (
+            <Stat metric="tt200m" label="Time to 200m all" value={props.tt200m} />
+          ) : (
+            <Stat metric="ttm" label="Time to max" value={props.ttm} />
+          )}
+        </>
       )}
     </div>
   );

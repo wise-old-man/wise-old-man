@@ -22,6 +22,7 @@ const COMBINED_METRIC = "combined";
 const RESULTS_PER_PAGE = 20;
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   searchParams: {

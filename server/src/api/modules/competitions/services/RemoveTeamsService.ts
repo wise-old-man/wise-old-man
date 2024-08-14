@@ -1,6 +1,5 @@
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
-import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { sanitizeTitle } from '../competition.utils';
 
@@ -27,8 +26,6 @@ async function removeTeams(id: number, teamNames: string[]): Promise<{ count: nu
   if (!count) {
     throw new BadRequestError('No players were removed from the competition.');
   }
-
-  logger.moderation(`[Competition:${id}] (${teamNames}) removed`);
 
   await prisma.competition.update({
     where: { id },

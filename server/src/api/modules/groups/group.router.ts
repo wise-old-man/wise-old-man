@@ -21,6 +21,7 @@ import { fetchGroupDetails } from './services/FetchGroupDetailsService';
 import { fetchGroupHiscores } from './services/FetchGroupHiscoresService';
 import { fetchGroupStatistics } from './services/FetchGroupStatisticsService';
 import { fetchGroupMembersCSV } from './services/FetchMembersCSVService';
+import { toggleGroupVisibility } from './services/ToggleGroupVisibilityService';
 import { removeMembers } from './services/RemoveMembersService';
 import { resetGroupCode } from './services/ResetGroupCodeService';
 import { searchGroups } from './services/SearchGroupsService';
@@ -30,6 +31,7 @@ import { findGroupDeltas } from '../deltas/services/FindGroupDeltasService';
 import { findGroupRecords } from '../records/services/FindGroupRecordsService';
 import { findGroupAchievements } from '../achievements/services/FindGroupAchievementsService';
 import { findGroupNameChanges } from '../name-changes/services/FindGroupNameChangesService';
+import logger from '../../util/logging';
 
 const router = Router();
 
@@ -62,8 +64,13 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    const results = await createGroup(req.body);
-    res.status(201).json(results);
+    const result = await createGroup(req.body);
+    res.status(201).json(result);
+
+    logger.moderation(`Created group ${result.group.id}`, {
+      timestamp: new Date().toISOString(),
+      ip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip
+    });
   })
 );
 
@@ -89,8 +96,13 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const results = await editGroup(id, req.body);
-    res.status(200).json(results);
+    const result = await editGroup(id, req.body);
+    res.status(200).json(result);
+
+    logger.moderation(`Edited group ${result.id}`, {
+      timestamp: new Date().toISOString(),
+      ip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip
+    });
   })
 );
 
@@ -405,6 +417,26 @@ router.put(
     const { id } = req.params;
 
     const result = await verifyGroup(id);
+    res.status(200).json(result);
+  })
+);
+
+router.put(
+  '/groups/:id/visibility',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      id: z.coerce.number().int().positive()
+    }),
+    body: z.object({
+      visible: z.boolean()
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const { id } = req.params;
+    const { visible } = req.body;
+
+    const result = await toggleGroupVisibility(id, visible);
     res.status(200).json(result);
   })
 );

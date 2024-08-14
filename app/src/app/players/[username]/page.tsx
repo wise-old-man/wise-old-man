@@ -8,6 +8,7 @@ import { PlayerOverviewMemberships } from "~/components/players/PlayerOverviewGr
 import { PlayerOverviewCompetition } from "~/components/players/PlayerOverviewCompetition";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

@@ -1,6 +1,5 @@
-import prisma, { Group } from '../../../../prisma';
-import { ServerError } from '../../../errors';
-import logger from '../../../util/logging';
+import prisma, { Group, PrismaTypes } from '../../../../prisma';
+import { NotFoundError, ServerError } from '../../../errors';
 
 async function deleteGroup(id: number): Promise<Group> {
   try {
@@ -8,10 +7,13 @@ async function deleteGroup(id: number): Promise<Group> {
       where: { id }
     });
 
-    logger.moderation(`[Group:${id}] Deleted`);
-
     return deletedGroup;
   } catch (error) {
+    if (error instanceof PrismaTypes.PrismaClientKnownRequestError && error.code === 'P2025') {
+      // Failed to find group with that id
+      throw new NotFoundError('Group not found.');
+    }
+
     throw new ServerError('Failed to delete group.');
   }
 }

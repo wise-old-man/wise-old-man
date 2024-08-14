@@ -1,5 +1,6 @@
 import { PropsWithChildren } from "react";
 import { Inter } from "next/font/google";
+
 import { Footer } from "~/components/Footer";
 import { Navigation } from "~/components/Navigation";
 import { TooltipProvider } from "~/components/Tooltip";
@@ -7,7 +8,11 @@ import { ToastManager } from "~/components/ToastManager";
 import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { ReactQueryProvider } from "~/components/ReactQueryProvider";
 import { NavigationLoadingBar } from "~/components/NavigationLoadingBar";
+
+import { MAINTENANCE_MODE, ANNOUNCEMENT_BANNER } from "../../config";
+
 import "../globals.css";
+import { TopBanner } from "~/components/TopBanner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -30,9 +35,17 @@ function RootLayout(props: PropsWithChildren) {
     <html lang="en" className={inter.variable}>
       <body>
         <NavigationLoadingBar />
+
+        {ANNOUNCEMENT_BANNER.enabled && ANNOUNCEMENT_BANNER.message && (
+          <TopBanner
+            body={<>{ANNOUNCEMENT_BANNER.message}</>}
+            color={ANNOUNCEMENT_BANNER.color as any}
+          />
+        )}
+
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
-            {process.env.MAINTENANCE_MODE_ENABLED ? (
+            {MAINTENANCE_MODE.enabled ? (
               <>{children}</>
             ) : (
               <>

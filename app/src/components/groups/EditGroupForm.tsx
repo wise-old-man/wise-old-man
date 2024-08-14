@@ -148,6 +148,7 @@ function ImagesSection(props: EditGroupFormProps & { verificationCode: string })
     onSuccess: () => {
       startTransition(() => {
         router.refresh();
+
         toast.toast({ variant: "success", title: "Group edited successfully!" });
       });
     },

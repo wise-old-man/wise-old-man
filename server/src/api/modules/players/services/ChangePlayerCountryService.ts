@@ -1,7 +1,6 @@
 import prisma, { Player } from '../../../../prisma';
 import { Country, findCountry } from '../../../../utils';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
-import logger from '../../../util/logging';
 import { standardize } from '../player.utils';
 
 async function changePlayerCountry(username: string, country: string): Promise<Player> {
@@ -24,8 +23,6 @@ async function changePlayerCountry(username: string, country: string): Promise<P
       data: { country: countryCode },
       where: { username: standardize(username) }
     });
-
-    logger.moderation(`[Player:${updatedPlayer.username}] Country updated to ${countryCode}`);
 
     return updatedPlayer;
   } catch (error) {

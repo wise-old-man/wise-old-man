@@ -7,6 +7,7 @@ import { GroupActivityItem } from "~/components/groups/GroupActivityItem";
 import { GroupActivityDialog } from "~/components/groups/GroupActivityDialog";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const ACTIVITY_ITEMS_COUNT = 10;
 

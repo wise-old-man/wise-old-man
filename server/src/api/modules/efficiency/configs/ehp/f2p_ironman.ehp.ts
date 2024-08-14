@@ -609,7 +609,7 @@ export default [
         description: '2t Oaks (rune axe)'
       },
       {
-        startExp: 302_288,
+        startExp: 273_742,
         rate: 105_000,
         description: '2t Oaks (100% success)'
       }
@@ -741,7 +741,7 @@ export default [
       },
       {
         startExp: 6_291,
-        rate: 20_000,
+        rate: 19_500,
         description: 'Silver tiaras at Varrock Southwest mine'
       }
     ],

@@ -110,8 +110,17 @@ async function syncPatrons() {
 async function syncBenefits() {
   const updatedPatrons = await prisma.patron.findMany();
 
-  const patronGroupIds = updatedPatrons.map(p => p.groupId).filter((id): id is number => id !== null);
-  const patronPlayerIds = updatedPatrons.map(p => p.playerId).filter((id): id is number => id !== null);
+  const patronGroupIds = [
+    ...updatedPatrons.map(p => p.groupId).filter((id): id is number => id !== null),
+    // Add benefits to these groups as well:
+    139
+  ];
+
+  const patronPlayerIds = [
+    ...updatedPatrons.map(p => p.playerId).filter((id): id is number => id !== null),
+    // Add benefits to these players as well:
+    2
+  ];
 
   const newPatronGroups = await prisma.group.findMany({
     where: {

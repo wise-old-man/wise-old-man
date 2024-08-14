@@ -1,6 +1,5 @@
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
-import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 
@@ -48,8 +47,6 @@ async function removeParticipants(id: number, participants: string[]): Promise<{
     where: { id },
     data: { updatedAt: new Date() }
   });
-
-  logger.moderation(`[Competition:${id}] (${playersToRemove.map(p => p.id)}) left`);
 
   return { count };
 }

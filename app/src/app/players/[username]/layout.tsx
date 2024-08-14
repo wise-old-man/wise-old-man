@@ -34,6 +34,7 @@ import ExternalIcon from "~/assets/external.svg";
 import WarningFilledIcon from "~/assets/warning_filled.svg";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {
@@ -230,9 +231,9 @@ function PlayerStatusAlert(props: { player: PlayerDetails }) {
             {` for more information.`}
 
             <p className="mt-5">
-              <span className="text-white">Note (November 14th):</span> There&apos;s currently a issue
-              with the Jagex hiscores due to a recently reverted banwave that is causing some players to
-              get flagged or archived. If you&apos;re affected, try to log out in-game (to update your
+              <span className="text-white">Note (August 4th):</span> There&apos;s currently a issue
+              with the Jagex hiscores due to a recent rollback that is causing some players to
+              get flagged. If you&apos;re affected, try to log out in-game (to update your
               hiscores) and then update your WOM profile.
             </p>
           </AlertDescription>

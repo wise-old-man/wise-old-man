@@ -3,6 +3,7 @@ import { getCompetitionDetails, getCompetitionTopHistory } from "~/services/wise
 import { CompetitionTopParticipantsChart } from "~/components/competitions/CompetitionTopParticipantsChart";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

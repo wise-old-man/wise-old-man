@@ -2,6 +2,7 @@ import { getPlayerDetails, getPlayerGroups } from "~/services/wiseoldman";
 import { MembershipListItem } from "~/components/groups/MembershipListItem";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: {

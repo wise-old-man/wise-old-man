@@ -4,6 +4,8 @@ import { apiClient } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { HeroPlayerForm } from "~/components/home/HeroPlayerForm";
 
+import { MAINTENANCE_MODE } from "../../config";
+
 import GroupsChangesImage from "../../public/img/homepage_groups_changes.png";
 import GroupsRankingsImage from "../../public/img/homepage_groups_rankings.png";
 import GroupsInactivitySVG from "../../public/img/homepage_groups_inactivity.svg";
@@ -38,7 +40,7 @@ import ArrowRightIcon from "~/assets/arrow_right.svg";
 export default async function LandingPage() {
   // This landing page requires API data to get pre-built. This would fail if the API is down,
   // so we can just have it pre-build an empty page instead.
-  if (process.env.MAINTENANCE_MODE_ENABLED) {
+  if (MAINTENANCE_MODE.enabled) {
     return null;
   }
 
@@ -204,13 +206,7 @@ function GroupsSection() {
           <h3 className="mx-auto text-center text-xl font-medium leading-8 text-gray-100 md:mb-7">
             Compete for clan rankings
           </h3>
-          <Image
-            src={GroupsRankingsImage}
-            width={1041}
-            height={351}
-            alt=""
-            className="mx-auto"
-          />
+          <Image src={GroupsRankingsImage} width={1041} height={351} alt="" className="mx-auto" />
         </div>
       </div>
       <div className="mt-5 grid w-full grid-cols-1 gap-5 lg:grid-cols-3">
@@ -289,11 +285,7 @@ function DiscordSection() {
           <Image src={FeaturesDiscordBack} alt="" />
           <div className="absolute bottom-0 top-0 w-[388px] bg-gradient-to-t from-gray-800 to-gray-800/0" />
           <div className="absolute bottom-0 top-0 hidden w-[388px] bg-gradient-to-r from-gray-800 to-gray-800/0 md:block xl:hidden" />
-          <Image
-            src={FeaturesDiscordFront}
-            alt=""
-            className="absolute -right-24 bottom-28 w-[243px]"
-          />
+          <Image src={FeaturesDiscordFront} alt="" className="absolute -right-24 bottom-28 w-[243px]" />
         </div>
       </div>
     </section>
@@ -415,31 +407,19 @@ function CommunitySection() {
         code or ideas to add new functionality.
       </p>
       <div className="flex flex-col items-center gap-5 md:flex-row">
-        <a
-          href="https://wiseoldman.net/github"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://wiseoldman.net/github" target="_blank" rel="noopener noreferrer">
           <Button>
             <GitHubIcon className="-ml-2 h-4 w-4" />
             Contribute on GitHub
           </Button>
         </a>
-        <a
-          href="https://wiseoldman.net/discord"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
           <Button className="bg-discord-blue hover:bg-discord-blue-hover">
             <DiscordIcon className="-ml-2 h-4 w-4" />
             Join our Discord
           </Button>
         </a>
-        <a
-          href="https://wiseoldman.net/patreon"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://wiseoldman.net/patreon" target="_blank" rel="noopener noreferrer">
           <Button className="bg-patreon-orange hover:bg-patreon-orange-hover">
             <PatreonIcon className="-ml-2 h-4 w-4" />
             See Patreon benefits
