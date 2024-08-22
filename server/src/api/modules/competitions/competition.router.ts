@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric, Team } from '../../../utils';
+import logger from '../../util/logging';
 import { checkAdminPermission, checkCompetitionVerificationCode } from '../../util/middlewares';
+import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
-import { getPaginationSchema, getDateSchema, teamSchema } from '../../util/validation';
+import { getDateSchema, getPaginationSchema, teamSchema } from '../../util/validation';
 import { addParticipants } from './services/AddParticipantsService';
 import { addTeams } from './services/AddTeamsService';
 import { createCompetition } from './services/CreateCompetitionService';
@@ -17,7 +19,6 @@ import { removeTeams } from './services/RemoveTeamsService';
 import { resetCompetitionCode } from './services/ResetCompetitionCodeService';
 import { searchCompetitions } from './services/SearchCompetitionsService';
 import { updateAllParticipants } from './services/UpdateAllParticipantsService';
-import logger from '../../util/logging';
 
 const router = Router();
 
@@ -56,12 +57,13 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    const result = await createCompetition(req.body);
+    const ipHash = await getRequestIpHash(req);
+    const result = await createCompetition(req.body, ipHash);
     res.status(201).json(result);
 
     logger.moderation(`Created competition ${result.competition.id}`, {
       timestamp: new Date().toISOString(),
-      ip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip
+      ipHash
     });
   })
 );
@@ -90,7 +92,7 @@ router.put(
 
     logger.moderation(`Edited competition ${result.id}`, {
       timestamp: new Date().toISOString(),
-      ip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip
+      ipHash: await getRequestIpHash(req)
     });
   })
 );

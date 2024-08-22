@@ -1,16 +1,22 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { GroupRole, Metric, Period } from '../../../utils';
+import logger from '../../util/logging';
 import { checkAdminPermission, checkGroupVerificationCode } from '../../util/middlewares';
+import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
 import {
-  getPaginationSchema,
   getDateSchema,
+  getPaginationSchema,
+  groupRoleOrderSchema,
   memberSchema,
-  socialLinksSchema,
-  groupRoleOrderSchema
+  socialLinksSchema
 } from '../../util/validation';
+import { findGroupAchievements } from '../achievements/services/FindGroupAchievementsService';
 import { findGroupCompetitions } from '../competitions/services/FindGroupCompetitionsService';
+import { findGroupDeltas } from '../deltas/services/FindGroupDeltasService';
+import { findGroupNameChanges } from '../name-changes/services/FindGroupNameChangesService';
+import { findGroupRecords } from '../records/services/FindGroupRecordsService';
 import { addMembers } from './services/AddMembersService';
 import { changeMemberRole } from './services/ChangeMemberRoleService';
 import { createGroup } from './services/CreateGroupService';
@@ -26,11 +32,6 @@ import { resetGroupCode } from './services/ResetGroupCodeService';
 import { searchGroups } from './services/SearchGroupsService';
 import { updateAllMembers } from './services/UpdateAllMembersService';
 import { verifyGroup } from './services/VerifyGroupService';
-import { findGroupDeltas } from '../deltas/services/FindGroupDeltasService';
-import { findGroupRecords } from '../records/services/FindGroupRecordsService';
-import { findGroupAchievements } from '../achievements/services/FindGroupAchievementsService';
-import { findGroupNameChanges } from '../name-changes/services/FindGroupNameChangesService';
-import logger from '../../util/logging';
 
 const router = Router();
 
@@ -63,12 +64,13 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    const result = await createGroup(req.body);
+    const ipHash = await getRequestIpHash(req);
+    const result = await createGroup(req.body, ipHash);
     res.status(201).json(result);
 
     logger.moderation(`Created group ${result.group.id}`, {
       timestamp: new Date().toISOString(),
-      ip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip
+      ipHash
     });
   })
 );
@@ -100,7 +102,7 @@ router.put(
 
     logger.moderation(`Edited group ${result.id}`, {
       timestamp: new Date().toISOString(),
-      ip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip
+      ipHash: await getRequestIpHash(req)
     });
   })
 );

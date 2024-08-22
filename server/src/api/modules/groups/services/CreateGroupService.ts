@@ -19,7 +19,10 @@ interface CreateGroupPayload {
   members: Array<{ username: string; role: GroupRole }>;
 }
 
-async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResult> {
+async function createGroup(
+  payload: CreateGroupPayload,
+  creatorIpHash: string | null
+): Promise<CreateGroupResult> {
   const name = sanitizeName(payload.name);
   const description = payload.description ? sanitizeName(payload.description) : null;
   const clanChat = payload.clanChat ? sanitize(payload.clanChat) : null;
@@ -57,6 +60,7 @@ async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResu
       clanChat,
       homeworld: payload.homeworld,
       verificationHash: hash,
+      creatorIpHash,
       memberships: {
         createMany: {
           data: memberships

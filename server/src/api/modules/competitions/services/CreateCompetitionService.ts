@@ -27,7 +27,10 @@ interface CreateCompetitionPayload {
 
 type CreateCompetitionResult = { competition: CompetitionWithParticipations; verificationCode: string };
 
-async function createCompetition(payload: CreateCompetitionPayload): Promise<CreateCompetitionResult> {
+async function createCompetition(
+  payload: CreateCompetitionPayload,
+  creatorIpHash: string | null
+): Promise<CreateCompetitionResult> {
   const { title, metric, startsAt, endsAt, participants, teams, groupId, groupVerificationCode } = payload;
 
   if (startsAt.getTime() > endsAt.getTime()) {
@@ -96,6 +99,7 @@ async function createCompetition(payload: CreateCompetitionPayload): Promise<Cre
       endsAt,
       groupId,
       verificationHash: hash,
+      creatorIpHash,
 
       participations: {
         createMany: {
