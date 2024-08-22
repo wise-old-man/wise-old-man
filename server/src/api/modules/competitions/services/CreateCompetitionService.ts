@@ -1,8 +1,7 @@
 import prisma from '../../../../prisma';
-import { CompetitionType, Metric, Period, PeriodProps } from '../../../../utils';
+import { CompetitionType, Metric } from '../../../../utils';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import * as cryptService from '../../../services/external/crypt.service';
-import redisService from '../../../services/external/redis.service';
 import { omit } from '../../../util/objects';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import * as competitionEvents from '../competition.events';
@@ -88,8 +87,6 @@ async function createCompetition(payload: CreateCompetitionPayload): Promise<Cre
 
   const [code, hash] = await cryptService.generateVerification();
 
-  const visible = await determineVisibility(groupId);
-
   const createdCompetition = await prisma.competition.create({
     data: {
       title: sanitizeTitle(title),
@@ -99,7 +96,6 @@ async function createCompetition(payload: CreateCompetitionPayload): Promise<Cre
       endsAt,
       groupId,
       verificationHash: hash,
-      visible,
 
       participations: {
         createMany: {
@@ -196,37 +192,6 @@ async function validateGroupVerification(groupId: number, groupVerificationCode:
   if (!verified) {
     throw new ForbiddenError('Incorrect group verification code.');
   }
-}
-
-async function determineVisibility(groupId?: number) {
-  const isUnderAttackModeEnabled = (await redisService.getValue('under_attack_mode', 'state')) === 'true';
-
-  let visible = !isUnderAttackModeEnabled;
-
-  if (groupId && !visible) {
-    // If a competition is linked to a reasonably established group,
-    // make it visible even during "under attack"
-    const group = await prisma.group.findFirst({
-      where: {
-        id: groupId
-      },
-      include: {
-        roleOrders: true
-      }
-    });
-
-    if (
-      group &&
-      (group.verified ||
-        group.patron ||
-        group.roleOrders.length > 0 ||
-        group.createdAt.getTime() < Date.now() - PeriodProps[Period.MONTH].milliseconds)
-    ) {
-      visible = true;
-    }
-  }
-
-  return visible;
 }
 
 export { createCompetition };
