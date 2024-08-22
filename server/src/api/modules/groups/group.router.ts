@@ -64,7 +64,7 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    const ipHash = await getRequestIpHash(req);
+    const ipHash = getRequestIpHash(req);
     const result = await createGroup(req.body, ipHash);
     res.status(201).json(result);
 
@@ -102,7 +102,7 @@ router.put(
 
     logger.moderation(`Edited group ${result.id}`, {
       timestamp: new Date().toISOString(),
-      ipHash: await getRequestIpHash(req)
+      ipHash: getRequestIpHash(req)
     });
   })
 );

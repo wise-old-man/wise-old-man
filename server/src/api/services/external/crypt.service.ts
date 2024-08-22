@@ -14,19 +14,6 @@ function generateCode(): string {
   return code;
 }
 
-export async function hashString(value: string) {
-  const saltRounds = 10;
-
-  const hashedCode: string = await new Promise((resolve, reject) => {
-    hash(value, saltRounds, (err, hash) => {
-      if (err) reject(err);
-      resolve(hash);
-    });
-  });
-
-  return hashedCode;
-}
-
 /**
  * Generates a code/hash pair.
  */

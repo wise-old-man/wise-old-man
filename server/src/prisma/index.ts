@@ -102,6 +102,20 @@ const extendedClient = prisma.$extends({
         }
       }
     },
+    group: {
+      creatorIpHash: {
+        compute() {
+          return undefined;
+        }
+      }
+    },
+    competition: {
+      creatorIpHash: {
+        compute() {
+          return undefined;
+        }
+      }
+    },
     groupSocialLinks: {
       id: {
         compute() {

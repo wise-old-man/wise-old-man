@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import prisma, { Achievement, Competition, Player } from '../../../prisma';
-import { FlaggedPlayerReviewContext, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
+import { FlaggedPlayerReviewContext, Group, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
 import {
   CompetitionDetails,
   CompetitionWithParticipations
@@ -258,6 +258,17 @@ function dispatchCompetitionEnding(competition: Competition, period: EventPeriod
   dispatch('COMPETITION_ENDING', { groupId, competition, period });
 }
 
+/**
+ * Dispatch a competition ending event to our discord bot API.
+ */
+function dispatchPotentialCreationSpam(payload: {
+  ipHash: string;
+  groups: Array<Group>;
+  competitions: Array<Competition>;
+}) {
+  dispatch('POTENTIAL_CREATION_SPAM', payload);
+}
+
 export {
   dispatch,
   dispatchAchievements,
@@ -273,5 +284,6 @@ export {
   dispatchNameChanged,
   dispatchPlayerFlaggedReview,
   sendMonitoringMessage,
-  sendPatreonUpdateMessage
+  sendPatreonUpdateMessage,
+  dispatchPotentialCreationSpam
 };

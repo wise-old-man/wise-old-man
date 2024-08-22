@@ -1,7 +1,7 @@
 import { Request } from 'express';
-import { hashString } from '../services/external/crypt.service';
+import { md5 } from 'js-md5';
 
-export async function getRequestIpHash(request: Request<unknown, unknown, unknown, unknown>) {
+export function getRequestIpHash(request: Request<unknown, unknown, unknown, unknown>) {
   if (process.env.NODE_ENV !== 'production') {
     return null;
   }
@@ -10,5 +10,5 @@ export async function getRequestIpHash(request: Request<unknown, unknown, unknow
     request.headers['cf-connecting-ip'] || request.headers['x-forwarded-for'] || request.ip
   );
 
-  return await hashString(plaintext);
+  return md5(plaintext);
 }

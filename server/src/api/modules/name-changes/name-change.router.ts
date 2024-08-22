@@ -50,7 +50,7 @@ router.post(
 
     logger.moderation(`Submitted name change ${result.oldName} -> ${result.newName}`, {
       timestamp: new Date().toISOString(),
-      ipHash: await getRequestIpHash(req)
+      ipHash: getRequestIpHash(req)
     });
   })
 );
