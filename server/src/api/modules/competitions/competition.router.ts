@@ -17,7 +17,6 @@ import { removeTeams } from './services/RemoveTeamsService';
 import { resetCompetitionCode } from './services/ResetCompetitionCodeService';
 import { searchCompetitions } from './services/SearchCompetitionsService';
 import { updateAllParticipants } from './services/UpdateAllParticipantsService';
-import { toggleCompetitionVisibility } from './services/ToggleCompetitionVisibilityService';
 import logger from '../../util/logging';
 
 const router = Router();
@@ -302,26 +301,6 @@ router.put(
     const { id } = req.params;
 
     const result = await resetCompetitionCode(id);
-    res.status(200).json(result);
-  })
-);
-
-router.put(
-  '/competitions/:id/visibility',
-  checkAdminPermission,
-  validateRequest({
-    params: z.object({
-      id: z.coerce.number().int().positive()
-    }),
-    body: z.object({
-      visible: z.boolean()
-    })
-  }),
-  executeRequest(async (req, res) => {
-    const { id } = req.params;
-    const { visible } = req.body;
-
-    const result = await toggleCompetitionVisibility(id, visible);
     res.status(200).json(result);
   })
 );
