@@ -8,10 +8,10 @@ import {
   Achievement as PrismaAchievement,
   TrendDatapoint as PrismaTrendDatapoint,
   Patron,
-  Competition,
+  Competition as PrismaCompetition,
   Participation,
   NameChange as PrismaNameChange,
-  Group,
+  Group as PrismaGroup,
   PlayerArchive,
   Membership,
   Prisma,
@@ -166,6 +166,10 @@ type TrendDatapoint = Omit<PrismaTrendDatapoint, 'sum' | 'maxValue'> & {
 type Player = Omit<PrismaPlayer, 'exp' | 'latestSnapshotId'> & {
   exp: number;
 };
+
+type Group = Omit<PrismaGroup, 'creatorIpHash'>;
+
+type Competition = Omit<PrismaCompetition, 'creatorIpHash'>;
 
 type NameChange = Omit<PrismaNameChange, 'reviewContext'> & {
   reviewContext: SkipContext | DenyContext | null;

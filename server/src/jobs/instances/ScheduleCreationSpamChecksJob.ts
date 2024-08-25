@@ -10,11 +10,13 @@ export class ScheduleCreationSpamChecksJob extends Job<unknown> {
   async execute() {
     const minuteAgo = new Date(Date.now() - 60 * 1000);
 
-    const recentlyCreatedGroups = await prisma.$queryRaw<Array<Group>>`
+    const recentlyCreatedGroups = await prisma.$queryRaw<Array<Group & { creatorIpHash: string }>>`
       SELECT * FROM public.groups WHERE "createdAt" >= ${minuteAgo} AND "creatorIpHash" IS NOT NULL
     `;
 
-    const recentlyCreatedCompetitions = await prisma.$queryRaw<Array<Competition>>`
+    const recentlyCreatedCompetitions = await prisma.$queryRaw<
+      Array<Competition & { creatorIpHash: string }>
+    >`
       SELECT c.* FROM public.competitions c
       LEFT JOIN public.groups g ON c."groupId" = g."id"
       WHERE c."createdAt" >= ${minuteAgo} AND c."creatorIpHash" IS NOT NULL AND (c."groupId" IS NULL OR g."verified" = false)
@@ -30,13 +32,13 @@ export class ScheduleCreationSpamChecksJob extends Job<unknown> {
     >();
 
     recentlyCreatedGroups.forEach(group => {
-      const current = byIpHashMap.get(group.creatorIpHash!);
+      const current = byIpHashMap.get(group.creatorIpHash);
 
       if (current) {
         current.groups.push(group);
       } else {
-        byIpHashMap.set(group.creatorIpHash!, {
-          ipHash: group.creatorIpHash!,
+        byIpHashMap.set(group.creatorIpHash, {
+          ipHash: group.creatorIpHash,
           groups: [group],
           competitions: []
         });
@@ -44,13 +46,13 @@ export class ScheduleCreationSpamChecksJob extends Job<unknown> {
     });
 
     recentlyCreatedCompetitions.forEach(competition => {
-      const current = byIpHashMap.get(competition.creatorIpHash!);
+      const current = byIpHashMap.get(competition.creatorIpHash);
 
       if (current) {
         current.competitions.push(competition);
       } else {
-        byIpHashMap.set(competition.creatorIpHash!, {
-          ipHash: competition.creatorIpHash!,
+        byIpHashMap.set(competition.creatorIpHash, {
+          ipHash: competition.creatorIpHash,
           groups: [],
           competitions: [competition]
         });

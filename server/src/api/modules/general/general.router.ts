@@ -5,7 +5,6 @@ import { executeRequest, validateRequest } from '../../util/routing';
 import { createAPIKey } from './services/CreateAPIKeyService';
 import { fetchTableCounts } from './services/FetchTableCountsService';
 import { blockUserActions } from './services/BlockUserActionsService';
-import { getRequestIpHash } from 'src/api/util/request';
 import { allowUserActions } from './services/AllowUserActionsService';
 
 const router = Router();
@@ -38,8 +37,13 @@ router.get(
 router.get(
   '/block-actions',
   checkAdminPermission,
+  validateRequest({
+    body: z.object({
+      ipHash: z.string()
+    })
+  }),
   executeRequest(async (req, res) => {
-    await blockUserActions(getRequestIpHash(req));
+    await blockUserActions(req.body.ipHash);
     res.status(200).json(true);
   })
 );
@@ -47,8 +51,13 @@ router.get(
 router.get(
   '/allow-actions',
   checkAdminPermission,
+  validateRequest({
+    body: z.object({
+      ipHash: z.string()
+    })
+  }),
   executeRequest(async (req, res) => {
-    await allowUserActions(getRequestIpHash(req));
+    await allowUserActions(req.body.ipHash);
     res.status(200).json(true);
   })
 );
