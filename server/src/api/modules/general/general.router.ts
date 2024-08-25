@@ -34,7 +34,7 @@ router.get(
   })
 );
 
-router.get(
+router.post(
   '/block-actions',
   checkAdminPermission,
   validateRequest({
@@ -48,7 +48,7 @@ router.get(
   })
 );
 
-router.get(
+router.post(
   '/allow-actions',
   checkAdminPermission,
   validateRequest({
