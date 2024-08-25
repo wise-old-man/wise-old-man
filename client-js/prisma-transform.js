@@ -12,7 +12,9 @@ const PRIVATE_MODEL_NAMES = [
   'Snapshot',
   'Player',
   'NameChange',
-  'GroupSocialLinks'
+  'GroupSocialLinks',
+  'Group',
+  'Competition'
 ];
 
 const PRISMA_TYPES_DECLARATION_FILE_PATH = './prisma-models.d.ts';
