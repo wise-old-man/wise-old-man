@@ -9,6 +9,7 @@ import router from './routing';
 import { parseUserAgent } from './util/user-agents';
 import prometheus from './services/external/prometheus.service';
 import redisService from './services/external/redis.service';
+import { getRequestIpHash } from './util/request';
 
 const RATE_LIMIT_MAX_REQUESTS = 20;
 const RATE_LIMIT_DURATION_SECONDS = 60;
@@ -59,6 +60,16 @@ class API {
       // Ignore rate limits while running tests
       if (process.env.NODE_ENV === 'test') {
         next();
+        return;
+      }
+
+      const ipHash = getRequestIpHash(req);
+      const isBlocked = await redisService.getValue('api-blocked', ipHash);
+
+      if (isBlocked) {
+        res.status(429).json({
+          message: 'You are blocked from making API requests.'
+        });
         return;
       }
 
