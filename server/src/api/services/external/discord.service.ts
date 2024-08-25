@@ -259,7 +259,7 @@ function dispatchCompetitionEnding(competition: Competition, period: EventPeriod
 }
 
 /**
- * Dispatch a competition ending event to our discord bot API.
+ * Dispatch a potential creation spam event to our discord bot API.
  */
 function dispatchPotentialCreationSpam(payload: {
   ipHash: string;

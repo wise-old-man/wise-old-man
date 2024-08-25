@@ -64,7 +64,7 @@ class API {
       }
 
       const ipHash = getRequestIpHash(req);
-      const isBlocked = await redisService.getValue('api-blocked', ipHash);
+      const isBlocked = ipHash !== null && (await redisService.getValue('api-blocked', ipHash));
 
       if (isBlocked) {
         res.status(429).json({
