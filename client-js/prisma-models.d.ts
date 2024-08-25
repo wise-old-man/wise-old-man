@@ -49,7 +49,7 @@ export type Membership = {
   updatedAt: Date;
 };
 
-export type Group = {
+export type Prisma_Base_Group = {
   id: number;
   name: string;
   clanChat: string | null;
@@ -64,6 +64,7 @@ export type Group = {
   verificationHash: string;
   createdAt: Date;
   updatedAt: Date;
+  creatorIpHash: string | null;
 };
 
 export type GroupRoleOrder = {
@@ -81,7 +82,7 @@ type Participation = {
   updatedAt: Date;
 };
 
-type Competition = {
+type Prisma_Base_Competition = {
   id: number;
   title: string;
   metric: Metric;
@@ -94,6 +95,7 @@ type Competition = {
   verificationHash: string;
   createdAt: Date | null;
   updatedAt: Date | null;
+  creatorIpHash: string | null;
 };
 
 type Prisma_Base_NameChange = {

@@ -1,4 +1,3 @@
-import { omit } from '../../util/objects';
 import jobManager from '../../../jobs/job.manager';
 import { JobPriority } from '../../../jobs/job.utils';
 import prisma, { Competition, Participation } from '../../../prisma';
@@ -30,10 +29,6 @@ async function onCompetitionCreated(competition: CompetitionWithParticipations) 
   await prometheus.trackEffect('dispatchCompetitionCreated', async () => {
     discordService.dispatchCompetitionCreated(competition);
   });
-
-  if (!competition.visible) {
-    discordService.dispatchHiddenCompetitionCreated({ ...omit(competition, 'participations') });
-  }
 }
 
 async function onCompetitionStarted(competition: Competition) {

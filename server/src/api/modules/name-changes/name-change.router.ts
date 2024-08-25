@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import logger from '../../util/logging';
 import { checkAdminPermission } from '../../util/middlewares';
+import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getPaginationSchema } from '../../util/validation';
 import { NameChangeStatus } from './name-change.types';
@@ -11,7 +13,6 @@ import { denyNameChange } from './services/DenyNameChangeService';
 import { fetchNameChangeDetails } from './services/FetchNameChangeDetailsService';
 import { searchNameChanges } from './services/SearchNameChangesService';
 import { submitNameChange } from './services/SubmitNameChangeService';
-import logger from '../../util/logging';
 
 const router = Router();
 
@@ -49,7 +50,7 @@ router.post(
 
     logger.moderation(`Submitted name change ${result.oldName} -> ${result.newName}`, {
       timestamp: new Date().toISOString(),
-      ip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip
+      ipHash: getRequestIpHash(req)
     });
   })
 );

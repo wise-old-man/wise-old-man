@@ -4,7 +4,8 @@ import { checkAdminPermission } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { createAPIKey } from './services/CreateAPIKeyService';
 import { fetchTableCounts } from './services/FetchTableCountsService';
-import { toggleUnderAttackMode } from './services/ToggleUnderAttackModeService';
+import { blockUserActions } from './services/BlockUserActionsService';
+import { allowUserActions } from './services/AllowUserActionsService';
 
 const router = Router();
 
@@ -25,27 +26,39 @@ router.post(
   })
 );
 
-router.post(
-  '/under-attack-mode',
-  checkAdminPermission,
-  validateRequest({
-    body: z.object({
-      state: z.boolean()
-    })
-  }),
-  executeRequest(async (req, res) => {
-    const { state } = req.body;
-    await toggleUnderAttackMode(state);
-
-    res.status(200).json(state);
-  })
-);
-
 router.get(
   '/stats',
   executeRequest(async (_, res) => {
     const stats = await fetchTableCounts();
     res.status(200).json(stats);
+  })
+);
+
+router.post(
+  '/block-actions',
+  checkAdminPermission,
+  validateRequest({
+    body: z.object({
+      ipHash: z.string()
+    })
+  }),
+  executeRequest(async (req, res) => {
+    await blockUserActions(req.body.ipHash);
+    res.status(200).json(true);
+  })
+);
+
+router.post(
+  '/allow-actions',
+  checkAdminPermission,
+  validateRequest({
+    body: z.object({
+      ipHash: z.string()
+    })
+  }),
+  executeRequest(async (req, res) => {
+    await allowUserActions(req.body.ipHash);
+    res.status(200).json(true);
   })
 );
 

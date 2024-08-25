@@ -2,7 +2,6 @@ import prisma from '../../../../prisma';
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import { BadRequestError } from '../../../errors';
 import * as cryptService from '../../../services/external/crypt.service';
-import redisService from '../../../services/external/redis.service';
 import { omit } from '../../../util/objects';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -20,7 +19,10 @@ interface CreateGroupPayload {
   members: Array<{ username: string; role: GroupRole }>;
 }
 
-async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResult> {
+async function createGroup(
+  payload: CreateGroupPayload,
+  creatorIpHash: string | null
+): Promise<CreateGroupResult> {
   const name = sanitizeName(payload.name);
   const description = payload.description ? sanitizeName(payload.description) : null;
   const clanChat = payload.clanChat ? sanitize(payload.clanChat) : null;
@@ -51,8 +53,6 @@ async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResu
   const [code, hash] = await cryptService.generateVerification();
   const memberships = await prepareMemberships(payload.members);
 
-  const isUnderAttackModeEnabled = (await redisService.getValue('under_attack_mode', 'state')) === 'true';
-
   const createdGroup = await prisma.group.create({
     data: {
       name,
@@ -60,7 +60,7 @@ async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResu
       clanChat,
       homeworld: payload.homeworld,
       verificationHash: hash,
-      visible: isUnderAttackModeEnabled ? false : true,
+      creatorIpHash,
       memberships: {
         createMany: {
           data: memberships
@@ -76,7 +76,7 @@ async function createGroup(payload: CreateGroupPayload): Promise<CreateGroupResu
     }
   });
 
-  onGroupCreated({ ...omit(createdGroup, 'memberships'), memberCount: createdGroup.memberships.length });
+  onGroupCreated(createdGroup.id);
 
   if (createdGroup.memberships.length > 0) {
     onMembersJoined(createdGroup.memberships.map(m => ({ ...m, type: ActivityType.JOINED })));

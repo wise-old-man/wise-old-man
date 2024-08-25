@@ -17,7 +17,7 @@ function generateCode(): string {
 /**
  * Generates a code/hash pair.
  */
-async function generateVerification(): Promise<[string, string]> {
+export async function generateVerification(): Promise<[string, string]> {
   const saltRounds = 10;
 
   // This code is to be given to
@@ -39,7 +39,7 @@ async function generateVerification(): Promise<[string, string]> {
 /**
  * Checks if a given hash matches a given code.
  */
-async function verifyCode(hash: string, code: string): Promise<boolean> {
+export async function verifyCode(hash: string, code: string): Promise<boolean> {
   const verified = await new Promise((resolve, reject) => {
     compare(code, hash, (err, result) => {
       if (err) reject(err);
@@ -49,5 +49,3 @@ async function verifyCode(hash: string, code: string): Promise<boolean> {
 
   return !!verified;
 }
-
-export { generateVerification, verifyCode };
