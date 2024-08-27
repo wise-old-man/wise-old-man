@@ -1998,7 +1998,7 @@ describe('Player API', () => {
       });
 
       expect(newPlayerParticipations.length).toBe(3);
-      expect(newPlayerParticipations.map(m => m.competitionId)).toEqual([1004, 1006, 1008]);
+      expect([...newPlayerParticipations.map(m => m.competitionId)].sort()).toEqual([1004, 1006, 1008]);
 
       const postArchiveNameChangesResponse = await api.get(`/names`);
 

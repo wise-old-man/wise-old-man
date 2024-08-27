@@ -1943,7 +1943,7 @@ describe('Competition API', () => {
         metric: 'smithing',
         startsAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
         endsAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-        participants: ['harry']
+        participants: ['harry', 'potter']
       });
       expect(createResponse.status).toBe(201);
 
@@ -1962,14 +1962,13 @@ describe('Competition API', () => {
 
       const after = await api.get(`/competitions/${createResponse.body.competition.id}`);
       expect(after.status).toBe(200);
-      expect(after.body.participantCount).toBe(0); // had 1 previously
+      expect(after.body.participantCount).toBe(1); // had 2 previously
 
       // ensure competition.updatedAt has been updated
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
         new Date(before.body.updatedAt).getTime()
       );
 
-      // TODO: could use the admin override here
       const deleteResponse = await api.delete(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode
       });
