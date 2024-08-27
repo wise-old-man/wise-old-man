@@ -3,11 +3,11 @@ function formatNumber(num: number, withLetters = false, decimalPrecision = 2) {
 
   // If number is float
   if (num % 1 !== 0) {
-    return (Math.round(num * 100) / 100).toLocaleString();
+    return (Math.round(num * 100) / 100).toLocaleString('en-US');
   }
 
   if ((num < 10000 && num > -10000) || !withLetters) {
-    return num.toLocaleString();
+    return num.toLocaleString('en-US');
   }
 
   // < 100k
