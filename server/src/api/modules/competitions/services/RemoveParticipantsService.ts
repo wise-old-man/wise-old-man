@@ -1,5 +1,4 @@
 import prisma from '../../../../prisma';
-import { CompetitionType } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 
@@ -10,10 +9,6 @@ async function removeParticipants(id: number, participants: string[]): Promise<{
 
   if (!competition) {
     throw new NotFoundError('Competition not found.');
-  }
-
-  if (competition.type === CompetitionType.TEAM) {
-    throw new BadRequestError('Cannot remove participants from a team competition.');
   }
 
   const playersToRemove = await prisma.player.findMany({
@@ -32,14 +27,28 @@ async function removeParticipants(id: number, participants: string[]): Promise<{
     throw new BadRequestError('No valid tracked players were given.');
   }
 
-  const { count } = await prisma.participation.deleteMany({
-    where: {
-      competitionId: id,
-      playerId: { in: playersToRemove.map(p => p.id) }
+  const count = await prisma.$transaction(async transaction => {
+    const { count: removedCount } = await transaction.participation.deleteMany({
+      where: {
+        competitionId: id,
+        playerId: { in: playersToRemove.map(p => p.id) }
+      }
+    });
+
+    const newParticipantCount = await transaction.participation.count({
+      where: {
+        competitionId: id
+      }
+    });
+
+    if (newParticipantCount === 0) {
+      throw new BadRequestError('You cannot remove all competition participants.');
     }
+
+    return removedCount;
   });
 
-  if (!count) {
+  if (count === 0) {
     throw new BadRequestError('None of the players given were competing.');
   }
 

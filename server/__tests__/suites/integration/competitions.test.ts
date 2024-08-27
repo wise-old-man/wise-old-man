@@ -1850,16 +1850,64 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch('None of the players given were competing.');
     });
 
-    it('should not remove participants (team competition)', async () => {
-      const response = await api
-        .delete(`/competitions/${globalData.testCompetitionEnding.id}/participants`)
+    it('should remove participants (team competition)', async () => {
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Testing Remove Participants',
+        metric: 'zulrah',
+        startsAt: new Date('2030-01-01T00:00:00.000Z'),
+        endsAt: new Date('2030-01-08T00:00:00.000Z'),
+        teams: [
+          {
+            name: "Nandor's Team",
+            participants: ['nandor', 'guillermo']
+          },
+          {
+            name: "Laszlo's Squad",
+            participants: ['laszlo', 'nadja']
+          },
+          {
+            name: "Colin's Bunch",
+            participants: ['colin', 'the guide']
+          }
+        ]
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+      expect(createCompetitionResponse.body.competition.participantCount).toBe(6);
+
+      const firstResponse = await api
+        .delete(`/competitions/${createCompetitionResponse.body.competition.id}/participants`)
         .send({
-          participants: ['rorro', 'psikoi'],
-          verificationCode: globalData.testCompetitionEnding.verificationCode
+          participants: ['nandor', 'guillermo', 'laszlo', 'nadja', 'colin', 'the guide'],
+          verificationCode: createCompetitionResponse.body.verificationCode
         });
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot remove participants from a team competition.');
+      expect(firstResponse.status).toBe(400);
+      expect(firstResponse.body.message).toBe('You cannot remove all competition participants.');
+
+      const secondResponse = await api
+        .delete(`/competitions/${createCompetitionResponse.body.competition.id}/participants`)
+        .send({
+          participants: ['nandor', 'nadja', 'colin', 'the guide'],
+          verificationCode: createCompetitionResponse.body.verificationCode
+        });
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.message).toBe('Successfully removed 4 participants.');
+
+      const teamCheckResponse = await api.get(
+        `/competitions/${createCompetitionResponse.body.competition.id}`
+      );
+
+      expect(teamCheckResponse.status).toBe(200);
+      expect(teamCheckResponse.body.participantCount).toBe(2);
+
+      const uniqueTeamNames = new Set(teamCheckResponse.body.participations.map(p => p.teamName));
+
+      // 1 team was emptied out, it should be removed
+      expect(uniqueTeamNames.size).toBe(2);
+      expect(uniqueTeamNames.has("Nandor's Team")).toBe(true);
+      expect(uniqueTeamNames.has("Laszlo's Squad")).toBe(true);
     });
 
     it('should remove participants', async () => {
@@ -1895,7 +1943,7 @@ describe('Competition API', () => {
         metric: 'smithing',
         startsAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
         endsAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-        participants: ['harry']
+        participants: ['harry', 'potter']
       });
       expect(createResponse.status).toBe(201);
 
@@ -1914,14 +1962,13 @@ describe('Competition API', () => {
 
       const after = await api.get(`/competitions/${createResponse.body.competition.id}`);
       expect(after.status).toBe(200);
-      expect(after.body.participantCount).toBe(0); // had 1 previously
+      expect(after.body.participantCount).toBe(1); // had 2 previously
 
       // ensure competition.updatedAt has been updated
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
         new Date(before.body.updatedAt).getTime()
       );
 
-      // TODO: could use the admin override here
       const deleteResponse = await api.delete(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode
       });

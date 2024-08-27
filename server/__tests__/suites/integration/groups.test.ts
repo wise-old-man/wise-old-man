@@ -2017,7 +2017,6 @@ describe('Group API', () => {
         new Date(before.body.updatedAt).getTime()
       );
 
-      // TODO: could use the admin override here
       const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
         verificationCode: createResponse.body.verificationCode
       });
