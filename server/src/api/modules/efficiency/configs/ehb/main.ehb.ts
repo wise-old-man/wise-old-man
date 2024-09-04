@@ -3,6 +3,7 @@ import { Boss } from '../../../../../utils';
 export default [
   { boss: Boss.ABYSSAL_SIRE, rate: 45 },
   { boss: Boss.ALCHEMICAL_HYDRA, rate: 30 },
+  { boss: Boss.ARAXXOR, rate: 37 },
   { boss: Boss.ARTIO, rate: 60 },
   { boss: Boss.BARROWS_CHESTS, rate: 22 },
   { boss: Boss.BRYOPHYTA, rate: 9 },
