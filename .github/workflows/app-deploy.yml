@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - "app/**"
+      - "server/src/api/modules/efficiency/**"
 
 jobs:
   build-app-image:
