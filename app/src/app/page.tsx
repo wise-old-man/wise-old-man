@@ -37,6 +37,9 @@ import DiscordIcon from "~/assets/discord.svg";
 import BullhornIcon from "~/assets/bullhorn.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 
+// Invalidate the cached version of this page every 24 hours
+export const revalidate = 86400;
+
 export default async function LandingPage() {
   // This landing page requires API data to get pre-built. This would fail if the API is down,
   // so we can just have it pre-build an empty page instead.

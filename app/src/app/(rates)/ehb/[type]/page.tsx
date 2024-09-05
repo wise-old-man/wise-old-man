@@ -2,6 +2,9 @@ import { EfficiencyAlgorithmType, EfficiencyAlgorithmTypeUnion, MetricProps } fr
 import { MetricIcon } from "~/components/Icon";
 import { apiClient } from "~/services/wiseoldman";
 
+// Invalidate the cached version of this page every hour
+export const revalidate = 3600;
+
 interface PageProps {
   params: {
     type: EfficiencyAlgorithmTypeUnion;

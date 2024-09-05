@@ -10,6 +10,9 @@ import { MetricIcon, MetricIconSmall } from "~/components/Icon";
 import { ExpRatesTable } from "~/components/rates/ExperienceRatesTable";
 import { ExperienceBonusesTable } from "~/components/rates/ExperienceBonusesTable";
 
+// Invalidate the cached version of this page every hour
+export const revalidate = 3600;
+
 interface PageProps {
   params: {
     type: EfficiencyAlgorithmTypeUnion;
