@@ -364,7 +364,8 @@ describe('Achievements API', () => {
     test('Track player again, test new achievements', async () => {
       // Change attack to 50.5m
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
-        { metric: Metric.ATTACK, value: 50_585_985 }
+        { metric: Metric.ATTACK, value: 50_585_985 },
+        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 51 }
       ]);
 
       registerHiscoresMock(axiosMock, {
