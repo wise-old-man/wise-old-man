@@ -19,7 +19,8 @@ import {
   Activity,
   ComputedMetric,
   MapOf,
-  MetricValueKey
+  MetricValueKey,
+  isSkill
 } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
@@ -252,11 +253,18 @@ function getNegativeGains(before: Snapshot, after: Snapshot) {
     metricsToIgnore.push(Metric.BOUNTY_HUNTER_HUNTER, Metric.BOUNTY_HUNTER_ROGUE);
   }
 
-  const isValidKey = (key: MetricValueKey) => !metricsToIgnore.map(getMetricValueKey).includes(key);
-
   const negativeMetrics = METRICS.filter(metric => {
+    if (metricsToIgnore.includes(metric)) {
+      return false;
+    }
+
     const valueKey = getMetricValueKey(metric);
-    return isValidKey(valueKey) && after[valueKey] > -1 && after[valueKey] < before[valueKey];
+
+    if (isSkill(metric) && after[valueKey] === -1) {
+      return false;
+    }
+
+    return after[valueKey] < before[valueKey];
   });
 
   if (negativeMetrics.length === 0) return null;
@@ -264,7 +272,7 @@ function getNegativeGains(before: Snapshot, after: Snapshot) {
   const negativeGains = Object.fromEntries(
     negativeMetrics.map(metric => {
       const valueKey = getMetricValueKey(metric);
-      return [metric, after[valueKey] - before[valueKey]];
+      return [metric, Math.max(0, after[valueKey]) - Math.max(0, before[valueKey])];
     })
   ) as MapOf<Metric, number>;
 

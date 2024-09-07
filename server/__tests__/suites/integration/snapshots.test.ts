@@ -281,6 +281,27 @@ describe('Snapshots API', () => {
       const unrankedFarming = { ...globalData.snapshots[0], farmingExperience: -1 };
       expect(utils.getNegativeGains(globalData.snapshots[10], unrankedFarming)).toBeNull();
 
+      // Only skills can become randomly unranked, bosses and activities cannot
+      expect(
+        utils.getNegativeGains(
+          { ...globalData.snapshots[0], zulrahKills: 50, dagannoth_primeKills: 23 },
+          { ...globalData.snapshots[0], zulrahKills: -1, dagannoth_primeKills: 20 }
+        )
+      ).toEqual({
+        zulrah: -50,
+        dagannoth_prime: -3
+      });
+
+      expect(
+        utils.getNegativeGains(
+          { ...globalData.snapshots[0], clue_scrolls_eliteScore: 50, clue_scrolls_allScore: 99 },
+          { ...globalData.snapshots[0], clue_scrolls_eliteScore: -1, clue_scrolls_allScore: 90 }
+        )
+      ).toEqual({
+        clue_scrolls_elite: -50,
+        clue_scrolls_all: -9
+      });
+
       // Negative BH score (not allowed, happened before the BH update on May 24th 2023)
       expect(
         utils.getNegativeGains(
