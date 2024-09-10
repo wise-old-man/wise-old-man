@@ -1,4 +1,4 @@
-# How to contribute to the Wise Old Man API Documentation
+# How to contribute to the Wise Old Man Web App
 
 This should be a pretty simple setup, as the app doesn't have many external service dependencies.
 
