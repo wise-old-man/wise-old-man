@@ -281,6 +281,50 @@ describe('Names API', () => {
         })
       );
     });
+
+    it('should submit (same name, different capitalization)', async () => {
+      const trackResponse = await api.post(`/players/Rorro`);
+
+      expect(trackResponse.status).toBe(201);
+      expect(trackResponse.body.username).toBe('rorro');
+      expect(trackResponse.body.displayName).toBe('Rorro');
+
+      const submitResponse = await api.post(`/names`).send({ oldName: 'Rorro', newName: 'RoRRo' });
+      expect(submitResponse.status).toBe(201);
+      expect(submitResponse.body.oldName).toBe('Rorro');
+      expect(submitResponse.body.newName).toBe('RoRRo');
+
+      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: submitResponse.body.id
+        })
+      );
+
+      const approveResponse = await api
+        .post(`/names/${submitResponse.body.id}/approve`)
+        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+
+      expect(approveResponse.status).toBe(200);
+      expect(approveResponse.body.status).toBe('approved');
+      expect(approveResponse.body.resolvedAt).not.toBe(null);
+      expect(approveResponse.body.reviewContext).toBe(null);
+
+      expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          displayName: 'RoRRo'
+        }),
+        'Rorro'
+      );
+
+      const resubmitResponse = await api.post(`/names`).send({ oldName: 'RoRRo', newName: 'rorrO' });
+      expect(resubmitResponse.status).toBe(201);
+      expect(resubmitResponse.body.oldName).toBe('RoRRo');
+      expect(resubmitResponse.body.newName).toBe('rorrO');
+
+      await prisma.nameChange.deleteMany({
+        where: { id: { in: [submitResponse.body.id, resubmitResponse.body.id] } }
+      });
+    });
   });
 
   describe('2 - Details', () => {
