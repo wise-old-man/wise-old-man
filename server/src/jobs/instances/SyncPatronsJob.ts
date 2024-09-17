@@ -114,6 +114,7 @@ async function syncBenefits() {
     ...updatedPatrons.map(p => p.groupId).filter((id): id is number => id !== null),
     // Add benefits to these groups as well:
     139, // Exclusive Elite Club
+    201, // Ruthless (Aluminoti)
     1169, // Hardly Iron (Geeving)
   ];
 
@@ -121,6 +122,7 @@ async function syncBenefits() {
     ...updatedPatrons.map(p => p.playerId).filter((id): id is number => id !== null),
     // Add benefits to these players as well:
     2, // Psikoi
+    30051, // Aluminoti
     263152, // Geeving
   ];
 
