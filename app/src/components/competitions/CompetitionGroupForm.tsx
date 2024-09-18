@@ -85,7 +85,7 @@ export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
             edit/delete the competition using the group&apos;s verification code instead.
           </p>
           <p className="mt-5">
-            Dont&apos;t have a group yet?{" "}
+            Don&apos;t have a group yet?{" "}
             <Link prefetch={false} href="/groups/create" className="text-blue-400">
               Create one here
             </Link>
