@@ -117,6 +117,7 @@ model Delta {
   giant_mole                       Int       @default(0)
   grotesque_guardians              Int       @default(0)
   hespori                          Int       @default(0)
+  hueycoatl                        Int       @default(0)
   kalphite_queen                   Int       @default(0)
   king_black_dragon                Int       @default(0)
   kraken                           Int       @default(0)
@@ -520,8 +521,10 @@ model Snapshot {
   grotesque_guardiansRank               Int       @default(-1)
   grotesque_guardiansKills              Int       @default(-1)
   hesporiRank                           Int       @default(-1)
-  kalphite_queenKills                   Int       @default(-1)
   hesporiKills                          Int       @default(-1)
+  hueycoatlRank                         Int       @default(-1)
+  hueycoatlKills                        Int       @default(-1)
+  kalphite_queenKills                   Int       @default(-1)
   kalphite_queenRank                    Int       @default(-1)
   king_black_dragonRank                 Int       @default(-1)
   king_black_dragonKills                Int       @default(-1)
@@ -1320,6 +1323,7 @@ enum Metric {
   giant_mole
   grotesque_guardians
   hespori
+  hueycoatl
   kalphite_queen
   king_black_dragon
   kraken

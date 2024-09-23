@@ -268,6 +268,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [50, 100, 500, 1000]
   },
   {
+    name: '{threshold} Hueycoatl kills',
+    metric: Metric.HUEYCOATL,
+    thresholds: [50, 100, 500, 1000]
+  },
+  {
     name: '{threshold} Kalphite Queen kills',
     metric: Metric.KALPHITE_QUEEN,
     thresholds: [500, 1000, 5000, 10_000]

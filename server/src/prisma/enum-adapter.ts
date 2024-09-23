@@ -111,6 +111,7 @@ export const Boss = {
   GIANT_MOLE: 'giant_mole',
   GROTESQUE_GUARDIANS: 'grotesque_guardians',
   HESPORI: 'hespori',
+  HUEYCOATL: 'hueycoatl',
   KALPHITE_QUEEN: 'kalphite_queen',
   KING_BLACK_DRAGON: 'king_black_dragon',
   KRAKEN: 'kraken',

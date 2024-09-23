@@ -262,8 +262,10 @@ type Prisma_Base_Snapshot = {
   grotesque_guardiansRank: number;
   grotesque_guardiansKills: number;
   hesporiRank: number;
-  kalphite_queenKills: number;
   hesporiKills: number;
+  hueycoatlRank: number;
+  hueycoatlKills: number;
+  kalphite_queenKills: number;
   kalphite_queenRank: number;
   king_black_dragonRank: number;
   king_black_dragonKills: number;
