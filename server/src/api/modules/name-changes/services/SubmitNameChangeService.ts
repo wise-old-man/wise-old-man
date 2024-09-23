@@ -66,7 +66,7 @@ async function submitNameChange(oldName: string, newName: string): Promise<NameC
       orderBy: { createdAt: 'desc' }
     });
 
-    if (lastChange && standardize(lastChange.oldName) === stOldName) {
+    if (lastChange && lastChange.newName === newName) {
       throw new BadRequestError(`Cannot submit a duplicate (approved) name change. (Id: ${lastChange.id})`);
     }
   }
