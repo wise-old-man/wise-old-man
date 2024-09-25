@@ -153,6 +153,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
+    name: '{threshold} Amoxliatl kills',
+    metric: Metric.AMOXLIATL,
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
     name: '{threshold} Araxxor kills',
     metric: Metric.ARAXXOR,
     thresholds: [500, 1000, 5000, 10_000]
@@ -268,8 +273,8 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [50, 100, 500, 1000]
   },
   {
-    name: '{threshold} Hueycoatl kills',
-    metric: Metric.HUEYCOATL,
+    name: '{threshold} The Hueycoatl kills',
+    metric: Metric.THE_HUEYCOATL,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {

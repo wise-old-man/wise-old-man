@@ -88,6 +88,7 @@ export const Activity = {
 export const Boss = {
   ABYSSAL_SIRE: 'abyssal_sire',
   ALCHEMICAL_HYDRA: 'alchemical_hydra',
+  AMOXLIATL: 'amoxliatl',
   ARAXXOR: 'araxxor',
   ARTIO: 'artio',
   BARROWS_CHESTS: 'barrows_chests',
@@ -111,7 +112,6 @@ export const Boss = {
   GIANT_MOLE: 'giant_mole',
   GROTESQUE_GUARDIANS: 'grotesque_guardians',
   HESPORI: 'hespori',
-  HUEYCOATL: 'hueycoatl',
   KALPHITE_QUEEN: 'kalphite_queen',
   KING_BLACK_DRAGON: 'king_black_dragon',
   KRAKEN: 'kraken',
@@ -133,6 +133,7 @@ export const Boss = {
   TEMPOROSS: 'tempoross',
   THE_GAUNTLET: 'the_gauntlet',
   THE_CORRUPTED_GAUNTLET: 'the_corrupted_gauntlet',
+  THE_HUEYCOATL: 'the_hueycoatl',
   THE_LEVIATHAN: 'the_leviathan',
   THE_WHISPERER: 'the_whisperer',
   THEATRE_OF_BLOOD: 'theatre_of_blood',
