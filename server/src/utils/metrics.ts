@@ -85,6 +85,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
   {
     [Boss.ABYSSAL_SIRE]: { name: 'Abyssal Sire' },
     [Boss.ALCHEMICAL_HYDRA]: { name: 'Alchemical Hydra' },
+    [Boss.AMOXLIATL]: { name: 'Amoxliatl' },
     [Boss.ARAXXOR]: { name: 'Araxxor' },
     [Boss.ARTIO]: { name: 'Artio' },
     [Boss.BARROWS_CHESTS]: { name: 'Barrows Chests' },
@@ -108,6 +109,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
     [Boss.GIANT_MOLE]: { name: 'Giant Mole' },
     [Boss.GROTESQUE_GUARDIANS]: { name: 'Grotesque Guardians' },
     [Boss.HESPORI]: { name: 'Hespori' },
+    [Boss.THE_HUEYCOATL]: { name: 'The Hueycoatl' },
     [Boss.KALPHITE_QUEEN]: { name: 'Kalphite Queen' },
     [Boss.KING_BLACK_DRAGON]: { name: 'King Black Dragon' },
     [Boss.KRAKEN]: { name: 'Kraken' },

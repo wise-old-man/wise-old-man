@@ -221,6 +221,8 @@ type Prisma_Base_Snapshot = {
   abyssal_sireKills: number;
   alchemical_hydraRank: number;
   alchemical_hydraKills: number;
+  amoxliatlRank: number;
+  amoxliatlKills: number;
   artioRank: number;
   artioKills: number;
   barrows_chestsRank: number;
@@ -262,8 +264,8 @@ type Prisma_Base_Snapshot = {
   grotesque_guardiansRank: number;
   grotesque_guardiansKills: number;
   hesporiRank: number;
-  kalphite_queenKills: number;
   hesporiKills: number;
+  kalphite_queenKills: number;
   kalphite_queenRank: number;
   king_black_dragonRank: number;
   king_black_dragonKills: number;
@@ -293,6 +295,8 @@ type Prisma_Base_Snapshot = {
   the_gauntletKills: number;
   the_corrupted_gauntletKills: number;
   the_corrupted_gauntletRank: number;
+  the_hueycoatlRank: number;
+  the_hueycoatlKills: number;
   theatre_of_bloodRank: number;
   theatre_of_bloodKills: number;
   thermonuclear_smoke_devilRank: number;

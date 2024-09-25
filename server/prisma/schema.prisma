@@ -94,6 +94,7 @@ model Delta {
   construction                     Int       @default(0)
   abyssal_sire                     Int       @default(0)
   alchemical_hydra                 Int       @default(0)
+  amoxliatl                        Int       @default(0)
   araxxor                          Int       @default(0)
   artio                            Int       @default(0)
   barrows_chests                   Int       @default(0)
@@ -138,6 +139,7 @@ model Delta {
   tempoross                        Int       @default(0)
   the_gauntlet                     Int       @default(0)
   the_corrupted_gauntlet           Int       @default(0)
+  the_hueycoatl                    Int       @default(0)
   the_leviathan                    Int       @default(0)
   the_whisperer                    Int       @default(0)
   theatre_of_blood                 Int       @default(0)
@@ -475,6 +477,8 @@ model Snapshot {
   abyssal_sireKills                     Int       @default(-1)
   alchemical_hydraRank                  Int       @default(-1)
   alchemical_hydraKills                 Int       @default(-1)
+  amoxliatlRank                         Int       @default(-1)
+  amoxliatlKills                        Int       @default(-1)
   araxxorRank                           Int       @default(-1)
   araxxorKills                          Int       @default(-1)
   artioRank                             Int       @default(-1)
@@ -520,8 +524,8 @@ model Snapshot {
   grotesque_guardiansRank               Int       @default(-1)
   grotesque_guardiansKills              Int       @default(-1)
   hesporiRank                           Int       @default(-1)
-  kalphite_queenKills                   Int       @default(-1)
   hesporiKills                          Int       @default(-1)
+  kalphite_queenKills                   Int       @default(-1)
   kalphite_queenRank                    Int       @default(-1)
   king_black_dragonRank                 Int       @default(-1)
   king_black_dragonKills                Int       @default(-1)
@@ -557,6 +561,8 @@ model Snapshot {
   the_gauntletKills                     Int       @default(-1)
   the_corrupted_gauntletKills           Int       @default(-1)
   the_corrupted_gauntletRank            Int       @default(-1)
+  the_hueycoatlRank                     Int       @default(-1)
+  the_hueycoatlKills                    Int       @default(-1)
   the_leviathanRank                     Int       @default(-1)
   the_leviathanKills                    Int       @default(-1)
   the_whispererRank                     Int       @default(-1)
@@ -1297,6 +1303,7 @@ enum Metric {
   pvp_arena
   abyssal_sire
   alchemical_hydra
+  amoxliatl
   araxxor
   artio
   barrows_chests
@@ -1338,6 +1345,7 @@ enum Metric {
   sol_heredit
   spindel
   the_gauntlet
+  the_hueycoatl
   the_corrupted_gauntlet
   the_leviathan
   the_whisperer
