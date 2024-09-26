@@ -46,7 +46,7 @@ export function SaveCompetitionVerificationCodeDialog(
         if (!val) props.onClose();
       }}
     >
-      <DialogContent className="w-[22rem]">
+      <DialogContent className="w-[22rem]" hideClose onPointerDownOutside={(e) => e.preventDefault()}>
         {isGroupCompetition ? (
           <>
             <DialogHeader>
@@ -109,6 +109,8 @@ export function SaveCompetitionVerificationCodeDialog(
               disabled={!hasWaited || isTransitioning}
               onClick={() => {
                 startTransition(() => {
+                  navigator.clipboard.writeText(verificationCode);
+                  toast.toast({ variant: "success", title: "Copied to the clipboard!" });
                   onClose();
                 });
               }}

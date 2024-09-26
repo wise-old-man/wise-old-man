@@ -43,7 +43,7 @@ export function SaveGroupVerificationCodeDialog(props: SaveGroupVerificationCode
         if (!val) props.onClose();
       }}
     >
-      <DialogContent className="w-[22rem]">
+      <DialogContent className="w-[22rem]" hideClose onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-center">Done!</DialogTitle>
           <span className="text-center text-sm text-blue-400">
@@ -85,6 +85,8 @@ export function SaveGroupVerificationCodeDialog(props: SaveGroupVerificationCode
           disabled={!hasWaited || isTransitioning}
           onClick={() => {
             startTransition(() => {
+              navigator.clipboard.writeText(verificationCode);
+              toast.toast({ variant: "success", title: "Copied to the clipboard!" });
               onClose();
             });
           }}
