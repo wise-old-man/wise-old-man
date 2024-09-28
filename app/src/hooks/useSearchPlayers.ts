@@ -3,11 +3,12 @@ import { useWOMClient } from "./useWOMClient";
 
 export default function useSearchPlayers(query: string, options: { enabled?: boolean }) {
   const client = useWOMClient();
+  const trimmedQuery = query.toLowerCase().trim();
 
   return useQuery({
-    queryKey: ["players", query],
-    queryFn: () => client.players.searchPlayers(query),
+    queryKey: ["players", trimmedQuery],
+    queryFn: () => client.players.searchPlayers(trimmedQuery),
     enabled: options.enabled === undefined || options.enabled,
-    staleTime: 30,
+    staleTime: 30_000,
   });
 }

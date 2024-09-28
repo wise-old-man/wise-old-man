@@ -31,14 +31,14 @@ export function PlayerSearch(props: PlayerSearchProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const focusParentRef = useRef<HTMLDivElement>(null);
 
-  const debouncedSearchQuery = useDebouncedValue(query, 250);
+  const debouncedSearchQuery = useDebouncedValue(query, 400);
 
   const { recentSearches, addSearchTerm } = useRecentSearches({
     enabled: open,
   });
 
   const { data: players } = useSearchPlayers(debouncedSearchQuery, {
-    enabled: open && debouncedSearchQuery.length > 0,
+    enabled: debouncedSearchQuery.length > 0,
   });
 
   const hasExactMatch = players?.some((player) => isExactMatch(query, player.username));
