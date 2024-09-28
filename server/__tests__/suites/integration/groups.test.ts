@@ -378,6 +378,34 @@ describe('Group API', () => {
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
+    it('should not edit (no dashes in verification code, but empty params)', async () => {
+      const dashlessCode = globalData.testGroupNoMembers.verificationCode.replaceAll('-', '');
+
+      const response = await api
+        .put(`/groups/${globalData.testGroupNoMembers.id}`)
+        .send({ verificationCode: dashlessCode });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Nothing to update.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit (white spaces in verification code, but empty params)', async () => {
+      const codeWithWhitespace = ` ${globalData.testGroupNoMembers.verificationCode} `;
+
+      const response = await api
+        .put(`/groups/${globalData.testGroupNoMembers.id}`)
+        .send({ verificationCode: codeWithWhitespace });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Nothing to update.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
     it('should not edit (empty params)', async () => {
       const response = await api
         .put(`/groups/${globalData.testGroupNoMembers.id}`)

@@ -40,12 +40,29 @@ export async function generateVerification(): Promise<[string, string]> {
  * Checks if a given hash matches a given code.
  */
 export async function verifyCode(hash: string, code: string): Promise<boolean> {
+  const trimmedCode = code.trim();
+
   const verified = await new Promise((resolve, reject) => {
-    compare(code, hash, (err, result) => {
+    compare(trimmedCode, hash, (err, result) => {
       if (err) reject(err);
       resolve(result);
     });
   });
 
-  return !!verified;
+  if (verified) {
+    return true;
+  }
+
+  /**
+   * Sometimes users might input the code without the dashes,
+   * this double checks by re-inserting the dashes and trying again.
+   */
+  if (trimmedCode.length === 9) {
+    return verifyCode(
+      hash,
+      trimmedCode.slice(0, 3) + '-' + trimmedCode.slice(3, 6) + '-' + trimmedCode.slice(6, 9)
+    );
+  }
+
+  return false;
 }
