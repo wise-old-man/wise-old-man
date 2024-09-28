@@ -11,7 +11,7 @@ export default function useChangelog() {
     queryFn: () => {
       return localStorage.getItem(LOCAL_STORAGE_KEY);
     },
-    staleTime: 300,
+    staleTime: 300_000,
   });
 
   const latestChangelog = changelog[0] as Changelog | undefined;

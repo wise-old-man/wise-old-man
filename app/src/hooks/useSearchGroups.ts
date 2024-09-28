@@ -8,6 +8,6 @@ export default function useSearchGroups(query: string, options: { enabled?: bool
     queryKey: ["groups", query],
     queryFn: () => client.groups.searchGroups(query),
     enabled: options.enabled === undefined || options.enabled,
-    staleTime: 30,
+    staleTime: 30_000,
   });
 }

@@ -16,7 +16,7 @@ export default function useRecentSearches({ enabled }: { enabled?: boolean }) {
       }
     },
     enabled: enabled === undefined || enabled,
-    staleTime: 300,
+    staleTime: 300_000,
   });
 
   const addSearchTermMutation = useMutation({
