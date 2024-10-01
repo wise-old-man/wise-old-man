@@ -231,7 +231,7 @@ function PlayerStatusAlert(props: { player: PlayerDetails }) {
             {` for more information.`}
 
             <p className="mt-5">
-              <span className="text-white">Note (August 4th):</span> There&apos;s currently a issue
+              <span className="text-white">Note (October 1st):</span> There&apos;s currently a issue
               with the Jagex hiscores due to a recent rollback that is causing some players to
               get flagged. If you&apos;re affected, try to log out in-game (to update your
               hiscores) and then update your WOM profile.
