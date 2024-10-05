@@ -279,8 +279,8 @@ export default [
       },
       {
         startExp: 4_385_776,
-        rate: 260_000,
-        description: 'Adamant platebodies'
+        rate: 350_000,
+        description: 'Adamant platebodies w/ alt'
       },
       {
         startExp: 13_034_431,
