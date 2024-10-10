@@ -3,6 +3,7 @@ import { Boss } from '../../../../../utils';
 export default [
   { boss: Boss.ABYSSAL_SIRE, rate: 45 },
   { boss: Boss.ALCHEMICAL_HYDRA, rate: 30 },
+  { boss: Boss.AMOXLIATL, rate: 70 },
   { boss: Boss.ARAXXOR, rate: 37 },
   { boss: Boss.ARTIO, rate: 60 },
   { boss: Boss.BARROWS_CHESTS, rate: 22 },
@@ -45,6 +46,7 @@ export default [
   { boss: Boss.SOL_HEREDIT, rate: 2.5 },
   { boss: Boss.SPINDEL, rate: 55 },
   { boss: Boss.THE_CORRUPTED_GAUNTLET, rate: 7 },
+  { boss: Boss.THE_HUEYCOATL, rate: 20 },
   { boss: Boss.THE_GAUNTLET, rate: 10 },
   { boss: Boss.THE_LEVIATHAN, rate: 30 },
   { boss: Boss.THE_WHISPERER, rate: 21 },
