@@ -927,7 +927,7 @@ Adds all (valid) given participants to a competition, ignoring duplicates.
 <TabbedCodeBlock>
 
 ```curl
-curl -X POST https://api.wiseoldman.net/v2/competitions/123 \
+curl -X POST https://api.wiseoldman.net/v2/competitions/123/participants \
  -H "Content-type: application/json" \
  -d '{
 	"verificationCode": "759-236-892",
@@ -989,7 +989,7 @@ Remove all given usernames from a competition, ignoring usernames that aren't co
 <TabbedCodeBlock>
 
 ```curl
-curl -X DELETE https://api.wiseoldman.net/v2/competitions/123 \
+curl -X DELETE https://api.wiseoldman.net/v2/competitions/123/participants \
  -H "Content-type: application/json" \
  -d '{
 	"verificationCode": "759-236-892",
