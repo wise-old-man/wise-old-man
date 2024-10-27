@@ -4,10 +4,9 @@ const MAINTENANCE_MODE = {
 };
 
 const ANNOUNCEMENT_BANNER = {
-  enabled: true,
-  color: "yellow", // "blue" / "yellow" / undefined
-  message:
-    "We are currently experiencing some unexpected issues with the API. We are aware and will fix ASAP.",
+  enabled: false,
+  color: undefined, // "blue" / "yellow" / undefined
+  message: undefined,
 };
 
 module.exports = {
