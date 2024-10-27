@@ -4,6 +4,13 @@ const createLruHandler = require("@neshca/cache-handler/local-lru").default;
 const { createClient } = require("redis");
 
 CacheHandler.onCreation(async () => {
+  // During local build, we don't can't connect to Redis.
+  if (process.env.BUILD_STANDALONE === "true") {
+    return {
+      handlers: [],
+    };
+  }
+
   let client;
 
   try {
