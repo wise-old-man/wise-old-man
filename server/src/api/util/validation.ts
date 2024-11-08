@@ -18,7 +18,13 @@ function enumErrorMap(path: Array<string | number>, options: Array<string | numb
 }
 
 // Add a global error map to zod validations
-z.setErrorMap((issue, ctx) => {
+z.setErrorMap((baseIssue, ctx) => {
+  let issue = baseIssue;
+
+  if (issue.code === z.ZodIssueCode.invalid_union) {
+    issue = issue.unionErrors[0].issues[0];
+  }
+
   if (issue.code === z.ZodIssueCode.invalid_type) {
     if (issue.received === 'undefined') {
       return { message: `Parameter '${issue.path}' is undefined.` };

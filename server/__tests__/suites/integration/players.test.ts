@@ -1277,6 +1277,25 @@ describe('Player API', () => {
       expect(detailsResponse.body.username).toBe('psikoi');
       expect(detailsResponse.body.country).toBe('PT');
     });
+
+    it('should update player country (unsetting country)', async () => {
+      const updateCountryResponse = await api
+        .put(`/players/psikoi/country`)
+        .send({ country: null, adminPassword: process.env.ADMIN_PASSWORD });
+
+      expect(updateCountryResponse.status).toBe(200);
+
+      expect(updateCountryResponse.body).toMatchObject({
+        username: 'psikoi',
+        country: null
+      });
+
+      const detailsResponse = await api.get('/players/PsiKOI');
+
+      expect(detailsResponse.status).toBe(200);
+      expect(detailsResponse.body.username).toBe('psikoi');
+      expect(detailsResponse.body.country).toBe(null);
+    });
   });
 
   describe('7. Rolling back', () => {
