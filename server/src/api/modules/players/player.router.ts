@@ -146,7 +146,7 @@ router.put(
       username: z.string()
     }),
     body: z.object({
-      country: z.string().min(2)
+      country: z.string().min(2).or(z.null())
     })
   }),
   executeRequest(async (req, res) => {
