@@ -73,11 +73,15 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
     router.replace(`/players/${player.username}/gained?${nextParams.toString()}`, { scroll: false });
   }
 
-  function handlePeriodSelected(newPeriod: Period | "custom") {
+  function handlePeriodSelected(newPeriod: Period | "custom" | "alltime") {
     const nextParams = new URLSearchParams(searchParams);
 
     if (newPeriod === "custom") {
       nextParams.set("dialog", "custom_period");
+    } else if (newPeriod == "alltime") {
+      nextParams.delete("period");
+      nextParams.set("startDate", player.registeredAt.toISOString());
+      nextParams.set("endDate", player.updatedAt ? player.updatedAt.toISOString() : new Date().toISOString());
     } else if (newPeriod === Period.WEEK) {
       nextParams.delete("period");
       nextParams.delete("startDate");
@@ -438,7 +442,7 @@ function MetricTypeSelect(props: MetricTypeSelectProps) {
 
 interface PeriodSelectProps {
   period?: Period;
-  onPeriodSelected: (period: Period | "custom") => void;
+  onPeriodSelected: (period: Period | "custom" | "alltime") => void;
 }
 
 function PeriodSelect(props: PeriodSelectProps) {
@@ -453,7 +457,7 @@ function PeriodSelect(props: PeriodSelectProps) {
         startTransition(() => {
           if (val === undefined) {
             onPeriodSelected(Period.WEEK);
-          } else if (isPeriod(val) || val === "custom") {
+          } else if (isPeriod(val) || val === "custom" || val === "alltime") {
             onPeriodSelected(val);
           }
         });
@@ -472,6 +476,7 @@ function PeriodSelect(props: PeriodSelectProps) {
                 {PeriodProps[period].name}
               </ComboboxItem>
             ))}
+            <ComboboxItem value="alltime">All time</ComboboxItem>
             <ComboboxItem value="custom">Select custom period...</ComboboxItem>
           </ComboboxItemGroup>
         </ComboboxItemsContainer>
