@@ -43,6 +43,8 @@ interface PlayerGainedTableProps {
   timeRange: TimeRangeFilter;
 }
 
+var isAllTime = false;
+
 export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProps>) {
   const { player, gains, metric, timeRange, children } = props;
 
@@ -77,16 +79,20 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
     const nextParams = new URLSearchParams(searchParams);
 
     if (newPeriod === "custom") {
+      isAllTime = false;
       nextParams.set("dialog", "custom_period");
     } else if (newPeriod == "alltime") {
+      isAllTime = true;
       nextParams.delete("period");
       nextParams.set("startDate", player.registeredAt.toISOString());
       nextParams.set("endDate", player.updatedAt ? player.updatedAt.toISOString() : new Date().toISOString());
     } else if (newPeriod === Period.WEEK) {
+      isAllTime = false;
       nextParams.delete("period");
       nextParams.delete("startDate");
       nextParams.delete("endDate");
     } else {
+      isAllTime = false;
       nextParams.set("period", newPeriod);
       nextParams.delete("startDate");
       nextParams.delete("endDate");
@@ -106,20 +112,36 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
                 {player.displayName}&apos;s gains in the last&nbsp;
                 <span className="text-white">{PeriodProps[timeRange.period].name.toLowerCase()}</span>
               </>
-            ) : (
-              <>
-                {player.displayName}&apos;s gains during:&nbsp;
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="text-white underline">custom period</span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Start: {formatDatetime(timeRange.startDate)}
-                    <br />
-                    End: {formatDatetime(timeRange.endDate)}
-                  </TooltipContent>
-                </Tooltip>
-              </>
+            ) : ( isAllTime ? (
+                <>
+                  {player.displayName}&apos;s&nbsp;
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="text-white underline">all time</span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Start: {formatDatetime(timeRange.startDate)}
+                      <br />
+                      End: {formatDatetime(timeRange.endDate)}
+                    </TooltipContent>
+                  </Tooltip>
+                  &nbsp;gains
+                </>
+              ) : (
+                <>
+                  {player.displayName}&apos;s gains during:&nbsp;
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="text-white underline">custom period</span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Start: {formatDatetime(timeRange.startDate)}
+                      <br />
+                      End: {formatDatetime(timeRange.endDate)}
+                    </TooltipContent>
+                  </Tooltip>
+                </>
+              )
             )}
           </p>
         </div>
@@ -458,6 +480,7 @@ function PeriodSelect(props: PeriodSelectProps) {
           if (val === undefined) {
             onPeriodSelected(Period.WEEK);
           } else if (isPeriod(val) || val === "custom" || val === "alltime") {
+            val == "alltime" ? (isAllTime = true) : (isAllTime = false);
             onPeriodSelected(val);
           }
         });
@@ -465,7 +488,7 @@ function PeriodSelect(props: PeriodSelectProps) {
     >
       <ComboboxButton className="w-full" isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">
-          {period ? PeriodProps[period].name : "Custom period"}
+          {period ? PeriodProps[period].name : (isAllTime ? "All time" : "Custom period")}
         </div>
       </ComboboxButton>
       <ComboboxContent>
