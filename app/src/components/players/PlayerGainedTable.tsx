@@ -84,7 +84,7 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
     } else if (newPeriod == "alltime") {
       isAllTime = true;
       nextParams.delete("period");
-      nextParams.set("startDate", player.registeredAt.toISOString());
+      nextParams.set("startDate", new Date("2013-01-01").toISOString());
       nextParams.set("endDate", player.updatedAt ? player.updatedAt.toISOString() : new Date().toISOString());
     } else if (newPeriod === Period.WEEK) {
       isAllTime = false;
