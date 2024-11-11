@@ -77,9 +77,9 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
 
   function handlePeriodSelected(newPeriod: Period | "custom" | "alltime") {
     const nextParams = new URLSearchParams(searchParams);
+    isAllTime = false;
 
     if (newPeriod === "custom") {
-      isAllTime = false;
       nextParams.set("dialog", "custom_period");
     } else if (newPeriod == "alltime") {
       isAllTime = true;
@@ -87,12 +87,10 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
       nextParams.set("startDate", new Date("2013-01-01").toISOString());
       nextParams.set("endDate", player.updatedAt ? player.updatedAt.toISOString() : new Date().toISOString());
     } else if (newPeriod === Period.WEEK) {
-      isAllTime = false;
       nextParams.delete("period");
       nextParams.delete("startDate");
       nextParams.delete("endDate");
     } else {
-      isAllTime = false;
       nextParams.set("period", newPeriod);
       nextParams.delete("startDate");
       nextParams.delete("endDate");
