@@ -31,6 +31,9 @@ interface PartialParticipation {
   teamName: string | null;
 }
 
+const MAINTENANCE_START = new Date('2024-11-14T17:00:00Z');
+const MAINTENANCE_END = new Date('2024-11-14T23:00:00Z');
+
 async function editCompetition(
   id: number,
   payload: EditCompetitionPayload
@@ -43,6 +46,26 @@ async function editCompetition(
 
   if (!title && !metric && !startsAt && !endsAt && !participants && !teams) {
     throw new BadRequestError('Nothing to update.');
+  }
+
+  if (
+    startsAt &&
+    startsAt.getTime() >= MAINTENANCE_START.getTime() &&
+    startsAt.getTime() <= MAINTENANCE_END.getTime()
+  ) {
+    throw new BadRequestError(
+      'Invalid start date: Planned maintenance period on November 14th (17:00 - 23:00 UTC).'
+    );
+  }
+
+  if (
+    endsAt &&
+    endsAt.getTime() >= MAINTENANCE_START.getTime() &&
+    endsAt.getTime() <= MAINTENANCE_END.getTime()
+  ) {
+    throw new BadRequestError(
+      'Invalid end date: Planned maintenance period on November 14th (17:00 - 23:00 UTC).'
+    );
   }
 
   const updatedCompetitionFields: PrismaTypes.CompetitionUpdateInput = {};
