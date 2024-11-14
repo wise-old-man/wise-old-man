@@ -1,6 +1,6 @@
 const MAINTENANCE_MODE = {
-  enabled: false,
-  message: undefined,
+  enabled: true,
+  message: `WOM is currently down for planned maintenance - scheduled to end at 23:00 UTC. Plesse check back later or join our Discord for updates.`,
 };
 
 const ANNOUNCEMENT_BANNER = {
