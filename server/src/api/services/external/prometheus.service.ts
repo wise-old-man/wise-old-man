@@ -13,7 +13,7 @@ class PrometheusService {
 
   constructor() {
     this.registry = new prometheus.Registry();
-    this.registry.setDefaultLabels({ app: 'wise-old-man', threadIndex: getThreadIndex() });
+    this.registry.setDefaultLabels({ app: 'league-raging-echoes', threadIndex: getThreadIndex() });
 
     prometheus.collectDefaultMetrics({ register: this.registry });
 
