@@ -143,7 +143,7 @@ class API {
 
   private setupServices() {
     Sentry.init({
-      dsn: process.env.API_SENTRY_DSN,
+      dsn: process.env.LEAGUE_API_SENTRY_DSN,
       tracesSampleRate: 0.01,
       integrations: [
         new Sentry.Integrations.Http({ tracing: true }),

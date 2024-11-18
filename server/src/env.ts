@@ -18,7 +18,7 @@ function prodOnly<T extends z.ZodTypeAny>(varSchema: T) {
 
 const envVariablesSchema = z.object({
   // Prisma Database URL
-  CORE_DATABASE_URL: z.string().trim().min(1),
+  LEAGUE_DATABASE_URL: z.string().trim().min(1),
   // Redis Configs
   REDIS_HOST: z.string().trim().min(1),
   REDIS_PORT: z.coerce.number().positive().int(),
@@ -29,7 +29,7 @@ const envVariablesSchema = z.object({
   // Admin Password (For mod+ operations)
   ADMIN_PASSWORD: prodOnly(z.string().trim().min(1)),
   // Sentry (for error tracking)
-  API_SENTRY_DSN: prodOnly(z.string().trim().min(1)),
+  LEAGUE_API_SENTRY_DSN: prodOnly(z.string().trim().min(1)),
   // Patreon Token (to access their API)
   PATREON_BEARER_TOKEN: prodOnly(z.string().trim().min(1)),
   // Discord Bot API URL (to send events to)
