@@ -31,10 +31,7 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
   let oldHiscores;
 
   try {
-    // Attempt to fetch hiscores data for the new name
-    // if they can't be found on the regular hiscores, fallback to trying the ironman and FSW hiscores
-    // before asserting that the new name is not on the hiscores at all
-    newHiscores = await fetchHiscoresWithFallback(nameChange.newName);
+    newHiscores = await jagexService.fetchHiscoresData(nameChange.newName);
   } catch (e) {
     // If te hiscores failed to load, abort mission
     if (e instanceof ServerError) throw e;
@@ -151,24 +148,6 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
       newStats: formatSnapshot(newStats, getPlayerEfficiencyMap(newStats, newPlayer ?? oldPlayer))
     }
   };
-}
-
-async function fetchHiscoresWithFallback(username: string) {
-  // Try fetching from the regular hiscores
-  try {
-    return await jagexService.fetchHiscoresData(username);
-  } catch (error) {
-    if (error instanceof ServerError) throw error;
-  }
-
-  // If the regular hiscores failed, try the ironman hiscores
-  try {
-    return await jagexService.fetchHiscoresData(username, PlayerType.IRONMAN);
-  } catch (error) {
-    if (error instanceof ServerError) throw error;
-  }
-
-  return undefined;
 }
 
 export { fetchNameChangeDetails };

@@ -1,6 +1,6 @@
 import jobManager from '../../../jobs/job.manager';
 import { Player, Snapshot } from '../../../prisma';
-import { FlaggedPlayerReviewContext, PlayerType } from '../../../utils';
+import { FlaggedPlayerReviewContext } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
 import prometheus from '../../services/external/prometheus.service';
 import { reevaluatePlayerAchievements } from '../achievements/services/ReevaluatePlayerAchievementsService';
@@ -20,15 +20,6 @@ async function onPlayerArchived(player: Player, previousDisplayName: string) {
       `🟢 \`${previousDisplayName}\` has been archived. (\`${player.username}\`)`
     );
   });
-}
-
-async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
-  if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
-    // Dispatch a "HCIM player died" event to our discord bot API.
-    await prometheus.trackEffect('dispatchHardcoreDied', async () => {
-      await discordService.dispatchHardcoreDied(player);
-    });
-  }
 }
 
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
@@ -77,11 +68,4 @@ async function onPlayerImported(playerId: number) {
   });
 }
 
-export {
-  onPlayerArchived,
-  onPlayerFlagged,
-  onPlayerImported,
-  onPlayerNameChanged,
-  onPlayerTypeChanged,
-  onPlayerUpdated
-};
+export { onPlayerArchived, onPlayerFlagged, onPlayerImported, onPlayerNameChanged, onPlayerUpdated };

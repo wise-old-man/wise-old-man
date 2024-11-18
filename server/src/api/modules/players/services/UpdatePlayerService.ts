@@ -3,15 +3,11 @@ import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import { PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
-import redisService from '../../../services/external/redis.service';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
 import { PlayerDetails } from '../player.types';
 import { formatPlayerDetails, getBuild, sanitize, standardize, validateUsername } from '../player.utils';
-import { archivePlayer } from './ArchivePlayerService';
-import { assertPlayerType } from './AssertPlayerTypeService';
-import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
 
 type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
@@ -35,13 +31,9 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
     throw new RateLimitError(`Error: ${username} has been updated recently.`);
   }
 
-  const updatedPlayerFields: UpdatablePlayerFields = {};
-
-  // Always determine the rank before tracking (to fetch correct ranks)
-  if (player.type === PlayerType.UNKNOWN) {
-    const [type] = await assertPlayerType(player);
-    updatedPlayerFields.type = type;
-  }
+  const updatedPlayerFields: UpdatablePlayerFields = {
+    type: PlayerType.IRONMAN
+  };
 
   // Fetch the previous player stats from the database
   const previousSnapshot = player.latestSnapshot;
@@ -50,18 +42,9 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
 
   // Fetch the new player stats from the hiscores API
   try {
-    currentStats = await fetchStats(player, updatedPlayerFields.type, previousSnapshot);
+    currentStats = await fetchStats(player, previousSnapshot);
   } catch (error) {
     if (error.statusCode === 400) {
-      // If failed to load this player's stats from the hiscores, and they're not "regular" or "unknown"
-      // we should at least check if their type has changed (e.g. the name was transfered to a regular acc)
-      if (await shouldReviewType(player)) {
-        const hasTypeChanged = await reviewType(player).catch(() => false);
-        // If they did in fact change type, call this function recursively,
-        // so that it fetches their stats from the correct hiscores.
-        if (hasTypeChanged) return updatePlayer(player.username);
-      }
-
       // If it failed to load their stats, and the player isn't unranked,
       // we should start a background job to check (a few times) if they're really unranked
       if (!isNew && player.status !== PlayerStatus.UNRANKED && player.status !== PlayerStatus.BANNED) {
@@ -74,29 +57,11 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
 
   // There has been a significant change in this player's stats, mark it as flagged
   if (!skipFlagChecks && previousSnapshot && !snapshotUtils.withinRange(previousSnapshot, currentStats)) {
-    if (player.status !== PlayerStatus.FLAGGED) {
-      const handled = await handlePlayerFlagged(player, previousSnapshot, currentStats);
-      // If the flag was properly handled (via a player archive),
-      // call this function recursively, so that the new player can be tracked
-      if (handled) return updatePlayer(player.username);
-    }
-
     throw new ServerError('Failed to update: Player is flagged.');
   }
 
   // The player has gained exp/kc/scores since the last update
   const hasChanged = !previousSnapshot || snapshotUtils.hasChanged(previousSnapshot, currentStats);
-
-  // If this player (IM/HCIM/UIM/FSW) hasn't gained exp in a while, we should review their type.
-  // This is because when players de-iron, their ironman stats stay frozen, so they don't gain exp.
-  // To fix, we can check the "regular" hiscores to see if they've de-ironed, and update their type accordingly.
-  if (!hasChanged && (await shouldReviewType(player))) {
-    const hasTypeChanged = await reviewType(player);
-
-    // If they did in fact de-iron, call this function recursively,
-    // so that it fetches their stats from the correct hiscores.
-    if (hasTypeChanged) return updatePlayer(player.username);
-  }
 
   // Refresh the player's build
   updatedPlayerFields.build = getBuild(currentStats);
@@ -147,46 +112,9 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
   return [playerDetails, isNew];
 }
 
-async function shouldReviewType(player: Player) {
-  if (player.type === PlayerType.UNKNOWN || player.type === PlayerType.REGULAR) {
-    return false;
-  }
-
-  // Check if this player has been reviewed recently (past 7 days)
-  return !(await redisService.getValue('cd:PlayerTypeReview', player.username));
-}
-
-async function handlePlayerFlagged(player: Player, previousStats: Snapshot, rejectedStats: Snapshot) {
-  await prisma.player.update({
-    data: { status: PlayerStatus.FLAGGED },
-    where: { id: player.id }
-  });
-
-  const flaggedContext = reviewFlaggedPlayer(player, previousStats, rejectedStats);
-
-  if (flaggedContext) {
-    playerEvents.onPlayerFlagged(player, flaggedContext);
-    return false;
-  }
-
-  // no context, we know this is a name transfer and can be auto-archived
-  await archivePlayer(player);
-
-  return true;
-}
-
-async function reviewType(player: Player) {
-  const [, , changed] = await assertPlayerType(player, true);
-
-  // Store the current timestamp in Redis, so that we don't review this player again for 7 days
-  await redisService.setValue('cd:PlayerTypeReview', player.username, Date.now(), 604_800_000);
-
-  return changed;
-}
-
-async function fetchStats(player: Player, type?: PlayerType, previousStats?: Snapshot): Promise<Snapshot> {
+async function fetchStats(player: Player, previousStats?: Snapshot): Promise<Snapshot> {
   // Load data from OSRS hiscores
-  const hiscoresCSV = await jagexService.fetchHiscoresData(player.username, type || player.type);
+  const hiscoresCSV = await jagexService.fetchHiscoresData(player.username);
 
   // Convert the csv data to a Snapshot instance
   const newSnapshot = await snapshotUtils.parseHiscoresSnapshot(player.id, hiscoresCSV, previousStats);
