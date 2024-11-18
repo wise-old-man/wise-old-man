@@ -2,10 +2,10 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { checkAdminPermission } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
-import { createAPIKey } from './services/CreateAPIKeyService';
 import { fetchTableCounts } from './services/FetchTableCountsService';
 import { blockUserActions } from './services/BlockUserActionsService';
 import { allowUserActions } from './services/AllowUserActionsService';
+import { BadRequestError } from 'src/api/errors';
 
 const router = Router();
 
@@ -18,11 +18,8 @@ router.post(
       developer: z.string()
     })
   }),
-  executeRequest(async (req, res) => {
-    const { application, developer } = req.body;
-    const key = await createAPIKey(application, developer);
-
-    res.status(201).json(key);
+  executeRequest(async () => {
+    throw new BadRequestError('This endpoint is not available in leagues');
   })
 );
 
