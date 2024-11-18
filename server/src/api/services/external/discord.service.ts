@@ -28,21 +28,6 @@ function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
   return webhookClient.send({ content: `${text} ${tagAdmin ? '<@329256344798494773>' : ''}` });
 }
 
-function sendPatreonUpdateMessage(text: string) {
-  if (process.env.NODE_ENV === 'test') return;
-
-  if (!process.env.DISCORD_PATREON_WEBHOOK_URL) {
-    logger.error('Missing Discord Patreon Webhook URL.');
-    return;
-  }
-
-  const webhookClient = new WebhookClient({
-    url: process.env.DISCORD_PATREON_WEBHOOK_URL
-  });
-
-  return webhookClient.send({ content: text });
-}
-
 /**
  * Dispatch an event to our Discord Bot API.
  */
@@ -274,6 +259,5 @@ export {
   dispatchNameChanged,
   dispatchPlayerFlaggedReview,
   sendMonitoringMessage,
-  sendPatreonUpdateMessage,
   dispatchPotentialCreationSpam
 };
