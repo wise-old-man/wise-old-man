@@ -41,7 +41,7 @@ async function updateRankMaps(metric: ComputedMetric) {
           sum += entry.count;
         });
 
-        const algorithmType = getAlgorithmType({ type: playerType, build: playerBuild });
+        const algorithmType = getAlgorithmType({ build: playerBuild });
 
         const data = map.get(algorithmType);
 
