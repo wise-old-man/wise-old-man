@@ -1,5 +1,5 @@
 import { Snapshot, Player } from '../../../../prisma';
-import { BOSSES, FlaggedPlayerReviewContext, Metric, REAL_SKILLS } from '../../../../utils';
+import { BOSSES, FlaggedPlayerReviewContext, Metric } from '../../../../utils';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { FormattedSnapshot } from '../../snapshots/snapshot.types';
 import { getNegativeGains, getExcessiveGains, formatSnapshot } from '../../snapshots/snapshot.utils';
@@ -28,8 +28,7 @@ function reviewFlaggedPlayer(
   const rejected = formatSnapshot(rejectedStats, getPlayerEfficiencyMap(rejectedStats, player));
 
   if (negativeGains) {
-    const possibleRollback =
-      !excessiveGains && !excessiveGainsReversed && !hasLostTooMuch(previous, rejected);
+    const possibleRollback = !excessiveGains && !excessiveGainsReversed;
 
     if (!possibleRollback) {
       // If it isn't a rollback, then it's definitely a name transfer, and should be archived (null context)
@@ -114,27 +113,6 @@ function buildNegativeGainsReport(
     rejectedEHB,
     rejectedRank
   };
-}
-
-function hasLostTooMuch(previous: FormattedSnapshot, rejected: FormattedSnapshot) {
-  const lostEHP = Math.abs(
-    REAL_SKILLS.filter(s => rejected.data.skills[s].experience > -1)
-      .map(s => rejected.data.skills[s].ehp - previous.data.skills[s].ehp)
-      .filter(ehpDiff => ehpDiff < 0)
-      .reduce((a, b) => a + b, 0)
-  );
-
-  const lostEHB = Math.abs(
-    BOSSES.filter(b => rejected.data.bosses[b].kills > -1)
-      .map(s => rejected.data.bosses[s].ehb - previous.data.bosses[s].ehb)
-      .filter(ehbDiff => ehbDiff < 0)
-      .reduce((a, b) => a + b, 0)
-  );
-
-  // If lost over 24h of EHP and EHB, then it's probably not a rollback.
-  // Rollbacks are usually quickly fixed by Jagex, so it's unlikely
-  // that a player gains a huge amount of EHP and EHB in a short period of time.
-  return lostEHP + lostEHB > 24;
 }
 
 export { reviewFlaggedPlayer };
