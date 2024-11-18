@@ -5,7 +5,7 @@ import { executeRequest, validateRequest } from '../../util/routing';
 import { fetchTableCounts } from './services/FetchTableCountsService';
 import { blockUserActions } from './services/BlockUserActionsService';
 import { allowUserActions } from './services/AllowUserActionsService';
-import { BadRequestError } from 'src/api/errors';
+import { BadRequestError } from '../../errors';
 
 const router = Router();
 

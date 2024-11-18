@@ -18,7 +18,7 @@ import { removeParticipants } from './services/RemoveParticipantsService';
 import { removeTeams } from './services/RemoveTeamsService';
 import { resetCompetitionCode } from './services/ResetCompetitionCodeService';
 import { searchCompetitions } from './services/SearchCompetitionsService';
-import { BadRequestError } from 'src/api/errors';
+import { BadRequestError } from '../../errors';
 
 const router = Router();
 
