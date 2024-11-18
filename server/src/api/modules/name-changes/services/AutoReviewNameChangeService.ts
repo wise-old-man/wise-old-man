@@ -65,8 +65,10 @@ async function autoReviewNameChange(id: number): Promise<void> {
     return;
   }
 
+  const leagueExpModifier = 20;
+
   // If has gained too much exp/kills
-  if (ehpDiff + ehbDiff > allowedEfficiencyDiff) {
+  if (ehpDiff / leagueExpModifier + ehbDiff > allowedEfficiencyDiff) {
     await skipReview(id, {
       reason: 'excessive_gains',
       ehpDiff,
