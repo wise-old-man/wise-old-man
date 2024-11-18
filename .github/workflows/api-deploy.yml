@@ -43,6 +43,6 @@ jobs:
           script: |
             cd wise-old-man
             docker image rm wiseoldman/api
-            docker-compose pull api
-            docker-compose up -d --no-deps --build api
+            docker compose pull api
+            docker compose up -d --no-deps --build api
             docker image prune
