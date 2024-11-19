@@ -2,16 +2,8 @@ import fs from 'fs';
 import MockAdapter from 'axios-mock-adapter/types';
 import prisma from '../src/prisma';
 import redisService from '../src/api/services/external/redis.service';
-import { OSRS_HISCORES_URLS } from '../src/api/services/external/jagex.service';
-import { PlayerType, METRICS, Metric, SKILLS } from '../src/utils';
+import { METRICS, Metric, SKILLS } from '../src/utils';
 import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/snapshot.utils';
-
-type HiscoresMockConfig = {
-  [playerType in PlayerType]?: {
-    statusCode: number;
-    rawData?: string;
-  };
-};
 
 async function readFile(path: string) {
   return fs.readFileSync(path, { encoding: 'utf8' });
@@ -35,18 +27,6 @@ function sleep(ms: number) {
 
 function registerCMLMock(adapter: MockAdapter, statusCode: number, rawData?: string) {
   return adapter.onGet(new RegExp(`crystalmathlabs.com`)).reply(statusCode, rawData || '');
-}
-
-function registerHiscoresMock(adapter: MockAdapter, config: HiscoresMockConfig) {
-  let localAdapter = adapter;
-
-  for (const [key, value] of Object.entries(config)) {
-    localAdapter = localAdapter
-      .onGet(new RegExp(OSRS_HISCORES_URLS[key]))
-      .reply(value.statusCode, value.rawData || '');
-  }
-
-  return localAdapter;
 }
 
 function modifyRawHiscoresData(rawData: string, modifications: { metric: Metric; value: number }[]): string {
@@ -79,12 +59,4 @@ function modifyRawHiscoresData(rawData: string, modifications: { metric: Metric;
     .join('\n');
 }
 
-export {
-  resetDatabase,
-  resetRedis,
-  sleep,
-  readFile,
-  registerCMLMock,
-  registerHiscoresMock,
-  modifyRawHiscoresData
-};
+export { resetDatabase, resetRedis, sleep, readFile, registerCMLMock, modifyRawHiscoresData };
