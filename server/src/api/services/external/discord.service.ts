@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import prisma, { Achievement, Competition, Player } from '../../../prisma';
 import { FlaggedPlayerReviewContext, Group, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
@@ -29,35 +28,11 @@ function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
   return webhookClient.send({ content: `${text} ${tagAdmin ? '<@329256344798494773>' : ''}` });
 }
 
-function sendPatreonUpdateMessage(text: string) {
-  if (process.env.NODE_ENV === 'test') return;
-
-  if (!process.env.DISCORD_PATREON_WEBHOOK_URL) {
-    logger.error('Missing Discord Patreon Webhook URL.');
-    return;
-  }
-
-  const webhookClient = new WebhookClient({
-    url: process.env.DISCORD_PATREON_WEBHOOK_URL
-  });
-
-  return webhookClient.send({ content: text });
-}
-
 /**
  * Dispatch an event to our Discord Bot API.
  */
-function dispatch(type: string, payload: unknown) {
-  if (process.env.NODE_ENV === 'test') return;
-
-  if (!process.env.DISCORD_BOT_API_URL) {
-    logger.error('Missing Discord Bot API URL.');
-    return;
-  }
-
-  axios.post(process.env.DISCORD_BOT_API_URL, { type, data: payload }).catch(e => {
-    logger.error('Error sending discord event.', e);
-  });
+function dispatch(_type: string, _payload: unknown) {
+  // No discord events in leagues
 }
 
 /**
@@ -284,6 +259,5 @@ export {
   dispatchNameChanged,
   dispatchPlayerFlaggedReview,
   sendMonitoringMessage,
-  sendPatreonUpdateMessage,
   dispatchPotentialCreationSpam
 };

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import jobManager from '../../../jobs/job.manager';
 import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period } from '../../../utils';
-import { NotFoundError, ServerError } from '../../errors';
+import { BadRequestError, NotFoundError, ServerError } from '../../errors';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getDateSchema, getPaginationSchema } from '../../util/validation';
@@ -22,7 +22,6 @@ import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsServic
 import { formatSnapshot } from '../snapshots/snapshot.utils';
 import { standardize } from './player.utils';
 import { archivePlayer } from './services/ArchivePlayerService';
-import { assertPlayerType } from './services/AssertPlayerTypeService';
 import { changePlayerCountry } from './services/ChangePlayerCountryService';
 import { deletePlayer } from './services/DeletePlayerService';
 import { fetchPlayerDetails } from './services/FetchPlayerDetailsService';
@@ -64,12 +63,13 @@ router.post(
       force: z.optional(z.boolean())
     })
   }),
-  executeRequest(async (req, res) => {
-    const { username } = req.params;
-    const { force } = req.body;
+  executeRequest(async (_req, _res) => {
+    // const { username } = req.params;
+    // const { force } = req.body;
 
-    const [playerDetails, isNew] = await updatePlayer(username, force);
-    res.status(isNew ? 201 : 200).json(playerDetails);
+    // const [playerDetails, isNew] = await updatePlayer(username, force);
+    // res.status(isNew ? 201 : 200).json(playerDetails);
+    throw new BadRequestError('Currently disabled until the League starts.');
   })
 );
 
@@ -121,20 +121,8 @@ router.post(
       username: z.string()
     })
   }),
-  executeRequest(async (req, res) => {
-    const { username } = req.params;
-
-    const player = await prisma.player.findFirst({
-      where: { username: standardize(username) }
-    });
-
-    if (!player) {
-      throw new NotFoundError('Player not found.');
-    }
-
-    const [, updatedPlayer, changed] = await assertPlayerType(player, true);
-
-    res.status(200).json({ player: updatedPlayer, changed });
+  executeRequest(async () => {
+    throw new BadRequestError('This endpoint is disabled for Leagues.');
   })
 );
 

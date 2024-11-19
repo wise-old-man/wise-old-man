@@ -1,6 +1,6 @@
 import jobManager from '../../../jobs/job.manager';
 import { Player, Snapshot } from '../../../prisma';
-import { FlaggedPlayerReviewContext, PlayerType } from '../../../utils';
+import { FlaggedPlayerReviewContext } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
 import prometheus from '../../services/external/prometheus.service';
 import { reevaluatePlayerAchievements } from '../achievements/services/ReevaluatePlayerAchievementsService';
@@ -22,15 +22,6 @@ async function onPlayerArchived(player: Player, previousDisplayName: string) {
   });
 }
 
-async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
-  if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
-    // Dispatch a "HCIM player died" event to our discord bot API.
-    await prometheus.trackEffect('dispatchHardcoreDied', async () => {
-      await discordService.dispatchHardcoreDied(player);
-    });
-  }
-}
-
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
   // Reevaluate this player's achievements to try and find earlier completion dates as there might be new data
   await prometheus.trackEffect('reevaluatePlayerAchievements', async () => {
@@ -44,7 +35,6 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
 
   // Setup jobs to assert the player's account type and auto-update them
   jobManager.add('UpdatePlayerJob', { username: player.username });
-  jobManager.add('CheckPlayerTypeJob', { username: player.username });
 }
 
 async function onPlayerUpdated(
@@ -78,11 +68,4 @@ async function onPlayerImported(playerId: number) {
   });
 }
 
-export {
-  onPlayerArchived,
-  onPlayerFlagged,
-  onPlayerImported,
-  onPlayerNameChanged,
-  onPlayerTypeChanged,
-  onPlayerUpdated
-};
+export { onPlayerArchived, onPlayerFlagged, onPlayerImported, onPlayerNameChanged, onPlayerUpdated };

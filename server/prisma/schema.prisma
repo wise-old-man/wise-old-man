@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("CORE_DATABASE_URL")
+  url      = env("LEAGUE_DATABASE_URL")
 }
 
 model ApiKey {

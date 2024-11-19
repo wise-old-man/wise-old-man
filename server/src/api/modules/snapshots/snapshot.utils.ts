@@ -238,7 +238,8 @@ function getExcessiveGains(before: Snapshot, after: Snapshot) {
   const ehpDiff = getPlayerEHP(after) - getPlayerEHP(before);
   const ehbDiff = getPlayerEHB(after) - getPlayerEHB(before);
 
-  if (ehpDiff + ehbDiff <= hoursDiff) return null;
+  const leagueExpModifier = 20;
+  if (ehpDiff / leagueExpModifier + ehbDiff <= hoursDiff) return null;
 
   return { ehpDiff, ehbDiff, hoursDiff };
 }

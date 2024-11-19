@@ -15,7 +15,7 @@ export class CheckMissingComputedTablesJob extends Job<unknown> {
           // Check if the cached rank table exists
           const cachedResult = await redisService.getValue(
             `${metric}_rank_table`,
-            getAlgorithmType({ type: playerType, build: playerBuild })
+            getAlgorithmType({ build: playerBuild })
           );
 
           if (cachedResult === null) {

@@ -1,5 +1,4 @@
 import { onGroupUpdated } from '../../api/modules/groups/group.events';
-import { sendPatreonUpdateMessage } from '../../api/services/external/discord.service';
 import { getPatrons } from '../../api/services/external/patreon.service';
 import { omit } from '../../api/util/objects';
 import prisma, { Patron } from '../../prisma';
@@ -80,29 +79,6 @@ async function syncPatrons() {
           data: omit(patron, 'groupId', 'playerId')
         });
       }
-    }
-  });
-
-  toAdd.forEach(p => {
-    const discordTag = p.discordId ? `<@${p.discordId}>` : '';
-    sendPatreonUpdateMessage(`**🎉 New Patron:** ${p.name} (T${p.tier}) - ${discordTag}`);
-  });
-
-  toDelete.forEach(p => {
-    const discordTag = p.discordId ? `<@${p.discordId}>` : '';
-    sendPatreonUpdateMessage(`**😢 Patron canceled:** ${p.name} (T${p.tier}) - ${discordTag}`);
-  });
-
-  Array.from(updatedFieldsMap.entries()).forEach(([patronId, field]) => {
-    const p = patrons.find(patron => patron.patron.id === patronId)?.patron;
-    if (!p) return;
-
-    const discordTag = p.discordId ? `<@${p.discordId}>` : '';
-
-    if (field === 'tier') {
-      sendPatreonUpdateMessage(`**🔔 Patron tier changed:** ${p.name} (T${p.tier}) - ${discordTag}`);
-    } else if (field === 'discordId') {
-      sendPatreonUpdateMessage(`**🔔 Patron Discord changed:** ${p.name} (T${p.tier}) - ${discordTag}`);
     }
   });
 }

@@ -8,20 +8,23 @@ class RedisService {
     this.redisClient = new IORedis(redisConfig);
   }
 
-  async getValue(baseKey: string, paramKey: string) {
-    return await this.redisClient.get(`${baseKey}:${paramKey}`);
+  async getValue(baseKey: string, paramKey: string, skipPrefix = false) {
+    if (skipPrefix) {
+      return await this.redisClient.get(`${baseKey}:${paramKey}`);
+    }
+    return await this.redisClient.get(`league_key:${baseKey}:${paramKey}`);
   }
 
   async setValue(baseKey: string, paramKey: string, value: string | number, expiresInMs?: number) {
     if (expiresInMs === undefined) {
-      return this.redisClient.set(`${baseKey}:${paramKey}`, value);
+      return this.redisClient.set(`league_key:${baseKey}:${paramKey}`, value);
     }
 
-    return this.redisClient.set(`${baseKey}:${paramKey}`, value, 'PX', expiresInMs);
+    return this.redisClient.set(`league_key:${baseKey}:${paramKey}`, value, 'PX', expiresInMs);
   }
 
   async deleteKey(key: string) {
-    await this.redisClient.del(key);
+    await this.redisClient.del(`league_key:${key}`);
   }
 
   async flushAll() {

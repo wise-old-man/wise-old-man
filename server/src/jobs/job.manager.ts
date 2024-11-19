@@ -9,7 +9,6 @@ import { CalculateComputedMetricRankTablesJob } from './instances/CalculateCompu
 import { CheckMissingComputedTablesJob } from './instances/CheckMissingComputedTablesJob';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
 import { CheckPlayerRankedJob } from './instances/CheckPlayerRankedJob';
-import { CheckPlayerTypeJob } from './instances/CheckPlayerTypeJob';
 import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import { ScheduleBannedPlayerChecksJob } from './instances/ScheduleBannedPlayerChecksJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
@@ -19,7 +18,6 @@ import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalida
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
 import { ScheduleGroupScoreUpdatesJob } from './instances/ScheduleGroupScoreUpdatesJob';
 import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
-import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
@@ -34,7 +32,6 @@ const JOBS_MAP = {
   CheckMissingComputedTablesJob,
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
-  CheckPlayerTypeJob,
   ReviewNameChangeJob,
   ScheduleBannedPlayerChecksJob,
   ScheduleCompetitionEventsJob,
@@ -44,7 +41,6 @@ const JOBS_MAP = {
   ScheduleFlaggedPlayerReviewJob,
   ScheduleGroupScoreUpdatesJob,
   ScheduleNameChangeReviewsJob,
-  SyncApiKeysJob,
   SyncPatronsJob,
   UpdateCompetitionScoreJob,
   UpdateGroupScoreJob,
@@ -56,7 +52,6 @@ const STARTUP_JOBS = ['CheckMissingComputedTablesJob'] satisfies Array<keyof typ
 
 const CRON_CONFIG = [
   // every 1 min
-  { interval: '* * * * *', jobName: 'SyncApiKeysJob' },
   { interval: '* * * * *', jobName: 'SyncPatronsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCompetitionEventsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCreationSpamChecksJob' },

@@ -12,11 +12,11 @@ interface ComputePlayerMetricsResult {
   ehbRank: number;
 }
 
-async function computePlayerMetrics(player: Pick<Player, 'id' | 'type' | 'build'>, snapshot: Snapshot) {
+async function computePlayerMetrics(player: Pick<Player, 'id' | 'build'>, snapshot: Snapshot) {
   const killcountMap = getKillcountMap(snapshot);
   const experienceMap = getExperienceMap(snapshot);
 
-  const algorithm = getAlgorithm({ type: player.type, build: player.build });
+  const algorithm = getAlgorithm({ build: player.build });
 
   const ehpValue = Math.max(0, algorithm.calculateEHP(experienceMap));
   const ehbValue = Math.max(0, algorithm.calculateEHB(killcountMap));
