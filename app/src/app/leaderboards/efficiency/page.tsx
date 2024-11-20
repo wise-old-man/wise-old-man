@@ -10,7 +10,6 @@ import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import {
-  getPlayerTypeParam,
   getPlayerBuildParam,
   getComputedMetricParam,
   getCountryParam,
@@ -28,7 +27,6 @@ interface PageProps {
   searchParams: {
     page?: string;
     metric?: string;
-    playerType?: string;
     playerBuild?: string;
     country?: string;
   };
@@ -59,7 +57,7 @@ export default async function EfficiencyLeaderboardsPage(props: PageProps) {
   const data = await getEfficiencyLeaderboards(
     metric === COMBINED_METRIC ? "ehp+ehb" : metric,
     getCountryParam(searchParams.country),
-    getPlayerTypeParam(searchParams.playerType),
+    undefined,
     getPlayerBuildParam(searchParams.playerBuild),
     RESULTS_PER_PAGE,
     (page - 1) * RESULTS_PER_PAGE

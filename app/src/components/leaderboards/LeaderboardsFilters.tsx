@@ -14,17 +14,13 @@ import {
   Metric,
   MetricProps,
   PLAYER_BUILDS,
-  PLAYER_TYPES,
   PlayerBuild,
   PlayerBuildProps,
-  PlayerType,
-  PlayerTypeProps,
   SKILLS,
   isComputedMetric,
   isCountry,
   isMetric,
   isPlayerBuild,
-  isPlayerType,
 } from "@wise-old-man/utils";
 import {
   Combobox,
@@ -43,9 +39,8 @@ import {
   getCountryParam,
   getMetricParam,
   getPlayerBuildParam,
-  getPlayerTypeParam,
 } from "~/utils/params";
-import { MetricIconSmall, PlayerTypeIcon } from "../Icon";
+import { MetricIconSmall } from "../Icon";
 
 export function LeaderboardsFilters() {
   const router = useRouter();
@@ -57,11 +52,9 @@ export function LeaderboardsFilters() {
   const metric = getMetricParam(searchParams.get("metric")) || Metric.OVERALL;
   const country = getCountryParam(searchParams.get("country"));
 
-  let playerType = getPlayerTypeParam(searchParams.get("playerType"));
   let playerBuild = getPlayerBuildParam(searchParams.get("playerBuild"));
 
   if (isEfficiencyLeaderboard) {
-    if (!playerType) playerType = PlayerType.REGULAR;
     if (!playerBuild) playerBuild = PlayerBuild.MAIN;
   }
 
@@ -93,10 +86,6 @@ export function LeaderboardsFilters() {
           onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
         />
       )}
-      <PlayerTypeSelect
-        playerType={playerType}
-        onPlayerTypeSelected={(newPlayerType) => handleParamChanged("playerType", newPlayerType)}
-      />
       <PlayerBuildSelect
         playerBuild={playerBuild}
         onPlayerBuildSelected={(newPlayerBuild) => handleParamChanged("playerBuild", newPlayerBuild)}
@@ -231,50 +220,6 @@ function MetricSelect(props: MetricSelectProps) {
               <ComboboxItem key={computed} value={computed}>
                 <MetricIconSmall metric={computed} />
                 {MetricProps[computed].name}
-              </ComboboxItem>
-            ))}
-          </ComboboxItemGroup>
-        </ComboboxItemsContainer>
-      </ComboboxContent>
-    </Combobox>
-  );
-}
-
-interface PlayerTypeSelectProps {
-  playerType: PlayerType | undefined;
-  onPlayerTypeSelected: (playerType: PlayerType | undefined) => void;
-}
-
-function PlayerTypeSelect(props: PlayerTypeSelectProps) {
-  const { playerType, onPlayerTypeSelected } = props;
-
-  const [isTransitioning, startTransition] = useTransition();
-
-  return (
-    <Combobox
-      value={playerType}
-      onValueChanged={(val) => {
-        if (val === undefined || isPlayerType(val)) {
-          startTransition(() => {
-            onPlayerTypeSelected(val);
-          });
-        }
-      }}
-    >
-      <ComboboxButton className="w-full" isPending={isTransitioning}>
-        <div className={cn("flex items-center gap-x-2", !playerType && "text-gray-200")}>
-          {playerType && <PlayerTypeIcon playerType={playerType} />}
-          {playerType ? PlayerTypeProps[playerType].name : "Player Type"}
-        </div>
-      </ComboboxButton>
-      <ComboboxContent>
-        <ComboboxItemsContainer>
-          <ComboboxItemGroup label="Player Type">
-            <ComboboxItem>Any player type</ComboboxItem>
-            {PLAYER_TYPES.filter((type) => type !== PlayerType.UNKNOWN).map((t) => (
-              <ComboboxItem key={t} value={t}>
-                <PlayerTypeIcon playerType={t} />
-                {PlayerTypeProps[t].name}
               </ComboboxItem>
             ))}
           </ComboboxItemGroup>

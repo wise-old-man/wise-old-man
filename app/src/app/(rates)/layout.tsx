@@ -1,4 +1,5 @@
 import { PropsWithChildren } from "react";
+import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import { Container } from "~/components/Container";
 import { AccountTypeSelector } from "~/components/rates/AccountTypeSelector";
 import { EfficiencyRatesNavigation } from "~/components/rates/EfficiencyRatesNavigation";
@@ -13,6 +14,14 @@ export default function RatesLayout(props: PropsWithChildren) {
           <AccountTypeSelector />
         </div>
       </div>
+      <Alert className="mt-7" variant="warn">
+        <AlertDescription>
+          <p>
+            Please keep in mind these are the main game efficiency rates and they have not been adapted
+            for Leagues.
+          </p>
+        </AlertDescription>
+      </Alert>
       {props.children}
     </Container>
   );

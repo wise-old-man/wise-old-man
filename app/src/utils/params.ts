@@ -19,11 +19,6 @@ export function getMetricParam(param: string | undefined | null) {
   return param;
 }
 
-export function getPlayerTypeParam(param: string | undefined | null) {
-  if (!param || !isPlayerType(param)) return undefined;
-  return param;
-}
-
 export function getPlayerBuildParam(param: string | undefined | null) {
   if (!param || !isPlayerBuild(param)) return undefined;
   return param;

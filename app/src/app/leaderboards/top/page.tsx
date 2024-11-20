@@ -3,12 +3,7 @@ import { getDeltaLeaderboard } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
-import {
-  getMetricParam,
-  getCountryParam,
-  getPlayerTypeParam,
-  getPlayerBuildParam,
-} from "~/utils/params";
+import { getMetricParam, getCountryParam, getPlayerBuildParam } from "~/utils/params";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -16,7 +11,6 @@ export const revalidate = 0;
 interface PageProps {
   searchParams: {
     metric?: string;
-    playerType?: string;
     playerBuild?: string;
     country?: string;
   };
@@ -38,7 +32,6 @@ export default async function TopLeaderboardsPage(props: PageProps) {
   const filters = {
     metric: getMetricParam(searchParams.metric) || Metric.OVERALL,
     country: getCountryParam(searchParams.country),
-    playerType: getPlayerTypeParam(searchParams.playerType),
     playerBuild: getPlayerBuildParam(searchParams.playerBuild),
   };
 
@@ -63,7 +56,7 @@ async function TopLeaderboard(props: TopLeaderboardProps) {
     filters.metric,
     period,
     filters.country,
-    filters.playerType,
+    undefined,
     filters.playerBuild
   );
 

@@ -127,11 +127,8 @@ export function PlayerIdentityTooltip(props: { player: Player; moreContextToolti
           </div>
         )}
         <div className="flex min-w-[5rem] flex-col px-4 py-3">
-          <span className="mb-1 text-xs text-gray-200">Type</span>
-          <div className="flex items-center gap-x-2">
-            <PlayerTypeIcon playerType={player.type} />
-            <span>{PlayerTypeProps[player.type].name}</span>
-          </div>
+          <span className="mb-1 text-xs text-gray-200">League points</span>
+          <span>0</span>
         </div>
         {moreContextTooltip && (
           <div className="flex min-w-[5rem] flex-col px-4 py-3">{moreContextTooltip}</div>

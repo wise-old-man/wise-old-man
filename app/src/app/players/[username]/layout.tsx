@@ -1,36 +1,33 @@
-import React, { PropsWithChildren } from "react";
 import {
   CountryProps,
-  Player,
   PlayerBuild,
   PlayerBuildProps,
   PlayerDetails,
   PlayerStatus,
   PlayerType,
-  PlayerTypeProps,
 } from "@wise-old-man/utils";
-import { formatDatetime, timeago } from "~/utils/dates";
-import { getPlayerDetails } from "~/services/wiseoldman";
-import { Button } from "~/components/Button";
-import { QueryLink } from "~/components/QueryLink";
-import { Container } from "~/components/Container";
-import { Flag, PlayerTypeIcon } from "~/components/Icon";
-import { PlayerNavigation } from "~/components/players/PlayerNavigation";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
-import { UpdatePlayerForm } from "~/components/players/UpdatePlayerForm";
+import React, { PropsWithChildren } from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
-import { AssertPlayerTypeForm } from "~/components/players/AssertPlayerTypeForm";
-import { NameChangeSubmissionDialog } from "~/components/NameChangeSubmissionDialog";
-import { PlayerGainedCustomPeriodDialog } from "~/components/players/PlayerGainedCustomPeriodDialog";
+import { Button } from "~/components/Button";
+import { Container } from "~/components/Container";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/Dropdown";
+import { Flag, PlayerTypeIcon } from "~/components/Icon";
+import { NameChangeSubmissionDialog } from "~/components/NameChangeSubmissionDialog";
+import { PlayerGainedCustomPeriodDialog } from "~/components/players/PlayerGainedCustomPeriodDialog";
+import { PlayerNavigation } from "~/components/players/PlayerNavigation";
+import { UpdatePlayerForm } from "~/components/players/UpdatePlayerForm";
+import { QueryLink } from "~/components/QueryLink";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
+import { getPlayerDetails } from "~/services/wiseoldman";
+import { formatDatetime, timeago } from "~/utils/dates";
 
-import OverflowIcon from "~/assets/overflow.svg";
 import ExternalIcon from "~/assets/external.svg";
+import OverflowIcon from "~/assets/overflow.svg";
 import WarningFilledIcon from "~/assets/warning_filled.svg";
 
 export const dynamic = "force-dynamic";
@@ -113,7 +110,6 @@ function Header(props: PlayerDetails) {
                 <QueryLink query={{ dialog: "submit-name" }}>
                   <DropdownMenuItem>Submit name change</DropdownMenuItem>
                 </QueryLink>
-                <AssertPlayerTypeForm player={props} />
               </DropdownMenuContent>
             </DropdownMenu>
           </>
@@ -232,9 +228,9 @@ function PlayerStatusAlert(props: { player: PlayerDetails }) {
 
             <p className="mt-5">
               <span className="text-white">Note (November 13th):</span> There&apos;s currently an issue
-              with the Jagex hiscores due to a recent rollback that is causing some players to
-              get flagged. If you&apos;re affected, try to log out in-game (to update your
-              hiscores) and then update your WOM profile.
+              with the Jagex hiscores due to a recent rollback that is causing some players to get
+              flagged. If you&apos;re affected, try to log out in-game (to update your hiscores) and then
+              update your WOM profile.
             </p>
           </AlertDescription>
         </div>
@@ -303,8 +299,6 @@ function PlayerAttributes(props: PlayerDetails) {
   if (archive) {
     elements.push(<span>Previously known as {`"${archive.previousUsername}"`}</span>);
   }
-
-  elements.push(<span>{PlayerTypeProps[type].name}</span>);
 
   if (build !== PlayerBuild.MAIN) {
     elements.push(<span>{PlayerBuildProps[build].name}</span>);
