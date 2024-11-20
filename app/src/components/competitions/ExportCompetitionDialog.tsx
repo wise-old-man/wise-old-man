@@ -34,7 +34,7 @@ function buildExportUrl(competitionId: number, searchParams: URLSearchParams) {
     params.set("metric", preview);
   }
 
-  const basePath = process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/v2";
+  const basePath = process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/league";
 
   return `${basePath}/competitions/${competitionId}/csv?${params.toString()}`;
 }

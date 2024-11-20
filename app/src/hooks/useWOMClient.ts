@@ -2,7 +2,7 @@ import { WOMClient } from "@wise-old-man/utils";
 
 const client = new WOMClient({
   userAgent: "(League) Wise Old Man - App v2 (Client Side)",
-  baseAPIUrl: process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/v2",
+  baseAPIUrl: process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/league",
 });
 
 /**

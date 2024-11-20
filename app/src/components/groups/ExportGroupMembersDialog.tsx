@@ -23,7 +23,7 @@ export function ExportGroupMembersDialog(props: ExportGroupMembersDialogProps) {
   const [hasCopied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const basePath = process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/v2";
+  const basePath = process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/league";
 
   const url = `${basePath}/groups/${groupId}/csv`;
   const importFormula = `=IMPORTDATA("${url}")`;
