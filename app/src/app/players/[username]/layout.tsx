@@ -1,5 +1,6 @@
 import {
   CountryProps,
+  formatNumber,
   PlayerBuild,
   PlayerBuildProps,
   PlayerDetails,
@@ -22,7 +23,7 @@ import { PlayerNavigation } from "~/components/players/PlayerNavigation";
 import { UpdatePlayerForm } from "~/components/players/UpdatePlayerForm";
 import { QueryLink } from "~/components/QueryLink";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
-import { getPlayerDetails } from "~/services/wiseoldman";
+import { getLeagueTier, getPlayerDetails } from "~/services/wiseoldman";
 import { formatDatetime, timeago } from "~/utils/dates";
 
 import ExternalIcon from "~/assets/external.svg";
@@ -274,7 +275,11 @@ function PlayerStatusAlert(props: { player: PlayerDetails }) {
 }
 
 function PlayerAttributes(props: PlayerDetails) {
-  const { status, type, build, latestSnapshot, patron, archive } = props;
+  const { status, build, latestSnapshot, patron, archive } = props;
+
+  // @ts-ignore
+  const leaguePoints = Math.max(0, props.leaguePoints);
+  const tier = getLeagueTier(leaguePoints);
 
   const elements: React.ReactNode[] = [];
 
@@ -290,6 +295,12 @@ function PlayerAttributes(props: PlayerDetails) {
       </Tooltip>
     );
   }
+
+  elements.push(
+    <span>
+      {formatNumber(leaguePoints, false)} League points {tier ? `(${tier})` : ""}
+    </span>
+  );
 
   if (status === PlayerStatus.FLAGGED) {
     elements.push(<span className="text-orange-400">Flagged</span>);
