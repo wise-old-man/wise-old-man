@@ -39,6 +39,9 @@ import { standardizeUsername } from "~/utils/strings";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
+import { Alert, AlertDescription, AlertTitle } from "../Alert";
+import { QueryLink } from "../QueryLink";
+import { CloneGroupDialog } from "./CloneGroupDialog";
 
 type FormStep = "info" | "import" | "members";
 type ImportSource = "none" | "file";
@@ -127,6 +130,22 @@ export function CreateGroupForm() {
           />
         </div>
         <h2 className="mt-3 text-sm text-white">{stepLabel}</h2>
+        <Alert className="my-10">
+          <AlertTitle>Wait! Already have a group in the main website?</AlertTitle>
+          <AlertDescription>
+            <p>You can easily clone that group on this League website.</p>
+            <p className="mb-5 mt-3 underline">
+              Please keep in mind that these two groups will not be linked, and any changes in one will
+              not be reflected in the other.
+            </p>
+            <QueryLink
+              className="font-medium text-primary-400 hover:text-primary-300 hover:underline"
+              query={{ dialog: "clone-group" }}
+            >
+              Clone existing group
+            </QueryLink>
+          </AlertDescription>
+        </Alert>
         <div className="mt-10">
           {step === "info" && (
             <GroupInformationForm
@@ -201,6 +220,13 @@ export function CreateGroupForm() {
             setShowingEmptyGroupDialog(false);
           }}
         />
+        {!createMutation.data && (
+          <CloneGroupDialog
+            onSubmit={(payload) => {
+              createMutation.mutate(payload);
+            }}
+          />
+        )}
       </Container>
     </CreateGroupContext.Provider>
   );
