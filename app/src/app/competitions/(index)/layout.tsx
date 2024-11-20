@@ -13,7 +13,7 @@ export default function CompetitionsLayout(props: PropsWithChildren) {
         <Link
           prefetch={false}
           href="/competitions/create"
-          className="mt-8 text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline lg:mt-0"
+          className="mt-8 text-sm font-medium text-primary-400 hover:text-primary-300 hover:underline lg:mt-0"
         >
           + Create new
         </Link>

@@ -68,11 +68,11 @@ function HeroSection() {
         <div className="flex w-auto flex-col items-start">
           <div className="z-10 flex flex-col px-5 pb-12 pt-14 md:px-14">
             <span className="text-xs">Hi, meet the</span>
-            <h1 className="my-0.5 bg-gradient-to-t from-blue-700 to-blue-500 bg-clip-text text-4xl font-bold uppercase text-transparent md:my-1 lg:text-3xl xl:text-5xl">
+            <h1 className="my-0.5 bg-gradient-to-t from-primary-700 to-primary-500 bg-clip-text text-4xl font-bold uppercase text-transparent md:my-1 lg:text-3xl xl:text-5xl">
               Wise Old Man
             </h1>
             <p className="relative mt-2 text-body text-gray-100">
-              The <span className="text-blue-400">open source</span> Old School Runescape
+              The <span className="text-primary-400">open source</span> Old School Runescape
               <br />
               player progress tracker.
             </p>
@@ -359,10 +359,10 @@ function HowItWorksSection() {
       <div className="mt-16 flex max-w-2xl flex-col md:w-full">
         <div className="flex w-full gap-x-8">
           <div className="relative mt-10">
-            <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-blue-500 bg-gray-900 text-base">
+            <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-primary-500 bg-gray-900 text-base">
               1
             </div>
-            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-blue-500" />
+            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-primary-500" />
           </div>
           <HowToStep
             title="You update your profile"
@@ -372,10 +372,10 @@ function HowItWorksSection() {
         </div>
         <div className="flex w-full gap-x-8">
           <div className="relative">
-            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-blue-500 bg-gray-900 text-base">
+            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-primary-500 bg-gray-900 text-base">
               2
             </div>
-            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-blue-500" />
+            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-primary-500" />
           </div>
           <HowToStep
             title="We save your current stats"
@@ -385,10 +385,10 @@ function HowItWorksSection() {
         </div>
         <div className="flex w-full gap-x-8">
           <div className="relative">
-            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-blue-500 bg-gray-900 text-base">
+            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-primary-500 bg-gray-900 text-base">
               3
             </div>
-            <div className="absolute left-[1.125rem] top-0 h-12 w-px grow bg-blue-500" />
+            <div className="absolute left-[1.125rem] top-0 h-12 w-px grow bg-primary-500" />
           </div>
           <HowToStep
             title="We calculate your progress"

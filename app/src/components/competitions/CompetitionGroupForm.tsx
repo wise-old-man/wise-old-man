@@ -86,7 +86,7 @@ export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
           </p>
           <p className="mt-5">
             Don&apos;t have a group yet?{" "}
-            <Link prefetch={false} href="/groups/create" className="text-blue-400">
+            <Link prefetch={false} href="/groups/create" className="text-primary-400">
               Create one here
             </Link>
           </p>

@@ -61,11 +61,11 @@ export function ExportGroupMembersDialog(props: ExportGroupMembersDialogProps) {
               autoFocus={false}
               value={importFormula}
               containerClassName="grow"
-              className="font-mono text-blue-300"
+              className="font-mono text-primary-300"
             />
             <Button
               autoFocus
-              variant={hasCopied ? "default" : "blue"}
+              variant={hasCopied ? "default" : "primary"}
               onClick={() => {
                 if (inputRef.current) inputRef.current.select();
                 navigator.clipboard.writeText(importFormula);
