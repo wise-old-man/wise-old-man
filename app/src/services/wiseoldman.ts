@@ -23,9 +23,9 @@ import { notFound } from "next/navigation";
  * See the `useWOMClient` hook for client components.
  */
 export const apiClient = new WOMClient({
-  userAgent: "Wise Old Man App (v2)",
+  userAgent: "(League) Wise Old Man App (v2)",
   apiKey: process.env.APP_API_KEY,
-  baseAPIUrl: process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/v2",
+  baseAPIUrl: process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/league",
 });
 
 export type TimeRangeFilter = { period: Period } | { startDate: Date; endDate: Date };
@@ -219,3 +219,14 @@ export const searchNameChanges = cache(
     return apiClient.nameChanges.searchNameChanges({ username, status }, { limit, offset });
   }
 );
+
+export function getLeagueTier(points: number) {
+  if (points < 2500) return null;
+  if (points < 5000) return "Bronze";
+  if (points < 10_000) return "Iron";
+  if (points < 18_000) return "Steel";
+  if (points < 28_000) return "Mithril";
+  if (points < 42_000) return "Adamant";
+  if (points < 56_000) return "Rune";
+  return "Dragon";
+}

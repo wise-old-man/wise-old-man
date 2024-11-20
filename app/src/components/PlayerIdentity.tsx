@@ -1,6 +1,7 @@
 import React from "react";
 import {
   CountryProps,
+  formatNumber,
   Player,
   PlayerBuild,
   PlayerBuildProps,
@@ -11,11 +12,12 @@ import {
 import Link from "next/link";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
-import { Flag, PlayerTypeIcon } from "./Icon";
+import { Flag, LeagueTierIcon, PlayerTypeIcon } from "./Icon";
 import { Badge } from "./Badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 import WarningFilledIcon from "~/assets/warning_filled.svg";
+import { getLeagueTier } from "~/services/wiseoldman";
 
 interface PlayerIdentityProps {
   player: Player;
@@ -87,6 +89,10 @@ export function PlayerIdentityTooltip(props: { player: Player; moreContextToolti
 
   const updatedTimeago = `Updated ${timeago.format(player.updatedAt || new Date())}`;
 
+  // @ts-ignore
+  const leaguePoints = Math.max(0, player.leaguePoints ?? 0);
+  const tier = getLeagueTier(leaguePoints);
+
   return (
     <>
       <div className="flex flex-col rounded-t-lg border-b border-gray-500 px-4 py-3">
@@ -127,10 +133,15 @@ export function PlayerIdentityTooltip(props: { player: Player; moreContextToolti
           </div>
         )}
         <div className="flex min-w-[5rem] flex-col px-4 py-3">
-          <span className="mb-1 text-xs text-gray-200">Type</span>
-          <div className="flex items-center gap-x-2">
-            <PlayerTypeIcon playerType={player.type} />
-            <span>{PlayerTypeProps[player.type].name}</span>
+          <span className="mb-1 text-xs text-gray-200">League points</span>
+          <div className="flex gap-x-2">
+            <span>{formatNumber(leaguePoints, false)}</span>
+            {tier && (
+              <span className="flex items-center">
+                (<LeagueTierIcon tier={tier} />
+                &nbsp;{tier})
+              </span>
+            )}
           </div>
         </div>
         {moreContextTooltip && (
@@ -140,21 +151,6 @@ export function PlayerIdentityTooltip(props: { player: Player; moreContextToolti
           <div className="flex min-w-[5rem] flex-col px-4 py-3">
             <span className="mb-1 text-xs text-gray-200">Build</span>
             <span>{PlayerBuildProps[player.build].name}</span>
-          </div>
-        )}
-        {player.country && (
-          <div className="flex min-w-[5rem] flex-col px-4 py-3">
-            <span className="mb-1 text-xs text-gray-200">Country</span>
-            <a
-              className="flex items-center gap-x-1 hover:underline"
-              href="https://wiseoldman.net/flags"
-              title="How to setup?"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Flag size="sm" country={player.country} className="h-3 w-3" />
-              <span className="line-clamp-1">{CountryProps[player.country].name}</span>
-            </a>
           </div>
         )}
       </div>

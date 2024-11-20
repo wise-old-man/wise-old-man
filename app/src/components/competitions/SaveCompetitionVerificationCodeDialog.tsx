@@ -57,7 +57,7 @@ export function SaveCompetitionVerificationCodeDialog(
             </DialogHeader>
             <Button
               size="lg"
-              variant="blue"
+              variant="primary"
               className="mt-4 justify-center tabular-nums"
               onClick={() => {
                 startTransition(() => onClose());
@@ -70,7 +70,7 @@ export function SaveCompetitionVerificationCodeDialog(
           <>
             <DialogHeader>
               <DialogTitle className="text-center">Done!</DialogTitle>
-              <span className="text-center text-sm text-blue-400">
+              <span className="text-center text-sm text-primary-400">
                 Your competition&apos;s verification code is:
               </span>
             </DialogHeader>
@@ -104,7 +104,7 @@ export function SaveCompetitionVerificationCodeDialog(
             </p>
             <Button
               size="lg"
-              variant="blue"
+              variant="primary"
               className="mt-4 justify-center tabular-nums"
               disabled={!hasWaited || isTransitioning}
               onClick={() => {

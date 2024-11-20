@@ -24,7 +24,7 @@ export function ReviewContextTooltip(props: PropsWithChildren<NameChange>) {
             href="https://wiseoldman.net/discord"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-blue-400 hover:underline"
+            className="font-medium text-primary-400 hover:underline"
           >
             Join our Discord
           </a>
@@ -63,9 +63,9 @@ function ReviewContextContent(props: NameChange) {
         the two names.
         <br />
         <br />
-        EHP: { ehpFloored > 0 ? `+${ehpFloored}` : ehpFloored }
+        EHP: {ehpFloored > 0 ? `+${ehpFloored}` : ehpFloored}
         <br />
-        EHB: { ehbFloored > 0 ? `+${ehbFloored}` : ehbFloored }
+        EHB: {ehbFloored > 0 ? `+${ehbFloored}` : ehbFloored}
         <br />
         Hours in between: {Math.floor(hoursDiff)}
       </>

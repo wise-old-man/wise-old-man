@@ -92,7 +92,12 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
                 <div className="text-red-500">Date range must be after Jan 1, 2013</div>
               </div>
             )}
-            <Button disabled={isPending} size="lg" variant="blue" className="mt-5 w-full justify-center">
+            <Button
+              disabled={isPending}
+              size="lg"
+              variant="primary"
+              className="mt-5 w-full justify-center"
+            >
               {isPending ? (
                 <>
                   <LoadingIcon className="-ml-2 mr-2 h-5 w-5 animate-spin" />

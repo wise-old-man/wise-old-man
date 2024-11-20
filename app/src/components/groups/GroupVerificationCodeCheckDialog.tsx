@@ -135,7 +135,7 @@ export function GroupVerificationCodeCheckDialog(props: GroupVerificationCodeChe
               Cancel
             </Button>
             <Button
-              variant="blue"
+              variant="primary"
               disabled={verificationCode.length === 0 || checkMutation.isPending || hasValidated}
             >
               {hasValidated ? "Please wait..." : checkMutation.isPending ? "Checking..." : "Confirm"}

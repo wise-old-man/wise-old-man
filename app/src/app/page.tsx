@@ -19,6 +19,7 @@ import PlayersLeaderboardSVG from "../../public/img/homepage_players_leaderboard
 
 import WomPhatImage from "../../public/img/wom_phat.png";
 import WomCharacterImage from "../../public/img/homepage_wom.png";
+import WomLeagueMapImage from "../../public/img/homepage_league_map.png";
 
 import HowToStep1Image from "../../public/img/homepage_howto_step1.png";
 import HowToStep2Image from "../../public/img/homepage_howto_step2.png";
@@ -26,6 +27,7 @@ import HowToStep3Image from "../../public/img/homepage_howto_step3.png";
 
 import FeaturesDiscordBack from "../../public/img/homepage_features_discord_1.png";
 import FeaturesDiscordFront from "../../public/img/homepage_features_discord_2.png";
+import RagingEchoesBadge from "../../public/img/raging_echoes_badge.svg";
 
 import SyncIcon from "~/assets/sync.svg";
 import DoorIcon from "~/assets/door.svg";
@@ -60,19 +62,24 @@ export default async function LandingPage() {
   );
 }
 
-function HeroSection() {
+async function HeroSection() {
   return (
-    <section className="relative flex w-full items-center justify-center bg-[#10141f] py-10 md:py-0">
+    <section className="relative flex w-full items-center justify-center bg-[#130d1c] py-10 md:py-0">
+      <Image
+        src={WomLeagueMapImage}
+        alt=""
+        className="absolute inset-0 top-10 mx-auto max-w-[100vw] opacity-5 lg:max-w-7xl"
+      />
       <div className="absolute inset-0 mx-auto max-w-[100vw] bg-hero-gradient lg:max-w-7xl" />
       <div className="flex items-center">
         <div className="flex w-auto flex-col items-start">
           <div className="z-10 flex flex-col px-5 pb-12 pt-14 md:px-14">
-            <span className="text-xs">Hi, meet the</span>
-            <h1 className="my-0.5 bg-gradient-to-t from-blue-700 to-blue-500 bg-clip-text text-4xl font-bold uppercase text-transparent md:my-1 lg:text-3xl xl:text-5xl">
+            <RagingEchoesBadge className="mb-2 w-36" />
+            <h1 className="my-0.5 bg-gradient-to-t from-primary-600 to-violet-500 bg-clip-text text-4xl font-bold uppercase text-transparent md:my-1 lg:text-3xl xl:text-5xl">
               Wise Old Man
             </h1>
             <p className="relative mt-2 text-body text-gray-100">
-              The <span className="text-blue-400">open source</span> Old School Runescape
+              The <span className="text-primary-400">open source</span> Old School Runescape
               <br />
               player progress tracker.
             </p>
@@ -82,8 +89,8 @@ function HeroSection() {
         <div className="hidden overflow-hidden pt-20 md:block">
           <Image
             src={WomCharacterImage}
-            width={359}
-            height={441}
+            width={341}
+            height={471}
             alt=""
             className="translate-y-[2rem]"
           />
@@ -99,31 +106,35 @@ function HeroSection() {
 async function StatsDisplay() {
   const stats = (await apiClient.getRequest("/stats")) as Stats;
 
-  const playerCount = `${(stats.players / 1_000_000).toFixed(2)}m`;
-  const snapshotsCount = `${(stats.snapshots / 1_000_000).toFixed(2)}m`;
-  const groupsCount = `${(stats.groups / 1_000).toFixed(1)}k`.replace(".0k", "k");
-  const competitionsCount = `${(stats.competitions / 1_000).toFixed(1)}k`.replace(".0k", "k");
+  const { players, snapshots, groups, competitions } = stats;
+
+  const playerCount = players > 0 ? `${(players / 1_000).toFixed(2)}k` : 0;
+  const snapshotsCount = snapshots > 0 ? `${(snapshots / 1_000_000).toFixed(2)}m` : 0;
+  const groupsCount = groups > 0 ? `${(groups / 1_000).toFixed(1)}k`.replace(".0k", "k") : 0;
+
+  const competitionsCount =
+    competitions > 0 ? `${(competitions / 1_000).toFixed(1)}k`.replace(".0k", "k") : 0;
 
   return (
     <div className="relative z-20 -mt-5 flex w-full items-center">
       <div className="mx-auto rounded-xl bg-gray-900 bg-gradient-to-b from-gray-500 to-gray-900 p-px">
         <div className="mx-auto flex items-center rounded-xl bg-gray-900 py-5">
-          <div className="flex flex-col items-center px-6 sm:px-8" role="group">
+          <div className="flex flex-col items-center px-6 sm:px-8">
             <span className="text-base font-bold md:text-xl">{playerCount}</span>
             <span className="mt-1 text-xs text-gray-200">Players</span>
           </div>
-          <div className="h-6 w-px bg-gray-500" aria-hidden="true" />
-          <div className="flex flex-col items-center px-6 sm:px-8" role="group">
+          <div className="h-6 w-px bg-gray-500" />
+          <div className="flex flex-col items-center px-6 sm:px-8">
             <span className="text-base font-bold md:text-xl">{snapshotsCount}</span>
             <span className="mt-1 text-xs text-gray-200">Snapshots</span>
           </div>
-          <div className="h-6 w-px bg-gray-500" aria-hidden="true" />
-          <div className="flex flex-col items-center px-6 sm:px-8" role="group">
+          <div className="h-6 w-px bg-gray-500" />
+          <div className="flex flex-col items-center px-6 sm:px-8">
             <span className="text-base font-bold md:text-xl">{groupsCount}</span>
             <span className="mt-1 text-xs text-gray-200">Groups</span>
           </div>
-          <div className="hidden h-6 w-px bg-gray-500 xs:block" aria-hidden="true" />
-          <div className="hidden flex-col items-center px-6 xs:flex sm:px-8" role="group">
+          <div className="hidden h-6 w-px bg-gray-500 xs:block" />
+          <div className="hidden flex-col items-center px-6 xs:flex sm:px-8">
             <span className="text-base font-bold md:text-xl">{competitionsCount}</span>
             <span className="mt-1 text-xs text-gray-200">Competitions</span>
           </div>
@@ -142,7 +153,7 @@ function PlayersSection() {
         allows you to:
       </p>
       <div className="mt-16 grid w-full grid-cols-1 gap-5 md:grid-cols-2">
-        <div className="flex flex-col items-center overflow-hidden rounded-xl border border-gray-600 bg-gradient-to-b from-[#0B1120]/50 to-gray-900 p-10 xl:overflow-visible">
+        <div className="flex flex-col items-center overflow-hidden rounded-xl border border-gray-600 bg-gradient-to-b from-[#261D3D]/50 to-gray-900 p-10 xl:overflow-visible">
           <h3 className="text-center text-xl font-medium leading-8 text-gray-100 md:text-left lg:max-w-[23rem]">
             Check your gains, all-time records and collect achievements
           </h3>
@@ -161,7 +172,7 @@ function PlayersSection() {
           </div>
         </div>
         <div className="flex flex-col gap-y-5">
-          <div className="flex grow flex-col justify-between gap-y-7 rounded-xl border border-gray-600 bg-gradient-to-b from-[#0B1120]/50 to-gray-900 px-10 pt-7 md:gap-y-0">
+          <div className="flex grow flex-col justify-between gap-y-7 rounded-xl border border-gray-600 bg-gradient-to-b from-[#261D3D]/50 to-gray-900 px-10 pt-7 md:gap-y-0">
             <h3 className="mx-auto max-w-[10rem] text-center text-xl font-medium leading-8 text-gray-100">
               Visualise your in-game activity
             </h3>
@@ -170,7 +181,7 @@ function PlayersSection() {
               <div className="absolute inset-0 bg-gradient-to-b from-gray-900/0 to-gray-900" />
             </div>
           </div>
-          <div className="flex grow flex-col justify-between gap-y-7 rounded-xl border border-gray-600 bg-gradient-to-b from-[#0B1120]/50 to-gray-900 px-10 pt-7 md:gap-y-0">
+          <div className="flex grow flex-col justify-between gap-y-7 rounded-xl border border-gray-600 bg-gradient-to-b from-[#261D3D]/50 to-gray-900 px-10 pt-7 md:gap-y-0">
             <h3 className="mx-auto max-w-[12rem] text-center text-xl font-medium leading-8 text-gray-100">
               Compete for ranks in the leaderboards
             </h3>
@@ -359,10 +370,10 @@ function HowItWorksSection() {
       <div className="mt-16 flex max-w-2xl flex-col md:w-full">
         <div className="flex w-full gap-x-8">
           <div className="relative mt-10">
-            <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-blue-500 bg-gray-900 text-base">
+            <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-primary-500 bg-gray-900 text-base">
               1
             </div>
-            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-blue-500" />
+            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-primary-500" />
           </div>
           <HowToStep
             title="You update your profile"
@@ -372,10 +383,10 @@ function HowItWorksSection() {
         </div>
         <div className="flex w-full gap-x-8">
           <div className="relative">
-            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-blue-500 bg-gray-900 text-base">
+            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-primary-500 bg-gray-900 text-base">
               2
             </div>
-            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-blue-500" />
+            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-primary-500" />
           </div>
           <HowToStep
             title="We save your current stats"
@@ -385,10 +396,10 @@ function HowItWorksSection() {
         </div>
         <div className="flex w-full gap-x-8">
           <div className="relative">
-            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-blue-500 bg-gray-900 text-base">
+            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-primary-500 bg-gray-900 text-base">
               3
             </div>
-            <div className="absolute left-[1.125rem] top-0 h-12 w-px grow bg-blue-500" />
+            <div className="absolute left-[1.125rem] top-0 h-12 w-px grow bg-primary-500" />
           </div>
           <HowToStep
             title="We calculate your progress"
@@ -410,19 +421,34 @@ function CommunitySection() {
         code or ideas to add new functionality.
       </p>
       <div className="flex flex-col items-center gap-5 md:flex-row">
-        <a href="https://wiseoldman.net/github" target="_blank" rel="noopener noreferrer">
+        <a
+          aria-label="GitHub"
+          href="https://wiseoldman.net/github"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <Button>
             <GitHubIcon className="-ml-2 h-4 w-4" />
             Contribute on GitHub
           </Button>
         </a>
-        <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
+        <a
+          aria-label="Discord"
+          href="https://wiseoldman.net/discord"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <Button className="bg-discord-blue hover:bg-discord-blue-hover">
             <DiscordIcon className="-ml-2 h-4 w-4" />
             Join our Discord
           </Button>
         </a>
-        <a href="https://wiseoldman.net/patreon" target="_blank" rel="noopener noreferrer">
+        <a
+          aria-label="Patreon"
+          href="https://wiseoldman.net/patreon"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <Button className="bg-patreon-orange hover:bg-patreon-orange-hover">
             <PatreonIcon className="-ml-2 h-4 w-4" />
             See Patreon benefits

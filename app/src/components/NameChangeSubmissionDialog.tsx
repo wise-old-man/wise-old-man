@@ -136,7 +136,7 @@ function SubmitNameChangeForm(props: NameChangeSubmissionDialogProps) {
       <Button
         type="submit"
         size="lg"
-        variant="blue"
+        variant="primary"
         className="mt-2 justify-center"
         disabled={!canSubmit || isTransitioning || submitMutation.isPending}
       >

@@ -34,7 +34,7 @@ function buildExportUrl(competitionId: number, searchParams: URLSearchParams) {
     params.set("metric", preview);
   }
 
-  const basePath = process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/v2";
+  const basePath = process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/league";
 
   return `${basePath}/competitions/${competitionId}/csv?${params.toString()}`;
 }
@@ -85,11 +85,11 @@ export function ExportCompetitionDialog(props: ExportCompetitionDialogProps) {
               autoFocus={false}
               value={importFormula}
               containerClassName="grow"
-              className="font-mono text-blue-300"
+              className="font-mono text-primary-300"
             />
             <Button
               autoFocus
-              variant={hasCopied ? "default" : "blue"}
+              variant={hasCopied ? "default" : "primary"}
               onClick={() => {
                 if (inputRef.current) inputRef.current.select();
                 navigator.clipboard.writeText(importFormula);

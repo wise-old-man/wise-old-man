@@ -1,36 +1,33 @@
-import React, { PropsWithChildren } from "react";
 import {
   CountryProps,
-  Player,
+  formatNumber,
   PlayerBuild,
   PlayerBuildProps,
   PlayerDetails,
   PlayerStatus,
-  PlayerType,
-  PlayerTypeProps,
 } from "@wise-old-man/utils";
-import { formatDatetime, timeago } from "~/utils/dates";
-import { getPlayerDetails } from "~/services/wiseoldman";
-import { Button } from "~/components/Button";
-import { QueryLink } from "~/components/QueryLink";
-import { Container } from "~/components/Container";
-import { Flag, PlayerTypeIcon } from "~/components/Icon";
-import { PlayerNavigation } from "~/components/players/PlayerNavigation";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
-import { UpdatePlayerForm } from "~/components/players/UpdatePlayerForm";
+import React, { PropsWithChildren } from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
-import { AssertPlayerTypeForm } from "~/components/players/AssertPlayerTypeForm";
-import { NameChangeSubmissionDialog } from "~/components/NameChangeSubmissionDialog";
-import { PlayerGainedCustomPeriodDialog } from "~/components/players/PlayerGainedCustomPeriodDialog";
+import { Button } from "~/components/Button";
+import { Container } from "~/components/Container";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/Dropdown";
+import { Flag, PlayerTypeIcon } from "~/components/Icon";
+import { NameChangeSubmissionDialog } from "~/components/NameChangeSubmissionDialog";
+import { PlayerGainedCustomPeriodDialog } from "~/components/players/PlayerGainedCustomPeriodDialog";
+import { PlayerNavigation } from "~/components/players/PlayerNavigation";
+import { UpdatePlayerForm } from "~/components/players/UpdatePlayerForm";
+import { QueryLink } from "~/components/QueryLink";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
+import { getLeagueTier, getPlayerDetails } from "~/services/wiseoldman";
+import { formatDatetime, timeago } from "~/utils/dates";
 
-import OverflowIcon from "~/assets/overflow.svg";
 import ExternalIcon from "~/assets/external.svg";
+import OverflowIcon from "~/assets/overflow.svg";
 import WarningFilledIcon from "~/assets/warning_filled.svg";
 
 export const dynamic = "force-dynamic";
@@ -105,7 +102,11 @@ function Header(props: PlayerDetails) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
-                <a target="_blank" rel="noopener noreferrer" href={getHiscoresURL(displayName, type)}>
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`https://secure.runescape.com/m=hiscore_oldschool_seasonal/hiscorepersonal.ws?user1=${props.displayName}`}
+                >
                   <DropdownMenuItem>
                     Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
                   </DropdownMenuItem>
@@ -113,7 +114,6 @@ function Header(props: PlayerDetails) {
                 <QueryLink query={{ dialog: "submit-name" }}>
                   <DropdownMenuItem>Submit name change</DropdownMenuItem>
                 </QueryLink>
-                <AssertPlayerTypeForm player={props} />
               </DropdownMenuContent>
             </DropdownMenu>
           </>
@@ -232,9 +232,9 @@ function PlayerStatusAlert(props: { player: PlayerDetails }) {
 
             <p className="mt-5">
               <span className="text-white">Note (November 13th):</span> There&apos;s currently an issue
-              with the Jagex hiscores due to a recent rollback that is causing some players to
-              get flagged. If you&apos;re affected, try to log out in-game (to update your
-              hiscores) and then update your WOM profile.
+              with the Jagex hiscores due to a recent rollback that is causing some players to get
+              flagged. If you&apos;re affected, try to log out in-game (to update your hiscores) and then
+              update your WOM profile.
             </p>
           </AlertDescription>
         </div>
@@ -275,7 +275,11 @@ function PlayerStatusAlert(props: { player: PlayerDetails }) {
 }
 
 function PlayerAttributes(props: PlayerDetails) {
-  const { status, type, build, latestSnapshot, patron, archive } = props;
+  const { status, build, latestSnapshot, patron, archive } = props;
+
+  // @ts-ignore
+  const leaguePoints = Math.max(0, props.leaguePoints);
+  const tier = getLeagueTier(leaguePoints);
 
   const elements: React.ReactNode[] = [];
 
@@ -292,6 +296,12 @@ function PlayerAttributes(props: PlayerDetails) {
     );
   }
 
+  elements.push(
+    <span>
+      {formatNumber(leaguePoints, false)} League points {tier ? `(${tier})` : ""}
+    </span>
+  );
+
   if (status === PlayerStatus.FLAGGED) {
     elements.push(<span className="text-orange-400">Flagged</span>);
   } else if (status === PlayerStatus.UNRANKED) {
@@ -303,8 +313,6 @@ function PlayerAttributes(props: PlayerDetails) {
   if (archive) {
     elements.push(<span>Previously known as {`"${archive.previousUsername}"`}</span>);
   }
-
-  elements.push(<span>{PlayerTypeProps[type].name}</span>);
 
   if (build !== PlayerBuild.MAIN) {
     elements.push(<span>{PlayerBuildProps[build].name}</span>);
@@ -333,17 +341,4 @@ function PlayerAttributes(props: PlayerDetails) {
       })}
     </>
   );
-}
-
-function getHiscoresURL(displayName: string, playerType: PlayerType) {
-  switch (playerType) {
-    case PlayerType.HARDCORE:
-      return `https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal.ws?user1=${displayName}`;
-    case PlayerType.IRONMAN:
-      return `https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal.ws?user1=${displayName}`;
-    case PlayerType.ULTIMATE:
-      return `https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal.ws?user1=${displayName}`;
-    default:
-      return `https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${displayName}`;
-  }
 }

@@ -144,7 +144,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
                     {row.getVisibleCells().map((cell, idx) => (
                       <TableCell key={cell.id}>
                         {row.id === props.selectedRowId && idx === 0 && (
-                          <div className="absolute bottom-0 left-0 top-0 h-full w-0.5 bg-blue-500" />
+                          <div className="absolute bottom-0 left-0 top-0 h-full w-0.5 bg-primary-500" />
                         )}
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
