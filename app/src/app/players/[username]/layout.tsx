@@ -4,7 +4,6 @@ import {
   PlayerBuildProps,
   PlayerDetails,
   PlayerStatus,
-  PlayerType,
 } from "@wise-old-man/utils";
 import React, { PropsWithChildren } from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
@@ -102,7 +101,11 @@ function Header(props: PlayerDetails) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
-                <a target="_blank" rel="noopener noreferrer" href={getHiscoresURL(displayName, type)}>
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`https://secure.runescape.com/m=hiscore_oldschool_seasonal/hiscorepersonal.ws?user1=${props.displayName}`}
+                >
                   <DropdownMenuItem>
                     Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
                   </DropdownMenuItem>
@@ -327,17 +330,4 @@ function PlayerAttributes(props: PlayerDetails) {
       })}
     </>
   );
-}
-
-function getHiscoresURL(displayName: string, playerType: PlayerType) {
-  switch (playerType) {
-    case PlayerType.HARDCORE:
-      return `https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal.ws?user1=${displayName}`;
-    case PlayerType.IRONMAN:
-      return `https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal.ws?user1=${displayName}`;
-    case PlayerType.ULTIMATE:
-      return `https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal.ws?user1=${displayName}`;
-    default:
-      return `https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${displayName}`;
-  }
 }
