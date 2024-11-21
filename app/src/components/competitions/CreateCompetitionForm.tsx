@@ -86,17 +86,6 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
 
   return (
     <Container className="mt-8" style={{ "--max-width": "42rem" }}>
-      <Alert className="mb-12" variant="warn">
-        <AlertTitle>Planned maintenace period</AlertTitle>
-        <AlertDescription>
-          <p>
-            We&apos;re going to be doing some maintenance work on{" "}
-            <span className="text-white">November 14th, 2024, from 17:00 to 23:00 UTC</span>. The website
-            and API could be unavailable for a few hours. We advise you to avoid starting or ending
-            competitions during this period.
-          </p>
-        </AlertDescription>
-      </Alert>
       <h1 className="text-3xl font-bold">Create a new competition</h1>
       <div className="mt-5 flex gap-x-2">
         <div className="h-1 w-12 rounded-full bg-blue-500" />

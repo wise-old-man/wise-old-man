@@ -42,18 +42,6 @@ export function EditCompetitionForm(props: EditCompetitionFormProps) {
 
   return (
     <Container style={{ "--max-width": "56rem" }}>
-      <Alert className="mb-12" variant="warn">
-        <AlertTitle>Planned maintenace period</AlertTitle>
-        <AlertDescription>
-          <p>
-            We&apos;re going to be doing some maintenance work on{" "}
-            <span className="text-white">November 14th, 2024, from 17:00 to 23:00 UTC</span>. The website
-            and API could be unavailable for a few hours. We advise you to avoid starting or ending
-            competitions during this period.
-          </p>
-        </AlertDescription>
-      </Alert>
-
       <Link
         prefetch={false}
         href={`/competitions/${competition.id}`}
