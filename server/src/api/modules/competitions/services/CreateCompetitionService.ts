@@ -27,9 +27,6 @@ interface CreateCompetitionPayload {
 
 type CreateCompetitionResult = { competition: CompetitionWithParticipations; verificationCode: string };
 
-const MAINTENANCE_START = new Date('2024-11-14T17:00:00Z');
-const MAINTENANCE_END = new Date('2024-11-14T23:00:00Z');
-
 async function createCompetition(
   payload: CreateCompetitionPayload,
   creatorIpHash: string | null
@@ -42,18 +39,6 @@ async function createCompetition(
 
   if (startsAt.getTime() < Date.now() || endsAt.getTime() < Date.now()) {
     throw new BadRequestError('Invalid dates: All start and end dates must be in the future.');
-  }
-
-  if (startsAt.getTime() >= MAINTENANCE_START.getTime() && startsAt.getTime() <= MAINTENANCE_END.getTime()) {
-    throw new BadRequestError(
-      'Invalid start date: Planned maintenance period on November 14th (17:00 - 23:00 UTC).'
-    );
-  }
-
-  if (endsAt.getTime() >= MAINTENANCE_START.getTime() && endsAt.getTime() <= MAINTENANCE_END.getTime()) {
-    throw new BadRequestError(
-      'Invalid end date: Planned maintenance period on November 14th (17:00 - 23:00 UTC).'
-    );
   }
 
   if (participants && participants.length > 0 && !!groupId) {
