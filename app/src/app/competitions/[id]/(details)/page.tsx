@@ -59,6 +59,21 @@ export default async function CompetitionOverviewPage(props: PageProps) {
       {isEndingSoon && <CompetitionStatusWarning status="ending" />}
       {isStartingSoon && <CompetitionStatusWarning status="starting" />}
 
+      {metric === Metric.LEAGUE_POINTS && (
+        <Alert className="pb-4" variant="error">
+          <AlertTitle>League Points competitions are not supported on this version.</AlertTitle>
+          <AlertDescription>
+            <p className="mb-3">{`You might want to use the "Raging Echoes" version of our website that does allow you to create League-specific competitions.`}</p>
+            <a
+              href="https://league.wiseoldman.net"
+              className="font-medium text-blue-400 hover:text-blue-400"
+            >
+              Go to Raging Echoes Website
+            </a>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <CompetitionWidgets metric={metric} competition={competition} />
 
       {competition.type === CompetitionType.TEAM ? (

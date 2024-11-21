@@ -34,6 +34,7 @@ import { Label } from "../Label";
 
 import LoadingIcon from "~/assets/loading.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
+import { Alert, AlertDescription, AlertTitle } from "../Alert";
 
 const MAX_NAME_LENGTH = 50;
 
@@ -225,13 +226,18 @@ function MetricSelect(props: MetricSelectProps) {
           }
         }}
       >
-        <ComboboxButton className="w-full bg-gray-800 hover:bg-gray-700">
+        <ComboboxButton
+          className={cn(
+            "w-full bg-gray-800 hover:bg-gray-700",
+            metric === Metric.LEAGUE_POINTS && "border border-red-800"
+          )}
+        >
           <div className="flex items-center gap-x-2">
             <MetricIconSmall metric={metric} />
             <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
           </div>
         </ComboboxButton>
-        <ComboboxContent>
+        <ComboboxContent className="max-h-64">
           <ComboboxInput placeholder="Search metrics..." />
           <ComboboxEmpty>No results were found</ComboboxEmpty>
           <ComboboxItemsContainer>
@@ -272,6 +278,20 @@ function MetricSelect(props: MetricSelectProps) {
           </ComboboxItemsContainer>
         </ComboboxContent>
       </Combobox>
+      {metric === Metric.LEAGUE_POINTS && (
+        <Alert className="mt-6 pb-4" variant="error">
+          <AlertTitle>League Points competitions are not supported on this version.</AlertTitle>
+          <AlertDescription>
+            <p className="mb-3">{`You might want to use the "Raging Echoes" version of our website that does allow you to create League-specific competitions.`}</p>
+            <a
+              href="https://league.wiseoldman.net"
+              className="font-medium text-blue-400 hover:text-blue-400"
+            >
+              Go to Raging Echoes Website
+            </a>
+          </AlertDescription>
+        </Alert>
+      )}
     </>
   );
 }
