@@ -57,7 +57,7 @@ CacheHandler.onCreation(async () => {
     // Create the `redis-stack` Handler if the client is available and connected.
     handler = await createRedisHandler({
       client,
-      keyPrefix: "nextjs-cache:",
+      keyPrefix: "nextjs-cache-league:",
       timeoutMs: 1000,
     });
   } else {
