@@ -76,6 +76,7 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
   );
 
   // Set the player's global computed data
+  updatedPlayerFields.leaguePoints = currentStats.league_pointsScore;
   updatedPlayerFields.exp = Math.max(0, currentStats.overallExperience);
   updatedPlayerFields.ehp = computedMetrics.ehpValue;
   updatedPlayerFields.ehb = computedMetrics.ehbValue;
