@@ -350,6 +350,7 @@ model Player {
   archives       PlayerArchive[]
   memberActivity MemberActivity[]
   patronages     Patron[]
+  annotations   Annotation[]
 
   // Indices
   @@index([build], map: "players_build")
