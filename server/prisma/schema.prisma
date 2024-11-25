@@ -734,7 +734,7 @@ enum PlayerStatus {
 enum PlayerAnnotations {
   blacklist
   greylist
-  fakeF2p
+  fake_f2p
 }
 
 enum Country {

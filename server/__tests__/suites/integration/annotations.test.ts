@@ -4,10 +4,8 @@ import MockAdapter from 'axios-mock-adapter';
 import apiServer from '../../../src/api';
 import prisma, { PlayerAnnotations } from '../../../src/prisma';
 import { resetDatabase } from '../../utils';
-import exp from 'constants';
 
 const api = supertest(apiServer.express);
-const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const testPlayer = 'zezima';
 
@@ -60,9 +58,10 @@ describe('Admin, params and enum validation', () => {
     });
     expect(response.status).toBe(400);
     expect(response.body.message).toBe(
-      "Invalid enum value for 'annotation'. Expected blacklist | greylist | fakeF2p"
+      "Invalid enum value for 'annotation'. Expected blacklist | greylist | fake_f2p"
     );
   });
+
   it('should return 400 when annotation is missing', async () => {
     const response = await api.post(`/players/${testPlayer}/annotation`).send({
       adminPassword: process.env.ADMIN_PASSWORD
@@ -99,7 +98,7 @@ describe('Fetch annotations for a player', () => {
   it('should fetch annotations for a player', async () => {
     const player = await createPlayer(testPlayer);
     await createAnnotationForPlayer(player.id, PlayerAnnotations.blacklist);
-    await createAnnotationForPlayer(player.id, PlayerAnnotations.fakeF2p);
+    await createAnnotationForPlayer(player.id, PlayerAnnotations.fake_f2p);
 
     const response = await api.get(`/players/${testPlayer}/annotation`).send({
       adminPassword: process.env.ADMIN_PASSWORD
@@ -108,7 +107,7 @@ describe('Fetch annotations for a player', () => {
     expect(response.status).toBe(200);
     expect(response.body.length).toBe(2);
     expect(response.body[0].type).toBe(PlayerAnnotations.blacklist);
-    expect(response.body[1].type).toBe(PlayerAnnotations.fakeF2p);
+    expect(response.body[1].type).toBe(PlayerAnnotations.fake_f2p);
   });
 
   it('should return an empty array for a player with no annotations', async () => {
@@ -157,7 +156,7 @@ describe('Delete annotation for a player', () => {
   it('should return 404 when trying to delete a non-existing player if the player has annotations should return the list of annotations in the error message', async () => {
     const player = await createPlayer(testPlayer);
     await createAnnotationForPlayer(player.id, PlayerAnnotations.blacklist);
-    await createAnnotationForPlayer(player.id, PlayerAnnotations.fakeF2p);
+    await createAnnotationForPlayer(player.id, PlayerAnnotations.fake_f2p);
 
     const response = await api.delete(`/players/${testPlayer}/annotation`).send({
       adminPassword: process.env.ADMIN_PASSWORD,
@@ -166,7 +165,7 @@ describe('Delete annotation for a player', () => {
 
     expect(response.status).toBe(404);
     expect(response.body.message).toBe(
-      `greylist does not exist for ${testPlayer}, available annotations for this player are: ${PlayerAnnotations.blacklist}, ${PlayerAnnotations.fakeF2p}`
+      `greylist does not exist for ${testPlayer}, available annotations for this player are: ${PlayerAnnotations.blacklist}, ${PlayerAnnotations.fake_f2p}`
     );
   });
 });
