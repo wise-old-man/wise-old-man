@@ -333,6 +333,8 @@ model Player {
   ttm              Float        @default(0)
   tt200m           Float        @default(0)
   leaguePoints     Int          @default(0)
+  leagueRank       Int          @default(0)
+  leaguePercentile Float        @default(1)
   registeredAt     DateTime     @default(now()) @db.Timestamptz(6)
   updatedAt        DateTime?    @db.Timestamptz(6)
   lastChangedAt    DateTime?    @db.Timestamptz(6)

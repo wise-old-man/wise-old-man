@@ -30,6 +30,10 @@ interface PlayerIdentityProps {
 export function PlayerIdentity(props: PlayerIdentityProps) {
   const { player, caption, href, renderTooltip = true, moreContextTooltip } = props;
 
+  // @ts-ignore
+  const leaguePoints = Math.max(0, player.leaguePoints);
+  const tier = getLeagueTier(leaguePoints);
+
   let icon: React.ReactNode;
 
   if (player.status === PlayerStatus.ARCHIVED) {
@@ -47,13 +51,9 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
       <div className="flex items-center text-sm text-white">
         <TooltipTrigger asChild>
           <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50">
-            {player.country && (
-              <div className="absolute -right-1 bottom-0">
-                <Flag
-                  size="sm"
-                  country={player.country}
-                  className="h-3.5 w-3.5 rounded-full border-2 border-gray-900"
-                />
+            {tier && (
+              <div className="absolute -bottom-0.5 -right-1 rounded-full border-2 border-gray-900">
+                <LeagueTierIcon tier={tier} />
               </div>
             )}
             {icon}
