@@ -1,8 +1,9 @@
 import jobManager from '../../../../jobs/job.manager';
 import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
-import { PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
+import { Metric, PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
+import redisService from '../../../services/external/redis.service';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
@@ -75,8 +76,15 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
     currentStats
   );
 
+  const leaguePercentile = await getLeaguePercentile(currentStats.league_pointsRank);
+
+  if (leaguePercentile !== null) {
+    updatedPlayerFields.leaguePercentile = leaguePercentile;
+  }
+
   // Set the player's global computed data
   updatedPlayerFields.leaguePoints = currentStats.league_pointsScore;
+  updatedPlayerFields.leagueRank = currentStats.league_pointsRank;
   updatedPlayerFields.exp = Math.max(0, currentStats.overallExperience);
   updatedPlayerFields.ehp = computedMetrics.ehpValue;
   updatedPlayerFields.ehb = computedMetrics.ehbValue;
@@ -189,3 +197,31 @@ function shouldUpdate(player: Pick<Player, 'updatedAt' | 'registeredAt' | 'lastC
 }
 
 export { updatePlayer };
+
+async function getLeaguePercentile(leagueRank: number) {
+  const lastRankValue = await redisService.getValue('last_rank', Metric.LEAGUE_POINTS);
+
+  if (lastRankValue === null) {
+    return null;
+  }
+
+  const lastRank = parseInt(lastRankValue);
+
+  const thresholds = [
+    0.001, // 0.1%
+    0.005, // 0.5%
+    0.01, // 1%
+    0.05, // 5%
+    0.1, // 10%
+    0.25, // 25%
+    0.5 // 50%
+  ];
+
+  for (const threshold of thresholds) {
+    if (leagueRank <= lastRank * threshold) {
+      return threshold;
+    }
+  }
+
+  return 1;
+}

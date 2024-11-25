@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "players" ADD COLUMN     "leaguePercentile" DOUBLE PRECISION NOT NULL DEFAULT 1,
+ADD COLUMN     "leagueRank" INTEGER NOT NULL DEFAULT 0;

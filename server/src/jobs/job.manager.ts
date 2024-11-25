@@ -22,6 +22,7 @@ import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
 import { UpdatePlayerJob } from './instances/UpdatePlayerJob';
+import { SyncLastRankedJob } from './instances/SyncLastRankedJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
 
@@ -42,6 +43,7 @@ const JOBS_MAP = {
   ScheduleGroupScoreUpdatesJob,
   ScheduleNameChangeReviewsJob,
   SyncPatronsJob,
+  SyncLastRankedJob,
   UpdateCompetitionScoreJob,
   UpdateGroupScoreJob,
   UpdatePlayerJob
@@ -58,6 +60,8 @@ const CRON_CONFIG = [
   // every 5 mins
   { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
   { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
+  // every 15 mins */15 * * * *
+  { interval: '*/15 * * * *', jobName: 'SyncLastRankedJob' },
   // every hour
   { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
   // every 6 hours
