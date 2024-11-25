@@ -1,4 +1,4 @@
-import { NotFoundError, BadRequestError } from '../../../errors';
+import { NotFoundError, ConflictRequestError } from '../../../errors';
 import prisma, { PlayerAnnotations, Annotation } from '../../../../prisma';
 import { standardize } from '../../players/player.utils';
 
@@ -18,7 +18,7 @@ async function createPlayerAnnotation(username: string, annotation: PlayerAnnota
     }
   });
   if (playerAnnotation) {
-    throw new BadRequestError(`The annotation ${annotation} already exists for ${username}`);
+    throw new ConflictRequestError(`The annotation ${annotation} already exists for ${username}`);
   }
 
   return prisma.annotation.create({

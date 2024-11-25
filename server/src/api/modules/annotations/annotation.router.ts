@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { checkAdminPermission } from '../../util/middlewares';
 import { PlayerAnnotations } from '../../../prisma';
 import { executeRequest, validateRequest } from '../../util/routing';
-import { createPlayerAnnotation, fetchPlayerAnnotations } from './services/index';
+import { createPlayerAnnotation, fetchPlayerAnnotations, deletePlayerAnnotation } from './services/index';
 
 const router = Router();
 
@@ -28,12 +28,38 @@ router.post(
   })
 );
 
-router.get('/players/:username/annotation', checkAdminPermission, async (req, res) => {
-  const { username } = req.params;
+router.get(
+  '/players/:username/annotation',
+  checkAdminPermission,
+  validateRequest({ params: z.object({ username: z.string().min(1) }) }),
+  executeRequest(async (req, res) => {
+    const { username } = req.params;
 
-  const annotations = await fetchPlayerAnnotations(username);
+    const annotations = await fetchPlayerAnnotations(username);
 
-  res.json(annotations);
-});
+    res.status(200).json(annotations);
+  })
+);
+
+router.delete(
+  '/players/:username/annotation',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      username: z.string().min(1)
+    }),
+    body: z.object({
+      annotation: z.nativeEnum(PlayerAnnotations)
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const { username } = req.params;
+    const { annotation } = req.body;
+
+    const deletedAnnotation = await deletePlayerAnnotation(username, annotation);
+
+    res.status(200).json(`Annotation ${deletedAnnotation.type} deleted for player ${username}`);
+  })
+);
 
 export default router;
