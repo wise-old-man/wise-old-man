@@ -221,12 +221,12 @@ export const searchNameChanges = cache(
 );
 
 export function getLeagueTier(points: number) {
-  if (points < 2500) return null;
-  if (points < 5000) return "Bronze";
+  if (points < 2000) return null;
+  if (points < 4000) return "Bronze";
   if (points < 10_000) return "Iron";
-  if (points < 18_000) return "Steel";
-  if (points < 28_000) return "Mithril";
-  if (points < 42_000) return "Adamant";
-  if (points < 56_000) return "Rune";
+  if (points < 20_000) return "Steel";
+  if (points < 30_000) return "Mithril";
+  if (points < 45_000) return "Adamant";
+  if (points < 60_000) return "Rune";
   return "Dragon";
 }
