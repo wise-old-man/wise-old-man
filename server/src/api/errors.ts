@@ -13,6 +13,21 @@ export class BadRequestError extends Error {
   }
 }
 
+export class ConflictRequestError extends Error {
+  message: string;
+  name: string;
+  statusCode: number;
+  data: unknown;
+
+  constructor(message: string, data?: unknown) {
+    super(message);
+    this.message = message;
+    this.name = 'ConflictRequestError';
+    this.statusCode = 409;
+    this.data = data;
+  }
+}
+
 export class ForbiddenError extends Error {
   message: string;
   name: string;
