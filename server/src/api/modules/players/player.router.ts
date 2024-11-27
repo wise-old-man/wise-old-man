@@ -29,6 +29,9 @@ import { fetchPlayerDetails } from './services/FetchPlayerDetailsService';
 import { findPlayerArchives } from './services/FindPlayerArchivesService';
 import { searchPlayers } from './services/SearchPlayersService';
 import { updatePlayer } from './services/UpdatePlayerService';
+import { PlayerAnnotations } from '../../../prisma';
+import { createPlayerAnnotation } from '../annotations/services';
+import { deletePlayerAnnotation } from '../annotations/services';
 
 const router = Router();
 
@@ -461,6 +464,48 @@ router.get(
 
     const results = await findPlayerAchievementProgress(username);
     res.status(200).json(results);
+  })
+);
+
+router.post(
+  '/players/:username/annotation',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      username: z.string().min(1)
+    }),
+    body: z.object({
+      annotation: z.nativeEnum(PlayerAnnotations)
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const { username } = req.params;
+    const { annotation } = req.body;
+
+    const createdAnnotation = await createPlayerAnnotation(username, annotation);
+
+    res.status(201).json(createdAnnotation);
+  })
+);
+
+router.delete(
+  '/players/:username/annotation',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      username: z.string().min(1)
+    }),
+    body: z.object({
+      annotation: z.nativeEnum(PlayerAnnotations)
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const { username } = req.params;
+    const { annotation } = req.body;
+
+    const deletedAnnotation = await deletePlayerAnnotation(username, annotation);
+
+    res.status(200).json(`Annotation ${deletedAnnotation.type} deleted for player ${username}`);
   })
 );
 

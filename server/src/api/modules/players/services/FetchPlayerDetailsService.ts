@@ -7,13 +7,13 @@ import { formatPlayerDetails, standardize } from '../player.utils';
 async function fetchPlayerDetails(username: string): Promise<PlayerDetails> {
   const player = await prisma.player.findFirst({
     where: { username: standardize(username) },
-    include: { latestSnapshot: true }
+    include: { latestSnapshot: true, annotations: true }
   });
 
   if (!player) {
     throw new NotFoundError('Player not found.');
   }
-
+  console.log(player.annotations);
   if (!player.latestSnapshot) {
     // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
     const latestSnapshot = await prisma.snapshot.findFirst({

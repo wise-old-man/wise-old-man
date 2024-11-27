@@ -28,19 +28,6 @@ router.post(
   })
 );
 
-router.get(
-  '/players/:username/annotation',
-  checkAdminPermission,
-  validateRequest({ params: z.object({ username: z.string().min(1) }) }),
-  executeRequest(async (req, res) => {
-    const { username } = req.params;
-
-    const annotations = await fetchPlayerAnnotations(username);
-
-    res.status(200).json(annotations);
-  })
-);
-
 router.delete(
   '/players/:username/annotation',
   checkAdminPermission,
