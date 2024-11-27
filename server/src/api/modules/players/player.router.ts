@@ -63,13 +63,12 @@ router.post(
       force: z.optional(z.boolean())
     })
   }),
-  executeRequest(async (_req, _res) => {
-    // const { username } = req.params;
-    // const { force } = req.body;
+  executeRequest(async (req, res) => {
+    const { username } = req.params;
+    const { force } = req.body;
 
-    // const [playerDetails, isNew] = await updatePlayer(username, force);
-    // res.status(isNew ? 201 : 200).json(playerDetails);
-    throw new BadRequestError('Currently disabled until the League starts.');
+    const [playerDetails, isNew] = await updatePlayer(username, force);
+    res.status(isNew ? 201 : 200).json(playerDetails);
   })
 );
 
