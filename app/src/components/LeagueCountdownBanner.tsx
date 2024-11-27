@@ -5,7 +5,7 @@ import { TopBanner } from "./TopBanner";
 import { durationBetween } from "~/utils/dates";
 import { useHasMounted } from "~/hooks/useHasMounted";
 
-const RELEASE_DATE_UTC = `2024-11-27T12:00:00.000Z`;
+const RELEASE_DATE_UTC = `2024-11-27T12:30:00.000Z`;
 
 export function LeagueCountdownBanner() {
   const releaseDate = new Date(RELEASE_DATE_UTC);
