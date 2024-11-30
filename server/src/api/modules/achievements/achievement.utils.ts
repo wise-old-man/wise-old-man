@@ -22,6 +22,10 @@ function getAchievementMeasure(metric: Metric, threshold: number): string {
 }
 
 function getAchievemenName(name: string, threshold: number): string {
+  if (name === 'Earned the {threshold} rank!') {
+    return name.replace('{threshold}', getLeagueTrophy(threshold));
+  }
+
   const adjustedThreshold = name === 'Base {level} Stats' ? threshold / REAL_SKILLS.length : threshold;
   const newName = name
     .replace('{threshold}', formatThreshold(adjustedThreshold))
@@ -32,6 +36,25 @@ function getAchievemenName(name: string, threshold: number): string {
   }
 
   return newName;
+}
+
+function getLeagueTrophy(threshold: number): string {
+  switch (threshold) {
+    case 60_000:
+      return 'Dragon';
+    case 45_000:
+      return 'Rune';
+    case 30_000:
+      return 'Adamant';
+    case 20_000:
+      return 'Mithril';
+    case 10_000:
+      return 'Steel';
+    case 4_000:
+      return 'Iron';
+    default:
+      return 'Bronze';
+  }
 }
 
 function formatThreshold(threshold: number): string {

@@ -456,6 +456,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ACTIVITY ACHIEVEMENTS
   // ---------------------
   {
+    name: 'Earned the {threshold} rank!',
+    metric: Metric.LEAGUE_POINTS,
+    thresholds: [2_000, 4_000, 10_000, 20_000, 30_000, 45_000, 60_000]
+  },
+  {
     name: '{threshold} Bounty Hunter (Hunter) score',
     metric: Metric.BOUNTY_HUNTER_HUNTER,
     thresholds: [1000, 5000, 10_000]
