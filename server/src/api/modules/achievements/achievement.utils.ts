@@ -17,7 +17,8 @@ const leagueTrophyThresholds: { [key: number]: string } = {
   30_000: 'Adamant',
   20_000: 'Mithril',
   10_000: 'Steel',
-  4_000: 'Iron'
+  4_000: 'Iron',
+  2_000: 'Bronze'
 };
 
 function extend(achievement: Achievement): ExtendedAchievement {
