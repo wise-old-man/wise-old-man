@@ -11,6 +11,15 @@ import { Achievement, Snapshot } from '../../../prisma';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 import { ExtendedAchievement, AchievementDefinition } from './achievement.types';
 
+const leagueTrophyThresholds: { [key: number]: string } = {
+  60_000: 'Dragon',
+  45_000: 'Rune',
+  30_000: 'Adamant',
+  20_000: 'Mithril',
+  10_000: 'Steel',
+  4_000: 'Iron'
+};
+
 function extend(achievement: Achievement): ExtendedAchievement {
   const measure = getAchievementMeasure(achievement.metric, achievement.threshold);
   return { ...achievement, measure };
@@ -23,7 +32,7 @@ function getAchievementMeasure(metric: Metric, threshold: number): string {
 
 function getAchievemenName(name: string, threshold: number): string {
   if (name === 'Earned the {threshold} rank!') {
-    return name.replace('{threshold}', getLeagueTrophy(threshold));
+    return name.replace('{threshold}', leagueTrophyThresholds[threshold]);
   }
 
   const adjustedThreshold = name === 'Base {level} Stats' ? threshold / REAL_SKILLS.length : threshold;
@@ -36,25 +45,6 @@ function getAchievemenName(name: string, threshold: number): string {
   }
 
   return newName;
-}
-
-function getLeagueTrophy(threshold: number): string {
-  switch (threshold) {
-    case 60_000:
-      return 'Dragon';
-    case 45_000:
-      return 'Rune';
-    case 30_000:
-      return 'Adamant';
-    case 20_000:
-      return 'Mithril';
-    case 10_000:
-      return 'Steel';
-    case 4_000:
-      return 'Iron';
-    default:
-      return 'Bronze';
-  }
 }
 
 function formatThreshold(threshold: number): string {
