@@ -23,10 +23,14 @@ import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
 import { UpdatePlayerJob } from './instances/UpdatePlayerJob';
 import { SyncLastRankedJob } from './instances/SyncLastRankedJob';
+import { InitialDataBackfillJob } from './instances/InitialDataBackfillJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
+import { SchedukeBackfillJob } from './instances/ScheduleBackfillJob';
 
 const JOBS_MAP = {
+  InitialDataBackfillJob,
+  SchedukeBackfillJob,
   AutoUpdatePatronGroupsJob,
   AutoUpdatePatronPlayersJob,
   CalculateComputedMetricRankTablesJob,
@@ -60,6 +64,7 @@ const CRON_CONFIG = [
   // every 5 mins
   { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
   { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
+  { interval: '*/5 * * * *', jobName: 'SchedukeBackfillJob' },
   // every 15 mins */15 * * * *
   { interval: '*/15 * * * *', jobName: 'SyncLastRankedJob' },
   // every hour
