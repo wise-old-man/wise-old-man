@@ -43,6 +43,10 @@ async function onPlayerUpdated(
   current: Snapshot,
   hasChanged: boolean
 ) {
+  if (previous === undefined) {
+    jobManager.add('InitialDataBackfillJob', { playerId: player.id });
+  }
+
   // Update this player's competition participations (gains)
   await prometheus.trackEffect('syncParticipations', async () => {
     await syncParticipations(player.id, current.id);

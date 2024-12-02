@@ -23,10 +23,12 @@ import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
 import { UpdatePlayerJob } from './instances/UpdatePlayerJob';
 import { SyncLastRankedJob } from './instances/SyncLastRankedJob';
+import { InitialDataBackfillJob } from './instances/InitialDataBackfillJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
 
 const JOBS_MAP = {
+  InitialDataBackfillJob,
   AutoUpdatePatronGroupsJob,
   AutoUpdatePatronPlayersJob,
   CalculateComputedMetricRankTablesJob,
