@@ -13,7 +13,6 @@ import { MAINTENANCE_MODE, ANNOUNCEMENT_BANNER } from "../../config";
 
 import "../globals.css";
 import { TopBanner } from "~/components/TopBanner";
-import { LeagueCountdownBanner } from "~/components/LeagueCountdownBanner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -23,8 +22,8 @@ const inter = Inter({
 
 export const metadata = {
   title: {
-    template: "%s | Wise Old Man",
-    default: "Wise Old Man",
+    template: "%s | [League] Wise Old Man",
+    default: "[League] Wise Old Man",
   },
   description: "The Open Source Old School Runescape player progress tracker.",
 };
@@ -35,7 +34,6 @@ function RootLayout(props: PropsWithChildren) {
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        <LeagueCountdownBanner />
         <NavigationLoadingBar />
 
         {ANNOUNCEMENT_BANNER.enabled && ANNOUNCEMENT_BANNER.message && (
