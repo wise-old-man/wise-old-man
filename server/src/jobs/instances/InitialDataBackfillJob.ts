@@ -10,7 +10,8 @@ type InitialDataBackfillJobPayload = {
 export class InitialDataBackfillJob extends Job<InitialDataBackfillJobPayload> {
   constructor(jobManager: JobManager) {
     super(jobManager);
-    this.options.rateLimiter = { max: 1, duration: 1000 };
+    // Increase this in the future once the initial backfill is done
+    this.options.rateLimiter = { max: 1, duration: 200 };
   }
 
   async execute(payload: InitialDataBackfillJobPayload) {
