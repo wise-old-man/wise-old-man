@@ -24,19 +24,21 @@ import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
 import { UpdatePlayerJob } from './instances/UpdatePlayerJob';
 import { SyncLastRankedJob } from './instances/SyncLastRankedJob';
 import { InitialDataBackfillJob } from './instances/InitialDataBackfillJob';
+import { RecalculateBackfillCompetitionJob } from './instances/RecalculateBackfillCompetitionJob';
+import { ScheduleBackfillJob } from './instances/ScheduleBackfillJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
-import { SchedukeBackfillJob } from './instances/ScheduleBackfillJob';
 
 const JOBS_MAP = {
   InitialDataBackfillJob,
-  SchedukeBackfillJob,
+  ScheduleBackfillJob,
   AutoUpdatePatronGroupsJob,
   AutoUpdatePatronPlayersJob,
   CalculateComputedMetricRankTablesJob,
   CheckMissingComputedTablesJob,
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
+  RecalculateBackfillCompetitionJob,
   ReviewNameChangeJob,
   ScheduleBannedPlayerChecksJob,
   ScheduleCompetitionEventsJob,
@@ -64,10 +66,10 @@ const CRON_CONFIG = [
   // every 5 mins
   { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
   { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
-  { interval: '*/5 * * * *', jobName: 'SchedukeBackfillJob' },
-  // every 15 mins */15 * * * *
+  // every 15 mins
   { interval: '*/15 * * * *', jobName: 'SyncLastRankedJob' },
   // every hour
+  { interval: '0 * * * *', jobName: 'ScheduleBackfillJob' },
   { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
   // every 6 hours
   { interval: '0 */6 * * *', jobName: 'ScheduleDeltaInvalidationsJob' },
