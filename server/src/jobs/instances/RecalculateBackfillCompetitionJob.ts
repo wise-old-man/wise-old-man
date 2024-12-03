@@ -10,7 +10,7 @@ type RecalculateBackfillCompetitionJobPayload = {
 export class RecalculateBackfillCompetitionJob extends Job<RecalculateBackfillCompetitionJobPayload> {
   constructor(jobManager: JobManager) {
     super(jobManager);
-    this.options.rateLimiter = { max: 1, duration: 5000 };
+    this.options.rateLimiter = { max: 1, duration: 200 };
   }
 
   async execute(payload: RecalculateBackfillCompetitionJobPayload) {
