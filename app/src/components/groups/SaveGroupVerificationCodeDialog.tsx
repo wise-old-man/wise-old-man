@@ -54,7 +54,7 @@ export function SaveGroupVerificationCodeDialog(props: SaveGroupVerificationCode
         if (!val) onClose();
       }}
     >
-      <DialogContent className="w-[22rem]" hideClose={!canClose}>
+      <DialogContent className="w-[22rem]" hideClose={true}>
         <DialogHeader>
           <DialogTitle className="text-center">Done!</DialogTitle>
           <span className="text-center text-sm text-blue-400">
