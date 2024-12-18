@@ -19,7 +19,7 @@ interface SaveGroupVerificationCodeDialogProps {
 }
 
 export function SaveGroupVerificationCodeDialog(props: SaveGroupVerificationCodeDialogProps) {
-  const { isOpen, onClose, verificationCode } = props;
+  const { isOpen, verificationCode } = props;
 
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -36,14 +36,25 @@ export function SaveGroupVerificationCodeDialog(props: SaveGroupVerificationCode
   const timeEllapsed = openedTimestamp ? Math.ceil((Date.now() - openedTimestamp) / 1000) : 0;
   const hasWaited = timeEllapsed >= MIN_WAIT_PERIOD_SECONDS;
 
+  const canClose = hasWaited && !isTransitioning;
+  function onClose() {
+    if (!canClose) {
+      return;
+    }
+
+    startTransition(() => {
+      props.onClose();
+    });
+  }
+
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(val) => {
-        if (!val) props.onClose();
+        if (!val) onClose();
       }}
     >
-      <DialogContent className="w-[22rem]">
+      <DialogContent className="w-[22rem]" hideClose={!canClose}>
         <DialogHeader>
           <DialogTitle className="text-center">Done!</DialogTitle>
           <span className="text-center text-sm text-blue-400">
@@ -82,7 +93,7 @@ export function SaveGroupVerificationCodeDialog(props: SaveGroupVerificationCode
           size="lg"
           variant="blue"
           className="mt-4 justify-center tabular-nums"
-          disabled={!hasWaited || isTransitioning}
+          disabled={!canClose}
           onClick={() => {
             startTransition(() => {
               onClose();
