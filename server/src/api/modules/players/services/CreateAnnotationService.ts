@@ -1,11 +1,11 @@
 import { NotFoundError, ConflictRequestError } from '../../../errors';
-import prisma, { PlayerAnnotationType, playerAnnotations } from '../../../../prisma';
+import prisma, { PlayerAnnotationType, Annotation } from '../../../../prisma';
 import { standardize } from '../player.utils';
 
 async function createPlayerAnnotation(
   username: string,
   annotation: PlayerAnnotationType
-): Promise<playerAnnotations> {
+): Promise<Annotation> {
   console.log('createPlayerAnnotation');
   const player = await prisma.player.findUnique({
     where: { username: standardize(username) },

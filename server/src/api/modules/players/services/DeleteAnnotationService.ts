@@ -1,11 +1,11 @@
 import { NotFoundError } from '../../../errors';
-import prisma, { PlayerAnnotationType, playerAnnotations } from '../../../../prisma';
+import prisma, { PlayerAnnotationType, Annotation } from '../../../../prisma';
 import { standardize } from '../player.utils';
 
 async function deletePlayerAnnotation(
   username: string,
   annotation: PlayerAnnotationType
-): Promise<playerAnnotations> {
+): Promise<Annotation> {
   const player = await prisma.player.findUnique({
     where: { username: standardize(username) },
     include: { annotations: true }

@@ -11,7 +11,7 @@ import { setUpdateCooldown } from '../../../src/api/modules/players/services/Upd
 import { importPlayerHistory } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
 import { parseHiscoresSnapshot, formatSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
 import redisService from '../../../src/api/services/external/redis.service';
-import prisma from '../../../src/prisma';
+import prisma, { PlayerAnnotationType } from '../../../src/prisma';
 import { BOSSES, Metric, PlayerStatus, PlayerType } from '../../../src/utils';
 import {
   modifyRawHiscoresData,
@@ -23,6 +23,8 @@ import {
   sleep
 } from '../../utils';
 import { findOrCreatePlayers } from '../../../src/api/modules/players/services/FindOrCreatePlayersService';
+import { createPlayerAnnotation } from '../../../src/api/modules/players/services/CreateAnnotationService';
+import exp from 'constants';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -2275,10 +2277,75 @@ describe('Player API', () => {
   });
   describe.only('12. Annotations', () => {
     it('should not fetch annotations (player not found)', async () => {
-      const response = await api.get(`/players/gringoloko/annotations`);
+      const response = await api.get(`/players/gringoloko`);
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
+    });
+
+    it('admim validation, should return 403 when admin password is incorrect', async () => {
+      const annotation = PlayerAnnotationType.blacklist;
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        annotation,
+        adminPassword: 'abc'
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
+    it('should return 400 when admin password is missing', async () => {
+      const annotation = PlayerAnnotationType.blacklist;
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        annotation
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+    });
+
+    it('should return 400 when annotation is invalid', async () => {
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotation: 'invalid'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe(
+        "Invalid enum value for 'annotation'. Expected blacklist | greylist | fake_f2p"
+      );
+    });
+
+    it('shoould return 400 when annotation is missing', async () => {
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'annotation' is undefined.");
+    });
+
+    it('should create a valid annotation', async () => {
+      const annotation = PlayerAnnotationType.blacklist;
+
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotation: annotation
+      });
+
+      expect(response.status).toBe(201);
+      expect(response.body.annotation).toBe(annotation);
+    });
+
+    it('should fetch annotation', async () => {
+      const playerName = 'psikoi';
+      findOrCreatePlayers([playerName]);
+      const annotation = PlayerAnnotationType.blacklist;
+      createPlayerAnnotation(playerName, annotation);
+      const response = await api.get(`/players/psikoi`);
+      console.log(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.annotation).toBe(annotation);
     });
   });
 

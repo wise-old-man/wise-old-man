@@ -2,7 +2,7 @@ import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import apiServer from '../../../src/api';
-import prisma, { PlayerAnnotations } from '../../../src/prisma';
+import prisma, { playerAnnotations } from '../../../src/prisma';
 import { resetDatabase } from '../../utils';
 
 const api = supertest(apiServer.express);
