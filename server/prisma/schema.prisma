@@ -680,7 +680,7 @@ model TrendDatapoint {
 
 model Annotation {
   playerId Int
-  type PlayerAnnotations
+  type PlayerAnnotationType
   createdAt    DateTime     @default(now()) @db.Timestamptz(6)
 
   // Relations
@@ -688,7 +688,7 @@ model Annotation {
   // Constraints
   @@id([playerId, type])
   // Map
-  @@map("annotations")
+  @@map("playerAnnotation")
 }
 
 enum NameChangeStatus {
@@ -731,7 +731,7 @@ enum PlayerStatus {
   @@map("player_status")
 }
 
-enum PlayerAnnotations {
+enum PlayerAnnotationType {
   blacklist
   greylist
   fake_f2p

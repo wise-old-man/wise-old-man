@@ -29,9 +29,9 @@ import { fetchPlayerDetails } from './services/FetchPlayerDetailsService';
 import { findPlayerArchives } from './services/FindPlayerArchivesService';
 import { searchPlayers } from './services/SearchPlayersService';
 import { updatePlayer } from './services/UpdatePlayerService';
-import { PlayerAnnotations } from '../../../prisma';
-import { createPlayerAnnotation } from '../annotations/services';
-import { deletePlayerAnnotation } from '../annotations/services';
+import { PlayerAnnotationType } from '../../../prisma';
+import { createPlayerAnnotation } from './services/CreateAnnotationService';
+import { deletePlayerAnnotation } from './services/DeleteAnnotationService';
 
 const router = Router();
 
@@ -475,7 +475,7 @@ router.post(
       username: z.string().min(1)
     }),
     body: z.object({
-      annotation: z.nativeEnum(PlayerAnnotations)
+      annotation: z.nativeEnum(PlayerAnnotationType)
     })
   }),
   executeRequest(async (req, res) => {
@@ -496,7 +496,7 @@ router.delete(
       username: z.string().min(1)
     }),
     body: z.object({
-      annotation: z.nativeEnum(PlayerAnnotations)
+      annotation: z.nativeEnum(PlayerAnnotationType)
     })
   }),
   executeRequest(async (req, res) => {

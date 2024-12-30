@@ -12,7 +12,6 @@ import nameRouter from './modules/name-changes/name-change.router';
 import patronRouter from './modules/patrons/patron.router';
 import playerRouter from './modules/players/player.router';
 import recordRouter from './modules/records/record.router';
-import annotationsRouter from './modules/annotations/annotation.router';
 import prometheus from './services/external/prometheus.service';
 import logger from './util/logging';
 
@@ -46,7 +45,6 @@ class RoutingHandler {
     this.router.use(patronRouter);
     this.router.use(playerRouter);
     this.router.use(recordRouter);
-    this.router.use(annotationsRouter);
 
     this.router.get('/metrics', async (_req, res) => {
       const metrics = await prometheus.getMetrics();

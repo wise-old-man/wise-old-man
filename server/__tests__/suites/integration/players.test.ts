@@ -2273,159 +2273,167 @@ describe('Player API', () => {
       expect(thirdResponse.body[0].previousUsername).toBe(firstResponse.body[0].previousUsername);
     });
   });
+  describe.only('12. Annotations', () => {
+    it('should not fetch annotations (player not found)', async () => {
+      const response = await api.get(`/players/gringoloko/annotations`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Player not found.');
+    });
+  });
+
+  async function setupPostTransitionDate(idOffset: number, playerId: number, groupId: number) {
+    await prisma.group.create({
+      data: {
+        id: idOffset + 2,
+        name: `Test Group 2 ${idOffset}`,
+        verificationHash: '',
+        memberships: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 4,
+        title: `Test Competition 4`,
+        metric: 'zulrah',
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3_600_000),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 5,
+        title: `Test Competition 5`,
+        metric: 'zulrah',
+        groupId,
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3_600_000),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 6,
+        title: `Test Competition 6`,
+        metric: 'zulrah',
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3_600_000),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.group.create({
+      data: {
+        id: idOffset + 3,
+        name: `Test Group 3 ${idOffset}`,
+        verificationHash: '',
+        memberships: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 7,
+        title: `Test Competition 7`,
+        metric: 'zulrah',
+        groupId,
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3_600_000),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 8,
+        title: `Test Competition 8`,
+        metric: 'zulrah',
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3_600_000),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 9,
+        title: `Test Competition 9`,
+        metric: 'zulrah',
+        groupId,
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3_600_000),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.group.create({
+      data: {
+        id: idOffset + 4,
+        name: `Test Group 4 ${idOffset}`,
+        verificationHash: '',
+        memberships: { create: { playerId } }
+      }
+    });
+  }
+
+  async function setupPreTransitionData(idOffset: number, playerId: number) {
+    const group1 = await prisma.group.create({
+      data: {
+        id: idOffset + 1,
+        name: `Test Group 1 ${idOffset}`,
+        verificationHash: '',
+        memberships: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 1,
+        title: `Test Competition 1`,
+        metric: 'zulrah',
+        startsAt: new Date('2020-01-01'),
+        endsAt: new Date('2020-03-01'),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 2,
+        title: `Test Competition 2`,
+        metric: 'zulrah',
+        startsAt: new Date('2020-01-01'),
+        endsAt: new Date('2020-03-01'),
+        verificationHash: '',
+        groupId: group1.id,
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 3,
+        title: `Test Competition 3`,
+        metric: 'zulrah',
+        startsAt: new Date('2020-01-01'),
+        endsAt: new Date('2030-03-01'),
+        verificationHash: '',
+        groupId: group1.id,
+        participations: { create: { playerId } }
+      }
+    });
+
+    return group1.id;
+  }
 });
-
-async function setupPostTransitionDate(idOffset: number, playerId: number, groupId: number) {
-  await prisma.group.create({
-    data: {
-      id: idOffset + 2,
-      name: `Test Group 2 ${idOffset}`,
-      verificationHash: '',
-      memberships: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 4,
-      title: `Test Competition 4`,
-      metric: 'zulrah',
-      startsAt: new Date(),
-      endsAt: new Date(Date.now() + 3_600_000),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 5,
-      title: `Test Competition 5`,
-      metric: 'zulrah',
-      groupId,
-      startsAt: new Date(),
-      endsAt: new Date(Date.now() + 3_600_000),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 6,
-      title: `Test Competition 6`,
-      metric: 'zulrah',
-      startsAt: new Date(),
-      endsAt: new Date(Date.now() + 3_600_000),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.group.create({
-    data: {
-      id: idOffset + 3,
-      name: `Test Group 3 ${idOffset}`,
-      verificationHash: '',
-      memberships: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 7,
-      title: `Test Competition 7`,
-      metric: 'zulrah',
-      groupId,
-      startsAt: new Date(),
-      endsAt: new Date(Date.now() + 3_600_000),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 8,
-      title: `Test Competition 8`,
-      metric: 'zulrah',
-      startsAt: new Date(),
-      endsAt: new Date(Date.now() + 3_600_000),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 9,
-      title: `Test Competition 9`,
-      metric: 'zulrah',
-      groupId,
-      startsAt: new Date(),
-      endsAt: new Date(Date.now() + 3_600_000),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.group.create({
-    data: {
-      id: idOffset + 4,
-      name: `Test Group 4 ${idOffset}`,
-      verificationHash: '',
-      memberships: { create: { playerId } }
-    }
-  });
-}
-
-async function setupPreTransitionData(idOffset: number, playerId: number) {
-  const group1 = await prisma.group.create({
-    data: {
-      id: idOffset + 1,
-      name: `Test Group 1 ${idOffset}`,
-      verificationHash: '',
-      memberships: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 1,
-      title: `Test Competition 1`,
-      metric: 'zulrah',
-      startsAt: new Date('2020-01-01'),
-      endsAt: new Date('2020-03-01'),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 2,
-      title: `Test Competition 2`,
-      metric: 'zulrah',
-      startsAt: new Date('2020-01-01'),
-      endsAt: new Date('2020-03-01'),
-      verificationHash: '',
-      groupId: group1.id,
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 3,
-      title: `Test Competition 3`,
-      metric: 'zulrah',
-      startsAt: new Date('2020-01-01'),
-      endsAt: new Date('2030-03-01'),
-      verificationHash: '',
-      groupId: group1.id,
-      participations: { create: { playerId } }
-    }
-  });
-
-  return group1.id;
-}

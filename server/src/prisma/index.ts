@@ -19,8 +19,8 @@ import {
   MemberActivity,
   GroupSocialLinks as PrismaGroupSocialLinks,
   GroupRoleOrder,
-  PlayerAnnotations,
-  Annotation
+  PlayerAnnotationType,
+  playerAnnotations
 } from '@prisma/client';
 import { DenyContext, SkipContext, isComputedMetric } from '../utils';
 import { NameChangeStatus } from './enum-adapter';
@@ -199,9 +199,9 @@ export {
   GroupSocialLinks,
   TrendDatapoint,
   GroupRoleOrder,
-  Annotation,
+  playerAnnotations,
   // Enums
-  PlayerAnnotations,
+  PlayerAnnotationType,
   Country,
   NameChangeStatus
 };
