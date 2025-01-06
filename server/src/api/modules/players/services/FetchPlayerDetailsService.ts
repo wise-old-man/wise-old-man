@@ -13,7 +13,6 @@ async function fetchPlayerDetails(username: string): Promise<PlayerDetails> {
   if (!player) {
     throw new NotFoundError('Player not found.');
   }
-  console.log(player.annotations);
   if (!player.latestSnapshot) {
     // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
     const latestSnapshot = await prisma.snapshot.findFirst({

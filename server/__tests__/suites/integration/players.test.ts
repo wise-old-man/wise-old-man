@@ -2326,26 +2326,50 @@ describe('Player API', () => {
 
     it('should create a valid annotation', async () => {
       const annotation = PlayerAnnotationType.blacklist;
+      const playerName = 'psikoi';
+      findOrCreatePlayers([playerName]);
 
-      const response = await api.post(`/players/psikoi/annotation`).send({
+      const response = await api.post(`/players/${playerName}/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
         annotation: annotation
       });
 
       expect(response.status).toBe(201);
-      expect(response.body.annotation).toBe(annotation);
+      expect(response.body.type).toBe(annotation);
     });
 
     it('should fetch annotation', async () => {
       const playerName = 'psikoi';
-      findOrCreatePlayers([playerName]);
       const annotation = PlayerAnnotationType.blacklist;
-      createPlayerAnnotation(playerName, annotation);
-      const response = await api.get(`/players/psikoi`);
-      console.log(response.body);
+      findOrCreatePlayers([playerName]);
+
+      await api.post(`/players/${playerName}/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotation: annotation
+      });
+      const response = await api.get(`/players/${playerName}`);
 
       expect(response.status).toBe(200);
-      expect(response.body.annotation).toBe(annotation);
+      expect(response.body.annotations[0].type).toBe(annotation);
+    });
+
+    it('should delete annotation', async () => {
+      const playerName = 'psikoi';
+      const annotation = PlayerAnnotationType.blacklist;
+      findOrCreatePlayers([playerName]);
+
+      await api.post(`/players/${playerName}/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotation: annotation
+      });
+
+      const response = await api.delete(`/players/${playerName}/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotation: annotation
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBe(`Annotation ${annotation} deleted for player ${playerName}`);
     });
   });
 

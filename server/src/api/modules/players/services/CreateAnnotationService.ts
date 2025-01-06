@@ -6,12 +6,10 @@ async function createPlayerAnnotation(
   username: string,
   annotation: PlayerAnnotationType
 ): Promise<Annotation> {
-  console.log('createPlayerAnnotation');
   const player = await prisma.player.findUnique({
     where: { username: standardize(username) },
     include: { annotations: true }
   });
-  console.log('player', player);
 
   if (!player) {
     throw new NotFoundError(`Player: ${username} not found`);
