@@ -23,8 +23,6 @@ import {
   sleep
 } from '../../utils';
 import { findOrCreatePlayers } from '../../../src/api/modules/players/services/FindOrCreatePlayersService';
-import { createPlayerAnnotation } from '../../../src/api/modules/players/services/CreateAnnotationService';
-import exp from 'constants';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
