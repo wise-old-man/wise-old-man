@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import jobManager from '../../../jobs/job.manager';
 import prisma from '../../../prisma';
-import { CompetitionStatus, Metric, Period } from '../../../utils';
+import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../../utils';
 import { NotFoundError, ServerError } from '../../errors';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
@@ -29,7 +29,6 @@ import { fetchPlayerDetails } from './services/FetchPlayerDetailsService';
 import { findPlayerArchives } from './services/FindPlayerArchivesService';
 import { searchPlayers } from './services/SearchPlayersService';
 import { updatePlayer } from './services/UpdatePlayerService';
-import { PlayerAnnotationType } from '../../../prisma';
 import { createPlayerAnnotation } from './services/CreateAnnotationService';
 import { deletePlayerAnnotation } from './services/DeleteAnnotationService';
 
