@@ -8,14 +8,14 @@ async function createPlayerAnnotation(
 ): Promise<PlayerAnnotation> {
   const player = await prisma.player.findUnique({
     where: { username: standardize(username) },
-    include: { playerAnnotations: true }
+    include: { annotations: true }
   });
 
   if (!player) {
     throw new NotFoundError(`Player: ${username} not found`);
   }
 
-  if (player.playerAnnotations.some(a => a.type === annotationType)) {
+  if (player.annotations.some(a => a.type === annotationType)) {
     throw new ConflictRequestError(`The annotation ${annotationType} already exists for ${username}`);
   }
 

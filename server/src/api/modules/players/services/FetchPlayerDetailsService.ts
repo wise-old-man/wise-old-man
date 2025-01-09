@@ -7,7 +7,7 @@ import { formatPlayerDetails, standardize } from '../player.utils';
 async function fetchPlayerDetails(username: string): Promise<PlayerDetails> {
   const player = await prisma.player.findFirst({
     where: { username: standardize(username) },
-    include: { latestSnapshot: true, playerAnnotations: true }
+    include: { latestSnapshot: true, annotations: true }
   });
 
   if (!player) {

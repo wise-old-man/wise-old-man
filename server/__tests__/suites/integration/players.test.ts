@@ -11,8 +11,8 @@ import { setUpdateCooldown } from '../../../src/api/modules/players/services/Upd
 import { importPlayerHistory } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
 import { parseHiscoresSnapshot, formatSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
 import redisService from '../../../src/api/services/external/redis.service';
-import prisma, { PlayerAnnotationType } from '../../../src/prisma';
-import { BOSSES, Metric, PlayerStatus, PlayerType } from '../../../src/utils';
+import prisma from '../../../src/prisma';
+import { BOSSES, Metric, PlayerStatus, PlayerType, PlayerAnnotationType } from '../../../src/utils';
 import {
   modifyRawHiscoresData,
   readFile,
@@ -2283,10 +2283,9 @@ describe('Player API', () => {
     });
 
     it('admim validation, should return 403 when admin password is incorrect', async () => {
-      const annotation = PlayerAnnotationType.blacklist;
       const response = await api.post(`/players/psikoi/annotation`).send({
-        annotation,
-        adminPassword: 'abc'
+        adminPassword: 'abc',
+        annotationType: PlayerAnnotationType.BLACKLIST
       });
 
       expect(response.status).toBe(403);
@@ -2294,9 +2293,8 @@ describe('Player API', () => {
     });
 
     it('should return 400 when admin password is missing', async () => {
-      const annotation = PlayerAnnotationType.blacklist;
       const response = await api.post(`/players/psikoi/annotation`).send({
-        annotation
+        annotationType: PlayerAnnotationType.BLACKLIST
       });
 
       expect(response.status).toBe(400);
@@ -2306,12 +2304,12 @@ describe('Player API', () => {
     it('should return 400 when annotation is invalid', async () => {
       const response = await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotation: 'invalid'
+        annotationType: 'invalid'
       });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe(
-        "Invalid enum value for 'annotation'. Expected blacklist | greylist | fake_f2p"
+        "Invalid enum value for 'annotationType'. Expected blacklist | greylist | fake_f2p"
       );
     });
 
@@ -2319,56 +2317,49 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD
       });
+
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'annotation' is undefined.");
+      expect(response.body.message).toBe("Parameter 'annotationType' is undefined.");
     });
 
     it('should create a valid annotation', async () => {
-      const annotation = PlayerAnnotationType.blacklist;
-      const playerName = 'psikoi';
-      findOrCreatePlayers([playerName]);
-
-      const response = await api.post(`/players/${playerName}/annotation`).send({
+      findOrCreatePlayers(['psikoi']);
+      const response = await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotation: annotation
+        annotationType: PlayerAnnotationType.BLACKLIST
       });
 
       expect(response.status).toBe(201);
-      expect(response.body.type).toBe(annotation);
+      expect(response.body.type).toBe(PlayerAnnotationType.BLACKLIST);
     });
 
-    it('should fetch annotation', async () => {
-      const playerName = 'psikoi';
-      const annotation = PlayerAnnotationType.blacklist;
-      findOrCreatePlayers([playerName]);
-
-      await api.post(`/players/${playerName}/annotation`).send({
+    it('should fetch "psikoi"', async () => {
+      findOrCreatePlayers(['psikoi']);
+      await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotation: annotation
+        annotationType: PlayerAnnotationType.BLACKLIST
       });
-      const response = await api.get(`/players/${playerName}`);
+      const response = await api.get(`/players/psikoi`);
 
       expect(response.status).toBe(200);
-      expect(response.body.annotations[0].type).toBe(annotation);
+      expect(response.body.annotations[0].type).toBe(PlayerAnnotationType.BLACKLIST);
     });
 
     it('should delete annotation', async () => {
-      const playerName = 'psikoi';
-      const annotation = PlayerAnnotationType.blacklist;
-      findOrCreatePlayers([playerName]);
+      findOrCreatePlayers(['psikoi']);
 
-      await api.post(`/players/${playerName}/annotation`).send({
+      await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotation: annotation
+        annotationType: PlayerAnnotationType.BLACKLIST
       });
 
-      const response = await api.delete(`/players/${playerName}/annotation`).send({
+      const response = await api.delete(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotation: annotation
+        annotationType: PlayerAnnotationType.BLACKLIST
       });
 
       expect(response.status).toBe(200);
-      expect(response.body).toBe(`Annotation ${annotation} deleted for player ${playerName}`);
+      expect(response.body).toBe(`Annotation ${PlayerAnnotationType.BLACKLIST} deleted for player psikoi`);
     });
   });
 

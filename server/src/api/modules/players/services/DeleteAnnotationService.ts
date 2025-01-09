@@ -8,14 +8,14 @@ async function deletePlayerAnnotation(
 ): Promise<PlayerAnnotation> {
   const player = await prisma.player.findUnique({
     where: { username: standardize(username) },
-    include: { playerAnnotations: true }
+    include: { annotations: true }
   });
 
   if (!player) {
     throw new NotFoundError(`Player: ${username} not found`);
   }
 
-  const existingAnnotation = player.playerAnnotations.find(a => a.type === annotationType);
+  const existingAnnotation = player.annotations.find(a => a.type === annotationType);
 
   if (!existingAnnotation) {
     throw new NotFoundError(`${annotationType} does not exist for ${username}.`);
