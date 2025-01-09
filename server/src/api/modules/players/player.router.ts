@@ -475,14 +475,14 @@ router.post(
       username: z.string().min(1)
     }),
     body: z.object({
-      annotation: z.nativeEnum(PlayerAnnotationType)
+      annotationType: z.nativeEnum(PlayerAnnotationType)
     })
   }),
   executeRequest(async (req, res) => {
     const { username } = req.params;
-    const { annotation } = req.body;
+    const { annotationType } = req.body;
 
-    const createdAnnotation = await createPlayerAnnotation(username, annotation);
+    const createdAnnotation = await createPlayerAnnotation(username, annotationType);
 
     res.status(201).json(createdAnnotation);
   })
@@ -496,14 +496,14 @@ router.delete(
       username: z.string().min(1)
     }),
     body: z.object({
-      annotation: z.nativeEnum(PlayerAnnotationType)
+      annotationType: z.nativeEnum(PlayerAnnotationType)
     })
   }),
   executeRequest(async (req, res) => {
     const { username } = req.params;
-    const { annotation } = req.body;
+    const { annotationType } = req.body;
 
-    const deletedAnnotation = await deletePlayerAnnotation(username, annotation);
+    const deletedAnnotation = await deletePlayerAnnotation(username, annotationType);
 
     res.status(200).json(`Annotation ${deletedAnnotation.type} deleted for player ${username}`);
   })
