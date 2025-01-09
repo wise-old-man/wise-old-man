@@ -2274,7 +2274,7 @@ describe('Player API', () => {
     });
   });
 
-  describe.only('12. Annotations', () => {
+  describe('12. Annotations', () => {
     it('should not fetch annotations (player not found)', async () => {
       const response = await api.get(`/players/gringoloko`);
 
