@@ -2273,6 +2273,7 @@ describe('Player API', () => {
       expect(thirdResponse.body[0].previousUsername).toBe(firstResponse.body[0].previousUsername);
     });
   });
+
   describe.only('12. Annotations', () => {
     it('should not fetch annotations (player not found)', async () => {
       const response = await api.get(`/players/gringoloko`);
