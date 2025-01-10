@@ -69,7 +69,7 @@ const CRON_CONFIG = [
   // every 15 mins
   { interval: '*/15 * * * *', jobName: 'SyncLastRankedJob' },
   // every hour
-  { interval: '0 * * * *', jobName: 'ScheduleBackfillJob' },
+  // { interval: '0 * * * *', jobName: 'ScheduleBackfillJob' },
   { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
   // every 6 hours
   { interval: '0 */6 * * *', jobName: 'ScheduleDeltaInvalidationsJob' },
