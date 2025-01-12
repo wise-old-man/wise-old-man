@@ -1,0 +1,18 @@
+name: Temporary cache busting cron
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prune Docker Images
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd wise-old-man
+            docker exec -it redis sh -c 'redis-cli KEYS "next*" | xargs redis-cli DEL'
