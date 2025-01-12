@@ -15,4 +15,4 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd wise-old-man
-            docker exec -it redis sh -c 'redis-cli KEYS "next*" | xargs redis-cli DEL'
+            docker exec redis sh -c 'redis-cli KEYS "next*" | xargs redis-cli DEL'
