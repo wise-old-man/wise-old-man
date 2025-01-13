@@ -49,9 +49,9 @@ sidebar_position: 1
 
 ### `(Enum)` Achievement Measure
 
-````bash
+```bash
 'levels', 'experience', 'kills', 'score', 'value'
-`````
+```
 
 <br />
 
