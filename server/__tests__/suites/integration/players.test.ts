@@ -2323,7 +2323,7 @@ describe('Player API', () => {
     });
 
     it('should create a valid annotation', async () => {
-      findOrCreatePlayers(['psikoi']);
+      await findOrCreatePlayers(['psikoi']);
       const response = await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.BLACKLIST
@@ -2334,7 +2334,7 @@ describe('Player API', () => {
     });
 
     it('should fetch "psikoi"', async () => {
-      findOrCreatePlayers(['psikoi']);
+      await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.BLACKLIST
@@ -2346,7 +2346,7 @@ describe('Player API', () => {
     });
 
     it('should delete annotation', async () => {
-      findOrCreatePlayers(['psikoi']);
+      await findOrCreatePlayers(['psikoi']);
 
       await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
@@ -2362,8 +2362,19 @@ describe('Player API', () => {
       expect(response.body).toBe(`Annotation ${PlayerAnnotationType.BLACKLIST} deleted for player psikoi`);
     });
 
+    it('should fail to delete unexisting annotation', async () => {
+      await findOrCreatePlayers(['psikoi']);
+      const response = await api.delete(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotationType: PlayerAnnotationType.BLACKLIST
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe(`${PlayerAnnotationType.BLACKLIST} does not exist for psikoi.`);
+    });
+
     it('should throw conflit error 409 to create', async () => {
-      findOrCreatePlayers(['psikoi']);
+      await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.BLACKLIST
