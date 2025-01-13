@@ -2362,7 +2362,21 @@ describe('Player API', () => {
       expect(response.body).toBe(`Annotation ${PlayerAnnotationType.BLACKLIST} deleted for player psikoi`);
     });
 
-    it('should throw conflit error 409 to create');
+    it('should throw conflit error 409 to create', async () => {
+      findOrCreatePlayers(['psikoi']);
+      await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotationType: PlayerAnnotationType.BLACKLIST
+      });
+
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotationType: PlayerAnnotationType.BLACKLIST
+      });
+
+      expect(response.status).toBe(409);
+      expect(response.body.message).toBe('The annotation blacklist already exists for psikoi');
+    });
   });
 
   async function setupPostTransitionDate(idOffset: number, playerId: number, groupId: number) {
