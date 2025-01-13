@@ -20,19 +20,23 @@ import f2pSkillingMetas from './configs/ehp/f2p.ehp';
 import f2pLvl3SkillingMetas from './configs/ehp/f2p_lvl3.ehp';
 import f2pIronmanSkillingMetas from './configs/ehp/f2p_ironman.ehp';
 import f2pLvl3IronmanSkillingMetas from './configs/ehp/f2p_lvl3_ironman.ehp';
+import ultimateBossingMetas from './configs/ehb/ultimate.ehb';
 import ultimateSkillingMetas from './configs/ehp/ultimate.ehp';
+import def1BossingMetas from './configs/ehb/def1.ehb';
+import def1SkillingMetas from './configs/ehp/def1.ehp';
 import { EfficiencyAlgorithmType } from './efficiency.types';
 
 export const ALGORITHMS = new Map<EfficiencyAlgorithmType, EfficiencyAlgorithm>(
   [
     new EfficiencyAlgorithm(EfficiencyAlgorithmType.MAIN, mainSkillingMetas, mainBossingMetas),
     new EfficiencyAlgorithm(EfficiencyAlgorithmType.IRONMAN, ironmanSkillingMetas, ironmanBossingMetas),
-    new EfficiencyAlgorithm(EfficiencyAlgorithmType.ULTIMATE, ultimateSkillingMetas, ironmanBossingMetas),
+    new EfficiencyAlgorithm(EfficiencyAlgorithmType.ULTIMATE, ultimateSkillingMetas, ultimateBossingMetas),
     new EfficiencyAlgorithm(EfficiencyAlgorithmType.LVL3, lvl3SkillingMetas),
     new EfficiencyAlgorithm(EfficiencyAlgorithmType.F2P, f2pSkillingMetas),
     new EfficiencyAlgorithm(EfficiencyAlgorithmType.F2P_LVL3, f2pLvl3SkillingMetas),
     new EfficiencyAlgorithm(EfficiencyAlgorithmType.F2P_IRONMAN, f2pIronmanSkillingMetas),
-    new EfficiencyAlgorithm(EfficiencyAlgorithmType.F2P_LVL3_IRONMAN, f2pLvl3IronmanSkillingMetas)
+    new EfficiencyAlgorithm(EfficiencyAlgorithmType.F2P_LVL3_IRONMAN, f2pLvl3IronmanSkillingMetas),
+    new EfficiencyAlgorithm(EfficiencyAlgorithmType.DEF1, def1SkillingMetas, def1BossingMetas)
   ].map(a => [a.type, a])
 );
 
@@ -91,6 +95,8 @@ export function getAlgorithmType(player?: Pick<Player, 'type' | 'build'>) {
       return EfficiencyAlgorithmType.F2P;
     case PlayerBuild.LVL3:
       return EfficiencyAlgorithmType.LVL3;
+    case PlayerBuild.DEF1:
+      return EfficiencyAlgorithmType.DEF1;
     default:
       return EfficiencyAlgorithmType.MAIN;
   }

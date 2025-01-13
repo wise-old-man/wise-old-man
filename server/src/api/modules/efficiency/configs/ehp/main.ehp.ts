@@ -31,7 +31,7 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 440_000,
+        rate: 490_000,
         description: 'Bonus XP from Slayer'
       }
     ],
@@ -42,7 +42,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 406_000,
+        rate: 420_000,
         description: "Chinning in Kruk's Dungeon"
       }
     ],
@@ -53,15 +53,15 @@ export default [
         startExp: 0,
         endExp: 200_000_000,
         end: false,
-        ratio: 1.2094
+        ratio: 1.25
       },
       {
         originSkill: Skill.DEFENCE,
         bonusSkill: Skill.PRAYER,
         startExp: 0,
         endExp: 200_000_000,
-        end: true,
-        ratio: 0.09399465048
+        end: false,
+        ratio: 0.154
       }
     ]
   },
@@ -71,7 +71,7 @@ export default [
       {
         startExp: 0,
         rate: 15_000,
-        description: 'Questing XP'
+        description: 'Quests'
       },
       {
         startExp: 37_224,
@@ -100,7 +100,7 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 390_000,
+        rate: 400_000,
         description: 'Bonus XP from Slayer'
       }
     ],
@@ -121,8 +121,8 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 1_154_000,
-        description: "Chinning in Kruk's Dungeon"
+        rate: 1_190_000,
+        description: 'Chinning maniacal monkeys'
       }
     ],
     bonuses: []
@@ -132,13 +132,13 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 860_000,
-        description: 'Dragon bones at Chaos Altar'
+        rate: 1_670_000,
+        description: 'Dagannoth bones at the chaos altar'
       },
       {
         startExp: 737_627,
-        rate: 1_800_000,
-        description: 'Superior dragon bones at Chaos Altar'
+        rate: 2_000_000,
+        description: 'Superior dragon bones at the chaos altar'
       }
     ],
     bonuses: []
@@ -148,48 +148,48 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 40_000,
-        description: 'Shrimp & Trout'
+        rate: 171_000,
+        description: '1t poison karambwan'
       },
       {
         startExp: 13_363,
-        rate: 463_867,
-        description: '1t Karambwans'
+        rate: 513_800,
+        description: '1t karambwan'
       },
       {
         startExp: 37_224,
-        rate: 534_375,
-        description: '1t Karambwans'
+        rate: 585_600,
+        description: '1t karambwan'
       },
       {
         startExp: 101_333,
-        rate: 604_883,
-        description: '1t Karambwans'
+        rate: 656_800,
+        description: '1t karambwan'
       },
       {
         startExp: 273_742,
-        rate: 671_680,
-        description: '1t Karambwans'
+        rate: 728_200,
+        description: '1t karambwan'
       },
       {
         startExp: 737_627,
-        rate: 742_188,
-        description: '1t Karambwans'
+        rate: 799_800,
+        description: '1t karambwan'
       },
       {
         startExp: 1_986_068,
-        rate: 812_695,
-        description: '1t Karambwans'
+        rate: 871_400,
+        description: '1t karambwan'
       },
       {
         startExp: 5_346_332,
-        rate: 883_203,
-        description: '1t Karambwans'
+        rate: 938_400,
+        description: '1t karambwan'
       },
       {
         startExp: 13_034_431,
-        rate: 950_000,
-        description: '1t Karambwans'
+        rate: 970_000,
+        description: '1t karambwan'
       }
     ],
     bonuses: []
@@ -204,42 +204,42 @@ export default [
       },
       {
         startExp: 2_411,
-        rate: 62_000,
+        rate: 56_000,
         description: '2t oaks (average rate)'
       },
       {
         startExp: 22_406,
-        rate: 101_275,
+        rate: 93_174,
         description: '1.5t teaks'
       },
       {
         startExp: 41_171,
-        rate: 125_019,
+        rate: 114_728,
         description: '1.5t teaks'
       },
       {
         startExp: 111_945,
-        rate: 137_764,
+        rate: 127_339,
         description: '1.5t teaks'
       },
       {
         startExp: 302_288,
-        rate: 171_413,
+        rate: 172_507,
         description: '1.5t teaks'
       },
       {
         startExp: 814_445,
-        rate: 192_963,
+        rate: 194_022,
         description: '1.5t teaks'
       },
       {
         startExp: 1_986_068,
-        rate: 206_599,
+        rate: 207_636,
         description: '1.5t teaks'
       },
       {
         startExp: 5_346_332,
-        rate: 220_964,
+        rate: 221_977,
         description: '1.5t teaks'
       },
       {
@@ -255,28 +255,43 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 20_000,
-        description: 'Questing XP'
+        rate: 29_200,
+        description: 'Quests'
       },
       {
-        startExp: 18_247,
-        rate: 40_000,
-        description: 'Fly fishing (Trout & Salmon)'
+        startExp: 14_612,
+        rate: 46_592,
+        description: '3t fly fishing'
       },
       {
-        startExp: 101_333,
-        rate: 94_364,
-        description: '2t Swordfish'
+        startExp: 75_127,
+        rate: 81_612,
+        description: 'Drift net fishing (65.2k hunter & 55.9k fishing xp/h)'
       },
       {
-        startExp: 273_742,
-        rate: 113_709,
-        description: '2t Swordfish'
+        startExp: 106_046,
+        rate: 94_314,
+        description: 'Drift net fishing (81.6k hunter & 64.6k fishing xp/h)'
+      },
+      {
+        startExp: 229_685,
+        rate: 108_780,
+        description: 'Drift net fishing (95.1k hunter & 72.2k fishing xp/h)'
+      },
+      {
+        startExp: 302_288,
+        rate: 123_432,
+        description: 'Drift net fishing (108.7k hunter & 80.3k fishing xp/h)'
+      },
+      {
+        startExp: 593_234,
+        rate: 134_256,
+        description: 'Drift net fishing (118.5k hunter & 87.2k fishing xp/h)'
       },
       {
         startExp: 737_627,
-        rate: 132_000,
-        description: '2t Swordfish'
+        rate: 132_800,
+        description: 'Drift net fishing (118.5k hunter & 89.9k fishing xp/h) and 2t swordfish & tuna'
       }
     ],
     bonuses: []
@@ -286,23 +301,18 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 58_960,
-        description: 'Logs'
-      },
-      {
-        startExp: 2_411,
-        rate: 88_440,
-        description: 'Oak logs'
-      },
-      {
-        startExp: 13_363,
-        rate: 132_660,
-        description: 'Willow logs'
+        rate: 73_700,
+        description: 'Colored logs'
       },
       {
         startExp: 22_406,
-        rate: 154_770,
+        rate: 138_900,
         description: 'Teak logs'
+      },
+      {
+        startExp: 45_529,
+        rate: 184_250,
+        description: 'Arctic pine logs'
       },
       {
         startExp: 61_512,
@@ -311,33 +321,39 @@ export default [
       },
       {
         startExp: 101_333,
-        rate: 232_155,
-        description: 'Firebwan (Mahogany logs)'
+        rate: 414_079,
+        description: 'Artefacts with firemaking (163.6k thieving & 139.5k firemaking xp/h)'
       },
       {
         startExp: 273_742,
-        rate: 298_485,
-        description: 'Firebwan (Yew logs)'
+        rate: 565_154,
+        description: 'Artefacts with firemaking (194.6k thieving & 179.4k firemaking xp/h)'
       },
       {
         startExp: 1_210_421,
-        rate: 447_801,
-        description: 'Firebwan (Magic logs)'
+        rate: 795_098,
+        description: 'Artefacts with firemaking (224.8k thieving & 269.1k firemaking xp/h)'
       },
       {
         startExp: 5_346_332,
-        rate: 505_000,
-        description: 'Firebwan (Redwood logs)'
+        rate: 894_364,
+        description: 'Artefacts with firemaking (246.8k thieving & 310k firemaking xp/h)'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 794_566,
+        description:
+          'Artefacts with firemaking (260k thieving & 310k firemaking xp/h), scales to firebwan (505k firemaking & 353.5k cooking xp/h)'
       }
     ],
     bonuses: [
       {
         originSkill: Skill.FIREMAKING,
-        bonusSkill: Skill.COOKING,
-        startExp: 101_333,
+        bonusSkill: Skill.THIEVING,
+        startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.7
+        ratio: 0.8387
       }
     ]
   },
@@ -347,26 +363,46 @@ export default [
       {
         startExp: 0,
         rate: 57_000,
-        description: 'Leather & Gems'
+        description: 'Leather items'
+      },
+      {
+        startExp: 4_470,
+        rate: 139_000,
+        description: 'Sapphires'
+      },
+      {
+        startExp: 9_730,
+        rate: 187_650,
+        description: 'Emeralds'
+      },
+      {
+        startExp: 20_224,
+        rate: 236_300,
+        description: 'Rubies'
+      },
+      {
+        startExp: 50_339,
+        rate: 298_850,
+        description: 'Diamonds'
       },
       {
         startExp: 368_599,
-        rate: 320_000,
+        rate: 324_420,
         description: "Green d'hide bodies"
       },
       {
         startExp: 814_445,
-        rate: 360_000,
+        rate: 366_280,
         description: "Blue d'hide bodies"
       },
       {
         startExp: 1_475_581,
-        rate: 400_000,
+        rate: 408_140,
         description: "Red d'hide bodies"
       },
       {
         startExp: 2_951_373,
-        rate: 440_000,
+        rate: 450_000,
         description: "Black d'hide bodies"
       }
     ],
@@ -377,18 +413,18 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 40_000,
-        description: 'Questing XP'
+        rate: 46_500,
+        description: 'Quests'
       },
       {
         startExp: 37_224,
         rate: 380_000,
-        description: 'Blast Furnace Gold'
+        description: 'Blast Furnace gold'
       },
       {
         startExp: 13_034_431,
         rate: 410_000,
-        description: 'Blast Furnace Gold'
+        description: 'Blast Furnace gold'
       }
     ],
     bonuses: []
@@ -398,65 +434,45 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 8_000,
-        description: 'Questing XP'
+        rate: 20_000,
+        description: 'Quests'
       },
       {
-        startExp: 13_363,
-        rate: 59_158,
-        description: '3t Iron'
+        startExp: 35_025,
+        rate: 45_300,
+        description: 'Motherlode Mine for the prospector kit and Shooting Stars for the celestial ring'
       },
       {
-        startExp: 61_512,
-        rate: 85_500,
-        description: '3t4g at Desert Quarry'
+        startExp: 489_936,
+        rate: 102_516,
+        description: '3t granite'
       },
       {
-        startExp: 101_333,
-        rate: 89_151,
-        description: '3t4g at Desert Quarry'
-      },
-      {
-        startExp: 302_288,
-        rate: 97_923,
-        description: '3t4g at Desert Quarry'
-      },
-      {
-        startExp: 737_627,
-        rate: 103_751,
-        description: '3t4g at Desert Quarry'
-      },
-      {
-        startExp: 1_986_068,
-        rate: 109_143,
-        description: '3t4g at Desert Quarry'
+        startExp: 1_210_421,
+        rate: 108_510,
+        description: '3t granite'
       },
       {
         startExp: 3_258_594,
-        rate: 46_500,
-        description: 'Motherlode Mine for Prospector kit'
+        rate: 113_459,
+        description: '3t granite'
       },
       {
-        startExp: 3_548_694,
-        rate: 113_287,
-        description: '3t4g at Desert Quarry'
-      },
-      {
-        startExp: 5_346_332,
-        rate: 115_638,
-        description: '3t4g at Desert Quarry'
+        startExp: 8_771_558,
+        rate: 117_782,
+        description: '3t granite'
       },
       {
         startExp: 13_034_431,
         rate: 125_000,
-        description: '3t4g at Desert Quarry'
+        description: '3t granite'
       }
     ],
     bonuses: [
       {
         originSkill: Skill.MINING,
         bonusSkill: Skill.SMITHING,
-        startExp: 302_288,
+        startExp: 489_936,
         endExp: 200_000_000,
         end: true,
         ratio: 0.08
@@ -468,23 +484,43 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 60_000,
-        description: 'Questing XP'
+        rate: 11_100,
+        description: 'Quests'
       },
       {
-        startExp: 30_408,
+        startExp: 8_025,
         rate: 218_750,
-        description: 'Prayer potions'
+        description: "Serum 207's"
       },
       {
-        startExp: 61_512,
-        rate: 250_000,
-        description: 'Super attack potions'
+        startExp: 123_660,
+        rate: 293_750,
+        description: 'Super energies'
+      },
+      {
+        startExp: 166_636,
+        rate: 312_500,
+        description: 'Super strengths'
       },
       {
         startExp: 368_599,
         rate: 356_250,
-        description: 'Super restore potions'
+        description: 'Super restores'
+      },
+      {
+        startExp: 496_254,
+        rate: 375_000,
+        description: 'Super defences'
+      },
+      {
+        startExp: 668_051,
+        rate: 393_750,
+        description: 'Antifire potions'
+      },
+      {
+        startExp: 899_257,
+        rate: 406_250,
+        description: 'Ranging potions'
       },
       {
         startExp: 1_336_443,
@@ -492,9 +528,24 @@ export default [
         description: 'Magic potions'
       },
       {
-        startExp: 2_192_818,
-        rate: 450_000,
-        description: 'Saradomin brews'
+        startExp: 1_475_581,
+        rate: 535_500,
+        description: '1t stamina potions'
+      },
+      {
+        startExp: 2_951_373,
+        rate: 577_500,
+        description: '1t extended antifires'
+      },
+      {
+        startExp: 3_972_294,
+        rate: 630_000,
+        description: '1t anti-venoms'
+      },
+      {
+        startExp: 11_805_606,
+        rate: 840_000,
+        description: '1t extended super antifires'
       }
     ],
     bonuses: []
@@ -504,53 +555,48 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 8_000,
-        description: 'Gnome Stronghold Agility Course'
+        rate: 15_100,
+        description: 'Quests'
       },
       {
-        startExp: 13_363,
-        rate: 20_000,
-        description: 'Penguin Agility Course'
-      },
-      {
-        startExp: 83_014,
-        rate: 44_000,
-        description: 'Ape Atoll Agility Course'
+        startExp: 75_127,
+        rate: 35_000,
+        description: 'Wilderness Agility Course'
       },
       {
         startExp: 123_660,
         rate: 45_000,
-        description: 'Floor 1 of The Hallowed Sepulchre'
+        description: 'Hallowed Sepulchre'
       },
       {
         startExp: 333_804,
-        rate: 57_000,
-        description: 'Floors 1-2 of The Hallowed Sepulchre'
+        rate: 56_250,
+        description: 'Hallowed Sepulchre'
       },
       {
         startExp: 899_257,
-        rate: 67_750,
-        description: 'Floors 1-3 of The Hallowed Sepulchre'
+        rate: 66_667,
+        description: 'Hallowed Sepulchre'
       },
       {
         startExp: 2_421_087,
-        rate: 73_500,
-        description: 'Floors 1-4 of The Hallowed Sepulchre'
+        rate: 76_000,
+        description: 'Hallowed Sepulchre'
       },
       {
         startExp: 6_517_253,
-        rate: 98_500,
-        description: 'Floors 1-5 of The Hallowed Sepulchre'
+        rate: 98_950,
+        description: 'Hallowed Sepulchre with grand coffin looting (98.5k xp/h) and making potions'
       }
     ],
     bonuses: [
       {
         originSkill: Skill.AGILITY,
-        bonusSkill: Skill.THIEVING,
+        bonusSkill: Skill.HERBLORE,
         startExp: 6_517_253,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.017
+        ratio: 0.5858
       }
     ]
   },
@@ -560,32 +606,42 @@ export default [
       {
         startExp: 0,
         rate: 15_000,
-        description: 'Questing XP'
+        description: 'Quests, fruit stalls'
       },
       {
         startExp: 61_512,
-        rate: 60_000,
+        rate: 80_000,
         description: 'Blackjacking'
       },
       {
-        startExp: 166_636,
-        rate: 100_000,
-        description: 'Blackjacking'
+        startExp: 91_721,
+        rate: 246_655,
+        description: 'Artefacts with firemaking (163.6k thieving & 139.5k firemaking xp/h)'
       },
       {
-        startExp: 449_428,
-        rate: 220_000,
-        description: 'Blackjacking'
+        startExp: 293_865,
+        rate: 285_024,
+        description: 'Artefacts with firemaking (194.6k thieving & 179.4k firemaking xp/h)'
       },
       {
-        startExp: 5_902_831,
-        rate: 255_000,
-        description: 'Pyramid Plunder'
+        startExp: 1_309_988,
+        rate: 339_767,
+        description: 'Artefacts with firemaking (224.8k thieving & 269.1k firemaking xp/h)'
+      },
+      {
+        startExp: 4_765_013,
+        rate: 377_739,
+        description: 'Artefacts with firemaking (246.8k thieving & 310k firemaking xp/h)'
+      },
+      {
+        startExp: 10_885_948,
+        rate: 363_882,
+        description: 'Artefacts with ancient brews (255.6k thieving & 250k herblore xp/h)'
       },
       {
         startExp: 13_034_431,
-        rate: 280_000,
-        description: 'Pyramid Plunder'
+        rate: 370_169,
+        description: 'Artefacts with ancient brews after 200m firemaking (260k thieving & 250k herblore xp/h)'
       }
     ],
     bonuses: []
@@ -596,7 +652,7 @@ export default [
       {
         startExp: 0,
         rate: 5_000,
-        description: 'Efficient Slayer'
+        description: 'Efficient slayer'
       },
       {
         startExp: 37_224,
@@ -604,7 +660,7 @@ export default [
         description: 'Efficient Slayer'
       },
       {
-        startExp: 100_000,
+        startExp: 101_333,
         rate: 40_000,
         description: 'Efficient Slayer'
       },
@@ -635,7 +691,7 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 99_000,
+        rate: 102_300,
         description: 'Efficient Slayer'
       }
     ],
@@ -662,7 +718,7 @@ export default [
         startExp: 0,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.427844
+        ratio: 0.493
       },
       {
         originSkill: Skill.SLAYER,
@@ -710,7 +766,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.1728
+        ratio: 0.11
       },
       {
         originSkill: Skill.SLAYER,
@@ -767,32 +823,52 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 10_000,
-        description: 'Bagged plants'
+        rate: 16_000,
+        description: 'Quests'
       },
       {
-        startExp: 2_411,
-        rate: 50_000,
-        description: 'Tree runs'
-      },
-      {
-        startExp: 13_363,
-        rate: 80_000,
+        startExp: 32_500,
+        rate: 285_000,
         description: 'Tree runs'
       },
       {
         startExp: 61_512,
-        rate: 150_000,
+        rate: 491_000,
+        description: 'Tree runs'
+      },
+      {
+        startExp: 166_636,
+        rate: 679_000,
         description: 'Tree runs'
       },
       {
         startExp: 273_742,
-        rate: 350_000,
+        rate: 1_052_000,
+        description: 'Tree runs'
+      },
+      {
+        startExp: 605_032,
+        rate: 1_338_000,
         description: 'Tree runs'
       },
       {
         startExp: 1_210_421,
-        rate: 1_900_000,
+        rate: 1_884_000,
+        description: 'Tree runs'
+      },
+      {
+        startExp: 2_192_818,
+        rate: 2_309_000,
+        description: 'Tree runs'
+      },
+      {
+        startExp: 3_258_594,
+        rate: 2_474_000,
+        description: 'Tree runs'
+      },
+      {
+        startExp: 5_346_332,
+        rate: 2_500_000,
         description: 'Tree runs'
       }
     ],
@@ -803,18 +879,13 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 8_000,
-        description: 'Questing XP'
+        rate: 13_600,
+        description: 'Quests'
       },
       {
-        startExp: 2_106,
-        rate: 20_000,
-        description: 'Questing XP'
-      },
-      {
-        startExp: 6_291,
-        rate: 240_000,
-        description: '0+4 Lava runes'
+        startExp: 33_210,
+        rate: 280_000,
+        description: '0+4 lava runes'
       }
     ],
     bonuses: []
@@ -824,51 +895,60 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 55_000,
-        description: 'Varrock Museum'
+        rate: 30_000,
+        description: 'Varrock museum and birdhouses'
       },
       {
         startExp: 2_107,
-        rate: 82_000,
-        description: 'Oak bird house runs'
+        rate: 83_000,
+        description: 'Oak birdhouses'
       },
       {
         startExp: 7_028,
         rate: 110_000,
-        description: 'Willow bird house runs'
+        description: 'Willow birdhouses'
       },
       {
         startExp: 20_224,
         rate: 138_000,
-        description: 'Teak bird house runs'
+        description: 'Teak birdhouses'
       },
       {
         startExp: 55_649,
         rate: 161_000,
-        description: 'Maple bird house runs'
+        description: 'Drift net fishing (65.2k hunter & 55.9k fishing xp/h)'
       },
       {
-        startExp: 101_333,
-        rate: 251_565,
-        description: 'Drift Net'
+        startExp: 91_721,
+        rate: 207_303,
+        description: 'Drift net fishing (81.6k hunter & 64.6k fishing xp/h)'
       },
       {
-        startExp: 273_742,
-        rate: 291_175,
-        description: 'Drift Net'
+        startExp: 24_886,
+        rate: 282_663,
+        description: 'Drift net fishing (95.1k hunter & 72.2k fishing xp/h)'
+      },
+      {
+        startExp: 343_551,
+        rate: 310_720,
+        description: 'Drift net fishing (108.7k hunter & 80.3k fishing xp/h)'
       },
       {
         startExp: 737_627,
-        rate: 255_000,
-        realRate: 118_535,
-        description: 'Drift Net (Black Chinchompas)'
+        rate: 337_966,
+        description: 'Drift net fishing (118.5k hunter & 87.2k fishing xp/h)'
+      },
+      {
+        startExp: 933_979,
+        rate: 265_000,
+        description: 'Drift net fishing (118.5k hunter & 89.9k fishing xp/h), scales to black chinchompas'
       }
     ],
     bonuses: [
       {
         originSkill: Skill.HUNTER,
         bonusSkill: Skill.FISHING,
-        startExp: 737_627,
+        startExp: 933_979,
         endExp: 200_000_000,
         maxBonus: 32_414_530,
         end: true,
@@ -881,17 +961,17 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 100_000,
-        description: 'Oak chairs'
+        rate: 54_700,
+        description: 'Low-level furniture'
       },
       {
         startExp: 18_247,
-        rate: 480_000,
+        rate: 450_000,
         description: 'Oak larders'
       },
       {
         startExp: 123_660,
-        rate: 935_000,
+        rate: 950_000,
         description: 'Mahogany tables'
       },
       {

@@ -6,8 +6,18 @@ export default [
     methods: [
       {
         startExp: 0,
+        rate: 130_000,
+        description: '1t Beef'
+      },
+      {
+        startExp: 22_406,
+        rate: 450_000,
+        description: 'Wines with Failing'
+      },
+      {
+        startExp: 605_032,
         rate: 500_000,
-        description: 'wines'
+        description: 'Wines 100% Success Rate'
       }
     ],
     bonuses: []
@@ -18,37 +28,37 @@ export default [
       {
         startExp: 0,
         rate: 8_365,
-        description: '4t Trees'
+        description: '4t trees'
       },
       {
         startExp: 2_411,
-        rate: 35_000,
+        rate: 36_000,
         description: '2t Oaks (steel axe)'
       },
       {
         startExp: 5_018,
-        rate: 45_000,
-        description: '2t Oaks (mith axe)'
+        rate: 46_300,
+        description: '2t oaks (mith axe)'
       },
       {
         startExp: 14_833,
-        rate: 60_000,
-        description: '2t Oaks (addy axe)'
+        rate: 61_700,
+        description: '2t oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 80_000,
-        description: '2t Oaks (rune axe)'
+        rate: 82_300,
+        description: '2t oaks (rune axe)'
       },
       {
         startExp: 101_333,
-        rate: 98_000,
-        description: '2t Oaks (rune axe)'
+        rate: 100_800,
+        description: '2t oaks (rune axe)'
       },
       {
         startExp: 273_742,
-        rate: 105_000,
-        description: '2t Oaks (100% success)'
+        rate: 108_000,
+        description: '2t oaks (100% success)'
       }
     ],
     bonuses: []
@@ -64,7 +74,7 @@ export default [
       {
         startExp: 388,
         rate: 5_000,
-        description: 'Sardine'
+        description: 'Sardine & Herring'
       },
       {
         startExp: 1_154,
@@ -121,7 +131,7 @@ export default [
       {
         originSkill: Skill.FISHING,
         bonusSkill: Skill.COOKING,
-        startExp: 0,
+        startExp: 13_363,
         endExp: 200_000_000,
         end: true,
         ratio: 1.15
@@ -169,22 +179,22 @@ export default [
       },
       {
         startExp: 4_470,
-        rate: 139_000,
+        rate: 140_600,
         description: 'Sapphires'
       },
       {
         startExp: 9_730,
-        rate: 187_650,
+        rate: 189_800,
         description: 'Emeralds'
       },
       {
         startExp: 20_224,
-        rate: 236_300,
+        rate: 239_000,
         description: 'Rubies'
       },
       {
         startExp: 50_339,
-        rate: 298_850,
+        rate: 302_300,
         description: 'Diamonds'
       }
     ],
@@ -196,31 +206,31 @@ export default [
       {
         startExp: 0,
         rate: 38_175,
-        description: "Knight's Sword (20 min completion)"
+        description: "Knight's Sword"
       },
       {
         startExp: 12_725,
-        rate: 58_000,
+        rate: 59_970,
         description: 'Bronze Platebodies w/ alt'
       },
       {
         startExp: 18_247,
-        rate: 116_000,
+        rate: 119_950,
         description: 'Iron Platebodies w/ alt'
       },
       {
         startExp: 83_014,
-        rate: 174_000,
+        rate: 179_900,
         description: 'Steel Platebodies w/ alt'
       },
       {
         startExp: 605_032,
-        rate: 232_000,
+        rate: 239_900,
         description: 'Mithril Platebodies w/ alt'
       },
       {
         startExp: 4_385_776,
-        rate: 290_000,
+        rate: 300_000,
         description: 'Adamant Platebodies w/ alt'
       }
     ],
@@ -232,31 +242,31 @@ export default [
       {
         startExp: 0,
         rate: 4_000,
-        description: 'Tin & Copper'
+        description: 'Tin/copper'
       },
       {
         startExp: 2_411,
-        rate: 50_000,
+        rate: 50_750,
         description: '3t Iron w/ Cake (All Rocks)'
       },
       {
         startExp: 5_018,
-        rate: 52_800,
+        rate: 53_600,
         description: '3t Iron w/ Cake (All Rocks)'
       },
       {
         startExp: 14_833,
-        rate: 56_700,
+        rate: 57_550,
         description: '3t Iron w/ Cake (All Rocks)'
       },
       {
         startExp: 41_171,
-        rate: 60_000,
+        rate: 60_900,
         description: '3t Iron w/ Cake (Adjacent Rocks)'
       },
       {
         startExp: 302_288,
-        rate: 64_000,
+        rate: 65_000,
         description: '3t Iron w/ Cake (Adjacent Rocks)'
       }
     ],
@@ -268,7 +278,7 @@ export default [
       {
         startExp: 0,
         rate: 65_000,
-        description: 'Various'
+        description: 'Dolo Pvp World Body Tiaras'
       }
     ],
     bonuses: []
