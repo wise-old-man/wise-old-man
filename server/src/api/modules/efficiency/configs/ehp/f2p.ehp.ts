@@ -222,23 +222,22 @@ export default [
     bonuses: []
   },
   {
-    skill: Skill.MAGIC,
-    methods: [
-      {
-        startExp: 200_000_000,
-        rate: 0,
-        description: 'Bonus XP'
-      }
-    ],
-    bonuses: []
-  },
-  {
     skill: Skill.COOKING,
     methods: [
       {
-        startExp: 200_000_000,
-        rate: 0,
-        description: 'Bonus XP'
+        startExp: 0,
+        rate: 130_000,
+        description: '1t Beef'
+      },
+      {
+        startExp: 22_406,
+        rate: 450_000,
+        description: 'Wines with Failing'
+      },
+      {
+        startExp: 605_032,
+        rate: 500_000,
+        description: 'Wines 100% Success Rate'
       }
     ],
     bonuses: []
@@ -249,36 +248,36 @@ export default [
       {
         startExp: 0,
         rate: 8_365,
-        description: '4t Trees'
+        description: '4t trees'
       },
       {
         startExp: 2_411,
-        rate: 35_000,
-        description: '2t oaks (steel axe)'
+        rate: 36_000,
+        description: '2t Oaks (steel axe)'
       },
       {
         startExp: 5_018,
-        rate: 45_000,
+        rate: 46_300,
         description: '2t oaks (mith axe)'
       },
       {
         startExp: 14_833,
-        rate: 60_000,
+        rate: 61_700,
         description: '2t oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 80_000,
+        rate: 82_300,
         description: '2t oaks (rune axe)'
       },
       {
         startExp: 101_333,
-        rate: 98_000,
+        rate: 100_800,
         description: '2t oaks (rune axe)'
       },
       {
         startExp: 273_742,
-        rate: 105_000,
+        rate: 108_000,
         description: '2t oaks (100% success)'
       }
     ],
@@ -295,7 +294,7 @@ export default [
       {
         startExp: 388,
         rate: 5_000,
-        description: 'Sardine'
+        description: 'Sardine & Herring'
       },
       {
         startExp: 1_154,
@@ -348,7 +347,16 @@ export default [
         description: '3t fish 0t cook trout+salmon'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.COOKING,
+        startExp: 13_363,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 1.15
+      }
+    ]
   },
   {
     skill: Skill.FIREMAKING,
@@ -384,41 +392,9 @@ export default [
         originSkill: Skill.FIREMAKING,
         bonusSkill: Skill.PRAYER,
         startExp: 0,
-        endExp: 2_411,
-        end: false,
-        ratio: 0.625
-      },
-      {
-        originSkill: Skill.FIREMAKING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 2_411,
-        endExp: 13_363,
-        end: false,
-        ratio: 0.4167
-      },
-      {
-        originSkill: Skill.FIREMAKING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 13_363,
-        endExp: 61_512,
-        end: false,
-        ratio: 0.2788
-      },
-      {
-        originSkill: Skill.FIREMAKING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 61_512,
-        endExp: 273_742,
-        end: false,
-        ratio: 0.1852
-      },
-      {
-        originSkill: Skill.FIREMAKING,
-        bonusSkill: Skill.PRAYER,
-        startExp: 273_742,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.1235
+        ratio: 0.1486
       }
     ]
   },
@@ -432,22 +408,22 @@ export default [
       },
       {
         startExp: 4_470,
-        rate: 139_000,
+        rate: 140_600,
         description: 'Sapphires'
       },
       {
         startExp: 9_730,
-        rate: 187_650,
+        rate: 189_800,
         description: 'Emeralds'
       },
       {
         startExp: 20_224,
-        rate: 236_300,
+        rate: 239_000,
         description: 'Rubies'
       },
       {
         startExp: 50_339,
-        rate: 298_850,
+        rate: 302_300,
         description: 'Diamonds'
       }
     ],
@@ -459,31 +435,31 @@ export default [
       {
         startExp: 0,
         rate: 38_175,
-        description: "Knight's Sword (20 min completion)"
+        description: "Knight's Sword"
       },
       {
         startExp: 12_725,
-        rate: 58_000,
+        rate: 59_970,
         description: 'Bronze Platebodies w/ alt'
       },
       {
         startExp: 18_247,
-        rate: 116_000,
+        rate: 119_950,
         description: 'Iron Platebodies w/ alt'
       },
       {
         startExp: 83_014,
-        rate: 174_000,
+        rate: 179_900,
         description: 'Steel Platebodies w/ alt'
       },
       {
         startExp: 605_032,
-        rate: 232_000,
+        rate: 239_900,
         description: 'Mithril Platebodies w/ alt'
       },
       {
         startExp: 4_385_776,
-        rate: 290_000,
+        rate: 300_000,
         description: 'Adamant Platebodies w/ alt'
       }
     ],
@@ -499,48 +475,39 @@ export default [
       },
       {
         startExp: 2_411,
-        rate: 50_000,
+        rate: 50_750,
         description: '3t Iron w/ Cake (All Rocks)'
       },
       {
         startExp: 5_018,
-        rate: 52_800,
+        rate: 53_600,
         description: '3t Iron w/ Cake (All Rocks)'
       },
       {
         startExp: 14_833,
-        rate: 56_700,
+        rate: 57_550,
         description: '3t Iron w/ Cake (All Rocks)'
       },
       {
         startExp: 41_171,
-        rate: 60_000,
+        rate: 60_900,
         description: '3t Iron w/ Cake (Adjacent Rocks)'
       },
       {
         startExp: 302_288,
-        rate: 64_000,
-        description: '3t Iron w/ Cake (Adjacent Rocks)'
+        rate: 67_000,
+        description: '3t Iron w/ Cake (Adjacent Rocks) and multiskilling'
       }
     ],
-    bonuses: [
-      {
-        originSkill: Skill.MINING,
-        bonusSkill: Skill.SMITHING,
-        startExp: 2_411,
-        endExp: 142_000_000,
-        end: false,
-        ratio: 0.0786
-      }
-    ]
+    bonuses: []
   },
   {
     skill: Skill.RUNECRAFTING,
     methods: [
       {
         startExp: 0,
-        rate: 65_000,
-        description: 'Various'
+        rate: 75_000,
+        description: 'Dolo Pvp World Body Tiaras'
       }
     ],
     bonuses: []

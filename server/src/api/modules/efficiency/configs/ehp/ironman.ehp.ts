@@ -7,7 +7,8 @@ export default [
       {
         startExp: 0,
         rate: 186_400,
-        description: 'Chally 2 alt tzhaar (rate based on atk and def such that chally on shared is 1:1)'
+        description:
+          'Chally 2 alt tzhaar (rate based on strength and defence such that chally on shared is 1:1)'
       }
     ],
     bonuses: []
@@ -17,8 +18,8 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 767_500,
-        description: 'Defensive chinning (377k rate)'
+        rate: 768_000,
+        description: 'Defensive chinning (378k rate)'
       }
     ],
     bonuses: []
@@ -44,33 +45,33 @@ export default [
       },
       {
         startExp: 203_254,
-        rate: 540_500,
-        description: 'Red chins (454k rate)'
+        rate: 565_900,
+        description: 'Red chins (448k rate)'
       },
       {
         startExp: 449_428,
-        rate: 817_100,
-        description: 'Black chins (634k rate)'
+        rate: 842_800,
+        description: 'Black chins (641k rate)'
       },
       {
         startExp: 737_627,
-        rate: 926_600,
-        description: 'Black chins (698k rate)'
+        rate: 1_123_600,
+        description: 'Black chins (755k rate)'
       },
       {
         startExp: 1_986_068,
-        rate: 1_070_600,
-        description: 'Black chins (777k rate)'
+        rate: 1_310_100,
+        description: 'Black chins (866k rate)'
       },
       {
         startExp: 5_346_332,
-        rate: 1_218_600,
-        description: 'Black chins (852k rate)'
+        rate: 1_489_400,
+        description: 'Black chins (937k rate)'
       },
       {
         startExp: 13_034_431,
-        rate: 1_560_300,
-        description: 'Black chins (938k rate)'
+        rate: 1_560_900,
+        description: 'Black chins (1008k rate)'
       }
     ],
     bonuses: []
@@ -80,7 +81,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 175_600,
+        rate: 175_900,
         description: 'Wildy green dragons (340/hr, melees scaled to 600k true rate)'
       }
     ],
@@ -182,7 +183,7 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 204_000,
+        rate: 202_400,
         description:
           '1.5t redwoods with crystal axe, banking ~80% of logs for artefacts (187.6k wc, 33.7k fm rate)'
       }
@@ -194,7 +195,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 1_531_100,
+        rate: 1_524_300,
         description: 'Broads at sepulchre, hourlies, mahog homes and zmi'
       }
     ],
@@ -220,28 +221,28 @@ export default [
       },
       {
         startExp: 737_627,
-        rate: 116_600,
-        description: 'Decant Barblore (93k rate)'
+        rate: 115_500,
+        description: 'Decant Barblore (93.0k rate)'
       },
       {
         startExp: 2_951_373,
-        rate: 127_200,
+        rate: 126_400,
         description: 'Decant Barblore (98.6k rate)'
       },
       {
         startExp: 5_902_831,
-        rate: 134_400,
+        rate: 133_800,
         description: 'Decant Barblore (102.2k rate)'
       },
       {
         startExp: 10_692_629,
-        rate: 138_700,
+        rate: 138_300,
         description: 'Decant Barblore (104.3k rate)'
       },
       {
         startExp: 13_034_431,
-        rate: 146_100,
-        description: 'Decant Barblore (107k rate)'
+        rate: 141_800,
+        description: 'Decant Barblore (107.0k rate)'
       }
     ],
     bonuses: [
@@ -250,7 +251,7 @@ export default [
         bonusSkill: Skill.STRENGTH,
         startExp: 737_627,
         endExp: 200_000_000,
-        end: true,
+        end: false,
         ratio: 0.0885
       },
       {
@@ -265,16 +266,8 @@ export default [
         originSkill: Skill.FISHING,
         bonusSkill: Skill.AGILITY,
         startExp: 737_627,
-        endExp: 13_034_431,
-        end: false,
-        ratio: 0.0885
-      },
-      {
-        originSkill: Skill.FISHING,
-        bonusSkill: Skill.AGILITY,
-        startExp: 13_034_431,
         endExp: 200_000_000,
-        end: true,
+        end: false,
         ratio: 0.0885
       }
     ]
@@ -289,33 +282,33 @@ export default [
       },
       {
         startExp: 101_333,
-        rate: 208_900,
-        description: 'World hop wt (202.1k rate)'
+        rate: 233_900,
+        description: 'World hop wt (223.1k rate)'
       },
       {
         startExp: 273_742,
-        rate: 245_500,
-        description: 'World hop wt (237.4k rate)'
-      },
-      {
-        startExp: 737_627,
-        rate: 283_300,
+        rate: 274_800,
         description: 'World hop wt (273.9k rate)'
       },
       {
+        startExp: 737_627,
+        rate: 317_100,
+        description: 'World hop wt (316.0k rate)'
+      },
+      {
         startExp: 1_986_068,
-        rate: 321_000,
-        description: 'World hop wt (310.4k rate)'
+        rate: 359_300,
+        description: 'World hop wt (358.0k rate)'
       },
       {
         startExp: 5_346_332,
-        rate: 356_300,
-        description: 'World hop wt (344.5k rate)'
+        rate: 398_800,
+        description: 'World hop wt (397.4k rate)'
       },
       {
         startExp: 13_034_431,
-        rate: 419_900,
-        description: 'World hop wt (381.8k rate)'
+        rate: 462_400,
+        description: 'World hop wt (420.0k rate)'
       }
     ],
     bonuses: []
@@ -331,23 +324,23 @@ export default [
       },
       {
         startExp: 333_804,
-        rate: 347_500,
+        rate: 347_700,
         description:
           'Superglassmake, gems from mining cut 0 time with gem bag, misc jewellry, bh xp, diamond amulet (u)'
       },
       {
         startExp: 3_539_592,
-        rate: 271_800,
+        rate: 260_100,
         description: 'Lantern lens at zmi'
       },
       {
         startExp: 3_972_294,
-        rate: 346_000,
+        rate: 331_100,
         description: 'Light orb at zmi'
       },
       {
         startExp: 13_034_431,
-        rate: 209_900,
+        rate: 207_200,
         description: 'Light orb at zmi'
       }
     ],
@@ -363,12 +356,12 @@ export default [
       },
       {
         startExp: 273_742,
-        rate: 315_000,
+        rate: 350_000,
         description: '2 client gold'
       },
       {
         startExp: 13_034_431,
-        rate: 330_000,
+        rate: 375_000,
         description: '2 client gold'
       }
     ],
@@ -383,13 +376,13 @@ export default [
         description: 'Quests + 1.5t stars for celestial ring + 3t sandstone (drop all)'
       },
       {
-        startExp: 61_512,
-        rate: 69_800,
+        startExp: 27_473,
+        rate: 70_600,
         description: '3s1g (Keep 1kg)'
       },
       {
         startExp: 150_872,
-        rate: 73_700,
+        rate: 72_600,
         description: '3s1g (Drop 1kg)'
       },
       {
@@ -413,14 +406,14 @@ export default [
         description: '3t gem rocks'
       },
       {
-        startExp: 11_395_875,
-        rate: 87_600,
+        startExp: 11_441_686,
+        rate: 90_200,
         description: 'Sandstone for 99 crafting'
       },
       {
         startExp: 13_034_431,
         rate: 125_000,
-        description: '3t granite (or 3t gems, cutting at sep with gem bag)'
+        description: '3t granite'
       }
     ],
     bonuses: []
@@ -430,13 +423,13 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 70_200,
-        description: 'Contracts, spirit seeds, kingdom etc'
+        rate: 70_000,
+        description: 'Contracts, spirit seeds, kingdom, herbtodt etc'
       },
       {
         startExp: 13_034_431,
-        rate: 72_200,
-        description: 'Contracts, spirit seeds, kingdom etc'
+        rate: 76_000,
+        description: 'Contracts, spirit seeds, kingdom, herbtodt etc'
       }
     ],
     bonuses: []
@@ -461,37 +454,37 @@ export default [
       },
       {
         startExp: 333_804,
-        rate: 56_200,
+        rate: 56_300,
         description: 'BXP from fishing'
       },
       {
         startExp: 899_257,
-        rate: 66_600,
+        rate: 66_700,
         description: 'BXP from fishing'
       },
       {
         startExp: 1_152_279,
-        rate: 69_400,
+        rate: 69_700,
         description:
-          'Sepulchre with looting + multiskill, thieving ehp, nail/plank time for bridges (64k real time rate)'
+          'Sepulchre with looting + multiskill, thieving ehp, nail/plank time for bridges (64.0k real time rate)'
       },
       {
         startExp: 2_421_087,
-        rate: 76_500,
+        rate: 76_600,
         description:
-          'Sepulchre with looting + multiskill, thieving ehp, nail/plank time for bridges (72.5k real time rate)'
+          'Sepulchre with looting + multiskill, thieving ehp, nail/plank time for bridges (72.6k real time rate)'
       },
       {
         startExp: 6_517_253,
-        rate: 92_400,
+        rate: 93_300,
         description:
-          'Sepulchre with looting + multiskill, thieving ehp, nail/plank time for bridges (88,2k real time rate)'
+          'Sepulchre with looting + multiskill, thieving ehp, nail/plank time for bridges (89.0k real time rate)'
       },
       {
         startExp: 13_034_431,
-        rate: 98_000,
+        rate: 97_600,
         description:
-          'Sepulchre with looting + multiskill, thieving ehp, nail/plank time for bridges (95.1k real time rate)'
+          'Sepulchre with looting + multiskill, thieving ehp, nail/plank time for bridges (94.0k real time rate)'
       }
     ],
     bonuses: []
@@ -511,33 +504,33 @@ export default [
       },
       {
         startExp: 91_721,
-        rate: 190_900,
+        rate: 193_200,
         description: 'Artefact + glassblow (152k, 71k rate)'
       },
       {
         startExp: 247_886,
-        rate: 217_100,
+        rate: 219_700,
         description: 'Artefact + glassblow (172k, 71k rate)'
       },
       {
         startExp: 668_051,
-        rate: 243_300,
+        rate: 246_200,
         description: 'Artefact + glassblow (193k, 71k rate)'
       },
       {
         startExp: 1_798_808,
-        rate: 269_500,
+        rate: 272_700,
         description: 'Artefact + glassblow (214k, 71k rate)'
       },
       {
         startExp: 4_842_295,
-        rate: 295_700,
+        rate: 299_200,
         description: 'Artefact + glassblow (235k, 71k rate)'
       },
       {
         startExp: 13_034_431,
-        rate: 376_600,
-        description: 'Artefact + glassblow (245k, 71k rate) & banked redwood logs'
+        rate: 381_200,
+        description: 'Artefact + glassblow (245k, 71k rate) & banked redwood logs (250k, 305k rate)'
       }
     ],
     bonuses: []
@@ -547,49 +540,49 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 5_329,
+        rate: 5_156,
         description: 'Efficient Slayer + torso, defender, fire cape & turael boosting for early point unlocks'
       },
       {
         startExp: 101_333,
-        rate: 21_000,
-        description: 'Efficient Slayer (19.9k rate)'
+        rate: 16_000,
+        description: 'Efficient Slayer (19.9k rate) + quest & misc time'
       },
       {
         startExp: 273_742,
-        rate: 31_100,
-        description: 'Efficient Slayer (27.4k rate)'
+        rate: 21_000,
+        description: 'Efficient Slayer (27.4k rate) + quest & misc time'
       },
       {
         startExp: 449_428,
-        rate: 35_900,
-        description: 'Efficient Slayer (31.5k rate)'
+        rate: 23_500,
+        description: 'Efficient Slayer (31.5k rate) + quest & misc time'
       },
       {
         startExp: 1_210_421,
-        rate: 36_400,
-        description: 'Efficient Slayer (32.4k rate)'
+        rate: 24_200,
+        description: 'Efficient Slayer (32.4k rate) + quest & misc time'
       },
       {
         startExp: 1_986_068,
-        rate: 42_700,
-        description: 'Efficient Slayer (32.3k rate)'
+        rate: 27_000,
+        description: 'Efficient Slayer (32.3k rate) + quest & misc time'
       },
       {
         startExp: 3_258_594,
-        rate: 63_900,
-        description: 'Efficient Slayer (42.2k rate)'
+        rate: 33_800,
+        description: 'Efficient Slayer (42.2k rate) + quest & misc time'
       },
       {
         startExp: 7_195_629,
-        rate: 66_700,
-        description: 'Efficient Slayer (50.7k rate)'
+        rate: 34_500,
+        description: 'Efficient Slayer (50.7k rate) + quest & misc time'
       },
       {
         startExp: 13_034_431,
-        rate: 80_000,
+        rate: 81_500,
         description:
-          'Efficient slayer + pvm for upgrades, including stored ehp, konar every 50, 0 cox, 1200 zulrah, 50 muspah (55.9k rate)'
+          'Efficient slayer + pvm for upgrades, including stored ehp, konar every 50, 0 cox, 850 zulrah, 50 muspah (58.4k rate)'
       }
     ],
     bonuses: [
@@ -647,7 +640,7 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 3_692_900,
+        rate: 3_445_600,
         description:
           'Highest xp trees, farming from herblore, contracts etc, 4 years of hardwoods, volcanic ash, hespori'
       }
@@ -664,7 +657,7 @@ export default [
       },
       {
         startExp: 33_648,
-        rate: 84_500,
+        rate: 84_600,
         description: '1.5t Daeyalt Lavas'
       },
       {
@@ -674,7 +667,7 @@ export default [
       },
       {
         startExp: 1_210_421,
-        rate: 60_000,
+        rate: 70_000,
         description: 'GOTR for outfit'
       },
       {
@@ -720,7 +713,7 @@ export default [
       },
       {
         startExp: 1_986_068,
-        rate: 155_800,
+        rate: 156_900,
         description: 'Red chins for ranged'
       },
       {
@@ -735,8 +728,8 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 249_300,
-        description: 'Average of black chins (260k rate) and bh'
+        rate: 255_000,
+        description: 'Average of black chins (260k rate), rumours (240k rate) and birdhouses'
       }
     ],
     bonuses: []
@@ -766,9 +759,9 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 293_700,
+        rate: 279_100,
         description:
-          '1.5t teak myth capes (430k rate) + kingdom mahogany benches (1050k rate), con from sep, & misc time'
+          '1.5t teak myth capes (421k rate) + kingdom mahogany homes (285k rate), con from sep, & misc time'
       }
     ],
     bonuses: []
