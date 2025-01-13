@@ -1,20 +1,5 @@
-/*
-  Warnings:
-
-  - You are about to drop the `annotations` table. If the table is not empty, all the data it contains will be lost.
-
-*/
 -- CreateEnum
 CREATE TYPE "PlayerAnnotationType" AS ENUM ('blacklist', 'greylist', 'fake_f2p');
-
--- DropForeignKey
-ALTER TABLE "annotations" DROP CONSTRAINT "annotations_playerId_fkey";
-
--- DropTable
-DROP TABLE "annotations";
-
--- DropEnum
-DROP TYPE "PlayerAnnotations";
 
 -- CreateTable
 CREATE TABLE "playerAnnotation" (

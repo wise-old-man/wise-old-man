@@ -2361,6 +2361,8 @@ describe('Player API', () => {
       expect(response.status).toBe(200);
       expect(response.body).toBe(`Annotation ${PlayerAnnotationType.BLACKLIST} deleted for player psikoi`);
     });
+
+    it('should throw conflit error 409 to create');
   });
 
   async function setupPostTransitionDate(idOffset: number, playerId: number, groupId: number) {
