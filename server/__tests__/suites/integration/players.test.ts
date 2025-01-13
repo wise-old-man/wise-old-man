@@ -2347,7 +2347,6 @@ describe('Player API', () => {
 
     it('should delete annotation', async () => {
       await findOrCreatePlayers(['psikoi']);
-
       await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.BLACKLIST
