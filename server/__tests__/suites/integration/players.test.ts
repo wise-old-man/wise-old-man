@@ -2282,7 +2282,7 @@ describe('Player API', () => {
       expect(response.body.message).toMatch('Player not found.');
     });
 
-    it('admim validation, should return 403 when admin password is incorrect', async () => {
+    it('should return 403 when admin password is incorrect (admin validation)', async () => {
       const response = await api.post(`/players/psikoi/annotation`).send({
         adminPassword: 'abc',
         annotationType: PlayerAnnotationType.BLACKLIST
@@ -2292,7 +2292,7 @@ describe('Player API', () => {
       expect(response.body.message).toBe('Incorrect admin password.');
     });
 
-    it('should return 400 when admin password is missing', async () => {
+    it('should return 400 when admin password is missing (admin validation)', async () => {
       const response = await api.post(`/players/psikoi/annotation`).send({
         annotationType: PlayerAnnotationType.BLACKLIST
       });
