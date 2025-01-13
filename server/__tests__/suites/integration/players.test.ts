@@ -12,7 +12,7 @@ import { importPlayerHistory } from '../../../src/api/modules/players/services/I
 import { parseHiscoresSnapshot, formatSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
 import redisService from '../../../src/api/services/external/redis.service';
 import prisma from '../../../src/prisma';
-import { BOSSES, Metric, PlayerStatus, PlayerType } from '../../../src/utils';
+import { BOSSES, Metric, PlayerStatus, PlayerType, PlayerAnnotationType } from '../../../src/utils';
 import {
   modifyRawHiscoresData,
   readFile,
@@ -2273,159 +2273,274 @@ describe('Player API', () => {
       expect(thirdResponse.body[0].previousUsername).toBe(firstResponse.body[0].previousUsername);
     });
   });
+
+  describe('12. Annotations', () => {
+    it('should not fetch annotations (player not found)', async () => {
+      const response = await api.get(`/players/gringoloko`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Player not found.');
+    });
+
+    it('should return 403 when admin password is incorrect (admin validation)', async () => {
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: 'abc',
+        annotationType: PlayerAnnotationType.BLACKLIST
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
+    it('should return 400 when admin password is missing (admin validation)', async () => {
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        annotationType: PlayerAnnotationType.BLACKLIST
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+    });
+
+    it('should return 400 when annotation is invalid', async () => {
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotationType: 'invalid'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe(
+        "Invalid enum value for 'annotationType'. Expected blacklist | greylist | fake_f2p"
+      );
+    });
+
+    it('shoould return 400 when annotation is missing', async () => {
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'annotationType' is undefined.");
+    });
+
+    it('should create a valid annotation', async () => {
+      await findOrCreatePlayers(['psikoi']);
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotationType: PlayerAnnotationType.BLACKLIST
+      });
+
+      expect(response.status).toBe(201);
+      expect(response.body.type).toBe(PlayerAnnotationType.BLACKLIST);
+    });
+
+    it('should fetch "psikoi"', async () => {
+      await findOrCreatePlayers(['psikoi']);
+      await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotationType: PlayerAnnotationType.BLACKLIST
+      });
+      const response = await api.get(`/players/psikoi`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.annotations[0].type).toBe(PlayerAnnotationType.BLACKLIST);
+    });
+
+    it('should delete annotation', async () => {
+      await findOrCreatePlayers(['psikoi']);
+      await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotationType: PlayerAnnotationType.BLACKLIST
+      });
+
+      const response = await api.delete(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotationType: PlayerAnnotationType.BLACKLIST
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBe(`Annotation ${PlayerAnnotationType.BLACKLIST} deleted for player psikoi`);
+    });
+
+    it('should fail to delete unexisting annotation', async () => {
+      await findOrCreatePlayers(['psikoi']);
+      const response = await api.delete(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotationType: PlayerAnnotationType.BLACKLIST
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe(`${PlayerAnnotationType.BLACKLIST} does not exist for psikoi.`);
+    });
+
+    it('should throw conflit error 409 to create', async () => {
+      await findOrCreatePlayers(['psikoi']);
+      await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotationType: PlayerAnnotationType.BLACKLIST
+      });
+
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        adminPassword: process.env.ADMIN_PASSWORD,
+        annotationType: PlayerAnnotationType.BLACKLIST
+      });
+
+      expect(response.status).toBe(409);
+      expect(response.body.message).toBe('The annotation blacklist already exists for psikoi');
+    });
+  });
+
+  async function setupPostTransitionDate(idOffset: number, playerId: number, groupId: number) {
+    await prisma.group.create({
+      data: {
+        id: idOffset + 2,
+        name: `Test Group 2 ${idOffset}`,
+        verificationHash: '',
+        memberships: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 4,
+        title: `Test Competition 4`,
+        metric: 'zulrah',
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3_600_000),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 5,
+        title: `Test Competition 5`,
+        metric: 'zulrah',
+        groupId,
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3_600_000),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 6,
+        title: `Test Competition 6`,
+        metric: 'zulrah',
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3_600_000),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.group.create({
+      data: {
+        id: idOffset + 3,
+        name: `Test Group 3 ${idOffset}`,
+        verificationHash: '',
+        memberships: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 7,
+        title: `Test Competition 7`,
+        metric: 'zulrah',
+        groupId,
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3_600_000),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 8,
+        title: `Test Competition 8`,
+        metric: 'zulrah',
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3_600_000),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 9,
+        title: `Test Competition 9`,
+        metric: 'zulrah',
+        groupId,
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 3_600_000),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.group.create({
+      data: {
+        id: idOffset + 4,
+        name: `Test Group 4 ${idOffset}`,
+        verificationHash: '',
+        memberships: { create: { playerId } }
+      }
+    });
+  }
+
+  async function setupPreTransitionData(idOffset: number, playerId: number) {
+    const group1 = await prisma.group.create({
+      data: {
+        id: idOffset + 1,
+        name: `Test Group 1 ${idOffset}`,
+        verificationHash: '',
+        memberships: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 1,
+        title: `Test Competition 1`,
+        metric: 'zulrah',
+        startsAt: new Date('2020-01-01'),
+        endsAt: new Date('2020-03-01'),
+        verificationHash: '',
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 2,
+        title: `Test Competition 2`,
+        metric: 'zulrah',
+        startsAt: new Date('2020-01-01'),
+        endsAt: new Date('2020-03-01'),
+        verificationHash: '',
+        groupId: group1.id,
+        participations: { create: { playerId } }
+      }
+    });
+
+    await prisma.competition.create({
+      data: {
+        id: idOffset + 3,
+        title: `Test Competition 3`,
+        metric: 'zulrah',
+        startsAt: new Date('2020-01-01'),
+        endsAt: new Date('2030-03-01'),
+        verificationHash: '',
+        groupId: group1.id,
+        participations: { create: { playerId } }
+      }
+    });
+
+    return group1.id;
+  }
 });
-
-async function setupPostTransitionDate(idOffset: number, playerId: number, groupId: number) {
-  await prisma.group.create({
-    data: {
-      id: idOffset + 2,
-      name: `Test Group 2 ${idOffset}`,
-      verificationHash: '',
-      memberships: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 4,
-      title: `Test Competition 4`,
-      metric: 'zulrah',
-      startsAt: new Date(),
-      endsAt: new Date(Date.now() + 3_600_000),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 5,
-      title: `Test Competition 5`,
-      metric: 'zulrah',
-      groupId,
-      startsAt: new Date(),
-      endsAt: new Date(Date.now() + 3_600_000),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 6,
-      title: `Test Competition 6`,
-      metric: 'zulrah',
-      startsAt: new Date(),
-      endsAt: new Date(Date.now() + 3_600_000),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.group.create({
-    data: {
-      id: idOffset + 3,
-      name: `Test Group 3 ${idOffset}`,
-      verificationHash: '',
-      memberships: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 7,
-      title: `Test Competition 7`,
-      metric: 'zulrah',
-      groupId,
-      startsAt: new Date(),
-      endsAt: new Date(Date.now() + 3_600_000),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 8,
-      title: `Test Competition 8`,
-      metric: 'zulrah',
-      startsAt: new Date(),
-      endsAt: new Date(Date.now() + 3_600_000),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 9,
-      title: `Test Competition 9`,
-      metric: 'zulrah',
-      groupId,
-      startsAt: new Date(),
-      endsAt: new Date(Date.now() + 3_600_000),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.group.create({
-    data: {
-      id: idOffset + 4,
-      name: `Test Group 4 ${idOffset}`,
-      verificationHash: '',
-      memberships: { create: { playerId } }
-    }
-  });
-}
-
-async function setupPreTransitionData(idOffset: number, playerId: number) {
-  const group1 = await prisma.group.create({
-    data: {
-      id: idOffset + 1,
-      name: `Test Group 1 ${idOffset}`,
-      verificationHash: '',
-      memberships: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 1,
-      title: `Test Competition 1`,
-      metric: 'zulrah',
-      startsAt: new Date('2020-01-01'),
-      endsAt: new Date('2020-03-01'),
-      verificationHash: '',
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 2,
-      title: `Test Competition 2`,
-      metric: 'zulrah',
-      startsAt: new Date('2020-01-01'),
-      endsAt: new Date('2020-03-01'),
-      verificationHash: '',
-      groupId: group1.id,
-      participations: { create: { playerId } }
-    }
-  });
-
-  await prisma.competition.create({
-    data: {
-      id: idOffset + 3,
-      title: `Test Competition 3`,
-      metric: 'zulrah',
-      startsAt: new Date('2020-01-01'),
-      endsAt: new Date('2030-03-01'),
-      verificationHash: '',
-      groupId: group1.id,
-      participations: { create: { playerId } }
-    }
-  });
-
-  return group1.id;
-}

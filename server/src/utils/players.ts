@@ -1,4 +1,4 @@
-import { PlayerType, PlayerBuild, PlayerStatus } from '../prisma/enum-adapter';
+import { PlayerType, PlayerBuild, PlayerStatus, PlayerAnnotationType } from '../prisma/enum-adapter';
 import { MapOf } from './types';
 
 const PlayerTypeProps: MapOf<PlayerType, { name: string }> = {
@@ -67,6 +67,7 @@ export {
   PlayerTypeProps,
   PlayerBuildProps,
   PlayerStatusProps,
+  PlayerAnnotationType,
   // Lists
   PLAYER_TYPES,
   PLAYER_BUILDS,

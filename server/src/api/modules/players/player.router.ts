@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import jobManager from '../../../jobs/job.manager';
 import prisma from '../../../prisma';
-import { CompetitionStatus, Metric, Period } from '../../../utils';
+import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../../utils';
 import { NotFoundError, ServerError } from '../../errors';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
@@ -29,6 +29,8 @@ import { fetchPlayerDetails } from './services/FetchPlayerDetailsService';
 import { findPlayerArchives } from './services/FindPlayerArchivesService';
 import { searchPlayers } from './services/SearchPlayersService';
 import { updatePlayer } from './services/UpdatePlayerService';
+import { createPlayerAnnotation } from './services/CreateAnnotationService';
+import { deletePlayerAnnotation } from './services/DeleteAnnotationService';
 
 const router = Router();
 
@@ -461,6 +463,48 @@ router.get(
 
     const results = await findPlayerAchievementProgress(username);
     res.status(200).json(results);
+  })
+);
+
+router.post(
+  '/players/:username/annotation',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      username: z.string().min(1)
+    }),
+    body: z.object({
+      annotationType: z.nativeEnum(PlayerAnnotationType)
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const { username } = req.params;
+    const { annotationType } = req.body;
+
+    const createdAnnotation = await createPlayerAnnotation(username, annotationType);
+
+    res.status(201).json(createdAnnotation);
+  })
+);
+
+router.delete(
+  '/players/:username/annotation',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      username: z.string().min(1)
+    }),
+    body: z.object({
+      annotationType: z.nativeEnum(PlayerAnnotationType)
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const { username } = req.params;
+    const { annotationType } = req.body;
+
+    const deletedAnnotation = await deletePlayerAnnotation(username, annotationType);
+
+    res.status(200).json(`Annotation ${deletedAnnotation.type} deleted for player ${username}`);
   })
 );
 

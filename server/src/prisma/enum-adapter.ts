@@ -198,6 +198,14 @@ export const PlayerType = {
 
 export type PlayerType = (typeof PlayerType)[keyof typeof PlayerType];
 
+export const PlayerAnnotationType = {
+  BLACKLIST: 'blacklist',
+  GREYLIST: 'greylist',
+  FAKE_F2P: 'fake_f2p'
+} as const;
+
+export type PlayerAnnotationType = (typeof PlayerAnnotationType)[keyof typeof PlayerAnnotationType];
+
 export const PlayerBuild = {
   MAIN: 'main',
   F2P: 'f2p',

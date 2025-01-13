@@ -350,6 +350,7 @@ model Player {
   archives       PlayerArchive[]
   memberActivity MemberActivity[]
   patronages     Patron[]
+  annotations   PlayerAnnotation[]
 
   // Indices
   @@index([build], map: "players_build")
@@ -676,6 +677,19 @@ model TrendDatapoint {
   @@map("trendDatapoints")
 }
 
+model PlayerAnnotation {
+  playerId Int
+  type PlayerAnnotationType
+  createdAt    DateTime     @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate:NoAction)
+  // Constraints
+  @@id([playerId, type])
+  // Map
+  @@map("playerAnnotation")
+}
+
 enum NameChangeStatus {
   pending
   denied
@@ -714,6 +728,12 @@ enum PlayerStatus {
   banned
 
   @@map("player_status")
+}
+
+enum PlayerAnnotationType {
+  blacklist
+  greylist
+  fake_f2p
 }
 
 enum Country {

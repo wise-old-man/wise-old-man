@@ -23,6 +23,14 @@ sidebar_position: 1
 
 <br />
 
+### `(Enum)` Player Annotation
+
+```bash
+'blacklist', 'greylist', 'fake_f2p'
+```
+
+<br />
+
 ### `(Enum)` Player Status
 
 ```bash
@@ -103,6 +111,17 @@ sidebar_position: 1
 
 <br />
 
+### `(Object)` Annotation
+
+| Field          | Type    | Description                         |
+| :------------- | :------ | :---------------------------------- |
+| id             | integer | The annotations's unique ID.        |
+| playerId       | integer | The annotations's parent player ID. |
+| createdAt      | date    | The annotation's creation date.     |
+| annotationType | Enum    | The blacklist / fake_f2p / greylist |
+
+<br />
+
 ### `(Object)` Player
 
 :::note
@@ -140,6 +159,7 @@ Not to be confused with [Player Details](/players-api/player-type-definitions#ob
 | combatLevel    | integer                                                                       | The player's combat level.                                          |
 | archive        | [PlayerArchive](/players-api/player-type-definitions#object-player-archive) ? | The player's archive. (only applicable to archived player profiles) |
 | latestSnapshot | [Snapshot](/players-api/player-type-definitions#object-snapshot) ?            | The player's latest snapshot.                                       |
+| annotations    | [PlayerAnnotation](/players-api/player-type-definitions#object-annotation) ?  | The player's annotations (Ex: fake_f2p)                             |
 
 <br />
 
@@ -217,3 +237,4 @@ Although this type mostly extends from [Achievement](/players-api/player-type-de
 | player | [Player](/players-api/player-type-definitions#object-player) | The archive's player. |
 
 <br />
+````
