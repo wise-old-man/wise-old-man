@@ -32,6 +32,9 @@ export type TimeRangeFilter = { period: Period } | { startDate: Date; endDate: D
 
 async function handleNotFound<T>(promise: Promise<T>): Promise<T> {
   return promise.catch((e) => {
+    Sentry.captureException(e);
+    console.log("Sentry Captured Error", e);
+    
     if ("statusCode" in e && e.statusCode === 404) notFound();
     throw e;
   });
