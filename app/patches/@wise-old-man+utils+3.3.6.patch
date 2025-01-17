@@ -1,0 +1,51 @@
+diff --git a/node_modules/@wise-old-man/utils/dist/cjs/index.cjs b/node_modules/@wise-old-man/utils/dist/cjs/index.cjs
+index 1175713..42ab1ae 100644
+--- a/node_modules/@wise-old-man/utils/dist/cjs/index.cjs
++++ b/node_modules/@wise-old-man/utils/dist/cjs/index.cjs
+@@ -158,7 +158,11 @@ class BaseAPIClient {
+     request({ method, path, body, params }) {
+         return __awaiter(this, void 0, void 0, function* () {
+             const res = yield this.fetch({ method, path, body, params });
+-            const data = yield res.json();
++            console.log(res.ok, res.status);
++            const data = yield res.json().catch(e => {
++                console.error('Error parsing response', e);
++                throw e;
++            });
+             if (res.ok) {
+                 return transformDates(data);
+             }
+diff --git a/node_modules/@wise-old-man/utils/dist/es/index.js b/node_modules/@wise-old-man/utils/dist/es/index.js
+index 1e5f101..cf4c516 100644
+--- a/node_modules/@wise-old-man/utils/dist/es/index.js
++++ b/node_modules/@wise-old-man/utils/dist/es/index.js
+@@ -156,7 +156,11 @@ class BaseAPIClient {
+     request({ method, path, body, params }) {
+         return __awaiter(this, void 0, void 0, function* () {
+             const res = yield this.fetch({ method, path, body, params });
+-            const data = yield res.json();
++            console.log(res.ok, res.status);
++            const data = yield res.json().catch(e => {
++                console.error('Error parsing response', e);
++                throw e;
++            });
+             if (res.ok) {
+                 return transformDates(data);
+             }
+diff --git a/node_modules/@wise-old-man/utils/dist/es/index.mjs b/node_modules/@wise-old-man/utils/dist/es/index.mjs
+index 1e5f101..cf4c516 100644
+--- a/node_modules/@wise-old-man/utils/dist/es/index.mjs
++++ b/node_modules/@wise-old-man/utils/dist/es/index.mjs
+@@ -156,7 +156,11 @@ class BaseAPIClient {
+     request({ method, path, body, params }) {
+         return __awaiter(this, void 0, void 0, function* () {
+             const res = yield this.fetch({ method, path, body, params });
+-            const data = yield res.json();
++            console.log(res.ok, res.status);
++            const data = yield res.json().catch(e => {
++                console.error('Error parsing response', e);
++                throw e;
++            });
+             if (res.ok) {
+                 return transformDates(data);
+             }
