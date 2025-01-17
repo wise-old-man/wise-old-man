@@ -18,16 +18,16 @@ import ArrowRightIcon from "~/assets/arrow_right.svg";
 const RESULTS_PER_PAGE = 20;
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     dialog?: string;
     search?: string;
     status?: string;
-  };
+  }>;
 }
 
-export function generateMetadata(props: PageProps) {
-  const { searchParams } = props;
+export async function generateMetadata(props: PageProps) {
+  const searchParams = await props.searchParams;
 
   if (searchParams.dialog === "submit-name") {
     return { title: "Submit New Name Change" };
@@ -44,7 +44,7 @@ export function generateMetadata(props: PageProps) {
 }
 
 export default async function NameChangesPage(props: PageProps) {
-  const { searchParams } = props;
+  const searchParams = await props.searchParams;
 
   const page = getPageParam(searchParams.page) || 1;
   const search = getSearchParam(searchParams.search);

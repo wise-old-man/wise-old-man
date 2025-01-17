@@ -102,7 +102,15 @@ export const DateTimePicker = forwardRef<
                 setOpen(false);
               }}
             />
-            {!!state.hasTime && <TimeField value={state.timeValue} onChange={state.setTimeValue} />}
+            {!!state.hasTime && (
+              <TimeField
+                value={state.timeValue}
+                onChange={(t) => {
+                  if (t === null) return;
+                  state.setTimeValue(t);
+                }}
+              />
+            )}
           </div>
         </PopoverContent>
       </PopoverPrimitive.Popover>

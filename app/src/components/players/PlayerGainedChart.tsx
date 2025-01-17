@@ -18,7 +18,7 @@ interface PlayerGainedChartProps {
   data: Array<{ date: Date; rank: number; value: number }>;
 }
 
-export async function PlayerGainedChart(props: PlayerGainedChartProps) {
+export function PlayerGainedChart(props: PlayerGainedChartProps) {
   const { data, view, metric, timeRange } = props;
 
   const router = useRouter();

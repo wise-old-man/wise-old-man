@@ -1,7 +1,7 @@
 "use client";
 
 import { Team } from "@wise-old-man/utils";
-import { useState } from "react";
+import { useState, type JSX } from "react";
 import { useToast } from "~/hooks/useToast";
 import { standardizeUsername } from "~/utils/strings";
 import { Badge } from "../Badge";

@@ -19,8 +19,8 @@ const DialogTrigger = DialogPrimitive.Trigger;
 const OVERLAY_STYLES =
   "fixed inset-0 z-50 bg-black/40 backdrop-blur-sm transition-all duration-100 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=open]:fade-in";
 
-const DialogPortal = ({ className, children, ...props }: DialogPrimitive.DialogPortalProps) => (
-  <DialogPrimitive.Portal className={cn(className)} {...props}>
+const DialogPortal = ({ children, ...props }: DialogPrimitive.DialogPortalProps) => (
+  <DialogPrimitive.Portal {...props}>
     <div className="fixed inset-0 z-50 flex items-start justify-center sm:items-center">{children}</div>
   </DialogPrimitive.Portal>
 );

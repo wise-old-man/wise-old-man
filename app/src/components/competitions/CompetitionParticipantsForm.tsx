@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type JSX } from "react";
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
 import { GroupListItem } from "@wise-old-man/utils";

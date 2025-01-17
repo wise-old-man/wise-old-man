@@ -115,7 +115,7 @@ const CommandItem = forwardRef<
       }}
       className={cn(
         "relative flex cursor-pointer select-none items-center gap-x-2 rounded p-2 text-sm text-gray-100 outline-none aria-selected:bg-gray-600 aria-selected:text-white",
-        "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
         selectedValue === props.value && "!bg-gray-800 font-medium !text-white",
         className
       )}

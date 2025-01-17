@@ -14,9 +14,9 @@ import { ExperienceBonusesTable } from "~/components/rates/ExperienceBonusesTabl
 export const revalidate = 3600;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     type: EfficiencyAlgorithmTypeUnion;
-  };
+  }>;
 }
 
 export const metadata = {
@@ -28,7 +28,8 @@ export async function generateStaticParams() {
   return types.map((type) => ({ params: { type } }));
 }
 
-export default async function EHPRatesPage({ params }: PageProps) {
+export default async function EHPRatesPage(props: PageProps) {
+  const params = await props.params;
   const data = await apiClient.efficiency.getEHPRates(params.type);
 
   return (

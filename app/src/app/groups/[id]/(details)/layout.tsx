@@ -36,15 +36,15 @@ import VerifiedIcon from "~/assets/verified.svg";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-interface PageProps {
-  params: {
+interface LayoutProps {
+  params: Promise<{
     id: number;
-  };
+  }>;
 }
 
-export default async function GroupDetailsLayout(props: PropsWithChildren<PageProps>) {
-  const { children, params } = props;
-  const { id } = params;
+export default async function GroupDetailsLayout(props: PropsWithChildren<LayoutProps>) {
+  const { children } = props;
+  const { id } = await props.params;
 
   const group = await getGroupDetails(id);
   const hasSocialLinks = group.socialLinks && Object.values(group.socialLinks).some(Boolean);

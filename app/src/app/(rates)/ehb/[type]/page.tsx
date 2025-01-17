@@ -6,9 +6,9 @@ import { apiClient } from "~/services/wiseoldman";
 export const revalidate = 3600;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     type: EfficiencyAlgorithmTypeUnion;
-  };
+  }>;
 }
 
 export const metadata = {
@@ -21,7 +21,8 @@ export async function generateStaticParams() {
   return types.map((type) => ({ params: { type } }));
 }
 
-export default async function EHBRatesPage({ params }: PageProps) {
+export default async function EHBRatesPage(props: PageProps) {
+  const params = await props.params;
   const data = await apiClient.efficiency.getEHBRates(params.type);
 
   return (

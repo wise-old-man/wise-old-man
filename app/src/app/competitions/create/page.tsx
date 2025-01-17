@@ -9,13 +9,13 @@ export const metadata = {
 };
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     groupId: number;
-  };
+  }>;
 }
 
 export default async function CreateCompetitionPage(props: PageProps) {
-  const { groupId } = props.searchParams;
+  const { groupId } = (await props.searchParams);
 
   const group = groupId ? await getGroupDetails(groupId) : undefined;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type JSX } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { GroupListItem } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";

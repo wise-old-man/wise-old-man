@@ -6,16 +6,16 @@ import { GroupStatisticsNavigation } from "~/components/groups/GroupStatisticsNa
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-interface PageProps {
-  params: {
+interface LayoutProps {
+  params: Promise<{
     id: number;
-  };
+  }>;
 }
 
-export default async function GroupStatisticsLayout(props: PropsWithChildren<PageProps>) {
-  const { id } = props.params;
+export default async function GroupStatisticsLayout(props: PropsWithChildren<LayoutProps>) {
+  const params = await props.params;
 
-  const statistics = await getGroupStatistics(id);
+  const statistics = await getGroupStatistics(params.id);
 
   return (
     <div className="grid grid-cols-12 gap-x-4">
@@ -25,7 +25,7 @@ export default async function GroupStatisticsLayout(props: PropsWithChildren<Pag
         <Stat label="# 200m skills" value={String(statistics.maxed200msCount)} />
       </div>
       <div className="col-span-12 mt-7 md:col-span-9 md:mt-0">
-        <GroupStatisticsNavigation id={id} />
+        <GroupStatisticsNavigation id={params.id} />
         <div className="mt-5">{props.children}</div>
       </div>
     </div>

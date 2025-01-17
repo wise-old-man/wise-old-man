@@ -15,7 +15,7 @@ interface PlayerGainedBarchartProps {
   data: Array<{ date: Date; value: number }>;
 }
 
-export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
+export function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
   const { data, view, metric } = props;
 
   const router = useRouter();

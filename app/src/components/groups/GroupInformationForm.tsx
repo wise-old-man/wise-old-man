@@ -1,7 +1,7 @@
 "use client";
 
+import { useState, type JSX } from "react";
 import type { Group } from "@wise-old-man/utils";
-import { useState } from "react";
 import { Input } from "../Input";
 import { Label } from "../Label";
 import { TextArea } from "../TextArea";
@@ -72,7 +72,6 @@ export function GroupInformationForm(props: GroupInformationFormProps) {
           </AlertDescription>
         </Alert>
       )}
-
       <div>
         <Label htmlFor="name" className="mb-2 block text-xs text-gray-200">
           Name

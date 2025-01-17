@@ -11,7 +11,7 @@ import {
   SKILLS,
   isMetric,
 } from "@wise-old-man/utils";
-import { useState } from "react";
+import { useState, type JSX } from "react";
 import { DateValue, TimeValue } from "react-aria";
 import { cn } from "~/utils/styling";
 import { useHasMounted } from "~/hooks/useHasMounted";
@@ -148,21 +148,47 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
           <div className="flex grow gap-x-4">
             <div className="grow">
               <Label className="mb-2 block text-xs text-gray-200">Start date</Label>
-              <DateTimePicker inDialog value={startDate} onChange={setStartDate} />
+              <DateTimePicker
+                inDialog
+                value={startDate}
+                onChange={(date) => {
+                  if (date === null) return;
+                  setStartDate(date);
+                }}
+              />
             </div>
             <div className="grow">
               <Label className="mb-2 block text-xs text-gray-200">Start time</Label>
-              <TimeField value={startTime} onChange={setStartTime} />
+              <TimeField
+                value={startTime}
+                onChange={(t) => {
+                  if (t === null) return;
+                  setStartTime(t);
+                }}
+              />
             </div>
           </div>
           <div className="mt-5 flex grow gap-x-4">
             <div className="grow">
               <Label className="mb-2 block text-xs text-gray-200">End date</Label>
-              <DateTimePicker inDialog value={endDate} onChange={setEndDate} />
+              <DateTimePicker
+                inDialog
+                value={endDate}
+                onChange={(date) => {
+                  if (date === null) return;
+                  setEndDate(date);
+                }}
+              />
             </div>
             <div className="grow">
               <Label className="mb-2 block text-xs text-gray-200">End time</Label>
-              <TimeField value={endTime} onChange={setEndTime} />
+              <TimeField
+                value={endTime}
+                onChange={(t) => {
+                  if (t === null) return;
+                  setEndTime(t);
+                }}
+              />
             </div>
           </div>
         </div>

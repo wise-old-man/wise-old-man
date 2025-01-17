@@ -11,17 +11,17 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     username: string;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     view?: string;
     levels?: string;
-  };
+  }>;
 }
 
 export async function generateMetadata(props: PageProps) {
-  const { params } = props;
+  const params = await props.params;
 
   const username = decodeURI(params.username);
   const player = await getPlayerDetails(username);
@@ -32,7 +32,8 @@ export async function generateMetadata(props: PageProps) {
 }
 
 export default async function PlayerPage(props: PageProps) {
-  const { params, searchParams } = props;
+  const searchParams = await props.searchParams;
+  const params = await props.params;
 
   const username = decodeURI(params.username);
   const metricType = convertMetricType(searchParams.view);

@@ -68,21 +68,47 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
           <div className="flex grow gap-x-4">
             <div className="grow">
               <Label className="mb-2 block text-xs text-gray-200">Start date</Label>
-              <DateTimePicker inDialog value={startDate} onChange={setStartDate} />
+              <DateTimePicker
+                inDialog
+                value={startDate}
+                onChange={(d) => {
+                  if (d === null) return;
+                  setStartDate(d);
+                }}
+              />
             </div>
             <div className="grow">
               <Label className="mb-2 block text-xs text-gray-200">Start time</Label>
-              <TimeField value={startTime} onChange={setStartTime} />
+              <TimeField
+                value={startTime}
+                onChange={(t) => {
+                  if (t === null) return;
+                  setStartTime(t);
+                }}
+              />
             </div>
           </div>
           <div className="mt-5 flex grow gap-x-4">
             <div className="grow">
               <Label className="mb-2 block text-xs text-gray-200">End date</Label>
-              <DateTimePicker inDialog value={endDate} onChange={setEndDate} />
+              <DateTimePicker
+                inDialog
+                value={endDate}
+                onChange={(d) => {
+                  if (d === null) return;
+                  setEndDate(d);
+                }}
+              />
             </div>
             <div className="grow">
               <Label className="mb-2 block text-xs text-gray-200">End time</Label>
-              <TimeField value={endTime} onChange={setEndTime} />
+              <TimeField
+                value={endTime}
+                onChange={(t) => {
+                  if (t === null) return;
+                  setEndTime(t);
+                }}
+              />
             </div>
           </div>
           <div className="mt-5 w-full grow border-t border-gray-700">
