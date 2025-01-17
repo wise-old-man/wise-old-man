@@ -10,8 +10,8 @@ const withSvgr = require("next-plugin-svgr");
 
 const nextConfig = withBundleAnalyzer(
   withSvgr({
-    cacheHandler: process.env.NODE_ENV === "production" ? require.resolve("./cache-handler") : undefined,
-    cacheMaxMemorySize: 0,
+    // cacheHandler: process.env.NODE_ENV === "production" ? require.resolve("./cache-handler") : undefined,
+    // cacheMaxMemorySize: 0,
     output: process.env.BUILD_STANDALONE === "true" ? "standalone" : undefined,
     logging: {
       fetches: {
