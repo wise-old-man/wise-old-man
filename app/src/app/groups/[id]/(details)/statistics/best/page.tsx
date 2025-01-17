@@ -5,13 +5,13 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: number;
-  };
+  }>;
 }
 
 export async function generateMetadata(props: PageProps) {
-  const { id } = props.params;
+  const { id } = (await props.params);
 
   const group = await getGroupDetails(id);
 
@@ -22,7 +22,7 @@ export async function generateMetadata(props: PageProps) {
 }
 
 export default async function GroupStatisticsPage(props: PageProps) {
-  const { id } = props.params;
+  const { id } = (await props.params);
 
   const statistics = await getGroupStatistics(id);
 

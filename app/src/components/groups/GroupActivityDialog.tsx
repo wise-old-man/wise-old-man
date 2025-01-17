@@ -25,7 +25,7 @@ function useInfiniteLoad(
         offset: initialData.length + (pageParam ?? 0) * RESULTS_PER_PAGE,
       });
     },
-    defaultPageParam: 0,
+    initialPageParam: 0,
     getNextPageParam: (lastPage, pages) => {
       return lastPage.length === 0 ? undefined : pages.length;
     },

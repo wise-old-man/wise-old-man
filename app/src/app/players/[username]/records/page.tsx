@@ -24,16 +24,18 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     username: string;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     view?: string;
-  };
+  }>;
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await getPlayerDetails(decodeURI(props.params.username));
+  const params = await props.params;
+
+  const player = await getPlayerDetails(decodeURI(params.username));
 
   return {
     title: `Records: ${player.displayName}`,
@@ -41,7 +43,8 @@ export async function generateMetadata(props: PageProps) {
 }
 
 export default async function PlayerRecordsPage(props: PageProps) {
-  const { params, searchParams } = props;
+  const params = await props.params;
+  const searchParams = await props.searchParams;
 
   const username = decodeURI(params.username);
   const metricType = convertMetricType(searchParams.view);

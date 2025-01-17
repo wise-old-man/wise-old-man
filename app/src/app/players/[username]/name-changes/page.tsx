@@ -11,13 +11,15 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     username: string;
-  };
+  }>;
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await getPlayerDetails(decodeURI(props.params.username));
+  const params = await props.params;
+
+  const player = await getPlayerDetails(decodeURI(params.username));
 
   return {
     title: `Name Changes: ${player.displayName}`,
@@ -25,7 +27,7 @@ export async function generateMetadata(props: PageProps) {
 }
 
 export default async function PlayerNameChangesPage(props: PageProps) {
-  const { params } = props;
+  const params = await props.params;
 
   const username = decodeURI(params.username);
 

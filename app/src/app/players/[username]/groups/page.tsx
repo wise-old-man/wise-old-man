@@ -5,13 +5,13 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     username: string;
-  };
+  }>;
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await getPlayerDetails(decodeURI(props.params.username));
+  const player = await getPlayerDetails(decodeURI((await props.params).username));
 
   return {
     title: `Groups: ${player.displayName}`,
@@ -19,7 +19,7 @@ export async function generateMetadata(props: PageProps) {
 }
 
 export default async function PlayerGroupsPage(props: PageProps) {
-  const { params } = props;
+  const params = await props.params;
 
   const username = decodeURI(params.username);
 

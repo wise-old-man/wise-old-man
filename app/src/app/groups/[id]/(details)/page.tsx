@@ -12,16 +12,16 @@ export const revalidate = 0;
 const ACTIVITY_ITEMS_COUNT = 10;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: number;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     filter: string;
-  };
+  }>;
 }
 
 export async function generateMetadata(props: PageProps) {
-  const { id } = props.params;
+  const { id } = (await props.params);
 
   const group = await getGroupDetails(id);
 
@@ -32,8 +32,8 @@ export async function generateMetadata(props: PageProps) {
 }
 
 export default async function GroupDetailsPage(props: PageProps) {
-  const { id } = props.params;
-  const { filter } = props.searchParams;
+  const { id } = (await props.params);
+  const { filter } = (await props.searchParams);
 
   const [groupDetails, groupActivity] = await Promise.all([
     getGroupDetails(id),

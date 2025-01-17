@@ -9,14 +9,14 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     search?: string;
-  };
+  }>;
 }
 
-export function generateMetadata(props: PageProps) {
-  const { searchParams } = props;
+export async function generateMetadata(props: PageProps) {
+  const searchParams = await props.searchParams;
 
   const page = getPageParam(searchParams.page) || 1;
   const search = getSearchParam(searchParams.search);
@@ -29,7 +29,7 @@ export function generateMetadata(props: PageProps) {
 }
 
 export default async function GroupsPage(props: PageProps) {
-  const { searchParams } = props;
+  const searchParams = await props.searchParams;
 
   const page = getPageParam(searchParams.page) || 1;
   const search = getSearchParam(searchParams.search);

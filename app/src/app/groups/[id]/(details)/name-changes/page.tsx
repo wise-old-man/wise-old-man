@@ -9,16 +9,16 @@ export const revalidate = 0;
 const RESULTS_PER_PAGE = 20;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: number;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     page?: string;
-  };
+  }>;
 }
 
 export async function generateMetadata(props: PageProps) {
-  const { id } = props.params;
+  const { id } = await props.params;
 
   const group = await getGroupDetails(id);
 
@@ -29,8 +29,8 @@ export async function generateMetadata(props: PageProps) {
 }
 
 export default async function GroupNameChangesOage(props: PageProps) {
-  const { id } = props.params;
-  const { searchParams } = props;
+  const { id } = await props.params;
+  const searchParams = await props.searchParams;
 
   const page = getPageParam(searchParams.page) || 1;
 

@@ -6,17 +6,17 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: number;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     preview?: string;
-  };
+  }>;
 }
 
 export async function generateMetadata(props: PageProps) {
-  const { id } = props.params;
-  const { preview } = props.searchParams;
+  const { id } = (await props.params);
+  const { preview } = (await props.searchParams);
 
   const previewMetric = preview && isMetric(preview) ? preview : undefined;
 
@@ -28,8 +28,8 @@ export async function generateMetadata(props: PageProps) {
 }
 
 export default async function CompetitionOverviewPage(props: PageProps) {
-  const { id } = props.params;
-  const { preview } = props.searchParams;
+  const { id } = (await props.params);
+  const { preview } = (await props.searchParams);
 
   const previewMetric = preview && isMetric(preview) ? preview : undefined;
 

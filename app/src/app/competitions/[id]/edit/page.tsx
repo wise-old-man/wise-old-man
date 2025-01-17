@@ -5,13 +5,13 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: number;
-  };
+  }>;
 }
 
 export async function generateMetadata(props: PageProps) {
-  const { id } = props.params;
+  const { id } = (await props.params);
 
   const competition = await getCompetitionDetails(id);
 
@@ -21,7 +21,7 @@ export async function generateMetadata(props: PageProps) {
 }
 
 export default async function EditCompetitionPage(props: PageProps) {
-  const { id } = props.params;
+  const { id } = (await props.params);
 
   const competition = await getCompetitionDetails(id);
 

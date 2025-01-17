@@ -36,14 +36,15 @@ import WarningFilledIcon from "~/assets/warning_filled.svg";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-interface PageProps {
-  params: {
+interface LayoutProps {
+  params: Promise<{
     username: string;
-  };
+  }>;
 }
 
-export default async function PlayerLayout(props: PropsWithChildren<PageProps>) {
-  const { children, params } = props;
+export default async function PlayerLayout(props: PropsWithChildren<LayoutProps>) {
+  const { children } = props;
+  const params = await props.params;
   const username = decodeURI(params.username);
 
   const player = await getPlayerDetails(username).catch(() => null);
@@ -232,9 +233,9 @@ function PlayerStatusAlert(props: { player: PlayerDetails }) {
 
             <p className="mt-5">
               <span className="text-white">Note (November 13th):</span> There&apos;s currently an issue
-              with the Jagex hiscores due to a recent rollback that is causing some players to
-              get flagged. If you&apos;re affected, try to log out in-game (to update your
-              hiscores) and then update your WOM profile.
+              with the Jagex hiscores due to a recent rollback that is causing some players to get
+              flagged. If you&apos;re affected, try to log out in-game (to update your hiscores) and then
+              update your WOM profile.
             </p>
           </AlertDescription>
         </div>

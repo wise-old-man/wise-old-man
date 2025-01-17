@@ -1,3 +1,4 @@
+import React, { type JSX } from "react";
 import { MemberActivityWithPlayer, ActivityType, GroupRoleProps } from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
 import { GroupRoleIcon } from "../Icon";
@@ -5,7 +6,6 @@ import { PlayerIdentity } from "../PlayerIdentity";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 import ArrowBottomRightIcon from "~/assets/arrow_bottom_right.svg";
-import React from "react";
 
 const MoreContextTooltip = ({ activity }: { activity: MemberActivityWithPlayer }) =>
   activity.previousRole ? (

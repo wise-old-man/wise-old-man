@@ -11,30 +11,36 @@ export function Calendar({ className, classNames, showOutsideDays = true, ...pro
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
       classNames={{
-        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+        months: "flex flex-col sm:flex-row space-y-4 sm:space-y-0",
         month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center",
+        month_caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
-        nav: "space-x-1 flex items-center",
-        nav_button: "p-1 rounded border border-gray-500 hover:bg-gray-600 hover:text-white",
-        nav_button_previous: "absolute left-1",
-        nav_button_next: "absolute right-1",
-        table: "w-full border-collapse space-y-1",
-        head_row: "flex",
-        head_cell: "text-gray-100 rounded-md w-9 font-normal text-[0.8rem]",
-        row: "flex w-full mt-2",
-        cell: "text-gray-50 rounded hover:bg-gray-600 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
-        day: "h-9 w-9 opacity-50 rounded aria-selected:opacity-100",
-        day_selected: "opacity-100 bg-blue-500 text-white font-medium",
-        day_today: "opacity-100 border border-gray-400",
-        day_outside: "text-gray-300 opacity-50",
-        day_disabled: "text-gray-300 opacity-50",
-        day_hidden: "invisible",
+        nav: "z-50 absolute top-12 bg-red-500 left-8 right-8 space-x-1 flex items-center",
+        button_previous:
+          "p-1 rounded border border-gray-500 hover:bg-gray-600 hover:text-white absolute left-1",
+        button_next:
+          "p-1 rounded border border-gray-500 hover:bg-gray-600 hover:text-white absolute right-1",
+        month_grid: "w-full border-collapse space-y-1",
+        weekdays: "flex",
+        weekday: "text-gray-100 rounded-md w-9 font-normal text-[0.8rem]",
+        week: "flex w-full mt-2",
+        day: "text-gray-50 rounded hover:bg-gray-600 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
+        day_button: "h-9 w-9 opacity-50 rounded aria-selected:opacity-100",
+        selected: "opacity-100 bg-blue-500 text-white font-medium",
+        today: "opacity-100 border border-gray-400",
+        outside: "text-gray-300 opacity-50",
+        disabled: "text-gray-300 opacity-50",
+        hidden: "invisible",
         ...classNames,
       }}
       components={{
-        IconLeft: () => <ChevronDownIcon className="h-4 w-4 rotate-90" />,
-        IconRight: () => <ChevronDownIcon className="h-4 w-4 -rotate-90" />,
+        Chevron: (props) => {
+          if (props.orientation === "left") {
+            return <ChevronDownIcon className="h-4 w-4 rotate-90" />;
+          }
+
+          return <ChevronDownIcon className="h-4 w-4 -rotate-90" />;
+        },
       }}
       {...props}
     />

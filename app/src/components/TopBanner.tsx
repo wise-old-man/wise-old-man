@@ -1,5 +1,7 @@
 import { cn } from "~/utils/styling";
 
+import type { JSX } from "react";
+
 interface TopBannerProps {
   body: JSX.Element;
   cta?: JSX.Element;
