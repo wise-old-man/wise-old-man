@@ -5,8 +5,8 @@ const MAINTENANCE_MODE = {
 
 const ANNOUNCEMENT_BANNER = {
   enabled: false,
-  color: undefined, // "blue" / "yellow" / undefined
-  message: undefined,
+  color: "yellow", // "blue" / "yellow" / undefined
+  message: "We are aware of the app crashes and we are actively trying to fix them now, thank you for your patience.",
 };
 
 module.exports = {
