@@ -14,6 +14,7 @@ import {
   NameChangeStatus,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 
 /**
  * The WOM client used to make requests to the API from server components.
@@ -34,7 +35,7 @@ async function handleNotFound<T>(promise: Promise<T>): Promise<T> {
   return promise.catch((e) => {
     Sentry.captureException(e);
     console.log("Sentry Captured Error", e);
-    
+
     if ("statusCode" in e && e.statusCode === 404) notFound();
     throw e;
   });
