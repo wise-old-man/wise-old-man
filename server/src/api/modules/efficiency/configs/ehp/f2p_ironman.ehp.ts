@@ -47,7 +47,7 @@ export default [
       {
         startExp: 13_034_431,
         rate: 50_100,
-        description: 'Ogresses & Hill Giants'
+        description: 'Hill Giants & Ogresses'
       }
     ],
     bonuses: [
@@ -55,57 +55,9 @@ export default [
         originSkill: Skill.ATTACK,
         bonusSkill: Skill.PRAYER,
         startExp: 4_825,
-        endExp: 37_224,
-        end: true,
-        ratio: 0.1125
-      },
-      {
-        originSkill: Skill.ATTACK,
-        bonusSkill: Skill.PRAYER,
-        startExp: 37_224,
-        endExp: 101_333,
-        end: true,
-        ratio: 0.1322
-      },
-      {
-        originSkill: Skill.ATTACK,
-        bonusSkill: Skill.PRAYER,
-        startExp: 101_333,
-        endExp: 273_742,
-        end: true,
-        ratio: 0.1289
-      },
-      {
-        originSkill: Skill.ATTACK,
-        bonusSkill: Skill.PRAYER,
-        startExp: 273_742,
-        endExp: 737_627,
-        end: true,
-        ratio: 0.1264
-      },
-      {
-        originSkill: Skill.ATTACK,
-        bonusSkill: Skill.PRAYER,
-        startExp: 737_627,
-        endExp: 1_986_068,
-        end: true,
-        ratio: 0.1254
-      },
-      {
-        originSkill: Skill.ATTACK,
-        bonusSkill: Skill.PRAYER,
-        startExp: 1_986_068,
-        endExp: 5_346_332,
-        end: true,
-        ratio: 0.1233
-      },
-      {
-        originSkill: Skill.ATTACK,
-        bonusSkill: Skill.PRAYER,
-        startExp: 5_346_332,
         endExp: 13_034_431,
         end: true,
-        ratio: 0.1229
+        ratio: 0.125
       },
       {
         originSkill: Skill.ATTACK,
@@ -243,7 +195,7 @@ export default [
       {
         startExp: 13_034_431,
         rate: 50_600,
-        description: 'Ogresses & Hill Giants'
+        description: 'Hill Giants & Ogresses'
       }
     ],
     bonuses: [
@@ -251,73 +203,9 @@ export default [
         originSkill: Skill.STRENGTH,
         bonusSkill: Skill.PRAYER,
         startExp: 18_650,
-        endExp: 37_224,
-        end: true,
-        ratio: 0.1125
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 37_224,
-        endExp: 101_333,
-        end: true,
-        ratio: 0.1407
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 101_333,
-        endExp: 273_742,
-        end: true,
-        ratio: 0.1358
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 273_742,
-        endExp: 737_627,
-        end: true,
-        ratio: 0.1316
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 737_627,
-        endExp: 1_986_068,
-        end: true,
-        ratio: 0.1285
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 1_986_068,
-        endExp: 3_258_594,
-        end: true,
-        ratio: 0.1258
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 3_258_594,
-        endExp: 5_346_332,
-        end: true,
-        ratio: 0.1246
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 5_346_332,
-        endExp: 8_771_558,
-        end: true,
-        ratio: 0.1239
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.PRAYER,
-        startExp: 8_771_558,
         endExp: 13_034_431,
         end: true,
-        ratio: 0.1229
+        ratio: 0.125
       },
       {
         originSkill: Skill.STRENGTH,
@@ -429,54 +317,6 @@ export default [
         originSkill: Skill.RANGED,
         bonusSkill: Skill.PRAYER,
         startExp: 0,
-        endExp: 388,
-        end: true,
-        ratio: 0.375
-      },
-      {
-        originSkill: Skill.RANGED,
-        bonusSkill: Skill.PRAYER,
-        startExp: 388,
-        endExp: 4_470,
-        end: true,
-        ratio: 0.14
-      },
-      {
-        originSkill: Skill.RANGED,
-        bonusSkill: Skill.PRAYER,
-        startExp: 4_470,
-        endExp: 37_224,
-        end: true,
-        ratio: 0.1125
-      },
-      {
-        originSkill: Skill.RANGED,
-        bonusSkill: Skill.PRAYER,
-        startExp: 37_224,
-        endExp: 101_333,
-        end: true,
-        ratio: 0.1429
-      },
-      {
-        originSkill: Skill.RANGED,
-        bonusSkill: Skill.PRAYER,
-        startExp: 101_333,
-        endExp: 166_636,
-        end: true,
-        ratio: 0.1352
-      },
-      {
-        originSkill: Skill.RANGED,
-        bonusSkill: Skill.PRAYER,
-        startExp: 166_636,
-        endExp: 302_288,
-        end: true,
-        ratio: 0.1326
-      },
-      {
-        originSkill: Skill.RANGED,
-        bonusSkill: Skill.PRAYER,
-        startExp: 302_288,
         endExp: 547_953,
         end: true,
         ratio: 0.1303
@@ -540,7 +380,7 @@ export default [
       {
         startExp: 0,
         rate: 15_000,
-        description: 'Misc. Spells'
+        description: 'Misc spells'
       },
       {
         startExp: 3_973,
@@ -867,7 +707,7 @@ export default [
       {
         startExp: 0,
         rate: 5_700,
-        description: 'Suicide bodies/minotaurs'
+        description: 'Suicide bodies / minotaurs'
       }
     ],
     bonuses: [

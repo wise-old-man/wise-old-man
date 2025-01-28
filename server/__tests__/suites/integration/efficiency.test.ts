@@ -587,7 +587,7 @@ describe('Efficiency API', () => {
       );
 
       expect(getAlgorithm({ type: PlayerType.REGULAR, build: PlayerBuild.DEF1 }).type).toBe(
-        EfficiencyAlgorithmType.MAIN
+        EfficiencyAlgorithmType.DEF1
       );
 
       expect(getAlgorithm({ type: PlayerType.REGULAR, build: PlayerBuild.HP10 }).type).toBe(
