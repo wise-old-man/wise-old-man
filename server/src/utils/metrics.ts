@@ -173,7 +173,8 @@ const ActivityProps: MapOf<Activity, ActivityProperties> = mapValues(
     [Activity.PVP_ARENA]: { name: 'PvP Arena', minimumValue: 2525 },
     [Activity.SOUL_WARS_ZEAL]: { name: 'Soul Wars Zeal', minimumValue: 200 },
     [Activity.GUARDIANS_OF_THE_RIFT]: { name: 'Guardians of the Rift', minimumValue: 2 },
-    [Activity.COLOSSEUM_GLORY]: { name: 'Colosseum Glory', minimumValue: 300 }
+    [Activity.COLOSSEUM_GLORY]: { name: 'Colosseum Glory', minimumValue: 300 },
+    [Activity.COLLECTION_LOGS]: { name: 'Collection Logs', minimumValue: 500 }
   },
   props => ({
     ...props,

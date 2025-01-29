@@ -509,5 +509,10 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: '{threshold} Soul Wars Zeal',
     metric: Metric.SOUL_WARS_ZEAL,
     thresholds: [5000, 10_000, 20_000]
+  },
+  {
+    name: '{threshold} Collection Log Slots',
+    metric: Metric.COLLECTION_LOGS,
+    thresholds: [500, 700, 900, 1000, 1100, 1200]
   }
 ];
