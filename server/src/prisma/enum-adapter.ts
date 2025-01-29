@@ -83,7 +83,7 @@ export const Activity = {
   SOUL_WARS_ZEAL: 'soul_wars_zeal',
   GUARDIANS_OF_THE_RIFT: 'guardians_of_the_rift',
   COLOSSEUM_GLORY: 'colosseum_glory',
-  COLLECTION_LOGS: 'collection_logs'
+  COLLECTIONS_LOGGED: 'collections_logged'
 } as const;
 
 export const Boss = {

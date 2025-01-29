@@ -511,8 +511,8 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [5000, 10_000, 20_000]
   },
   {
-    name: '{threshold} Collection Log Slots',
-    metric: Metric.COLLECTION_LOGS,
+    name: '{threshold} Collections Logged',
+    metric: Metric.COLLECTIONS_LOGGED,
     thresholds: [500, 700, 900, 1000, 1100, 1200]
   }
 ];
