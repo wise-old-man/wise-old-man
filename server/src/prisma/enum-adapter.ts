@@ -82,7 +82,8 @@ export const Activity = {
   PVP_ARENA: 'pvp_arena',
   SOUL_WARS_ZEAL: 'soul_wars_zeal',
   GUARDIANS_OF_THE_RIFT: 'guardians_of_the_rift',
-  COLOSSEUM_GLORY: 'colosseum_glory'
+  COLOSSEUM_GLORY: 'colosseum_glory',
+  COLLECTIONS_LOGGED: 'collections_logged'
 } as const;
 
 export const Boss = {
