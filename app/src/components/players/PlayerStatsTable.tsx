@@ -178,11 +178,13 @@ function PlayerSkillsTable(
     throw new Error("Player does not have a valid snapshot.");
   }
 
-  const skillValues = Object.values(player.latestSnapshot.data.skills).map((v) =>
-    showVirtualLevels && v.metric === Skill.OVERALL
-      ? { ...v, level: getVirtualTotalLevel(player.latestSnapshot!.data.skills) }
-      : v
-  );
+  const skillValues = Object.values(player.latestSnapshot.data.skills)
+    .filter((s) => s.metric in MetricProps)
+    .map((v) =>
+      showVirtualLevels && v.metric === Skill.OVERALL
+        ? { ...v, level: getVirtualTotalLevel(player.latestSnapshot!.data.skills) }
+        : v
+    );
 
   const rows = [
     {
@@ -352,7 +354,7 @@ function PlayerBossesTable(props: PropsWithChildren<{ player: PlayerDetails }>) 
       ehb: player.latestSnapshot.data.computed.ehb.value,
       rank: player.latestSnapshot.data.computed.ehb.rank,
     },
-    ...Object.values(player.latestSnapshot.data.bosses),
+    ...Object.values(player.latestSnapshot.data.bosses).filter((s) => s.metric in MetricProps),
   ];
 
   const columns = getBossColumnDefinitions(player);
@@ -473,7 +475,9 @@ function PlayerActivitiesTable(props: PropsWithChildren<{ player: PlayerDetails 
     throw new Error("Player does not have a valid snapshot.");
   }
 
-  const rows = Object.values(player.latestSnapshot.data.activities);
+  const rows = Object.values(player.latestSnapshot.data.activities).filter(
+    (s) => s.metric in MetricProps
+  );
 
   return (
     <DataTable
