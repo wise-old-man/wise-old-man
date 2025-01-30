@@ -18,37 +18,37 @@ export default [
       {
         startExp: 0,
         rate: 8_365,
-        description: '4t Trees'
+        description: '4t trees'
       },
       {
         startExp: 2_411,
-        rate: 35_000,
-        description: '2t Oaks (steel axe)'
+        rate: 36_000,
+        description: '2t oaks (steel axe)'
       },
       {
         startExp: 5_018,
-        rate: 45_000,
-        description: '2t Oaks (mith axe)'
+        rate: 46_300,
+        description: '2t oaks (mith axe)'
       },
       {
         startExp: 14_833,
-        rate: 60_000,
-        description: '2t Oaks (addy axe)'
+        rate: 61_700,
+        description: '2t oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 80_000,
-        description: '2t Oaks (rune axe)'
+        rate: 82_300,
+        description: '2t oaks (rune axe)'
       },
       {
         startExp: 101_333,
-        rate: 98_000,
-        description: '2t Oaks (rune axe)'
+        rate: 100_800,
+        description: '2t oaks (rune axe)'
       },
       {
         startExp: 273_742,
-        rate: 105_000,
-        description: '2t Oaks (100% success)'
+        rate: 108_000,
+        description: '2t oaks (100% success)'
       }
     ],
     bonuses: []
@@ -168,7 +168,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 6_300,
+        rate: 6_750,
         description: 'Suicide air tiaras'
       }
     ],
@@ -209,13 +209,13 @@ export default [
       },
       {
         startExp: 12_725,
-        rate: 10_000,
-        description: 'ROF iron'
+        rate: 9_500,
+        description: "RoF iron (Doric's anvil)"
       },
       {
         startExp: 37_224,
-        rate: 10_000,
-        description: 'Wildy triple hop gold'
+        rate: 9_500,
+        description: 'Wildy double hop gold'
       }
     ],
     bonuses: [
@@ -270,8 +270,8 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 4_000,
-        description: 'Earth runes'
+        rate: 4_550,
+        description: 'Earth runes (assume you gain 150xp/hr from lamps)'
       }
     ],
     bonuses: [
