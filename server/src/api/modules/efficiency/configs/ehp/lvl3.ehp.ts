@@ -690,6 +690,7 @@ export default [
       {
         startExp: 933_979,
         rate: 255_000,
+        realRate: 118_535,
         description: 'Drift net fishing (118.5k hunter & 89.9k fishing xp/h, scales to black chinchompas)'
       }
     ],

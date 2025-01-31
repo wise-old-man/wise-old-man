@@ -342,6 +342,7 @@ export default [
       {
         startExp: 13_034_431,
         rate: 794_566,
+        realRate: 505_000,
         description:
           'Artefacts with firemaking (260k thieving & 310k firemaking xp/h), scales to firebwan (505k firemaking & 353.5k cooking xp/h)'
       }
@@ -941,6 +942,7 @@ export default [
       {
         startExp: 933_979,
         rate: 265_000,
+        realRate: 118_535,
         description: 'Drift net fishing (118.5k hunter & 89.9k fishing xp/h), scales to black chinchompas'
       }
     ],
