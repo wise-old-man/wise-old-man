@@ -353,7 +353,7 @@ export default [
         bonusSkill: Skill.COOKING,
         startExp: 13_363,
         endExp: 200_000_000,
-        end: true,
+        end: false,
         ratio: 1.15
       }
     ]
