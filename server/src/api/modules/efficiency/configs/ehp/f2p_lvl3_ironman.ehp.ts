@@ -271,7 +271,7 @@ export default [
       {
         startExp: 0,
         rate: 4_550,
-        description: 'Earth runes (assume you gain 150xp/hr from lamps)'
+        description: 'Earth runes (assuming 150 XP/hour gained from lamps)'
       }
     ],
     bonuses: [
