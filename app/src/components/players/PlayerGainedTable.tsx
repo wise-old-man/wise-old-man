@@ -172,7 +172,7 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
         rank: gains.computed.ehb.rank,
         kills: 0,
       } as unknown as BossDelta,
-      ...Object.values(gains.bosses),
+      ...Object.values(gains.bosses).filter((s) => s.metric in MetricProps),
     ];
 
     const selectedRowId = String(rows.findIndex((g) => g.metric === selectedMetric));
@@ -189,7 +189,7 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
   }
 
   if (metricType === MetricType.ACTIVITY) {
-    const rows = Object.values(gains.activities);
+    const rows = Object.values(gains.activities).filter((s) => s.metric in MetricProps);
     const selectedRowId = String(rows.findIndex((g) => g.metric === selectedMetric));
 
     return (
@@ -212,7 +212,7 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
       experience: 0,
       level: 0,
     } as unknown as SkillDelta,
-    ...Object.values(gains.skills),
+    ...Object.values(gains.skills).filter((s) => s.metric in MetricProps),
   ];
 
   const hiddenMetrics = getBuildHiddenMetrics(player.build);

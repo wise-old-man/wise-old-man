@@ -19,8 +19,7 @@ import {
   Activity,
   ComputedMetric,
   MapOf,
-  MetricValueKey,
-  isSkill
+  MetricValueKey
 } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
@@ -260,11 +259,7 @@ function getNegativeGains(before: Snapshot, after: Snapshot) {
 
     const valueKey = getMetricValueKey(metric);
 
-    if (isSkill(metric) && after[valueKey] === -1) {
-      return false;
-    }
-
-    return after[valueKey] < before[valueKey];
+    return after[valueKey] > -1 && after[valueKey] < before[valueKey];
   });
 
   if (negativeMetrics.length === 0) return null;

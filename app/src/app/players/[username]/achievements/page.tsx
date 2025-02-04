@@ -109,7 +109,7 @@ function ProgressTable(props: ProgressTableProps) {
   const filteredAchievements = achievements.filter((a) => !hiddenMetrics.includes(a.metric));
 
   const groups = groupAchievementsByType(filteredAchievements).filter(
-    (g) => !metricType || MetricProps[g.metric].type === metricType
+    (g) => g.metric in MetricProps && (!metricType || MetricProps[g.metric].type === metricType)
   );
 
   return (
@@ -214,7 +214,12 @@ function RecentAchievements(props: RecentAchievementsProps) {
   const { metricType, achievements } = props;
 
   const recentAchievements = achievements
-    .filter((a) => a.createdAt && (!metricType || MetricProps[a.metric].type === metricType))
+    .filter(
+      (a) =>
+        a.metric in MetricProps &&
+        a.createdAt &&
+        (!metricType || MetricProps[a.metric].type === metricType)
+    )
     .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime())
     .slice(0, 5);
 
@@ -243,7 +248,12 @@ function NearestAchievements(props: NearestAchievementsProps) {
   const { metricType, achievements } = props;
 
   const nearestAchievements = achievements
-    .filter((a) => (!metricType || MetricProps[a.metric].type === metricType) && !a.createdAt)
+    .filter(
+      (a) =>
+        a.metric in MetricProps &&
+        (!metricType || MetricProps[a.metric].type === metricType) &&
+        !a.createdAt
+    )
     .sort((a, b) => b.absoluteProgress - a.absoluteProgress)
     .slice(0, 5);
 

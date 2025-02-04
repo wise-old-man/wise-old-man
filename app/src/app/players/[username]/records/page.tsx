@@ -58,9 +58,10 @@ export default async function PlayerRecordsPage(props: PageProps) {
 
   const filteredRecords = records.filter((r) => {
     return (
-      MetricProps[r.metric].type === metricType ||
-      (metricType === MetricType.SKILL && r.metric === Metric.EHP) ||
-      (metricType === MetricType.BOSS && r.metric === Metric.EHB)
+      r.metric in MetricProps &&
+      (MetricProps[r.metric].type === metricType ||
+        (metricType === MetricType.SKILL && r.metric === Metric.EHP) ||
+        (metricType === MetricType.BOSS && r.metric === Metric.EHB))
     );
   });
 
