@@ -611,7 +611,8 @@ export default [
       {
         startExp: 334_700,
         rate: 22_450,
-        description: 'Telegrab nats & Superheating iron with snow (100% mining success)'
+        description:
+          'Telegrab + superheat and ROF smith (assumes 597k telegrabs at 825/hr, 117.4m xp superheating at 30.7k/h, and 32.6m xp using ROFs at 15.1k/h)'
       }
     ],
     bonuses: [
