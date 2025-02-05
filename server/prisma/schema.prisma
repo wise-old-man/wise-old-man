@@ -569,7 +569,7 @@ model Snapshot {
   the_leviathanRank                     Int       @default(-1)
   the_leviathanKills                    Int       @default(-1)
   the_royal_titansRank                  Int       @default(-1)
-  the_royalTitansKills                  Int       @default(-1)
+  the_royal_titansKills                 Int       @default(-1)
   the_whispererRank                     Int       @default(-1)
   the_whispererKills                    Int       @default(-1)
   theatre_of_bloodRank                  Int       @default(-1)
