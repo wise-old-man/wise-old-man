@@ -333,11 +333,6 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
-    name: '{threshold} Royal Titans kills',
-    metric: Metric.ROYAL_TITANS,
-    thresholds: [500, 1000, 5000, 10_000]
-  },
-  {
     name: '{threshold} Sarachnis kills',
     metric: Metric.SARACHNIS,
     thresholds: [500, 1000, 5000, 10_000]
@@ -380,6 +375,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   {
     name: '{threshold} The Leviathan kills',
     metric: Metric.THE_LEVIATHAN,
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
+    name: '{threshold} The Royal Titans kills',
+    metric: Metric.THE_ROYAL_TITANS,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
