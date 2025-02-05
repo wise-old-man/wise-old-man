@@ -130,6 +130,7 @@ model Delta {
   phosanis_nightmare               Int       @default(0)
   obor                             Int       @default(0)
   phantom_muspah                   Int       @default(0)
+  royal_titans                     Int       @default(0)
   sarachnis                        Int       @default(0)
   scorpia                          Int       @default(0)
   scurrius                         Int       @default(0)
@@ -547,6 +548,8 @@ model Snapshot {
   oborKills                             Int       @default(-1)
   phantom_muspahRank                    Int       @default(-1)
   phantom_muspahKills                   Int       @default(-1)
+  royal_titansRank                      Int       @default(-1)
+  royalTitansKills                      Int       @default(-1)
   sarachnisRank                         Int       @default(-1)
   sarachnisKills                        Int       @default(-1)
   scorpiaRank                           Int       @default(-1)
@@ -1361,6 +1364,7 @@ enum Metric {
   nightmare
   obor
   phantom_muspah
+  royal_titans
   sarachnis
   scorpia
   scurrius
