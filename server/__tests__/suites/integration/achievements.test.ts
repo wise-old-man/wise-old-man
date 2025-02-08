@@ -365,7 +365,9 @@ describe('Achievements API', () => {
       // Change attack to 50.5m
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
         { metric: Metric.ATTACK, value: 50_585_985 },
-        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 51 }
+        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 51 },
+        { metric: Metric.SOUL_WARS_ZEAL, value: 5500 }, // This should trigger a new achievement
+        { metric: Metric.COLLECTIONS_LOGGED, value: 653 } // This should trigger a new achievement with unknown date (added to the hiscores way after release)
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -386,13 +388,28 @@ describe('Achievements API', () => {
       const fetchResponse = await api.get(`/players/psikoi/achievements`);
 
       expect(fetchResponse.status).toBe(200);
-      expect(fetchResponse.body.length).toBe(38);
-      expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(20);
+      expect(fetchResponse.body.length).toBe(40); // 2 new achievements
+      expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(21); // 1 new "unknown" date achievement
 
-      expect(fetchResponse.body.map(a => a.name)).toContain('50m Attack');
-      expect(fetchResponse.body.find(a => a.name === '50m Attack').createdAt).not.toBe(0);
+      const attackAchievement = fetchResponse.body.find(a => a.name === '50m Attack');
+
+      expect(attackAchievement).not.toBeUndefined();
+      expect(new Date(attackAchievement.createdAt).getTime()).not.toBe(0);
       // accuracy should be less than 10 seconds, since we just updated the player (plus/minus async request delays and such)
-      expect(fetchResponse.body.find(a => a.name === '50m Attack').accuracy).toBeLessThan(10_000);
+      expect(attackAchievement.accuracy).toBeLessThan(10_000);
+
+      const soulWarsAchievement = fetchResponse.body.find(a => a.name === '5k Soul Wars Zeal');
+
+      expect(soulWarsAchievement).not.toBeUndefined();
+      expect(new Date(soulWarsAchievement.createdAt).getTime()).not.toBe(0);
+      // accuracy should be less than 10 seconds, since we just updated the player (plus/minus async request delays and such)
+      expect(soulWarsAchievement.accuracy).toBeLessThan(10_000);
+
+      const collectionLogAchievement = fetchResponse.body.find(a => a.name === '500 Collections Logged');
+
+      expect(collectionLogAchievement).not.toBeUndefined();
+      expect(new Date(collectionLogAchievement.createdAt).getTime()).toBe(0);
+      expect(collectionLogAchievement.accuracy).toBeNull();
     });
 
     it('should not count very-close achievements as complete', async () => {
