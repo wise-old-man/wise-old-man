@@ -210,6 +210,7 @@ export default [
       {
         startExp: 5_346_332,
         rate: 794_566,
+        realRate: 310_000,
         description: 'Firebwan (Redwood logs) - 505k firemaking, 353.5k cooking'
       }
     ],

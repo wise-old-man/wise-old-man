@@ -179,11 +179,11 @@ class EfficiencyAlgorithm {
         }
 
         if (!isStart && b.originSkill === Skill.FIREMAKING && b.bonusSkill === Skill.THIEVING) {
-          // Apply special BXP scaling function for fire bwan firemaking/cooking
-          const fireBwanBonus = this.getFireBwanScaledBonus(stats);
+          // Apply special BXP scaling function for firefact firemaking/thieving
+          const firefactBonus = this.getFirefactScaledBonus(stats);
 
-          if (fireBwanBonus) {
-            map.set(Skill.THIEVING, map.get(Skill.THIEVING)! + fireBwanBonus);
+          if (firefactBonus) {
+            map.set(Skill.THIEVING, map.get(Skill.THIEVING)! + firefactBonus);
             return;
           }
         }
@@ -224,13 +224,13 @@ class EfficiencyAlgorithm {
     );
   }
 
-  private getFireBwanScaledBonus(stats: Map<Skill, number>) {
+  private getFirefactScaledBonus(stats: Map<Skill, number>) {
     return this.getScaledMaxBonus(
       stats,
       Skill.FIREMAKING,
-      Skill.COOKING,
+      Skill.THIEVING,
       this.skillMetas.find(sm => sm.skill === Skill.FIREMAKING)?.methods.find(m => !!m.realRate),
-      this.skillMetas.find(sm => sm.skill === Skill.COOKING)?.methods.at(-1),
+      this.skillMetas.find(sm => sm.skill === Skill.THIEVING)?.methods.at(-1),
       this.skillMetas.find(sm => sm.skill === Skill.FIREMAKING)?.bonuses[0]?.ratio
     );
   }

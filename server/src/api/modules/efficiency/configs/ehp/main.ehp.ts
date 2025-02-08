@@ -342,7 +342,7 @@ export default [
       {
         startExp: 13_034_431,
         rate: 794_566,
-        realRate: 505_000,
+        realRate: 310_000,
         description:
           'Artefacts with firemaking (260k thieving & 310k firemaking xp/h), scales to firebwan (505k firemaking & 353.5k cooking xp/h)'
       }
