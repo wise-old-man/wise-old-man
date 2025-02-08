@@ -22,7 +22,7 @@ async function syncPlayerRecords(delta: Delta, previousSnapshot: Snapshot) {
       continue;
     }
 
-    // Some metrics (such as collection logs, and some wildy bosses) were added to the hiscores after the initial release.
+    // Some metrics (such as collection logs, and some wildy bosses) were added to the hiscores after their in-game release.
     // Which meant a lot of players jumped from unranked (-1) to their current kc at the time, this generated a lot of records.
     // which can likely never be beaten. To avoid this, we skip adding records for these metrics if the previous snapshot value was -1.
     if (
