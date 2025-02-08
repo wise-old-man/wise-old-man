@@ -169,7 +169,7 @@ describe('Records API', () => {
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.latestSnapshot.data.bosses.zulrah.kills).toBe(1646);
 
-      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+      let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metric.COLLECTIONS_LOGGED, value: 623 }
       ]);
 
@@ -184,9 +184,28 @@ describe('Records API', () => {
       // Wait for the deltas to update, followed by the records
       await sleep(500);
 
-      const recordsResponse = await api.get(`/players/eren/records`);
-      expect(recordsResponse.status).toBe(200);
-      expect(recordsResponse.body.length).toBe(0);
+      const firstRecordsResponse = await api.get(`/players/eren/records`);
+      expect(firstRecordsResponse.status).toBe(200);
+      expect(firstRecordsResponse.body.length).toBe(0);
+
+      modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.COLLECTIONS_LOGGED, value: 627 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const thirdTrackResponse = await api.post(`/players/eren`);
+      expect(thirdTrackResponse.status).toBe(200);
+
+      // Wait for the deltas to update, followed by the records
+      await sleep(500);
+
+      const secondRecordsResponse = await api.get(`/players/eren/records`);
+      expect(secondRecordsResponse.status).toBe(200);
+      expect(secondRecordsResponse.body.length).toBe(0);
     });
   });
 

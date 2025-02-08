@@ -363,7 +363,7 @@ describe('Achievements API', () => {
 
     test('Track player again, test new achievements', async () => {
       // Change attack to 50.5m
-      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
+      let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
         { metric: Metric.ATTACK, value: 50_585_985 },
         { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 51 },
         { metric: Metric.SOUL_WARS_ZEAL, value: 5500 }, // This should trigger a new achievement
@@ -410,6 +410,36 @@ describe('Achievements API', () => {
       expect(collectionLogAchievement).not.toBeUndefined();
       expect(new Date(collectionLogAchievement.createdAt).getTime()).toBe(0);
       expect(collectionLogAchievement.accuracy).toBeNull();
+
+      // Change attack to 50.5m
+      modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
+        { metric: Metric.ATTACK, value: 50_585_985 },
+        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 51 },
+        { metric: Metric.SOUL_WARS_ZEAL, value: 5500 },
+        { metric: Metric.COLLECTIONS_LOGGED, value: 660 } // Gained 7 more collections
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      // Track player (third time)
+      const secondTrackResponse = await api.post(`/players/Psikoi`);
+
+      expect(secondTrackResponse.status).toBe(200);
+      expect(secondTrackResponse.body.username).toBe('psikoi');
+
+      // Wait a bit for the onPlayerUpdated hook to fire
+      await sleep(500);
+
+      // Check their achievements (again)
+      const secondFetchResponse = await api.get(`/players/psikoi/achievements`);
+      expect(secondFetchResponse.status).toBe(200);
+
+      // Nothing should have changed
+      expect(secondFetchResponse.body.length).toBe(40);
+      expect(secondFetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(21);
     });
 
     it('should not count very-close achievements as complete', async () => {
