@@ -1,6 +1,7 @@
 import prisma, { Snapshot } from '../../../../prisma';
-import { getMetricValueKey, Metric } from '../../../../utils';
+import { getMetricValueKey } from '../../../../utils';
 import { findPlayerSnapshots } from '../../snapshots/services/FindPlayerSnapshotsService';
+import { POST_RELEASE_HISCORE_ADDITIONS } from '../../snapshots/snapshot.utils';
 import { onAchievementsCreated } from '../achievement.events';
 import { calculatePastDates, getAchievementDefinitions } from '../achievement.utils';
 
@@ -73,11 +74,9 @@ async function syncPlayerAchievements(playerId: number, previous: Snapshot | und
     // this causes players to go from -1 to achievement thresholds in a single update,
     // which incorrectly attributes the achievement to the current date.
     // To fix these, any achievements for these metrics that were previously -1, are set to an "unknown" date.
-    const metricsToSkip = [Metric.ARTIO, Metric.CALVARION, Metric.SPINDEL, Metric.COLLECTIONS_LOGGED];
-
     let forceUnknownDate = false;
 
-    if (previous[getMetricValueKey(metric)] === -1 && metricsToSkip.includes(metric)) {
+    if (previous[getMetricValueKey(metric)] === -1 && POST_RELEASE_HISCORE_ADDITIONS.includes(metric)) {
       forceUnknownDate = true;
     }
 

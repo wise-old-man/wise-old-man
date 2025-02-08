@@ -1,8 +1,9 @@
 import prisma, { PrismaTypes, Delta } from '../../../../prisma';
-import { METRICS } from '../../../../utils';
+import { getMetricValueKey, METRICS, Snapshot } from '../../../../utils';
+import { POST_RELEASE_HISCORE_ADDITIONS } from '../../snapshots/snapshot.utils';
 import { prepareRecordValue } from '../record.utils';
 
-async function syncPlayerRecords(delta: Delta) {
+async function syncPlayerRecords(delta: Delta, previousSnapshot: Snapshot) {
   const { playerId, period } = delta;
 
   const currentRecords = await prisma.record.findMany({
@@ -18,6 +19,16 @@ async function syncPlayerRecords(delta: Delta) {
     const value = delta[metric];
 
     if (value <= 0) {
+      continue;
+    }
+
+    // Some metrics (such as collection logs, and some wildy bosses) were added to the hiscores after the initial release.
+    // Which meant a lot of players jumped from unranked (-1) to their current kc at the time, this generated a lot of records.
+    // which can likely never be beaten. To avoid this, we skip adding records for these metrics if the previous snapshot value was -1.
+    if (
+      POST_RELEASE_HISCORE_ADDITIONS.includes(metric) &&
+      previousSnapshot[getMetricValueKey(metric)] === -1
+    ) {
       continue;
     }
 
