@@ -210,6 +210,7 @@ export default [
       {
         startExp: 5_346_332,
         rate: 794_566,
+        realRate: 310_000,
         description: 'Firebwan (Redwood logs) - 505k firemaking, 353.5k cooking'
       }
     ],
@@ -690,6 +691,7 @@ export default [
       {
         startExp: 933_979,
         rate: 255_000,
+        realRate: 118_535,
         description: 'Drift net fishing (118.5k hunter & 89.9k fishing xp/h, scales to black chinchompas)'
       }
     ],

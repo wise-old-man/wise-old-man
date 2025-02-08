@@ -206,10 +206,10 @@ const BOSSES = Object.values(Boss) as Boss[];
 const ACTIVITIES = Object.values(Activity) as Activity[];
 const COMPUTED_METRICS = Object.values(ComputedMetric) as ComputedMetric[];
 
-const REAL_SKILLS = SKILLS.filter(s => s !== Skill.OVERALL);
-const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers);
-const MEMBER_SKILLS = SKILLS.filter(s => MetricProps[s].isMembers);
-const COMBAT_SKILLS = SKILLS.filter(s => MetricProps[s].isCombat);
+const REAL_SKILLS = SKILLS.filter(s => s !== Skill.OVERALL) as Skill[];
+const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers) as Boss[];
+const MEMBER_SKILLS = SKILLS.filter(s => MetricProps[s].isMembers) as Skill[];
+const COMBAT_SKILLS = SKILLS.filter(s => MetricProps[s].isCombat) as Skill[];
 const REAL_METRICS = [...SKILLS, ...BOSSES, ...ACTIVITIES];
 
 function findMetric(metricName: string): Metric | null {

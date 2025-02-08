@@ -73,6 +73,8 @@ function getLabel(type: EfficiencyAlgorithmType) {
       return "F2P & Level 3";
     case EfficiencyAlgorithmType.F2P_LVL3_IRONMAN:
       return "F2P & Level 3 Ironman";
+    case EfficiencyAlgorithmType.DEF1:
+      return "1 Defence Pure";
     default:
       return "Unknown";
   }

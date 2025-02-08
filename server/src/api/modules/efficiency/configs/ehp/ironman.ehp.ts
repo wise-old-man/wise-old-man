@@ -266,8 +266,16 @@ export default [
         originSkill: Skill.FISHING,
         bonusSkill: Skill.AGILITY,
         startExp: 737_627,
-        endExp: 200_000_000,
+        endExp: 13_034_431,
         end: false,
+        ratio: 0.0885
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.AGILITY,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: true,
         ratio: 0.0885
       }
     ]
