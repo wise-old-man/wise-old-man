@@ -35,6 +35,15 @@ import {
 // Skip Deadman Points and Legacy Bounty Hunter (hunter/rogue)
 export const SKIPPED_ACTIVITY_INDICES = [1, 4, 5];
 
+// These metrics were added to the hiscores long after their in-game release,
+// causing players to go from unranked to very high values in a single update.
+export const POST_RELEASE_HISCORE_ADDITIONS = [
+  Metric.COLLECTIONS_LOGGED,
+  Metric.SPINDEL,
+  Metric.CALVARION,
+  Metric.ARTIO
+];
+
 // On this date, the Bounty Hunter was updated and scores were reset.
 const BOUNTY_HUNTER_UPDATE_DATE = new Date('2023-05-24T10:30:00.000Z');
 
