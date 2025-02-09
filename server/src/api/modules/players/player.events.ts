@@ -14,13 +14,7 @@ async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerRevi
   });
 }
 
-async function onPlayerArchived(player: Player, previousDisplayName: string) {
-  await prometheus.trackEffect('sendMonitoringMessage', async () => {
-    await discordService.sendMonitoringMessage(
-      `🟢 \`${previousDisplayName}\` has been archived. (\`${player.username}\`)`
-    );
-  });
-}
+async function onPlayerArchived(_player: Player, _previousDisplayName: string) {}
 
 async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
   if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
