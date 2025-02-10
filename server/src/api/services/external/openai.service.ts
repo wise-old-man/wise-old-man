@@ -12,9 +12,9 @@ class OpenAiService {
   }
 
   /**
-   * @param prompt - The user input that will be sent to the model.
+   * @param prompt - The input that will be sent to the model.
    * @param systemInstruction - System message providing instructions for the AI on how to behave, example: Act as content moderator and..
-   * @param expectedOutputFormat - Expected Zod type for validating the response format should be a zod.object with anything inside of it
+   * @param expectedOutputFormat - Expected Zod type for validating the response format
    * @returns A parsed response in the expected format.
    */
   async makePrompt<T>(
