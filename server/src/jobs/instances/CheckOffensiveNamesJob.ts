@@ -17,8 +17,7 @@ export class CheckOffensiveNamesJob extends Job<unknown> {
         })
       )
     });
-    const timeAgo = new Date();
-    timeAgo.setTime(timeAgo.getTime() - 1000 * 60 * 5);
+    const timeAgo = new Date(Date.now() - 1000 * 60 * 5);
 
     const groups = await prisma.group.findMany({
       select: {
@@ -49,7 +48,7 @@ export class CheckOffensiveNamesJob extends Job<unknown> {
       ...competitions.map(c => ({ ...c, type: 'competition' }))
     ];
 
-    if (allItems.length === 0) {
+    if (allItems.length === 0 || allItems.length >= 50) {
       return;
     }
 
