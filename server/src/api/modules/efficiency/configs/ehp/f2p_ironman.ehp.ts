@@ -46,8 +46,8 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 50_100,
-        description: 'Hill Giants & Ogresses'
+        rate: 51_200,
+        description: 'Hill Giants'
       }
     ],
     bonuses: [
@@ -55,9 +55,17 @@ export default [
         originSkill: Skill.ATTACK,
         bonusSkill: Skill.PRAYER,
         startExp: 4_825,
+        endExp: 37_224,
+        end: true,
+        ratio: 0.1125
+      },
+      {
+        originSkill: Skill.ATTACK,
+        bonusSkill: Skill.PRAYER,
+        startExp: 37_224,
         endExp: 13_034_431,
         end: true,
-        ratio: 0.125
+        ratio: 0.129
       },
       {
         originSkill: Skill.ATTACK,
@@ -65,23 +73,15 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.1117
+        ratio: 0.1275
       },
       {
         originSkill: Skill.ATTACK,
         bonusSkill: Skill.CRAFTING,
         startExp: 37_224,
-        endExp: 13_034_431,
-        end: true,
-        ratio: 0.0047
-      },
-      {
-        originSkill: Skill.ATTACK,
-        bonusSkill: Skill.CRAFTING,
-        startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.0086
+        ratio: 0.0047
       }
     ]
   },
@@ -100,8 +100,8 @@ export default [
       },
       {
         startExp: 37_224,
-        rate: 50_000,
-        description: 'Ogresses & Hill Giants'
+        rate: 51_000,
+        description: 'Hill Giants'
       }
     ],
     bonuses: [
@@ -119,7 +119,7 @@ export default [
         startExp: 37_224,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.1125
+        ratio: 0.1276
       },
       {
         originSkill: Skill.DEFENCE,
@@ -135,7 +135,7 @@ export default [
         startExp: 37_224,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.0083
+        ratio: 0.0047
       }
     ]
   },
@@ -194,8 +194,8 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 50_600,
-        description: 'Hill Giants & Ogresses'
+        rate: 51_800,
+        description: 'Hill Giants'
       }
     ],
     bonuses: [
@@ -203,9 +203,17 @@ export default [
         originSkill: Skill.STRENGTH,
         bonusSkill: Skill.PRAYER,
         startExp: 18_650,
+        endExp: 37_224,
+        end: true,
+        ratio: 0.1125
+      },
+      {
+        originSkill: Skill.STRENGTH,
+        bonusSkill: Skill.PRAYER,
+        startExp: 37_224,
         endExp: 13_034_431,
         end: true,
-        ratio: 0.125
+        ratio: 0.131
       },
       {
         originSkill: Skill.STRENGTH,
@@ -213,23 +221,15 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.1115
+        ratio: 0.1273
       },
       {
         originSkill: Skill.STRENGTH,
         bonusSkill: Skill.CRAFTING,
         startExp: 37_224,
-        endExp: 13_034_431,
-        end: true,
-        ratio: 0.0047
-      },
-      {
-        originSkill: Skill.STRENGTH,
-        bonusSkill: Skill.CRAFTING,
-        startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.0086
+        ratio: 0.0047
       }
     ]
   },
@@ -278,56 +278,48 @@ export default [
       },
       {
         startExp: 547_953,
-        rate: 31_200,
-        description: 'Ogresses'
+        rate: 37_000,
+        description: 'Hill Giants'
       },
       {
         startExp: 992_895,
-        rate: 34_400,
-        description: 'Ogresses'
+        rate: 40_300,
+        description: 'Hill Giants'
       },
       {
         startExp: 1_798_808,
-        rate: 37_600,
-        description: 'Ogresses'
+        rate: 43_000,
+        description: 'Hill Giants'
       },
       {
         startExp: 3_258_594,
-        rate: 40_900,
-        description: 'Ogresses'
+        rate: 45_700,
+        description: 'Hill Giants'
       },
       {
         startExp: 5_902_831,
-        rate: 44_000,
-        description: 'Ogresses'
+        rate: 48_200,
+        description: 'Hill Giants'
       },
       {
         startExp: 9_684_577,
-        rate: 47_000,
-        description: 'Ogresses'
+        rate: 51_000,
+        description: 'Hill Giants'
       },
       {
         startExp: 13_034_431,
-        rate: 45_700,
-        description: 'Ogresses & Obor'
+        rate: 45_000,
+        description: 'Hill Giants, Ogresses & Obor'
       }
     ],
     bonuses: [
       {
         originSkill: Skill.RANGED,
         bonusSkill: Skill.PRAYER,
-        startExp: 0,
-        endExp: 547_953,
-        end: true,
-        ratio: 0.1303
-      },
-      {
-        originSkill: Skill.RANGED,
-        bonusSkill: Skill.PRAYER,
-        startExp: 547_953,
+        startExp: 37_224,
         endExp: 13_034_431,
         end: true,
-        ratio: 0.0457
+        ratio: 0.131
       },
       {
         originSkill: Skill.RANGED,
@@ -335,31 +327,23 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.0523
+        ratio: 0.0753
       },
       {
         originSkill: Skill.RANGED,
         bonusSkill: Skill.CRAFTING,
         startExp: 37_224,
-        endExp: 547_953,
+        endExp: 13_034_431,
         end: true,
         ratio: 0.0047
       },
       {
         originSkill: Skill.RANGED,
         bonusSkill: Skill.CRAFTING,
-        startExp: 547_953,
-        endExp: 13_034_431,
-        end: true,
-        ratio: 0.0326
-      },
-      {
-        originSkill: Skill.RANGED,
-        bonusSkill: Skill.CRAFTING,
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.0366
+        ratio: 0.0306
       }
     ]
   },
@@ -368,7 +352,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 13_400,
+        rate: 15_000,
         description: 'Boneyard'
       }
     ],
@@ -421,37 +405,37 @@ export default [
       {
         startExp: 0,
         rate: 8_365,
-        description: '4t Trees'
+        description: '4t trees'
       },
       {
         startExp: 2_411,
-        rate: 35_000,
-        description: '2t Oaks (steel axe)'
+        rate: 36_000,
+        description: '2t oaks (steel axe)'
       },
       {
         startExp: 5_018,
-        rate: 45_000,
-        description: '2t Oaks (mith axe)'
+        rate: 46_300,
+        description: '2t oaks (mith axe)'
       },
       {
         startExp: 14_833,
-        rate: 60_000,
-        description: '2t Oaks (addy axe)'
+        rate: 61_700,
+        description: '2t oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 80_000,
-        description: '2t Oaks (rune axe)'
+        rate: 82_300,
+        description: '2t oaks (rune axe)'
       },
       {
         startExp: 101_333,
-        rate: 98_000,
-        description: '2t Oaks (rune axe)'
+        rate: 100_800,
+        description: '2t oaks (rune axe)'
       },
       {
         startExp: 273_742,
-        rate: 105_000,
-        description: '2t Oaks (100% success)'
+        rate: 108_000,
+        description: '2t oaks (100% success)'
       }
     ],
     bonuses: []
@@ -622,28 +606,29 @@ export default [
       },
       {
         startExp: 12_725,
-        rate: 14_800,
+        rate: 15_200,
         description: 'Telegrab nats & Superheating iron with snow (56% mining success)'
       },
       {
         startExp: 24_463,
-        rate: 18_500,
+        rate: 19_000,
         description: 'Telegrab nats & Superheating iron with snow (70% mining success)'
       },
       {
         startExp: 50_000,
-        rate: 20_800,
+        rate: 21_400,
         description: 'Telegrab nats & Superheating iron with snow (80% mining success)'
       },
       {
         startExp: 106_000,
-        rate: 23_000,
+        rate: 23_600,
         description: 'Telegrab nats & Superheating iron with snow (90% mining success)'
       },
       {
         startExp: 334_700,
-        rate: 25_000,
-        description: 'Telegrab nats & Superheating iron with snow (100% mining success)'
+        rate: 22_450,
+        description:
+          'Telegrab + superheat and ROF smith (assumes 597k telegrabs at 825/hr, 117.4m xp superheating at 30.7k/h, and 32.6m xp using ROFs at 15.1k/h)'
       }
     ],
     bonuses: [
@@ -659,9 +644,17 @@ export default [
         originSkill: Skill.SMITHING,
         bonusSkill: Skill.MAGIC,
         startExp: 12_725,
-        endExp: 200_000_000,
+        endExp: 334_700,
         end: true,
         ratio: 1.64
+      },
+      {
+        originSkill: Skill.SMITHING,
+        bonusSkill: Skill.MAGIC,
+        startExp: 334_700,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 1.277
       }
     ]
   },
@@ -706,7 +699,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 5_700,
+        rate: 5_900,
         description: 'Suicide bodies / minotaurs'
       }
     ],
@@ -717,7 +710,7 @@ export default [
         startExp: 0,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.667
+        ratio: 0.6233
       }
     ]
   }
