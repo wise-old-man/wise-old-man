@@ -1,9 +1,9 @@
-import { z } from 'zod';
+import { datetimeRegex, z } from 'zod';
 import { Job } from '../job.utils';
 import OpenAiService from '../../api/services/external/openai.service';
 import prisma from '../../prisma';
 
-export class CheckOffensiveNames extends Job<unknown> {
+export class CheckOffensiveNamesJob extends Job<unknown> {
   async execute(): Promise<void> {
     const systemInstruction =
       'Act as a content moderator and filter out any usernames that are offensive or inappropriate. \n This includes hate speech, slurs, violent language, and any variations of these words, such as replacing letters with numbers or symbols.';
@@ -48,17 +48,15 @@ export class CheckOffensiveNames extends Job<unknown> {
       ...groups.map(g => ({ ...g, type: 'group' })),
       ...competitions.map(c => ({ ...c, type: 'competition' }))
     ];
-    
+
     if (allItems.length === 0) {
-      return
+      return;
     }
-    
-    const offesniveNames = OpenAiService.makePrompt(
+
+    const offesniveNames = await OpenAiService.makePrompt(
       JSON.stringify(allItems),
       systemInstruction,
       expectedResultFormat
     );
-
-    console.log(offesniveNames);
   }
 }
