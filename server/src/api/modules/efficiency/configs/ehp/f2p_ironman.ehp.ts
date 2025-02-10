@@ -54,6 +54,14 @@ export default [
       {
         originSkill: Skill.ATTACK,
         bonusSkill: Skill.PRAYER,
+        startExp: 4_825,
+        endExp: 37_224,
+        end: true,
+        ratio: 0.1125
+      },
+      {
+        originSkill: Skill.ATTACK,
+        bonusSkill: Skill.PRAYER,
         startExp: 37_224,
         endExp: 13_034_431,
         end: true,
@@ -191,6 +199,14 @@ export default [
       }
     ],
     bonuses: [
+      {
+        originSkill: Skill.STRENGTH,
+        bonusSkill: Skill.PRAYER,
+        startExp: 18_650,
+        endExp: 37_224,
+        end: true,
+        ratio: 0.1125
+      },
       {
         originSkill: Skill.STRENGTH,
         bonusSkill: Skill.PRAYER,
