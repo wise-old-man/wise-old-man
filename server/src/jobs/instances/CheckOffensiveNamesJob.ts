@@ -58,5 +58,6 @@ export class CheckOffensiveNamesJob extends Job<unknown> {
       systemInstruction,
       expectedResultFormat
     );
+    console.log(offesniveNames);
   }
 }
