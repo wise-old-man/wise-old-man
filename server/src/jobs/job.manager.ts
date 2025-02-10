@@ -24,6 +24,7 @@ import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
 import { UpdatePlayerJob } from './instances/UpdatePlayerJob';
+import { CheckOffensiveNamesJob } from './instances/CheckOffensiveNamesJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
 
@@ -35,6 +36,7 @@ const JOBS_MAP = {
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
   CheckPlayerTypeJob,
+  CheckOffensiveNamesJob,
   ReviewNameChangeJob,
   ScheduleBannedPlayerChecksJob,
   ScheduleCompetitionEventsJob,
@@ -60,6 +62,7 @@ const CRON_CONFIG = [
   { interval: '* * * * *', jobName: 'SyncPatronsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCompetitionEventsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCreationSpamChecksJob' },
+  { interval: '* * * * *', jobName: 'CheckOffensiveNamesJob' },
   // every 5 mins
   { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
   { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
