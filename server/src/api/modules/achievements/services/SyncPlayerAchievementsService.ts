@@ -1,5 +1,7 @@
 import prisma, { Snapshot } from '../../../../prisma';
+import { getMetricValueKey } from '../../../../utils';
 import { findPlayerSnapshots } from '../../snapshots/services/FindPlayerSnapshotsService';
+import { POST_RELEASE_HISCORE_ADDITIONS } from '../../snapshots/snapshot.utils';
 import { onAchievementsCreated } from '../achievement.events';
 import { calculatePastDates, getAchievementDefinitions } from '../achievement.utils';
 
@@ -68,13 +70,23 @@ async function syncPlayerAchievements(playerId: number, previous: Snapshot | und
 
   // Create achievement instances for all the newly achieved definitions
   const newAchievements = newDefinitions.map(({ name, metric, threshold }) => {
+    // Some metrics are introduced to the hiscores way after they have been added in-game,
+    // this causes players to go from -1 to achievement thresholds in a single update,
+    // which incorrectly attributes the achievement to the current date.
+    // To fix these, any achievements for these metrics that were previously -1, are set to an "unknown" date.
+    let forceUnknownDate = false;
+
+    if (previous[getMetricValueKey(metric)] === -1 && POST_RELEASE_HISCORE_ADDITIONS.includes(metric)) {
+      forceUnknownDate = true;
+    }
+
     return {
       playerId,
       name,
       metric,
       threshold,
-      createdAt: current.createdAt,
-      accuracy: current.createdAt.getTime() - previous.createdAt.getTime()
+      createdAt: forceUnknownDate ? UNKNOWN_DATE : current.createdAt,
+      accuracy: forceUnknownDate ? null : current.createdAt.getTime() - previous.createdAt.getTime()
     };
   });
 

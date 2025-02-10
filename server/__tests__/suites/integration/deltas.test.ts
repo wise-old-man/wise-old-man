@@ -149,9 +149,21 @@ describe('Deltas API', () => {
       // Only week, month and year deltas were updated, since the previous update was 3 days ago (> day & five_min)
       expect(onDeltaUpdatedEvent).toHaveBeenCalledTimes(3);
       // On a player's first update, all their deltas are potential records
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'week' }), true);
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'month' }), true);
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'year' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'week' }),
+        expect.objectContaining({ smithingExperience: 6_177_978 }),
+        true
+      );
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'month' }),
+        expect.objectContaining({ smithingExperience: 6_177_978 }),
+        true
+      );
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'year' }),
+        expect.objectContaining({ smithingExperience: 6_177_978 }),
+        true
+      );
 
       jest.resetAllMocks();
 
@@ -201,11 +213,31 @@ describe('Deltas API', () => {
       // All (5) new deltas are an improvement over the previous, so they should be considered for record checks
       expect(onDeltaUpdatedEvent).toHaveBeenCalledTimes(5);
       // The player has now been updated within seconds of the last update, so their day and five_min deltas should update
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'five_min' }), true);
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'day' }), true);
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'week' }), true);
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'month' }), true);
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'year' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'five_min' }),
+        expect.objectContaining({ smithingExperience: 6_177_978 + 50_000 }),
+        true
+      );
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'day' }),
+        expect.objectContaining({ smithingExperience: 6_177_978 + 50_000 }),
+        true
+      );
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'week' }),
+        expect.objectContaining({ smithingExperience: 6_177_978 }),
+        true
+      );
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'month' }),
+        expect.objectContaining({ smithingExperience: 6_177_978 }),
+        true
+      );
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'year' }),
+        expect.objectContaining({ smithingExperience: 6_177_978 }),
+        true
+      );
 
       jest.resetAllMocks();
 

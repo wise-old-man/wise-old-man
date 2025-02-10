@@ -132,6 +132,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
     [Boss.THE_GAUNTLET]: { name: 'The Gauntlet' },
     [Boss.THE_CORRUPTED_GAUNTLET]: { name: 'The Corrupted Gauntlet' },
     [Boss.THE_LEVIATHAN]: { name: 'The Leviathan' },
+    [Boss.THE_ROYAL_TITANS]: { name: 'The Royal Titans' },
     [Boss.THE_WHISPERER]: { name: 'The Whisperer' },
     [Boss.THEATRE_OF_BLOOD]: { name: 'Theatre Of Blood' },
     [Boss.THEATRE_OF_BLOOD_HARD_MODE]: { name: 'Theatre Of Blood (HM)' },
@@ -205,10 +206,10 @@ const BOSSES = Object.values(Boss) as Boss[];
 const ACTIVITIES = Object.values(Activity) as Activity[];
 const COMPUTED_METRICS = Object.values(ComputedMetric) as ComputedMetric[];
 
-const REAL_SKILLS = SKILLS.filter(s => s !== Skill.OVERALL);
-const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers);
-const MEMBER_SKILLS = SKILLS.filter(s => MetricProps[s].isMembers);
-const COMBAT_SKILLS = SKILLS.filter(s => MetricProps[s].isCombat);
+const REAL_SKILLS = SKILLS.filter(s => s !== Skill.OVERALL) as Skill[];
+const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers) as Boss[];
+const MEMBER_SKILLS = SKILLS.filter(s => MetricProps[s].isMembers) as Skill[];
+const COMBAT_SKILLS = SKILLS.filter(s => MetricProps[s].isCombat) as Skill[];
 const REAL_METRICS = [...SKILLS, ...BOSSES, ...ACTIVITIES];
 
 function findMetric(metricName: string): Metric | null {

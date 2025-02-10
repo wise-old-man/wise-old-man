@@ -80,7 +80,7 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
       create: newDelta
     });
 
-    deltaEvents.onDeltaUpdated(updatedDelta, !currentDelta || hasImprovements);
+    deltaEvents.onDeltaUpdated(updatedDelta, startSnapshot, !currentDelta || hasImprovements);
   }
 
   // Execute all update promises, sequentially

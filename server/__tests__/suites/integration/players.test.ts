@@ -336,7 +336,7 @@ describe('Player API', () => {
       });
 
       // Using the test "main" rates, we should get this number for regular accs
-      expect(response.body.ehp).toBeCloseTo(610.1157424782884, 4);
+      expect(response.body.ehp).toBeCloseTo(630.6918952334495, 4);
 
       expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -615,7 +615,7 @@ describe('Player API', () => {
       // IM rates should have been used, so the output EHP should be different than the one
       // calculate for the regular player (Psikoi)
       expect(response.body.ehp).not.toBeCloseTo(694.4541800000006, 4);
-      expect(response.body.ehp).toBeCloseTo(1211.526534283978, 4);
+      expect(response.body.ehp).toBeCloseTo(1226.188183430856, 4);
 
       expect(response.body.latestSnapshot).not.toBeNull();
 

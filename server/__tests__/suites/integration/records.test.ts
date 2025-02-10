@@ -158,6 +158,55 @@ describe('Records API', () => {
       expect(recordsResponse.body.filter(r => r.metric === Metric.EHB && r.value < 1).length).toBe(5);
       expect(recordsResponse.body.filter(r => r.value === 10).length).toBe(1); // none of the day+ records updated, only five_min was added
     });
+
+    it('should not create collection log records (added to the hiscores way after in-game release)', async () => {
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const firstTrackResponse = await api.post(`/players/eren`);
+      expect(firstTrackResponse.status).toBe(201);
+      expect(firstTrackResponse.body.latestSnapshot.data.bosses.zulrah.kills).toBe(1646);
+
+      let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.COLLECTIONS_LOGGED, value: 623 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const secondtrackResponse = await api.post(`/players/eren`);
+      expect(secondtrackResponse.status).toBe(200);
+
+      // Wait for the deltas to update, followed by the records
+      await sleep(500);
+
+      const firstRecordsResponse = await api.get(`/players/eren/records`);
+      expect(firstRecordsResponse.status).toBe(200);
+      expect(firstRecordsResponse.body.length).toBe(0);
+
+      modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.COLLECTIONS_LOGGED, value: 627 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const thirdTrackResponse = await api.post(`/players/eren`);
+      expect(thirdTrackResponse.status).toBe(200);
+
+      // Wait for the deltas to update, followed by the records
+      await sleep(500);
+
+      const secondRecordsResponse = await api.get(`/players/eren/records`);
+      expect(secondRecordsResponse.status).toBe(200);
+      expect(secondRecordsResponse.body.length).toBe(0);
+    });
   });
 
   describe('2 - Fetch Player Records', () => {
