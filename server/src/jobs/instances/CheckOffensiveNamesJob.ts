@@ -1,10 +1,13 @@
-import { datetimeRegex, z } from 'zod';
+import { z } from 'zod';
 import { Job } from '../job.utils';
 import OpenAiService from '../../api/services/external/openai.service';
 import prisma from '../../prisma';
 
 export class CheckOffensiveNamesJob extends Job<unknown> {
   async execute(): Promise<void> {
+    if (!process.env.OPENAI_API_KEY || process.env.NODE_ENV === 'development') {
+      return;
+    }
     const systemInstruction =
       'Act as a content moderator and filter out any usernames that are offensive or inappropriate. \n This includes hate speech, slurs, violent language, and any variations of these words, such as replacing letters with numbers or symbols.';
 
