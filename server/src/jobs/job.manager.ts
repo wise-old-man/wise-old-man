@@ -72,7 +72,7 @@ const CRON_CONFIG = [
   // { interval: '0 * * * *', jobName: 'ScheduleBackfillJob' },
   // { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
   // every 6 hours
-  // { interval: '0 */6 * * *', jobName: 'ScheduleDeltaInvalidationsJob' },
+  { interval: '0 */6 * * *', jobName: 'ScheduleDeltaInvalidationsJob' },
   // everyday at 8 AM
   //  { interval: '0 8 * * *', jobName: 'ScheduleNameChangeReviewsJob' },
   // { interval: '0 8 * * *', jobName: 'ScheduleGroupScoreUpdatesJob' },
