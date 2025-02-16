@@ -60,25 +60,25 @@ const STARTUP_JOBS = ['CheckMissingComputedTablesJob'] satisfies Array<keyof typ
 
 const CRON_CONFIG = [
   // every 1 min
-  { interval: '* * * * *', jobName: 'SyncPatronsJob' },
-  { interval: '* * * * *', jobName: 'ScheduleCompetitionEventsJob' },
-  { interval: '* * * * *', jobName: 'ScheduleCreationSpamChecksJob' },
+  // { interval: '* * * * *', jobName: 'SyncPatronsJob' },
+  // { interval: '* * * * *', jobName: 'ScheduleCompetitionEventsJob' },
+  // { interval: '* * * * *', jobName: 'ScheduleCreationSpamChecksJob' },
   // every 5 mins
-  { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
-  { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
+  // { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
+  // { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
   // every 15 mins
-  { interval: '*/15 * * * *', jobName: 'SyncLastRankedJob' },
+  // { interval: '*/15 * * * *', jobName: 'SyncLastRankedJob' },
   // every hour
   // { interval: '0 * * * *', jobName: 'ScheduleBackfillJob' },
-  { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
+  // { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
   // every 6 hours
-  { interval: '0 */6 * * *', jobName: 'ScheduleDeltaInvalidationsJob' },
+  // { interval: '0 */6 * * *', jobName: 'ScheduleDeltaInvalidationsJob' },
   // everyday at 8 AM
-  { interval: '0 8 * * *', jobName: 'ScheduleNameChangeReviewsJob' },
-  { interval: '0 8 * * *', jobName: 'ScheduleGroupScoreUpdatesJob' },
-  { interval: '0 8 * * *', jobName: 'ScheduleBannedPlayerChecksJob' },
-  { interval: '0 8 * * *', jobName: 'ScheduleCompetitionScoreUpdatesJob' },
-  { interval: '0 8 * * *', jobName: 'CalculateComputedMetricRankTablesJob' }
+  //  { interval: '0 8 * * *', jobName: 'ScheduleNameChangeReviewsJob' },
+  // { interval: '0 8 * * *', jobName: 'ScheduleGroupScoreUpdatesJob' },
+  // { interval: '0 8 * * *', jobName: 'ScheduleBannedPlayerChecksJob' },
+  // { interval: '0 8 * * *', jobName: 'ScheduleCompetitionScoreUpdatesJob' },
+  // { interval: '0 8 * * *', jobName: 'CalculateComputedMetricRankTablesJob' }
 ] satisfies CronJob[];
 
 const PREFIX = 'league_jobs';
