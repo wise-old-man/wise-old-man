@@ -4,9 +4,9 @@ const MAINTENANCE_MODE = {
 };
 
 const ANNOUNCEMENT_BANNER = {
-  enabled: false,
-  color: undefined, // "blue" / "yellow" / undefined
-  message: undefined,
+  enabled: true,
+  color: "yellow", // "blue" / "yellow" / undefined
+  message: `The OSRS hiscores have been broken for the past few days. Some auto-update group/competition features may not work as expected, we recommend players update themselves individually for now.`,
 };
 
 module.exports = {
