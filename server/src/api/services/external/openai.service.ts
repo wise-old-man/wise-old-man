@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod'; // Assuming this is available and used correctly
-import { z, ZodUnknown } from 'zod';
+import { z } from 'zod';
 
 class OpenAiService {
   private openai: OpenAI;
@@ -20,7 +20,7 @@ class OpenAiService {
   async makePrompt<T>(
     prompt: string,
     systemInstruction: string,
-    expectedOutputFormat: z.ZodType<ZodUnknown, ZodUnknown>
+    expectedOutputFormat: z.ZodType<T>
   ): Promise<T> {
     const response = await this.openai.beta.chat.completions.parse({
       model: 'gpt-4o-2024-08-06',
