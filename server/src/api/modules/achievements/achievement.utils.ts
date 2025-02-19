@@ -5,7 +5,8 @@ import {
   getLevel,
   SKILL_EXP_AT_99,
   isMetric,
-  REAL_SKILLS
+  REAL_SKILLS,
+  formatNumber
 } from '../../../utils';
 import { Achievement, Snapshot } from '../../../prisma';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
@@ -36,16 +37,13 @@ function getAchievemenName(name: string, threshold: number): string {
 
 function formatThreshold(threshold: number): string {
   if (threshold < 1000) return String(threshold);
-  if (threshold <= 100_000) return `${Math.floor(threshold / 1000)}k`;
+  if (threshold <= 10_000) return `${threshold / 1000}k`;
 
   if ([273_742, 737_627, 1_986_068, 5_346_332, 13_034_431].includes(threshold)) {
     return getLevel(threshold).toString();
   }
 
-  if (threshold < 1_000_000_000)
-    return `${Math.round((threshold / 1_000_000 + Number.EPSILON) * 100) / 100}m`;
-
-  return `${Math.round((threshold / 1_000_000_000 + Number.EPSILON) * 100) / 100}b`;
+  return formatNumber(threshold, true).toString();
 }
 
 function getAchievementDefinitions(): AchievementDefinition[] {
