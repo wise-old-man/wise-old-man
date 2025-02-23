@@ -26,7 +26,7 @@ sidebar_position: 1
 ### `(Enum)` Player Annotation
 
 ```bash
-'blacklist', 'greylist', 'fake_f2p'
+'opt_out', 'blocked', 'fake_f2p'
 ```
 
 <br />
@@ -118,7 +118,7 @@ sidebar_position: 1
 | id             | integer | The annotations's unique ID.        |
 | playerId       | integer | The annotations's parent player ID. |
 | createdAt      | date    | The annotation's creation date.     |
-| annotationType | Enum    | The blacklist / fake_f2p / greylist |
+| annotationType | Enum    | The opt_out / fake_f2p / blocked |
 
 <br />
 
