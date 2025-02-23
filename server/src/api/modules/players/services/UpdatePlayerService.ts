@@ -27,17 +27,21 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
   const [player, isNew] = await findOrCreate(username);
 
   if (player.annotations?.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
-    throw new ForbiddenError('Failed to update: Player has opted out.');
+    throw new ForbiddenError(
+      'Failed to update: Player has opted out of tracking. If this is your account and you want to opt back in, contact us on Discord.'
+    );
   }
 
   if (player.annotations?.some(a => a.type === PlayerAnnotationType.BLOCKED)) {
-    //contact disc
+    throw new ForbiddenError(
+      'Failed to update: This player has been blocked, please contact us on Discord for more information.'
+    );
   }
 
   if (player.status === PlayerStatus.ARCHIVED) {
     throw new BadRequestError('Failed to update: Player is archived.');
   }
-  player;
+
   // If the player was updated recently, don't update it
   if (!shouldUpdate(player) && !isNew) {
     throw new RateLimitError(`Error: ${username} has been updated recently.`);
