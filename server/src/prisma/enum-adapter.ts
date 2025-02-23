@@ -201,8 +201,8 @@ export const PlayerType = {
 export type PlayerType = (typeof PlayerType)[keyof typeof PlayerType];
 
 export const PlayerAnnotationType = {
-  BLACKLIST: 'blacklist',
-  GREYLIST: 'greylist',
+  OPT_OUT: 'opt_out',
+  BLOCKED: 'blocked',
   FAKE_F2P: 'fake_f2p'
 } as const;
 

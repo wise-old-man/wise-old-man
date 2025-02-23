@@ -4,7 +4,7 @@ import api from './api';
 
 // Action trigger
 
-const port = process.env.API_PORT || 5000;
+const port = process.env.API_PORT || 3000;
 
 const server = api.express.listen(port, () => {
   const version = process.env.npm_package_version;
