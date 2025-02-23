@@ -1,4 +1,4 @@
-import { Period, PeriodProps, PlayerBuild, PlayerDetails, PlayerAnnotationType } from '../../../utils';
+import { Period, PeriodProps, PlayerBuild, PlayerDetails } from '../../../utils';
 import prisma, { Player, PlayerArchive, Snapshot } from '../../../prisma';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
 import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
