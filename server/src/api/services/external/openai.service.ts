@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod'; // Assuming this is available and used correctly
 import { z } from 'zod';
 
-class OpenAiService {
+export class OpenAiService {
   private openai: OpenAI;
 
   constructor() {
@@ -39,5 +39,3 @@ class OpenAiService {
     return response.choices[0].message.parsed as T;
   }
 }
-
-export default new OpenAiService();
