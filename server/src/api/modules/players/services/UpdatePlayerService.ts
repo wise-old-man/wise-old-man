@@ -1,7 +1,7 @@
 import jobManager from '../../../../jobs/job.manager';
-import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
-import { PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
-import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
+import prisma, { Player, PrismaTypes, Snapshot, PlayerAnnotation } from '../../../../prisma';
+import { PlayerBuild, PlayerStatus, PlayerType, PlayerAnnotationType } from '../../../../utils';
+import { BadRequestError, ForbiddenError, RateLimitError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
 import redisService from '../../../services/external/redis.service';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
@@ -26,10 +26,18 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
   // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findOrCreate(username);
 
+  if (player.annotations?.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    throw new ForbiddenError('Failed to update: Player has opted out.');
+  }
+
+  if (player.annotations?.some(a => a.type === PlayerAnnotationType.BLOCKED)) {
+    //contact disc
+  }
+
   if (player.status === PlayerStatus.ARCHIVED) {
     throw new BadRequestError('Failed to update: Player is archived.');
   }
-
+  player;
   // If the player was updated recently, don't update it
   if (!shouldUpdate(player) && !isNew) {
     throw new RateLimitError(`Error: ${username} has been updated recently.`);
@@ -99,7 +107,10 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
   }
 
   // Refresh the player's build
-  updatedPlayerFields.build = getBuild(currentStats);
+  updatedPlayerFields.build = getBuild(
+    currentStats,
+    player.annotations?.some(a => a.type === PlayerAnnotationType.FAKE_F2P) ?? false
+  );
   updatedPlayerFields.status = PlayerStatus.ACTIVE;
 
   const computedMetrics = await computePlayerMetrics(
@@ -194,13 +205,16 @@ async function fetchStats(player: Player, type?: PlayerType, previousStats?: Sna
   return newSnapshot;
 }
 
-async function findOrCreate(username: string): Promise<[Player & { latestSnapshot?: Snapshot }, boolean]> {
+async function findOrCreate(
+  username: string
+): Promise<[Player & { latestSnapshot?: Snapshot } & { annotations?: PlayerAnnotation[] }, boolean]> {
   const player = await prisma.player.findFirst({
     where: {
       username: standardize(username)
     },
     include: {
-      latestSnapshot: true
+      latestSnapshot: true,
+      annotations: true
     }
   });
 
@@ -220,7 +234,8 @@ async function findOrCreate(username: string): Promise<[Player & { latestSnapsho
     return [
       {
         ...player,
-        latestSnapshot: player.latestSnapshot ?? undefined
+        latestSnapshot: player.latestSnapshot ?? undefined,
+        annotations: player.annotations ?? []
       },
       false
     ];
