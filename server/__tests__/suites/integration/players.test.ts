@@ -2285,7 +2285,7 @@ describe('Player API', () => {
     it('should return 403 when admin password is incorrect (admin validation)', async () => {
       const response = await api.post(`/players/psikoi/annotation`).send({
         adminPassword: 'abc',
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       expect(response.status).toBe(403);
@@ -2294,7 +2294,7 @@ describe('Player API', () => {
 
     it('should return 400 when admin password is missing (admin validation)', async () => {
       const response = await api.post(`/players/psikoi/annotation`).send({
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       expect(response.status).toBe(400);
@@ -2309,7 +2309,7 @@ describe('Player API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe(
-        "Invalid enum value for 'annotationType'. Expected blacklist | greylist | fake_f2p"
+        "Invalid enum value for 'annotationType'. Expected opt_out | blocked | fake_f2p"
       );
     });
 
@@ -2326,66 +2326,66 @@ describe('Player API', () => {
       await findOrCreatePlayers(['psikoi']);
       const response = await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       expect(response.status).toBe(201);
-      expect(response.body.type).toBe(PlayerAnnotationType.BLACKLIST);
+      expect(response.body.type).toBe(PlayerAnnotationType.OPT_OUT);
     });
 
     it('should fetch "psikoi"', async () => {
       await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
       const response = await api.get(`/players/psikoi`);
 
       expect(response.status).toBe(200);
-      expect(response.body.annotations[0].type).toBe(PlayerAnnotationType.BLACKLIST);
+      expect(response.body.annotations[0].type).toBe(PlayerAnnotationType.OPT_OUT);
     });
 
     it('should delete annotation', async () => {
       await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       const response = await api.delete(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       expect(response.status).toBe(200);
-      expect(response.body).toBe(`Annotation ${PlayerAnnotationType.BLACKLIST} deleted for player psikoi`);
+      expect(response.body).toBe(`Annotation ${PlayerAnnotationType.OPT_OUT} deleted for player psikoi`);
     });
 
     it('should fail to delete unexisting annotation', async () => {
       await findOrCreatePlayers(['psikoi']);
       const response = await api.delete(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe(`${PlayerAnnotationType.BLACKLIST} does not exist for psikoi.`);
+      expect(response.body.message).toBe(`${PlayerAnnotationType.OPT_OUT} does not exist for psikoi.`);
     });
 
     it('should throw conflit error 409 to create', async () => {
       await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       const response = await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       expect(response.status).toBe(409);
-      expect(response.body.message).toBe('The annotation blacklist already exists for psikoi');
+      expect(response.body.message).toBe('The annotation opt_out already exists for psikoi');
     });
   });
 

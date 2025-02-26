@@ -737,9 +737,11 @@ enum PlayerStatus {
 }
 
 enum PlayerAnnotationType {
-  blacklist
-  greylist
+  opt_out
+  blocked
   fake_f2p
+
+  @@map("player_annotation_type")
 }
 
 enum Country {
