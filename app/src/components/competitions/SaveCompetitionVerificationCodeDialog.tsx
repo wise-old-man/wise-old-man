@@ -46,7 +46,7 @@ export function SaveCompetitionVerificationCodeDialog(
         if (!val) props.onClose();
       }}
     >
-      <DialogContent className="w-[22rem]">
+      <DialogContent className="w-[22rem]" hideClose onPointerDownOutside={(e) => e.preventDefault()}>
         {isGroupCompetition ? (
           <>
             <DialogHeader>
