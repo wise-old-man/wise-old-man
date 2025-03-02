@@ -246,6 +246,17 @@ function GroupImportOptions() {
           <ArrowRightIcon className="h-5 w-5" />
         </button>
       </div>
+      <div className="mt-10 flex justify-between gap-x-3">
+        <Button
+          variant="outline"
+          onClick={() => {
+            setStep("info");
+          }}
+        >
+          <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
+          Previous
+        </Button>
+      </div>      
     </div>
   );
 }
