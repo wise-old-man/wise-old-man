@@ -191,6 +191,8 @@ router.post(
 
     const [playerDetails] = await updatePlayer(username);
 
+    jobManager.add('ScheduleFlaggedPlayerReviewJob', undefined, { delay: 10_000 });
+
     res.status(200).json({
       message: `Successfully rolled back player: ${playerDetails.displayName}`
     });
@@ -219,6 +221,8 @@ router.post(
     await rollbackCollectionLog(player.id, username);
 
     const [playerDetails] = await updatePlayer(username);
+
+    jobManager.add('ScheduleFlaggedPlayerReviewJob', undefined, { delay: 10_000 });
 
     res.status(200).json({
       message: `Successfully rolled back collection logs for player: ${playerDetails.displayName}`
