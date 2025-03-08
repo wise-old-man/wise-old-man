@@ -1471,6 +1471,94 @@ describe('Player API', () => {
       const previousLastSnapshotId = playerSnapshotsBefore.at(0)!.id;
       expect(playerSnapshotsAfter.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
     });
+
+    it("shouldn't rollback col log (player has no snapshots)", async () => {
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.COLLECTIONS_LOGGED, value: 100 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 }
+      });
+
+      await prisma.player.create({
+        data: {
+          username: 'test123',
+          displayName: `test123`
+        }
+      });
+
+      const response = await api
+        .post(`/players/test123/rollback-col-log`)
+        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe('Failed to rollback collection log data from snapshots.');
+    });
+
+    it('should rollback col log (last snapshot)', async () => {
+      let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.COLLECTIONS_LOGGED, value: 100 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 }
+      });
+
+      const trackResponse = await api.post(`/players/test123`);
+      expect(trackResponse.statusCode).toBe(200);
+
+      modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.COLLECTIONS_LOGGED, value: 1000 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 }
+      });
+
+      const secondTrackResponse = await api.post(`/players/test123`);
+      expect(secondTrackResponse.statusCode).toBe(200);
+
+      modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.COLLECTIONS_LOGGED, value: 200 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 }
+      });
+
+      const rollbackResponse = await api
+        .post(`/players/test123/rollback-col-log`)
+        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+
+      expect(rollbackResponse.status).toBe(200);
+      expect(rollbackResponse.body.message).toMatch(
+        'Successfully rolled back collection logs for player: test123'
+      );
+
+      const playerSnapshotsAfter = await prisma.snapshot.findMany({
+        where: {
+          player: {
+            username: 'test123'
+          }
+        }
+      });
+
+      expect(playerSnapshotsAfter.length).toBe(3);
+      expect(playerSnapshotsAfter.map(s => s.collections_loggedScore).filter(s => s > 200).length).toBe(0);
+    });
   });
 
   describe('8. Deleting', () => {
