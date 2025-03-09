@@ -1,7 +1,6 @@
 import fs from 'fs';
 import MockAdapter from 'axios-mock-adapter/types';
 import prisma from '../src/prisma';
-import redisService from '../src/api/services/external/redis.service';
 import { OSRS_HISCORES_URLS } from '../src/api/services/external/jagex.service';
 import { PlayerType, METRICS, Metric, SKILLS } from '../src/utils';
 import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/snapshot.utils';
@@ -23,10 +22,6 @@ async function resetDatabase() {
   for (const model of modelNames) {
     await prisma[model].deleteMany();
   }
-}
-
-async function resetRedis() {
-  await redisService.flushAll();
 }
 
 function sleep(ms: number) {
@@ -79,12 +74,4 @@ function modifyRawHiscoresData(rawData: string, modifications: { metric: Metric;
     .join('\n');
 }
 
-export {
-  resetDatabase,
-  resetRedis,
-  sleep,
-  readFile,
-  registerCMLMock,
-  registerHiscoresMock,
-  modifyRawHiscoresData
-};
+export { resetDatabase, sleep, readFile, registerCMLMock, registerHiscoresMock, modifyRawHiscoresData };

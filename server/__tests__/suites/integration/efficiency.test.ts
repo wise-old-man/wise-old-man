@@ -13,15 +13,16 @@ import apiServer from '../../../src/api';
 import { ALGORITHMS, getAlgorithm } from '../../../src/api/modules/efficiency/efficiency.utils';
 import testSkillingMetas from '../../data/efficiency/configs/test.ehp';
 import testBossingMetas from '../../data/efficiency/configs/test.ehb';
-import { resetDatabase, resetRedis, sleep } from '../../utils';
+import { resetDatabase, sleep } from '../../utils';
 import EfficiencyAlgorithm from '../../../src/api/modules/efficiency/EfficiencyAlgorithm';
 import { computeEfficiencyRank } from '../../../src/api/modules/efficiency/services/ComputeEfficiencyRankService';
+import { redisClient } from '../../../src/services/redis.service';
 
 const api = supertest(apiServer.express);
 
 beforeAll(async () => {
   await resetDatabase();
-  await resetRedis();
+  await redisClient.flushall();
 
   // Override the cache algorithms for "main" with these test rate configs, so that these tests
   // don't break when rates are updated in the future, consistent configs = consistent tests

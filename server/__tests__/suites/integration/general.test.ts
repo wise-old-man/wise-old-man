@@ -3,12 +3,13 @@ import { isCuid } from '@paralleldrive/cuid2';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import redisService from '../../../src/api/services/external/redis.service';
-import { resetDatabase, resetRedis, sleep } from '../../utils';
+import { resetDatabase, sleep } from '../../utils';
+import { redisClient } from '../../../src/services/redis.service';
 
 const api = supertest(apiServer.express);
 
 beforeAll(async () => {
-  await resetRedis();
+  await redisClient.flushall();
   await resetDatabase();
 });
 
@@ -144,7 +145,7 @@ describe('General API', () => {
 
     it('should not allow more than 20 requests per minute (no API key)', async () => {
       // Flush redis to reset rate limits
-      await resetRedis();
+      await redisClient.flushall();
 
       let successCount = 0;
       let rateLimitedCount = 0;
@@ -167,7 +168,7 @@ describe('General API', () => {
 
     it('should not allow more than 100 requests per minute (with API key)', async () => {
       // Flush redis to reset rate limits
-      await resetRedis();
+      await redisClient.flushall();
 
       // Create new API key
       const apiKeyResponse = await api.post(`/api-key`).send({
@@ -199,7 +200,7 @@ describe('General API', () => {
 
     it('should allow more than 100 requests per minute (with master API key)', async () => {
       // Flush redis to reset rate limits
-      await resetRedis();
+      await redisClient.flushall();
 
       // Create new API key
       const apiKeyResponse = await api.post(`/api-key`).send({

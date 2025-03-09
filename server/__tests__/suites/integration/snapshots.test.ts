@@ -6,7 +6,6 @@ import * as utils from '../../../src/api/modules/snapshots/snapshot.utils';
 import apiServer from '../../../src/api';
 import {
   resetDatabase,
-  resetRedis,
   readFile,
   registerHiscoresMock,
   registerCMLMock,
@@ -16,6 +15,7 @@ import {
 import { Snapshot } from '../../../src/api/modules/snapshots/snapshot.types';
 import { findPlayerSnapshots } from '../../../src/api/modules/snapshots/services/FindPlayerSnapshotsService';
 import { saveAllSnapshots } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
+import { redisClient } from '../../../src/services/redis.service';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -40,7 +40,7 @@ const globalData = {
 
 beforeAll(async () => {
   await resetDatabase();
-  await resetRedis();
+  await redisClient.flushall();
 
   // Fake the current date to be May 8th 2020 (when the CML history ends)
   jest.useFakeTimers().setSystemTime(new Date('2020-05-08T17:14:00.000Z'));

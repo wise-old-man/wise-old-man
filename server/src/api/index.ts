@@ -10,6 +10,7 @@ import { parseUserAgent } from './util/user-agents';
 import prometheus from './services/external/prometheus.service';
 import redisService from './services/external/redis.service';
 import { getRequestIpHash } from './util/request';
+import { redisClient } from '../services/redis.service';
 
 const RATE_LIMIT_MAX_REQUESTS = 20;
 const RATE_LIMIT_DURATION_SECONDS = 60;
@@ -20,7 +21,7 @@ const RATE_LIMIT_TRUSTED_RATIO = 5;
 const rateLimiter = new RateLimiterRedis({
   points: RATE_LIMIT_MAX_REQUESTS * RATE_LIMIT_TRUSTED_RATIO,
   duration: RATE_LIMIT_DURATION_SECONDS,
-  storeClient: redisService.redisClient
+  storeClient: redisClient
 });
 
 class API {
@@ -41,7 +42,7 @@ class API {
 
   async shutdown() {
     await jobManager.shutdown();
-    redisService.shutdown();
+    redisClient.quit();
   }
 
   private setupMiddlewares() {
