@@ -1,5 +1,6 @@
 import { RANK_RESOLUTION } from '../../../../jobs/instances/CalculateComputedMetricRankTablesJob';
 import prisma from '../../../../prisma';
+import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 import {
   ComputedMetric,
   PLAYER_BUILDS,
@@ -9,7 +10,6 @@ import {
   PlayerStatus,
   PlayerType
 } from '../../../../utils';
-import redisService from '../../../services/external/redis.service';
 import { getAlgorithmType } from '../efficiency.utils';
 
 async function computeEfficiencyRank(
@@ -45,8 +45,8 @@ async function calculateSoftEstimate(
     build: player.build
   });
 
-  const rankTable = await redisService
-    .getValue(`${metric}_rank_table`, algorithmType)
+  const rankTable = await redisClient
+    .get(buildCompoundRedisKey(`${metric}_rank_table`, algorithmType))
     .then(res => (res ? (JSON.parse(res) as Record<number, number>) : null));
 
   if (!rankTable) {

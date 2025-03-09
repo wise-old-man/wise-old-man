@@ -12,11 +12,11 @@ import {
   registerCMLMock,
   registerHiscoresMock,
   resetDatabase,
-  resetRedis,
   sleep,
   readFile,
   modifyRawHiscoresData
 } from '../../utils';
+import { redisClient } from '../../../src/services/redis.service';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -42,7 +42,7 @@ beforeEach(() => {
 
 beforeAll(async () => {
   await resetDatabase();
-  await resetRedis();
+  await redisClient.flushall();
 
   globalData.cmlRawData = await readFile(CML_FILE_PATH);
   globalData.hiscoresRawDataA = await readFile(HISCORES_FILE_PATH_A);

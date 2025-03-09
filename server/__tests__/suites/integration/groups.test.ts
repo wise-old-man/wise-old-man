@@ -7,13 +7,13 @@ import { PlayerType } from '../../../src/utils';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import {
   resetDatabase,
-  resetRedis,
   registerCMLMock,
   registerHiscoresMock,
   readFile,
   modifyRawHiscoresData,
   sleep
 } from '../../utils';
+import { redisClient } from '../../../src/services/redis.service';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -56,7 +56,7 @@ beforeEach(() => {
 
 beforeAll(async () => {
   await resetDatabase();
-  await resetRedis();
+  await redisClient.flushall();
 
   globalData.pHiscoresRawData = await readFile(P_HISCORES_FILE_PATH);
   globalData.ltHiscoresRawData = await readFile(LT_HISCORES_FILE_PATH);

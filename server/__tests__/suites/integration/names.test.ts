@@ -8,14 +8,8 @@ import * as nameChangeEvents from '../../../src/api/modules/name-changes/name-ch
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
-import {
-  registerCMLMock,
-  registerHiscoresMock,
-  resetDatabase,
-  resetRedis,
-  readFile,
-  sleep
-} from '../../utils';
+import { registerCMLMock, registerHiscoresMock, resetDatabase, readFile, sleep } from '../../utils';
+import { redisClient } from '../../../src/services/redis.service';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -40,7 +34,7 @@ beforeEach(() => {
 
 beforeAll(async () => {
   await resetDatabase();
-  await resetRedis();
+  await redisClient.flushall();
 
   globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
 

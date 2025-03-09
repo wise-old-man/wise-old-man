@@ -3,7 +3,6 @@ import prisma, { Player, PrismaTypes, Snapshot, PlayerAnnotation } from '../../.
 import { PlayerBuild, PlayerStatus, PlayerType, PlayerAnnotationType } from '../../../../utils';
 import { BadRequestError, ForbiddenError, RateLimitError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
-import redisService from '../../../services/external/redis.service';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
@@ -12,6 +11,7 @@ import { formatPlayerDetails, getBuild, sanitize, standardize, validateUsername 
 import { archivePlayer } from './ArchivePlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
+import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 
 type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
@@ -168,7 +168,7 @@ async function shouldReviewType(player: Player) {
   }
 
   // Check if this player has been reviewed recently (past 7 days)
-  return !(await redisService.getValue('cd:PlayerTypeReview', player.username));
+  return !(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', player.username)));
 }
 
 async function handlePlayerFlagged(player: Player, previousStats: Snapshot, rejectedStats: Snapshot) {
@@ -194,7 +194,21 @@ async function reviewType(player: Player) {
   const [, , changed] = await assertPlayerType(player, true);
 
   // Store the current timestamp in Redis, so that we don't review this player again for 7 days
-  await redisService.setValue('cd:PlayerTypeReview', player.username, Date.now(), 604_800_000);
+  await redisClient.set(
+    buildCompoundRedisKey('cd', 'PlayerTypeReview', player.username),
+    Date.now(),
+    'PX',
+    604_800_000
+  );
+
+  // Also write to this key, so that we can slowly migrate to a new naming convention
+  // In the future, we can remove the version above, and move all reads to this new version
+  await redisClient.set(
+    buildCompoundRedisKey('cooldown', 'player_type_review', player.username),
+    Date.now(),
+    'PX',
+    604_800_000
+  );
 
   return changed;
 }

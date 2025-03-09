@@ -1,14 +1,14 @@
-import supertest from 'supertest';
 import { isCuid } from '@paralleldrive/cuid2';
+import supertest from 'supertest';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
-import redisService from '../../../src/api/services/external/redis.service';
-import { resetDatabase, resetRedis, sleep } from '../../utils';
+import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
+import { resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);
 
 beforeAll(async () => {
-  await resetRedis();
+  await redisClient.flushall();
   await resetDatabase();
 });
 
@@ -126,7 +126,7 @@ describe('General API', () => {
       expect(isCuid(response.body.id)).toBe(true);
 
       // Make sure it's been stored in redis memory
-      expect(await redisService.getValue('api-key', response.body.id)).toBe('false');
+      expect(await redisClient.get(buildCompoundRedisKey('api-key', response.body.id))).toBe('false');
     });
   });
 
@@ -144,7 +144,7 @@ describe('General API', () => {
 
     it('should not allow more than 20 requests per minute (no API key)', async () => {
       // Flush redis to reset rate limits
-      await resetRedis();
+      await redisClient.flushall();
 
       let successCount = 0;
       let rateLimitedCount = 0;
@@ -167,7 +167,7 @@ describe('General API', () => {
 
     it('should not allow more than 100 requests per minute (with API key)', async () => {
       // Flush redis to reset rate limits
-      await resetRedis();
+      await redisClient.flushall();
 
       // Create new API key
       const apiKeyResponse = await api.post(`/api-key`).send({
@@ -199,7 +199,7 @@ describe('General API', () => {
 
     it('should allow more than 100 requests per minute (with master API key)', async () => {
       // Flush redis to reset rate limits
-      await resetRedis();
+      await redisClient.flushall();
 
       // Create new API key
       const apiKeyResponse = await api.post(`/api-key`).send({
@@ -214,7 +214,8 @@ describe('General API', () => {
         where: { id: apiKeyResponse.body.id },
         data: { master: true }
       });
-      await redisService.setValue('api-key', updatedKey.id, String(updatedKey.master));
+
+      await redisClient.set(buildCompoundRedisKey('api-key', updatedKey.id), String(updatedKey.master));
 
       let successCount = 0;
       let rateLimitedCount = 0;

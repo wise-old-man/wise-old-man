@@ -5,7 +5,7 @@ import { BadRequestError, NotFoundError } from '../../../errors';
 import { calculateMetricDelta } from '../delta.utils';
 import { DeltaGroupLeaderboardEntry } from '../delta.types';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
-import { PaginationOptions } from 'src/api/util/validation';
+import { PaginationOptions } from '../../../util/validation';
 
 async function findGroupDeltas(
   groupId: number,
