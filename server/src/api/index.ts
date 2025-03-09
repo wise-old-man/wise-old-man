@@ -97,8 +97,16 @@ class API {
         isTrustedOrigin = true;
       }
 
+      const consumerId = apiKey ?? req.ip;
+
+      if (consumerId === undefined) {
+        return res.status(403).json({
+          message: 'Invalid consumer ID'
+        });
+      }
+
       rateLimiter
-        .consume(apiKey ?? req.ip, isMasterKey ? 0 : isTrustedOrigin ? 1 : RATE_LIMIT_TRUSTED_RATIO)
+        .consume(consumerId, isMasterKey ? 0 : isTrustedOrigin ? 1 : RATE_LIMIT_TRUSTED_RATIO)
         .then(() => next())
         .catch(e => {
           if (!(e instanceof RateLimiterRes)) {
