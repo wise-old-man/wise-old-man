@@ -201,6 +201,15 @@ async function reviewType(player: Player) {
     604_800_000
   );
 
+  // Also write to this key, so that we can slowly migrate to a new naming convention
+  // In the future, we can remove the version above, and move all reads to this new version
+  await redisClient.set(
+    buildCompoundRedisKey('cooldown', 'player_type_review', player.username),
+    Date.now(),
+    'PX',
+    604_800_000
+  );
+
   return changed;
 }
 

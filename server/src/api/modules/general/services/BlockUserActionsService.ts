@@ -31,6 +31,15 @@ async function blockUserActions(ipHash: string) {
     'PX',
     PeriodProps[Period.DAY].milliseconds
   );
+
+  // Also write to this key, so that we can slowly migrate to a new naming convention
+  // In the future, we can remove the version above, and move all reads to this new version
+  await redisClient.set(
+    buildCompoundRedisKey('api_blocked', ipHash),
+    Date.now(),
+    'PX',
+    PeriodProps[Period.DAY].milliseconds
+  );
 }
 
 export { blockUserActions };

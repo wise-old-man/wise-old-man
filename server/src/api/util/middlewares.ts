@@ -28,6 +28,10 @@ export async function detectRuneLiteNameChange(req: unknown, res: Response, next
 
   await redisClient.set(buildCompoundRedisKey('hash', accountHash), username);
 
+  // Also write to this key, so that we can slowly migrate to a new naming convention
+  // In the future, we can remove the version above, and move all reads to this new version
+  await redisClient.set(buildCompoundRedisKey('runelite_hash', accountHash), username);
+
   if (storedUsername && storedUsername !== username) {
     logger.debug('Detected name change from account hash, auto-submitting name change.', {
       oldName: storedUsername,
