@@ -24,7 +24,7 @@ execute() {
     # Setup docker dependencies (Postgres, PGAdmin and Redis)
     docker-compose up --build -d;
     setup;
-    jest $1 $ARGS
+    jest $1 $ARGS;
 }
 
 execute_lite() {
