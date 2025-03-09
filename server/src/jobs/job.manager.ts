@@ -82,10 +82,16 @@ class JobManager {
   private workers: Worker[];
   private schedulers: QueueScheduler[];
 
+  private metricUpdateInterval: NodeJS.Timeout;
+
   constructor() {
     this.queues = [];
     this.workers = [];
     this.schedulers = [];
+
+    this.metricUpdateInterval = setInterval(() => {
+      this.updateQueueMetrics();
+    }, 30_000);
   }
 
   async add<T extends keyof JobPayloadMapper>(jobName: T, payload?: JobPayloadMapper[T], options?: Options) {
@@ -229,6 +235,8 @@ class JobManager {
   }
 
   async shutdown() {
+    clearInterval(this.metricUpdateInterval);
+
     for (const queue of this.queues) {
       await queue.close();
     }
@@ -239,6 +247,13 @@ class JobManager {
 
     for (const scheduler of this.schedulers) {
       await scheduler.close();
+    }
+  }
+
+  async updateQueueMetrics() {
+    for (const queue of this.queues) {
+      const queueMetrics = await queue.getJobCounts();
+      await prometheus.updateQueueMetrics(queue.name, queueMetrics);
     }
   }
 }
