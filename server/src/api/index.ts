@@ -5,12 +5,11 @@ import express, { Express } from 'express';
 import userAgent from 'express-useragent';
 import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
 import jobManager from '../jobs/job.manager';
+import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 import router from './routing';
-import { parseUserAgent } from './util/user-agents';
 import prometheus from './services/external/prometheus.service';
-import redisService from './services/external/redis.service';
 import { getRequestIpHash } from './util/request';
-import { redisClient } from '../services/redis.service';
+import { parseUserAgent } from './util/user-agents';
 
 const RATE_LIMIT_MAX_REQUESTS = 20;
 const RATE_LIMIT_DURATION_SECONDS = 60;
@@ -65,7 +64,9 @@ class API {
       }
 
       const ipHash = getRequestIpHash(req);
-      const isBlocked = ipHash !== null && (await redisService.getValue('api-blocked', ipHash));
+
+      const isBlocked =
+        ipHash !== null && (await redisClient.get(buildCompoundRedisKey('api-blocked', ipHash)));
 
       if (isBlocked) {
         res.status(429).json({
@@ -80,7 +81,7 @@ class API {
       let isTrustedOrigin = false;
 
       if (apiKey) {
-        const activeKey = await redisService.getValue('api-key', apiKey);
+        const activeKey = await redisClient.get(buildCompoundRedisKey('api-key', apiKey));
 
         if (activeKey === null) {
           return res.status(403).json({

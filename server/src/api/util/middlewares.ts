@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import prisma from '../../prisma';
 import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../errors';
+import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import { submitNameChange } from '../modules/name-changes/services/SubmitNameChangeService';
-import redisService from '../services/external/redis.service';
 import * as cryptService from '../services/external/crypt.service';
 import logger from '../util/logging';
 
@@ -24,9 +24,9 @@ export async function detectRuneLiteNameChange(req: unknown, res: Response, next
   // If this ID is linked to a different username than before, that means that account has changed
   // their name and we should automatically submit a name change for it.
 
-  const storedUsername = await redisService.getValue('hash', accountHash);
+  const storedUsername = await redisClient.get(buildCompoundRedisKey('hash', accountHash));
 
-  await redisService.setValue('hash', accountHash, username);
+  await redisClient.set(buildCompoundRedisKey('hash', accountHash), username);
 
   if (storedUsername && storedUsername !== username) {
     logger.debug('Detected name change from account hash, auto-submitting name change.', {

@@ -1,6 +1,6 @@
 import { createId } from '@paralleldrive/cuid2';
 import prisma from '../../../../prisma';
-import redisService from '../../../services/external/redis.service';
+import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 
 async function createAPIKey(application: string, developer: string) {
   const key = await prisma.apiKey.create({
@@ -12,7 +12,7 @@ async function createAPIKey(application: string, developer: string) {
     }
   });
 
-  await redisService.setValue('api-key', key.id, String(key.master));
+  await redisClient.set(buildCompoundRedisKey('api-key', key.id), String(key.master));
 
   return key;
 }

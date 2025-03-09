@@ -1,10 +1,9 @@
-import supertest from 'supertest';
 import { isCuid } from '@paralleldrive/cuid2';
+import supertest from 'supertest';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
-import redisService from '../../../src/api/services/external/redis.service';
+import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
 import { resetDatabase, sleep } from '../../utils';
-import { redisClient } from '../../../src/services/redis.service';
 
 const api = supertest(apiServer.express);
 
@@ -127,7 +126,7 @@ describe('General API', () => {
       expect(isCuid(response.body.id)).toBe(true);
 
       // Make sure it's been stored in redis memory
-      expect(await redisService.getValue('api-key', response.body.id)).toBe('false');
+      expect(await redisClient.get(buildCompoundRedisKey('api-key', response.body.id))).toBe('false');
     });
   });
 
@@ -215,7 +214,8 @@ describe('General API', () => {
         where: { id: apiKeyResponse.body.id },
         data: { master: true }
       });
-      await redisService.setValue('api-key', updatedKey.id, String(updatedKey.master));
+
+      await redisClient.set(buildCompoundRedisKey('api-key', updatedKey.id), String(updatedKey.master));
 
       let successCount = 0;
       let rateLimitedCount = 0;
