@@ -185,6 +185,7 @@ class JobManager {
         prefix: PREFIX,
         limiter: options?.rateLimiter,
         connection: redisConfig,
+        concurrency: options.maxConcurrent ?? 1,
         autorun: false
       });
 
