@@ -11,6 +11,7 @@ export enum JobPriority {
 export interface Options extends JobsOptions {
   rateLimiter?: RateLimiterOptions;
   skipDedupe?: boolean;
+  maxConcurrent?: number;
 }
 
 export class Job<T> {

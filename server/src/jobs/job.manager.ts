@@ -185,6 +185,7 @@ class JobManager {
         prefix: PREFIX,
         limiter: options?.rateLimiter,
         connection: redisConfig,
+        concurrency: options.maxConcurrent ?? 1,
         autorun: false
       });
 
@@ -251,6 +252,10 @@ class JobManager {
   }
 
   async updateQueueMetrics() {
+    if (process.env.NODE_ENV !== 'development' && getThreadIndex() !== 0) {
+      return;
+    }
+
     for (const queue of this.queues) {
       const queueMetrics = await queue.getJobCounts();
       await prometheus.updateQueueMetrics(queue.name, queueMetrics);
