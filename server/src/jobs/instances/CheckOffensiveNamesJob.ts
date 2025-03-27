@@ -3,50 +3,54 @@ import { Job } from '../job.utils';
 import { OpenAiService } from '../../api/services/external/openai.service';
 import prisma from '../../prisma';
 
+const SYSTEM_PROMPT = `
+  Act as a content moderator and filter out any usernames that are offensive, inappropriate or seem like spam. 
+  This includes hate speech, slurs, violent language, and any variations of these words, such as replacing letters with numbers or symbols.'
+`;
+
+const RESPONSE_SCHEMA = z.object({
+  offensiveUsernames: z.array(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      type: z.string()
+    })
+  )
+});
+
 export class CheckOffensiveNamesJob extends Job<unknown> {
   async execute(): Promise<void> {
     if (!process.env.OPENAI_API_KEY) {
       return;
     }
+
     const openAi = new OpenAiService();
+    const fiveMinAgo = new Date(Date.now() - 1000 * 60 * 5);
 
-    const systemInstruction =
-      'Act as a content moderator and filter out any usernames that are offensive or inappropriate. \n This includes hate speech, slurs, violent language, and any variations of these words, such as replacing letters with numbers or symbols.';
-
-    const expectedResultFormat = z.object({
-      offensiveUsernames: z.array(
-        z.object({
-          id: z.number(),
-          name: z.string(),
-          type: z.string()
-        })
-      )
-    });
-    const timeAgo = new Date(Date.now() - 1000 * 60 * 5);
-
-    const groups = await prisma.group.findMany({
-      select: {
-        id: true,
-        name: true
-      },
-      where: {
-        createdAt: {
-          gte: timeAgo
+    const [groups, competitions] = await Promise.all([
+      prisma.group.findMany({
+        select: {
+          id: true,
+          name: true
+        },
+        where: {
+          createdAt: {
+            gte: fiveMinAgo
+          }
         }
-      }
-    });
-
-    const competitions = await prisma.competition.findMany({
-      select: {
-        id: true,
-        title: true
-      },
-      where: {
-        createdAt: {
-          gte: timeAgo
+      }),
+      prisma.competition.findMany({
+        select: {
+          id: true,
+          title: true
+        },
+        where: {
+          createdAt: {
+            gte: fiveMinAgo
+          }
         }
-      }
-    });
+      })
+    ]);
 
     const allItems = [
       ...groups.map(g => ({ ...g, type: 'group' })),
@@ -57,16 +61,12 @@ export class CheckOffensiveNamesJob extends Job<unknown> {
       return;
     }
 
-    const offesniveNames = await openAi.makePrompt(
-      JSON.stringify(allItems),
-      systemInstruction,
-      expectedResultFormat
-    );
+    const offensiveNames = await openAi.makePrompt(JSON.stringify(allItems), SYSTEM_PROMPT, RESPONSE_SCHEMA);
 
-    if (!offesniveNames.offensiveUsernames.length) {
+    if (offensiveNames.offensiveUsernames.length === 0) {
       return;
     }
 
-    console.log(offesniveNames);
+    // TODO: dispatch discord event
   }
 }

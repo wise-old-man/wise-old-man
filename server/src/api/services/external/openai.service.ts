@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { zodResponseFormat } from 'openai/helpers/zod'; // Assuming this is available and used correctly
+import { zodResponseFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
 
 export class OpenAiService {
@@ -11,12 +11,6 @@ export class OpenAiService {
     });
   }
 
-  /**
-   * @param prompt - The input that will be sent to the model.
-   * @param systemInstruction - System message providing instructions for the AI on how to behave, example: Act as content moderator and..
-   * @param expectedOutputFormat - Expected Zod type for validating the response format
-   * @returns A parsed response in the expected format.
-   */
   async makePrompt<T>(
     prompt: string,
     systemInstruction: string,
@@ -36,6 +30,15 @@ export class OpenAiService {
       ],
       response_format: zodResponseFormat(expectedOutputFormat, 'expected')
     });
+
+    if (response.choices.length === 0) {
+      throw new Error('No response from OpenAI');
+    }
+
+    if (response.choices[0].message.parsed === null) {
+      throw new Error('OpenAI response was null');
+    }
+
     return response.choices[0].message.parsed as T;
   }
 }
