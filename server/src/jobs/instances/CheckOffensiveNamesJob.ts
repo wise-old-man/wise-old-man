@@ -4,8 +4,9 @@ import { OpenAiService } from '../../api/services/external/openai.service';
 import prisma from '../../prisma';
 
 const SYSTEM_PROMPT = `
-  Act as a content moderator and filter out any usernames that are offensive, inappropriate or seem like spam. 
-  This includes hate speech, slurs, violent language, and any variations of these words, such as replacing letters with numbers or symbols.'
+  Act as a content moderator and filter out any usernames that are offensive or inappropriate. 
+  This includes hate speech, slurs, violent language, and any variations of these words, such as replacing letters with numbers or symbols.
+  You should also filter out any usernames that seem like spam, gibberish or randomly generated.
 `;
 
 const RESPONSE_SCHEMA = z.object({
@@ -58,14 +59,22 @@ export class CheckOffensiveNamesJob extends Job<unknown> {
     ];
 
     if (allItems.length === 0 || allItems.length >= 50) {
+      // TODO: if > 50, send warning to private discord channel
       return;
     }
 
-    const offensiveNames = await openAi.makePrompt(JSON.stringify(allItems), SYSTEM_PROMPT, RESPONSE_SCHEMA);
+    const offensiveNames = await openAi.makePrompt(
+      'gpt-4o-mini',
+      JSON.stringify(allItems),
+      SYSTEM_PROMPT,
+      RESPONSE_SCHEMA
+    );
 
     if (offensiveNames.offensiveUsernames.length === 0) {
       return;
     }
+
+    console.log(offensiveNames);
 
     // TODO: dispatch discord event
   }

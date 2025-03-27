@@ -12,12 +12,13 @@ export class OpenAiService {
   }
 
   async makePrompt<T>(
+    model: string,
     prompt: string,
     systemInstruction: string,
     expectedOutputFormat: z.ZodType<T>
   ): Promise<T> {
     const response = await this.openai.beta.chat.completions.parse({
-      model: 'gpt-4o-2024-08-06',
+      model,
       messages: [
         {
           role: 'system',
