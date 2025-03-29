@@ -51,13 +51,11 @@ beforeAll(async () => {
   });
 });
 
-afterAll(async () => {
+afterAll(() => {
   jest.useRealTimers();
   axiosMock.reset();
-
-  // Sleep for 5s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(5000));
-}, 10_000);
+  redisClient.quit();
+});
 
 describe('Deltas API', () => {
   describe('1 - Syncing Player Deltas', () => {

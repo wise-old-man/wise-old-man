@@ -9,7 +9,6 @@ import {
   readFile,
   registerHiscoresMock,
   registerCMLMock,
-  sleep,
   modifyRawHiscoresData
 } from '../../utils';
 import { Snapshot } from '../../../src/api/modules/snapshots/snapshot.types';
@@ -61,12 +60,10 @@ beforeAll(async () => {
   });
 });
 
-afterAll(async () => {
+afterAll(() => {
   jest.useRealTimers();
-
-  // Sleep for 5s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(5000));
-}, 10_000);
+  redisClient.quit();
+});
 
 describe('Snapshots API', () => {
   describe('1 - Creating from OSRS Hiscores', () => {

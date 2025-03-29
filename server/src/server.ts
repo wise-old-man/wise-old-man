@@ -1,27 +1,29 @@
 import { getThreadIndex } from './env';
 import logger from './api/util/logging';
+import { jobManager as newJobManager } from './jobs-new';
+import jobManager from './jobs/job.manager';
 import api from './api';
+import { redisClient } from './services/redis.service';
 
-// Action trigger
+(async () => {
+  const port = process.env.API_PORT || 5000;
 
-const port = process.env.API_PORT || 5000;
+  const server = api.express.listen(port, () => {
+    const version = process.env.npm_package_version;
+    logger.info(`v${version}: Server running on port ${port}. Thread Index: ${getThreadIndex()}`);
+  });
 
-const server = api.express.listen(port, () => {
-  const version = process.env.npm_package_version;
-  logger.info(`v${version}: Server running on port ${port}. Thread Index: ${getThreadIndex()}`);
-});
+  function handleShutdown() {
+    server.close();
+    redisClient.quit();
+    jobManager.shutdown();
+    newJobManager.shutdown();
+  }
 
-process.on('SIGTERM', () => {
-  server.close();
-  api.shutdown();
-});
+  process.on('SIGTERM', handleShutdown);
+  process.on('SIGINT', handleShutdown);
+  process.on('exit', handleShutdown);
 
-process.on('SIGINT', () => {
-  server.close();
-  api.shutdown();
-});
-
-process.on('exit', () => {
-  server.close();
-  api.shutdown();
-});
+  await jobManager.init();
+  await newJobManager.init();
+})();

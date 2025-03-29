@@ -3,7 +3,7 @@ import supertest from 'supertest';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
-import { resetDatabase, sleep } from '../../utils';
+import { resetDatabase } from '../../utils';
 
 const api = supertest(apiServer.express);
 
@@ -12,12 +12,10 @@ beforeAll(async () => {
   await resetDatabase();
 });
 
-afterAll(async () => {
+afterAll(() => {
   jest.useRealTimers();
-
-  // Sleep for 5s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(5000));
-}, 10_000);
+  redisClient.quit();
+});
 
 describe('General API', () => {
   describe('Health checks', () => {

@@ -56,12 +56,12 @@ const STARTUP_JOBS = ['CheckMissingComputedTablesJob'] satisfies Array<keyof typ
 
 const CRON_CONFIG = [
   // every 1 min
-  { interval: '* * * * *', jobName: 'SyncApiKeysJob' },
+  // { interval: '* * * * *', jobName: 'SyncApiKeysJob' },
   { interval: '* * * * *', jobName: 'SyncPatronsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCompetitionEventsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCreationSpamChecksJob' },
   // every 5 mins
-  { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
+  // { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
   { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
   // every hour
   { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
@@ -82,16 +82,18 @@ class JobManager {
   private workers: Worker[];
   private schedulers: QueueScheduler[];
 
-  private metricUpdateInterval: NodeJS.Timeout;
+  private metricUpdateInterval: NodeJS.Timeout | undefined;
 
   constructor() {
     this.queues = [];
     this.workers = [];
     this.schedulers = [];
 
-    this.metricUpdateInterval = setInterval(() => {
-      this.updateQueueMetrics();
-    }, 30_000);
+    if (process.env.NODE_ENV !== 'test') {
+      this.metricUpdateInterval = setInterval(() => {
+        this.updateQueueMetrics();
+      }, 30_000);
+    }
   }
 
   async add<T extends keyof JobPayloadMapper>(jobName: T, payload?: JobPayloadMapper[T], options?: Options) {

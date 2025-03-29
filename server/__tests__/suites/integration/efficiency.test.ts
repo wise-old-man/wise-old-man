@@ -13,7 +13,7 @@ import apiServer from '../../../src/api';
 import { ALGORITHMS, getAlgorithm } from '../../../src/api/modules/efficiency/efficiency.utils';
 import testSkillingMetas from '../../data/efficiency/configs/test.ehp';
 import testBossingMetas from '../../data/efficiency/configs/test.ehb';
-import { resetDatabase, sleep } from '../../utils';
+import { resetDatabase } from '../../utils';
 import EfficiencyAlgorithm from '../../../src/api/modules/efficiency/EfficiencyAlgorithm';
 import { computeEfficiencyRank } from '../../../src/api/modules/efficiency/services/ComputeEfficiencyRankService';
 import { redisClient } from '../../../src/services/redis.service';
@@ -126,10 +126,8 @@ beforeAll(async () => {
 
 afterAll(async () => {
   jest.useRealTimers();
-
-  // Sleep for 5s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(5000));
-}, 10_000);
+  redisClient.quit();
+});
 
 describe('Efficiency API', () => {
   describe('1 - Maximum TTM and TT200m', () => {
