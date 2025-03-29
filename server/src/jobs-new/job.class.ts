@@ -1,15 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { JobsOptions, RateLimiterOptions } from 'bullmq';
 import type { JobManager } from './job-manager';
-
-export interface Options extends JobsOptions {
-  rateLimiter?: RateLimiterOptions;
-  skipDedupe?: boolean;
-  maxConcurrent?: number;
-}
+import type { JobOptions } from './types/job-options.type';
 
 export class Job<T> {
-  public options: Options;
+  public options: JobOptions;
   public jobManager: JobManager;
 
   constructor(jobManager: JobManager) {
@@ -22,11 +16,3 @@ export class Job<T> {
   async onFailure(payload: T, error: Error): Promise<void> {}
   async onFailedAllAttempts(payload: T, error: Error): Promise<void> {}
 }
-
-export type ExtractInstanceType<T> = T extends new (...args: unknown[]) => infer R
-  ? R
-  : T extends { prototype: infer P }
-    ? P
-    : unknown;
-
-export type ValueOf<T> = T[keyof T];

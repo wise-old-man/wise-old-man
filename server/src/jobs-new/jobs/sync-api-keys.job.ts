@@ -1,6 +1,6 @@
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import prisma from '../../prisma';
-import { Job } from '../jobs.util';
+import { Job } from '../job.class';
 
 export class SyncApiKeysJob extends Job<unknown> {
   async execute() {

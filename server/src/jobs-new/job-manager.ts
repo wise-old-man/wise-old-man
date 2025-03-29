@@ -3,12 +3,12 @@ import prometheus from '../api/services/external/prometheus.service';
 import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
-import { ExtractInstanceType, Job, Options, ValueOf } from './jobs.util';
-import { CRON_CONFIG } from './cron.config';
-import { JOBS_MAP } from './jobs-map';
-import { JobType } from './job-type.enum';
-import { STARTUP_JOBS } from './startup.config';
-import { JobPriority } from './job-priority.enum';
+import { CRON_CONFIG, JOB_HANDLER_MAP, STARTUP_JOBS } from './jobs.config';
+import { Job } from './job.class';
+import type { JobOptions } from './types/job-options.type';
+import type { JobPayloadMapper } from './types/job-payload.type';
+import { JobPriority } from './types/job-priority.enum';
+import { JobType } from './types/job-type.enum';
 
 const REDIS_PREFIX = 'jobs-v2';
 
@@ -26,7 +26,7 @@ class JobManager {
   async add<T extends JobType, TPayload extends JobPayloadMapper[T]>(
     type: T,
     payload: TPayload extends undefined ? Record<string, never> : TPayload,
-    options?: Options
+    options?: JobOptions
   ) {
     if (process.env.NODE_ENV === 'test') return;
 
@@ -88,18 +88,18 @@ class JobManager {
 
     const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
 
-    const queuesToInit = { ...JOBS_MAP };
+    const queuesToInit = { ...JOB_HANDLER_MAP };
 
     if (isMainThread) {
       // Only initialize queues and workers for cron/startup jobs if we're running this on the "min" thread.
       Object.keys({ ...CRON_CONFIG, ...STARTUP_JOBS }).forEach(jobType => {
         if (queuesToInit[jobType] === undefined) {
-          queuesToInit[jobType] = JOBS_MAP[jobType];
+          queuesToInit[jobType] = JOB_HANDLER_MAP[jobType];
         }
       });
     }
 
-    for (const [jobType, jobClass] of Object.entries(JOBS_MAP)) {
+    for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {
       const jobHandler = new jobClass(this);
       const { options } = jobHandler;
 
@@ -193,12 +193,6 @@ class JobManager {
     }
   }
 }
-
-type JobPayloadType<T extends ValueOf<typeof JOBS_MAP>> = Parameters<ExtractInstanceType<T>['execute']>[0];
-
-type JobPayloadMapper = {
-  [K in keyof typeof JOBS_MAP]: JobPayloadType<(typeof JOBS_MAP)[K]>;
-};
 
 export type { JobManager };
 export default new JobManager();

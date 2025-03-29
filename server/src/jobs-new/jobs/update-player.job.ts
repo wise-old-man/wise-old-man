@@ -4,7 +4,7 @@ import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerSer
 import prisma from '../../prisma';
 import { PlayerStatus, PlayerType } from '../../utils';
 import type { JobManager } from '../job-manager';
-import { Job } from '../jobs.util';
+import { Job } from '../job.class';
 
 interface Payload {
   username: string;

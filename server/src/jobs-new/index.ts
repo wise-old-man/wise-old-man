@@ -1,5 +1,5 @@
 import jobManager from './job-manager';
 
-export { JobType } from './job-type.enum';
-export { JobPriority } from './job-priority.enum';
+export { JobType } from './types/job-type.enum';
+export { JobPriority } from './types/job-priority.enum';
 export { jobManager };

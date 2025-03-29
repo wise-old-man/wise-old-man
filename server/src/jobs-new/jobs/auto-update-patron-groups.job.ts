@@ -1,8 +1,8 @@
 import prisma from '../../prisma';
 import { Period, PeriodProps } from '../../utils';
-import { JobPriority } from '../job-priority.enum';
-import { JobType } from '../job-type.enum';
-import { Job } from '../jobs.util';
+import { Job } from '../job.class';
+import { JobPriority } from '../types/job-priority.enum';
+import { JobType } from '../types/job-type.enum';
 
 export class AutoUpdatePatronGroupsJob extends Job<unknown> {
   async execute() {
