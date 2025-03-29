@@ -10,8 +10,7 @@ import {
   registerCMLMock,
   registerHiscoresMock,
   readFile,
-  modifyRawHiscoresData,
-  sleep
+  modifyRawHiscoresData
 } from '../../utils';
 import { redisClient } from '../../../src/services/redis.service';
 
@@ -71,13 +70,11 @@ beforeAll(async () => {
   });
 });
 
-afterAll(async () => {
+afterAll(() => {
   jest.useRealTimers();
   axiosMock.reset();
-
-  // Sleep for 5s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(5000));
-}, 10_000);
+  redisClient.quit();
+});
 
 describe('Group API', () => {
   describe('1 - Create', () => {
