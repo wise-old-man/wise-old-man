@@ -1,7 +1,8 @@
 import EventEmitter from 'events';
 import logger from '../../api/util/logging';
 import prometheus from '../services/external/prometheus.service';
-import PlayerUpdatedHandler from './handlers/player-updated.event';
+import PlayerUpdated from './handlers/player-updated.event';
+import NameChangeCreated from './handlers/name-change-created.event';
 import type { EventPayloadMap } from './types/event-payload.type';
 import { EventType } from './types/event-type.enum';
 
@@ -17,7 +18,8 @@ class TypedEventEmitter extends EventEmitter {
   }
 
   init() {
-    this.on(EventType.PLAYER_UPDATED, PlayerUpdatedHandler.handler);
+    this.on(EventType.PLAYER_UPDATED, PlayerUpdated.handler);
+    this.on(EventType.NAME_CHANGE_CREATED, NameChangeCreated.handler);
 
     return this;
   }

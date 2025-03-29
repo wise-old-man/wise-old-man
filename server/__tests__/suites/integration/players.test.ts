@@ -33,7 +33,7 @@ const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt
 const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
 const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
 
-const eventEmitterEmission = jest.spyOn(eventEmitter, 'emit');
+const eventEmission = jest.spyOn(eventEmitter, 'emit');
 
 const onPlayerFlaggedEvent = jest.spyOn(playerEvents, 'onPlayerFlagged');
 const onPlayerArchivedEvent = jest.spyOn(playerEvents, 'onPlayerArchived');
@@ -83,7 +83,7 @@ describe('Player API', () => {
         'Validation error: Username cannot contain any special characters'
       );
 
-      expect(eventEmitterEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
     });
 
     it('should not track player (lengthy username)', async () => {
@@ -92,7 +92,7 @@ describe('Player API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Validation error: Username must be between');
 
-      expect(eventEmitterEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
     });
 
     it('should not track player (hiscores failed)', async () => {
@@ -106,7 +106,7 @@ describe('Player API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Failed to load hiscores for enrique.');
 
-      expect(eventEmitterEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
 
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
@@ -125,7 +125,7 @@ describe('Player API', () => {
       expect(firstResponse.status).toBe(400);
       expect(firstResponse.body.message).toMatch('Failed to load hiscores for toby.');
 
-      expect(eventEmitterEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
 
       // this player failed to be tracked, and their type remains "unknown"
       // therefor, we should allow them to be tracked again without waiting 60s
@@ -133,7 +133,7 @@ describe('Player API', () => {
       expect(secondResponse.status).toBe(400);
       expect(secondResponse.body.message).toMatch('Failed to load hiscores for toby.');
 
-      expect(eventEmitterEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
 
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
@@ -146,7 +146,7 @@ describe('Player API', () => {
       const thirdResponse = await api.post(`/players/toby`);
       expect(thirdResponse.status).toBe(200);
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'toby',
@@ -168,7 +168,7 @@ describe('Player API', () => {
       // this player has "unknown" type, shouldn't be reviewed on 400 (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'alanec'))).toBeNull();
 
-      expect(eventEmitterEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
     });
 
     it("shouldn't review player type on 400 (regular type)", async () => {
@@ -182,7 +182,7 @@ describe('Player API', () => {
       expect(firstResponse.status).toBe(201);
       expect(firstResponse.body.type).toBe('regular');
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'aluminoti',
@@ -203,7 +203,7 @@ describe('Player API', () => {
       expect(secondResponse.status).toBe(400);
       expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
 
-      expect(eventEmitterEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
       // this player has "regular" type, shouldn't be reviewed on 400 (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'aluminoti'))).toBeNull();
     });
@@ -223,7 +223,7 @@ describe('Player API', () => {
 
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'tony stark'))).toBeNull();
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'tony stark',
@@ -261,7 +261,7 @@ describe('Player API', () => {
         currentTimestamp
       );
 
-      expect(eventEmitterEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
     });
 
     it('should review player type on 400 (no change)', async () => {
@@ -279,7 +279,7 @@ describe('Player API', () => {
 
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'ash',
@@ -304,7 +304,7 @@ describe('Player API', () => {
       // failed to review (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
       expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
-      expect(eventEmitterEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
     });
 
     it('should review player type on 400 (changed type)', async () => {
@@ -325,7 +325,7 @@ describe('Player API', () => {
         await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'peter parker'))
       ).toBeNull();
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'peter parker',
@@ -357,7 +357,7 @@ describe('Player API', () => {
         'ironman'
       );
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'peter parker',
@@ -388,7 +388,7 @@ describe('Player API', () => {
       // Using the test "main" rates, we should get this number for regular accs
       expect(response.body.ehp).toBeCloseTo(630.6918952334495, 4);
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'psikoi',
@@ -418,9 +418,9 @@ describe('Player API', () => {
       // Track again, stats shouldn't have changed
       await api.post(`/players/ PSIKOI_ `);
 
-      expect(eventEmitterEmission).toHaveBeenCalledTimes(2);
+      expect(eventEmission).toHaveBeenCalledTimes(2);
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'psikoi',
@@ -454,7 +454,7 @@ describe('Player API', () => {
       expect(responseDef1.body.build).toBe('def1');
       expect(responseDef1.body.latestSnapshot.data.skills.defence.experience).toBe(0);
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'def1',
@@ -479,7 +479,7 @@ describe('Player API', () => {
       expect(responseZerker.body.build).toBe('zerker');
       expect(responseZerker.body.latestSnapshot.data.skills.defence.experience).toBe(61_512);
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'zerker',
@@ -504,7 +504,7 @@ describe('Player API', () => {
       expect(response10HP.body.build).toBe('hp10');
       expect(response10HP.body.latestSnapshot.data.skills.hitpoints.experience).toBe(1154);
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'hp10',
@@ -536,7 +536,7 @@ describe('Player API', () => {
       expect(responseLvl3.body.latestSnapshot.data.skills.hitpoints.experience).toBe(1154);
       expect(responseLvl3.body.latestSnapshot.data.skills.prayer.experience).toBe(0);
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'lvl3',
@@ -572,7 +572,7 @@ describe('Player API', () => {
       expect(responseF2P.body.latestSnapshot.data.bosses.bryophyta.kills).toBe(10);
       expect(responseF2P.body.latestSnapshot.data.skills.agility.experience).toBe(0);
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'f2p',
@@ -613,7 +613,7 @@ describe('Player API', () => {
       expect(responseF2PLvl3.status).toBe(201);
       expect(responseF2PLvl3.body.build).toBe('f2p_lvl3');
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'f2p lvl3',
@@ -649,7 +649,7 @@ describe('Player API', () => {
 
       expect(response.body.latestSnapshot).not.toBeNull();
 
-      expect(eventEmitterEmission).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
         EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'enriath',
