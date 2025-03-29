@@ -2,6 +2,7 @@ import { AutoUpdatePatronGroupsJob } from './handlers/auto-update-patron-groups.
 import { SyncApiKeysJob } from './handlers/sync-api-keys.job';
 import { SyncPlayerAchievementsJob } from './handlers/sync-player-achievements.job';
 import { SyncPlayerCompetitionParticipationsJob } from './handlers/sync-player-competition-participations.job';
+import { SyncPlayerDeltasJob } from './handlers/sync-player-deltas.job';
 import { UpdatePlayerJob } from './handlers/update-player.job';
 import { UpdateQueueMetricsJob } from './handlers/update-queue-metrics.job';
 import { JobType } from './types/job-type.enum';
@@ -10,6 +11,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.AUTO_UPDATE_PATRON_GROUPS]: AutoUpdatePatronGroupsJob,
   [JobType.SYNC_API_KEYS]: SyncApiKeysJob,
   [JobType.SYNC_PLAYER_ACHIEVEMENTS]: SyncPlayerAchievementsJob,
+  [JobType.SYNC_PLAYER_DELTAS]: SyncPlayerDeltasJob,
   [JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS]: SyncPlayerCompetitionParticipationsJob,
   [JobType.UPDATE_PLAYER]: UpdatePlayerJob,
   [JobType.UPDATE_QUEUE_METRICS]: UpdateQueueMetricsJob
