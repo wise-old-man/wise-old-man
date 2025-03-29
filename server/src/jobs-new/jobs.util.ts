@@ -2,12 +2,6 @@
 import { JobsOptions, RateLimiterOptions } from 'bullmq';
 import type { JobManager } from './job-manager';
 
-export enum JobPriority {
-  LOW = 3,
-  MEDIUM = 2,
-  HIGH = 1
-}
-
 export interface Options extends JobsOptions {
   rateLimiter?: RateLimiterOptions;
   skipDedupe?: boolean;

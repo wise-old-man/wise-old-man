@@ -3,11 +3,12 @@ import prometheus from '../api/services/external/prometheus.service';
 import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
-import { ExtractInstanceType, Job, JobPriority, Options, ValueOf } from './jobs.util';
+import { ExtractInstanceType, Job, Options, ValueOf } from './jobs.util';
 import { CRON_CONFIG } from './cron.config';
 import { JOBS_MAP } from './jobs-map';
 import { JobType } from './job-type.enum';
 import { STARTUP_JOBS } from './startup.config';
+import { JobPriority } from './job-priority.enum';
 
 const REDIS_PREFIX = 'jobs-v2';
 
