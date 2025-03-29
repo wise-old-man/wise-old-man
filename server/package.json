@@ -18,6 +18,7 @@
     "test": "cross-env ./scripts/run-tests.sh"
   },
   "dependencies": {
+    "@attio/fetchable": "^0.0.1-experimental.4",
     "@paralleldrive/cuid2": "^2.2.1",
     "@prisma/client": "^5.10.2",
     "@sentry/node": "^7.15.0",
