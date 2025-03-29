@@ -8,7 +8,7 @@ function handler({ username, hasChanged }: EventPayloadMap[EventType.PLAYER_UPDA
   jobManager.add(JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS, { username });
 
   if (hasChanged) {
-    // TODO: dispatch task to sync achievements
+    jobManager.add(JobType.SYNC_PLAYER_ACHIEVEMENTS, { username });
   }
 }
 
