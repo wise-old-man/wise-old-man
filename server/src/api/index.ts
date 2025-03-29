@@ -4,7 +4,6 @@ import cors from 'cors';
 import express, { Express } from 'express';
 import userAgent from 'express-useragent';
 import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
-import jobManager from '../jobs/job.manager';
 import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 import router from './routing';
 import prometheus from './services/external/prometheus.service';
@@ -29,19 +28,12 @@ class API {
   constructor() {
     this.express = express();
 
-    jobManager.init();
-
     if (process.env.NODE_ENV !== 'test') {
       this.setupServices();
     }
 
     this.setupMiddlewares();
     this.setupRouting();
-  }
-
-  async shutdown() {
-    await jobManager.shutdown();
-    redisClient.quit();
   }
 
   private setupMiddlewares() {

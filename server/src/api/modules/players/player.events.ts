@@ -1,4 +1,5 @@
 import jobManager from '../../../jobs/job.manager';
+import { jobManager as newJobManager, JobType } from '../../../jobs-new';
 import { Player, Snapshot } from '../../../prisma';
 import { FlaggedPlayerReviewContext, PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
@@ -36,8 +37,7 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
     await discordService.dispatchNameChanged(player, previousDisplayName);
   });
 
-  // Setup jobs to assert the player's account type and auto-update them
-  jobManager.add('UpdatePlayerJob', { username: player.username });
+  newJobManager.add(JobType.UPDATE_PLAYER, { username: player.username });
   jobManager.add('CheckPlayerTypeJob', { username: player.username });
 }
 
