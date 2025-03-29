@@ -82,16 +82,18 @@ class JobManager {
   private workers: Worker[];
   private schedulers: QueueScheduler[];
 
-  private metricUpdateInterval: NodeJS.Timeout;
+  private metricUpdateInterval: NodeJS.Timeout | undefined;
 
   constructor() {
     this.queues = [];
     this.workers = [];
     this.schedulers = [];
 
-    this.metricUpdateInterval = setInterval(() => {
-      this.updateQueueMetrics();
-    }, 30_000);
+    if (process.env.NODE_ENV !== 'test') {
+      this.metricUpdateInterval = setInterval(() => {
+        this.updateQueueMetrics();
+      }, 30_000);
+    }
   }
 
   async add<T extends keyof JobPayloadMapper>(jobName: T, payload?: JobPayloadMapper[T], options?: Options) {
