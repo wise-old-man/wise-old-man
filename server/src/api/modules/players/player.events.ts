@@ -6,7 +6,6 @@ import * as discordService from '../../services/external/discord.service';
 import prometheus from '../../services/external/prometheus.service';
 import { reevaluatePlayerAchievements } from '../achievements/services/ReevaluatePlayerAchievementsService';
 import { syncPlayerAchievements } from '../achievements/services/SyncPlayerAchievementsService';
-import { syncParticipations } from '../competitions/services/SyncParticipationsService';
 import { syncPlayerDeltas } from '../deltas/services/SyncPlayerDeltasService';
 
 async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerReviewContext) {
@@ -47,11 +46,6 @@ async function onPlayerUpdated(
   current: Snapshot,
   hasChanged: boolean
 ) {
-  // Update this player's competition participations (gains)
-  await prometheus.trackEffect('syncParticipations', async () => {
-    await syncParticipations(player.id, current.id);
-  });
-
   // Only sync achievements if the player gained any exp/kc this update
   if (hasChanged) {
     await prometheus.trackEffect('syncPlayerAchievements', async () => {

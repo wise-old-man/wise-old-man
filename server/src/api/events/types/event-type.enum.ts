@@ -1,0 +1,4 @@
+export enum EventType {
+  PLAYER_UPDATED = 'PLAYER_UPDATED',
+  PLAYER_FLAGGED = 'PLAYER_FLAGGED'
+}
