@@ -42,7 +42,9 @@ const envVariablesSchema = z.object({
   PROXY_USER: prodOnly(z.string().trim().min(1)),
   PROXY_PASSWORD: prodOnly(z.string().trim().min(1)),
   PROXY_PORT: prodOnly(z.coerce.number().positive().int()),
-  CPU_COUNT: prodOnly(z.coerce.number().positive().int())
+  CPU_COUNT: prodOnly(z.coerce.number().positive().int()),
+  // Openai API Key
+  OPENAI_API_KEY: prodOnly(z.string().trim().min(1).startsWith('sk-'))
 });
 
 // This will load env vars from a .env file, type check them,and throw an error

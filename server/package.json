@@ -37,6 +37,7 @@
     "express-useragent": "^1.0.15",
     "ioredis": "^5.2.3",
     "js-md5": "^0.8.3",
+    "openai": "^4.83.0",
     "prom-client": "^13.2.0",
     "rate-limiter-flexible": "^2.3.11",
     "winston": "^3.3.3",
