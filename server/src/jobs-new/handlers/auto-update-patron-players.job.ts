@@ -1,6 +1,7 @@
 import prisma from '../../prisma';
 import { Period, PeriodProps } from '../../utils';
-import { Job, JobPriority } from '../job.utils';
+import { Job } from '../job.class';
+import { JobType } from '../types/job-type.enum';
 
 export class AutoUpdatePatronPlayersJob extends Job<unknown> {
   async execute() {
@@ -24,9 +25,8 @@ export class AutoUpdatePatronPlayersJob extends Job<unknown> {
       })
       .then(res => res.map(p => p.player).filter(Boolean));
 
-    // Execute the update action for every member
     outdatedPatronPlayers.forEach(({ username }) => {
-      this.jobManager.add('UpdatePlayerJob', { username }, { priority: JobPriority.HIGH });
+      this.jobManager.add(JobType.UPDATE_PLAYER, { username });
     });
   }
 }

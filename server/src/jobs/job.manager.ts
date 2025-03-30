@@ -3,8 +3,6 @@ import prometheus from '../api/services/external/prometheus.service';
 import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
-import { AutoUpdatePatronGroupsJob } from './instances/AutoUpdatePatronGroupsJob';
-import { AutoUpdatePatronPlayersJob } from './instances/AutoUpdatePatronPlayersJob';
 import { CalculateComputedMetricRankTablesJob } from './instances/CalculateComputedMetricRankTablesJob';
 import { CheckMissingComputedTablesJob } from './instances/CheckMissingComputedTablesJob';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
@@ -29,8 +27,6 @@ import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
 
 const JOBS_MAP = {
-  AutoUpdatePatronGroupsJob,
-  AutoUpdatePatronPlayersJob,
   CalculateComputedMetricRankTablesJob,
   CheckMissingComputedTablesJob,
   CheckPlayerBannedJob,
@@ -64,7 +60,7 @@ const CRON_CONFIG = [
   { interval: '* * * * *', jobName: 'ScheduleCreationSpamChecksJob' },
   // every 5 mins
   // { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
-  { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
+  // { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
   { interval: '*/5 * * * *', jobName: 'CheckOffensiveNamesJob' },
   // every hour
   { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
