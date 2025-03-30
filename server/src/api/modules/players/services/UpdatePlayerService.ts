@@ -12,6 +12,7 @@ import { archivePlayer } from './ArchivePlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
+import { eventEmitter, EventType } from '../../../events';
 
 type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
@@ -155,7 +156,7 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
     where: { id: player.id }
   });
 
-  playerEvents.onPlayerUpdated(updatedPlayer, previousSnapshot, newSnapshot, hasChanged);
+  eventEmitter.emit(EventType.PLAYER_UPDATED, { username: updatedPlayer.username, hasChanged });
 
   const playerDetails = formatPlayerDetails(updatedPlayer, newSnapshot);
 
