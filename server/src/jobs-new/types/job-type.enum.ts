@@ -1,4 +1,5 @@
 export enum JobType {
+  ASSERT_PLAYER_TYPE = 'assert-player-type',
   AUTO_UPDATE_PATRON_GROUPS = 'auto-update-patron-groups',
   AUTO_UPDATE_PATRON_PLAYERS = 'auto-update-patron-players',
   SYNC_API_KEYS = 'sync-api-keys',

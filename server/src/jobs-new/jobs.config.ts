@@ -1,3 +1,4 @@
+import { AssertPlayerTypeJob } from './handlers/assert-player-type.job';
 import { AutoUpdatePatronGroupsJob } from './handlers/auto-update-patron-groups.job';
 import { AutoUpdatePatronPlayersJob } from './handlers/auto-update-patron-players.job';
 import { SyncApiKeysJob } from './handlers/sync-api-keys.job';
@@ -9,6 +10,7 @@ import { UpdateQueueMetricsJob } from './handlers/update-queue-metrics.job';
 import { JobType } from './types/job-type.enum';
 
 export const JOB_HANDLER_MAP = {
+  [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJob,
   [JobType.AUTO_UPDATE_PATRON_GROUPS]: AutoUpdatePatronGroupsJob,
   [JobType.AUTO_UPDATE_PATRON_PLAYERS]: AutoUpdatePatronPlayersJob,
   [JobType.SYNC_API_KEYS]: SyncApiKeysJob,
