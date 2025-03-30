@@ -1,5 +1,4 @@
-import jobManager from '../../../jobs/job.manager';
-import { JobType, jobManager as newJobManager } from '../../../jobs-new';
+import { JobType, jobManager } from '../../../jobs-new';
 import prisma from '../../../prisma';
 import { MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
@@ -8,11 +7,11 @@ import { addToGroupCompetitions } from '../competitions/services/AddToGroupCompe
 import { removeFromGroupCompetitions } from '../competitions/services/RemoveFromGroupCompetitionsService';
 
 async function onGroupCreated(groupId: number) {
-  jobManager.add('UpdateGroupScoreJob', { groupId });
+  jobManager.add(JobType.UPDATE_GROUP_SCORE, { groupId });
 }
 
 async function onGroupUpdated(groupId: number) {
-  jobManager.add('UpdateGroupScoreJob', { groupId }, { skipDedupe: true });
+  jobManager.add(JobType.UPDATE_GROUP_SCORE, { groupId });
 }
 
 async function onMembersRolesChanged(events: MemberRoleChangeEvent[]) {
@@ -49,10 +48,10 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
       return;
     }
 
-    newJobManager.add(JobType.UPDATE_PLAYER, { username });
+    jobManager.add(JobType.UPDATE_PLAYER, { username });
   });
 
-  jobManager.add('UpdateGroupScoreJob', { groupId }, { skipDedupe: true });
+  jobManager.add(JobType.UPDATE_GROUP_SCORE, { groupId });
 }
 
 async function onMembersLeft(events: MemberLeftEvent[]) {
@@ -69,7 +68,7 @@ async function onMembersLeft(events: MemberLeftEvent[]) {
     await discordService.dispatchMembersLeft(groupId, playerIds);
   });
 
-  jobManager.add('UpdateGroupScoreJob', { groupId }, { skipDedupe: true });
+  jobManager.add(JobType.UPDATE_GROUP_SCORE, { groupId });
 }
 
 export { onGroupCreated, onGroupUpdated, onMembersJoined, onMembersLeft, onMembersRolesChanged };

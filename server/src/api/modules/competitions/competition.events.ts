@@ -1,5 +1,4 @@
-import jobManager from '../../../jobs/job.manager';
-import { JobType, jobManager as newJobManager } from '../../../jobs-new';
+import { JobType, jobManager } from '../../../jobs-new';
 import { JobPriority } from '../../../jobs/job.utils';
 import prisma, { Competition, Participation } from '../../../prisma';
 import { CompetitionWithParticipations, PlayerType } from '../../../utils';
@@ -24,7 +23,7 @@ async function onParticipantsJoined(participations: Pick<Participation, 'playerI
       return;
     }
 
-    newJobManager.add(JobType.UPDATE_PLAYER, { username });
+    jobManager.add(JobType.UPDATE_PLAYER, { username });
   });
 }
 
@@ -46,7 +45,7 @@ async function onCompetitionStarted(competition: Competition) {
     discordService.dispatchCompetitionStarted(competition);
   });
 
-  jobManager.add('UpdateCompetitionScoreJob', { competitionId: competition.id }, { skipDedupe: true });
+  jobManager.add(JobType.UPDATE_COMPETITION_SCORE, { competitionId: competition.id });
 }
 
 async function onCompetitionEnded(competition: Competition) {
@@ -58,7 +57,7 @@ async function onCompetitionEnded(competition: Competition) {
     discordService.dispatchCompetitionEnded(competitionDetails);
   });
 
-  jobManager.add('UpdateCompetitionScoreJob', { competitionId: competition.id }, { skipDedupe: true });
+  jobManager.add(JobType.UPDATE_COMPETITION_SCORE, { competitionId: competition.id });
 }
 
 async function onCompetitionStarting(competition: Competition, period: EventPeriodDelay) {
@@ -84,7 +83,7 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
     competitionDetails.participations
       .filter(p => p.progress.gained > 0) // Only update players that have gained xp
       .forEach(p => {
-        newJobManager.add(JobType.UPDATE_PLAYER, { username: p.player.username });
+        jobManager.add(JobType.UPDATE_PLAYER, { username: p.player.username });
       });
 
     return;
@@ -106,7 +105,7 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
         return !p.player.updatedAt || Date.now() - p.player.updatedAt.getTime() > 1000 * 60 * 60 * 24;
       })
       .forEach(({ player: { username } }) => {
-        newJobManager.add(JobType.UPDATE_PLAYER, { username }, { priority: JobPriority.LOW });
+        jobManager.add(JobType.UPDATE_PLAYER, { username }, { priority: JobPriority.LOW });
       });
   }
 }

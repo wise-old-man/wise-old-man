@@ -10,15 +10,11 @@ import { CheckPlayerRankedJob } from './instances/CheckPlayerRankedJob';
 import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import { ScheduleBannedPlayerChecksJob } from './instances/ScheduleBannedPlayerChecksJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
-import { ScheduleCompetitionScoreUpdatesJob } from './instances/ScheduleCompetitionScoreUpdatesJob';
 import { ScheduleCreationSpamChecksJob } from './instances/ScheduleCreationSpamChecksJob';
 import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalidationsJob';
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
-import { ScheduleGroupScoreUpdatesJob } from './instances/ScheduleGroupScoreUpdatesJob';
 import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
-import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
-import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
 import { CheckOffensiveNamesJob } from './instances/CheckOffensiveNamesJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
@@ -33,14 +29,10 @@ const JOBS_MAP = {
   ScheduleBannedPlayerChecksJob,
   ScheduleCompetitionEventsJob,
   ScheduleCreationSpamChecksJob,
-  ScheduleCompetitionScoreUpdatesJob,
   ScheduleDeltaInvalidationsJob,
   ScheduleFlaggedPlayerReviewJob,
-  ScheduleGroupScoreUpdatesJob,
   ScheduleNameChangeReviewsJob,
-  SyncPatronsJob,
-  UpdateCompetitionScoreJob,
-  UpdateGroupScoreJob
+  SyncPatronsJob
 };
 
 // Jobs to run when the server starts up
@@ -59,9 +51,7 @@ const CRON_CONFIG = [
   { interval: '0 */6 * * *', jobName: 'ScheduleDeltaInvalidationsJob' },
   // everyday at 8 AM
   { interval: '0 8 * * *', jobName: 'ScheduleNameChangeReviewsJob' },
-  { interval: '0 8 * * *', jobName: 'ScheduleGroupScoreUpdatesJob' },
   { interval: '0 8 * * *', jobName: 'ScheduleBannedPlayerChecksJob' },
-  { interval: '0 8 * * *', jobName: 'ScheduleCompetitionScoreUpdatesJob' },
   { interval: '0 8 * * *', jobName: 'CalculateComputedMetricRankTablesJob' }
 ] satisfies CronJob[];
 

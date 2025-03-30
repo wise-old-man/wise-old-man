@@ -1,14 +1,18 @@
 import { fetchCompetitionDetails } from '../../api/modules/competitions/services/FetchCompetitionDetailsService';
 import prisma, { Competition } from '../../prisma';
-import { Metric, isActivity, isBoss, isSkill } from '../../utils';
-import { Job } from '../job.utils';
+import { isActivity, isBoss, isSkill, Metric } from '../../utils';
+import { Job } from '../job.class';
 
-type UpdateCompetitionScoreJobPayload = {
+interface Payload {
   competitionId: number;
-};
+}
 
-export class UpdateCompetitionScoreJob extends Job<UpdateCompetitionScoreJobPayload> {
-  async execute(payload: UpdateCompetitionScoreJobPayload) {
+export class UpdateCompetitionScoreJob extends Job<Payload> {
+  async execute(payload: Payload) {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     const competition = await prisma.competition.findFirst({
       where: { id: payload.competitionId }
     });

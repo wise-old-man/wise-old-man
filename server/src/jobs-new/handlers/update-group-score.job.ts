@@ -2,14 +2,18 @@ import { findGroupCompetitions } from '../../api/modules/competitions/services/F
 import { fetchGroupDetails } from '../../api/modules/groups/services/FetchGroupDetailsService';
 import prisma from '../../prisma';
 import { GroupDetails, PRIVELEGED_GROUP_ROLES } from '../../utils';
-import { Job } from '../job.utils';
+import { Job } from '../job.class';
 
-type UpdateGroupScoreJobPayload = {
+interface Payload {
   groupId: number;
-};
+}
 
-export class UpdateGroupScoreJob extends Job<UpdateGroupScoreJobPayload> {
-  async execute(payload: UpdateGroupScoreJobPayload) {
+export class UpdateGroupScoreJob extends Job<Payload> {
+  async execute(payload: Payload) {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     const groupDetails = await fetchGroupDetails(payload.groupId);
 
     const currentScore = groupDetails.score;
