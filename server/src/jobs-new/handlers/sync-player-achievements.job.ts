@@ -14,21 +14,21 @@ const UNKNOWN_DATE = new Date(0);
 
 interface Payload {
   username: string;
+  previousSnapshotId: number | null;
 }
 
 export class SyncPlayerAchievementsJob extends Job<Payload> {
   async execute(payload: Payload) {
-    const [currentSnapshot, previousSnapshot] = await prisma.snapshot.findMany({
+    const playerAndSnapshot = await prisma.player.findFirst({
       where: {
-        player: {
-          username: payload.username
-        }
+        username: payload.username
       },
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: 2
+      include: {
+        latestSnapshot: true
+      }
     });
+
+    const currentSnapshot = playerAndSnapshot?.latestSnapshot ?? null;
 
     if (!currentSnapshot) {
       return;
@@ -36,7 +36,7 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
 
     const playerId = currentSnapshot.playerId;
 
-    if (!previousSnapshot) {
+    if (payload.previousSnapshotId === null) {
       // If this is the first time player's being updated, find missing achievements and set them to "unknown" date
       const missingAchievements = ALL_DEFINITIONS.filter(d => d.validate(currentSnapshot)).map(
         ({ name, metric, threshold }) => ({
@@ -62,6 +62,18 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
       // TODO: move this to a job too!
       onAchievementsCreated(missingAchievements);
 
+      return;
+    }
+
+    const previousSnapshot = await prisma.snapshot.findFirst({
+      where: {
+        id: payload.previousSnapshotId
+      }
+    });
+
+    if (previousSnapshot === null) {
+      // This shouldn't really happen, that would mean that this snapshot was deleted
+      // between the "PLAYER_UPDATED" event being emitted, and this job being executed
       return;
     }
 

@@ -156,7 +156,11 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
     where: { id: player.id }
   });
 
-  eventEmitter.emit(EventType.PLAYER_UPDATED, { username: updatedPlayer.username, hasChanged });
+  eventEmitter.emit(EventType.PLAYER_UPDATED, {
+    username: updatedPlayer.username,
+    hasChanged,
+    previousSnapshotId: previousSnapshot?.id ?? null
+  });
 
   const playerDetails = formatPlayerDetails(updatedPlayer, newSnapshot);
 
