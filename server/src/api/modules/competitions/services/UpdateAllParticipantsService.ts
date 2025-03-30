@@ -1,4 +1,4 @@
-import jobManager from '../../../../jobs/job.manager';
+import { JobType, jobManager } from '../../../../jobs-new';
 import prisma, { Player } from '../../../../prisma';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
@@ -47,7 +47,7 @@ async function updateAllParticipants(
 
   // Schedule an update job for every participant
   for (const player of outdatedPlayers) {
-    jobManager.add('UpdatePlayerJob', { username: player.username });
+    jobManager.add(JobType.UPDATE_PLAYER, { username: player.username });
   }
 
   return { outdatedCount: outdatedPlayers.length, cooldownDuration };

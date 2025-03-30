@@ -1,4 +1,5 @@
 import jobManager from '../../../jobs/job.manager';
+import { JobType, jobManager as newJobManager } from '../../../jobs-new';
 import prisma from '../../../prisma';
 import { MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
@@ -44,8 +45,11 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
 
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
-    if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) return;
-    jobManager.add('UpdatePlayerJob', { username });
+    if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) {
+      return;
+    }
+
+    newJobManager.add(JobType.UPDATE_PLAYER, { username });
   });
 
   jobManager.add('UpdateGroupScoreJob', { groupId }, { skipDedupe: true });

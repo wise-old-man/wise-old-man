@@ -1,4 +1,4 @@
-import jobManager from '../../../../jobs/job.manager';
+import { jobManager, JobType } from '../../../../jobs-new';
 import prisma, { Player } from '../../../../prisma';
 import { Period, PeriodProps } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
@@ -20,7 +20,7 @@ async function updateAllMembers(groupId: number): Promise<number> {
 
   // Schedule an update job for every member
   for (const player of outdatedPlayers) {
-    jobManager.add('UpdatePlayerJob', { username: player.username });
+    jobManager.add(JobType.UPDATE_PLAYER, { username: player.username });
   }
 
   return outdatedPlayers.length;

@@ -19,7 +19,6 @@ import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeRevi
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
-import { UpdatePlayerJob } from './instances/UpdatePlayerJob';
 import { CheckOffensiveNamesJob } from './instances/CheckOffensiveNamesJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
@@ -41,8 +40,7 @@ const JOBS_MAP = {
   ScheduleNameChangeReviewsJob,
   SyncPatronsJob,
   UpdateCompetitionScoreJob,
-  UpdateGroupScoreJob,
-  UpdatePlayerJob
+  UpdateGroupScoreJob
 };
 
 // Jobs to run when the server starts up
