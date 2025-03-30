@@ -28,7 +28,14 @@ class JobManager {
     payload: TPayload extends undefined ? Record<string, never> : TPayload,
     options?: JobOptions
   ) {
-    if (process.env.NODE_ENV === 'test') return;
+    if (process.env.NODE_ENV === 'test') {
+      // If in test mode, execute the job handler directly instead of adding it to the queue.
+      // This is useful for testing because we want to test the job handler logic without
+      // actually running the job in the queue.
+      // @ts-expect-error -- Unknown payload type
+      await new JOB_HANDLER_MAP[type](this).execute(payload);
+      return;
+    }
 
     const matchingQueue = this.queues.find(queue => queue.name === type);
 
@@ -41,8 +48,8 @@ class JobManager {
       priority: options?.priority || JobPriority.MEDIUM
     };
 
-    if (payload && !opts.skipDedupe) {
-      opts.jobId = this.getUniqueJobId(payload);
+    if (payload !== undefined) {
+      opts.jobId = JSON.stringify(payload);
     }
 
     await matchingQueue.add(type, payload, opts);

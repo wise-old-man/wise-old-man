@@ -33,17 +33,20 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
     const player = await prisma.player.findFirst({
       where: {
         username: payload.username
+      },
+      include: {
+        latestSnapshot: true
       }
     });
 
-    if (player === null || player.latestSnapshotId === null) {
+    if (player === null || player.latestSnapshot === null) {
       return;
     }
 
     for (const participation of participations) {
       // Update this participation's latest (end) snapshot
       const updatePayload: PrismaTypes.ParticipationUncheckedUpdateInput = {
-        endSnapshotId: player.latestSnapshotId
+        endSnapshotId: player.latestSnapshot.id
       };
 
       // If this participation's starting snapshot has not been set,
