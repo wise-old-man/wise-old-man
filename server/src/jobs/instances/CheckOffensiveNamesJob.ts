@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { Job } from '../job.utils';
 import { OpenAiService } from '../../api/services/external/openai.service';
 import prisma from '../../prisma';
+import { dispatchOffensiveNamesFound } from '../../api/services/external/discord.service';
 
 const SYSTEM_PROMPT = `
   Act as a content moderator and filter out any usernames that are offensive or inappropriate. 
@@ -10,7 +11,7 @@ const SYSTEM_PROMPT = `
 `;
 
 const RESPONSE_SCHEMA = z.object({
-  offensiveUsernames: z.array(
+  offensiveEntities: z.array(
     z.object({
       id: z.number(),
       name: z.string(),
@@ -63,19 +64,17 @@ export class CheckOffensiveNamesJob extends Job<unknown> {
       return;
     }
 
-    const offensiveNames = await openAi.makePrompt(
+    const response = await openAi.makePrompt(
       'gpt-4o-mini',
       JSON.stringify(allItems),
       SYSTEM_PROMPT,
       RESPONSE_SCHEMA
     );
 
-    if (offensiveNames.offensiveUsernames.length === 0) {
+    if (response.offensiveEntities.length === 0) {
       return;
     }
 
-    console.log(offensiveNames);
-
-    // TODO: dispatch discord event
+    dispatchOffensiveNamesFound(response.offensiveEntities);
   }
 }

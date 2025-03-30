@@ -269,6 +269,10 @@ function dispatchPotentialCreationSpam(payload: {
   dispatch('POTENTIAL_CREATION_SPAM', payload);
 }
 
+function dispatchOffensiveNamesFound(entities: Array<{ id: number; name: string; type: string }>) {
+  dispatch('OFFENSIVE_NAMES_FOUND', entities);
+}
+
 export {
   dispatch,
   dispatchAchievements,
@@ -285,5 +289,6 @@ export {
   dispatchPlayerFlaggedReview,
   sendMonitoringMessage,
   sendPatreonUpdateMessage,
-  dispatchPotentialCreationSpam
+  dispatchPotentialCreationSpam,
+  dispatchOffensiveNamesFound
 };
