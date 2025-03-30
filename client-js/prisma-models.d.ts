@@ -20,6 +20,12 @@ export type MemberActivity = {
   createdAt: Date;
 };
 
+export type PlayerAnnotation = {
+  playerId: number;
+  type: PlayerAnnotationType;
+  createdAt: Date;
+};
+
 export type PlayerArchive = {
   playerId: number;
   previousUsername: string;
