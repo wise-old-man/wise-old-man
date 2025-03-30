@@ -8,6 +8,7 @@ import {
   PlayerStatus,
   PlayerType,
   PlayerTypeProps,
+  PlayerAnnotationType
 } from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
 import { getPlayerDetails } from "~/services/wiseoldman";
@@ -48,6 +49,7 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
 
   const player = await getPlayerDetails(username).catch(() => null);
 
+
   if (!player) {
     // If it fails to fetch this player, fallback to only rendering the child node.
     // This child will be the Error boundary defined in error.tsx.
@@ -59,6 +61,11 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
       {player.status !== PlayerStatus.ACTIVE && (
         <div className="mb-7">
           <PlayerStatusAlert player={player} />
+        </div>
+      )}
+      {player.annotations.length > 0 && (
+        <div className="mb-7">
+          <PlayerAnnotationsAlert player={player} />
         </div>
       )}
       <Header {...player} />
@@ -346,4 +353,54 @@ function getHiscoresURL(displayName: string, playerType: PlayerType) {
     default:
       return `https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${displayName}`;
   }
+}
+
+
+function PlayerAnnotationsAlert(props: {player: PlayerDetails }){
+  const { annotations, username } = props.player
+
+  const annotationTypes = annotations.map(a => a.type)
+
+  if(annotationTypes.includes(PlayerAnnotationType.OPT_OUT)){
+    return (
+      <Alert variant="default" className="border-blue-700 bg-blue-900/10">
+        <AlertTitle>Opted out of tracking.</AlertTitle>
+        <AlertDescription>
+              <p>
+              This player has requested to be excluded from tracking. For more information {" " }
+               <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://wiseoldman.net/discord"
+                  className="text-white underline"
+                >
+                contact us on Discord
+                </a>
+              </p>
+            </AlertDescription>
+      </Alert>
+    )
+  }
+
+  if(annotationTypes.includes(PlayerAnnotationType.BLOCKED)){
+    return (
+      <Alert variant="warn" className="border-yellow-700 bg-yellow-900/10">
+        <AlertTitle>Blocked</AlertTitle>
+        <AlertDescription>
+              <p>
+              This player has been blocked from tracking. For more information {" " }
+              <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://wiseoldman.net/discord"
+                  className="text-white underline"
+                >
+                  contact us on Discord
+                </a>
+              </p>
+            </AlertDescription>
+      </Alert>
+    )
+  }
+  return null
 }
