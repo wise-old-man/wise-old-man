@@ -58,12 +58,12 @@ const STARTUP_JOBS = ['CheckMissingComputedTablesJob'] satisfies Array<keyof typ
 
 const CRON_CONFIG = [
   // every 1 min
-  { interval: '* * * * *', jobName: 'SyncApiKeysJob' },
+  // { interval: '* * * * *', jobName: 'SyncApiKeysJob' },
   { interval: '* * * * *', jobName: 'SyncPatronsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCompetitionEventsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCreationSpamChecksJob' },
   // every 5 mins
-  { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
+  // { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
   { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
   { interval: '*/5 * * * *', jobName: 'CheckOffensiveNamesJob' },
   // every hour
@@ -85,10 +85,18 @@ class JobManager {
   private workers: Worker[];
   private schedulers: QueueScheduler[];
 
+  private metricUpdateInterval: NodeJS.Timeout | undefined;
+
   constructor() {
     this.queues = [];
     this.workers = [];
     this.schedulers = [];
+
+    if (process.env.NODE_ENV !== 'test') {
+      this.metricUpdateInterval = setInterval(() => {
+        this.updateQueueMetrics();
+      }, 30_000);
+    }
   }
 
   async add<T extends keyof JobPayloadMapper>(jobName: T, payload?: JobPayloadMapper[T], options?: Options) {
@@ -182,6 +190,7 @@ class JobManager {
         prefix: PREFIX,
         limiter: options?.rateLimiter,
         connection: redisConfig,
+        concurrency: options.maxConcurrent ?? 1,
         autorun: false
       });
 
@@ -232,6 +241,8 @@ class JobManager {
   }
 
   async shutdown() {
+    clearInterval(this.metricUpdateInterval);
+
     for (const queue of this.queues) {
       await queue.close();
     }
@@ -242,6 +253,17 @@ class JobManager {
 
     for (const scheduler of this.schedulers) {
       await scheduler.close();
+    }
+  }
+
+  async updateQueueMetrics() {
+    if (process.env.NODE_ENV !== 'development' && getThreadIndex() !== 0) {
+      return;
+    }
+
+    for (const queue of this.queues) {
+      const queueMetrics = await queue.getJobCounts();
+      await prometheus.updateQueueMetrics(queue.name, queueMetrics);
     }
   }
 }

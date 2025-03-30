@@ -1,12 +1,10 @@
 import jobManager from '../../../jobs/job.manager';
-import { Player, Snapshot } from '../../../prisma';
+import { jobManager as newJobManager, JobType } from '../../../jobs-new';
+import { Player } from '../../../prisma';
 import { FlaggedPlayerReviewContext, PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
 import prometheus from '../../services/external/prometheus.service';
 import { reevaluatePlayerAchievements } from '../achievements/services/ReevaluatePlayerAchievementsService';
-import { syncPlayerAchievements } from '../achievements/services/SyncPlayerAchievementsService';
-import { syncParticipations } from '../competitions/services/SyncParticipationsService';
-import { syncPlayerDeltas } from '../deltas/services/SyncPlayerDeltasService';
 
 async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerReviewContext) {
   await prometheus.trackEffect('dispatchPlayerFlaggedReview', async () => {
@@ -36,33 +34,8 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
     await discordService.dispatchNameChanged(player, previousDisplayName);
   });
 
-  // Setup jobs to assert the player's account type and auto-update them
-  jobManager.add('UpdatePlayerJob', { username: player.username });
+  newJobManager.add(JobType.UPDATE_PLAYER, { username: player.username });
   jobManager.add('CheckPlayerTypeJob', { username: player.username });
-}
-
-async function onPlayerUpdated(
-  player: Player,
-  previous: Snapshot | undefined,
-  current: Snapshot,
-  hasChanged: boolean
-) {
-  // Update this player's competition participations (gains)
-  await prometheus.trackEffect('syncParticipations', async () => {
-    await syncParticipations(player.id, current.id);
-  });
-
-  // Only sync achievements if the player gained any exp/kc this update
-  if (hasChanged) {
-    await prometheus.trackEffect('syncPlayerAchievements', async () => {
-      syncPlayerAchievements(player.id, previous, current);
-    });
-  }
-
-  // Update this player's deltas (gains)
-  await prometheus.trackEffect('syncPlayerDeltas', async () => {
-    await syncPlayerDeltas(player, current);
-  });
 }
 
 async function onPlayerImported(playerId: number) {
@@ -72,11 +45,4 @@ async function onPlayerImported(playerId: number) {
   });
 }
 
-export {
-  onPlayerArchived,
-  onPlayerFlagged,
-  onPlayerImported,
-  onPlayerNameChanged,
-  onPlayerTypeChanged,
-  onPlayerUpdated
-};
+export { onPlayerArchived, onPlayerFlagged, onPlayerImported, onPlayerNameChanged, onPlayerTypeChanged };

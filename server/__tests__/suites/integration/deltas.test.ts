@@ -7,7 +7,6 @@ import {
   registerCMLMock,
   registerHiscoresMock,
   resetDatabase,
-  resetRedis,
   sleep,
   readFile,
   modifyRawHiscoresData
@@ -16,6 +15,7 @@ import prisma from '../../../src/prisma';
 import * as deltaEvents from '../../../src/api/modules/deltas/delta.events';
 import { findPlayerDeltas } from '../../../src/api/modules/deltas/services/FindPlayerDeltasService';
 import { findGroupDeltas } from '../../../src/api/modules/deltas/services/FindGroupDeltasService';
+import { redisClient } from '../../../src/services/redis.service';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -37,7 +37,7 @@ beforeEach(() => {
 
 beforeAll(async () => {
   await resetDatabase();
-  await resetRedis();
+  await redisClient.flushall();
 
   globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
 
@@ -51,13 +51,11 @@ beforeAll(async () => {
   });
 });
 
-afterAll(async () => {
+afterAll(() => {
   jest.useRealTimers();
   axiosMock.reset();
-
-  // Sleep for 5s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(5000));
-}, 10_000);
+  redisClient.quit();
+});
 
 describe('Deltas API', () => {
   describe('1 - Syncing Player Deltas', () => {

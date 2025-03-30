@@ -1,6 +1,6 @@
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError } from '../../../errors';
-import * as nameChangeEvents from '../name-change.events';
+import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, sanitize, standardize } from '../../../modules/players/player.utils';
 
 async function submitNameChange(oldName: string, newName: string): Promise<NameChange> {
@@ -80,7 +80,7 @@ async function submitNameChange(oldName: string, newName: string): Promise<NameC
     }
   })) as NameChange;
 
-  nameChangeEvents.onNameChangeSubmitted(newNameChange);
+  eventEmitter.emit(EventType.NAME_CHANGE_CREATED, { nameChangeId: newNameChange.id });
 
   return newNameChange;
 }

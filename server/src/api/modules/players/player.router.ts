@@ -19,6 +19,7 @@ import { findPlayerRecords } from '../records/services/FindPlayerRecordsService'
 import { findPlayerSnapshotTimeline } from '../snapshots/services/FindPlayerSnapshotTimelineService';
 import { findPlayerSnapshots } from '../snapshots/services/FindPlayerSnapshotsService';
 import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsService';
+import { rollbackCollectionLog } from '../snapshots/services/RollbackCollectionLogService';
 import { formatSnapshot } from '../snapshots/snapshot.utils';
 import { standardize } from './player.utils';
 import { archivePlayer } from './services/ArchivePlayerService';
@@ -190,8 +191,41 @@ router.post(
 
     const [playerDetails] = await updatePlayer(username);
 
+    jobManager.add('ScheduleFlaggedPlayerReviewJob', undefined, { delay: 10_000 });
+
     res.status(200).json({
       message: `Successfully rolled back player: ${playerDetails.displayName}`
+    });
+  })
+);
+
+router.post(
+  '/players/:username/rollback-col-log',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      username: z.string()
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const { username } = req.params;
+
+    const player = await prisma.player.findFirst({
+      where: { username: standardize(username) }
+    });
+
+    if (!player) {
+      throw new NotFoundError('Player not found.');
+    }
+
+    await rollbackCollectionLog(player.id, username);
+
+    const [playerDetails] = await updatePlayer(username);
+
+    jobManager.add('ScheduleFlaggedPlayerReviewJob', undefined, { delay: 10_000 });
+
+    res.status(200).json({
+      message: `Successfully rolled back collection logs for player: ${playerDetails.displayName}`
     });
   })
 );

@@ -6,23 +6,23 @@ import { getPlayerEfficiencyMap } from '../../../src/api/modules/efficiency/effi
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
+import { findOrCreatePlayers } from '../../../src/api/modules/players/services/FindOrCreatePlayersService';
+import { importPlayerHistory } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
 import { reviewFlaggedPlayer } from '../../../src/api/modules/players/services/ReviewFlaggedPlayerService';
 import { setUpdateCooldown } from '../../../src/api/modules/players/services/UpdatePlayerService';
-import { importPlayerHistory } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
-import { parseHiscoresSnapshot, formatSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
-import redisService from '../../../src/api/services/external/redis.service';
+import { formatSnapshot, parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
 import prisma from '../../../src/prisma';
-import { BOSSES, Metric, PlayerStatus, PlayerType, PlayerAnnotationType } from '../../../src/utils';
+import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
+import { BOSSES, Metric, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/utils';
 import {
   modifyRawHiscoresData,
   readFile,
   registerCMLMock,
   registerHiscoresMock,
   resetDatabase,
-  resetRedis,
   sleep
 } from '../../utils';
-import { findOrCreatePlayers } from '../../../src/api/modules/players/services/FindOrCreatePlayersService';
+import { eventEmitter, EventType } from '../../../src/api/events';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -33,7 +33,8 @@ const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt
 const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
 const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
 
-const onPlayerUpdatedEvent = jest.spyOn(playerEvents, 'onPlayerUpdated');
+const eventEmission = jest.spyOn(eventEmitter, 'emit');
+
 const onPlayerFlaggedEvent = jest.spyOn(playerEvents, 'onPlayerFlagged');
 const onPlayerArchivedEvent = jest.spyOn(playerEvents, 'onPlayerArchived');
 const onPlayerImportedEvent = jest.spyOn(playerEvents, 'onPlayerImported');
@@ -51,7 +52,7 @@ beforeEach(() => {
 
 beforeAll(async () => {
   await resetDatabase();
-  await resetRedis();
+  await redisClient.flushall();
 
   globalData.cmlRawData = await readFile(CML_FILE_PATH);
   globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
@@ -66,13 +67,11 @@ beforeAll(async () => {
   });
 });
 
-afterAll(async () => {
+afterAll(() => {
   jest.useRealTimers();
   axiosMock.reset();
-
-  // Sleep for 5s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(5000));
-}, 10_000);
+  redisClient.quit();
+});
 
 describe('Player API', () => {
   describe('1. Tracking', () => {
@@ -84,7 +83,7 @@ describe('Player API', () => {
         'Validation error: Username cannot contain any special characters'
       );
 
-      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
     });
 
     it('should not track player (lengthy username)', async () => {
@@ -93,7 +92,7 @@ describe('Player API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Validation error: Username must be between');
 
-      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
     });
 
     it('should not track player (hiscores failed)', async () => {
@@ -107,7 +106,7 @@ describe('Player API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Failed to load hiscores for enrique.');
 
-      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
 
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
@@ -126,7 +125,7 @@ describe('Player API', () => {
       expect(firstResponse.status).toBe(400);
       expect(firstResponse.body.message).toMatch('Failed to load hiscores for toby.');
 
-      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
 
       // this player failed to be tracked, and their type remains "unknown"
       // therefor, we should allow them to be tracked again without waiting 60s
@@ -134,7 +133,7 @@ describe('Player API', () => {
       expect(secondResponse.status).toBe(400);
       expect(secondResponse.body.message).toMatch('Failed to load hiscores for toby.');
 
-      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
 
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
@@ -147,7 +146,13 @@ describe('Player API', () => {
       const thirdResponse = await api.post(`/players/toby`);
       expect(thirdResponse.status).toBe(200);
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
+        expect.objectContaining({
+          username: 'toby',
+          hasChanged: true
+        })
+      );
     });
 
     it("shouldn't review player type on 400 (unknown type)", async () => {
@@ -161,9 +166,9 @@ describe('Player API', () => {
       expect(response.body.message).toMatch('Failed to load hiscores for alanec.');
 
       // this player has "unknown" type, shouldn't be reviewed on 400 (null cooldown = no review)
-      expect(await redisService.getValue('cd:PlayerTypeReview', 'alanec')).toBeNull();
+      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'alanec'))).toBeNull();
 
-      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
     });
 
     it("shouldn't review player type on 400 (regular type)", async () => {
@@ -177,8 +182,15 @@ describe('Player API', () => {
       expect(firstResponse.status).toBe(201);
       expect(firstResponse.body.type).toBe('regular');
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
-      expect(await redisService.getValue('cd:PlayerTypeReview', 'aluminoti')).toBeNull();
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
+        expect.objectContaining({
+          username: 'aluminoti',
+          hasChanged: true
+        })
+      );
+
+      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'aluminoti'))).toBeNull();
 
       jest.resetAllMocks();
 
@@ -191,9 +203,9 @@ describe('Player API', () => {
       expect(secondResponse.status).toBe(400);
       expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
 
-      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
       // this player has "regular" type, shouldn't be reviewed on 400 (null cooldown = no review)
-      expect(await redisService.getValue('cd:PlayerTypeReview', 'aluminoti')).toBeNull();
+      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'aluminoti'))).toBeNull();
     });
 
     it("shouldn't review player type on 400 (ironman, but has cooldown)", async () => {
@@ -209,15 +221,27 @@ describe('Player API', () => {
       expect(firstResponse.status).toBe(201);
       expect(firstResponse.body.type).toBe('ironman');
 
-      expect(await redisService.getValue('cd:PlayerTypeReview', 'tony stark')).toBeNull();
-      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'tony stark'))).toBeNull();
+
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
+        expect.objectContaining({
+          username: 'tony stark',
+          hasChanged: true
+        })
+      );
 
       jest.resetAllMocks();
 
       const currentTimestamp = Date.now();
 
       // Manually set a review cooldown for this username
-      await redisService.setValue('cd:PlayerTypeReview', 'tony stark', currentTimestamp, 604_800_000);
+      await redisClient.set(
+        buildCompoundRedisKey('cd', 'PlayerTypeReview', 'tony stark'),
+        currentTimestamp,
+        'PX',
+        604_800_000
+      );
 
       // Mock the hiscores to fail for ironman
       registerHiscoresMock(axiosMock, {
@@ -233,9 +257,11 @@ describe('Player API', () => {
 
       // this player has "ironman" type, but has been reviewed recently, so they shouldn't be reviewed on 400
       // if the cooldown timestamp is the same as the previous one, then it didn't get reviewed again
-      expect(await redisService.getValue('cd:PlayerTypeReview', 'tony stark')).not.toBe(currentTimestamp);
+      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'tony stark'))).not.toBe(
+        currentTimestamp
+      );
 
-      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
     });
 
     it('should review player type on 400 (no change)', async () => {
@@ -251,8 +277,15 @@ describe('Player API', () => {
       expect(firstResponse.status).toBe(201);
       expect(firstResponse.body.type).toBe('ironman');
 
-      expect(await redisService.getValue('cd:PlayerTypeReview', 'ash')).toBeNull();
-      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
+
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
+        expect.objectContaining({
+          username: 'ash',
+          hasChanged: true
+        })
+      );
 
       jest.resetAllMocks();
 
@@ -269,9 +302,9 @@ describe('Player API', () => {
       expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
 
       // failed to review (null cooldown = no review)
-      expect(await redisService.getValue('cd:PlayerTypeReview', 'ash')).toBeNull();
+      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
       expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
-      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
     });
 
     it('should review player type on 400 (changed type)', async () => {
@@ -288,8 +321,17 @@ describe('Player API', () => {
       expect(firstResponse.body.type).toBe('ironman');
 
       // (null cooldown = no review)
-      expect(await redisService.getValue('cd:PlayerTypeReview', 'peter parker')).toBeNull();
-      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+      expect(
+        await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'peter parker'))
+      ).toBeNull();
+
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
+        expect.objectContaining({
+          username: 'peter parker',
+          hasChanged: true
+        })
+      );
 
       jest.resetAllMocks();
 
@@ -306,14 +348,22 @@ describe('Player API', () => {
       expect(secondResponse.body.type).toBe('regular');
 
       // non-null cooldown = successfully reviewed
-      expect(await redisService.getValue('cd:PlayerTypeReview', 'peter parker')).not.toBeNull();
+      expect(
+        await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'peter parker'))
+      ).not.toBeNull();
 
       expect(onPlayerTypeChangedEvent).toHaveBeenCalledWith(
         expect.objectContaining({ username: 'peter parker', type: 'regular' }),
         'ironman'
       );
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
+        expect.objectContaining({
+          username: 'peter parker',
+          hasChanged: false
+        })
+      );
     });
 
     it('should track player', async () => {
@@ -338,15 +388,12 @@ describe('Player API', () => {
       // Using the test "main" rates, we should get this number for regular accs
       expect(response.body.ehp).toBeCloseTo(630.6918952334495, 4);
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
         expect.objectContaining({
-          username: 'psikoi'
-        }),
-        undefined, // player is newly tracked, has no previous snapshot
-        expect.objectContaining({
-          playerId: response.body.id
-        }),
-        true
+          username: 'psikoi',
+          hasChanged: true
+        })
       );
 
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000); // updated under a second ago
@@ -362,29 +409,30 @@ describe('Player API', () => {
       expect(response.body.ehb).toBe(response.body.latestSnapshot.data.computed.ehb.value);
 
       // This is a new player, so we shouldn't be reviewing their type yet
-      const firstTypeReviewCooldown = await redisService.getValue('cd:PlayerTypeReview', 'psikoi');
+      const firstTypeReviewCooldown = await redisClient.get(
+        buildCompoundRedisKey('cd', 'PlayerTypeReview', 'psikoi')
+      );
+
       expect(firstTypeReviewCooldown).toBeNull();
 
       // Track again, stats shouldn't have changed
       await api.post(`/players/ PSIKOI_ `);
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalledTimes(2);
+      expect(eventEmission).toHaveBeenCalledTimes(2);
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
         expect.objectContaining({
-          username: 'psikoi'
-        }),
-        expect.objectContaining({
-          playerId: response.body.id
-        }),
-        expect.objectContaining({
-          playerId: response.body.id
-        }),
-        false
+          username: 'psikoi',
+          hasChanged: false
+        })
       );
 
       // No longer a new player, but they are a regular player, so we shouldn't be reviewing their type
-      const secondTypeReviewCooldown = await redisService.getValue('cd:PlayerTypeReview', 'psikoi');
+      const secondTypeReviewCooldown = await redisClient.get(
+        buildCompoundRedisKey('cd', 'PlayerTypeReview', 'psikoi')
+      );
+
       expect(secondTypeReviewCooldown).toBeNull();
 
       globalData.testPlayerId = response.body.id;
@@ -404,17 +452,14 @@ describe('Player API', () => {
 
       expect(responseDef1.status).toBe(201);
       expect(responseDef1.body.build).toBe('def1');
+      expect(responseDef1.body.latestSnapshot.data.skills.defence.experience).toBe(0);
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
         expect.objectContaining({
-          username: 'def1'
-        }),
-        undefined,
-        expect.objectContaining({
-          playerId: responseDef1.body.id,
-          defenceExperience: 0
-        }),
-        true
+          username: 'def1',
+          hasChanged: true
+        })
       );
     });
 
@@ -432,17 +477,14 @@ describe('Player API', () => {
 
       expect(responseZerker.status).toBe(201);
       expect(responseZerker.body.build).toBe('zerker');
+      expect(responseZerker.body.latestSnapshot.data.skills.defence.experience).toBe(61_512);
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
         expect.objectContaining({
-          username: 'zerker'
-        }),
-        undefined,
-        expect.objectContaining({
-          playerId: responseZerker.body.id,
-          defenceExperience: 61_512
-        }),
-        true
+          username: 'zerker',
+          hasChanged: true
+        })
       );
     });
 
@@ -460,17 +502,14 @@ describe('Player API', () => {
 
       expect(response10HP.status).toBe(201);
       expect(response10HP.body.build).toBe('hp10');
+      expect(response10HP.body.latestSnapshot.data.skills.hitpoints.experience).toBe(1154);
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
         expect.objectContaining({
-          username: 'hp10'
-        }),
-        undefined,
-        expect.objectContaining({
-          playerId: response10HP.body.id,
-          hitpointsExperience: 1154
-        }),
-        true
+          username: 'hp10',
+          hasChanged: true
+        })
       );
     });
 
@@ -494,18 +533,15 @@ describe('Player API', () => {
 
       expect(responseLvl3.status).toBe(201);
       expect(responseLvl3.body.build).toBe('lvl3');
+      expect(responseLvl3.body.latestSnapshot.data.skills.hitpoints.experience).toBe(1154);
+      expect(responseLvl3.body.latestSnapshot.data.skills.prayer.experience).toBe(0);
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
         expect.objectContaining({
-          username: 'lvl3'
-        }),
-        undefined,
-        expect.objectContaining({
-          playerId: responseLvl3.body.id,
-          hitpointsExperience: 1154,
-          prayerExperience: 0
-        }),
-        true
+          username: 'lvl3',
+          hasChanged: true
+        })
       );
     });
 
@@ -533,18 +569,15 @@ describe('Player API', () => {
 
       expect(responseF2P.status).toBe(201);
       expect(responseF2P.body.build).toBe('f2p');
+      expect(responseF2P.body.latestSnapshot.data.bosses.bryophyta.kills).toBe(10);
+      expect(responseF2P.body.latestSnapshot.data.skills.agility.experience).toBe(0);
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
         expect.objectContaining({
-          username: 'f2p'
-        }),
-        undefined,
-        expect.objectContaining({
-          playerId: responseF2P.body.id,
-          bryophytaKills: 10,
-          agilityExperience: 0
-        }),
-        true
+          username: 'f2p',
+          hasChanged: true
+        })
       );
     });
 
@@ -580,15 +613,12 @@ describe('Player API', () => {
       expect(responseF2PLvl3.status).toBe(201);
       expect(responseF2PLvl3.body.build).toBe('f2p_lvl3');
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
         expect.objectContaining({
-          username: 'f2p lvl3'
-        }),
-        undefined,
-        expect.objectContaining({
-          playerId: responseF2PLvl3.body.id
-        }),
-        true
+          username: 'f2p lvl3',
+          hasChanged: true
+        })
       );
     });
 
@@ -619,20 +649,19 @@ describe('Player API', () => {
 
       expect(response.body.latestSnapshot).not.toBeNull();
 
-      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.PLAYER_UPDATED,
         expect.objectContaining({
           username: 'enriath',
-          type: 'ironman'
-        }),
-        undefined,
-        expect.objectContaining({
-          playerId: response.body.id
-        }),
-        true
+          hasChanged: true
+        })
       );
 
       // This is a new player, so we shouldn't be reviewing their type yet
-      const firstUpdateCooldown = await redisService.getValue('cd:PlayerTypeReview', 'enriath');
+      const firstUpdateCooldown = await redisClient.get(
+        buildCompoundRedisKey('cd', 'PlayerTypeReview', 'enriath')
+      );
+
       expect(firstUpdateCooldown).toBeNull();
 
       // Track again, no stats have changed
@@ -640,7 +669,10 @@ describe('Player API', () => {
 
       // This is no longer a new player AND they're an ironman AND their stats haven't changed
       // so their type should be reviewed
-      const secondUpdateCooldown = await redisService.getValue('cd:PlayerTypeReview', 'enriath');
+      const secondUpdateCooldown = await redisClient.get(
+        buildCompoundRedisKey('cd', 'PlayerTypeReview', 'enriath')
+      );
+
       expect(secondUpdateCooldown).not.toBeNull();
 
       // Track again, no stats have changed
@@ -648,7 +680,10 @@ describe('Player API', () => {
 
       // This player was recently reviewed, and since the current timestamp gets stored on Redis
       // if they were to get reviewed again, their timestamp would be greater than the one stored
-      const thirdUpdateCooldown = await redisService.getValue('cd:PlayerTypeReview', 'enriath');
+      const thirdUpdateCooldown = await redisClient.get(
+        buildCompoundRedisKey('cd', 'PlayerTypeReview', 'enriath')
+      );
+
       expect(thirdUpdateCooldown).toBe(secondUpdateCooldown);
     });
 
@@ -672,14 +707,14 @@ describe('Player API', () => {
       expect(firstResponse.body).toMatchObject({ username: 'enriath', type: 'ironman' });
 
       // Manually clear the cooldown
-      await redisService.deleteKey(`cd:PlayerTypeReview:enriath`);
+      await redisClient.del(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'enriath'));
 
       const secondResponse = await api.post(`/players/Enriath`);
 
       expect(secondResponse.status).toBe(200);
       expect(secondResponse.body).toMatchObject({ username: 'enriath', type: 'regular' }); // type changed to regular
 
-      const cooldown = await redisService.getValue('cd:PlayerTypeReview', 'enriath');
+      const cooldown = await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'enriath'));
       expect(cooldown).not.toBeNull();
 
       // Revert the hiscores mocking back to "regular" player type
@@ -799,7 +834,7 @@ describe('Player API', () => {
       expect(fetchNameChangesResponse.body[0]).toMatchObject({ oldName: 'ruben', newName: 'alan' });
 
       // Ensure the hash was updated to now be linked to "alan"
-      const storedUsername = await redisService.getValue('hash', '123456');
+      const storedUsername = await redisClient.get(buildCompoundRedisKey('hash', '123456'));
       expect(storedUsername).toBe('alan');
     });
 
@@ -830,7 +865,7 @@ describe('Player API', () => {
       expect(fetchNameChangesResponse.body.length).toBe(1);
 
       // It should however stll update the hash to the new name
-      const storedUsername = await redisService.getValue('hash', '98765');
+      const storedUsername = await redisClient.get(buildCompoundRedisKey('hash', '98765'));
       expect(storedUsername).toBe('chuckie');
     });
 
@@ -1470,6 +1505,94 @@ describe('Player API', () => {
       // The previous last snapshot shouldn't be on the new snapshots list anymore
       const previousLastSnapshotId = playerSnapshotsBefore.at(0)!.id;
       expect(playerSnapshotsAfter.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
+    });
+
+    it("shouldn't rollback col log (player has no snapshots)", async () => {
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.COLLECTIONS_LOGGED, value: 100 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 }
+      });
+
+      await prisma.player.create({
+        data: {
+          username: 'test123',
+          displayName: `test123`
+        }
+      });
+
+      const response = await api
+        .post(`/players/test123/rollback-col-log`)
+        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe('Failed to rollback collection log data from snapshots.');
+    });
+
+    it('should rollback col log (last snapshot)', async () => {
+      let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.COLLECTIONS_LOGGED, value: 100 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 }
+      });
+
+      const trackResponse = await api.post(`/players/test123`);
+      expect(trackResponse.statusCode).toBe(200);
+
+      modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.COLLECTIONS_LOGGED, value: 1000 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 }
+      });
+
+      const secondTrackResponse = await api.post(`/players/test123`);
+      expect(secondTrackResponse.statusCode).toBe(200);
+
+      modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.COLLECTIONS_LOGGED, value: 200 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 }
+      });
+
+      const rollbackResponse = await api
+        .post(`/players/test123/rollback-col-log`)
+        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+
+      expect(rollbackResponse.status).toBe(200);
+      expect(rollbackResponse.body.message).toMatch(
+        'Successfully rolled back collection logs for player: test123'
+      );
+
+      const playerSnapshotsAfter = await prisma.snapshot.findMany({
+        where: {
+          player: {
+            username: 'test123'
+          }
+        }
+      });
+
+      expect(playerSnapshotsAfter.length).toBe(3);
+      expect(playerSnapshotsAfter.map(s => s.collections_loggedScore).filter(s => s > 200).length).toBe(0);
     });
   });
 
@@ -2285,7 +2408,7 @@ describe('Player API', () => {
     it('should return 403 when admin password is incorrect (admin validation)', async () => {
       const response = await api.post(`/players/psikoi/annotation`).send({
         adminPassword: 'abc',
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       expect(response.status).toBe(403);
@@ -2294,7 +2417,7 @@ describe('Player API', () => {
 
     it('should return 400 when admin password is missing (admin validation)', async () => {
       const response = await api.post(`/players/psikoi/annotation`).send({
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       expect(response.status).toBe(400);
@@ -2309,7 +2432,7 @@ describe('Player API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe(
-        "Invalid enum value for 'annotationType'. Expected blacklist | greylist | fake_f2p"
+        "Invalid enum value for 'annotationType'. Expected opt_out | blocked | fake_f2p"
       );
     });
 
@@ -2326,66 +2449,66 @@ describe('Player API', () => {
       await findOrCreatePlayers(['psikoi']);
       const response = await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       expect(response.status).toBe(201);
-      expect(response.body.type).toBe(PlayerAnnotationType.BLACKLIST);
+      expect(response.body.type).toBe(PlayerAnnotationType.OPT_OUT);
     });
 
     it('should fetch "psikoi"', async () => {
       await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
       const response = await api.get(`/players/psikoi`);
 
       expect(response.status).toBe(200);
-      expect(response.body.annotations[0].type).toBe(PlayerAnnotationType.BLACKLIST);
+      expect(response.body.annotations[0].type).toBe(PlayerAnnotationType.OPT_OUT);
     });
 
     it('should delete annotation', async () => {
       await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       const response = await api.delete(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       expect(response.status).toBe(200);
-      expect(response.body).toBe(`Annotation ${PlayerAnnotationType.BLACKLIST} deleted for player psikoi`);
+      expect(response.body).toBe(`Annotation ${PlayerAnnotationType.OPT_OUT} deleted for player psikoi`);
     });
 
     it('should fail to delete unexisting annotation', async () => {
       await findOrCreatePlayers(['psikoi']);
       const response = await api.delete(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe(`${PlayerAnnotationType.BLACKLIST} does not exist for psikoi.`);
+      expect(response.body.message).toBe(`${PlayerAnnotationType.OPT_OUT} does not exist for psikoi.`);
     });
 
     it('should throw conflit error 409 to create', async () => {
       await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       const response = await api.post(`/players/psikoi/annotation`).send({
         adminPassword: process.env.ADMIN_PASSWORD,
-        annotationType: PlayerAnnotationType.BLACKLIST
+        annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       expect(response.status).toBe(409);
-      expect(response.body.message).toBe('The annotation blacklist already exists for psikoi');
+      expect(response.body.message).toBe('The annotation opt_out already exists for psikoi');
     });
   });
 

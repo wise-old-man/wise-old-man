@@ -1,5 +1,5 @@
 import { getAlgorithmType } from '../../api/modules/efficiency/efficiency.utils';
-import redisService from '../../api/services/external/redis.service';
+import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import { PLAYER_TYPES, PLAYER_BUILDS, PlayerType, COMPUTED_METRICS } from '../../utils';
 import { Job } from '../job.utils';
 
@@ -12,10 +12,11 @@ export class CheckMissingComputedTablesJob extends Job<unknown> {
         if (playerType === PlayerType.UNKNOWN) continue;
 
         for (const playerBuild of PLAYER_BUILDS) {
+          const algorithmType = getAlgorithmType({ type: playerType, build: playerBuild });
+
           // Check if the cached rank table exists
-          const cachedResult = await redisService.getValue(
-            `${metric}_rank_table`,
-            getAlgorithmType({ type: playerType, build: playerBuild })
+          const cachedResult = await redisClient.get(
+            buildCompoundRedisKey(`${metric}_rank_table`, algorithmType)
           );
 
           if (cachedResult === null) {

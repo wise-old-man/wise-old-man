@@ -4,12 +4,11 @@ import cors from 'cors';
 import express, { Express } from 'express';
 import userAgent from 'express-useragent';
 import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
-import jobManager from '../jobs/job.manager';
+import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 import router from './routing';
-import { parseUserAgent } from './util/user-agents';
 import prometheus from './services/external/prometheus.service';
-import redisService from './services/external/redis.service';
 import { getRequestIpHash } from './util/request';
+import { parseUserAgent } from './util/user-agents';
 
 const RATE_LIMIT_MAX_REQUESTS = 20;
 const RATE_LIMIT_DURATION_SECONDS = 60;
@@ -20,7 +19,7 @@ const RATE_LIMIT_TRUSTED_RATIO = 5;
 const rateLimiter = new RateLimiterRedis({
   points: RATE_LIMIT_MAX_REQUESTS * RATE_LIMIT_TRUSTED_RATIO,
   duration: RATE_LIMIT_DURATION_SECONDS,
-  storeClient: redisService.redisClient
+  storeClient: redisClient
 });
 
 class API {
@@ -29,19 +28,12 @@ class API {
   constructor() {
     this.express = express();
 
-    jobManager.init();
-
     if (process.env.NODE_ENV !== 'test') {
       this.setupServices();
     }
 
     this.setupMiddlewares();
     this.setupRouting();
-  }
-
-  async shutdown() {
-    await jobManager.shutdown();
-    redisService.shutdown();
   }
 
   private setupMiddlewares() {
@@ -64,7 +56,9 @@ class API {
       }
 
       const ipHash = getRequestIpHash(req);
-      const isBlocked = ipHash !== null && (await redisService.getValue('api-blocked', ipHash));
+
+      const isBlocked =
+        ipHash !== null && (await redisClient.get(buildCompoundRedisKey('api-blocked', ipHash)));
 
       if (isBlocked) {
         res.status(429).json({
@@ -79,7 +73,7 @@ class API {
       let isTrustedOrigin = false;
 
       if (apiKey) {
-        const activeKey = await redisService.getValue('api-key', apiKey);
+        const activeKey = await redisClient.get(buildCompoundRedisKey('api-key', apiKey));
 
         if (activeKey === null) {
           return res.status(403).json({
@@ -95,8 +89,16 @@ class API {
         isTrustedOrigin = true;
       }
 
+      const consumerId = apiKey ?? req.ip;
+
+      if (consumerId === undefined) {
+        return res.status(403).json({
+          message: 'Invalid consumer ID'
+        });
+      }
+
       rateLimiter
-        .consume(apiKey ?? req.ip, isMasterKey ? 0 : isTrustedOrigin ? 1 : RATE_LIMIT_TRUSTED_RATIO)
+        .consume(consumerId, isMasterKey ? 0 : isTrustedOrigin ? 1 : RATE_LIMIT_TRUSTED_RATIO)
         .then(() => next())
         .catch(e => {
           if (!(e instanceof RateLimiterRes)) {

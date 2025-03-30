@@ -4,14 +4,8 @@ import MockAdapter from 'axios-mock-adapter';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import { PlayerType } from '../../../src/utils';
-import {
-  readFile,
-  registerCMLMock,
-  registerHiscoresMock,
-  resetDatabase,
-  resetRedis,
-  sleep
-} from '../../utils';
+import { readFile, registerCMLMock, registerHiscoresMock, resetDatabase } from '../../utils';
+import { redisClient } from '../../../src/services/redis.service';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -19,7 +13,7 @@ const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
 beforeAll(async () => {
-  await resetRedis();
+  await redisClient.flushall();
   await resetDatabase();
 
   // Mock the history fetch from CML to always fail with a 404 status code
@@ -34,10 +28,9 @@ beforeAll(async () => {
   });
 });
 
-afterAll(async () => {
-  // Sleep for 5s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(5000));
-}, 10_000);
+afterAll(() => {
+  redisClient.quit();
+});
 
 describe('Patrons API', () => {
   describe('Claim Patreon benefits', () => {

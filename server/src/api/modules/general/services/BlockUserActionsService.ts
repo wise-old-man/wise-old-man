@@ -1,6 +1,6 @@
 import prisma from '../../../../prisma';
-import redisService from '../../../services/external/redis.service';
 import { Period, PeriodProps } from '../../../../utils';
+import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 
 async function blockUserActions(ipHash: string) {
   const dayAgo = new Date(Date.now() - PeriodProps[Period.DAY].milliseconds);
@@ -25,7 +25,21 @@ async function blockUserActions(ipHash: string) {
   });
 
   // Block them from making any further requests for 24h
-  await redisService.setValue('api-blocked', ipHash, Date.now(), PeriodProps[Period.DAY].milliseconds);
+  await redisClient.set(
+    buildCompoundRedisKey('api-blocked', ipHash),
+    Date.now(),
+    'PX',
+    PeriodProps[Period.DAY].milliseconds
+  );
+
+  // Also write to this key, so that we can slowly migrate to a new naming convention
+  // In the future, we can remove the version above, and move all reads to this new version
+  await redisClient.set(
+    buildCompoundRedisKey('api_blocked', ipHash),
+    Date.now(),
+    'PX',
+    PeriodProps[Period.DAY].milliseconds
+  );
 }
 
 export { blockUserActions };

@@ -1,5 +1,5 @@
+import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import { getAlgorithmType } from '../../api/modules/efficiency/efficiency.utils';
-import redisService from '../../api/services/external/redis.service';
 import logger from '../../api/util/logging';
 import prisma from '../../prisma';
 import {
@@ -65,9 +65,11 @@ async function updateRankMaps(metric: ComputedMetric) {
   logger.info(`Storing rank table data...`, { metric }, true);
 
   for (const [algorithmType, data] of Array.from(map.entries())) {
-    await redisService.setValue(`${metric}_rank_table`, algorithmType, JSON.stringify(data)).catch(() => {
-      // Don't abort the whole job, just skip this player type and build
-    });
+    await redisClient
+      .set(buildCompoundRedisKey(`${metric}_rank_table`, algorithmType), JSON.stringify(data))
+      .catch(() => {
+        // Don't abort the whole job, just skip this player type and build
+      });
   }
 }
 

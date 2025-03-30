@@ -7,13 +7,13 @@ import { PlayerType } from '../../../src/utils';
 import * as competitionEvents from '../../../src/api/modules/competitions/competition.events';
 import {
   resetDatabase,
-  resetRedis,
   registerCMLMock,
   registerHiscoresMock,
   readFile,
   modifyRawHiscoresData,
   sleep
 } from '../../utils';
+import { redisClient } from '../../../src/services/redis.service';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -43,7 +43,7 @@ beforeEach(() => {
 
 beforeAll(async () => {
   await resetDatabase();
-  await resetRedis();
+  await redisClient.flushall();
 
   globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
 
@@ -57,13 +57,11 @@ beforeAll(async () => {
   });
 });
 
-afterAll(async () => {
+afterAll(() => {
   jest.useRealTimers();
   axiosMock.reset();
-
-  // Sleep for 5s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(5000));
-}, 10_000);
+  redisClient.quit();
+});
 
 describe('Competition API', () => {
   describe('1 - Create', () => {

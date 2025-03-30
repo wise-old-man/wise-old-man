@@ -8,11 +8,11 @@ import {
   registerCMLMock,
   registerHiscoresMock,
   resetDatabase,
-  resetRedis,
   readFile,
   modifyRawHiscoresData,
   sleep
 } from '../../utils';
+import { redisClient } from '../../../src/services/redis.service';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -27,7 +27,7 @@ const globalData = {
 
 beforeAll(async () => {
   await resetDatabase();
-  await resetRedis();
+  await redisClient.flushall();
 
   globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
 
@@ -44,10 +44,8 @@ beforeAll(async () => {
 afterAll(async () => {
   jest.useRealTimers();
   axiosMock.reset();
-
-  // Sleep for 5s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(5000));
-}, 10_000);
+  redisClient.quit();
+});
 
 describe('Records API', () => {
   describe('1 - Syncing Player Records', () => {

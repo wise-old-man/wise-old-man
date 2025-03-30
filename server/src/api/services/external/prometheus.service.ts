@@ -1,15 +1,19 @@
-import prometheus, { Histogram, Registry } from 'prom-client';
+import prometheus, { Histogram, Gauge, Registry, Counter } from 'prom-client';
 import { getThreadIndex } from '../../../env';
 
 type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
 type EffectParams = 'effectName' | 'status';
 type JobParams = 'jobName' | 'status';
+type JobQueueParams = 'queueName' | 'state';
+type EventParams = 'eventType';
 
 class PrometheusService {
   private registry: Registry;
   private jobHistogram: Histogram<JobParams>;
+  private jobQueueGauge: Gauge<JobQueueParams>;
   private httpHistogram: Histogram<HttpParams>;
   private effectHistogram: Histogram<EffectParams>;
+  private eventCounter: Counter<EventParams>;
 
   constructor() {
     this.registry = new prometheus.Registry();
@@ -38,9 +42,23 @@ class PrometheusService {
       buckets: [0.1, 0.5, 1, 5, 10, 30, 60]
     });
 
+    this.jobQueueGauge = new prometheus.Gauge({
+      name: 'job_queue_size',
+      help: 'Number of jobs in different states for each queue',
+      labelNames: ['queueName', 'state']
+    });
+
+    this.eventCounter = new prometheus.Counter({
+      name: 'event_counter',
+      help: 'Count of events emitted',
+      labelNames: ['eventType']
+    });
+
     this.registry.registerMetric(this.jobHistogram);
+    this.registry.registerMetric(this.jobQueueGauge);
     this.registry.registerMetric(this.httpHistogram);
     this.registry.registerMetric(this.effectHistogram);
+    this.registry.registerMetric(this.eventCounter);
   }
 
   trackHttpRequestStarted() {
@@ -78,6 +96,16 @@ class PrometheusService {
     } catch (error) {
       endTimer({ jobName, status: 0 });
       throw error;
+    }
+  }
+
+  trackEventEmitted(eventType: string) {
+    this.eventCounter.inc({ eventType });
+  }
+
+  async updateQueueMetrics(queueName: string, counts: Record<string, number>) {
+    for (const [state, count] of Object.entries(counts)) {
+      this.jobQueueGauge.set({ queueName, state }, count);
     }
   }
 

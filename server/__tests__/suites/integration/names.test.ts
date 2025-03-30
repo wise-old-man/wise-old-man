@@ -4,26 +4,21 @@ import MockAdapter from 'axios-mock-adapter';
 import { getMetricValueKey, getMetricRankKey, METRICS, PlayerType, PlayerStatus } from '../../../src/utils';
 import prisma from '../../../src/prisma';
 import apiServer from '../../../src/api';
-import * as nameChangeEvents from '../../../src/api/modules/name-changes/name-change.events';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
-import {
-  registerCMLMock,
-  registerHiscoresMock,
-  resetDatabase,
-  resetRedis,
-  readFile,
-  sleep
-} from '../../utils';
+import { registerCMLMock, registerHiscoresMock, resetDatabase, readFile, sleep } from '../../utils';
+import { redisClient } from '../../../src/services/redis.service';
+import { eventEmitter, EventType } from '../../../src/api/events';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
+const eventEmission = jest.spyOn(eventEmitter, 'emit');
+
 const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
 const onPlayerArchivedEvent = jest.spyOn(playerEvents, 'onPlayerArchived');
 const onPlayerNameChangedEvent = jest.spyOn(playerEvents, 'onPlayerNameChanged');
-const onNameChangeSubmittedEvent = jest.spyOn(nameChangeEvents, 'onNameChangeSubmitted');
 
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
@@ -40,7 +35,7 @@ beforeEach(() => {
 
 beforeAll(async () => {
   await resetDatabase();
-  await resetRedis();
+  await redisClient.flushall();
 
   globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
 
@@ -54,13 +49,11 @@ beforeAll(async () => {
   });
 });
 
-afterAll(async () => {
+afterAll(() => {
   jest.useRealTimers();
   axiosMock.reset();
-
-  // Sleep for 5s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(5000));
-}, 10_000);
+  redisClient.quit();
+});
 
 describe('Names API', () => {
   describe('1 - Submitting', () => {
@@ -70,7 +63,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'oldName' is undefined.");
 
-      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.NAME_CHANGE_CREATED);
     });
 
     it('should not submit (missing newName)', async () => {
@@ -79,7 +72,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'newName' is undefined.");
 
-      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.NAME_CHANGE_CREATED);
     });
 
     it('should not submit (invalid oldName)', async () => {
@@ -88,7 +81,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid old name.');
 
-      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.NAME_CHANGE_CREATED);
     });
 
     it('should not submit (invalid newName)', async () => {
@@ -97,7 +90,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid new name.');
 
-      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.NAME_CHANGE_CREATED);
     });
 
     it('should not submit (equal names)', async () => {
@@ -107,7 +100,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Old name and new name cannot be the same.');
 
-      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.NAME_CHANGE_CREATED);
     });
 
     it("should not submit (player doesn't exist)", async () => {
@@ -116,7 +109,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Player 'psikoi' is not tracked yet.");
 
-      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.NAME_CHANGE_CREATED);
     });
 
     it('should submit (capitalization change)', async () => {
@@ -135,9 +128,10 @@ describe('Names API', () => {
       expect(submitResponse.body.newName).toBe('Psikoi');
       expect(submitResponse.body.resolvedAt).toBe(null);
 
-      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.NAME_CHANGE_CREATED,
         expect.objectContaining({
-          id: submitResponse.body.id
+          nameChangeId: submitResponse.body.id
         })
       );
 
@@ -160,9 +154,10 @@ describe('Names API', () => {
       expect(submitResponse.body.newName).toBe('alexsuperfly');
       expect(submitResponse.body.resolvedAt).toBe(null);
 
-      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.NAME_CHANGE_CREATED,
         expect.objectContaining({
-          id: submitResponse.body.id
+          nameChangeId: submitResponse.body.id
         })
       );
     });
@@ -179,9 +174,10 @@ describe('Names API', () => {
       expect(submitResponse.body.oldName).toBe('Some guy');
       expect(submitResponse.body.newName).toBe('Some Guy');
 
-      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.NAME_CHANGE_CREATED,
         expect.objectContaining({
-          id: submitResponse.body.id
+          nameChangeId: submitResponse.body.id
         })
       );
 
@@ -222,9 +218,10 @@ describe('Names API', () => {
 
       globalData.secondNameChangeId = submitResponse.body.id;
 
-      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.NAME_CHANGE_CREATED,
         expect.objectContaining({
-          id: submitResponse.body.id
+          nameChangeId: submitResponse.body.id
         })
       );
 
@@ -252,7 +249,7 @@ describe('Names API', () => {
       expect(secondSubmitResponse.status).toBe(400);
       expect(secondSubmitResponse.body.message).toMatch('Cannot submit a duplicate (approved) name change');
 
-      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.NAME_CHANGE_CREATED);
     });
 
     it('should not submit (repeated pending submission)', async () => {
@@ -261,7 +258,7 @@ describe('Names API', () => {
       expect(submitResponse.status).toBe(400);
       expect(submitResponse.body.message).toMatch("There's already a similar pending name change.");
 
-      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
+      expect(eventEmission).not.toHaveBeenCalledWith(EventType.NAME_CHANGE_CREATED);
     });
 
     it('should submit (names contained in repeated pending submission)', async () => {
@@ -275,9 +272,10 @@ describe('Names API', () => {
       expect(submitResponse.body.oldName).toBe('Dro');
       expect(submitResponse.body.newName).toBe('Super');
 
-      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.NAME_CHANGE_CREATED,
         expect.objectContaining({
-          id: submitResponse.body.id
+          nameChangeId: submitResponse.body.id
         })
       );
     });
@@ -294,9 +292,10 @@ describe('Names API', () => {
       expect(submitResponse.body.oldName).toBe('Rorro');
       expect(submitResponse.body.newName).toBe('RoRRo');
 
-      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.NAME_CHANGE_CREATED,
         expect.objectContaining({
-          id: submitResponse.body.id
+          nameChangeId: submitResponse.body.id
         })
       );
 
@@ -1186,9 +1185,11 @@ describe('Names API', () => {
       });
 
       expect(submitResponse.status).toBe(201);
-      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+
+      expect(eventEmission).toHaveBeenCalledWith(
+        EventType.NAME_CHANGE_CREATED,
         expect.objectContaining({
-          id: submitResponse.body.id
+          nameChangeId: submitResponse.body.id
         })
       );
 

@@ -7,13 +7,12 @@ import { PlayerType } from '../../../src/utils';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import {
   resetDatabase,
-  resetRedis,
   registerCMLMock,
   registerHiscoresMock,
   readFile,
-  modifyRawHiscoresData,
-  sleep
+  modifyRawHiscoresData
 } from '../../utils';
+import { redisClient } from '../../../src/services/redis.service';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -56,7 +55,7 @@ beforeEach(() => {
 
 beforeAll(async () => {
   await resetDatabase();
-  await resetRedis();
+  await redisClient.flushall();
 
   globalData.pHiscoresRawData = await readFile(P_HISCORES_FILE_PATH);
   globalData.ltHiscoresRawData = await readFile(LT_HISCORES_FILE_PATH);
@@ -71,13 +70,11 @@ beforeAll(async () => {
   });
 });
 
-afterAll(async () => {
+afterAll(() => {
   jest.useRealTimers();
   axiosMock.reset();
-
-  // Sleep for 5s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(5000));
-}, 10_000);
+  redisClient.quit();
+});
 
 describe('Group API', () => {
   describe('1 - Create', () => {

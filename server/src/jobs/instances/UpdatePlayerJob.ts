@@ -17,7 +17,8 @@ export class UpdatePlayerJob extends Job<UpdatePlayerJobPayload> {
     this.options = {
       attempts: 3,
       backoff: 30_000,
-      rateLimiter: { max: 200, duration: 1000 }
+      maxConcurrent: 4,
+      rateLimiter: { max: 1, duration: 250 }
     };
   }
 
