@@ -357,9 +357,10 @@ function getHiscoresURL(displayName: string, playerType: PlayerType) {
 
 
 function PlayerAnnotationsAlert(props: {player: PlayerDetails }){
-  const { annotations, username } = props.player
-
+  const { annotations } = props.player
   const annotationTypes = annotations.map(a => a.type)
+
+  if (!annotationTypes.includes(PlayerAnnotationType.OPT_OUT) && !annotationTypes.includes(PlayerAnnotationType.BLOCKED)) return null
 
   if(annotationTypes.includes(PlayerAnnotationType.OPT_OUT)){
     return (
@@ -384,7 +385,7 @@ function PlayerAnnotationsAlert(props: {player: PlayerDetails }){
 
   if(annotationTypes.includes(PlayerAnnotationType.BLOCKED)){
     return (
-      <Alert variant="warn" className="border-yellow-700 bg-yellow-900/10">
+      <Alert variant="warn" className="border-blue-700 bg-blue-900/10">
         <AlertTitle>Blocked</AlertTitle>
         <AlertDescription>
               <p>
@@ -402,5 +403,4 @@ function PlayerAnnotationsAlert(props: {player: PlayerDetails }){
       </Alert>
     )
   }
-  return null
 }
