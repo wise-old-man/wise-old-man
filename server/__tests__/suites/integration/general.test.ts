@@ -3,7 +3,7 @@ import supertest from 'supertest';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
-import { resetDatabase } from '../../utils';
+import { resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);
 
@@ -123,6 +123,8 @@ describe('General API', () => {
       });
       expect(isCuid(response.body.id)).toBe(true);
 
+      await sleep(100);
+
       // Make sure it's been stored in redis memory
       expect(await redisClient.get(buildCompoundRedisKey('api-key', response.body.id))).toBe('false');
     });
@@ -175,6 +177,8 @@ describe('General API', () => {
       });
       expect(apiKeyResponse.status).toBe(201);
 
+      await sleep(100);
+
       let successCount = 0;
       let rateLimitedCount = 0;
 
@@ -206,6 +210,8 @@ describe('General API', () => {
         adminPassword: process.env.ADMIN_PASSWORD
       });
       expect(apiKeyResponse.status).toBe(201);
+
+      await sleep(100);
 
       // Manually set this to a master key
       const updatedKey = await prisma.apiKey.update({

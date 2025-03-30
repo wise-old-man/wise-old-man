@@ -21,6 +21,10 @@ export class AssertPlayerTypeJob extends Job<Payload> {
   }
 
   async execute(payload: Payload): Promise<void> {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     const player = await prisma.player.findFirst({
       where: { username: standardize(payload.username) }
     });

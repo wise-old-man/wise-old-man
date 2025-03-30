@@ -5,7 +5,7 @@ import { JobType } from '../types/job-type.enum';
 
 export class AutoUpdatePatronGroupsJob extends Job<unknown> {
   async execute() {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
       return;
     }
 
