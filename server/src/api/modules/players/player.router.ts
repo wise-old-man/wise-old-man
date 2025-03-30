@@ -71,7 +71,9 @@ router.post(
     const { username } = req.params;
     const { force } = req.body;
 
-    const [playerDetails, isNew] = await updatePlayer(username, force);
+    const { isNew } = await updatePlayer(username, force);
+    const playerDetails = await fetchPlayerDetails(username);
+
     res.status(isNew ? 201 : 200).json(playerDetails);
   })
 );
@@ -189,12 +191,12 @@ router.post(
       untilLastChange && player.lastChangedAt ? player.lastChangedAt : undefined
     );
 
-    const [playerDetails] = await updatePlayer(username);
+    const { updatedPlayer } = await updatePlayer(username);
 
     jobManager.add('ScheduleFlaggedPlayerReviewJob', undefined, { delay: 10_000 });
 
     res.status(200).json({
-      message: `Successfully rolled back player: ${playerDetails.displayName}`
+      message: `Successfully rolled back player: ${updatedPlayer.displayName}`
     });
   })
 );
@@ -220,12 +222,12 @@ router.post(
 
     await rollbackCollectionLog(player.id, username);
 
-    const [playerDetails] = await updatePlayer(username);
+    const { updatedPlayer } = await updatePlayer(username);
 
     jobManager.add('ScheduleFlaggedPlayerReviewJob', undefined, { delay: 10_000 });
 
     res.status(200).json({
-      message: `Successfully rolled back collection logs for player: ${playerDetails.displayName}`
+      message: `Successfully rolled back collection logs for player: ${updatedPlayer.displayName}`
     });
   })
 );
