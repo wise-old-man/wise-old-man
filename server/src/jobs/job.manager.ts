@@ -17,7 +17,6 @@ import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalida
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
 import { ScheduleGroupScoreUpdatesJob } from './instances/ScheduleGroupScoreUpdatesJob';
 import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
-import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
 import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
@@ -42,7 +41,6 @@ const JOBS_MAP = {
   ScheduleFlaggedPlayerReviewJob,
   ScheduleGroupScoreUpdatesJob,
   ScheduleNameChangeReviewsJob,
-  SyncApiKeysJob,
   SyncPatronsJob,
   UpdateCompetitionScoreJob,
   UpdateGroupScoreJob,
@@ -54,13 +52,10 @@ const STARTUP_JOBS = ['CheckMissingComputedTablesJob'] satisfies Array<keyof typ
 
 const CRON_CONFIG = [
   // every 1 min
-  // { interval: '* * * * *', jobName: 'SyncApiKeysJob' },
   { interval: '* * * * *', jobName: 'SyncPatronsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCompetitionEventsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCreationSpamChecksJob' },
   // every 5 mins
-  // { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
-  // { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
   { interval: '*/5 * * * *', jobName: 'CheckOffensiveNamesJob' },
   // every hour
   { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
