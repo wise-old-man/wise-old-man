@@ -3,6 +3,7 @@ import { AutoUpdatePatronGroupsJob } from './handlers/auto-update-patron-groups.
 import { AutoUpdatePatronPlayersJob } from './handlers/auto-update-patron-players.job';
 import { ScheduleGroupScoreUpdatesJob } from './handlers/schedule-group-score-updates.job';
 import { SyncApiKeysJob } from './handlers/sync-api-keys.job';
+import { SyncPatronsJob } from './handlers/sync-patrons.job';
 import { SyncPlayerAchievementsJob } from './handlers/sync-player-achievements.job';
 import { SyncPlayerCompetitionParticipationsJob } from './handlers/sync-player-competition-participations.job';
 import { SyncPlayerDeltasJob } from './handlers/sync-player-deltas.job';
@@ -19,6 +20,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.SCHEDULE_COMPETITION_SCORE_UPDATES]: ScheduleGroupScoreUpdatesJob,
   [JobType.SCHEDULE_GROUP_SCORE_UPDATES]: ScheduleGroupScoreUpdatesJob,
   [JobType.SYNC_API_KEYS]: SyncApiKeysJob,
+  [JobType.SYNC_PATRONS]: SyncPatronsJob,
   [JobType.SYNC_PLAYER_ACHIEVEMENTS]: SyncPlayerAchievementsJob,
   [JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS]: SyncPlayerCompetitionParticipationsJob,
   [JobType.SYNC_PLAYER_DELTAS]: SyncPlayerDeltasJob,
@@ -31,6 +33,7 @@ export const JOB_HANDLER_MAP = {
 export const CRON_CONFIG = [
   // every 1 min
   { interval: '* * * * *', type: JobType.SYNC_API_KEYS },
+  { interval: '* * * * *', type: JobType.SYNC_PATRONS },
   { interval: '* * * * *', type: JobType.UPDATE_QUEUE_METRICS },
   // every 5 mins
   { interval: '*/5 * * * *', type: JobType.AUTO_UPDATE_PATRON_GROUPS },

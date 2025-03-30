@@ -5,6 +5,7 @@ export enum JobType {
   SCHEDULE_COMPETITION_SCORE_UPDATES = 'schedule-competition-score-updates',
   SCHEDULE_GROUP_SCORE_UPDATES = 'schedule-group-score-updates',
   SYNC_API_KEYS = 'sync-api-keys',
+  SYNC_PATRONS = 'sync-patrons',
   SYNC_PLAYER_ACHIEVEMENTS = 'sync-player-achievements',
   SYNC_PLAYER_COMPETITION_PARTICIPATIONS = 'sync-player-competition-participations',
   SYNC_PLAYER_DELTAS = 'sync-player-deltas',

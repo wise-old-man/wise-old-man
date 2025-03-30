@@ -14,7 +14,6 @@ import { ScheduleCreationSpamChecksJob } from './instances/ScheduleCreationSpamC
 import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalidationsJob';
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
 import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
-import { SyncPatronsJob } from './instances/SyncPatronsJob';
 import { CheckOffensiveNamesJob } from './instances/CheckOffensiveNamesJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
@@ -31,8 +30,7 @@ const JOBS_MAP = {
   ScheduleCreationSpamChecksJob,
   ScheduleDeltaInvalidationsJob,
   ScheduleFlaggedPlayerReviewJob,
-  ScheduleNameChangeReviewsJob,
-  SyncPatronsJob
+  ScheduleNameChangeReviewsJob
 };
 
 // Jobs to run when the server starts up
@@ -40,7 +38,6 @@ const STARTUP_JOBS = ['CheckMissingComputedTablesJob'] satisfies Array<keyof typ
 
 const CRON_CONFIG = [
   // every 1 min
-  { interval: '* * * * *', jobName: 'SyncPatronsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCompetitionEventsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCreationSpamChecksJob' },
   // every 5 mins
