@@ -27,7 +27,7 @@ async function fetchPlayerDetails(username: string): Promise<PlayerDetails> {
   }
 
   if (player.status !== PlayerStatus.ARCHIVED) {
-    return formatPlayerDetails(player, player.latestSnapshot);
+    return formatPlayerDetails(player, player.latestSnapshot, player.annotations);
   }
 
   const currentArchive = await prisma.playerArchive.findFirst({
@@ -40,7 +40,7 @@ async function fetchPlayerDetails(username: string): Promise<PlayerDetails> {
     }
   });
 
-  return formatPlayerDetails(player, player.latestSnapshot, currentArchive);
+  return formatPlayerDetails(player, player.latestSnapshot, player.annotations, currentArchive);
 }
 
 export { fetchPlayerDetails };

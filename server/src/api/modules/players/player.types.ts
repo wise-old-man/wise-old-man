@@ -1,10 +1,11 @@
-import { Player, PlayerArchive } from '../../../prisma';
+import { Player, PlayerAnnotation, PlayerArchive } from '../../../prisma';
 import { FormattedSnapshot } from '../snapshots/snapshot.types';
 
 export interface PlayerDetails extends Player {
   combatLevel: number;
   archive: PlayerArchive | null;
   latestSnapshot: FormattedSnapshot | null;
+  annotations: PlayerAnnotation[];
 }
 
 export interface FlaggedPlayerReviewContext {

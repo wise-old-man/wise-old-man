@@ -6,8 +6,7 @@ import * as jagexService from '../../../services/external/jagex.service';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
-import { PlayerDetails } from '../player.types';
-import { formatPlayerDetails, getBuild, sanitize, standardize, validateUsername } from '../player.utils';
+import { getBuild, sanitize, standardize, validateUsername } from '../player.utils';
 import { archivePlayer } from './ArchivePlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
@@ -21,9 +20,7 @@ type UpdatablePlayerFields = PrismaTypes.XOR<
 
 let UPDATE_COOLDOWN = process.env.NODE_ENV === 'test' ? 0 : 60;
 
-type UpdatePlayerResult = [playerDetails: PlayerDetails, isNew: boolean];
-
-async function updatePlayer(username: string, skipFlagChecks = false): Promise<UpdatePlayerResult> {
+async function updatePlayer(username: string, skipFlagChecks = false) {
   // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findOrCreate(username);
 
@@ -162,9 +159,7 @@ async function updatePlayer(username: string, skipFlagChecks = false): Promise<U
     previousSnapshotId: previousSnapshot?.id ?? null
   });
 
-  const playerDetails = formatPlayerDetails(updatedPlayer, newSnapshot);
-
-  return [playerDetails, isNew];
+  return { updatedPlayer, isNew };
 }
 
 async function shouldReviewType(player: Player) {

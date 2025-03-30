@@ -1,5 +1,5 @@
 import { Period, PeriodProps, PlayerBuild, PlayerDetails } from '../../../utils';
-import prisma, { Player, PlayerArchive, Snapshot } from '../../../prisma';
+import prisma, { Player, PlayerAnnotation, PlayerArchive, Snapshot } from '../../../prisma';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
 import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
 import { formatSnapshot } from '../snapshots/snapshot.utils';
@@ -10,13 +10,15 @@ const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 function formatPlayerDetails(
   player: Player,
   snapshot: Snapshot | null,
+  annotations: PlayerAnnotation[],
   archive?: PlayerArchive | null
 ): PlayerDetails {
   return {
     ...player,
     combatLevel: snapshot ? snapshotUtils.getCombatLevelFromSnapshot(snapshot) : 3,
     archive: archive ? archive : null,
-    latestSnapshot: snapshot ? formatSnapshot(snapshot, getPlayerEfficiencyMap(snapshot, player)) : null
+    latestSnapshot: snapshot ? formatSnapshot(snapshot, getPlayerEfficiencyMap(snapshot, player)) : null,
+    annotations
   };
 }
 
