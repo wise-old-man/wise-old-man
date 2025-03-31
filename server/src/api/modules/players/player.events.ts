@@ -1,4 +1,3 @@
-import jobManager from '../../../jobs/job.manager';
 import { jobManager as newJobManager, JobType } from '../../../jobs-new';
 import { Player } from '../../../prisma';
 import { FlaggedPlayerReviewContext, PlayerType } from '../../../utils';
@@ -35,7 +34,7 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
   });
 
   newJobManager.add(JobType.UPDATE_PLAYER, { username: player.username });
-  jobManager.add('CheckPlayerTypeJob', { username: player.username });
+  newJobManager.add(JobType.ASSERT_PLAYER_TYPE, { username: player.username });
 }
 
 async function onPlayerImported(playerId: number) {

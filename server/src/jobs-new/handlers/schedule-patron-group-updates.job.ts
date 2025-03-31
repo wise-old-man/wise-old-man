@@ -1,12 +1,11 @@
 import prisma from '../../prisma';
 import { Period, PeriodProps } from '../../utils';
 import { Job } from '../job.class';
-import { JobPriority } from '../types/job-priority.enum';
 import { JobType } from '../types/job-type.enum';
 
-export class AutoUpdatePatronGroupsJob extends Job<unknown> {
+export class SchedulePatronGroupUpdatesJob extends Job<unknown> {
   async execute() {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
       return;
     }
 
@@ -33,7 +32,7 @@ export class AutoUpdatePatronGroupsJob extends Job<unknown> {
 
     // Execute the update action for every member
     outdatedPatronMembers.forEach(({ player: { username } }) => {
-      this.jobManager.add(JobType.UPDATE_PLAYER, { username }, { priority: JobPriority.HIGH });
+      this.jobManager.add(JobType.UPDATE_PLAYER, { username });
     });
   }
 }

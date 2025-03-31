@@ -1,6 +1,7 @@
 import prisma from '../../prisma';
 import { Period, PeriodProps } from '../../utils';
-import { Job } from '../job.utils';
+import { Job } from '../job.class';
+import { JobType } from '../types/job-type.enum';
 
 export class ScheduleCompetitionScoreUpdatesJob extends Job<unknown> {
   async execute() {
@@ -16,7 +17,7 @@ export class ScheduleCompetitionScoreUpdatesJob extends Job<unknown> {
 
     for (let i = 0; i < competitions.length; i++) {
       const competitionId = competitions[i].id;
-      this.jobManager.add('UpdateCompetitionScoreJob', { competitionId }, { delay: i * cooldown });
+      this.jobManager.add(JobType.UPDATE_COMPETITION_SCORE, { competitionId }, { delay: i * cooldown });
     }
   }
 }

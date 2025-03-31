@@ -1,4 +1,4 @@
-import jobManager from '../../../jobs/job.manager';
+import { JobType, jobManager } from '../../../jobs-new';
 import { JobPriority } from '../../../jobs/job.utils';
 import prisma, { Competition, Participation } from '../../../prisma';
 import { CompetitionWithParticipations, PlayerType } from '../../../utils';
@@ -19,8 +19,11 @@ async function onParticipantsJoined(participations: Pick<Participation, 'playerI
 
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
-    if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) return;
-    jobManager.add('UpdatePlayerJob', { username });
+    if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) {
+      return;
+    }
+
+    jobManager.add(JobType.UPDATE_PLAYER, { username });
   });
 }
 
@@ -42,7 +45,7 @@ async function onCompetitionStarted(competition: Competition) {
     discordService.dispatchCompetitionStarted(competition);
   });
 
-  jobManager.add('UpdateCompetitionScoreJob', { competitionId: competition.id }, { skipDedupe: true });
+  jobManager.add(JobType.UPDATE_COMPETITION_SCORE, { competitionId: competition.id });
 }
 
 async function onCompetitionEnded(competition: Competition) {
@@ -54,7 +57,7 @@ async function onCompetitionEnded(competition: Competition) {
     discordService.dispatchCompetitionEnded(competitionDetails);
   });
 
-  jobManager.add('UpdateCompetitionScoreJob', { competitionId: competition.id }, { skipDedupe: true });
+  jobManager.add(JobType.UPDATE_COMPETITION_SCORE, { competitionId: competition.id });
 }
 
 async function onCompetitionStarting(competition: Competition, period: EventPeriodDelay) {
@@ -79,7 +82,9 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
 
     competitionDetails.participations
       .filter(p => p.progress.gained > 0) // Only update players that have gained xp
-      .forEach(p => jobManager.add('UpdatePlayerJob', { username: p.player.username }));
+      .forEach(p => {
+        jobManager.add(JobType.UPDATE_PLAYER, { username: p.player.username });
+      });
 
     return;
   }
@@ -99,8 +104,8 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
       .filter(p => {
         return !p.player.updatedAt || Date.now() - p.player.updatedAt.getTime() > 1000 * 60 * 60 * 24;
       })
-      .forEach(p => {
-        jobManager.add('UpdatePlayerJob', { username: p.player.username }, { priority: JobPriority.LOW });
+      .forEach(({ player: { username } }) => {
+        jobManager.add(JobType.UPDATE_PLAYER, { username }, { priority: JobPriority.LOW });
       });
   }
 }

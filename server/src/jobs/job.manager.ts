@@ -3,54 +3,34 @@ import prometheus from '../api/services/external/prometheus.service';
 import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
-import { AutoUpdatePatronGroupsJob } from './instances/AutoUpdatePatronGroupsJob';
-import { AutoUpdatePatronPlayersJob } from './instances/AutoUpdatePatronPlayersJob';
 import { CalculateComputedMetricRankTablesJob } from './instances/CalculateComputedMetricRankTablesJob';
 import { CheckMissingComputedTablesJob } from './instances/CheckMissingComputedTablesJob';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
 import { CheckPlayerRankedJob } from './instances/CheckPlayerRankedJob';
-import { CheckPlayerTypeJob } from './instances/CheckPlayerTypeJob';
 import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import { ScheduleBannedPlayerChecksJob } from './instances/ScheduleBannedPlayerChecksJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
-import { ScheduleCompetitionScoreUpdatesJob } from './instances/ScheduleCompetitionScoreUpdatesJob';
 import { ScheduleCreationSpamChecksJob } from './instances/ScheduleCreationSpamChecksJob';
 import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalidationsJob';
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
-import { ScheduleGroupScoreUpdatesJob } from './instances/ScheduleGroupScoreUpdatesJob';
 import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
-import { SyncApiKeysJob } from './instances/SyncApiKeysJob';
-import { SyncPatronsJob } from './instances/SyncPatronsJob';
-import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
-import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
-import { UpdatePlayerJob } from './instances/UpdatePlayerJob';
 import { CheckOffensiveNamesJob } from './instances/CheckOffensiveNamesJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
 
 const JOBS_MAP = {
-  AutoUpdatePatronGroupsJob,
-  AutoUpdatePatronPlayersJob,
   CalculateComputedMetricRankTablesJob,
   CheckMissingComputedTablesJob,
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
-  CheckPlayerTypeJob,
   CheckOffensiveNamesJob,
   ReviewNameChangeJob,
   ScheduleBannedPlayerChecksJob,
   ScheduleCompetitionEventsJob,
   ScheduleCreationSpamChecksJob,
-  ScheduleCompetitionScoreUpdatesJob,
   ScheduleDeltaInvalidationsJob,
   ScheduleFlaggedPlayerReviewJob,
-  ScheduleGroupScoreUpdatesJob,
-  ScheduleNameChangeReviewsJob,
-  SyncApiKeysJob,
-  SyncPatronsJob,
-  UpdateCompetitionScoreJob,
-  UpdateGroupScoreJob,
-  UpdatePlayerJob
+  ScheduleNameChangeReviewsJob
 };
 
 // Jobs to run when the server starts up
@@ -58,13 +38,9 @@ const STARTUP_JOBS = ['CheckMissingComputedTablesJob'] satisfies Array<keyof typ
 
 const CRON_CONFIG = [
   // every 1 min
-  // { interval: '* * * * *', jobName: 'SyncApiKeysJob' },
-  { interval: '* * * * *', jobName: 'SyncPatronsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCompetitionEventsJob' },
   { interval: '* * * * *', jobName: 'ScheduleCreationSpamChecksJob' },
   // every 5 mins
-  // { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronGroupsJob' },
-  { interval: '*/5 * * * *', jobName: 'AutoUpdatePatronPlayersJob' },
   { interval: '*/5 * * * *', jobName: 'CheckOffensiveNamesJob' },
   // every hour
   { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
@@ -72,9 +48,7 @@ const CRON_CONFIG = [
   { interval: '0 */6 * * *', jobName: 'ScheduleDeltaInvalidationsJob' },
   // everyday at 8 AM
   { interval: '0 8 * * *', jobName: 'ScheduleNameChangeReviewsJob' },
-  { interval: '0 8 * * *', jobName: 'ScheduleGroupScoreUpdatesJob' },
   { interval: '0 8 * * *', jobName: 'ScheduleBannedPlayerChecksJob' },
-  { interval: '0 8 * * *', jobName: 'ScheduleCompetitionScoreUpdatesJob' },
   { interval: '0 8 * * *', jobName: 'CalculateComputedMetricRankTablesJob' }
 ] satisfies CronJob[];
 

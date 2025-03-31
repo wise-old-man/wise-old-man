@@ -1,4 +1,4 @@
-import jobManager from '../../../jobs/job.manager';
+import { JobType, jobManager } from '../../../jobs-new';
 import prisma from '../../../prisma';
 import { MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
@@ -7,11 +7,11 @@ import { addToGroupCompetitions } from '../competitions/services/AddToGroupCompe
 import { removeFromGroupCompetitions } from '../competitions/services/RemoveFromGroupCompetitionsService';
 
 async function onGroupCreated(groupId: number) {
-  jobManager.add('UpdateGroupScoreJob', { groupId });
+  jobManager.add(JobType.UPDATE_GROUP_SCORE, { groupId });
 }
 
 async function onGroupUpdated(groupId: number) {
-  jobManager.add('UpdateGroupScoreJob', { groupId }, { skipDedupe: true });
+  jobManager.add(JobType.UPDATE_GROUP_SCORE, { groupId });
 }
 
 async function onMembersRolesChanged(events: MemberRoleChangeEvent[]) {
@@ -44,11 +44,14 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
 
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
-    if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) return;
-    jobManager.add('UpdatePlayerJob', { username });
+    if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) {
+      return;
+    }
+
+    jobManager.add(JobType.UPDATE_PLAYER, { username });
   });
 
-  jobManager.add('UpdateGroupScoreJob', { groupId }, { skipDedupe: true });
+  jobManager.add(JobType.UPDATE_GROUP_SCORE, { groupId });
 }
 
 async function onMembersLeft(events: MemberLeftEvent[]) {
@@ -65,7 +68,7 @@ async function onMembersLeft(events: MemberLeftEvent[]) {
     await discordService.dispatchMembersLeft(groupId, playerIds);
   });
 
-  jobManager.add('UpdateGroupScoreJob', { groupId }, { skipDedupe: true });
+  jobManager.add(JobType.UPDATE_GROUP_SCORE, { groupId });
 }
 
 export { onGroupCreated, onGroupUpdated, onMembersJoined, onMembersLeft, onMembersRolesChanged };

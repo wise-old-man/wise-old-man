@@ -23,6 +23,10 @@ export class UpdatePlayerJob extends Job<Payload> {
   }
 
   async execute(payload: Payload): Promise<void> {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     try {
       await updatePlayer(payload.username);
     } catch (error) {

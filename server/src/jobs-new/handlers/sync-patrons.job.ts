@@ -3,11 +3,11 @@ import { sendPatreonUpdateMessage } from '../../api/services/external/discord.se
 import { getPatrons } from '../../api/services/external/patreon.service';
 import { omit } from '../../api/util/objects';
 import prisma, { Patron } from '../../prisma';
-import { Job } from '../job.utils';
+import { Job } from '../job.class';
 
 export class SyncPatronsJob extends Job<unknown> {
   async execute() {
-    if (!process.env.PATREON_BEARER_TOKEN || process.env.NODE_ENV === 'development') {
+    if (!process.env.PATREON_BEARER_TOKEN || process.env.NODE_ENV !== 'production') {
       return;
     }
 
