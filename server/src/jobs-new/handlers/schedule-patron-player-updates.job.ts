@@ -3,7 +3,7 @@ import { Period, PeriodProps } from '../../utils';
 import { Job } from '../job.class';
 import { JobType } from '../types/job-type.enum';
 
-export class AutoUpdatePatronPlayersJob extends Job<unknown> {
+export class SchedulePatronPlayerUpdatesJob extends Job<unknown> {
   async execute() {
     if (process.env.NODE_ENV !== 'production') {
       return;
