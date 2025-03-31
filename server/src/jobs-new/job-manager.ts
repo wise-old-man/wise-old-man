@@ -1,4 +1,4 @@
-import { Job as BullJob, Queue, QueueScheduler, Worker } from 'bullmq';
+import { Job as BullJob, JobsOptions as BullJobOptions, Queue, QueueScheduler, Worker } from 'bullmq';
 import prometheus from '../api/services/external/prometheus.service';
 import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
@@ -43,9 +43,10 @@ class JobManager {
       throw new Error(`No job implementation found for "${type}".`);
     }
 
-    const opts = {
+    const opts: BullJobOptions = {
       ...(options || {}),
-      priority: options?.priority || JobPriority.MEDIUM
+      attempts: options?.attempts ?? 3,
+      priority: options?.priority ?? JobPriority.MEDIUM
     };
 
     if (payload !== undefined) {
