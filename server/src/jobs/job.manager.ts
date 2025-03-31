@@ -7,6 +7,7 @@ import { CalculateComputedMetricRankTablesJob } from './instances/CalculateCompu
 import { CheckMissingComputedTablesJob } from './instances/CheckMissingComputedTablesJob';
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
 import { CheckPlayerRankedJob } from './instances/CheckPlayerRankedJob';
+import { CheckPlayerTypeJob } from './instances/CheckPlayerTypeJob';
 import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import { ScheduleBannedPlayerChecksJob } from './instances/ScheduleBannedPlayerChecksJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
@@ -14,6 +15,9 @@ import { ScheduleCreationSpamChecksJob } from './instances/ScheduleCreationSpamC
 import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalidationsJob';
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
 import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
+import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
+import { UpdateGroupScoreJob } from './instances/UpdateGroupScoreJob';
+import { UpdatePlayerJob } from './instances/UpdatePlayerJob';
 import { CheckOffensiveNamesJob } from './instances/CheckOffensiveNamesJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
@@ -23,6 +27,7 @@ const JOBS_MAP = {
   CheckMissingComputedTablesJob,
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
+  CheckPlayerTypeJob,
   CheckOffensiveNamesJob,
   ReviewNameChangeJob,
   ScheduleBannedPlayerChecksJob,
@@ -30,7 +35,10 @@ const JOBS_MAP = {
   ScheduleCreationSpamChecksJob,
   ScheduleDeltaInvalidationsJob,
   ScheduleFlaggedPlayerReviewJob,
-  ScheduleNameChangeReviewsJob
+  ScheduleNameChangeReviewsJob,
+  UpdateCompetitionScoreJob,
+  UpdateGroupScoreJob,
+  UpdatePlayerJob
 };
 
 // Jobs to run when the server starts up
