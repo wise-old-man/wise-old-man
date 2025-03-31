@@ -3,6 +3,7 @@ import { Job } from '../job.class';
 import prisma, { Delta, PrismaTypes } from '../../prisma';
 import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
 import { onDeltaUpdated } from '../../api/modules/deltas/delta.events';
+import type { JobManager } from '../job-manager';
 
 interface Payload {
   username: string;
@@ -10,6 +11,14 @@ interface Payload {
 }
 
 export class SyncPlayerDeltasJob extends Job<Payload> {
+  constructor(jobManager: JobManager) {
+    super(jobManager);
+
+    this.options = {
+      maxConcurrent: 4
+    };
+  }
+
   async execute({ username, period }: Payload) {
     const playerAndSnapshot = await prisma.player.findFirst({
       where: {
