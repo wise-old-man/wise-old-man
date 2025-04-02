@@ -6,6 +6,7 @@ type EffectParams = 'effectName' | 'status';
 type JobParams = 'jobName' | 'status';
 type JobQueueParams = 'queueName' | 'state';
 type EventParams = 'eventType';
+type UpdatePlayerJobSourceParams = 'source';
 
 class PrometheusService {
   private registry: Registry;
@@ -14,6 +15,7 @@ class PrometheusService {
   private httpHistogram: Histogram<HttpParams>;
   private effectHistogram: Histogram<EffectParams>;
   private eventCounter: Counter<EventParams>;
+  private updatePlayerJobSourceCounter: Counter<UpdatePlayerJobSourceParams>;
 
   constructor() {
     this.registry = new prometheus.Registry();
@@ -54,11 +56,18 @@ class PrometheusService {
       labelNames: ['eventType']
     });
 
+    this.updatePlayerJobSourceCounter = new prometheus.Counter({
+      name: 'update_player_job_source_counter',
+      help: 'Count of update player jobs dispatched',
+      labelNames: ['source']
+    });
+
     this.registry.registerMetric(this.jobHistogram);
     this.registry.registerMetric(this.jobQueueGauge);
     this.registry.registerMetric(this.httpHistogram);
     this.registry.registerMetric(this.effectHistogram);
     this.registry.registerMetric(this.eventCounter);
+    this.registry.registerMetric(this.updatePlayerJobSourceCounter);
   }
 
   trackHttpRequestStarted() {
@@ -101,6 +110,10 @@ class PrometheusService {
 
   trackEventEmitted(eventType: string) {
     this.eventCounter.inc({ eventType });
+  }
+
+  trackUpdatePlayerJobSource(source: string) {
+    this.updatePlayerJobSourceCounter.inc({ source });
   }
 
   async updateQueueMetrics(queueName: string, counts: Record<string, number>) {
