@@ -2,6 +2,7 @@ import { JobType, jobManager } from '../../../jobs-new';
 import prisma from '../../../prisma';
 import { MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
+import prometheusService from '../../services/external/prometheus.service';
 import prometheus from '../../services/external/prometheus.service';
 import { addToGroupCompetitions } from '../competitions/services/AddToGroupCompetitionsService';
 import { removeFromGroupCompetitions } from '../competitions/services/RemoveFromGroupCompetitionsService';
@@ -49,6 +50,7 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
     }
 
     jobManager.add(JobType.UPDATE_PLAYER, { username });
+    prometheusService.trackUpdatePlayerJobSource('on-members-joined');
   });
 
   jobManager.add(JobType.UPDATE_GROUP_SCORE, { groupId });

@@ -2,6 +2,7 @@ import { jobManager, JobType } from '../../../../jobs-new';
 import prisma, { Player } from '../../../../prisma';
 import { Period, PeriodProps } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
+import prometheusService from '../../../services/external/prometheus.service';
 
 async function updateAllMembers(groupId: number): Promise<number> {
   const outdatedPlayers = await getOutdatedMembers(groupId);
@@ -21,6 +22,7 @@ async function updateAllMembers(groupId: number): Promise<number> {
   // Schedule an update job for every member
   for (const player of outdatedPlayers) {
     jobManager.add(JobType.UPDATE_PLAYER, { username: player.username });
+    prometheusService.trackUpdatePlayerJobSource('update-all-members');
   }
 
   return outdatedPlayers.length;
