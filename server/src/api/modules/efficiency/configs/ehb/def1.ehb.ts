@@ -42,6 +42,7 @@ export default [
   { boss: Boss.THE_HUEYCOATL, rate: 25 },
   { boss: Boss.THE_GAUNTLET, rate: 9 },
   { boss: Boss.THE_LEVIATHAN, rate: 22 },
+  { boss: Boss.THE_ROYAL_TITANS, rate: 50 },
   { boss: Boss.THE_WHISPERER, rate: 19 },
   { boss: Boss.THEATRE_OF_BLOOD_HARD_MODE, rate: 2.5 },
   { boss: Boss.THEATRE_OF_BLOOD, rate: 2.9 },
