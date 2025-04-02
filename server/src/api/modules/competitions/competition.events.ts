@@ -4,7 +4,6 @@ import prisma, { Competition, Participation } from '../../../prisma';
 import { CompetitionWithParticipations, PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
 import { EventPeriodDelay } from '../../services/external/discord.service';
-import prometheusService from '../../services/external/prometheus.service';
 import prometheus from '../../services/external/prometheus.service';
 import { fetchCompetitionDetails } from './services/FetchCompetitionDetailsService';
 import { updateAllParticipants } from './services/UpdateAllParticipantsService';
@@ -24,8 +23,7 @@ async function onParticipantsJoined(participations: Pick<Participation, 'playerI
       return;
     }
 
-    jobManager.add(JobType.UPDATE_PLAYER, { username });
-    prometheusService.trackUpdatePlayerJobSource('on-participants-joined');
+    jobManager.add(JobType.UPDATE_PLAYER, { username, source: 'on-participants-joined' });
   });
 }
 
@@ -85,8 +83,10 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
     competitionDetails.participations
       .filter(p => p.progress.gained > 0) // Only update players that have gained xp
       .forEach(p => {
-        jobManager.add(JobType.UPDATE_PLAYER, { username: p.player.username });
-        prometheusService.trackUpdatePlayerJobSource('on-competition-ending-2h');
+        jobManager.add(JobType.UPDATE_PLAYER, {
+          username: p.player.username,
+          source: 'on-competition-ending-2h'
+        });
       });
 
     return;
@@ -108,8 +108,11 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
         return !p.player.updatedAt || Date.now() - p.player.updatedAt.getTime() > 1000 * 60 * 60 * 24;
       })
       .forEach(({ player: { username } }) => {
-        jobManager.add(JobType.UPDATE_PLAYER, { username }, { priority: JobPriority.LOW });
-        prometheusService.trackUpdatePlayerJobSource('on-competition-ending-12h');
+        jobManager.add(
+          JobType.UPDATE_PLAYER,
+          { username, source: 'on-competition-ending-12h' },
+          { priority: JobPriority.LOW }
+        );
       });
   }
 }

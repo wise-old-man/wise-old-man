@@ -1,4 +1,3 @@
-import prometheusService from '../../api/services/external/prometheus.service';
 import prisma from '../../prisma';
 import { Period, PeriodProps } from '../../utils';
 import { Job } from '../job.class';
@@ -33,8 +32,7 @@ export class SchedulePatronGroupUpdatesJob extends Job<unknown> {
 
     // Execute the update action for every member
     outdatedPatronMembers.forEach(({ player: { username } }) => {
-      this.jobManager.add(JobType.UPDATE_PLAYER, { username });
-      prometheusService.trackUpdatePlayerJobSource('schedule-patron-group-updates-job');
+      this.jobManager.add(JobType.UPDATE_PLAYER, { username, source: 'schedule-patron-group-updates' });
     });
   }
 }

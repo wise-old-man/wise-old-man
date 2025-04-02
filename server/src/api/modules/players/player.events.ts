@@ -2,7 +2,6 @@ import { jobManager as newJobManager, JobType } from '../../../jobs-new';
 import { Player } from '../../../prisma';
 import { FlaggedPlayerReviewContext, PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
-import prometheusService from '../../services/external/prometheus.service';
 import prometheus from '../../services/external/prometheus.service';
 import { reevaluatePlayerAchievements } from '../achievements/services/ReevaluatePlayerAchievementsService';
 
@@ -34,9 +33,7 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
     await discordService.dispatchNameChanged(player, previousDisplayName);
   });
 
-  newJobManager.add(JobType.UPDATE_PLAYER, { username: player.username });
-  prometheusService.trackUpdatePlayerJobSource('on-player-name-changed');
-
+  newJobManager.add(JobType.UPDATE_PLAYER, { username: player.username, source: 'on-player-name-changed' });
   newJobManager.add(JobType.ASSERT_PLAYER_TYPE, { username: player.username });
 }
 
