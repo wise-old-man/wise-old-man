@@ -15,7 +15,7 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
     super(jobManager);
 
     this.options = {
-      maxConcurrent: 5
+      maxConcurrent: 20
     };
   }
 
