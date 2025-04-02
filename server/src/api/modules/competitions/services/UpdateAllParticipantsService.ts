@@ -1,7 +1,6 @@
 import { JobType, jobManager } from '../../../../jobs-new';
 import prisma, { Player } from '../../../../prisma';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import prometheusService from '../../../services/external/prometheus.service';
 
 // The first and last 6h of a competition are considered a priority period
 const PRIORITY_PERIOD = 6;
@@ -48,8 +47,7 @@ async function updateAllParticipants(
 
   // Schedule an update job for every participant
   for (const player of outdatedPlayers) {
-    jobManager.add(JobType.UPDATE_PLAYER, { username: player.username });
-    prometheusService.trackUpdatePlayerJobSource('update-all-participants');
+    jobManager.add(JobType.UPDATE_PLAYER, { username: player.username, source: 'update-all-participants' });
   }
 
   return { outdatedCount: outdatedPlayers.length, cooldownDuration };

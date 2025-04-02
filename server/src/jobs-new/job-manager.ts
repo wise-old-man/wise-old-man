@@ -50,7 +50,7 @@ class JobManager {
     };
 
     if (payload !== undefined) {
-      opts.jobId = JSON.stringify(payload);
+      opts.jobId = this.getUniqueJobId(payload);
     }
 
     await matchingQueue.add(type, payload, opts);
@@ -59,11 +59,12 @@ class JobManager {
   }
 
   getUniqueJobId(payload: unknown) {
-    if (typeof payload === 'object' && Object.keys(payload as object).length > 0) {
-      return Object.values(payload as object)[0];
+    if (!payload) {
+      return undefined;
     }
 
-    return JSON.stringify(payload);
+    // Temporary, this should be fixed so that every job defines its own unique ID based on the payload shape
+    return JSON.stringify({ ...payload, source: undefined });
   }
 
   async handleJob(bullJob: BullJob, jobHandler: Job<unknown>) {
