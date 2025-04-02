@@ -11,7 +11,7 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
     super(jobManager);
 
     this.options = {
-      maxConcurrent: 100
+      maxConcurrent: 5
     };
   }
 
