@@ -8,7 +8,6 @@ export default [
     output: {
       file: 'dist/cjs/index.cjs',
       format: 'cjs',
-      external: ['dayjs'],
       sourcemap: false
     },
     plugins: [
@@ -23,7 +22,6 @@ export default [
     output: {
       file: 'dist/es/index.js',
       format: 'es',
-      external: ['dayjs'],
       sourcemap: false
     },
     plugins: [
@@ -38,7 +36,6 @@ export default [
     output: {
       file: 'dist/es/index.mjs',
       format: 'es',
-      external: ['dayjs'],
       sourcemap: false
     },
     plugins: [
