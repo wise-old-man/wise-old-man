@@ -1,8 +1,3 @@
-import dayjs from 'dayjs';
-import customParseFormatPlugin from 'dayjs/plugin/customParseFormat.js';
-
-dayjs.extend(customParseFormatPlugin);
-
 export interface PaginationOptions {
   limit?: number;
   offset?: number;
@@ -30,9 +25,8 @@ function traverseTransform(input: unknown, transformation: (i: unknown) => unkno
 function isValidISODate(input: unknown) {
   if (!input || typeof input !== 'string') return false;
 
-  // DayJS has a bug with strict parsing with timezones https://github.com/iamkun/dayjs/issues/929
-  // So I'll just strip the "Z" timezone
-  return input.endsWith('Z') && dayjs(input.slice(0, -1), 'YYYY-MM-DDTHH:mm:ss.SSS', true).isValid();
+  // Validate this input string is a ISO 8601 date
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(input);
 }
 
 export function transformDates(input: unknown) {

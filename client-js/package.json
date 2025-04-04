@@ -1,6 +1,6 @@
 {
   "name": "@wise-old-man/utils",
-  "version": "3.3.9",
+  "version": "3.3.10",
   "description": "A JavaScript/TypeScript client that interfaces and consumes the Wise Old Man API, an API that tracks and measures players' progress in Old School Runescape.",
   "keywords": [
     "wiseoldman",
@@ -51,7 +51,5 @@
     "tslib": "^2.4.0",
     "typescript": "^5.3.3"
   },
-  "dependencies": {
-    "dayjs": "^1.11.5"
-  }
+  "dependencies": {}
 }
