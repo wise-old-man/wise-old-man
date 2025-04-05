@@ -1,5 +1,5 @@
 import prisma from '../../prisma';
-import { Period, PeriodProps } from '../../utils';
+import { Period, PeriodProps, PlayerStatus } from '../../utils';
 import { Job } from '../job.class';
 import { JobType } from '../types/job-type.enum';
 
@@ -22,7 +22,8 @@ export class SchedulePatronGroupUpdatesJob extends Job<unknown> {
       where: {
         groupId: { in: patronGroupIds },
         player: {
-          OR: [{ updatedAt: { lt: dayAgo } }, { updatedAt: null }]
+          OR: [{ updatedAt: { lt: dayAgo } }, { updatedAt: null }],
+          status: { not: PlayerStatus.ARCHIVED }
         }
       },
       include: {

@@ -9,6 +9,7 @@ import type { JobOptions } from './types/job-options.type';
 import type { JobPayloadMapper } from './types/job-payload.type';
 import { JobPriority } from './types/job-priority.enum';
 import { JobType } from './types/job-type.enum';
+import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 
 const REDIS_PREFIX = 'jobs-v2';
 
@@ -35,6 +36,19 @@ class JobManager {
       // @ts-expect-error -- Unknown payload type
       await new JOB_HANDLER_MAP[type](this).execute(payload);
       return;
+    }
+
+    if (type === JobType.UPDATE_PLAYER && 'username' in payload) {
+      // Some players are put into the queue too often (patron group updates),
+      // and result in no valid updates due to a "banned" or "unranked" status.
+      // This clogs up the queue for valid players, so we need to put them on a 24h cooldown.
+      const isInCooldown = await redisClient.get(
+        buildCompoundRedisKey('player-update-cooldown', payload.username)
+      );
+
+      if (isInCooldown !== null) {
+        return;
+      }
     }
 
     const matchingQueue = this.queues.find(queue => queue.name === type);
