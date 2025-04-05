@@ -269,7 +269,15 @@ function dispatchPotentialCreationSpam(payload: {
   dispatch('POTENTIAL_CREATION_SPAM', payload);
 }
 
-function dispatchOffensiveNamesFound(entities: Array<{ id: number; name: string; type: string }>) {
+function dispatchOffensiveNamesFound(
+  entities: Array<{
+    id: number;
+    type: string;
+    name: string;
+    description: string;
+    reason: string;
+  }>
+) {
   dispatch('OFFENSIVE_NAMES_FOUND', entities);
 }
 
