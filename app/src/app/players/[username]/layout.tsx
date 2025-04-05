@@ -1,14 +1,13 @@
 import React, { PropsWithChildren } from "react";
 import {
   CountryProps,
-  Player,
   PlayerBuild,
   PlayerBuildProps,
   PlayerDetails,
   PlayerStatus,
   PlayerType,
   PlayerTypeProps,
-  PlayerAnnotationType
+  PlayerAnnotationType,
 } from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
 import { getPlayerDetails } from "~/services/wiseoldman";
@@ -48,7 +47,6 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
   const username = decodeURI(params.username);
 
   const player = await getPlayerDetails(username).catch(() => null);
-
 
   if (!player) {
     // If it fails to fetch this player, fallback to only rendering the child node.
@@ -239,9 +237,9 @@ function PlayerStatusAlert(props: { player: PlayerDetails }) {
 
             <p className="mt-5">
               <span className="text-white">Note (November 13th):</span> There&apos;s currently an issue
-              with the Jagex hiscores due to a recent rollback that is causing some players to
-              get flagged. If you&apos;re affected, try to log out in-game (to update your
-              hiscores) and then update your WOM profile.
+              with the Jagex hiscores due to a recent rollback that is causing some players to get
+              flagged. If you&apos;re affected, try to log out in-game (to update your hiscores) and then
+              update your WOM profile.
             </p>
           </AlertDescription>
         </div>
@@ -355,52 +353,51 @@ function getHiscoresURL(displayName: string, playerType: PlayerType) {
   }
 }
 
+function PlayerAnnotationsAlert(props: { player: PlayerDetails }) {
+  const { annotations } = props.player;
+  const annotationTypes = annotations.map((a) => a.type);
 
-function PlayerAnnotationsAlert(props: {player: PlayerDetails }){
-  const { annotations } = props.player
-  const annotationTypes = annotations.map(a => a.type)
-
-  if (!annotationTypes.includes(PlayerAnnotationType.OPT_OUT) && !annotationTypes.includes(PlayerAnnotationType.BLOCKED)) return null
-
-  if(annotationTypes.includes(PlayerAnnotationType.OPT_OUT)){
+  if (annotationTypes.includes(PlayerAnnotationType.OPT_OUT)) {
     return (
       <Alert variant="default" className="border-blue-700 bg-blue-900/10">
-        <AlertTitle>Opted out of tracking.</AlertTitle>
+        <AlertTitle>Opted out of tracking</AlertTitle>
         <AlertDescription>
-              <p>
-              This player has requested to be excluded from tracking. For more information {" " }
-               <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href="https://wiseoldman.net/discord"
-                  className="text-white underline"
-                >
-                contact us on Discord
-                </a>
-              </p>
-            </AlertDescription>
+          <p>
+            This player has requested to be excluded from tracking. For help or more information{" "}
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://wiseoldman.net/discord"
+              className="text-white underline"
+            >
+              contact us on Discord
+            </a>
+          </p>
+        </AlertDescription>
       </Alert>
-    )
+    );
   }
 
-  if(annotationTypes.includes(PlayerAnnotationType.BLOCKED)){
+  if (annotationTypes.includes(PlayerAnnotationType.BLOCKED)) {
     return (
       <Alert variant="warn" className="border-blue-700 bg-blue-900/10">
         <AlertTitle>Blocked</AlertTitle>
         <AlertDescription>
-              <p>
-              This player has been blocked from tracking. For more information {" " }
-              <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href="https://wiseoldman.net/discord"
-                  className="text-white underline"
-                >
-                  contact us on Discord
-                </a>
-              </p>
-            </AlertDescription>
+          <p>
+            This player has been blocked from tracking by the developers. For help or more information{" "}
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://wiseoldman.net/discord"
+              className="text-white underline"
+            >
+              contact us on Discord
+            </a>
+          </p>
+        </AlertDescription>
       </Alert>
-    )
+    );
   }
+
+  return null;
 }
