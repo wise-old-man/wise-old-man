@@ -3,7 +3,8 @@ import { standardize } from '../../api/modules/players/player.utils';
 import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerService';
 import prometheusService from '../../api/services/external/prometheus.service';
 import prisma from '../../prisma';
-import { PlayerStatus, PlayerType } from '../../utils';
+import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
+import { Period, PeriodProps, PlayerStatus, PlayerType } from '../../utils';
 import type { JobManager } from '../job-manager';
 import { Job } from '../job.class';
 
@@ -85,6 +86,13 @@ async function shouldRetry(username: string, error: Error) {
       player.status === PlayerStatus.UNRANKED ||
       player.status === PlayerStatus.BANNED
     ) {
+      await redisClient.set(
+        buildCompoundRedisKey('player-update-cooldown', player.username),
+        'true',
+        'PX',
+        PeriodProps[Period.DAY].milliseconds
+      );
+
       // This player likely doesn't exist on the hiscores, we can save on resources by not auto-retrying
       return false;
     }
