@@ -1,6 +1,10 @@
 import { onGroupUpdated } from '../../api/modules/groups/group.events';
 import { sendPatreonUpdateMessage } from '../../api/services/external/discord.service';
-import { getPatrons } from '../../api/services/external/patreon.service';
+import {
+  getPatrons,
+  STATIC_PATRON_GROUP_IDS,
+  STATIC_PATRON_PLAYER_IDS
+} from '../../api/services/external/patreon.service';
 import { omit } from '../../api/util/objects';
 import prisma, { Patron } from '../../prisma';
 import { Job } from '../job.class';
@@ -112,20 +116,12 @@ async function syncBenefits() {
 
   const patronGroupIds = [
     ...updatedPatrons.map(p => p.groupId).filter((id): id is number => id !== null),
-    // Add benefits to these groups as well:
-    139, // Exclusive Elite Club
-    201, // Ruthless (Aluminoti)
-    254, // Legacy (Rorro)
-    1169 // Hardly Iron (Geeving)
+    ...STATIC_PATRON_GROUP_IDS
   ];
 
   const patronPlayerIds = [
     ...updatedPatrons.map(p => p.playerId).filter((id): id is number => id !== null),
-    // Add benefits to these players as well:
-    2, // Psikoi
-    4156, // Rro (Rorro)
-    30051, // Aluminoti
-    263152 // Geeving
+    ...STATIC_PATRON_PLAYER_IDS
   ];
 
   const newPatronGroups = await prisma.group.findMany({

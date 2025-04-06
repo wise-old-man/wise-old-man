@@ -1,3 +1,4 @@
+import { STATIC_PATRON_GROUP_IDS } from '../../api/services/external/patreon.service';
 import prisma from '../../prisma';
 import { Period, PeriodProps, PlayerStatus } from '../../utils';
 import { Job } from '../job.class';
@@ -20,7 +21,9 @@ export class SchedulePatronGroupUpdatesJob extends Job<unknown> {
 
     const outdatedPatronMembers = await prisma.membership.findMany({
       where: {
-        groupId: { in: patronGroupIds },
+        groupId: {
+          in: [...patronGroupIds, ...STATIC_PATRON_GROUP_IDS]
+        },
         player: {
           OR: [{ updatedAt: { lt: dayAgo } }, { updatedAt: null }],
           status: { not: PlayerStatus.ARCHIVED }
