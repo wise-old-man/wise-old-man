@@ -274,7 +274,7 @@ function dispatchOffensiveNamesFound(
     id: number;
     type: string;
     name: string;
-    description: string;
+    description?: string;
     reason: string;
   }>
 ) {
