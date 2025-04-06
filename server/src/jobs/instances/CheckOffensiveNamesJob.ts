@@ -16,30 +16,47 @@ const WHITELISTED_TERMS = [
 ];
 
 const SYSTEM_PROMPT = `
-  Act as a content moderator for an online gaming platform and filter out any content that is offensive, innapropriate, or spammy.
-  This includes hate speech, slurs, violent language, and any variations of these words, such as replacing letters with numbers or symbols.
-  You should filter out any content that seem like spam, gibberish or randomly generated.
-  Misspellings and promotional language is accepted.
-  Friendly banter is accepted, you should only filter out obviously offensive language or terms.
+  Act as a content moderator for an online gaming platform. Your job is to identify and filter out content that is offensive, inappropriate, or spammy.
+
+  You must flag any content that includes:
+  - Hate speech, slurs, violent or threatening language.
+  - Obfuscated versions of offensive terms (e.g., using numbers or symbols to bypass filters).
+  - Spam, gibberish, or content that appears randomly generated.
+
+  However, **do not** flag content that includes:
+  - Misspellings or grammatical errors.
+  - Promotional or enthusiastic language.
+  - Friendly banter that is not overtly offensive or targeted.
+  - Content with low context or ambiguous meaning.
 
   <input>
-    - You will be given a list of groups and competitions, each with an id, name, description and type.
-    - You will also be given a list of whitelisted terms, some of which are acceptable in the context of gaming.
-    - Feel free to also consider variations of these whitelisted terms.
-  </input>
+  You will be given:
+  - A list of groups and competitions, each with an "id", "type, "name", and optionally a "description".
+  - A list of whitelisted terms that are acceptable in gaming contexts. You may consider common variations of these terms as acceptable too, such as the term's initials.
 
   <output>
-    - You must return a list of offending entities, in the same shape as your input, but with an added field "reason".
-    - The "reason" field should be an explanation of why that entity was filtered out.
-  </output>
+  Return a list of entities that should be flagged, preserving their original structure, but with an added "reason" field explaining why the content was filtered.
 
   <example>
   input: [
     { "id": 28475, "type": "group", "name": "The Best Group", "description": "This is a group for the best players" },
     { "id": 489, "type": "group", "name": "Stupid fucks", "description": "This is a group of the dumbest idiots ever" },
+    { "id": 3849, "type": "competition", "name": "The stinkiest people" }
   ]
   output: [
-    { "id": 489, "type": "group", "name": "Stupid fucks", "description": "This is a group of the dumbest idiots ever", "reason": "Contains offensive language ('fucks') and derogatory phrasing targeting a group of people." }
+    { 
+      "id": 489, 
+      "type": "group", 
+      "name": "Stupid fucks", 
+      "description": "This is a group of the dumbest idiots ever", 
+      "reason": "Contains explicit offensive language ('fucks') and derogatory phrasing targeting a group of people." 
+    },
+    { 
+      "id": 3849, 
+      "type": "competition", 
+      "name": "The stinkiest people", 
+      "reason": "Contains derogatory phrasing ('stinkiest people') that could be offensive or inappropriate." 
+    }
   ]
   </example>
 `;
@@ -50,7 +67,7 @@ const RESPONSE_SCHEMA = z.object({
       id: z.number(),
       type: z.string(),
       name: z.string(),
-      description: z.string(),
+      description: z.string().optional(),
       reason: z.string()
     })
   )
@@ -93,7 +110,7 @@ export class CheckOffensiveNamesJob extends Job<unknown> {
 
     const inputEntities = [
       ...groups.map(g => ({ ...g, type: 'group' })),
-      ...competitions.map(c => ({ ...c, type: 'competition', description: '' }))
+      ...competitions.map(c => ({ id: c.id, type: 'competition', name: c.title }))
     ];
 
     if (inputEntities.length === 0 || inputEntities.length >= 50) {
