@@ -1,3 +1,4 @@
+import { STATIC_PATRON_PLAYER_IDS } from '../../api/services/external/patreon.service';
 import prisma from '../../prisma';
 import { Period, PeriodProps } from '../../utils';
 import { Job } from '../job.class';
@@ -25,7 +26,16 @@ export class SchedulePatronPlayerUpdatesJob extends Job<unknown> {
       })
       .then(res => res.map(p => p.player).filter(Boolean));
 
-    outdatedPatronPlayers.forEach(({ username }) => {
+    const outdatedStaticPatronPlayers = await prisma.player.findMany({
+      where: {
+        id: {
+          in: STATIC_PATRON_PLAYER_IDS
+        },
+        OR: [{ updatedAt: { lt: dayAgo } }, { updatedAt: null }]
+      }
+    });
+
+    [...outdatedPatronPlayers, ...outdatedStaticPatronPlayers].forEach(({ username }) => {
       this.jobManager.add(JobType.UPDATE_PLAYER, { username, source: 'schedule-patron-player-updates' });
     });
   }
