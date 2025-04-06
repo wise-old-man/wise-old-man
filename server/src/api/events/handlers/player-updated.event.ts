@@ -6,8 +6,10 @@ import { EventType } from '../types/event-type.enum';
 function handler({ username, hasChanged, previousUpdatedAt }: EventPayloadMap[EventType.PLAYER_UPDATED]) {
   jobManager.add(JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS, { username });
 
-  for (const period of PERIODS) {
-    jobManager.add(JobType.SYNC_PLAYER_DELTAS, { username, period });
+  if (previousUpdatedAt !== null) {
+    for (const period of PERIODS) {
+      jobManager.add(JobType.SYNC_PLAYER_DELTAS, { username, period });
+    }
   }
 
   if (hasChanged) {
