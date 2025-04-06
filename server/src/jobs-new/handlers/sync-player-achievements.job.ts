@@ -15,7 +15,7 @@ const UNKNOWN_DATE = new Date(0);
 
 interface Payload {
   username: string;
-  previousSnapshotId: number | null;
+  previousUpdatedAt: Date | null;
 }
 
 export class SyncPlayerAchievementsJob extends Job<Payload> {
@@ -28,6 +28,11 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
   }
 
   async execute(payload: Payload) {
+    // This can be deleted in the future
+    if (!('previousUpdatedAt' in payload)) {
+      return;
+    }
+
     const playerAndSnapshot = await prisma.player.findFirst({
       where: {
         username: payload.username
@@ -45,7 +50,7 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
 
     const playerId = currentSnapshot.playerId;
 
-    if (payload.previousSnapshotId === null) {
+    if (payload.previousUpdatedAt === null) {
       // If this is the first time player's being updated, find missing achievements and set them to "unknown" date
       const missingAchievements = ALL_DEFINITIONS.filter(d => d.validate(currentSnapshot)).map(
         ({ name, metric, threshold }) => ({
@@ -76,7 +81,8 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
 
     const previousSnapshot = await prisma.snapshot.findFirst({
       where: {
-        id: payload.previousSnapshotId
+        playerId,
+        createdAt: payload.previousUpdatedAt
       }
     });
 

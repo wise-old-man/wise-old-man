@@ -3,7 +3,7 @@ import { PERIODS } from '../../../utils';
 import { EventPayloadMap } from '../types/event-payload.type';
 import { EventType } from '../types/event-type.enum';
 
-function handler({ username, hasChanged, previousSnapshotId }: EventPayloadMap[EventType.PLAYER_UPDATED]) {
+function handler({ username, hasChanged, previousUpdatedAt }: EventPayloadMap[EventType.PLAYER_UPDATED]) {
   jobManager.add(JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS, { username });
 
   for (const period of PERIODS) {
@@ -11,7 +11,7 @@ function handler({ username, hasChanged, previousSnapshotId }: EventPayloadMap[E
   }
 
   if (hasChanged) {
-    jobManager.add(JobType.SYNC_PLAYER_ACHIEVEMENTS, { username, previousSnapshotId });
+    jobManager.add(JobType.SYNC_PLAYER_ACHIEVEMENTS, { username, previousUpdatedAt });
   }
 }
 

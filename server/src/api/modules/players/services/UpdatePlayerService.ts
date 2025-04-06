@@ -156,7 +156,7 @@ async function updatePlayer(username: string, skipFlagChecks = false) {
   eventEmitter.emit(EventType.PLAYER_UPDATED, {
     username: updatedPlayer.username,
     hasChanged,
-    previousSnapshotId: previousSnapshot?.id ?? null
+    previousUpdatedAt: previousSnapshot?.createdAt ?? null
   });
 
   return { updatedPlayer, isNew };
