@@ -77,7 +77,10 @@ export default async function NameChangesPage(props: PageProps) {
                     <ArrowRightIcon className="h-4 w-4 text-white" />
                   </ListTableCell>
                   <ListTableCell className="text-sm font-medium text-white">
-                    {nameChange.newName}
+                    {nameChange.status === "approved" ? (
+                    <a href={`https://www.wiseoldman.net/players/${nameChange.newName}`}>{nameChange.newName}</a>) : (
+                    <span>{nameChange.newName}</span>
+                    )}
                   </ListTableCell>
                   <ListTableCell>
                     <Tooltip>
