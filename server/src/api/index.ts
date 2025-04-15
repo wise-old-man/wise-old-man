@@ -125,7 +125,7 @@ class API {
         if (!req.route) return;
 
         const route = `${req.baseUrl}${req.route.path}`;
-        if (route === '/metrics/') return;
+        if (route.startsWith('/metrics')) return;
 
         const status = res.statusCode;
         const method = req.method;
