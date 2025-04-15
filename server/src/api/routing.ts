@@ -53,6 +53,8 @@ class RoutingHandler {
         return res.status(403).json({ message: 'Access denied' });
       }
 
+      console.log(ip, ip.replace('::ffff:', ''));
+
       const metrics = await prometheus.getMetrics();
       res.json({ threadIndex: getThreadIndex(), data: metrics });
     });
