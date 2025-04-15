@@ -46,7 +46,9 @@ class RoutingHandler {
     this.router.use(playerRouter);
     this.router.use(recordRouter);
 
-    this.router.get('/metrics', async (_req, res) => {
+    this.router.get('/metrics', async (req, res) => {
+      console.log('req.ip', req.ip);
+      
       const metrics = await prometheus.getMetrics();
       res.json({ threadIndex: getThreadIndex(), data: metrics });
     });
