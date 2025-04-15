@@ -47,8 +47,12 @@ class RoutingHandler {
     this.router.use(recordRouter);
 
     this.router.get('/metrics', async (req, res) => {
-      console.log('req.ip', req.ip);
-      
+      const ip = req.ip ?? req.socket.remoteAddress ?? '';
+
+      if (ip.replace('::ffff:', '').startsWith('172.20.')) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
       const metrics = await prometheus.getMetrics();
       res.json({ threadIndex: getThreadIndex(), data: metrics });
     });
