@@ -1,4 +1,5 @@
 import { AssertPlayerTypeJob } from './handlers/assert-player-type.job';
+import { ScheduleCompetitionScoreUpdatesJob } from './handlers/schedule-competition-score-updates.job';
 import { ScheduleGroupScoreUpdatesJob } from './handlers/schedule-group-score-updates.job';
 import { SchedulePatronGroupUpdatesJob } from './handlers/schedule-patron-group-updates.job';
 import { SchedulePatronPlayerUpdatesJob } from './handlers/schedule-patron-player-updates.job';
@@ -15,7 +16,7 @@ import { JobType } from './types/job-type.enum';
 
 export const JOB_HANDLER_MAP = {
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJob,
-  [JobType.SCHEDULE_COMPETITION_SCORE_UPDATES]: ScheduleGroupScoreUpdatesJob,
+  [JobType.SCHEDULE_COMPETITION_SCORE_UPDATES]: ScheduleCompetitionScoreUpdatesJob,
   [JobType.SCHEDULE_GROUP_SCORE_UPDATES]: ScheduleGroupScoreUpdatesJob,
   [JobType.SCHEDULE_PATRON_GROUP_UPDATES]: SchedulePatronGroupUpdatesJob,
   [JobType.SCHEDULE_PATRON_PLAYER_UPDATES]: SchedulePatronPlayerUpdatesJob,
@@ -39,8 +40,8 @@ export const CRON_CONFIG = [
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
   // everyday at 8 AM UTC
-  { interval: '0 8 * * *', type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES },
-  { interval: '0 8 * * *', type: JobType.SCHEDULE_GROUP_SCORE_UPDATES }
+  { interval: '0 19 * * *', type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES }, // change this back to 8
+  { interval: '0 19 * * *', type: JobType.SCHEDULE_GROUP_SCORE_UPDATES } // change this back to 8
 ];
 
 // Jobs to run when the server starts

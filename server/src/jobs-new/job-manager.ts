@@ -142,7 +142,7 @@ class JobManager {
         limiter: options?.rateLimiter,
         connection: redisConfig,
         concurrency: options.maxConcurrent ?? 1,
-        autorun: false
+        autorun: true
       });
 
       this.schedulers.push(scheduler);
@@ -150,9 +150,8 @@ class JobManager {
       this.workers.push(worker);
     }
 
-    for (const worker of this.workers) {
-      worker.run();
-    }
+    // sleep for 5 seconds to allow the workers to start up
+    await new Promise(resolve => setTimeout(resolve, 5_000));
 
     // If running through pm2 (production), only run cronjobs on the "main" thread (index 0).
     // Otherwise, on a 4 core server, every cronjob would run 4x as often.
