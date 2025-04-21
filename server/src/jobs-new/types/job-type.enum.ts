@@ -9,6 +9,7 @@ export enum JobType {
   SYNC_PLAYER_ACHIEVEMENTS = 'sync-player-achievements',
   SYNC_PLAYER_COMPETITION_PARTICIPATIONS = 'sync-player-competition-participations',
   SYNC_PLAYER_DELTAS = 'sync-player-deltas',
+  SYNC_PLAYER_RECORDS = 'sync-player-records',
   UPDATE_COMPETITION_SCORE = 'update-competition-score',
   UPDATE_GROUP_SCORE = 'update-group-score',
   UPDATE_PLAYER = 'update-player',

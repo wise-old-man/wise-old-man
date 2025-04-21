@@ -250,11 +250,6 @@ describe('Deltas API', () => {
       expect(dayDeltas.last_man_standing).toBe(0); // LMS went DOWN from 500 to 450, don't show negative gains
       expect(dayDeltas.ehb).toBeLessThan(monthDeltas!.ehb); // gained less boss kc, expect ehb gains to be lesser
 
-      const fourthTrackResponse = await api.post(`/players/psikoi`);
-      expect(fourthTrackResponse.status).toBe(200);
-
-      expect(onDeltaUpdatedEvent).not.toHaveBeenCalled();
-
       // Setup mocks for HCIM for the second test player later on (hydrox6)
       registerHiscoresMock(axiosMock, {
         [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },

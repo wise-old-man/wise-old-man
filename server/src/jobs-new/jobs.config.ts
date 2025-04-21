@@ -8,6 +8,7 @@ import { SyncPatronsJob } from './handlers/sync-patrons.job';
 import { SyncPlayerAchievementsJob } from './handlers/sync-player-achievements.job';
 import { SyncPlayerCompetitionParticipationsJob } from './handlers/sync-player-competition-participations.job';
 import { SyncPlayerDeltasJob } from './handlers/sync-player-deltas.job';
+import { SyncPlayerRecordsJob } from './handlers/sync-player-records.job';
 import { UpdateCompetitionScoreJob } from './handlers/update-competition-score.job';
 import { UpdateGroupScoreJob } from './handlers/update-group-score.job';
 import { UpdatePlayerJob } from './handlers/update-player.job';
@@ -25,6 +26,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.SYNC_PLAYER_ACHIEVEMENTS]: SyncPlayerAchievementsJob,
   [JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS]: SyncPlayerCompetitionParticipationsJob,
   [JobType.SYNC_PLAYER_DELTAS]: SyncPlayerDeltasJob,
+  [JobType.SYNC_PLAYER_RECORDS]: SyncPlayerRecordsJob,
   [JobType.UPDATE_COMPETITION_SCORE]: UpdateCompetitionScoreJob,
   [JobType.UPDATE_GROUP_SCORE]: UpdateGroupScoreJob,
   [JobType.UPDATE_PLAYER]: UpdatePlayerJob,
