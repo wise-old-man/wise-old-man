@@ -282,7 +282,13 @@ async function findPlayerParticipationsStandings2(
     });
   }
 
-  return results;
+  return results.sort((a, b) => {
+    if (status === CompetitionStatus.FINISHED) {
+      return b.competition.endsAt.getTime() - a.competition.endsAt.getTime();
+    } else {
+      return a.competition.endsAt.getTime() - b.competition.endsAt.getTime();
+    }
+  });
 }
 
 export { findPlayerParticipationsStandings2 };
