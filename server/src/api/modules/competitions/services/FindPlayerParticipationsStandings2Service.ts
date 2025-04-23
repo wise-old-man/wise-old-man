@@ -13,6 +13,7 @@ import { omit } from '../../../util/objects';
 import { calculateLevelDiff, calculateMetricDelta } from '../../deltas/delta.utils';
 import { standardize } from '../../players/player.utils';
 import { ParticipationWithCompetitionAndStandings } from '../competition.types';
+import logger from '../../../util/logging';
 
 /**
  * To reduce number of columns returned from our snapshot queries,
@@ -140,6 +141,19 @@ async function findPlayerParticipationsStandings2(
       }
     }
   });
+
+  logger.debug(
+    'standings2',
+    {
+      playerParticipations: playerParticipations.length,
+      allParticipations: allParticipations.length,
+      allStartSnapshots: allStartSnapshots.length,
+      allEndSnapshots: allEndSnapshots.length,
+      allPlayers: allPlayers.length,
+      allGroups: allGroups.length
+    },
+    true
+  );
 
   const startSnapshotMap = new Map(allStartSnapshots.map(s => [s.id, s]));
   const endSnapshotMap = new Map(allEndSnapshots.map(s => [s.id, s]));
