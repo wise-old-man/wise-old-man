@@ -11,6 +11,7 @@ import { findPlayerAchievementProgress } from '../achievements/services/FindPlay
 import { findPlayerAchievements } from '../achievements/services/FindPlayerAchievementsService';
 import { findPlayerParticipations } from '../competitions/services/FindPlayerParticipationsService';
 import { findPlayerParticipationsStandings } from '../competitions/services/FindPlayerParticipationsStandingsService';
+import { findPlayerParticipationsStandings2 } from '../competitions/services/FindPlayerParticipationsStandings2Service';
 import { findPlayerDeltas } from '../deltas/services/FindPlayerDeltasService';
 import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
 import { findPlayerMemberships } from '../groups/services/FindPlayerMembershipsService';
@@ -402,14 +403,18 @@ router.get(
       username: z.string()
     }),
     query: z.object({
+      version: z.optional(z.enum(['v1', 'v2'])),
       status: z.enum([CompetitionStatus.ONGOING, CompetitionStatus.FINISHED])
     })
   }),
   executeRequest(async (req, res) => {
     const { username } = req.params;
-    const { status } = req.query;
+    const { status, version } = req.query;
 
-    const results = await findPlayerParticipationsStandings(username, status);
+    const results =
+      version === 'v2'
+        ? await findPlayerParticipationsStandings2(username, status)
+        : await findPlayerParticipationsStandings(username, status);
 
     res.status(200).json(results);
   })
