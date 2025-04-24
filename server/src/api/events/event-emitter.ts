@@ -11,11 +11,11 @@ class TypedEventEmitter extends EventEmitter {
   emit<K extends keyof EventPayloadMap>(event: K, data: EventPayloadMap[K]): boolean {
     prometheus.trackEventEmitted(event);
     logger.info(`[Event] ${event}`, data, true);
-    return super.emit(event as string, data);
+    return super.emit(event, data);
   }
 
   on<K extends keyof EventPayloadMap>(event: K, listener: (data: EventPayloadMap[K]) => void): this {
-    return super.on(event as string, listener);
+    return super.on(event, listener);
   }
 
   init() {
