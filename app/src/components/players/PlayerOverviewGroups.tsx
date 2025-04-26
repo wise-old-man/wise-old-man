@@ -21,7 +21,7 @@ export async function PlayerOverviewMemberships(props: PlayerOverviewMemberships
 
   return (
     <div>
-      <Label className="text-xs leading-4 text-gray-200">Group affilitations</Label>
+      <Label className="text-xs leading-4 text-gray-200">Group affiliations</Label>
       <div className={cn("mt-2 flex flex-col gap-y-2", !hasMoreGroups && "pb-4")}>
         {highlighted.map((m) => (
           <MembershipListItem {...m} key={m.group.id} />
