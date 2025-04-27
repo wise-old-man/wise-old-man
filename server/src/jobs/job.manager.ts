@@ -8,7 +8,6 @@ import { CheckMissingComputedTablesJob } from './instances/CheckMissingComputedT
 import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
 import { CheckPlayerRankedJob } from './instances/CheckPlayerRankedJob';
 import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
-import { ScheduleBannedPlayerChecksJob } from './instances/ScheduleBannedPlayerChecksJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
 import { ScheduleCreationSpamChecksJob } from './instances/ScheduleCreationSpamChecksJob';
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
@@ -24,7 +23,6 @@ const JOBS_MAP = {
   CheckPlayerRankedJob,
   CheckOffensiveNamesJob,
   ReviewNameChangeJob,
-  ScheduleBannedPlayerChecksJob,
   ScheduleCompetitionEventsJob,
   ScheduleCreationSpamChecksJob,
   ScheduleFlaggedPlayerReviewJob,
@@ -44,7 +42,6 @@ const CRON_CONFIG = [
   { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
   // everyday at 8 AM
   { interval: '0 8 * * *', jobName: 'ScheduleNameChangeReviewsJob' },
-  { interval: '0 8 * * *', jobName: 'ScheduleBannedPlayerChecksJob' },
   { interval: '0 8 * * *', jobName: 'CalculateComputedMetricRankTablesJob' }
 ] satisfies CronJob[];
 
