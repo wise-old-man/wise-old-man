@@ -97,24 +97,30 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
       }
     }
 
-    if (toCreate.length > 0) {
-      await prisma.record.createMany({
-        data: toCreate,
-        skipDuplicates: true
-      });
+    if (toCreate.length === 0 && toUpdate.length === 0) {
+      return;
     }
 
-    for (const update of toUpdate) {
-      await prisma.record.update({
-        where: {
-          playerId_period_metric: {
-            playerId,
-            period,
-            metric: update.metric
-          }
-        },
-        data: { value: update.newValue }
-      });
-    }
+    await prisma.$transaction(async tx => {
+      if (toCreate.length > 0) {
+        await tx.record.createMany({
+          data: toCreate,
+          skipDuplicates: true
+        });
+      }
+
+      for (const update of toUpdate) {
+        await tx.record.update({
+          where: {
+            playerId_period_metric: {
+              playerId,
+              period,
+              metric: update.metric
+            }
+          },
+          data: { value: update.newValue }
+        });
+      }
+    });
   }
 }
