@@ -24,6 +24,24 @@ class JobManager {
     this.schedulers = [];
   }
 
+  /**
+   * This function is used to run a job handler directly, without adding it to the queue.
+   * This should be used sparingly, as it bypasses the queue system and does not allow for retrying jobs.
+   */
+  async runAsync<T extends JobType, TPayload extends JobPayloadMapper[T]>(
+    type: T,
+    payload: TPayload extends undefined ? Record<string, never> : TPayload
+  ) {
+    const handlerClass = JOB_HANDLER_MAP[type];
+
+    if (handlerClass === undefined) {
+      throw new Error(`No job implementation found for "${type}".`);
+    }
+
+    // @ts-expect-error -- Unknown payload type
+    await new handlerClass(this).execute(payload);
+  }
+
   async add<T extends JobType, TPayload extends JobPayloadMapper[T]>(
     type: T,
     payload: TPayload extends undefined ? Record<string, never> : TPayload,
@@ -33,9 +51,7 @@ class JobManager {
       // If in test mode, execute the job handler directly instead of adding it to the queue.
       // This is useful for testing because we want to test the job handler logic without
       // actually running the job in the queue.
-      // @ts-expect-error -- Unknown payload type
-      await new JOB_HANDLER_MAP[type](this).execute(payload);
-      return;
+      return this.runAsync(type, payload);
     }
 
     if (type === JobType.UPDATE_PLAYER && 'username' in payload) {
@@ -53,7 +69,7 @@ class JobManager {
 
     const matchingQueue = this.queues.find(queue => queue.name === type);
 
-    if (!matchingQueue) {
+    if (matchingQueue === undefined) {
       throw new Error(`No job implementation found for "${type}".`);
     }
 

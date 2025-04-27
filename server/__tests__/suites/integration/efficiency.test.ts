@@ -17,10 +17,12 @@ import { resetDatabase } from '../../utils';
 import EfficiencyAlgorithm from '../../../src/api/modules/efficiency/EfficiencyAlgorithm';
 import { computeEfficiencyRank } from '../../../src/api/modules/efficiency/services/ComputeEfficiencyRankService';
 import { redisClient } from '../../../src/services/redis.service';
+import { eventEmitter } from '../../../src/api/events';
 
 const api = supertest(apiServer.express);
 
 beforeAll(async () => {
+  eventEmitter.init();
   await resetDatabase();
   await redisClient.flushall();
 

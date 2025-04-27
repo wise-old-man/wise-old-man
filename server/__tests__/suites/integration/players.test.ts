@@ -22,7 +22,8 @@ import {
   resetDatabase,
   sleep
 } from '../../utils';
-import { eventEmitter, EventType } from '../../../src/api/events';
+import { eventEmitter } from '../../../src/api/events';
+import * as PlayerUpdatedEvent from '../../../src/api/events/handlers/player-updated.event';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -33,7 +34,7 @@ const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt
 const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
 const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
 
-const eventEmission = jest.spyOn(eventEmitter, 'emit');
+const playerUpdatedEvent = jest.spyOn(PlayerUpdatedEvent, 'handler');
 
 const onPlayerFlaggedEvent = jest.spyOn(playerEvents, 'onPlayerFlagged');
 const onPlayerArchivedEvent = jest.spyOn(playerEvents, 'onPlayerArchived');
@@ -48,9 +49,13 @@ const globalData = {
 
 beforeEach(() => {
   jest.resetAllMocks();
+
+  // re-init the event emitter to re-attach the mocked event handlers
+  eventEmitter.init();
 });
 
 beforeAll(async () => {
+  eventEmitter.init();
   await resetDatabase();
   await redisClient.flushall();
 
@@ -83,7 +88,7 @@ describe('Player API', () => {
         'Validation error: Username cannot contain any special characters'
       );
 
-      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
 
     it('should not track player (lengthy username)', async () => {
@@ -92,7 +97,7 @@ describe('Player API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Validation error: Username must be between');
 
-      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
 
     it('should not track player (hiscores failed)', async () => {
@@ -106,7 +111,7 @@ describe('Player API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Failed to load hiscores for enrique.');
 
-      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(playerUpdatedEvent).not.toHaveBeenCalled();
 
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
@@ -125,7 +130,7 @@ describe('Player API', () => {
       expect(firstResponse.status).toBe(400);
       expect(firstResponse.body.message).toMatch('Failed to load hiscores for toby.');
 
-      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(playerUpdatedEvent).not.toHaveBeenCalled();
 
       // this player failed to be tracked, and their type remains "unknown"
       // therefor, we should allow them to be tracked again without waiting 60s
@@ -133,7 +138,7 @@ describe('Player API', () => {
       expect(secondResponse.status).toBe(400);
       expect(secondResponse.body.message).toMatch('Failed to load hiscores for toby.');
 
-      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(playerUpdatedEvent).not.toHaveBeenCalled();
 
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
@@ -146,8 +151,7 @@ describe('Player API', () => {
       const thirdResponse = await api.post(`/players/toby`);
       expect(thirdResponse.status).toBe(200);
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'toby',
           hasChanged: true
@@ -168,7 +172,7 @@ describe('Player API', () => {
       // this player has "unknown" type, shouldn't be reviewed on 400 (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'alanec'))).toBeNull();
 
-      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
 
     it("shouldn't review player type on 400 (regular type)", async () => {
@@ -182,8 +186,7 @@ describe('Player API', () => {
       expect(firstResponse.status).toBe(201);
       expect(firstResponse.body.type).toBe('regular');
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'aluminoti',
           hasChanged: true
@@ -192,7 +195,7 @@ describe('Player API', () => {
 
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'aluminoti'))).toBeNull();
 
-      jest.resetAllMocks();
+      playerUpdatedEvent.mockClear();
 
       // Mock the hiscores to fail
       registerHiscoresMock(axiosMock, {
@@ -203,7 +206,7 @@ describe('Player API', () => {
       expect(secondResponse.status).toBe(400);
       expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
 
-      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(playerUpdatedEvent).not.toHaveBeenCalled();
       // this player has "regular" type, shouldn't be reviewed on 400 (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'aluminoti'))).toBeNull();
     });
@@ -223,15 +226,14 @@ describe('Player API', () => {
 
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'tony stark'))).toBeNull();
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'tony stark',
           hasChanged: true
         })
       );
 
-      jest.resetAllMocks();
+      playerUpdatedEvent.mockClear();
 
       const currentTimestamp = Date.now();
 
@@ -261,7 +263,7 @@ describe('Player API', () => {
         currentTimestamp
       );
 
-      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
 
     it('should review player type on 400 (no change)', async () => {
@@ -279,15 +281,14 @@ describe('Player API', () => {
 
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'ash',
           hasChanged: true
         })
       );
 
-      jest.resetAllMocks();
+      playerUpdatedEvent.mockClear();
 
       // Mock the hiscores to fail for every type
       registerHiscoresMock(axiosMock, {
@@ -304,7 +305,7 @@ describe('Player API', () => {
       // failed to review (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
       expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
-      expect(eventEmission).not.toHaveBeenCalledWith(EventType.PLAYER_UPDATED);
+      expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
 
     it('should review player type on 400 (changed type)', async () => {
@@ -325,15 +326,14 @@ describe('Player API', () => {
         await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'peter parker'))
       ).toBeNull();
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'peter parker',
           hasChanged: true
         })
       );
 
-      jest.resetAllMocks();
+      playerUpdatedEvent.mockClear();
 
       // Mock the hiscores to fail for ironman
       registerHiscoresMock(axiosMock, {
@@ -357,8 +357,7 @@ describe('Player API', () => {
         'ironman'
       );
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'peter parker',
           hasChanged: false
@@ -388,8 +387,7 @@ describe('Player API', () => {
       // Using the test "main" rates, we should get this number for regular accs
       expect(response.body.ehp).toBeCloseTo(630.6918952334495, 4);
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'psikoi',
           hasChanged: true
@@ -418,10 +416,9 @@ describe('Player API', () => {
       // Track again, stats shouldn't have changed
       await api.post(`/players/ PSIKOI_ `);
 
-      expect(eventEmission).toHaveBeenCalledTimes(2);
+      expect(playerUpdatedEvent).toHaveBeenCalledTimes(2);
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'psikoi',
           hasChanged: false
@@ -454,8 +451,7 @@ describe('Player API', () => {
       expect(responseDef1.body.build).toBe('def1');
       expect(responseDef1.body.latestSnapshot.data.skills.defence.experience).toBe(0);
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'def1',
           hasChanged: true
@@ -479,8 +475,7 @@ describe('Player API', () => {
       expect(responseZerker.body.build).toBe('zerker');
       expect(responseZerker.body.latestSnapshot.data.skills.defence.experience).toBe(61_512);
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'zerker',
           hasChanged: true
@@ -504,8 +499,7 @@ describe('Player API', () => {
       expect(response10HP.body.build).toBe('hp10');
       expect(response10HP.body.latestSnapshot.data.skills.hitpoints.experience).toBe(1154);
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'hp10',
           hasChanged: true
@@ -536,8 +530,7 @@ describe('Player API', () => {
       expect(responseLvl3.body.latestSnapshot.data.skills.hitpoints.experience).toBe(1154);
       expect(responseLvl3.body.latestSnapshot.data.skills.prayer.experience).toBe(0);
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'lvl3',
           hasChanged: true
@@ -572,8 +565,7 @@ describe('Player API', () => {
       expect(responseF2P.body.latestSnapshot.data.bosses.bryophyta.kills).toBe(10);
       expect(responseF2P.body.latestSnapshot.data.skills.agility.experience).toBe(0);
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'f2p',
           hasChanged: true
@@ -613,8 +605,7 @@ describe('Player API', () => {
       expect(responseF2PLvl3.status).toBe(201);
       expect(responseF2PLvl3.body.build).toBe('f2p_lvl3');
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'f2p lvl3',
           hasChanged: true
@@ -649,8 +640,7 @@ describe('Player API', () => {
 
       expect(response.body.latestSnapshot).not.toBeNull();
 
-      expect(eventEmission).toHaveBeenCalledWith(
-        EventType.PLAYER_UPDATED,
+      expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'enriath',
           hasChanged: true
@@ -1901,7 +1891,7 @@ describe('Player API', () => {
 
       const previousSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
 
-      await sleep(500);
+      await sleep(100);
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metric.ZULRAH, value: 20_000 },
@@ -1958,7 +1948,7 @@ describe('Player API', () => {
 
       const previousSnapshot = await parseHiscoresSnapshot(player.id, modifiedPreviousRawData);
 
-      await sleep(500);
+      await sleep(100);
 
       registerHiscoresMock(axiosMock, {
         [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
@@ -2007,7 +1997,7 @@ describe('Player API', () => {
 
       await prisma.snapshot.create({ data: previousSnapshot });
 
-      await sleep(500);
+      await sleep(100);
       await setupPostTransitionDate(1000, player.id, groupId);
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
@@ -2194,7 +2184,7 @@ describe('Player API', () => {
 
       await prisma.snapshot.create({ data: previousSnapshot });
 
-      await sleep(500);
+      await sleep(100);
       await setupPostTransitionDate(2000, player.id, groupId);
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
@@ -2386,7 +2376,7 @@ describe('Player API', () => {
 
       expect(approveNameChangeResponse.status).toBe(200);
 
-      await sleep(500);
+      await sleep(100);
 
       const thirdResponse = await api.get(`/players/siobhan/archives`);
       expect(thirdResponse.status).toBe(200);

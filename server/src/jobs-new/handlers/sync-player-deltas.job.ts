@@ -2,8 +2,8 @@ import { ACTIVITIES, BOSSES, COMPUTED_METRICS, METRICS, Period, PeriodProps, SKI
 import { Job } from '../job.class';
 import prisma, { Delta, PrismaTypes } from '../../prisma';
 import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
-import { onDeltaUpdated } from '../../api/modules/deltas/delta.events';
 import type { JobManager } from '../job-manager';
+import { eventEmitter, EventType } from '../../api/events';
 
 interface Payload {
   username: string;
@@ -96,7 +96,7 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
       }
     });
 
-    const updatedDelta = await prisma.delta.upsert({
+    await prisma.delta.upsert({
       where: {
         playerId_period: {
           playerId: playerAndSnapshot.id,
@@ -107,6 +107,11 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
       create: newDelta
     });
 
-    onDeltaUpdated(updatedDelta, startSnapshot, currentDeltas === null || hasImprovements);
+    eventEmitter.emit(EventType.PLAYER_DELTA_UPDATED, {
+      username,
+      period,
+      periodStartDate: startSnapshot.createdAt,
+      isPotentialRecord: currentDeltas === null || hasImprovements
+    });
   }
 }
