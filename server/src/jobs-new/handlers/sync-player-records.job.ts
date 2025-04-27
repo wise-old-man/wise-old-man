@@ -1,7 +1,7 @@
 import { prepareRecordValue } from '../../api/modules/records/record.utils';
 import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snapshot.utils';
 import prisma, { PrismaTypes } from '../../prisma';
-import { getMetricValueKey, METRICS, Period } from '../../utils';
+import { getMetricValueKey, Metric, METRICS, Period } from '../../utils';
 import type { JobManager } from '../job-manager';
 import { Job } from '../job.class';
 
@@ -58,7 +58,7 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
     const currentRecordMap = Object.fromEntries(currentRecords.map(r => [r.metric, r]));
 
     const toCreate: PrismaTypes.RecordCreateManyInput[] = [];
-    const toUpdate: { recordId: number; newValue: number }[] = [];
+    const toUpdate: { metric: Metric; newValue: number }[] = [];
 
     for (const metric of METRICS) {
       const value = currentDelta[metric];
@@ -91,7 +91,7 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
       // A record existed before, and should be updated with a new and greater value
       if (value > currentRecordMap[metric].value) {
         toUpdate.push({
-          recordId: currentRecordMap[metric].id,
+          metric,
           newValue: prepareRecordValue(metric, value)
         });
       }
@@ -106,7 +106,13 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
 
     for (const update of toUpdate) {
       await prisma.record.update({
-        where: { id: update.recordId },
+        where: {
+          playerId_period_metric: {
+            playerId,
+            period,
+            metric: update.metric
+          }
+        },
         data: { value: update.newValue }
       });
     }

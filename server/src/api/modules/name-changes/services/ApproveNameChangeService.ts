@@ -288,7 +288,13 @@ async function transferRecords(
 
   for (const record of recordsToAdd) {
     await transaction.record.update({
-      where: { id: record.id },
+      where: {
+        playerId_period_metric: {
+          playerId: record.playerId,
+          period: record.period,
+          metric: record.metric
+        }
+      },
       data: {
         playerId: oldPlayerId,
         value: prepareRecordValue(record.metric, record.value)
@@ -298,14 +304,26 @@ async function transferRecords(
 
   for (const { oldRecord, newRecord } of recordsToUpdate) {
     await transaction.record.update({
-      where: { id: oldRecord.id },
+      where: {
+        playerId_period_metric: {
+          playerId: oldRecord.playerId,
+          period: oldRecord.period,
+          metric: oldRecord.metric
+        }
+      },
       data: {
         value: prepareRecordValue(oldRecord.metric, newRecord.value)
       }
     });
 
     await transaction.record.delete({
-      where: { id: newRecord.id }
+      where: {
+        playerId_period_metric: {
+          playerId: newRecord.playerId,
+          period: newRecord.period,
+          metric: newRecord.metric
+        }
+      }
     });
   }
 }
