@@ -1891,7 +1891,7 @@ describe('Player API', () => {
 
       const previousSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
 
-      await sleep(500);
+      await sleep(100);
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metric.ZULRAH, value: 20_000 },
@@ -1948,7 +1948,7 @@ describe('Player API', () => {
 
       const previousSnapshot = await parseHiscoresSnapshot(player.id, modifiedPreviousRawData);
 
-      await sleep(500);
+      await sleep(100);
 
       registerHiscoresMock(axiosMock, {
         [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
@@ -1997,7 +1997,7 @@ describe('Player API', () => {
 
       await prisma.snapshot.create({ data: previousSnapshot });
 
-      await sleep(500);
+      await sleep(100);
       await setupPostTransitionDate(1000, player.id, groupId);
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
@@ -2184,7 +2184,7 @@ describe('Player API', () => {
 
       await prisma.snapshot.create({ data: previousSnapshot });
 
-      await sleep(500);
+      await sleep(100);
       await setupPostTransitionDate(2000, player.id, groupId);
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
@@ -2376,7 +2376,7 @@ describe('Player API', () => {
 
       expect(approveNameChangeResponse.status).toBe(200);
 
-      await sleep(500);
+      await sleep(100);
 
       const thirdResponse = await api.get(`/players/siobhan/archives`);
       expect(thirdResponse.status).toBe(200);
