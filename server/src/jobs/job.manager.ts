@@ -12,7 +12,6 @@ import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import { ScheduleBannedPlayerChecksJob } from './instances/ScheduleBannedPlayerChecksJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
 import { ScheduleCreationSpamChecksJob } from './instances/ScheduleCreationSpamChecksJob';
-import { ScheduleDeltaInvalidationsJob } from './instances/ScheduleDeltaInvalidationsJob';
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
 import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
 import { UpdateCompetitionScoreJob } from './instances/UpdateCompetitionScoreJob';
@@ -33,7 +32,6 @@ const JOBS_MAP = {
   ScheduleBannedPlayerChecksJob,
   ScheduleCompetitionEventsJob,
   ScheduleCreationSpamChecksJob,
-  ScheduleDeltaInvalidationsJob,
   ScheduleFlaggedPlayerReviewJob,
   ScheduleNameChangeReviewsJob,
   UpdateCompetitionScoreJob,
@@ -52,8 +50,6 @@ const CRON_CONFIG = [
   { interval: '*/5 * * * *', jobName: 'CheckOffensiveNamesJob' },
   // every hour
   { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
-  // every 6 hours
-  { interval: '0 */6 * * *', jobName: 'ScheduleDeltaInvalidationsJob' },
   // everyday at 8 AM
   { interval: '0 8 * * *', jobName: 'ScheduleNameChangeReviewsJob' },
   { interval: '0 8 * * *', jobName: 'ScheduleBannedPlayerChecksJob' },

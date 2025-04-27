@@ -1,4 +1,5 @@
 import { AssertPlayerTypeJob } from './handlers/assert-player-type.job';
+import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
 import { ScheduleCompetitionScoreUpdatesJob } from './handlers/schedule-competition-score-updates.job';
 import { ScheduleGroupScoreUpdatesJob } from './handlers/schedule-group-score-updates.job';
 import { SchedulePatronGroupUpdatesJob } from './handlers/schedule-patron-group-updates.job';
@@ -17,6 +18,7 @@ import { JobType } from './types/job-type.enum';
 
 export const JOB_HANDLER_MAP = {
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJob,
+  [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
   [JobType.SCHEDULE_COMPETITION_SCORE_UPDATES]: ScheduleCompetitionScoreUpdatesJob,
   [JobType.SCHEDULE_GROUP_SCORE_UPDATES]: ScheduleGroupScoreUpdatesJob,
   [JobType.SCHEDULE_PATRON_GROUP_UPDATES]: SchedulePatronGroupUpdatesJob,
@@ -41,6 +43,8 @@ export const CRON_CONFIG = [
   // every 5 mins
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
+  // Every 6 hours
+  { interval: '0 */6 * * *', type: JobType.INVALIDATE_DELTAS },
   // everyday at 8 AM UTC
   { interval: '0 19 * * *', type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES }, // change this back to 8
   { interval: '0 19 * * *', type: JobType.SCHEDULE_GROUP_SCORE_UPDATES } // change this back to 8
