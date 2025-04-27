@@ -13,6 +13,7 @@ import {
   modifyRawHiscoresData
 } from '../../utils';
 import { redisClient } from '../../../src/services/redis.service';
+import { eventEmitter } from '../../../src/api/events';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -54,6 +55,7 @@ beforeEach(() => {
 });
 
 beforeAll(async () => {
+  eventEmitter.init();
   await resetDatabase();
   await redisClient.flushall();
 

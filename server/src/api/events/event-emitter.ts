@@ -1,13 +1,13 @@
 import EventEmitter from 'events';
 import logger from '../../api/util/logging';
 import prometheus from '../services/external/prometheus.service';
-import NameChangeCreated from './handlers/name-change-created.event';
-import PlayerDeltaUpdated from './handlers/player-delta-updated.event';
-import PlayerUpdated from './handlers/player-updated.event';
+import * as NameChangeCreated from './handlers/name-change-created.event';
+import * as PlayerDeltaUpdated from './handlers/player-delta-updated.event';
+import * as PlayerUpdated from './handlers/player-updated.event';
 import type { EventPayloadMap } from './types/event-payload.type';
 import { EventType } from './types/event-type.enum';
 
-class TypedEventEmitter extends EventEmitter {
+export class TypedEventEmitter extends EventEmitter {
   emit<K extends keyof EventPayloadMap>(event: K, data: EventPayloadMap[K]): boolean {
     prometheus.trackEventEmitted(event);
     logger.info(`[Event] ${event}`, data, true);
@@ -19,6 +19,8 @@ class TypedEventEmitter extends EventEmitter {
   }
 
   init() {
+    this.removeAllListeners();
+
     this.on(EventType.NAME_CHANGE_CREATED, NameChangeCreated.handler);
     this.on(EventType.PLAYER_DELTA_UPDATED, PlayerDeltaUpdated.handler);
     this.on(EventType.PLAYER_UPDATED, PlayerUpdated.handler);
@@ -26,5 +28,3 @@ class TypedEventEmitter extends EventEmitter {
     return this;
   }
 }
-
-export default new TypedEventEmitter().init();

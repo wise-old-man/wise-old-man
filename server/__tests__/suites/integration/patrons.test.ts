@@ -6,6 +6,7 @@ import prisma from '../../../src/prisma';
 import { PlayerType } from '../../../src/utils';
 import { readFile, registerCMLMock, registerHiscoresMock, resetDatabase } from '../../utils';
 import { redisClient } from '../../../src/services/redis.service';
+import { eventEmitter } from '../../../src/api/events';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -13,6 +14,7 @@ const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
 beforeAll(async () => {
+  eventEmitter.init();
   await redisClient.flushall();
   await resetDatabase();
 

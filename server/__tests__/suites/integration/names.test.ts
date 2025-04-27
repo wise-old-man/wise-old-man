@@ -34,6 +34,7 @@ beforeEach(() => {
 });
 
 beforeAll(async () => {
+  eventEmitter.init();
   await resetDatabase();
   await redisClient.flushall();
 

@@ -15,6 +15,7 @@ import { Snapshot } from '../../../src/api/modules/snapshots/snapshot.types';
 import { findPlayerSnapshots } from '../../../src/api/modules/snapshots/services/FindPlayerSnapshotsService';
 import { saveAllSnapshots } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
 import { redisClient } from '../../../src/services/redis.service';
+import { eventEmitter } from '../../../src/api/events';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -38,6 +39,7 @@ const globalData = {
 };
 
 beforeAll(async () => {
+  eventEmitter.init();
   await resetDatabase();
   await redisClient.flushall();
 

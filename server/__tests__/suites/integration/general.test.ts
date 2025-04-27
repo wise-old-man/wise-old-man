@@ -4,10 +4,12 @@ import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
 import { resetDatabase, sleep } from '../../utils';
+import { eventEmitter } from '../../../src/api/events';
 
 const api = supertest(apiServer.express);
 
 beforeAll(async () => {
+  eventEmitter.init();
   await redisClient.flushall();
   await resetDatabase();
 });

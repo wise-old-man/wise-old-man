@@ -12,15 +12,16 @@ import {
   modifyRawHiscoresData
 } from '../../utils';
 import prisma from '../../../src/prisma';
-import * as deltaEvents from '../../../src/api/modules/deltas/delta.events';
+import * as PlayerDeltaUpdatedEvent from '../../../src/api/events/handlers/player-delta-updated.event';
 import { findPlayerDeltas } from '../../../src/api/modules/deltas/services/FindPlayerDeltasService';
 import { findGroupDeltas } from '../../../src/api/modules/deltas/services/FindGroupDeltasService';
 import { redisClient } from '../../../src/services/redis.service';
+import { eventEmitter } from '../../../src/api/events';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const onDeltaUpdatedEvent = jest.spyOn(deltaEvents, 'onDeltaUpdated');
+const playerDeltaUpdatedEvent = jest.spyOn(PlayerDeltaUpdatedEvent, 'handler');
 
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
@@ -33,9 +34,13 @@ const globalData = {
 
 beforeEach(() => {
   jest.resetAllMocks();
+
+  // re-init the event emitter to re-attach the mocked event handlers
+  eventEmitter.init();
 });
 
 beforeAll(async () => {
+  eventEmitter.init();
   await resetDatabase();
   await redisClient.flushall();
 
@@ -64,9 +69,9 @@ describe('Deltas API', () => {
       expect(firstTrackResponse.status).toBe(201);
 
       // Wait for the deltas to update
-      await sleep(500);
+      await sleep(100);
 
-      expect(onDeltaUpdatedEvent).not.toHaveBeenCalled();
+      expect(playerDeltaUpdatedEvent).not.toHaveBeenCalled();
 
       const firstDeltas = await prisma.delta.findMany({
         where: { playerId: firstTrackResponse.body.id }
@@ -79,9 +84,9 @@ describe('Deltas API', () => {
       expect(secondTrackResponse.status).toBe(200);
 
       // Wait for the deltas to update
-      await sleep(500);
+      await sleep(100);
 
-      expect(onDeltaUpdatedEvent).not.toHaveBeenCalled();
+      expect(playerDeltaUpdatedEvent).not.toHaveBeenCalled();
 
       const secondDeltas = await prisma.delta.findMany({
         where: { playerId: secondTrackResponse.body.id }
@@ -89,7 +94,6 @@ describe('Deltas API', () => {
 
       // Player now has enough snapshots, but no gains in between them, so delta calcs get skipped
       expect(secondDeltas.length).toBe(0);
-      expect(onDeltaUpdatedEvent).not.toHaveBeenCalled();
     });
 
     it('should sync player deltas', async () => {
@@ -107,9 +111,9 @@ describe('Deltas API', () => {
       jest.useRealTimers();
 
       // Wait for the deltas to update
-      await sleep(500);
+      await sleep(100);
 
-      expect(onDeltaUpdatedEvent).not.toHaveBeenCalled();
+      expect(playerDeltaUpdatedEvent).not.toHaveBeenCalled();
 
       const firstDeltas = await prisma.delta.findMany({
         where: { playerId: firstTrackResponse.body.id }
@@ -142,28 +146,22 @@ describe('Deltas API', () => {
       ); // mocked as -1 overall, had to sum all skills' exp to use as the fallback
 
       // Wait for the deltas to update
-      await sleep(500);
+      await sleep(100);
 
       // Only week, month and year deltas were updated, since the previous update was 3 days ago (> day & five_min)
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledTimes(3);
+      expect(playerDeltaUpdatedEvent).toHaveBeenCalledTimes(3);
       // On a player's first update, all their deltas are potential records
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'week' }),
-        expect.objectContaining({ smithingExperience: 6_177_978 }),
-        true
+      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'week', isPotentialRecord: true })
       );
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'month' }),
-        expect.objectContaining({ smithingExperience: 6_177_978 }),
-        true
+      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'month', isPotentialRecord: true })
       );
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'year' }),
-        expect.objectContaining({ smithingExperience: 6_177_978 }),
-        true
+      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'year', isPotentialRecord: true })
       );
 
-      jest.resetAllMocks();
+      playerDeltaUpdatedEvent.mockClear();
 
       const secondDeltas = await prisma.delta.findMany({
         where: { playerId: firstTrackResponse.body.id }
@@ -206,38 +204,28 @@ describe('Deltas API', () => {
       expect(thirdTrackResponse.status).toBe(200);
 
       // Wait for the deltas to update
-      await sleep(500);
+      await sleep(100);
 
       // All (5) new deltas are an improvement over the previous, so they should be considered for record checks
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledTimes(5);
+      expect(playerDeltaUpdatedEvent).toHaveBeenCalledTimes(5);
       // The player has now been updated within seconds of the last update, so their day and five_min deltas should update
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'five_min' }),
-        expect.objectContaining({ smithingExperience: 6_177_978 + 50_000 }),
-        true
+      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'five_min', isPotentialRecord: true })
       );
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'day' }),
-        expect.objectContaining({ smithingExperience: 6_177_978 + 50_000 }),
-        true
+      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'day', isPotentialRecord: true })
       );
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'week' }),
-        expect.objectContaining({ smithingExperience: 6_177_978 }),
-        true
+      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'week', isPotentialRecord: true })
       );
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'month' }),
-        expect.objectContaining({ smithingExperience: 6_177_978 }),
-        true
+      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'month', isPotentialRecord: true })
       );
-      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'year' }),
-        expect.objectContaining({ smithingExperience: 6_177_978 }),
-        true
+      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ period: 'year', isPotentialRecord: true })
       );
 
-      jest.resetAllMocks();
+      playerDeltaUpdatedEvent.mockClear();
 
       const dayDeltas = (await prisma.delta.findFirst({
         where: { playerId: firstTrackResponse.body.id, period: 'day' }
