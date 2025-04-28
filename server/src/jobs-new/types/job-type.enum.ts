@@ -1,5 +1,9 @@
 export enum JobType {
   ASSERT_PLAYER_TYPE = 'assert-player-type',
+  CHECK_PLAYER_BANNED = 'check-player-banned',
+  CHECK_PLAYER_RANKED = 'check-player-ranked',
+  INVALIDATE_DELTAS = 'invalidate-deltas',
+  SCHEDULE_BANNED_PLAYER_CHECKS = 'schedule-banned-player-checks',
   SCHEDULE_COMPETITION_SCORE_UPDATES = 'schedule-competition-score-updates',
   SCHEDULE_GROUP_SCORE_UPDATES = 'schedule-group-score-updates',
   SCHEDULE_PATRON_GROUP_UPDATES = 'schedule-patron-group-updates',

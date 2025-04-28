@@ -30,7 +30,6 @@ async function updateRankMaps(metric: ComputedMetric) {
 
     for (const playerBuild of PLAYER_BUILDS) {
       try {
-        logger.info(`Querying rank table data...`, { metric, playerType, playerBuild }, true);
         const entries = await getRankTableEntries(metric, playerType, playerBuild);
 
         let sum = 0;
