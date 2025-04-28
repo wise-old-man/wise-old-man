@@ -5,6 +5,7 @@ import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
 import { ReviewNameChangeJob } from './handlers/review-name-change.job';
 import { ScheduleBannedPlayerChecksJob } from './handlers/schedule-banned-player-checks.job';
 import { ScheduleCompetitionScoreUpdatesJob } from './handlers/schedule-competition-score-updates.job';
+import { ScheduleFlaggedPlayerReviewJob } from './handlers/schedule-flagged-player-review.job';
 import { ScheduleGroupScoreUpdatesJob } from './handlers/schedule-group-score-updates.job';
 import { ScheduleNameChangeReviewsJob } from './handlers/schedule-name-change-reviews.job';
 import { SchedulePatronGroupUpdatesJob } from './handlers/schedule-patron-group-updates.job';
@@ -29,6 +30,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangeJob,
   [JobType.SCHEDULE_BANNED_PLAYER_CHECKS]: ScheduleBannedPlayerChecksJob,
   [JobType.SCHEDULE_COMPETITION_SCORE_UPDATES]: ScheduleCompetitionScoreUpdatesJob,
+  [JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW]: ScheduleFlaggedPlayerReviewJob,
   [JobType.SCHEDULE_GROUP_SCORE_UPDATES]: ScheduleGroupScoreUpdatesJob,
   [JobType.SCHEDULE_NAME_CHANGE_REVIEWS]: ScheduleNameChangeReviewsJob,
   [JobType.SCHEDULE_PATRON_GROUP_UPDATES]: SchedulePatronGroupUpdatesJob,
@@ -53,6 +55,8 @@ export const CRON_CONFIG = [
   // every 5 mins
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
+  // every hour
+  { interval: '0 * * * *', type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW },
   // Every 6 hours
   { interval: '0 */6 * * *', type: JobType.INVALIDATE_DELTAS },
   // everyday at 8 AM UTC
