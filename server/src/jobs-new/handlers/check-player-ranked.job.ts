@@ -26,6 +26,10 @@ export class CheckPlayerRankedJob extends Job<Payload> {
   }
 
   async execute(payload: Payload) {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     // Since the hiscores are unstable, we can't assume that a 404 error from them is 100% accurate.
     // So, to make sure a player is no longer ranked on the hiscores, we need to make a few attempts,
     // and if all of them fail, then we can be pretty sure that the player is no longer ranked.

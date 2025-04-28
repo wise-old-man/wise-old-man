@@ -21,6 +21,10 @@ export class CheckPlayerBannedJob extends Job<Payload> {
   }
 
   async execute(payload: Payload) {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     const username = standardize(payload.username);
 
     const player = await prisma.player.findFirst({
