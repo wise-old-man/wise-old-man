@@ -5,8 +5,6 @@ import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
 import { CalculateComputedMetricRankTablesJob } from './instances/CalculateComputedMetricRankTablesJob';
 import { CheckMissingComputedTablesJob } from './instances/CheckMissingComputedTablesJob';
-import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
-import { CheckPlayerRankedJob } from './instances/CheckPlayerRankedJob';
 import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
 import { ScheduleCreationSpamChecksJob } from './instances/ScheduleCreationSpamChecksJob';
@@ -19,8 +17,6 @@ import { Job, JobPriority } from './job.utils';
 const JOBS_MAP = {
   CalculateComputedMetricRankTablesJob,
   CheckMissingComputedTablesJob,
-  CheckPlayerBannedJob,
-  CheckPlayerRankedJob,
   CheckOffensiveNamesJob,
   ReviewNameChangeJob,
   ScheduleCompetitionEventsJob,
