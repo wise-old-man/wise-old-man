@@ -9,7 +9,6 @@ import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
 import { ScheduleCreationSpamChecksJob } from './instances/ScheduleCreationSpamChecksJob';
 import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
-import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
 import { CheckOffensiveNamesJob } from './instances/CheckOffensiveNamesJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
@@ -21,8 +20,7 @@ const JOBS_MAP = {
   ReviewNameChangeJob,
   ScheduleCompetitionEventsJob,
   ScheduleCreationSpamChecksJob,
-  ScheduleFlaggedPlayerReviewJob,
-  ScheduleNameChangeReviewsJob
+  ScheduleFlaggedPlayerReviewJob
 };
 
 // Jobs to run when the server starts up
@@ -37,7 +35,6 @@ const CRON_CONFIG = [
   // every hour
   { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
   // everyday at 8 AM
-  { interval: '0 8 * * *', jobName: 'ScheduleNameChangeReviewsJob' },
   { interval: '0 8 * * *', jobName: 'CalculateComputedMetricRankTablesJob' }
 ] satisfies CronJob[];
 
