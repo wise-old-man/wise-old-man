@@ -5,14 +5,12 @@ import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
 import { CalculateComputedMetricRankTablesJob } from './instances/CalculateComputedMetricRankTablesJob';
 import { CheckMissingComputedTablesJob } from './instances/CheckMissingComputedTablesJob';
-import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
 
 const JOBS_MAP = {
   CalculateComputedMetricRankTablesJob,
-  CheckMissingComputedTablesJob,
-  ReviewNameChangeJob
+  CheckMissingComputedTablesJob
 };
 
 // Jobs to run when the server starts up
