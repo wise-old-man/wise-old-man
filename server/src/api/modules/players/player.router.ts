@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import jobManager from '../../../jobs/job.manager';
+import { JobType, jobManager as newJobManager } from '../../../jobs-new';
 import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../../utils';
 import { NotFoundError, ServerError } from '../../errors';
@@ -194,7 +194,7 @@ router.post(
 
     const { updatedPlayer } = await updatePlayer(username);
 
-    jobManager.add('ScheduleFlaggedPlayerReviewJob', undefined, { delay: 10_000 });
+    newJobManager.add(JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW, {}, { delay: 5_000 });
 
     res.status(200).json({
       message: `Successfully rolled back player: ${updatedPlayer.displayName}`
@@ -225,7 +225,7 @@ router.post(
 
     const { updatedPlayer } = await updatePlayer(username);
 
-    jobManager.add('ScheduleFlaggedPlayerReviewJob', undefined, { delay: 10_000 });
+    newJobManager.add(JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW, {}, { delay: 5_000 });
 
     res.status(200).json({
       message: `Successfully rolled back collection logs for player: ${updatedPlayer.displayName}`
@@ -260,7 +260,7 @@ router.post(
       throw new ServerError('Failed to update new player post-archive.');
     }
 
-    jobManager.add('ScheduleFlaggedPlayerReviewJob', undefined, { delay: 10_000 });
+    newJobManager.add(JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW, {}, { delay: 5_000 });
 
     res.status(200).json(archivedPlayer);
   })

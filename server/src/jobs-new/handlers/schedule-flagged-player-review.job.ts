@@ -1,7 +1,7 @@
 import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerService';
 import prisma from '../../prisma';
 import { PlayerStatus } from '../../utils';
-import { Job } from '../job.utils';
+import { Job } from '../job.class';
 
 export class ScheduleFlaggedPlayerReviewJob extends Job<unknown> {
   async execute() {
@@ -11,7 +11,7 @@ export class ScheduleFlaggedPlayerReviewJob extends Job<unknown> {
       orderBy: { updatedAt: 'desc' }
     });
 
-    if (!flaggedPlayer) {
+    if (flaggedPlayer === null) {
       return;
     }
 

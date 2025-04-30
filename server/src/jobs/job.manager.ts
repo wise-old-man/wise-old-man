@@ -5,13 +5,9 @@ import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
 import { CalculateComputedMetricRankTablesJob } from './instances/CalculateComputedMetricRankTablesJob';
 import { CheckMissingComputedTablesJob } from './instances/CheckMissingComputedTablesJob';
-import { CheckPlayerBannedJob } from './instances/CheckPlayerBannedJob';
-import { CheckPlayerRankedJob } from './instances/CheckPlayerRankedJob';
 import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
 import { ScheduleCreationSpamChecksJob } from './instances/ScheduleCreationSpamChecksJob';
-import { ScheduleFlaggedPlayerReviewJob } from './instances/ScheduleFlaggedPlayerReviewJob';
-import { ScheduleNameChangeReviewsJob } from './instances/ScheduleNameChangeReviewsJob';
 import { CheckOffensiveNamesJob } from './instances/CheckOffensiveNamesJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
@@ -19,14 +15,10 @@ import { Job, JobPriority } from './job.utils';
 const JOBS_MAP = {
   CalculateComputedMetricRankTablesJob,
   CheckMissingComputedTablesJob,
-  CheckPlayerBannedJob,
-  CheckPlayerRankedJob,
   CheckOffensiveNamesJob,
   ReviewNameChangeJob,
   ScheduleCompetitionEventsJob,
-  ScheduleCreationSpamChecksJob,
-  ScheduleFlaggedPlayerReviewJob,
-  ScheduleNameChangeReviewsJob
+  ScheduleCreationSpamChecksJob
 };
 
 // Jobs to run when the server starts up
@@ -38,10 +30,7 @@ const CRON_CONFIG = [
   { interval: '* * * * *', jobName: 'ScheduleCreationSpamChecksJob' },
   // every 5 mins
   { interval: '*/5 * * * *', jobName: 'CheckOffensiveNamesJob' },
-  // every hour
-  { interval: '0 * * * *', jobName: 'ScheduleFlaggedPlayerReviewJob' },
   // everyday at 8 AM
-  { interval: '0 8 * * *', jobName: 'ScheduleNameChangeReviewsJob' },
   { interval: '0 8 * * *', jobName: 'CalculateComputedMetricRankTablesJob' }
 ] satisfies CronJob[];
 
