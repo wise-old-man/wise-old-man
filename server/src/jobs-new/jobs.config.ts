@@ -6,6 +6,7 @@ import { CheckPlayerRankedJob } from './handlers/check-player-ranked.job';
 import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
 import { ReviewNameChangeJob } from './handlers/review-name-change.job';
 import { ScheduleBannedPlayerChecksJob } from './handlers/schedule-banned-player-checks.job';
+import { ScheduleCompetitionEventsJob } from './handlers/schedule-competition-events.job';
 import { ScheduleCompetitionScoreUpdatesJob } from './handlers/schedule-competition-score-updates.job';
 import { ScheduleFlaggedPlayerReviewJob } from './handlers/schedule-flagged-player-review.job';
 import { ScheduleGroupScoreUpdatesJob } from './handlers/schedule-group-score-updates.job';
@@ -33,6 +34,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangeJob,
   [JobType.SCHEDULE_BANNED_PLAYER_CHECKS]: ScheduleBannedPlayerChecksJob,
+  [JobType.SCHEDULE_COMPETITION_EVENTS]: ScheduleCompetitionEventsJob,
   [JobType.SCHEDULE_COMPETITION_SCORE_UPDATES]: ScheduleCompetitionScoreUpdatesJob,
   [JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW]: ScheduleFlaggedPlayerReviewJob,
   [JobType.SCHEDULE_GROUP_SCORE_UPDATES]: ScheduleGroupScoreUpdatesJob,
@@ -54,6 +56,7 @@ export const JOB_HANDLER_MAP = {
 export const CRON_CONFIG = [
   // every 1 min
   { interval: '* * * * *', type: JobType.CHECK_CREATION_SPAM },
+  { interval: '* * * * *', type: JobType.SCHEDULE_COMPETITION_EVENTS },
   { interval: '* * * * *', type: JobType.SYNC_API_KEYS },
   { interval: '* * * * *', type: JobType.SYNC_PATRONS },
   { interval: '* * * * *', type: JobType.UPDATE_QUEUE_METRICS },

@@ -7,6 +7,7 @@ export enum JobType {
   INVALIDATE_DELTAS = 'invalidate-deltas',
   REVIEW_NAME_CHANGE = 'review-name-change',
   SCHEDULE_BANNED_PLAYER_CHECKS = 'schedule-banned-player-checks',
+  SCHEDULE_COMPETITION_EVENTS = 'schedule-competition-events',
   SCHEDULE_COMPETITION_SCORE_UPDATES = 'schedule-competition-score-updates',
   SCHEDULE_FLAGGED_PLAYER_REVIEW = 'schedule-flagged-player-review',
   SCHEDULE_GROUP_SCORE_UPDATES = 'schedule-group-score-updates',
