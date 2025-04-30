@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Job } from '../job.utils';
+import { Job } from '../job.class';
 import { OpenAiService } from '../../api/services/external/openai.service';
 import prisma from '../../prisma';
 import { dispatchOffensiveNamesFound } from '../../api/services/external/discord.service';
@@ -74,8 +74,8 @@ const RESPONSE_SCHEMA = z.object({
   )
 });
 
-export class CheckOffensiveNamesJob extends Job<unknown> {
-  async execute(): Promise<void> {
+export class CheckInappropriateContentJob extends Job<unknown> {
+  async execute() {
     if (!process.env.OPENAI_API_KEY) {
       return;
     }

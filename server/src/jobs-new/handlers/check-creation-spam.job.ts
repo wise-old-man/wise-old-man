@@ -1,12 +1,12 @@
 import { dispatchPotentialCreationSpam } from '../../api/services/external/discord.service';
-import prisma, { Competition, Group } from '../../prisma';
 import logger from '../../api/util/logging';
-import { Period, PeriodProps } from '../../utils';
-import { Job } from '../job.utils';
+import prisma, { Competition } from '../../prisma';
+import { Group, Period, PeriodProps } from '../../utils';
+import { Job } from '../job.class';
 
 const CREATION_SPAM_THRESHOLD = 5;
 
-export class ScheduleCreationSpamChecksJob extends Job<unknown> {
+export class CheckCreationSpamJob extends Job<unknown> {
   async execute() {
     const minuteAgo = new Date(Date.now() - 60 * 1000);
 

@@ -1,4 +1,6 @@
 import { AssertPlayerTypeJob } from './handlers/assert-player-type.job';
+import { CheckCreationSpamJob } from './handlers/check-creation-spam.job';
+import { CheckInappropriateContentJob } from './handlers/check-inappropriate-content.job';
 import { CheckPlayerBannedJob } from './handlers/check-player-banned.job';
 import { CheckPlayerRankedJob } from './handlers/check-player-ranked.job';
 import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
@@ -24,6 +26,8 @@ import { JobType } from './types/job-type.enum';
 
 export const JOB_HANDLER_MAP = {
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJob,
+  [JobType.CHECK_CREATION_SPAM]: CheckCreationSpamJob,
+  [JobType.CHECK_INAPPROPRIATE_CONTENT]: CheckInappropriateContentJob,
   [JobType.CHECK_PLAYER_BANNED]: CheckPlayerBannedJob,
   [JobType.CHECK_PLAYER_RANKED]: CheckPlayerRankedJob,
   [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
@@ -49,10 +53,12 @@ export const JOB_HANDLER_MAP = {
 
 export const CRON_CONFIG = [
   // every 1 min
+  { interval: '* * * * *', type: JobType.CHECK_CREATION_SPAM },
   { interval: '* * * * *', type: JobType.SYNC_API_KEYS },
   { interval: '* * * * *', type: JobType.SYNC_PATRONS },
   { interval: '* * * * *', type: JobType.UPDATE_QUEUE_METRICS },
   // every 5 mins
+  { interval: '*/5 * * * *', type: JobType.CHECK_INAPPROPRIATE_CONTENT },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
   // every hour

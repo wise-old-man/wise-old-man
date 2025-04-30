@@ -1,5 +1,7 @@
 export enum JobType {
   ASSERT_PLAYER_TYPE = 'assert-player-type',
+  CHECK_CREATION_SPAM = 'check-creation-spam',
+  CHECK_INAPPROPRIATE_CONTENT = 'check-inappropriate-content',
   CHECK_PLAYER_BANNED = 'check-player-banned',
   CHECK_PLAYER_RANKED = 'check-player-ranked',
   INVALIDATE_DELTAS = 'invalidate-deltas',

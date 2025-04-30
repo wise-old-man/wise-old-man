@@ -7,18 +7,14 @@ import { CalculateComputedMetricRankTablesJob } from './instances/CalculateCompu
 import { CheckMissingComputedTablesJob } from './instances/CheckMissingComputedTablesJob';
 import { ReviewNameChangeJob } from './instances/ReviewNameChangeJob';
 import { ScheduleCompetitionEventsJob } from './instances/ScheduleCompetitionEventsJob';
-import { ScheduleCreationSpamChecksJob } from './instances/ScheduleCreationSpamChecksJob';
-import { CheckOffensiveNamesJob } from './instances/CheckOffensiveNamesJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
 
 const JOBS_MAP = {
   CalculateComputedMetricRankTablesJob,
   CheckMissingComputedTablesJob,
-  CheckOffensiveNamesJob,
   ReviewNameChangeJob,
-  ScheduleCompetitionEventsJob,
-  ScheduleCreationSpamChecksJob
+  ScheduleCompetitionEventsJob
 };
 
 // Jobs to run when the server starts up
@@ -27,9 +23,6 @@ const STARTUP_JOBS = ['CheckMissingComputedTablesJob'] satisfies Array<keyof typ
 const CRON_CONFIG = [
   // every 1 min
   { interval: '* * * * *', jobName: 'ScheduleCompetitionEventsJob' },
-  { interval: '* * * * *', jobName: 'ScheduleCreationSpamChecksJob' },
-  // every 5 mins
-  { interval: '*/5 * * * *', jobName: 'CheckOffensiveNamesJob' },
   // everyday at 8 AM
   { interval: '0 8 * * *', jobName: 'CalculateComputedMetricRankTablesJob' }
 ] satisfies CronJob[];
