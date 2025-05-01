@@ -1,5 +1,4 @@
-import { JobType, jobManager } from '../../../jobs-new';
-import { JobPriority } from '../../../jobs/job.utils';
+import { JobPriority, JobType, jobManager } from '../../../jobs-new';
 import prisma, { Competition, Participation } from '../../../prisma';
 import { CompetitionWithParticipations, PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';

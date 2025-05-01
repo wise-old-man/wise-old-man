@@ -6,7 +6,7 @@ import {
 } from '../../api/modules/competitions/competition.events';
 import { EventPeriodDelay } from '../../api/services/external/discord.service';
 import prisma from '../../prisma';
-import { Job } from '../job.utils';
+import { Job } from '../job.class';
 
 // Since the cronjob runs at every minute (at 00 seconds) and most competitions start at 00 seconds
 // it is prudent to add a safety gap so that we search dates from X:55 to X+1:55 instead of always at 00

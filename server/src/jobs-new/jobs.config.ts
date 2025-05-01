@@ -1,9 +1,14 @@
 import { AssertPlayerTypeJob } from './handlers/assert-player-type.job';
+import { CalculateComputedRankTablesJob } from './handlers/calculate-computed-rank-tables.job';
+import { CheckCreationSpamJob } from './handlers/check-creation-spam.job';
+import { CheckInappropriateContentJob } from './handlers/check-inappropriate-content.job';
+import { CheckMissingComputedRankTablesJob } from './handlers/check-missing-computed-rank-tables.job';
 import { CheckPlayerBannedJob } from './handlers/check-player-banned.job';
 import { CheckPlayerRankedJob } from './handlers/check-player-ranked.job';
 import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
 import { ReviewNameChangeJob } from './handlers/review-name-change.job';
 import { ScheduleBannedPlayerChecksJob } from './handlers/schedule-banned-player-checks.job';
+import { ScheduleCompetitionEventsJob } from './handlers/schedule-competition-events.job';
 import { ScheduleCompetitionScoreUpdatesJob } from './handlers/schedule-competition-score-updates.job';
 import { ScheduleFlaggedPlayerReviewJob } from './handlers/schedule-flagged-player-review.job';
 import { ScheduleGroupScoreUpdatesJob } from './handlers/schedule-group-score-updates.job';
@@ -24,11 +29,16 @@ import { JobType } from './types/job-type.enum';
 
 export const JOB_HANDLER_MAP = {
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJob,
+  [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJob,
+  [JobType.CHECK_CREATION_SPAM]: CheckCreationSpamJob,
+  [JobType.CHECK_INAPPROPRIATE_CONTENT]: CheckInappropriateContentJob,
+  [JobType.CHECK_MISSING_COMPUTED_RANK_TABLES]: CheckMissingComputedRankTablesJob,
   [JobType.CHECK_PLAYER_BANNED]: CheckPlayerBannedJob,
   [JobType.CHECK_PLAYER_RANKED]: CheckPlayerRankedJob,
   [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangeJob,
   [JobType.SCHEDULE_BANNED_PLAYER_CHECKS]: ScheduleBannedPlayerChecksJob,
+  [JobType.SCHEDULE_COMPETITION_EVENTS]: ScheduleCompetitionEventsJob,
   [JobType.SCHEDULE_COMPETITION_SCORE_UPDATES]: ScheduleCompetitionScoreUpdatesJob,
   [JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW]: ScheduleFlaggedPlayerReviewJob,
   [JobType.SCHEDULE_GROUP_SCORE_UPDATES]: ScheduleGroupScoreUpdatesJob,
@@ -49,10 +59,13 @@ export const JOB_HANDLER_MAP = {
 
 export const CRON_CONFIG = [
   // every 1 min
+  { interval: '* * * * *', type: JobType.CHECK_CREATION_SPAM },
+  { interval: '* * * * *', type: JobType.SCHEDULE_COMPETITION_EVENTS },
   { interval: '* * * * *', type: JobType.SYNC_API_KEYS },
   { interval: '* * * * *', type: JobType.SYNC_PATRONS },
   { interval: '* * * * *', type: JobType.UPDATE_QUEUE_METRICS },
   // every 5 mins
+  { interval: '*/5 * * * *', type: JobType.CHECK_INAPPROPRIATE_CONTENT },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
   // every hour
@@ -60,6 +73,7 @@ export const CRON_CONFIG = [
   // Every 6 hours
   { interval: '0 */6 * * *', type: JobType.INVALIDATE_DELTAS },
   // everyday at 8 AM UTC
+  { interval: '0 8 * * *', type: JobType.CALCULATE_COMPUTED_RANK_TABLES },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_GROUP_SCORE_UPDATES },
@@ -67,4 +81,8 @@ export const CRON_CONFIG = [
 ];
 
 // Jobs to run when the server starts
-export const STARTUP_JOBS = [JobType.SYNC_API_KEYS, JobType.UPDATE_QUEUE_METRICS] as const;
+export const STARTUP_JOBS = [
+  JobType.CHECK_MISSING_COMPUTED_RANK_TABLES,
+  JobType.SYNC_API_KEYS,
+  JobType.UPDATE_QUEUE_METRICS
+] as const;
