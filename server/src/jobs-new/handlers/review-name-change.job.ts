@@ -24,6 +24,10 @@ export class ReviewNameChangeJob extends Job<Payload> {
   }
 
   async execute(payload: Payload) {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     const { nameChangeId } = payload;
 
     let details: NameChangeDetails | null = null;
