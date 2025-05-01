@@ -3,22 +3,20 @@ import prometheus from '../api/services/external/prometheus.service';
 import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
-import { CalculateComputedMetricRankTablesJob } from './instances/CalculateComputedMetricRankTablesJob';
-import { CheckMissingComputedTablesJob } from './instances/CheckMissingComputedTablesJob';
 import type { ExtractInstanceType, Options, ValueOf } from './job.utils';
 import { Job, JobPriority } from './job.utils';
+import { PlaceholderJob } from './instances/PlaceholderJob';
 
 const JOBS_MAP = {
-  CalculateComputedMetricRankTablesJob,
-  CheckMissingComputedTablesJob
+  PlaceholderJob
 };
 
 // Jobs to run when the server starts up
-const STARTUP_JOBS = ['CheckMissingComputedTablesJob'] satisfies Array<keyof typeof JOBS_MAP>;
+const STARTUP_JOBS = ['PlaceholderJob'] satisfies Array<keyof typeof JOBS_MAP>;
 
 const CRON_CONFIG = [
   // everyday at 8 AM
-  { interval: '0 8 * * *', jobName: 'CalculateComputedMetricRankTablesJob' }
+  { interval: '0 8 * * *', jobName: 'PlaceholderJob' }
 ] satisfies CronJob[];
 
 const PREFIX = 'jobs';

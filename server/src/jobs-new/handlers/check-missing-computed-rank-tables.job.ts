@@ -1,10 +1,11 @@
 import { getAlgorithmType } from '../../api/modules/efficiency/efficiency.utils';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
-import { PLAYER_TYPES, PLAYER_BUILDS, PlayerType, COMPUTED_METRICS } from '../../utils';
-import { Job } from '../job.utils';
+import { COMPUTED_METRICS, PLAYER_BUILDS, PLAYER_TYPES, PlayerType } from '../../utils';
+import { Job } from '../job.class';
+import { JobType } from '../types/job-type.enum';
 
-export class CheckMissingComputedTablesJob extends Job<unknown> {
-  async execute(): Promise<void> {
+export class CheckMissingComputedRankTablesJob extends Job<unknown> {
+  async execute() {
     let isMissingData = false;
 
     for (const metric of COMPUTED_METRICS) {
@@ -26,10 +27,10 @@ export class CheckMissingComputedTablesJob extends Job<unknown> {
       }
     }
 
-    if (isMissingData) {
-      setTimeout(() => {
-        this.jobManager.add('CalculateComputedMetricRankTablesJob');
-      }, 10_000);
+    if (!isMissingData) {
+      return;
     }
+
+    this.jobManager.add(JobType.CALCULATE_COMPUTED_RANK_TABLES, {});
   }
 }

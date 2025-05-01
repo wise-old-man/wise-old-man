@@ -1,6 +1,8 @@
 import { AssertPlayerTypeJob } from './handlers/assert-player-type.job';
+import { CalculateComputedRankTablesJob } from './handlers/calculate-computed-rank-tables.job';
 import { CheckCreationSpamJob } from './handlers/check-creation-spam.job';
 import { CheckInappropriateContentJob } from './handlers/check-inappropriate-content.job';
+import { CheckMissingComputedRankTablesJob } from './handlers/check-missing-computed-rank-tables.job';
 import { CheckPlayerBannedJob } from './handlers/check-player-banned.job';
 import { CheckPlayerRankedJob } from './handlers/check-player-ranked.job';
 import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
@@ -27,8 +29,10 @@ import { JobType } from './types/job-type.enum';
 
 export const JOB_HANDLER_MAP = {
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJob,
+  [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJob,
   [JobType.CHECK_CREATION_SPAM]: CheckCreationSpamJob,
   [JobType.CHECK_INAPPROPRIATE_CONTENT]: CheckInappropriateContentJob,
+  [JobType.CHECK_MISSING_COMPUTED_RANK_TABLES]: CheckMissingComputedRankTablesJob,
   [JobType.CHECK_PLAYER_BANNED]: CheckPlayerBannedJob,
   [JobType.CHECK_PLAYER_RANKED]: CheckPlayerRankedJob,
   [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
@@ -69,6 +73,7 @@ export const CRON_CONFIG = [
   // Every 6 hours
   { interval: '0 */6 * * *', type: JobType.INVALIDATE_DELTAS },
   // everyday at 8 AM UTC
+  { interval: '0 8 * * *', type: JobType.CALCULATE_COMPUTED_RANK_TABLES },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_GROUP_SCORE_UPDATES },
@@ -76,4 +81,8 @@ export const CRON_CONFIG = [
 ];
 
 // Jobs to run when the server starts
-export const STARTUP_JOBS = [JobType.SYNC_API_KEYS, JobType.UPDATE_QUEUE_METRICS] as const;
+export const STARTUP_JOBS = [
+  JobType.CHECK_MISSING_COMPUTED_RANK_TABLES,
+  JobType.SYNC_API_KEYS,
+  JobType.UPDATE_QUEUE_METRICS
+] as const;
