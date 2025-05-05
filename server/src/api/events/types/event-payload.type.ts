@@ -1,9 +1,16 @@
-import { Period } from '../../../utils';
+import { Metric, Period } from '../../../utils';
 import { EventType } from './event-type.enum';
 
 export type EventPayloadMap = {
   [EventType.NAME_CHANGE_CREATED]: {
     nameChangeId: number;
+  };
+  [EventType.PLAYER_ACHIEVEMENTS_CREATED]: {
+    username: string;
+    achievements: Array<{
+      metric: Metric;
+      threshold: number;
+    }>;
   };
   [EventType.PLAYER_DELTA_UPDATED]: {
     username: string;

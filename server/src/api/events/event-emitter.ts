@@ -2,6 +2,7 @@ import EventEmitter from 'events';
 import logger from '../../api/util/logging';
 import prometheus from '../services/external/prometheus.service';
 import * as NameChangeCreated from './handlers/name-change-created.event';
+import * as PlayerAchievementsCreated from './handlers/player-achievements-created.event';
 import * as PlayerDeltaUpdated from './handlers/player-delta-updated.event';
 import * as PlayerUpdated from './handlers/player-updated.event';
 import type { EventPayloadMap } from './types/event-payload.type';
@@ -22,6 +23,7 @@ export class TypedEventEmitter extends EventEmitter {
     this.removeAllListeners();
 
     this.on(EventType.NAME_CHANGE_CREATED, NameChangeCreated.handler);
+    this.on(EventType.PLAYER_ACHIEVEMENTS_CREATED, PlayerAchievementsCreated.handler);
     this.on(EventType.PLAYER_DELTA_UPDATED, PlayerDeltaUpdated.handler);
     this.on(EventType.PLAYER_UPDATED, PlayerUpdated.handler);
 

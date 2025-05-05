@@ -92,7 +92,7 @@ async function calculateExactRank(
   value: number,
   estimate: number
 ) {
-  // Figure out all combinatiosn of player types and builds that match this player's algorithm.
+  // Figure out all combinations of player types and builds that match this player's algorithm.
   // For example: regular 1def pures should be compared to mains, 10hp, zerkers, etc,
   // because they all share the same EHP/EHB rates
   const matches = getTypeAndBuildMatches(player);

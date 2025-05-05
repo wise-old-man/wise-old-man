@@ -75,7 +75,7 @@ describe('Records API', () => {
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
-      await sleep(500);
+      await sleep(100);
 
       const recordsResponse = await api.get(`/players/psikoi/records`);
       expect(recordsResponse.status).toBe(200);
@@ -103,7 +103,7 @@ describe('Records API', () => {
       expect(trackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
-      await sleep(500);
+      await sleep(100);
 
       const recordsResponse = await api.get(`/players/psikoi/records`);
       expect(recordsResponse.status).toBe(200);
@@ -149,7 +149,7 @@ describe('Records API', () => {
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
-      await sleep(500);
+      await sleep(100);
 
       const recordsResponse = await api.get(`/players/sethmare/records`);
       expect(recordsResponse.status).toBe(200);
@@ -182,7 +182,7 @@ describe('Records API', () => {
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
-      await sleep(500);
+      await sleep(100);
 
       const firstRecordsResponse = await api.get(`/players/eren/records`);
       expect(firstRecordsResponse.status).toBe(200);
@@ -201,7 +201,7 @@ describe('Records API', () => {
       expect(thirdTrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
-      await sleep(500);
+      await sleep(100);
 
       const secondRecordsResponse = await api.get(`/players/eren/records`);
       expect(secondRecordsResponse.status).toBe(200);
@@ -357,7 +357,7 @@ describe('Records API', () => {
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
-      await sleep(500);
+      await sleep(100);
 
       // Create new group, with 3 members
       const createGroupResponse = await api.post('/groups').send({
@@ -523,7 +523,7 @@ describe('Records API', () => {
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
-      await sleep(500);
+      await sleep(100);
 
       const response = await api.get(`/records/leaderboard`).query({ period: 'week', metric: 'smithing' });
 

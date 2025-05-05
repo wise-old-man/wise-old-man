@@ -2416,7 +2416,7 @@ describe('Competition API', () => {
       jest.useRealTimers();
 
       // Wait a bit to allow the players' participations to be synced
-      await sleep(500);
+      await sleep(100);
 
       // Change the mock hiscores data to return 60 zulrah kc
       registerHiscoresMock(axiosMock, {
@@ -2467,7 +2467,7 @@ describe('Competition API', () => {
       expect(trackResponse4b.status).toBe(200);
 
       // Wait a bit to allow the players' participations to be synced
-      await sleep(500);
+      await sleep(100);
 
       const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
 
@@ -3517,7 +3517,7 @@ describe('Competition API', () => {
       expect(createTeamCompResponse.status).toBe(201);
 
       // Wait a bit to let the group events run
-      await sleep(500);
+      await sleep(100);
 
       const classicCompDetailsA = await api.get(
         `/competitions/${createClassicCompResponse.body.competition.id}`
@@ -3553,7 +3553,7 @@ describe('Competition API', () => {
       expect(removeMembersResponse.body.count).toBe(2);
 
       // Wait a bit to let the group events run
-      await sleep(500);
+      await sleep(100);
 
       const classicCompDetailsB = await api.get(
         `/competitions/${createClassicCompResponse.body.competition.id}`
@@ -3610,7 +3610,7 @@ describe('Competition API', () => {
       expect(createTeamCompResponse.status).toBe(201);
 
       // Wait a bit to let the group events run
-      await sleep(500);
+      await sleep(100);
 
       const classicCompDetailsA = await api.get(
         `/competitions/${createClassicCompResponse.body.competition.id}`
@@ -3648,7 +3648,7 @@ describe('Competition API', () => {
       expect(addMembersResponse.body.count).toBe(2);
 
       // Wait a bit to let the group events run
-      await sleep(500);
+      await sleep(100);
 
       const classicCompDetailsB = await api.get(
         `/competitions/${createClassicCompResponse.body.competition.id}`

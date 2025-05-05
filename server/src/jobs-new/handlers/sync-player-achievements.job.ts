@@ -7,7 +7,7 @@ import {
 import { findPlayerSnapshots } from '../../api/modules/snapshots/services/FindPlayerSnapshotsService';
 import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snapshot.utils';
 import { getMetricValueKey } from '../../utils';
-import { onAchievementsCreated } from '../../api/modules/achievements/achievement.events';
+import { eventEmitter, EventType } from '../../api/events';
 import type { JobManager } from '../job-manager';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
@@ -44,7 +44,7 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
 
     const currentSnapshot = playerAndSnapshot?.latestSnapshot ?? null;
 
-    if (!currentSnapshot) {
+    if (playerAndSnapshot === null || currentSnapshot === null) {
       return;
     }
 
@@ -73,8 +73,13 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
         skipDuplicates: true
       });
 
-      // TODO: move this to a job too!
-      onAchievementsCreated(missingAchievements);
+      eventEmitter.emit(EventType.PLAYER_ACHIEVEMENTS_CREATED, {
+        username: playerAndSnapshot?.username,
+        achievements: missingAchievements.map(({ metric, threshold }) => ({
+          metric,
+          threshold
+        }))
+      });
 
       return;
     }
@@ -170,7 +175,12 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
       skipDuplicates: true
     });
 
-    // TODO: move this to a job too!
-    onAchievementsCreated(achievementsToAdd);
+    eventEmitter.emit(EventType.PLAYER_ACHIEVEMENTS_CREATED, {
+      username: playerAndSnapshot?.username,
+      achievements: achievementsToAdd.map(({ metric, threshold }) => ({
+        metric,
+        threshold
+      }))
+    });
   }
 }

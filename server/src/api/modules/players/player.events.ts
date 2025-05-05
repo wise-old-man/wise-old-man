@@ -25,7 +25,7 @@ async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
   // Reevaluate this player's achievements to try and find earlier completion dates as there might be new data
   await prometheus.trackEffect('reevaluatePlayerAchievements', async () => {
-    await reevaluatePlayerAchievements(player.id);
+    await reevaluatePlayerAchievements(player.username);
   });
 
   // Dispatch a "Player name changed" event to our discord bot API.
@@ -37,10 +37,10 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
   jobManager.add(JobType.ASSERT_PLAYER_TYPE, { username: player.username });
 }
 
-async function onPlayerImported(playerId: number) {
+async function onPlayerImported(username: string) {
   // Reevaluate this player's achievements to try and find earlier completion dates
   await prometheus.trackEffect('reevaluatePlayerAchievements', async () => {
-    await reevaluatePlayerAchievements(playerId);
+    await reevaluatePlayerAchievements(username);
   });
 }
 
