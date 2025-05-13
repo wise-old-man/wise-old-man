@@ -448,6 +448,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
+    name: '{threshold} Yama kills',
+    metric: Metric.YAMA,
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
     name: '{threshold} Zalcano kills',
     metric: Metric.ZALCANO,
     thresholds: [500, 1000, 5000, 10_000]

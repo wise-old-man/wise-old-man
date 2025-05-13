@@ -150,6 +150,7 @@ export const Boss = {
   VETION: 'vetion',
   VORKATH: 'vorkath',
   WINTERTODT: 'wintertodt',
+  YAMA: 'yama',
   ZALCANO: 'zalcano',
   ZULRAH: 'zulrah'
 } as const;
