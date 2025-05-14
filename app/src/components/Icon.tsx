@@ -1,22 +1,32 @@
 import Image from "next/image";
 import { cn } from "~/utils/styling";
 import { Country, CountryProps, GroupRole, Metric, PlayerType } from "@wise-old-man/utils";
+import ImageWithFallback from "./ImageWithFallback";
 
 export function MetricIcon(props: { metric: Metric | "ttm" | "tt200m" | "combat" }) {
   const { metric } = props;
+
   return (
-    <Image height={24} width={24} alt={metric} src={`/img/metrics/${metric}.png`} className="shrink-0" />
+    <ImageWithFallback
+      height={24}
+      width={24}
+      alt={metric}
+      src={`/img/metrics/${metric}.png`}
+      fallbackSrc={`/img/fallback-icon.png`}
+      className="shrink-0"
+    />
   );
 }
 
 export function MetricIconSmall(props: { metric: Metric | "ehp+ehb" | "combat" }) {
   const { metric } = props;
   return (
-    <Image
+    <ImageWithFallback
       height={16}
       width={16}
       alt={metric}
       src={`/img/metrics_small/${metric}.png`}
+      fallbackSrc={`/img/fallback-icon.png`}
       className="shrink-0"
     />
   );

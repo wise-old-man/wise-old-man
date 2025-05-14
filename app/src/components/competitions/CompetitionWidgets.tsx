@@ -33,6 +33,7 @@ import { LocalDate } from "../LocalDate";
 
 import ArrowUpIcon from "~/assets/arrow_up.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
+import ImageWithFallback from "../ImageWithFallback";
 
 type TopParticipantSorting = "by_value" | "by_percent";
 
@@ -134,7 +135,7 @@ function GainedWidget(props: GainedWidgetProps) {
 
   return (
     <div className="relative flex h-24 w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-500 px-6">
-      <Image
+      <ImageWithFallback
         alt={metric}
         fill
         className="pointer-events-none z-0 object-cover"
