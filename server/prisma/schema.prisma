@@ -155,6 +155,7 @@ model Delta {
   vetion                           Int       @default(0)
   vorkath                          Int       @default(0)
   wintertodt                       Int       @default(0)
+  yama                             Int       @default(0)
   zalcano                          Int       @default(0)
   zulrah                           Int       @default(0)
   league_points                    Int       @default(0)
@@ -593,8 +594,10 @@ model Snapshot {
   vorkathRank                           Int       @default(-1)
   vorkathKills                          Int       @default(-1)
   wintertodtRank                        Int       @default(-1)
-  zalcanoRank                           Int       @default(-1)
   wintertodtKills                       Int       @default(-1)
+  yamaRank                              Int       @default(-1)
+  yamaKills                             Int       @default(-1)
+  zalcanoRank                           Int       @default(-1)
   zalcanoKills                          Int       @default(-1)
   zulrahRank                            Int       @default(-1)
   zulrahKills                           Int       @default(-1)
@@ -1390,6 +1393,7 @@ enum Metric {
   vetion
   vorkath
   wintertodt
+  yama
   zalcano
   zulrah
   ehp
