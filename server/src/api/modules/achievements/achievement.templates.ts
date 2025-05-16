@@ -303,6 +303,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
+    name: "{threshold} Lunar Chests",
+    metric: Metric.LUNAR_CHESTS,
+    thresholds: [100, 250, 500, 1000]
+  },
+  {
     name: '{threshold} Mimic kills',
     metric: Metric.MIMIC,
     thresholds: [10, 50, 100, 200]
