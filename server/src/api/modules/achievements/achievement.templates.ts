@@ -303,7 +303,7 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
-    name: "{threshold} Lunar Chests",
+    name: '{threshold} Lunar Chests',
     metric: Metric.LUNAR_CHESTS,
     thresholds: [100, 250, 500, 1000]
   },
