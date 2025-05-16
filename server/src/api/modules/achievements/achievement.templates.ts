@@ -353,6 +353,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [50, 100, 500, 1000]
   },
   {
+    name: '{threshold} Sol Heredit kills',
+    metric: Metric.SOL_HEREDIT,
+    thresholds: [10, 50, 100, 200]
+  },
+  {
     name: '{threshold} Spindel kills',
     metric: Metric.SPINDEL,
     thresholds: [500, 1000, 5000, 10_000]
