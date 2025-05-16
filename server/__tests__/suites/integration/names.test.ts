@@ -1,7 +1,14 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { getMetricValueKey, getMetricRankKey, METRICS, PlayerType, PlayerStatus } from '../../../src/utils';
+import {
+  getMetricValueKey,
+  getMetricRankKey,
+  METRICS,
+  PlayerType,
+  PlayerStatus,
+  PlayerAnnotationType
+} from '../../../src/utils';
 import prisma from '../../../src/prisma';
 import apiServer from '../../../src/api';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
@@ -814,6 +821,40 @@ describe('Names API', () => {
         value: 50_000
       });
 
+      // Check if annotations transfered correctly to the main player
+      const mainAnnotationsResponse = await api.get(`/players/USBC`);
+
+      expect(mainAnnotationsResponse.status).toBe(200);
+      expect(mainAnnotationsResponse.body.annotations.length).toBe(2);
+
+      // Old player already had OPT_OUT, and the new player had OPT_OUT (deduped) AND FAKE_F2P
+      expect(
+        mainAnnotationsResponse.body.annotations.find(a => a.type === PlayerAnnotationType.FAKE_F2P)
+      ).toBeDefined();
+      expect(
+        mainAnnotationsResponse.body.annotations.find(a => a.type === PlayerAnnotationType.OPT_OUT)
+      ).toBeDefined();
+
+      // New player had BLOCKED but it was added after the transition date, so it was not transfered
+      expect(
+        mainAnnotationsResponse.body.annotations.find(a => a.type === PlayerAnnotationType.BLOCKED)
+      ).toBeUndefined();
+
+      // Check if annotations transfered correctly to the main player
+      const archivedAnnotationsResponse = await api.get(`/players/${archiveUsername}`);
+
+      expect(archivedAnnotationsResponse.status).toBe(200);
+      expect(archivedAnnotationsResponse.body.annotations.length).toBe(2);
+
+      // Old player already had OPT_OUT, so new player retained theirs
+      expect(
+        mainAnnotationsResponse.body.annotations.find(a => a.type === PlayerAnnotationType.OPT_OUT)
+      ).toBeDefined();
+      // New player acquired this after the transition date, so it was not transfered
+      expect(
+        mainAnnotationsResponse.body.annotations.find(a => a.type === PlayerAnnotationType.FAKE_F2P)
+      ).toBeDefined();
+
       // Check if none of the pre-transition snapshots have been transfered
       const mainSnapshotsResponse = await api.get(`/players/USBC/snapshots`).query({ period: 'week' });
 
@@ -1416,7 +1457,18 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
     throw new Error('New player not found');
   }
 
-  await prisma.player.update({ where: { id: newPlayerId }, data: { country: 'PT' } });
+  await prisma.player.update({
+    where: { id: newPlayerId },
+    data: { country: 'PT' }
+  });
+
+  await prisma.playerAnnotation.create({
+    data: {
+      playerId: newPlayerId,
+      type: PlayerAnnotationType.BLOCKED,
+      createdAt: mockDate
+    }
+  });
 
   // Pending name change
   await prisma.nameChange.create({
@@ -1456,6 +1508,14 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
       { playerId: oldPlayerId, period: 'week', metric: 'agility', value: 100_000, updatedAt: mockDate },
       { playerId: oldPlayerId, period: 'day', metric: 'smithing', value: 10_000, updatedAt: mockDate }
     ]
+  });
+
+  await prisma.playerAnnotation.create({
+    data: {
+      playerId: oldPlayerId,
+      type: PlayerAnnotationType.OPT_OUT,
+      createdAt: mockDate
+    }
   });
 
   const filteredSnapshotData = {};
@@ -1517,6 +1577,20 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
   if (!newPlayer) {
     throw new Error('New player not found');
   }
+
+  await prisma.playerAnnotation.create({
+    data: {
+      playerId: newPlayerId,
+      type: PlayerAnnotationType.OPT_OUT
+    }
+  });
+
+  await prisma.playerAnnotation.create({
+    data: {
+      playerId: newPlayerId,
+      type: PlayerAnnotationType.FAKE_F2P
+    }
+  });
 
   // Pending name change
   await prisma.nameChange.create({
