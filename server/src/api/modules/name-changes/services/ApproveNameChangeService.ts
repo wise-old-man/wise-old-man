@@ -4,7 +4,8 @@ import prisma, {
   NameChange,
   NameChangeStatus,
   PrismaTypes,
-  Participation
+  Participation,
+  PlayerAnnotation
 } from '../../../../prisma';
 import { ActivityType, MemberActivity, Membership, PlayerStatus } from '../../../../utils';
 import logger from '../../../util/logging';
@@ -133,6 +134,7 @@ async function transferPlayerData(
 
   let oldRecords: Record[] = [];
   let newRecords: Record[] = [];
+  let oldAnnotations: PlayerAnnotation[] = [];
   let memberActivity: MemberActivity[] = [];
   let oldMemberships: Membership[] = [];
   let oldParticipations: Participation[] = [];
@@ -146,6 +148,10 @@ async function transferPlayerData(
     // Find all of new player's records (post transition date)
     newRecords = await prisma.record.findMany({
       where: { playerId: newPlayer.id, updatedAt: { gte: transitionDate } }
+    });
+
+    oldAnnotations = await prisma.playerAnnotation.findMany({
+      where: { playerId: oldPlayer.id }
     });
 
     memberActivity = await prisma.memberActivity.findMany({
@@ -190,6 +196,9 @@ async function transferPlayerData(
 
         // Transfer all approved name changes from the newPlayer (post transition date) to the old player
         await transferNameChanges(tx, oldPlayer.id, newPlayer.id, transitionDate);
+
+        // Transfer all player annotations
+        await transferAnnotations(tx, oldPlayer.id, newPlayer.id, transitionDate, oldAnnotations);
 
         // Transfer all records from the newPlayer (post transition date) to the old player
         await transferRecords(tx, oldPlayer.id, oldRecords, newRecords);
@@ -358,6 +367,25 @@ function transferNameChanges(
       playerId: newPlayerId,
       status: NameChangeStatus.APPROVED,
       resolvedAt: { gte: transitionDate }
+    },
+    data: {
+      playerId: oldPlayerId
+    }
+  });
+}
+
+function transferAnnotations(
+  transaction: PrismaTypes.TransactionClient,
+  oldPlayerId: number,
+  newPlayerId: number,
+  transitionDate: Date,
+  oldAnnotations: PlayerAnnotation[]
+) {
+  return transaction.playerAnnotation.updateMany({
+    where: {
+      playerId: newPlayerId,
+      type: { notIn: oldAnnotations.map(a => a.type) },
+      createdAt: { gte: transitionDate }
     },
     data: {
       playerId: oldPlayerId
