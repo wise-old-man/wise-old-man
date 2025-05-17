@@ -1,8 +1,7 @@
 import { getThreadIndex } from './env';
 import logger from './api/util/logging';
 import { eventEmitter } from './api/events';
-import { jobManager as newJobManager } from './jobs-new';
-import jobManager from './jobs/job.manager';
+import { jobManager } from './jobs-new';
 import api from './api';
 import { redisClient } from './services/redis.service';
 
@@ -20,7 +19,6 @@ import { redisClient } from './services/redis.service';
     server.close();
     redisClient.quit();
     jobManager.shutdown();
-    newJobManager.shutdown();
   }
 
   process.on('SIGTERM', handleShutdown);
@@ -28,5 +26,4 @@ import { redisClient } from './services/redis.service';
   process.on('exit', handleShutdown);
 
   await jobManager.init();
-  await newJobManager.init();
 })();
