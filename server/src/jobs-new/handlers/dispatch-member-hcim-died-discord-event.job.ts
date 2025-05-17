@@ -1,7 +1,4 @@
-import {
-  DiscordBotEventType,
-  dispatchDiscordBotEventWebhook
-} from '../../api/services/external/discord-new.service';
+import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import prisma from '../../prisma';
 import { Job } from '../job.class';
 
@@ -37,7 +34,7 @@ export class DispatchMemberHcimDiedDiscordEventJob extends Job<Payload> {
     }
 
     for (const { groupId } of memberships) {
-      await dispatchDiscordBotEventWebhook(DiscordBotEventType.MEMBER_HCIM_DIED, {
+      await dispatchDiscordBotEvent(DiscordBotEventType.MEMBER_HCIM_DIED, {
         groupId,
         player
       });

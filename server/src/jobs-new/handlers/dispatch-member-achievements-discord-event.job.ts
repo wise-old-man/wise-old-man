@@ -1,8 +1,5 @@
-import {
-  DiscordBotEventType,
-  dispatchDiscordBotEventWebhook
-} from '../../api/services/external/discord-new.service';
 import prisma from '../../prisma';
+import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import { Metric } from '../../utils';
 import { Job } from '../job.class';
 
@@ -55,7 +52,7 @@ export class DispatchMemberAchievementsDiscordEventJob extends Job<Payload> {
     }
 
     for (const { groupId } of memberships) {
-      await dispatchDiscordBotEventWebhook(DiscordBotEventType.MEMBER_ACHIEVEMENTS, {
+      await dispatchDiscordBotEvent(DiscordBotEventType.MEMBER_ACHIEVEMENTS, {
         groupId,
         player,
         achievements: recentAchievements
