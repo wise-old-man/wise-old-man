@@ -17,6 +17,7 @@ import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapsh
 import { registerCMLMock, registerHiscoresMock, resetDatabase, readFile, sleep } from '../../utils';
 import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
+import * as PlayerNameChangedEvent from '../../../src/api/events/handlers/player-name-changed.event';
 import * as NameChangeCreatedEvent from '../../../src/api/events/handlers/name-change-created.event';
 
 const api = supertest(apiServer.express);
@@ -24,8 +25,8 @@ const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
 const onPlayerArchivedEvent = jest.spyOn(playerEvents, 'onPlayerArchived');
-const onPlayerNameChangedEvent = jest.spyOn(playerEvents, 'onPlayerNameChanged');
 
+const playerNameChangedEvent = jest.spyOn(PlayerNameChangedEvent, 'handler');
 const nameChangeCreatedEvent = jest.spyOn(NameChangeCreatedEvent, 'handler');
 
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
@@ -199,11 +200,11 @@ describe('Names API', () => {
       expect(approveResponse.body.resolvedAt).not.toBe(null);
       expect(approveResponse.body.reviewContext).toBe(null);
 
-      expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
+      expect(playerNameChangedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          displayName: 'Some Guy'
-        }),
-        'Some guy'
+          username: 'some guy',
+          previousDisplayName: 'Some guy'
+        })
       );
 
       const resubmitResponse = await api.post(`/names`).send({ oldName: 'Some guy', newName: 'Some Guy' });
@@ -314,11 +315,11 @@ describe('Names API', () => {
       expect(approveResponse.body.resolvedAt).not.toBe(null);
       expect(approveResponse.body.reviewContext).toBe(null);
 
-      expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
+      expect(playerNameChangedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          displayName: 'RoRRo'
-        }),
-        'Rorro'
+          username: 'rorro',
+          previousDisplayName: 'Rorro'
+        })
       );
 
       const resubmitResponse = await api.post(`/names`).send({ oldName: 'RoRRo', newName: 'rorrO' });
@@ -598,7 +599,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
 
-      expect(onPlayerNameChangedEvent).not.toHaveBeenCalled();
+      expect(playerNameChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not approve (incorrect admin password)', async () => {
@@ -607,7 +608,7 @@ describe('Names API', () => {
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
 
-      expect(onPlayerNameChangedEvent).not.toHaveBeenCalled();
+      expect(playerNameChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not approve (invalid id)', async () => {
@@ -618,7 +619,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
 
-      expect(onPlayerNameChangedEvent).not.toHaveBeenCalled();
+      expect(playerNameChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not approve (id not found)', async () => {
@@ -629,7 +630,7 @@ describe('Names API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Name change id was not found.');
 
-      expect(onPlayerNameChangedEvent).not.toHaveBeenCalled();
+      expect(playerNameChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not approve (not pending)', async () => {
@@ -640,7 +641,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Name change status must be PENDING');
 
-      expect(onPlayerNameChangedEvent).not.toHaveBeenCalled();
+      expect(playerNameChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should approve (capitalization change, no transfers)', async () => {
@@ -658,11 +659,11 @@ describe('Names API', () => {
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
 
-      expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
+      expect(playerNameChangedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          displayName: 'Jakesterwars'
-        }),
-        'jakesterwars'
+          username: 'jakesterwars',
+          previousDisplayName: 'jakesterwars'
+        })
       );
 
       // New player didn't exist, so no profiles needed to be archived
@@ -691,11 +692,11 @@ describe('Names API', () => {
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
 
-      expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
+      expect(playerNameChangedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          displayName: 'Mudscape 17'
-        }),
-        'Momo'
+          username: 'mudscape 17',
+          previousDisplayName: 'Momo'
+        })
       );
 
       // New player didn't exist, so no profiles needed to be archived
@@ -738,11 +739,11 @@ describe('Names API', () => {
 
       await sleep(100);
 
-      expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
+      expect(playerNameChangedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          displayName: 'USBC'
-        }),
-        'psikoi'
+          username: 'usbc',
+          previousDisplayName: 'psikoi'
+        })
       );
 
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -981,11 +982,11 @@ describe('Names API', () => {
 
       await sleep(100);
 
-      expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
+      expect(playerNameChangedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          displayName: 'Juliet'
-        }),
-        'Romeo'
+          username: 'juliet',
+          previousDisplayName: 'Romeo'
+        })
       );
 
       // "New" player profile was archived

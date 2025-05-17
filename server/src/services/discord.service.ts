@@ -6,7 +6,8 @@ import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/f
 
 export enum DiscordBotEventType {
   MEMBER_ACHIEVEMENTS = 'MEMBER_ACHIEVEMENTS',
-  MEMBER_HCIM_DIED = 'MEMBER_HCIM_DIED'
+  MEMBER_HCIM_DIED = 'MEMBER_HCIM_DIED',
+  MEMBER_NAME_CHANGED = 'MEMBER_NAME_CHANGED'
 }
 
 type DiscordBotEventPayloadMap = {
@@ -18,6 +19,11 @@ type DiscordBotEventPayloadMap = {
   [DiscordBotEventType.MEMBER_HCIM_DIED]: {
     groupId: number;
     player: Player;
+  };
+  [DiscordBotEventType.MEMBER_NAME_CHANGED]: {
+    groupId: number;
+    player: Player;
+    previousDisplayName: string;
   };
 };
 

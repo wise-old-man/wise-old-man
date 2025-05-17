@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { WebhookClient } from 'discord.js';
 import prisma, { Competition, Player } from '../../../prisma';
 import { FlaggedPlayerReviewContext, Group, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
 import {
@@ -14,35 +13,20 @@ export interface EventPeriodDelay {
   minutes?: number;
 }
 
-function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
-  if (process.env.NODE_ENV === 'test') return;
+// function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
+//   if (process.env.NODE_ENV === 'test') return;
 
-  if (!process.env.DISCORD_MONITORING_WEBHOOK_URL) {
-    logger.error('Missing Discord Monitoring Webhook URL.');
-    return;
-  }
+//   if (!process.env.DISCORD_MONITORING_WEBHOOK_URL) {
+//     logger.error('Missing Discord Monitoring Webhook URL.');
+//     return;
+//   }
 
-  const webhookClient = new WebhookClient({
-    url: process.env.DISCORD_MONITORING_WEBHOOK_URL
-  });
+//   const webhookClient = new WebhookClient({
+//     url: process.env.DISCORD_MONITORING_WEBHOOK_URL
+//   });
 
-  return webhookClient.send({ content: `${text} ${tagAdmin ? '<@329256344798494773>' : ''}` });
-}
-
-function sendPatreonUpdateMessage(text: string) {
-  if (process.env.NODE_ENV === 'test') return;
-
-  if (!process.env.DISCORD_PATREON_WEBHOOK_URL) {
-    logger.error('Missing Discord Patreon Webhook URL.');
-    return;
-  }
-
-  const webhookClient = new WebhookClient({
-    url: process.env.DISCORD_PATREON_WEBHOOK_URL
-  });
-
-  return webhookClient.send({ content: text });
-}
+//   return webhookClient.send({ content: `${text} ${tagAdmin ? '<@329256344798494773>' : ''}` });
+// }
 
 /**
  * Dispatch an event to our Discord Bot API.
@@ -64,27 +48,6 @@ function dispatchPlayerFlaggedReview(player: Player, flagContext: FlaggedPlayerR
   if (!player || !flagContext) return;
 
   dispatch('PLAYER_FLAGGED_REVIEW', { player, flagContext });
-}
-
-/**
- * Send a "Player Name Changed" notification to our discord API,
- * so that it can notify any relevant guilds/servers.
- */
-async function dispatchNameChanged(player: Player, previousDisplayName: string) {
-  // If only capitlization changed, ignore this action
-  if (player.displayName.toLowerCase() === previousDisplayName.toLowerCase()) return;
-
-  const memberships = await prisma.membership.findMany({
-    where: { playerId: player.id }
-  });
-
-  // The following actions are only relevant to players
-  // that are group members, so ignore any that aren't
-  if (!memberships || memberships.length === 0) return;
-
-  memberships.forEach(({ groupId }) => {
-    dispatch('MEMBER_NAME_CHANGED', { groupId, player, previousName: previousDisplayName });
-  });
 }
 
 async function dispatchMembersRolesChanged(events: MemberRoleChangeEvent[]) {
@@ -247,10 +210,7 @@ export {
   dispatchMembersJoined,
   dispatchMembersLeft,
   dispatchMembersRolesChanged,
-  dispatchNameChanged,
   dispatchPlayerFlaggedReview,
-  sendMonitoringMessage,
-  sendPatreonUpdateMessage,
   dispatchPotentialCreationSpam,
   dispatchOffensiveNamesFound
 };

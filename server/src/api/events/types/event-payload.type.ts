@@ -18,6 +18,10 @@ export type EventPayloadMap = {
     periodStartDate: Date;
     isPotentialRecord: boolean;
   };
+  [EventType.PLAYER_NAME_CHANGED]: {
+    username: string;
+    previousDisplayName: string;
+  };
   [EventType.PLAYER_TYPE_CHANGED]: {
     username: string;
     previousType: PlayerType;

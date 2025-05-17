@@ -3,7 +3,6 @@ import { Player } from '../../../prisma';
 import { FlaggedPlayerReviewContext } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
 import prometheus from '../../services/external/prometheus.service';
-import { reevaluatePlayerAchievements } from '../achievements/services/ReevaluatePlayerAchievementsService';
 
 async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerReviewContext) {
   await prometheus.trackEffect('dispatchPlayerFlaggedReview', async () => {
@@ -13,26 +12,8 @@ async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerRevi
 
 async function onPlayerArchived(_player: Player, _previousDisplayName: string) {}
 
-async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
-  // Reevaluate this player's achievements to try and find earlier completion dates as there might be new data
-  await prometheus.trackEffect('reevaluatePlayerAchievements', async () => {
-    await reevaluatePlayerAchievements(player.username);
-  });
-
-  // Dispatch a "Player name changed" event to our discord bot API.
-  await prometheus.trackEffect('dispatchNameChanged', async () => {
-    await discordService.dispatchNameChanged(player, previousDisplayName);
-  });
-
-  jobManager.add(JobType.UPDATE_PLAYER, { username: player.username, source: 'on-player-name-changed' });
-  jobManager.add(JobType.ASSERT_PLAYER_TYPE, { username: player.username });
-}
-
 async function onPlayerImported(username: string) {
-  // Reevaluate this player's achievements to try and find earlier completion dates
-  await prometheus.trackEffect('reevaluatePlayerAchievements', async () => {
-    await reevaluatePlayerAchievements(username);
-  });
+  jobManager.add(JobType.RECALCULATE_PLAYER_ACHIEVEMENTS, { username });
 }
 
-export { onPlayerArchived, onPlayerFlagged, onPlayerImported, onPlayerNameChanged };
+export { onPlayerArchived, onPlayerFlagged, onPlayerImported };
