@@ -12,6 +12,10 @@ export type EventPayloadMap = {
       threshold: number;
     }>;
   };
+  [EventType.PLAYER_ARCHIVED]: {
+    username: string;
+    previousUsername: string;
+  };
   [EventType.PLAYER_DELTA_UPDATED]: {
     username: string;
     period: Period;

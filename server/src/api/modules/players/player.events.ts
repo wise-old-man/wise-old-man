@@ -10,10 +10,8 @@ async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerRevi
   });
 }
 
-async function onPlayerArchived(_player: Player, _previousDisplayName: string) {}
-
 async function onPlayerImported(username: string) {
   jobManager.add(JobType.RECALCULATE_PLAYER_ACHIEVEMENTS, { username });
 }
 
-export { onPlayerArchived, onPlayerFlagged, onPlayerImported };
+export { onPlayerFlagged, onPlayerImported };

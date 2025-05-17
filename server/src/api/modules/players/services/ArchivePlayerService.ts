@@ -3,7 +3,7 @@ import { ServerError } from '../../../../api/errors';
 import logger from '../../../util/logging';
 import prisma, { NameChangeStatus, Player } from '../../../../prisma';
 import { splitArchivalData } from '../player.utils';
-import * as playerEvents from '../player.events';
+import { eventEmitter, EventType } from '../../../events';
 
 interface ArchivePlayerResult {
   newPlayer: Player | null;
@@ -101,7 +101,10 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
       throw new ServerError('Failed to archive player');
     });
 
-  playerEvents.onPlayerArchived(result.archivedPlayer, player.displayName);
+  eventEmitter.emit(EventType.PLAYER_ARCHIVED, {
+    username: result.archivedPlayer.username,
+    previousUsername: player.username
+  });
 
   return result;
 }

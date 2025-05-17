@@ -23,6 +23,7 @@ import {
   sleep
 } from '../../utils';
 import { eventEmitter } from '../../../src/api/events';
+import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
 import * as PlayerTypeChangedEvent from '../../../src/api/events/handlers/player-type-changed.event';
 import * as PlayerUpdatedEvent from '../../../src/api/events/handlers/player-updated.event';
 
@@ -35,11 +36,11 @@ const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt
 const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
 const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
 
+const playerArchivedEvent = jest.spyOn(PlayerArchivedEvent, 'handler');
 const playerUpdatedEvent = jest.spyOn(PlayerUpdatedEvent, 'handler');
 const playerTypeChangedEvent = jest.spyOn(PlayerTypeChangedEvent, 'handler');
 
 const onPlayerFlaggedEvent = jest.spyOn(playerEvents, 'onPlayerFlagged');
-const onPlayerArchivedEvent = jest.spyOn(playerEvents, 'onPlayerArchived');
 const onPlayerImportedEvent = jest.spyOn(playerEvents, 'onPlayerImported');
 
 const globalData = {
@@ -1792,7 +1793,7 @@ describe('Player API', () => {
         })
       );
 
-      expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
+      expect(playerArchivedEvent).not.toHaveBeenCalled();
     });
 
     it("shouldn't auto-archive, send discord flagged report instead (negative gains, possible rollback)", async () => {
@@ -1877,7 +1878,7 @@ describe('Player API', () => {
         })
       );
 
-      expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
+      expect(playerArchivedEvent).not.toHaveBeenCalled();
     });
 
     it("should auto-archive, and not send discord flagged report (can't be a rollback)", async () => {
@@ -1923,14 +1924,11 @@ describe('Player API', () => {
 
       expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
 
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: player.id,
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'Siobhan'
+          previousUsername: 'siobhan'
+        })
       );
     });
 
@@ -1971,14 +1969,11 @@ describe('Player API', () => {
 
       expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
 
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: player.id,
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'Connor'
+          previousUsername: 'connor'
+        })
       );
     });
 
@@ -2057,14 +2052,11 @@ describe('Player API', () => {
       // if the flagged event is dispatched, that means it wasn't auto-archived
       expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
 
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: player.id,
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'Greg Hirsch'
+          previousUsername: 'greg hirsch'
+        })
       );
 
       // hooks should be disabled during archival, so that we don't send any member joined/left events
@@ -2245,14 +2237,11 @@ describe('Player API', () => {
       expect(archiveResponse.body.username).toContain('archive');
       expect(archiveResponse.body.displayName).toContain('archive');
 
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: player.id,
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'TomWambsgans'
+          previousUsername: 'tomwambsgans'
+        })
       );
 
       // hooks should be disabled during archival, so that we don't send any member joined/left events
@@ -2350,13 +2339,11 @@ describe('Player API', () => {
       expect(archiveResponse.body.username).toContain('archive');
       expect(archiveResponse.body.displayName).toContain('archive');
 
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'Siobhan'
+          previousUsername: 'siobhan'
+        })
       );
 
       const secondResponse = await api.get(`/players/siobhan/archives`);

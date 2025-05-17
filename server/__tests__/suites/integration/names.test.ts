@@ -11,12 +11,12 @@ import {
 } from '../../../src/utils';
 import prisma from '../../../src/prisma';
 import apiServer from '../../../src/api';
-import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
 import { registerCMLMock, registerHiscoresMock, resetDatabase, readFile, sleep } from '../../utils';
 import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
+import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
 import * as PlayerNameChangedEvent from '../../../src/api/events/handlers/player-name-changed.event';
 import * as NameChangeCreatedEvent from '../../../src/api/events/handlers/name-change-created.event';
 
@@ -24,8 +24,8 @@ const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
-const onPlayerArchivedEvent = jest.spyOn(playerEvents, 'onPlayerArchived');
 
+const playerArchivedEvent = jest.spyOn(PlayerArchivedEvent, 'handler');
 const playerNameChangedEvent = jest.spyOn(PlayerNameChangedEvent, 'handler');
 const nameChangeCreatedEvent = jest.spyOn(NameChangeCreatedEvent, 'handler');
 
@@ -667,7 +667,7 @@ describe('Names API', () => {
       );
 
       // New player didn't exist, so no profiles needed to be archived
-      expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
+      expect(playerArchivedEvent).not.toHaveBeenCalled();
     });
 
     it("should approve (new username isn't tracked, no transfers)", async () => {
@@ -700,7 +700,7 @@ describe('Names API', () => {
       );
 
       // New player didn't exist, so no profiles needed to be archived
-      expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
+      expect(playerArchivedEvent).not.toHaveBeenCalled();
     });
 
     it('should approve (and transfer data)', async () => {
@@ -749,15 +749,14 @@ describe('Names API', () => {
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
 
       // "New" player profile was archived
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: newPlayerId,
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'USBC'
+          previousUsername: 'usbc'
+        })
       );
+
+      playerArchivedEvent;
 
       const archive = (await prisma.playerArchive.findFirst({
         where: {
@@ -990,14 +989,11 @@ describe('Names API', () => {
       );
 
       // "New" player profile was archived
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: newPlayerId,
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'Juliet'
+          previousUsername: 'juliet'
+        })
       );
 
       const archive = await prisma.playerArchive.findFirst({
@@ -1021,14 +1017,11 @@ describe('Names API', () => {
 
       expect(archiveResponse.status).toBe(200);
 
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: trackPlayerResponse.body.id,
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'Nightfirecat'
+          previousUsername: 'nightfirecat'
+        })
       );
 
       jest.resetAllMocks();
@@ -1071,7 +1064,7 @@ describe('Names API', () => {
       expect(player.displayName).toBe('Ron');
       expect(player.status).toBe(PlayerStatus.ACTIVE);
 
-      expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
+      expect(playerArchivedEvent).not.toHaveBeenCalled();
     });
 
     it('should remove duplicated group member activities on approval', async () => {
