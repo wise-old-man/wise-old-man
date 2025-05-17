@@ -30,7 +30,7 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
     )
     .sort((a, b) => b.currentValue - a.currentValue)
     .slice(0, 3);
-    
+
   const recentAchievements = achievementsProgress
     .filter((a) => !!a.createdAt)
     .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime())
