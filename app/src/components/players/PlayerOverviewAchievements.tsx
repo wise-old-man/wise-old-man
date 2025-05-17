@@ -23,12 +23,14 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
       (a) =>
         isSkill(a.metric) &&
         !hiddenMetrics.includes(a.metric) &&
+        a.currentValue < SKILL_EXP_AT_99 &&
         a.threshold === SKILL_EXP_AT_99 &&
         !a.createdAt
+        
     )
-    .sort((a, b) => b.absoluteProgress - a.absoluteProgress)
+    .sort((a, b) => b.currentValue - a.currentValue)
     .slice(0, 3);
-
+    
   const recentAchievements = achievementsProgress
     .filter((a) => !!a.createdAt)
     .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime())
