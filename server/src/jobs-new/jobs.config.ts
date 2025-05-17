@@ -5,7 +5,8 @@ import { CheckInappropriateContentJob } from './handlers/check-inappropriate-con
 import { CheckMissingComputedRankTablesJob } from './handlers/check-missing-computed-rank-tables.job';
 import { CheckPlayerBannedJob } from './handlers/check-player-banned.job';
 import { CheckPlayerRankedJob } from './handlers/check-player-ranked.job';
-import { DispatchMemberAchievementsDiscordEvent } from './handlers/dispatch-member-achievements-discord-event.job';
+import { DispatchMemberAchievementsDiscordEventJob } from './handlers/dispatch-member-achievements-discord-event.job';
+import { DispatchMemberHcimDiedDiscordEventJob } from './handlers/dispatch-member-hcim-died-discord-event.job';
 import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
 import { ReviewNameChangeJob } from './handlers/review-name-change.job';
 import { ScheduleBannedPlayerChecksJob } from './handlers/schedule-banned-player-checks.job';
@@ -36,7 +37,8 @@ export const JOB_HANDLER_MAP = {
   [JobType.CHECK_MISSING_COMPUTED_RANK_TABLES]: CheckMissingComputedRankTablesJob,
   [JobType.CHECK_PLAYER_BANNED]: CheckPlayerBannedJob,
   [JobType.CHECK_PLAYER_RANKED]: CheckPlayerRankedJob,
-  [JobType.DISPATCH_MEMBER_ACHIEVEMENTS_DISCORD_EVENT]: DispatchMemberAchievementsDiscordEvent,
+  [JobType.DISPATCH_MEMBER_ACHIEVEMENTS_DISCORD_EVENT]: DispatchMemberAchievementsDiscordEventJob,
+  [JobType.DISPATCH_MEMBER_HCIM_DIED_DISCORD_EVENT]: DispatchMemberHcimDiedDiscordEventJob,
   [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangeJob,
   [JobType.SCHEDULE_BANNED_PLAYER_CHECKS]: ScheduleBannedPlayerChecksJob,

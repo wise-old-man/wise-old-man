@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
-import prisma, { Achievement, Competition, Player } from '../../../prisma';
+import prisma, { Competition, Player } from '../../../prisma';
 import { FlaggedPlayerReviewContext, Group, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
 import {
   CompetitionDetails,
@@ -60,54 +60,10 @@ function dispatch(type: string, payload: unknown) {
   });
 }
 
-/**
- * Select all new achievements and dispatch them to our discord API,
- * so that it can notify any relevant guilds/servers.
- */
-async function dispatchAchievements(playerId: number, achievements: Achievement[]) {
-  // Filter out any achievements from earlier dates
-  const recent = achievements.filter(a => Date.now() - a.createdAt.getTime() < 30000);
-
-  // If no new achievements are found, ignore this event
-  if (recent.length === 0) return;
-
-  const memberships = await prisma.membership.findMany({ where: { playerId } });
-
-  // The following actions are only relevant to players
-  // that are group members, so ignore any that aren't
-  if (!memberships || memberships.length === 0) return;
-
-  const player = await prisma.player.findFirst({
-    where: { id: playerId }
-  });
-
-  memberships.forEach(({ groupId }) => {
-    dispatch('MEMBER_ACHIEVEMENTS', { groupId, player, achievements: recent });
-  });
-}
-
 function dispatchPlayerFlaggedReview(player: Player, flagContext: FlaggedPlayerReviewContext) {
   if (!player || !flagContext) return;
 
   dispatch('PLAYER_FLAGGED_REVIEW', { player, flagContext });
-}
-
-/**
- * Send a "HCIM Player Died" notification to our discord API,
- * so that it can notify any relevant guilds/servers.
- */
-async function dispatchHardcoreDied(player: Player) {
-  const memberships = await prisma.membership.findMany({
-    where: { playerId: player.id }
-  });
-
-  // The following actions are only relevant to players
-  // that are group members, so ignore any that aren't
-  if (!memberships || memberships.length === 0) return;
-
-  memberships.forEach(({ groupId }) => {
-    dispatch('MEMBER_HCIM_DIED', { groupId, player });
-  });
 }
 
 /**
@@ -283,13 +239,11 @@ function dispatchOffensiveNamesFound(
 
 export {
   dispatch,
-  dispatchAchievements,
   dispatchCompetitionCreated,
   dispatchCompetitionEnded,
   dispatchCompetitionEnding,
   dispatchCompetitionStarted,
   dispatchCompetitionStarting,
-  dispatchHardcoreDied,
   dispatchMembersJoined,
   dispatchMembersLeft,
   dispatchMembersRolesChanged,

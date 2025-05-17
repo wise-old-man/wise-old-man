@@ -3,18 +3,13 @@ import {
   dispatchDiscordBotEventWebhook
 } from '../../api/services/external/discord-new.service';
 import prisma from '../../prisma';
-import { Metric } from '../../utils';
 import { Job } from '../job.class';
 
 interface Payload {
   username: string;
-  achievements: Array<{
-    metric: Metric;
-    threshold: number;
-  }>;
 }
 
-export class DispatchMemberAchievementsDiscordEventJob extends Job<Payload> {
+export class DispatchMemberHcimDiedDiscordEventJob extends Job<Payload> {
   async execute(payload: Payload) {
     if (process.env.NODE_ENV === 'test') {
       return;
@@ -30,19 +25,6 @@ export class DispatchMemberAchievementsDiscordEventJob extends Job<Payload> {
       return;
     }
 
-    const achievements = await prisma.achievement.findMany({
-      where: {
-        playerId: player.id,
-        OR: payload.achievements
-      }
-    });
-
-    const recentAchievements = achievements.filter(a => Date.now() - a.createdAt.getTime() < 30_000);
-
-    if (recentAchievements.length === 0) {
-      return;
-    }
-
     const memberships = await prisma.membership.findMany({
       where: {
         playerId: player.id
@@ -55,10 +37,9 @@ export class DispatchMemberAchievementsDiscordEventJob extends Job<Payload> {
     }
 
     for (const { groupId } of memberships) {
-      await dispatchDiscordBotEventWebhook(DiscordBotEventType.MEMBER_ACHIEVEMENTS, {
+      await dispatchDiscordBotEventWebhook(DiscordBotEventType.MEMBER_HCIM_DIED, {
         groupId,
-        player,
-        achievements: recentAchievements
+        player
       });
     }
   }

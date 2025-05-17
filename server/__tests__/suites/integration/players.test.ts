@@ -23,6 +23,7 @@ import {
   sleep
 } from '../../utils';
 import { eventEmitter } from '../../../src/api/events';
+import * as PlayerTypeChangedEvent from '../../../src/api/events/handlers/player-type-changed.event';
 import * as PlayerUpdatedEvent from '../../../src/api/events/handlers/player-updated.event';
 
 const api = supertest(apiServer.express);
@@ -35,11 +36,11 @@ const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
 const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
 
 const playerUpdatedEvent = jest.spyOn(PlayerUpdatedEvent, 'handler');
+const playerTypeChangedEvent = jest.spyOn(PlayerTypeChangedEvent, 'handler');
 
 const onPlayerFlaggedEvent = jest.spyOn(playerEvents, 'onPlayerFlagged');
 const onPlayerArchivedEvent = jest.spyOn(playerEvents, 'onPlayerArchived');
 const onPlayerImportedEvent = jest.spyOn(playerEvents, 'onPlayerImported');
-const onPlayerTypeChangedEvent = jest.spyOn(playerEvents, 'onPlayerTypeChanged');
 
 const globalData = {
   testPlayerId: -1,
@@ -304,7 +305,7 @@ describe('Player API', () => {
 
       // failed to review (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
-      expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
+      expect(playerTypeChangedEvent).not.toHaveBeenCalled();
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
 
@@ -352,9 +353,12 @@ describe('Player API', () => {
         await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'peter parker'))
       ).not.toBeNull();
 
-      expect(onPlayerTypeChangedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ username: 'peter parker', type: 'regular' }),
-        'ironman'
+      expect(playerTypeChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'peter parker',
+          previousType: 'ironman',
+          newType: 'regular'
+        })
       );
 
       expect(playerUpdatedEvent).toHaveBeenCalledWith(
@@ -1124,7 +1128,7 @@ describe('Player API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
 
-      expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
+      expect(playerTypeChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should assert player type (regular)', async () => {
@@ -1157,7 +1161,7 @@ describe('Player API', () => {
 
       // No type changes happened = no type change events were dispatched
 
-      expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
+      expect(playerTypeChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should assert player type (regular -> ultimate)', async () => {
@@ -1175,12 +1179,12 @@ describe('Player API', () => {
       expect(assertTypeResponse.body.changed).toBe(true);
       expect(assertTypeResponse.body.player).toMatchObject({ username: 'psikoi', type: 'ultimate' });
 
-      expect(onPlayerTypeChangedEvent).toHaveBeenCalledWith(
+      expect(playerTypeChangedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'psikoi',
-          type: 'ultimate'
-        }),
-        'regular'
+          previousType: 'regular',
+          newType: 'ultimate'
+        })
       );
 
       const detailsResponse = await api.get('/players/PsiKOI');

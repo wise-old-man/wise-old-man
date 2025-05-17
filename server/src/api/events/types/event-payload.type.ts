@@ -1,4 +1,4 @@
-import { Metric, Period } from '../../../utils';
+import { Metric, Period, PlayerType } from '../../../utils';
 import { EventType } from './event-type.enum';
 
 export type EventPayloadMap = {
@@ -17,6 +17,11 @@ export type EventPayloadMap = {
     period: Period;
     periodStartDate: Date;
     isPotentialRecord: boolean;
+  };
+  [EventType.PLAYER_TYPE_CHANGED]: {
+    username: string;
+    previousType: PlayerType;
+    newType: PlayerType;
   };
   [EventType.PLAYER_UPDATED]: {
     username: string;

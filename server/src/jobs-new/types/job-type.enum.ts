@@ -7,6 +7,7 @@ export enum JobType {
   CHECK_PLAYER_BANNED = 'check-player-banned',
   CHECK_PLAYER_RANKED = 'check-player-ranked',
   DISPATCH_MEMBER_ACHIEVEMENTS_DISCORD_EVENT = 'dispatch-member-achievements-discord-event',
+  DISPATCH_MEMBER_HCIM_DIED_DISCORD_EVENT = 'dispatch-member-hcim-died-discord-event',
   INVALIDATE_DELTAS = 'invalidate-deltas',
   REVIEW_NAME_CHANGE = 'review-name-change',
   SCHEDULE_BANNED_PLAYER_CHECKS = 'schedule-banned-player-checks',
