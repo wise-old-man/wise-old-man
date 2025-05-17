@@ -27,6 +27,6 @@ export class ScheduleFlaggedPlayerReviewJob extends Job<unknown> {
 
     // Update them, this will either fix their account if they're not flaggable anymore,
     // or send a review message to our Discord server.
-    await updatePlayer(flaggedPlayer.username);
+    await updatePlayer(flaggedPlayer.username).catch(() => {});
   }
 }
