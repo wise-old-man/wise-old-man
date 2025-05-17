@@ -1,6 +1,6 @@
 import axios from 'axios';
 import prisma, { Competition, Player } from '../../../prisma';
-import { FlaggedPlayerReviewContext, Group, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
+import { FlaggedPlayerReviewContext, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
 import {
   CompetitionDetails,
   CompetitionWithParticipations
@@ -12,21 +12,6 @@ export interface EventPeriodDelay {
   hours?: number;
   minutes?: number;
 }
-
-// function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
-//   if (process.env.NODE_ENV === 'test') return;
-
-//   if (!process.env.DISCORD_MONITORING_WEBHOOK_URL) {
-//     logger.error('Missing Discord Monitoring Webhook URL.');
-//     return;
-//   }
-
-//   const webhookClient = new WebhookClient({
-//     url: process.env.DISCORD_MONITORING_WEBHOOK_URL
-//   });
-
-//   return webhookClient.send({ content: `${text} ${tagAdmin ? '<@329256344798494773>' : ''}` });
-// }
 
 /**
  * Dispatch an event to our Discord Bot API.
@@ -177,29 +162,6 @@ function dispatchCompetitionEnding(competition: Competition, period: EventPeriod
   dispatch('COMPETITION_ENDING', { groupId, competition, period });
 }
 
-/**
- * Dispatch a potential creation spam event to our discord bot API.
- */
-function dispatchPotentialCreationSpam(payload: {
-  ipHash: string;
-  groups: Array<Group>;
-  competitions: Array<Competition>;
-}) {
-  dispatch('POTENTIAL_CREATION_SPAM', payload);
-}
-
-function dispatchOffensiveNamesFound(
-  entities: Array<{
-    id: number;
-    type: string;
-    name: string;
-    description?: string;
-    reason: string;
-  }>
-) {
-  dispatch('OFFENSIVE_NAMES_FOUND', entities);
-}
-
 export {
   dispatch,
   dispatchCompetitionCreated,
@@ -210,7 +172,5 @@ export {
   dispatchMembersJoined,
   dispatchMembersLeft,
   dispatchMembersRolesChanged,
-  dispatchPlayerFlaggedReview,
-  dispatchPotentialCreationSpam,
-  dispatchOffensiveNamesFound
+  dispatchPlayerFlaggedReview
 };

@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { Job } from '../job.class';
 import { OpenAiService } from '../../api/services/external/openai.service';
 import prisma from '../../prisma';
-import { dispatchOffensiveNamesFound } from '../../api/services/external/discord.service';
 import { MetricProps, METRICS } from '../../utils';
+import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 
 const WHITELISTED_TERMS = [
   'noob',
@@ -115,7 +115,6 @@ export class CheckInappropriateContentJob extends Job<unknown> {
     ];
 
     if (inputEntities.length === 0 || inputEntities.length >= 50) {
-      // TODO: if > 50, send warning to private discord channel
       return;
     }
 
@@ -130,6 +129,6 @@ export class CheckInappropriateContentJob extends Job<unknown> {
       return;
     }
 
-    dispatchOffensiveNamesFound(response.offensiveEntities);
+    await dispatchDiscordBotEvent(DiscordBotEventType.OFFENSIVE_NAMES_FOUND, response.offensiveEntities);
   }
 }

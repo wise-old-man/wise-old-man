@@ -1,6 +1,5 @@
-import { dispatchPotentialCreationSpam } from '../../api/services/external/discord.service';
-import logger from '../../api/util/logging';
 import prisma, { Competition } from '../../prisma';
+import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import { Group, Period, PeriodProps } from '../../utils';
 import { Job } from '../job.class';
 
@@ -99,9 +98,8 @@ export class CheckCreationSpamJob extends Job<unknown> {
       }
     });
 
-    potentialOffenders.forEach(potentialOffender => {
-      logger.moderation(`Potential spam detected for IP hash ${potentialOffender.ipHash}`);
-      dispatchPotentialCreationSpam(potentialOffender);
-    });
+    for (const potentialOffender of potentialOffenders) {
+      dispatchDiscordBotEvent(DiscordBotEventType.POTENTIAL_CREATION_SPAM, potentialOffender);
+    }
   }
 }

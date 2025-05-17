@@ -1,20 +1,26 @@
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import logger from '../api/util/logging';
-import { Achievement, Player } from '../utils';
+import { Achievement, Group, Player } from '../utils';
 import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
+import { Competition } from '../prisma';
 
 export enum DiscordBotEventType {
+  // Player-facing Events
   MEMBER_ACHIEVEMENTS = 'MEMBER_ACHIEVEMENTS',
   MEMBER_HCIM_DIED = 'MEMBER_HCIM_DIED',
-  MEMBER_NAME_CHANGED = 'MEMBER_NAME_CHANGED'
+  MEMBER_NAME_CHANGED = 'MEMBER_NAME_CHANGED',
+
+  // Moderation Events
+  OFFENSIVE_NAMES_FOUND = 'OFFENSIVE_NAMES_FOUND',
+  POTENTIAL_CREATION_SPAM = 'POTENTIAL_CREATION_SPAM'
 }
 
 type DiscordBotEventPayloadMap = {
   [DiscordBotEventType.MEMBER_ACHIEVEMENTS]: {
     groupId: number;
     player: Player;
-    achievements: Achievement[];
+    achievements: Array<Achievement>;
   };
   [DiscordBotEventType.MEMBER_HCIM_DIED]: {
     groupId: number;
@@ -24,6 +30,18 @@ type DiscordBotEventPayloadMap = {
     groupId: number;
     player: Player;
     previousDisplayName: string;
+  };
+  [DiscordBotEventType.OFFENSIVE_NAMES_FOUND]: Array<{
+    id: number;
+    type: string;
+    name: string;
+    description?: string;
+    reason: string;
+  }>;
+  [DiscordBotEventType.POTENTIAL_CREATION_SPAM]: {
+    ipHash: string;
+    groups: Array<Group>;
+    competitions: Array<Competition>;
   };
 };
 
