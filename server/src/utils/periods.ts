@@ -1,3 +1,4 @@
+import prometheusService from '../api/services/external/prometheus.service';
 import { Period } from '../prisma/enum-adapter';
 import { MapOf } from './types';
 
@@ -36,6 +37,8 @@ function parsePeriodExpression(periodExpression: string) {
       durationMs: PeriodProps[fixed as Period].milliseconds
     };
   }
+
+  prometheusService.trackCustomPeriodExpression(fixed);
 
   const result = fixed.match(CUSTOM_PERIOD_REGEX);
 

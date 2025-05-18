@@ -49,7 +49,7 @@ class RoutingHandler {
     this.router.get('/metrics', async (req, res) => {
       const ip = req.ip ?? req.socket.remoteAddress ?? '';
 
-      if (!ip.replace('::ffff:', '').startsWith('172.20.')) {
+      if (process.env.NODE_ENV === 'production' && !ip.replace('::ffff:', '').startsWith('172.20.')) {
         return res.status(403).json({ message: 'Access denied' });
       }
 
