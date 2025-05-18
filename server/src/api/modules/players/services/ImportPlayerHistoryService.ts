@@ -43,7 +43,7 @@ async function importPlayerHistory(
     where: { id }
   });
 
-  playerEvents.onPlayerImported(id);
+  playerEvents.onPlayerImported(player.username);
 
   return { count: importedCount };
 }

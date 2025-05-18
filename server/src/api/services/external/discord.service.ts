@@ -1,7 +1,6 @@
 import axios from 'axios';
-import { WebhookClient } from 'discord.js';
-import prisma, { Achievement, Competition, Player } from '../../../prisma';
-import { FlaggedPlayerReviewContext, Group, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
+import prisma, { Competition, Player } from '../../../prisma';
+import { MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
 import {
   CompetitionDetails,
   CompetitionWithParticipations
@@ -12,36 +11,6 @@ import { omit } from '../../util/objects';
 export interface EventPeriodDelay {
   hours?: number;
   minutes?: number;
-}
-
-function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
-  if (process.env.NODE_ENV === 'test') return;
-
-  if (!process.env.DISCORD_MONITORING_WEBHOOK_URL) {
-    logger.error('Missing Discord Monitoring Webhook URL.');
-    return;
-  }
-
-  const webhookClient = new WebhookClient({
-    url: process.env.DISCORD_MONITORING_WEBHOOK_URL
-  });
-
-  return webhookClient.send({ content: `${text} ${tagAdmin ? '<@329256344798494773>' : ''}` });
-}
-
-function sendPatreonUpdateMessage(text: string) {
-  if (process.env.NODE_ENV === 'test') return;
-
-  if (!process.env.DISCORD_PATREON_WEBHOOK_URL) {
-    logger.error('Missing Discord Patreon Webhook URL.');
-    return;
-  }
-
-  const webhookClient = new WebhookClient({
-    url: process.env.DISCORD_PATREON_WEBHOOK_URL
-  });
-
-  return webhookClient.send({ content: text });
 }
 
 /**
@@ -57,77 +26,6 @@ function dispatch(type: string, payload: unknown) {
 
   axios.post(process.env.DISCORD_BOT_API_URL, { type, data: payload }).catch(e => {
     logger.error('Error sending discord event.', e);
-  });
-}
-
-/**
- * Select all new achievements and dispatch them to our discord API,
- * so that it can notify any relevant guilds/servers.
- */
-async function dispatchAchievements(playerId: number, achievements: Achievement[]) {
-  // Filter out any achievements from earlier dates
-  const recent = achievements.filter(a => Date.now() - a.createdAt.getTime() < 30000);
-
-  // If no new achievements are found, ignore this event
-  if (recent.length === 0) return;
-
-  const memberships = await prisma.membership.findMany({ where: { playerId } });
-
-  // The following actions are only relevant to players
-  // that are group members, so ignore any that aren't
-  if (!memberships || memberships.length === 0) return;
-
-  const player = await prisma.player.findFirst({
-    where: { id: playerId }
-  });
-
-  memberships.forEach(({ groupId }) => {
-    dispatch('MEMBER_ACHIEVEMENTS', { groupId, player, achievements: recent });
-  });
-}
-
-function dispatchPlayerFlaggedReview(player: Player, flagContext: FlaggedPlayerReviewContext) {
-  if (!player || !flagContext) return;
-
-  dispatch('PLAYER_FLAGGED_REVIEW', { player, flagContext });
-}
-
-/**
- * Send a "HCIM Player Died" notification to our discord API,
- * so that it can notify any relevant guilds/servers.
- */
-async function dispatchHardcoreDied(player: Player) {
-  const memberships = await prisma.membership.findMany({
-    where: { playerId: player.id }
-  });
-
-  // The following actions are only relevant to players
-  // that are group members, so ignore any that aren't
-  if (!memberships || memberships.length === 0) return;
-
-  memberships.forEach(({ groupId }) => {
-    dispatch('MEMBER_HCIM_DIED', { groupId, player });
-  });
-}
-
-/**
- * Send a "Player Name Changed" notification to our discord API,
- * so that it can notify any relevant guilds/servers.
- */
-async function dispatchNameChanged(player: Player, previousDisplayName: string) {
-  // If only capitlization changed, ignore this action
-  if (player.displayName.toLowerCase() === previousDisplayName.toLowerCase()) return;
-
-  const memberships = await prisma.membership.findMany({
-    where: { playerId: player.id }
-  });
-
-  // The following actions are only relevant to players
-  // that are group members, so ignore any that aren't
-  if (!memberships || memberships.length === 0) return;
-
-  memberships.forEach(({ groupId }) => {
-    dispatch('MEMBER_NAME_CHANGED', { groupId, player, previousName: previousDisplayName });
   });
 }
 
@@ -258,45 +156,14 @@ function dispatchCompetitionEnding(competition: Competition, period: EventPeriod
   dispatch('COMPETITION_ENDING', { groupId, competition, period });
 }
 
-/**
- * Dispatch a potential creation spam event to our discord bot API.
- */
-function dispatchPotentialCreationSpam(payload: {
-  ipHash: string;
-  groups: Array<Group>;
-  competitions: Array<Competition>;
-}) {
-  dispatch('POTENTIAL_CREATION_SPAM', payload);
-}
-
-function dispatchOffensiveNamesFound(
-  entities: Array<{
-    id: number;
-    type: string;
-    name: string;
-    description?: string;
-    reason: string;
-  }>
-) {
-  dispatch('OFFENSIVE_NAMES_FOUND', entities);
-}
-
 export {
   dispatch,
-  dispatchAchievements,
   dispatchCompetitionCreated,
   dispatchCompetitionEnded,
   dispatchCompetitionEnding,
   dispatchCompetitionStarted,
   dispatchCompetitionStarting,
-  dispatchHardcoreDied,
   dispatchMembersJoined,
   dispatchMembersLeft,
-  dispatchMembersRolesChanged,
-  dispatchNameChanged,
-  dispatchPlayerFlaggedReview,
-  sendMonitoringMessage,
-  sendPatreonUpdateMessage,
-  dispatchPotentialCreationSpam,
-  dispatchOffensiveNamesFound
+  dispatchMembersRolesChanged
 };

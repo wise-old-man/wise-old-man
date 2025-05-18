@@ -578,7 +578,7 @@ describe('Deltas API', () => {
       expect(trackResponse.body.type).toBe('hardcore');
       expect(trackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(7_000_000);
 
-      await sleep(500);
+      await sleep(100);
 
       const response = await api.get(`/deltas/leaderboard`).query({ period: 'week', metric: 'smithing' });
 

@@ -23,6 +23,9 @@ import {
   sleep
 } from '../../utils';
 import { eventEmitter } from '../../../src/api/events';
+import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
+import * as PlayerFlaggedEvent from '../../../src/api/events/handlers/player-flagged.event';
+import * as PlayerTypeChangedEvent from '../../../src/api/events/handlers/player-type-changed.event';
 import * as PlayerUpdatedEvent from '../../../src/api/events/handlers/player-updated.event';
 
 const api = supertest(apiServer.express);
@@ -34,12 +37,12 @@ const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt
 const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
 const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
 
+const playerArchivedEvent = jest.spyOn(PlayerArchivedEvent, 'handler');
+const playerFlaggedEvent = jest.spyOn(PlayerFlaggedEvent, 'handler');
 const playerUpdatedEvent = jest.spyOn(PlayerUpdatedEvent, 'handler');
+const playerTypeChangedEvent = jest.spyOn(PlayerTypeChangedEvent, 'handler');
 
-const onPlayerFlaggedEvent = jest.spyOn(playerEvents, 'onPlayerFlagged');
-const onPlayerArchivedEvent = jest.spyOn(playerEvents, 'onPlayerArchived');
 const onPlayerImportedEvent = jest.spyOn(playerEvents, 'onPlayerImported');
-const onPlayerTypeChangedEvent = jest.spyOn(playerEvents, 'onPlayerTypeChanged');
 
 const globalData = {
   testPlayerId: -1,
@@ -304,7 +307,7 @@ describe('Player API', () => {
 
       // failed to review (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
-      expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
+      expect(playerTypeChangedEvent).not.toHaveBeenCalled();
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
 
@@ -352,9 +355,12 @@ describe('Player API', () => {
         await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'peter parker'))
       ).not.toBeNull();
 
-      expect(onPlayerTypeChangedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ username: 'peter parker', type: 'regular' }),
-        'ironman'
+      expect(playerTypeChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'peter parker',
+          previousType: 'ironman',
+          newType: 'regular'
+        })
       );
 
       expect(playerUpdatedEvent).toHaveBeenCalledWith(
@@ -741,20 +747,22 @@ describe('Player API', () => {
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to update: Player is flagged.');
 
-      expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ username: 'psikoi' }),
+      expect(playerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          previous: expect.objectContaining({
-            data: expect.objectContaining({
-              skills: expect.objectContaining({
-                runecrafting: expect.objectContaining({ experience: 5_347_176 })
+          username: 'psikoi',
+          context: expect.objectContaining({
+            previous: expect.objectContaining({
+              data: expect.objectContaining({
+                skills: expect.objectContaining({
+                  runecrafting: expect.objectContaining({ experience: 5_347_176 })
+                })
               })
-            })
-          }),
-          rejected: expect.objectContaining({
-            data: expect.objectContaining({
-              skills: expect.objectContaining({
-                runecrafting: expect.objectContaining({ experience: 100_000_000 })
+            }),
+            rejected: expect.objectContaining({
+              data: expect.objectContaining({
+                skills: expect.objectContaining({
+                  runecrafting: expect.objectContaining({ experience: 100_000_000 })
+                })
               })
             })
           })
@@ -778,7 +786,7 @@ describe('Player API', () => {
       expect(response.body.message).toMatch('Failed to update: Player is flagged.');
 
       // The player is already flagged, so this event shouldn't be triggeted
-      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
+      expect(playerFlaggedEvent).not.toHaveBeenCalled();
     });
 
     it('should track player (new gains)', async () => {
@@ -881,7 +889,7 @@ describe('Player API', () => {
       expect(secondResponse.status).toBe(500);
       expect(secondResponse.body.message).toMatch('Failed to update: Player is flagged.');
 
-      expect(onPlayerFlaggedEvent).toHaveBeenCalled();
+      expect(playerFlaggedEvent).toHaveBeenCalled();
 
       const thirdResponse = await api.post(`/players/jonxslays`).send({ force: true });
       expect(thirdResponse.status).toBe(400);
@@ -1124,7 +1132,7 @@ describe('Player API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
 
-      expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
+      expect(playerTypeChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should assert player type (regular)', async () => {
@@ -1157,7 +1165,7 @@ describe('Player API', () => {
 
       // No type changes happened = no type change events were dispatched
 
-      expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
+      expect(playerTypeChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should assert player type (regular -> ultimate)', async () => {
@@ -1175,12 +1183,12 @@ describe('Player API', () => {
       expect(assertTypeResponse.body.changed).toBe(true);
       expect(assertTypeResponse.body.player).toMatchObject({ username: 'psikoi', type: 'ultimate' });
 
-      expect(onPlayerTypeChangedEvent).toHaveBeenCalledWith(
+      expect(playerTypeChangedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'psikoi',
-          type: 'ultimate'
-        }),
-        'regular'
+          previousType: 'regular',
+          newType: 'ultimate'
+        })
       );
 
       const detailsResponse = await api.get('/players/PsiKOI');
@@ -1768,27 +1776,29 @@ describe('Player API', () => {
       expect(trackResponse.status).toBe(500);
       expect(trackResponse.body.message).toBe('Failed to update: Player is flagged.');
 
-      expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ username: 'kendall' }),
+      expect(playerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          previous: expect.objectContaining({
-            data: expect.objectContaining({
-              skills: expect.objectContaining({
-                runecrafting: expect.objectContaining({ experience: 5_347_176 })
+          username: 'kendall',
+          context: expect.objectContaining({
+            previous: expect.objectContaining({
+              data: expect.objectContaining({
+                skills: expect.objectContaining({
+                  runecrafting: expect.objectContaining({ experience: 5_347_176 })
+                })
               })
-            })
-          }),
-          rejected: expect.objectContaining({
-            data: expect.objectContaining({
-              skills: expect.objectContaining({
-                runecrafting: expect.objectContaining({ experience: 50_000_000 })
+            }),
+            rejected: expect.objectContaining({
+              data: expect.objectContaining({
+                skills: expect.objectContaining({
+                  runecrafting: expect.objectContaining({ experience: 50_000_000 })
+                })
               })
             })
           })
         })
       );
 
-      expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
+      expect(playerArchivedEvent).not.toHaveBeenCalled();
     });
 
     it("shouldn't auto-archive, send discord flagged report instead (negative gains, possible rollback)", async () => {
@@ -1853,27 +1863,29 @@ describe('Player API', () => {
       expect(trackResponse.status).toBe(500);
       expect(trackResponse.body.message).toBe('Failed to update: Player is flagged.');
 
-      expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ username: 'roman' }),
+      expect(playerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          previous: expect.objectContaining({
-            data: expect.objectContaining({
-              bosses: expect.objectContaining({
-                zulrah: expect.objectContaining({ kills: 1646 })
+          username: 'roman',
+          context: expect.objectContaining({
+            previous: expect.objectContaining({
+              data: expect.objectContaining({
+                bosses: expect.objectContaining({
+                  zulrah: expect.objectContaining({ kills: 1646 })
+                })
               })
-            })
-          }),
-          rejected: expect.objectContaining({
-            data: expect.objectContaining({
-              bosses: expect.objectContaining({
-                zulrah: expect.objectContaining({ kills: 1615 })
+            }),
+            rejected: expect.objectContaining({
+              data: expect.objectContaining({
+                bosses: expect.objectContaining({
+                  zulrah: expect.objectContaining({ kills: 1615 })
+                })
               })
             })
           })
         })
       );
 
-      expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
+      expect(playerArchivedEvent).not.toHaveBeenCalled();
     });
 
     it("should auto-archive, and not send discord flagged report (can't be a rollback)", async () => {
@@ -1917,16 +1929,13 @@ describe('Player API', () => {
       expect(trackResponse.body.type).not.toBe('unknown');
       expect(trackResponse.body.archive).toBeNull();
 
-      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
+      expect(playerFlaggedEvent).not.toHaveBeenCalled();
 
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: player.id,
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'Siobhan'
+          previousUsername: 'siobhan'
+        })
       );
     });
 
@@ -1965,16 +1974,13 @@ describe('Player API', () => {
       expect(trackResponse.body.id).not.toBe(player.id); // ID changed, meaning this username is now on a new account
       expect(trackResponse.body.type).not.toBe('unknown');
 
-      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
+      expect(playerFlaggedEvent).not.toHaveBeenCalled();
 
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: player.id,
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'Connor'
+          previousUsername: 'connor'
+        })
       );
     });
 
@@ -2051,16 +2057,13 @@ describe('Player API', () => {
       expect(trackResponse.body.type).not.toBe('unknown');
 
       // if the flagged event is dispatched, that means it wasn't auto-archived
-      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
+      expect(playerFlaggedEvent).not.toHaveBeenCalled();
 
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: player.id,
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'Greg Hirsch'
+          previousUsername: 'greg hirsch'
+        })
       );
 
       // hooks should be disabled during archival, so that we don't send any member joined/left events
@@ -2241,14 +2244,11 @@ describe('Player API', () => {
       expect(archiveResponse.body.username).toContain('archive');
       expect(archiveResponse.body.displayName).toContain('archive');
 
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: player.id,
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'TomWambsgans'
+          previousUsername: 'tomwambsgans'
+        })
       );
 
       // hooks should be disabled during archival, so that we don't send any member joined/left events
@@ -2346,13 +2346,11 @@ describe('Player API', () => {
       expect(archiveResponse.body.username).toContain('archive');
       expect(archiveResponse.body.displayName).toContain('archive');
 
-      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+      expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          status: PlayerStatus.ARCHIVED,
           username: expect.stringContaining('archive'),
-          displayName: expect.stringContaining('archive')
-        }),
-        'Siobhan'
+          previousUsername: 'siobhan'
+        })
       );
 
       const secondResponse = await api.get(`/players/siobhan/archives`);

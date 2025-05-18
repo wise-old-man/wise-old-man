@@ -1,4 +1,4 @@
-import { jobManager, JobType } from '../../../../jobs-new';
+import { jobManager, JobType } from '../../../../jobs';
 import prisma, { Player } from '../../../../prisma';
 import { Period, PeriodProps } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';

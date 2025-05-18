@@ -1,5 +1,5 @@
 import { onGroupUpdated } from '../../api/modules/groups/group.events';
-import { sendPatreonUpdateMessage } from '../../api/services/external/discord.service';
+import { sendDiscordWebhook } from '../../services/discord.service';
 import {
   getPatrons,
   STATIC_PATRON_GROUP_IDS,
@@ -89,12 +89,20 @@ async function syncPatrons() {
 
   toAdd.forEach(p => {
     const discordTag = p.discordId ? `<@${p.discordId}>` : '';
-    sendPatreonUpdateMessage(`**🎉 New Patron:** ${p.name} (T${p.tier}) - ${discordTag}`);
+
+    sendDiscordWebhook({
+      content: `**🎉 New Patron:** ${p.name} (T${p.tier}) - ${discordTag}`,
+      webhookUrl: process.env.DISCORD_PATREON_WEBHOOK_URL
+    });
   });
 
   toDelete.forEach(p => {
     const discordTag = p.discordId ? `<@${p.discordId}>` : '';
-    sendPatreonUpdateMessage(`**😢 Patron canceled:** ${p.name} (T${p.tier}) - ${discordTag}`);
+
+    sendDiscordWebhook({
+      content: `**😢 Patron canceled:** ${p.name} (T${p.tier}) - ${discordTag}`,
+      webhookUrl: process.env.DISCORD_PATREON_WEBHOOK_URL
+    });
   });
 
   Array.from(updatedFieldsMap.entries()).forEach(([patronId, field]) => {
@@ -104,9 +112,15 @@ async function syncPatrons() {
     const discordTag = p.discordId ? `<@${p.discordId}>` : '';
 
     if (field === 'tier') {
-      sendPatreonUpdateMessage(`**🔔 Patron tier changed:** ${p.name} (T${p.tier}) - ${discordTag}`);
+      sendDiscordWebhook({
+        content: `**🔔 Patron tier changed:** ${p.name} (T${p.tier}) - ${discordTag}`,
+        webhookUrl: process.env.DISCORD_PATREON_WEBHOOK_URL
+      });
     } else if (field === 'discordId') {
-      sendPatreonUpdateMessage(`**🔔 Patron Discord changed:** ${p.name} (T${p.tier}) - ${discordTag}`);
+      sendDiscordWebhook({
+        content: `**🔔 Patron Discord changed:** ${p.name} (T${p.tier}) - ${discordTag}`,
+        webhookUrl: process.env.DISCORD_PATREON_WEBHOOK_URL
+      });
     }
   });
 }

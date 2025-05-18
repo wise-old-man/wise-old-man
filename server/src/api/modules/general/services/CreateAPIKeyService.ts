@@ -1,6 +1,6 @@
 import { createId } from '@paralleldrive/cuid2';
 import prisma from '../../../../prisma';
-import { jobManager, JobType } from '../../../../jobs-new';
+import { jobManager, JobType } from '../../../../jobs';
 
 async function createAPIKey(application: string, developer: string) {
   const key = await prisma.apiKey.create({

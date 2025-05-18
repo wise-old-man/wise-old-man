@@ -1,4 +1,4 @@
-import { RANK_RESOLUTION } from '../../../../jobs-new/handlers/calculate-computed-rank-tables.job';
+import { RANK_RESOLUTION } from '../../../../jobs/handlers/calculate-computed-rank-tables.job';
 import prisma from '../../../../prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 import {
@@ -92,7 +92,7 @@ async function calculateExactRank(
   value: number,
   estimate: number
 ) {
-  // Figure out all combinatiosn of player types and builds that match this player's algorithm.
+  // Figure out all combinations of player types and builds that match this player's algorithm.
   // For example: regular 1def pures should be compared to mains, 10hp, zerkers, etc,
   // because they all share the same EHP/EHB rates
   const matches = getTypeAndBuildMatches(player);

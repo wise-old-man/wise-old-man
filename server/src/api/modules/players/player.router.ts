@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { JobType, jobManager } from '../../../jobs-new';
+import { JobType, jobManager } from '../../../jobs';
 import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../../utils';
 import { NotFoundError, ServerError } from '../../errors';

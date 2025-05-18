@@ -5,7 +5,6 @@ import MockAdapter from 'axios-mock-adapter';
 import prisma from '../../../src/prisma';
 import apiServer from '../../../src/api';
 import { Achievement, Metric, PlayerType, SKILL_EXP_AT_99 } from '../../../src/utils';
-import * as achievementEvents from '../../../src/api/modules/achievements/achievement.events';
 import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
 import { importPlayerHistory } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
 import {
@@ -18,11 +17,12 @@ import {
 } from '../../utils';
 import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
+import * as PlayerAchievementsCreatedEvent from '../../../src/api/events/handlers/player-achievements-created.event';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const onAchievementsCreatedEvent = jest.spyOn(achievementEvents, 'onAchievementsCreated');
+const playerAchievementsCreatedEvent = jest.spyOn(PlayerAchievementsCreatedEvent, 'handler');
 
 const CML_FILE_PATH = `${__dirname}/../../data/cml/psikoi_cml.txt`;
 const ACHIEVEMENTS_FILE_PATH = `${__dirname}/../../data/achievements/psikoi_achievements.json`;
@@ -39,6 +39,9 @@ const globalData = {
 
 beforeEach(() => {
   jest.resetAllMocks();
+
+  // re-init the event emitter to re-attach the mocked event handlers
+  eventEmitter.init();
 });
 
 beforeAll(async () => {
@@ -98,12 +101,15 @@ describe('Achievements API', () => {
 
       globalData.testPlayerId = trackResponse.body.id;
 
-      // Wait a bit for the onPlayerUpdated hook to fire
-      await sleep(500);
+      // Wait a bit for the "player updated" event to fire
+      await sleep(100);
 
-      expect(onAchievementsCreatedEvent).toHaveBeenCalledWith(
+      expect(playerAchievementsCreatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          length: 37
+          username: 'psikoi',
+          achievements: expect.objectContaining({
+            length: 37
+          })
         })
       );
 
@@ -133,10 +139,10 @@ describe('Achievements API', () => {
       expect(trackResponse.status).toBe(200);
       expect(trackResponse.body.username).toBe('psikoi');
 
-      // Wait a bit for the onPlayerUpdated hook to fire
-      await sleep(500);
+      // Wait a bit for the "player updated" event to fire
+      await sleep(100);
 
-      expect(onAchievementsCreatedEvent).not.toHaveBeenCalled();
+      expect(playerAchievementsCreatedEvent).not.toHaveBeenCalled();
 
       // Check their achievements (again)
       const fetchResponse = await api.get(`/players/psikoi/achievements`);
@@ -172,8 +178,8 @@ describe('Achievements API', () => {
 
       await importPlayerHistory(player!);
 
-      // Wait a bit for the onPlayerImported hook to fire
-      await sleep(500);
+      // Wait a bit for the "player imported" event to fire
+      await sleep(100);
 
       // Manually change one achievement's date
       await prisma.achievement.update({
@@ -316,8 +322,8 @@ describe('Achievements API', () => {
       expect(secondTrackResponse.status).toBe(200);
       expect(secondTrackResponse.body.username).toBe('lynx titan');
 
-      // Wait a bit for the onPlayerUpdated hook to fire
-      await sleep(500);
+      // Wait a bit for the "player updated" event to fire
+      await sleep(100);
 
       const payload = {
         name: 'Achievements Test Group',
@@ -381,8 +387,8 @@ describe('Achievements API', () => {
       expect(trackResponse.status).toBe(200);
       expect(trackResponse.body.username).toBe('psikoi');
 
-      // Wait a bit for the onPlayerUpdated hook to fire
-      await sleep(500);
+      // Wait a bit for the "player updated" event to fire
+      await sleep(100);
 
       // Check their achievements (again)
       const fetchResponse = await api.get(`/players/psikoi/achievements`);
@@ -430,8 +436,8 @@ describe('Achievements API', () => {
       expect(secondTrackResponse.status).toBe(200);
       expect(secondTrackResponse.body.username).toBe('psikoi');
 
-      // Wait a bit for the onPlayerUpdated hook to fire
-      await sleep(500);
+      // Wait a bit for the "player updated" event to fire
+      await sleep(100);
 
       // Check their achievements (again)
       const secondFetchResponse = await api.get(`/players/psikoi/achievements`);

@@ -1,9 +1,9 @@
 import prisma, { Player } from '../../../../prisma';
 import { PlayerType } from '../../../../utils';
 import { BadRequestError, ServerError } from '../../../errors';
+import { eventEmitter, EventType } from '../../../events';
 import * as jagexService from '../../../services/external/jagex.service';
 import { parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
-import * as playerEvents from '../player.events';
 
 type AssertPlayerTypeResult = [type: PlayerType, player: Player, changed: boolean];
 
@@ -16,7 +16,11 @@ async function assertPlayerType(player: Player, updateIfChanged = false): Promis
       where: { id: player.id }
     });
 
-    playerEvents.onPlayerTypeChanged(updatedPlayer, player.type);
+    eventEmitter.emit(EventType.PLAYER_TYPE_CHANGED, {
+      username: player.username,
+      previousType: player.type,
+      newType: confirmedType
+    });
 
     return [confirmedType, updatedPlayer, true];
   }

@@ -11,7 +11,7 @@ import { ActivityType, MemberActivity, Membership, PlayerStatus } from '../../..
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { archivePlayer } from '../../players/services/ArchivePlayerService';
-import * as playerEvents from '../../players/player.events';
+import { eventEmitter, EventType } from '../../../events';
 import * as playerUtils from '../../players/player.utils';
 import { prepareRecordValue } from '../../records/record.utils';
 
@@ -88,7 +88,10 @@ async function approveNameChange(id: number): Promise<NameChange> {
     }
   }
 
-  playerEvents.onPlayerNameChanged(updatedPlayer, oldPlayer.displayName);
+  eventEmitter.emit(EventType.PLAYER_NAME_CHANGED, {
+    username: updatedPlayer.username,
+    previousDisplayName: oldPlayer.displayName
+  });
 
   if (newPlayer && newPlayer.id !== oldPlayer.id) {
     const archivedNewPlayer = await prisma.player.findFirst({
