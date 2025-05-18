@@ -1,11 +1,8 @@
-import { Period, PeriodProps, PlayerBuild, PlayerDetails } from '../../../utils';
+import { PlayerBuild, PlayerDetails } from '../../../utils';
 import prisma, { Player, PlayerAnnotation, PlayerArchive, Snapshot } from '../../../prisma';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
 import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
 import { formatSnapshot } from '../snapshots/snapshot.utils';
-
-const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
-const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
 function formatPlayerDetails(
   player: Player,
@@ -64,19 +61,6 @@ function validateUsername(username: string): Error | null {
 
 function isValidUsername(username: string): boolean {
   return validateUsername(username) === null;
-}
-
-/**
- * Checks if a given player has been imported from CML in the last 24 hours.
- */
-function shouldImport(lastImportedAt: Date | null): [boolean, number] {
-  // If the player's CML history has never been
-  // imported, should import the last years
-  if (!lastImportedAt) return [true, DECADE_IN_SECONDS];
-
-  const seconds = Math.floor((Date.now() - lastImportedAt.getTime()) / 1000);
-
-  return [seconds / 60 / 60 >= 24, seconds];
 }
 
 function getBuild(snapshot: Snapshot, isFakeF2p: boolean): PlayerBuild {
@@ -167,7 +151,6 @@ export {
   sanitize,
   validateUsername,
   isValidUsername,
-  shouldImport,
   getBuild,
   splitArchivalData
 };

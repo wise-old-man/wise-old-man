@@ -4,24 +4,15 @@ import supertest from 'supertest';
 import apiServer from '../../../src/api';
 import { getPlayerEfficiencyMap } from '../../../src/api/modules/efficiency/efficiency.utils';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
-import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
 import { findOrCreatePlayers } from '../../../src/api/modules/players/services/FindOrCreatePlayersService';
-import { importPlayerHistory } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
 import { reviewFlaggedPlayer } from '../../../src/api/modules/players/services/ReviewFlaggedPlayerService';
 import { setUpdateCooldown } from '../../../src/api/modules/players/services/UpdatePlayerService';
 import { formatSnapshot, parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
 import prisma from '../../../src/prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
 import { BOSSES, Metric, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/utils';
-import {
-  modifyRawHiscoresData,
-  readFile,
-  registerCMLMock,
-  registerHiscoresMock,
-  resetDatabase,
-  sleep
-} from '../../utils';
+import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 import { eventEmitter } from '../../../src/api/events';
 import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
 import * as PlayerFlaggedEvent from '../../../src/api/events/handlers/player-flagged.event';
@@ -31,7 +22,6 @@ import * as PlayerUpdatedEvent from '../../../src/api/events/handlers/player-upd
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const CML_FILE_PATH = `${__dirname}/../../data/cml/psikoi_cml.txt`;
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
 const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
@@ -42,11 +32,8 @@ const playerFlaggedEvent = jest.spyOn(PlayerFlaggedEvent, 'handler');
 const playerUpdatedEvent = jest.spyOn(PlayerUpdatedEvent, 'handler');
 const playerTypeChangedEvent = jest.spyOn(PlayerTypeChangedEvent, 'handler');
 
-const onPlayerImportedEvent = jest.spyOn(playerEvents, 'onPlayerImported');
-
 const globalData = {
   testPlayerId: -1,
-  cmlRawData: '',
   hiscoresRawData: ''
 };
 
@@ -62,11 +49,7 @@ beforeAll(async () => {
   await resetDatabase();
   await redisClient.flushall();
 
-  globalData.cmlRawData = await readFile(CML_FILE_PATH);
   globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
-
-  // Mock the history fetch from CML to always fail with a 404 status code
-  registerCMLMock(axiosMock, 404);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
@@ -908,103 +891,7 @@ describe('Player API', () => {
     });
   });
 
-  describe('2. Importing', () => {
-    it('should not import player (CML failed)', async () => {
-      // Mock the history fetch from CML
-      registerCMLMock(axiosMock, 404);
-
-      const player = await prisma.player.findFirst({
-        where: {
-          username: 'psikoi'
-        }
-      });
-
-      await expect(importPlayerHistory(player!)).rejects.toThrow('Failed to load history from CML.');
-
-      expect(onPlayerImportedEvent).not.toHaveBeenCalled();
-    });
-
-    it('should import player', async () => {
-      // Wait a second to ensure every previous track request fails to import
-      await sleep(1000);
-
-      // Setup the CML request to return our mock raw data
-      registerCMLMock(axiosMock, 200, globalData.cmlRawData);
-
-      const player = await prisma.player.findFirst({
-        where: {
-          username: 'psikoi'
-        }
-      });
-
-      const { count } = await importPlayerHistory(player!);
-
-      expect(count).toBe(219);
-      expect(onPlayerImportedEvent).toHaveBeenCalled();
-
-      const detailsResponse = await api.get(`/players/psikoi`);
-      expect(detailsResponse.status).toBe(200);
-      expect(detailsResponse.body.lastImportedAt).not.toBeNull();
-
-      const playerSnapshots = await prisma.snapshot.findMany({
-        where: {
-          player: {
-            username: 'psikoi'
-          },
-          createdAt: {
-            gte: new Date('2010-01-01'),
-            lte: new Date('2030-01-01')
-          }
-        },
-        orderBy: { createdAt: 'desc' }
-      });
-
-      expect(playerSnapshots.length).toBe(222); // 219 imported, 3 tracked (during this test session)
-      expect(playerSnapshots.filter(s => s.importedAt !== null).length).toBe(219);
-      expect(
-        playerSnapshots.filter(s => s.importedAt !== null && new Date(s.createdAt) > new Date('2020-05-10'))
-          .length
-      ).toBe(0); // there should be no imported snapshots from AFTER May 10th 2020
-
-      const snapshotsTimelineResponse = await api.get(`/players/psikoi/snapshots/timeline`).query({
-        metric: 'magic',
-        startDate: new Date('2010-01-01'),
-        endDate: new Date('2030-01-01')
-      });
-
-      expect(snapshotsTimelineResponse.status).toBe(200);
-      expect(snapshotsTimelineResponse.body.length).toBe(222); // 219 imported, 3 tracked (during this test session)
-
-      for (let i = 0; i < snapshotsTimelineResponse.body.length; i++) {
-        expect(snapshotsTimelineResponse.body[i].value).toBe(playerSnapshots[i].magicExperience);
-        expect(snapshotsTimelineResponse.body[i].rank).toBe(playerSnapshots[i].magicRank);
-        expect(snapshotsTimelineResponse.body[i].date).toBe(playerSnapshots[i].createdAt.toISOString());
-      }
-
-      // Mock the history fetch from CML
-      registerCMLMock(axiosMock, 404);
-    }, 10000); // Set the timeout to 10 seconds for this long running test
-
-    it('should not import player (too soon)', async () => {
-      // Setup the CML request to return our mock raw data
-      registerCMLMock(axiosMock, 200, globalData.cmlRawData);
-
-      const player = await prisma.player.findFirst({
-        where: {
-          username: 'psikoi'
-        }
-      });
-
-      await expect(importPlayerHistory(player!)).rejects.toThrow('Imported too soon, please wait');
-
-      expect(onPlayerImportedEvent).not.toHaveBeenCalled();
-
-      // Mock the history fetch from CML
-      registerCMLMock(axiosMock, 404);
-    });
-  });
-
-  describe('3. Searching', () => {
+  describe('2. Searching', () => {
     it('should not search players (undefined username)', async () => {
       const response = await api.get('/players/search').query({});
 
@@ -1085,7 +972,7 @@ describe('Player API', () => {
     });
   });
 
-  describe('4. Viewing', () => {
+  describe('3. Viewing', () => {
     it('should not view player details (player not found)', async () => {
       const byUsernameResponse = await api.get('/players/zezima');
 
@@ -1125,7 +1012,7 @@ describe('Player API', () => {
     });
   });
 
-  describe('5. Type Assertion', () => {
+  describe('4. Type Assertion', () => {
     it('should not assert player type (player not found)', async () => {
       const response = await api.post(`/players/zezima/assert-type`);
 
@@ -1213,7 +1100,7 @@ describe('Player API', () => {
     });
   });
 
-  describe('6. Updating Country', () => {
+  describe('5. Updating Country', () => {
     it('should not update player country (invalid admin password)', async () => {
       const response = await api.put(`/players/psikoi/country`).send({ country: 'PT' });
 
@@ -1331,7 +1218,7 @@ describe('Player API', () => {
     });
   });
 
-  describe('7. Rolling back', () => {
+  describe('6. Rolling back', () => {
     it("shouldn't rollback player (invalid admin password)", async () => {
       const response = await api.post(`/players/psikoi/rollback`);
 
@@ -1405,7 +1292,7 @@ describe('Player API', () => {
         orderBy: { createdAt: 'desc' }
       });
 
-      expect(playerSnapshotsBefore.length).toBe(223);
+      expect(playerSnapshotsBefore.length).toBe(4);
 
       const rollbackResponse = await api
         .post(`/players/psikoi/rollback`)
@@ -1429,7 +1316,7 @@ describe('Player API', () => {
 
       // the total number of snapshots should remain the same, because we delete the last snapshot
       // but we also create a new one by updating immediately after
-      expect(playerSnapshotsAfter.length).toBe(223);
+      expect(playerSnapshotsAfter.length).toBe(4);
 
       // The last snapshot (sorted desc) should be different
       expect(playerSnapshotsAfter.at(0)!.id).not.toBe(playerSnapshotsBefore.at(0)!.id);
@@ -1456,7 +1343,7 @@ describe('Player API', () => {
         orderBy: { createdAt: 'desc' }
       });
 
-      expect(playerSnapshotsBefore.length).toBe(223);
+      expect(playerSnapshotsBefore.length).toBe(4);
 
       const fakeLastChangedAt = new Date(Date.now() - 30_000); // 30 seconds ago
 
@@ -1495,7 +1382,7 @@ describe('Player API', () => {
       });
 
       // it should have deleted the recent snapshots, but also added one at the end
-      expect(playerSnapshotsAfter.length).toBe(223 - recentSnapshotsCount + 1);
+      expect(playerSnapshotsAfter.length).toBe(4 - recentSnapshotsCount + 1);
 
       // The last snapshot (sorted desc) should be different
       expect(playerSnapshotsAfter.at(0)!.id).not.toBe(playerSnapshotsBefore.at(0)!.id);
@@ -1594,7 +1481,7 @@ describe('Player API', () => {
     });
   });
 
-  describe('8. Deleting', () => {
+  describe('7. Deleting', () => {
     it('should not delete player (invalid admin password)', async () => {
       const response = await api.delete(`/players/psikoi`);
 
@@ -1633,7 +1520,7 @@ describe('Player API', () => {
     });
   });
 
-  describe('9. Player Utils', () => {
+  describe('8. Player Utils', () => {
     it('should sanitize usernames', () => {
       expect(playerUtils.sanitize('PSIKOI')).toBe('PSIKOI');
       expect(playerUtils.sanitize(' PSIKOI_')).toBe('PSIKOI');
@@ -1675,7 +1562,7 @@ describe('Player API', () => {
     });
   });
 
-  describe('10. Archiving', () => {
+  describe('9. Archiving', () => {
     it("shouldn't auto-archive, send discord flagged report instead (excessive gains)", async () => {
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
@@ -2324,7 +2211,7 @@ describe('Player API', () => {
     });
   });
 
-  describe('11. View archives', () => {
+  describe('10. View archives', () => {
     it('should not fetch archives (player not found)', async () => {
       const response = await api.get(`/players/alexsuperfly/archives`);
 
@@ -2385,7 +2272,7 @@ describe('Player API', () => {
     });
   });
 
-  describe('12. Annotations', () => {
+  describe('11. Annotations', () => {
     it('should not fetch annotations (player not found)', async () => {
       const response = await api.get(`/players/gringoloko`);
 

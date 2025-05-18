@@ -13,7 +13,7 @@ import prisma from '../../../src/prisma';
 import apiServer from '../../../src/api';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
-import { registerCMLMock, registerHiscoresMock, resetDatabase, readFile, sleep } from '../../utils';
+import { registerHiscoresMock, resetDatabase, readFile, sleep } from '../../utils';
 import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
 import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
@@ -51,9 +51,6 @@ beforeAll(async () => {
   await redisClient.flushall();
 
   globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
-
-  // Mock the history fetch from CML to always fail with a 404 status code
-  registerCMLMock(axiosMock, 404);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {

@@ -28,10 +28,6 @@ function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function registerCMLMock(adapter: MockAdapter, statusCode: number, rawData?: string) {
-  return adapter.onGet(new RegExp(`crystalmathlabs.com`)).reply(statusCode, rawData || '');
-}
-
 function registerHiscoresMock(adapter: MockAdapter, config: HiscoresMockConfig) {
   let localAdapter = adapter;
 
@@ -74,4 +70,4 @@ function modifyRawHiscoresData(rawData: string, modifications: { metric: Metric;
     .join('\n');
 }
 
-export { resetDatabase, sleep, readFile, registerCMLMock, registerHiscoresMock, modifyRawHiscoresData };
+export { resetDatabase, sleep, readFile, registerHiscoresMock, modifyRawHiscoresData };

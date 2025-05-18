@@ -6,6 +6,7 @@ type EffectParams = 'effectName' | 'status';
 type JobParams = 'jobName' | 'status';
 type JobQueueParams = 'queueName' | 'state';
 type EventParams = 'eventType';
+type CustomPeriodParams = 'customPeriod';
 type UpdatePlayerJobSourceParams = 'source';
 
 class PrometheusService {
@@ -15,6 +16,7 @@ class PrometheusService {
   private httpHistogram: Histogram<HttpParams>;
   private effectHistogram: Histogram<EffectParams>;
   private eventCounter: Counter<EventParams>;
+  private customPeriodCounter: Counter<CustomPeriodParams>;
   private updatePlayerJobSourceCounter: Counter<UpdatePlayerJobSourceParams>;
 
   constructor() {
@@ -56,6 +58,12 @@ class PrometheusService {
       labelNames: ['eventType']
     });
 
+    this.customPeriodCounter = new prometheus.Counter({
+      name: 'custom_period_counter',
+      help: 'Count of custom period expressions used',
+      labelNames: ['customPeriod']
+    });
+
     this.updatePlayerJobSourceCounter = new prometheus.Counter({
       name: 'update_player_job_source_counter',
       help: 'Count of update player jobs dispatched',
@@ -67,6 +75,7 @@ class PrometheusService {
     this.registry.registerMetric(this.httpHistogram);
     this.registry.registerMetric(this.effectHistogram);
     this.registry.registerMetric(this.eventCounter);
+    this.registry.registerMetric(this.customPeriodCounter);
     this.registry.registerMetric(this.updatePlayerJobSourceCounter);
   }
 
@@ -110,6 +119,10 @@ class PrometheusService {
 
   trackEventEmitted(eventType: string) {
     this.eventCounter.inc({ eventType });
+  }
+
+  trackCustomPeriodExpression(customPeriod: string) {
+    this.customPeriodCounter.inc({ customPeriod });
   }
 
   trackUpdatePlayerJobSource(source: string) {

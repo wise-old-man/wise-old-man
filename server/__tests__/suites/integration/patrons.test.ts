@@ -4,7 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import { PlayerType } from '../../../src/utils';
-import { readFile, registerCMLMock, registerHiscoresMock, resetDatabase } from '../../utils';
+import { readFile, registerHiscoresMock, resetDatabase } from '../../utils';
 import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
 
@@ -17,9 +17,6 @@ beforeAll(async () => {
   eventEmitter.init();
   await redisClient.flushall();
   await resetDatabase();
-
-  // Mock the history fetch from CML to always fail with a 404 status code
-  registerCMLMock(axiosMock, 404);
 
   const hiscoresRawData = await readFile(HISCORES_FILE_PATH);
 
