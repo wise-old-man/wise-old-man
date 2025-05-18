@@ -8,6 +8,7 @@ import { CheckPlayerRankedJob } from './handlers/check-player-ranked.job';
 import { DispatchMemberAchievementsDiscordEventJob } from './handlers/dispatch-member-achievements-discord-event.job';
 import { DispatchMemberHcimDiedDiscordEventJob } from './handlers/dispatch-member-hcim-died-discord-event.job';
 import { DispatchMemberNameChangedDiscordEventJob } from './handlers/dispatch-member-name-changed-discord-event.job';
+import { DispatchPlayerFlaggedDiscordEventJob } from './handlers/dispatch-player-flagged-discord-event.job';
 import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
 import { RecalculatePlayerAchievementsJob } from './handlers/recalculate-player-achievements.job';
 import { ReviewNameChangeJob } from './handlers/review-name-change.job';
@@ -42,6 +43,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.DISPATCH_MEMBER_ACHIEVEMENTS_DISCORD_EVENT]: DispatchMemberAchievementsDiscordEventJob,
   [JobType.DISPATCH_MEMBER_NAME_CHANGED_DISCORD_EVENT]: DispatchMemberNameChangedDiscordEventJob,
   [JobType.DISPATCH_MEMBER_HCIM_DIED_DISCORD_EVENT]: DispatchMemberHcimDiedDiscordEventJob,
+  [JobType.DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT]: DispatchPlayerFlaggedDiscordEventJob,
   [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
   [JobType.RECALCULATE_PLAYER_ACHIEVEMENTS]: RecalculatePlayerAchievementsJob,
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangeJob,

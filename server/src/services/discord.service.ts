@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import logger from '../api/util/logging';
-import { Achievement, Group, Player } from '../utils';
+import { Achievement, FlaggedPlayerReviewContext, Group, Player } from '../utils';
 import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import { Competition } from '../prisma';
 
@@ -13,6 +13,7 @@ export enum DiscordBotEventType {
 
   // Moderation Events
   OFFENSIVE_NAMES_FOUND = 'OFFENSIVE_NAMES_FOUND',
+  PLAYER_FLAGGED_REVIEW = 'PLAYER_FLAGGED_REVIEW',
   POTENTIAL_CREATION_SPAM = 'POTENTIAL_CREATION_SPAM'
 }
 
@@ -38,6 +39,10 @@ type DiscordBotEventPayloadMap = {
     description?: string;
     reason: string;
   }>;
+  [DiscordBotEventType.PLAYER_FLAGGED_REVIEW]: {
+    player: Player;
+    flagContext: FlaggedPlayerReviewContext;
+  };
   [DiscordBotEventType.POTENTIAL_CREATION_SPAM]: {
     ipHash: string;
     groups: Array<Group>;

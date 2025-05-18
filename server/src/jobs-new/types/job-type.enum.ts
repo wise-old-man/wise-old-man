@@ -9,6 +9,7 @@ export enum JobType {
   DISPATCH_MEMBER_ACHIEVEMENTS_DISCORD_EVENT = 'dispatch-member-achievements-discord-event',
   DISPATCH_MEMBER_HCIM_DIED_DISCORD_EVENT = 'dispatch-member-hcim-died-discord-event',
   DISPATCH_MEMBER_NAME_CHANGED_DISCORD_EVENT = 'dispatch-member-name-changed-discord-event',
+  DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT = 'dispatch-player-flagged-discord-event',
   INVALIDATE_DELTAS = 'invalidate-deltas',
   RECALCULATE_PLAYER_ACHIEVEMENTS = 'recalculate-player-achievements',
   REVIEW_NAME_CHANGE = 'review-name-change',

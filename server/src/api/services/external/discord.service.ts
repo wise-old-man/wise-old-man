@@ -1,6 +1,6 @@
 import axios from 'axios';
 import prisma, { Competition, Player } from '../../../prisma';
-import { FlaggedPlayerReviewContext, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
+import { MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
 import {
   CompetitionDetails,
   CompetitionWithParticipations
@@ -27,12 +27,6 @@ function dispatch(type: string, payload: unknown) {
   axios.post(process.env.DISCORD_BOT_API_URL, { type, data: payload }).catch(e => {
     logger.error('Error sending discord event.', e);
   });
-}
-
-function dispatchPlayerFlaggedReview(player: Player, flagContext: FlaggedPlayerReviewContext) {
-  if (!player || !flagContext) return;
-
-  dispatch('PLAYER_FLAGGED_REVIEW', { player, flagContext });
 }
 
 async function dispatchMembersRolesChanged(events: MemberRoleChangeEvent[]) {
@@ -171,6 +165,5 @@ export {
   dispatchCompetitionStarting,
   dispatchMembersJoined,
   dispatchMembersLeft,
-  dispatchMembersRolesChanged,
-  dispatchPlayerFlaggedReview
+  dispatchMembersRolesChanged
 };

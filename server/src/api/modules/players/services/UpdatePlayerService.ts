@@ -5,7 +5,6 @@ import { BadRequestError, ForbiddenError, RateLimitError, ServerError } from '..
 import * as jagexService from '../../../services/external/jagex.service';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
-import * as playerEvents from '../player.events';
 import { getBuild, sanitize, standardize, validateUsername } from '../player.utils';
 import { archivePlayer } from './ArchivePlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
@@ -180,7 +179,11 @@ async function handlePlayerFlagged(player: Player, previousStats: Snapshot, reje
   const flaggedContext = reviewFlaggedPlayer(player, previousStats, rejectedStats);
 
   if (flaggedContext) {
-    playerEvents.onPlayerFlagged(player, flaggedContext);
+    eventEmitter.emit(EventType.PLAYER_FLAGGED, {
+      username: player.username,
+      context: flaggedContext
+    });
+
     return false;
   }
 

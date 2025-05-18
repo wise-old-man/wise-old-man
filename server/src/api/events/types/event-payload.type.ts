@@ -1,4 +1,4 @@
-import { Metric, Period, PlayerType } from '../../../utils';
+import { FlaggedPlayerReviewContext, Metric, Period, PlayerType } from '../../../utils';
 import { EventType } from './event-type.enum';
 
 export type EventPayloadMap = {
@@ -21,6 +21,10 @@ export type EventPayloadMap = {
     period: Period;
     periodStartDate: Date;
     isPotentialRecord: boolean;
+  };
+  [EventType.PLAYER_FLAGGED]: {
+    username: string;
+    context: FlaggedPlayerReviewContext;
   };
   [EventType.PLAYER_NAME_CHANGED]: {
     username: string;

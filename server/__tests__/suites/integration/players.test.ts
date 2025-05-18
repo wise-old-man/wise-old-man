@@ -24,6 +24,7 @@ import {
 } from '../../utils';
 import { eventEmitter } from '../../../src/api/events';
 import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
+import * as PlayerFlaggedEvent from '../../../src/api/events/handlers/player-flagged.event';
 import * as PlayerTypeChangedEvent from '../../../src/api/events/handlers/player-type-changed.event';
 import * as PlayerUpdatedEvent from '../../../src/api/events/handlers/player-updated.event';
 
@@ -37,10 +38,10 @@ const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
 const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
 
 const playerArchivedEvent = jest.spyOn(PlayerArchivedEvent, 'handler');
+const playerFlaggedEvent = jest.spyOn(PlayerFlaggedEvent, 'handler');
 const playerUpdatedEvent = jest.spyOn(PlayerUpdatedEvent, 'handler');
 const playerTypeChangedEvent = jest.spyOn(PlayerTypeChangedEvent, 'handler');
 
-const onPlayerFlaggedEvent = jest.spyOn(playerEvents, 'onPlayerFlagged');
 const onPlayerImportedEvent = jest.spyOn(playerEvents, 'onPlayerImported');
 
 const globalData = {
@@ -746,20 +747,22 @@ describe('Player API', () => {
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to update: Player is flagged.');
 
-      expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ username: 'psikoi' }),
+      expect(playerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          previous: expect.objectContaining({
-            data: expect.objectContaining({
-              skills: expect.objectContaining({
-                runecrafting: expect.objectContaining({ experience: 5_347_176 })
+          username: 'psikoi',
+          context: expect.objectContaining({
+            previous: expect.objectContaining({
+              data: expect.objectContaining({
+                skills: expect.objectContaining({
+                  runecrafting: expect.objectContaining({ experience: 5_347_176 })
+                })
               })
-            })
-          }),
-          rejected: expect.objectContaining({
-            data: expect.objectContaining({
-              skills: expect.objectContaining({
-                runecrafting: expect.objectContaining({ experience: 100_000_000 })
+            }),
+            rejected: expect.objectContaining({
+              data: expect.objectContaining({
+                skills: expect.objectContaining({
+                  runecrafting: expect.objectContaining({ experience: 100_000_000 })
+                })
               })
             })
           })
@@ -783,7 +786,7 @@ describe('Player API', () => {
       expect(response.body.message).toMatch('Failed to update: Player is flagged.');
 
       // The player is already flagged, so this event shouldn't be triggeted
-      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
+      expect(playerFlaggedEvent).not.toHaveBeenCalled();
     });
 
     it('should track player (new gains)', async () => {
@@ -886,7 +889,7 @@ describe('Player API', () => {
       expect(secondResponse.status).toBe(500);
       expect(secondResponse.body.message).toMatch('Failed to update: Player is flagged.');
 
-      expect(onPlayerFlaggedEvent).toHaveBeenCalled();
+      expect(playerFlaggedEvent).toHaveBeenCalled();
 
       const thirdResponse = await api.post(`/players/jonxslays`).send({ force: true });
       expect(thirdResponse.status).toBe(400);
@@ -1773,20 +1776,22 @@ describe('Player API', () => {
       expect(trackResponse.status).toBe(500);
       expect(trackResponse.body.message).toBe('Failed to update: Player is flagged.');
 
-      expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ username: 'kendall' }),
+      expect(playerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          previous: expect.objectContaining({
-            data: expect.objectContaining({
-              skills: expect.objectContaining({
-                runecrafting: expect.objectContaining({ experience: 5_347_176 })
+          username: 'kendall',
+          context: expect.objectContaining({
+            previous: expect.objectContaining({
+              data: expect.objectContaining({
+                skills: expect.objectContaining({
+                  runecrafting: expect.objectContaining({ experience: 5_347_176 })
+                })
               })
-            })
-          }),
-          rejected: expect.objectContaining({
-            data: expect.objectContaining({
-              skills: expect.objectContaining({
-                runecrafting: expect.objectContaining({ experience: 50_000_000 })
+            }),
+            rejected: expect.objectContaining({
+              data: expect.objectContaining({
+                skills: expect.objectContaining({
+                  runecrafting: expect.objectContaining({ experience: 50_000_000 })
+                })
               })
             })
           })
@@ -1858,20 +1863,22 @@ describe('Player API', () => {
       expect(trackResponse.status).toBe(500);
       expect(trackResponse.body.message).toBe('Failed to update: Player is flagged.');
 
-      expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ username: 'roman' }),
+      expect(playerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          previous: expect.objectContaining({
-            data: expect.objectContaining({
-              bosses: expect.objectContaining({
-                zulrah: expect.objectContaining({ kills: 1646 })
+          username: 'roman',
+          context: expect.objectContaining({
+            previous: expect.objectContaining({
+              data: expect.objectContaining({
+                bosses: expect.objectContaining({
+                  zulrah: expect.objectContaining({ kills: 1646 })
+                })
               })
-            })
-          }),
-          rejected: expect.objectContaining({
-            data: expect.objectContaining({
-              bosses: expect.objectContaining({
-                zulrah: expect.objectContaining({ kills: 1615 })
+            }),
+            rejected: expect.objectContaining({
+              data: expect.objectContaining({
+                bosses: expect.objectContaining({
+                  zulrah: expect.objectContaining({ kills: 1615 })
+                })
               })
             })
           })
@@ -1922,7 +1929,7 @@ describe('Player API', () => {
       expect(trackResponse.body.type).not.toBe('unknown');
       expect(trackResponse.body.archive).toBeNull();
 
-      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
+      expect(playerFlaggedEvent).not.toHaveBeenCalled();
 
       expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1967,7 +1974,7 @@ describe('Player API', () => {
       expect(trackResponse.body.id).not.toBe(player.id); // ID changed, meaning this username is now on a new account
       expect(trackResponse.body.type).not.toBe('unknown');
 
-      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
+      expect(playerFlaggedEvent).not.toHaveBeenCalled();
 
       expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -2050,7 +2057,7 @@ describe('Player API', () => {
       expect(trackResponse.body.type).not.toBe('unknown');
 
       // if the flagged event is dispatched, that means it wasn't auto-archived
-      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
+      expect(playerFlaggedEvent).not.toHaveBeenCalled();
 
       expect(playerArchivedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
