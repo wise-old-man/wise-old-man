@@ -1,3 +1,4 @@
+import { AddPlayersToGroupCompetitionsJob } from './handlers/add-players-to-group-competitions.job';
 import { AssertPlayerTypeJob } from './handlers/assert-player-type.job';
 import { CalculateComputedRankTablesJob } from './handlers/calculate-computed-rank-tables.job';
 import { CheckCreationSpamJob } from './handlers/check-creation-spam.job';
@@ -8,9 +9,13 @@ import { CheckPlayerRankedJob } from './handlers/check-player-ranked.job';
 import { DispatchMemberAchievementsDiscordEventJob } from './handlers/dispatch-member-achievements-discord-event.job';
 import { DispatchMemberHcimDiedDiscordEventJob } from './handlers/dispatch-member-hcim-died-discord-event.job';
 import { DispatchMemberNameChangedDiscordEventJob } from './handlers/dispatch-member-name-changed-discord-event.job';
+import { DispatchMembersJoinedDiscordEventJob } from './handlers/dispatch-members-joined-discord-event.job';
+import { DispatchMembersLeftDiscordEventJob } from './handlers/dispatch-members-left-discord-event.job';
+import { DispatchMembersRolesChangedDiscordEventJob } from './handlers/dispatch-members-roles-changed-discord-event.job';
 import { DispatchPlayerFlaggedDiscordEventJob } from './handlers/dispatch-player-flagged-discord-event.job';
 import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
 import { RecalculatePlayerAchievementsJob } from './handlers/recalculate-player-achievements.job';
+import { RemovePlayersFromGroupCompetitionsJob } from './handlers/remove-players-from-group-competitions.job';
 import { ReviewNameChangeJob } from './handlers/review-name-change.job';
 import { ScheduleBannedPlayerChecksJob } from './handlers/schedule-banned-player-checks.job';
 import { ScheduleCompetitionEventsJob } from './handlers/schedule-competition-events.job';
@@ -28,11 +33,14 @@ import { SyncPlayerDeltasJob } from './handlers/sync-player-deltas.job';
 import { SyncPlayerRecordsJob } from './handlers/sync-player-records.job';
 import { UpdateCompetitionScoreJob } from './handlers/update-competition-score.job';
 import { UpdateGroupScoreJob } from './handlers/update-group-score.job';
+import { UpdateNewGroupMembersJob } from './handlers/update-new-group-members.job';
 import { UpdatePlayerJob } from './handlers/update-player.job';
 import { UpdateQueueMetricsJob } from './handlers/update-queue-metrics.job';
+import { Job } from './job.class';
 import { JobType } from './types/job-type.enum';
 
-export const JOB_HANDLER_MAP = {
+export const JOB_HANDLER_MAP: Record<JobType, typeof Job<unknown>> = {
+  [JobType.ADD_PLAYERS_TO_GROUP_COMPETITIONS]: AddPlayersToGroupCompetitionsJob,
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJob,
   [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJob,
   [JobType.CHECK_CREATION_SPAM]: CheckCreationSpamJob,
@@ -41,11 +49,15 @@ export const JOB_HANDLER_MAP = {
   [JobType.CHECK_PLAYER_BANNED]: CheckPlayerBannedJob,
   [JobType.CHECK_PLAYER_RANKED]: CheckPlayerRankedJob,
   [JobType.DISPATCH_MEMBER_ACHIEVEMENTS_DISCORD_EVENT]: DispatchMemberAchievementsDiscordEventJob,
-  [JobType.DISPATCH_MEMBER_NAME_CHANGED_DISCORD_EVENT]: DispatchMemberNameChangedDiscordEventJob,
   [JobType.DISPATCH_MEMBER_HCIM_DIED_DISCORD_EVENT]: DispatchMemberHcimDiedDiscordEventJob,
+  [JobType.DISPATCH_MEMBER_NAME_CHANGED_DISCORD_EVENT]: DispatchMemberNameChangedDiscordEventJob,
+  [JobType.DISPATCH_MEMBERS_JOINED_DISCORD_EVENT]: DispatchMembersJoinedDiscordEventJob,
+  [JobType.DISPATCH_MEMBERS_LEFT_DISCORD_EVENT]: DispatchMembersLeftDiscordEventJob,
+  [JobType.DISPATCH_MEMBERS_ROLES_CHANGED_DISCORD_EVENT]: DispatchMembersRolesChangedDiscordEventJob,
   [JobType.DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT]: DispatchPlayerFlaggedDiscordEventJob,
   [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
   [JobType.RECALCULATE_PLAYER_ACHIEVEMENTS]: RecalculatePlayerAchievementsJob,
+  [JobType.REMOVE_PLAYERS_FROM_GROUP_COMPETITIONS]: RemovePlayersFromGroupCompetitionsJob,
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangeJob,
   [JobType.SCHEDULE_BANNED_PLAYER_CHECKS]: ScheduleBannedPlayerChecksJob,
   [JobType.SCHEDULE_COMPETITION_EVENTS]: ScheduleCompetitionEventsJob,
@@ -63,6 +75,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.SYNC_PLAYER_RECORDS]: SyncPlayerRecordsJob,
   [JobType.UPDATE_COMPETITION_SCORE]: UpdateCompetitionScoreJob,
   [JobType.UPDATE_GROUP_SCORE]: UpdateGroupScoreJob,
+  [JobType.UPDATE_NEW_GROUP_MEMBERS]: UpdateNewGroupMembersJob,
   [JobType.UPDATE_PLAYER]: UpdatePlayerJob,
   [JobType.UPDATE_QUEUE_METRICS]: UpdateQueueMetricsJob
 };

@@ -1,12 +1,13 @@
 import prisma from '../../../../prisma';
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import { BadRequestError } from '../../../errors';
+import { eventEmitter, EventType } from '../../../events';
 import * as cryptService from '../../../services/external/crypt.service';
 import { omit } from '../../../util/objects';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { onGroupCreated, onMembersJoined } from '../group.events';
-import { ActivityType, GroupDetails } from '../group.types';
+import { onGroupCreated } from '../group.events';
+import { GroupDetails } from '../group.types';
 import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
 
 type CreateGroupResult = { group: GroupDetails; verificationCode: string };
@@ -79,7 +80,13 @@ async function createGroup(
   onGroupCreated(createdGroup.id);
 
   if (createdGroup.memberships.length > 0) {
-    onMembersJoined(createdGroup.memberships.map(m => ({ ...m, type: ActivityType.JOINED })));
+    eventEmitter.emit(EventType.GROUP_MEMBERS_JOINED, {
+      groupId: createdGroup.id,
+      members: createdGroup.memberships.map(m => ({
+        playerId: m.playerId,
+        role: m.role
+      }))
+    });
   }
 
   const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();

@@ -1,7 +1,28 @@
-import { FlaggedPlayerReviewContext, Metric, Period, PlayerType } from '../../../utils';
+import { FlaggedPlayerReviewContext, GroupRole, Metric, Period, PlayerType } from '../../../utils';
 import { EventType } from './event-type.enum';
 
 export type EventPayloadMap = {
+  [EventType.GROUP_MEMBERS_JOINED]: {
+    groupId: number;
+    members: Array<{
+      playerId: number;
+      role: GroupRole;
+    }>;
+  };
+  [EventType.GROUP_MEMBERS_LEFT]: {
+    groupId: number;
+    members: Array<{
+      playerId: number;
+    }>;
+  };
+  [EventType.GROUP_MEMBERS_ROLES_CHANGED]: {
+    groupId: number;
+    members: Array<{
+      playerId: number;
+      role: GroupRole;
+      previousRole: GroupRole;
+    }>;
+  };
   [EventType.NAME_CHANGE_CREATED]: {
     nameChangeId: number;
   };

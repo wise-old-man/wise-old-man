@@ -1,18 +1,13 @@
 import prisma, { Membership, Player, PrismaTypes } from '../../../../prisma';
 import { GroupRole, NameChangeStatus } from '../../../../utils';
 import { BadRequestError, ServerError } from '../../../errors';
+import { eventEmitter, EventType } from '../../../events';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { onGroupUpdated, onMembersJoined, onMembersLeft, onMembersRolesChanged } from '../group.events';
-import {
-  ActivityType,
-  GroupDetails,
-  MemberJoinedEvent,
-  MemberLeftEvent,
-  MemberRoleChangeEvent
-} from '../group.types';
+import { onGroupUpdated } from '../group.events';
+import { ActivityType, GroupDetails } from '../group.types';
 import { buildDefaultSocialLinks, sanitizeName, sortMembers } from '../group.utils';
 
 // Only allow images from our Cloudflare R2 CDN, to make sure people don't
@@ -242,9 +237,27 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
   const keptPlayers = nextPlayers.filter(p => keptUsernames.includes(p.username));
   const missingPlayers = nextPlayers.filter(p => missingUsernames.includes(p.username));
 
-  const leftEvents: MemberLeftEvent[] = [];
-  const joinedEvents: MemberJoinedEvent[] = [];
-  const changedRoleEvents: MemberRoleChangeEvent[] = [];
+  const leftEvents: Array<{
+    groupId: number;
+    playerId: number;
+    role: GroupRole;
+    type: typeof ActivityType.LEFT;
+  }> = [];
+
+  const joinedEvents: Array<{
+    groupId: number;
+    playerId: number;
+    role: GroupRole;
+    type: typeof ActivityType.JOINED;
+  }> = [];
+
+  const changedRoleEvents: Array<{
+    groupId: number;
+    playerId: number;
+    role: GroupRole;
+    previousRole: GroupRole;
+    type: typeof ActivityType.CHANGED_ROLE;
+  }> = [];
 
   // If any new group members are included in a name change request that is still pending
   // it will be included here to be checked if the old name of the name change
@@ -295,7 +308,12 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
       leftEvents.push(
         ...excessMemberships
           .filter(m => !ignoreFromLeft.includes(m.playerId))
-          .map(m => ({ playerId: m.playerId, groupId: m.groupId, type: ActivityType.LEFT, role: m.role }))
+          .map(m => ({
+            groupId,
+            playerId: m.playerId,
+            role: m.role,
+            type: ActivityType.LEFT
+          }))
       );
 
       // Add any missing memberships
@@ -305,7 +323,12 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
       joinedEvents.push(
         ...addedPlayerIds
           .filter(id => !ignoreFromJoined.includes(id.playerId))
-          .map(pId => ({ ...pId, type: ActivityType.JOINED, role: pId.role }))
+          .map(j => ({
+            groupId,
+            playerId: j.playerId,
+            role: j.role,
+            type: ActivityType.JOINED
+          }))
       );
 
       const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, members);
@@ -329,11 +352,11 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
         // Register "player role changed" events
         changedRoleEvents.push(
           ...roleUpdatesMap.get(role)!.map(id => ({
-            playerId: id,
             groupId,
+            playerId: id,
             role,
-            type: ActivityType.CHANGED_ROLE,
-            previousRole: currentRoleMap.get(id)!
+            previousRole: currentRoleMap.get(id)!,
+            type: ActivityType.CHANGED_ROLE
           }))
         );
       }
@@ -348,9 +371,30 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
     });
 
   // If no error was thrown by this point, dispatch all events
-  if (leftEvents.length > 0) onMembersLeft(leftEvents);
-  if (joinedEvents.length > 0) onMembersJoined(joinedEvents);
-  if (changedRoleEvents.length > 0) onMembersRolesChanged(changedRoleEvents);
+  if (leftEvents.length > 0) {
+    eventEmitter.emit(EventType.GROUP_MEMBERS_LEFT, {
+      groupId,
+      members: leftEvents.map(l => ({ playerId: l.playerId }))
+    });
+  }
+
+  if (joinedEvents.length > 0) {
+    eventEmitter.emit(EventType.GROUP_MEMBERS_JOINED, {
+      groupId,
+      members: joinedEvents.map(j => ({ playerId: j.playerId, role: j.role }))
+    });
+  }
+
+  if (changedRoleEvents.length > 0) {
+    eventEmitter.emit(EventType.GROUP_MEMBERS_ROLES_CHANGED, {
+      groupId,
+      members: changedRoleEvents.map(c => ({
+        playerId: c.playerId,
+        role: c.role,
+        previousRole: c.previousRole
+      }))
+    });
+  }
 }
 
 async function updateSocialLinks(

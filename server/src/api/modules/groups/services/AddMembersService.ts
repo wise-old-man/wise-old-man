@@ -6,6 +6,7 @@ import { isValidUsername, standardize } from '../../players/player.utils';
 import * as groupEvents from '../group.events';
 import { ActivityType } from '../group.types';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
+import { eventEmitter, EventType } from '../../../events';
 
 async function addMembers(
   groupId: number,
@@ -77,7 +78,13 @@ async function addMembers(
 
       await transaction.memberActivity.createMany({ data: newActivites });
 
-      groupEvents.onMembersJoined(newMemberships.map(m => ({ ...m, type: ActivityType.JOINED })));
+      eventEmitter.emit(EventType.GROUP_MEMBERS_JOINED, {
+        groupId,
+        members: newMemberships.map(m => ({
+          playerId: m.playerId,
+          role: m.role
+        }))
+      });
 
       return count;
     })

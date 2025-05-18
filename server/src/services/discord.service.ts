@@ -1,12 +1,15 @@
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import logger from '../api/util/logging';
-import { Achievement, FlaggedPlayerReviewContext, Group, Player } from '../utils';
+import { Achievement, FlaggedPlayerReviewContext, Group, GroupRole, Player } from '../utils';
 import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import { Competition } from '../prisma';
 
 export enum DiscordBotEventType {
   // Player-facing Events
+  GROUP_MEMBERS_CHANGED_ROLES = 'GROUP_MEMBERS_CHANGED_ROLES',
+  GROUP_MEMBERS_JOINED = 'GROUP_MEMBERS_JOINED',
+  GROUP_MEMBERS_LEFT = 'GROUP_MEMBERS_LEFT',
   MEMBER_ACHIEVEMENTS = 'MEMBER_ACHIEVEMENTS',
   MEMBER_HCIM_DIED = 'MEMBER_HCIM_DIED',
   MEMBER_NAME_CHANGED = 'MEMBER_NAME_CHANGED',
@@ -18,6 +21,25 @@ export enum DiscordBotEventType {
 }
 
 type DiscordBotEventPayloadMap = {
+  [DiscordBotEventType.GROUP_MEMBERS_CHANGED_ROLES]: {
+    groupId: number;
+    members: Array<{
+      player: Player;
+      role: GroupRole;
+      previousRole: GroupRole;
+    }>;
+  };
+  [DiscordBotEventType.GROUP_MEMBERS_JOINED]: {
+    groupId: number;
+    members: Array<{
+      player: Player;
+      role: GroupRole;
+    }>;
+  };
+  [DiscordBotEventType.GROUP_MEMBERS_LEFT]: {
+    groupId: number;
+    players: Array<Player>;
+  };
   [DiscordBotEventType.MEMBER_ACHIEVEMENTS]: {
     groupId: number;
     player: Player;

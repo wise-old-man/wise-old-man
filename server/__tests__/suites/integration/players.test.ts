@@ -3,7 +3,6 @@ import MockAdapter from 'axios-mock-adapter';
 import supertest from 'supertest';
 import apiServer from '../../../src/api';
 import { getPlayerEfficiencyMap } from '../../../src/api/modules/efficiency/efficiency.utils';
-import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
 import { findOrCreatePlayers } from '../../../src/api/modules/players/services/FindOrCreatePlayersService';
 import { reviewFlaggedPlayer } from '../../../src/api/modules/players/services/ReviewFlaggedPlayerService';
@@ -18,14 +17,16 @@ import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-ar
 import * as PlayerFlaggedEvent from '../../../src/api/events/handlers/player-flagged.event';
 import * as PlayerTypeChangedEvent from '../../../src/api/events/handlers/player-type-changed.event';
 import * as PlayerUpdatedEvent from '../../../src/api/events/handlers/player-updated.event';
+import * as GroupMembersLeftEvent from '../../../src/api/events/handlers/group-members-left.event';
+import * as GroupMembersJoinedEvent from '../../../src/api/events/handlers/group-members-joined.event';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
-const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
-const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
+const groupMembersLeftEvent = jest.spyOn(GroupMembersLeftEvent, 'handler');
+const groupMembersJoinedEvent = jest.spyOn(GroupMembersJoinedEvent, 'handler');
 
 const playerArchivedEvent = jest.spyOn(PlayerArchivedEvent, 'handler');
 const playerFlaggedEvent = jest.spyOn(PlayerFlaggedEvent, 'handler');
@@ -1954,8 +1955,8 @@ describe('Player API', () => {
       );
 
       // hooks should be disabled during archival, so that we don't send any member joined/left events
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
 
       const archivedPlayer = (await prisma.player.findFirst({
         where: { id: player.id }
@@ -2139,8 +2140,8 @@ describe('Player API', () => {
       );
 
       // hooks should be disabled during archival, so that we don't send any member joined/left events
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
 
       const archivedPlayer = (await prisma.player.findFirst({
         where: { id: player.id }

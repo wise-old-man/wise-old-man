@@ -1,4 +1,5 @@
 export enum JobType {
+  ADD_PLAYERS_TO_GROUP_COMPETITIONS = 'add-players-to-group-competitions',
   ASSERT_PLAYER_TYPE = 'assert-player-type',
   CALCULATE_COMPUTED_RANK_TABLES = 'calculate-computed-rank-tables',
   CHECK_CREATION_SPAM = 'check-creation-spam',
@@ -9,9 +10,13 @@ export enum JobType {
   DISPATCH_MEMBER_ACHIEVEMENTS_DISCORD_EVENT = 'dispatch-member-achievements-discord-event',
   DISPATCH_MEMBER_HCIM_DIED_DISCORD_EVENT = 'dispatch-member-hcim-died-discord-event',
   DISPATCH_MEMBER_NAME_CHANGED_DISCORD_EVENT = 'dispatch-member-name-changed-discord-event',
+  DISPATCH_MEMBERS_JOINED_DISCORD_EVENT = 'dispatch-members-joined-discord-event',
+  DISPATCH_MEMBERS_LEFT_DISCORD_EVENT = 'dispatch-members-left-discord-event',
+  DISPATCH_MEMBERS_ROLES_CHANGED_DISCORD_EVENT = 'dispatch-members-roles-changed-discord-event',
   DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT = 'dispatch-player-flagged-discord-event',
   INVALIDATE_DELTAS = 'invalidate-deltas',
   RECALCULATE_PLAYER_ACHIEVEMENTS = 'recalculate-player-achievements',
+  REMOVE_PLAYERS_FROM_GROUP_COMPETITIONS = 'remove-players-from-group-competitions',
   REVIEW_NAME_CHANGE = 'review-name-change',
   SCHEDULE_BANNED_PLAYER_CHECKS = 'schedule-banned-player-checks',
   SCHEDULE_COMPETITION_EVENTS = 'schedule-competition-events',
@@ -29,6 +34,7 @@ export enum JobType {
   SYNC_PLAYER_RECORDS = 'sync-player-records',
   UPDATE_COMPETITION_SCORE = 'update-competition-score',
   UPDATE_GROUP_SCORE = 'update-group-score',
+  UPDATE_NEW_GROUP_MEMBERS = 'update-new-group-members',
   UPDATE_PLAYER = 'update-player',
   UPDATE_QUEUE_METRICS = 'update-queue-metrics'
 }

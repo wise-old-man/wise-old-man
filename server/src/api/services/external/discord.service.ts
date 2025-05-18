@@ -1,6 +1,5 @@
 import axios from 'axios';
-import prisma, { Competition, Player } from '../../../prisma';
-import { MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
+import { Competition } from '../../../prisma';
 import {
   CompetitionDetails,
   CompetitionWithParticipations
@@ -27,64 +26,6 @@ function dispatch(type: string, payload: unknown) {
   axios.post(process.env.DISCORD_BOT_API_URL, { type, data: payload }).catch(e => {
     logger.error('Error sending discord event.', e);
   });
-}
-
-async function dispatchMembersRolesChanged(events: MemberRoleChangeEvent[]) {
-  if (events.length === 0) return;
-
-  // Fetch all the affected players
-  const players = await prisma.player.findMany({
-    where: { id: { in: events.map(m => m.playerId) } }
-  });
-
-  if (players.length === 0) return;
-
-  const playersMap = new Map<number, Player>(players.map(p => [p.id, p]));
-
-  dispatch('GROUP_MEMBERS_CHANGED_ROLES', {
-    groupId: events[0].groupId,
-    members: events.map(e => {
-      const player = playersMap.get(e.playerId);
-      if (!player) return null;
-
-      return { role: e.role, previousRole: e.previousRole, player };
-    })
-  });
-}
-
-/**
- * Select all new group members and dispatch them to our discord API,
- * so that it can notify any relevant guilds/servers.
- */
-async function dispatchMembersJoined(groupId: number, events: MemberJoinedEvent[], players: Player[]) {
-  if (events.length === 0 || players.length === 0) return;
-
-  const playersMap = new Map<number, Player>(players.map(p => [p.id, p]));
-
-  dispatch('GROUP_MEMBERS_JOINED', {
-    groupId,
-    members: events.map(e => {
-      const player = playersMap.get(e.playerId);
-      if (!player) return null;
-
-      return { role: e.role, player };
-    })
-  });
-}
-
-/**
- * Select all group members who left and dispatch them to our discord API,
- * so that it can notify any relevant guilds/servers.
- */
-async function dispatchMembersLeft(groupId: number, playerIds: number[]) {
-  const players = await prisma.player.findMany({
-    where: { id: { in: playerIds } }
-  });
-
-  // If couldn't find any players for these ids, ignore event
-  if (!players || players.length === 0) return;
-
-  dispatch('GROUP_MEMBERS_LEFT', { groupId, players });
 }
 
 /**
@@ -162,8 +103,5 @@ export {
   dispatchCompetitionEnded,
   dispatchCompetitionEnding,
   dispatchCompetitionStarted,
-  dispatchCompetitionStarting,
-  dispatchMembersJoined,
-  dispatchMembersLeft,
-  dispatchMembersRolesChanged
+  dispatchCompetitionStarting
 };
