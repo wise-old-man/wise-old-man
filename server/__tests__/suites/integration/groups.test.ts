@@ -4,7 +4,9 @@ import MockAdapter from 'axios-mock-adapter';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import { PlayerType } from '../../../src/utils';
-import * as groupEvents from '../../../src/api/modules/groups/group.events';
+import * as GroupMembersLeftEvent from '../../../src/api/events/handlers/group-members-left.event';
+import * as GroupMembersJoinedEvent from '../../../src/api/events/handlers/group-members-joined.event';
+import * as GroupMembersRolesChangedEvent from '../../../src/api/events/handlers/group-members-roles-changed.event';
 import { resetDatabase, registerHiscoresMock, readFile, modifyRawHiscoresData } from '../../utils';
 import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
@@ -12,9 +14,9 @@ import { eventEmitter } from '../../../src/api/events';
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
-const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
-const onMembersRolesChangedEvent = jest.spyOn(groupEvents, 'onMembersRolesChanged');
+const groupMembersLeftEvent = jest.spyOn(GroupMembersLeftEvent, 'handler');
+const groupMembersJoinedEvent = jest.spyOn(GroupMembersJoinedEvent, 'handler');
+const groupMembersRolesChangedEvent = jest.spyOn(GroupMembersRolesChangedEvent, 'handler');
 
 const P_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 const LT_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/lynx_titan_hiscores.txt`;
@@ -46,6 +48,9 @@ const globalData = {
 
 beforeEach(() => {
   jest.resetAllMocks();
+
+  // re-init the event emitter to re-attach the mocked event handlers
+  eventEmitter.init();
 });
 
 beforeAll(async () => {
@@ -77,7 +82,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'name' is undefined.");
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (empty name)', async () => {
@@ -86,7 +91,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'name' must have a minimum of 1 character(s).");
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (name too long)', async () => {
@@ -97,7 +102,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'name' must have a maximum of 30 character(s).");
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (invalid clanChat)', async () => {
@@ -110,7 +115,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid 'clanChat'");
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (clanChat too long)', async () => {
@@ -123,7 +128,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'clanChat' must have a maximum of 12 character(s).");
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (description too long)', async () => {
@@ -138,7 +143,7 @@ describe('Group API', () => {
         "Parameter 'description' must have a maximum of 100 character(s)."
       );
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (invalid member object shape)', async () => {
@@ -152,7 +157,7 @@ describe('Group API', () => {
         'Invalid members list. Must be an array of { username: string; role?: string; }.'
       );
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (invalid member role)', async () => {
@@ -168,7 +173,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'role'.");
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (invalid member name)', async () => {
@@ -181,7 +186,7 @@ describe('Group API', () => {
       expect(response.body.data).toEqual(['reallyreallylongusername']);
       expect(response.body.message).toMatch('Found 1 invalid usernames:');
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (invalid homeworld type)', async () => {
@@ -196,7 +201,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'homeworld' is not a valid number.");
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should create (no members)', async () => {
@@ -220,7 +225,7 @@ describe('Group API', () => {
       expect(response.body.group.verificationHash).not.toBeDefined();
       expect(response.body.verificationCode).toBeDefined();
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
 
       globalData.testGroupNoMembers = {
         id: response.body.group.id,
@@ -258,7 +263,12 @@ describe('Group API', () => {
       expect(response.body.group.verificationHash).not.toBeDefined();
       expect(response.body.verificationCode).toBeDefined();
 
-      expect(onMembersJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 5 }));
+      expect(groupMembersJoinedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          groupId: response.body.group.id,
+          events: expect.objectContaining({ length: 5 })
+        })
+      );
 
       globalData.testGroupNoLeaders = {
         id: response.body.group.id,
@@ -288,7 +298,12 @@ describe('Group API', () => {
       expect(response.body.group.memberships.filter(m => m.role === 'member').length).toBe(1);
       expect(response.body.group.memberships.filter(m => m.role === 'artisan').length).toBe(1);
 
-      expect(onMembersJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 4 }));
+      expect(groupMembersJoinedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          groupId: response.body.group.id,
+          events: expect.objectContaining({ length: 4 })
+        })
+      );
 
       globalData.testGroupOneLeader = {
         id: response.body.group.id,
@@ -303,7 +318,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('is already taken');
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should create and correctly handle duplicate usernames', async () => {
@@ -341,7 +356,12 @@ describe('Group API', () => {
         role: 'ruby'
       });
 
-      expect(onMembersJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 3 }));
+      expect(groupMembersJoinedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          groupId: response.body.group.id,
+          events: expect.objectContaining({ length: 3 })
+        })
+      );
     });
   });
 
@@ -352,8 +372,8 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (incorrect verification code)', async () => {
@@ -364,8 +384,8 @@ describe('Group API', () => {
       expect(response.status).toBe(403);
       expect(response.body.message).toMatch('Incorrect verification code');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (no dashes in verification code, but empty params)', async () => {
@@ -378,8 +398,8 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Nothing to update.');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (white spaces in verification code, but empty params)', async () => {
@@ -392,8 +412,8 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Nothing to update.');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (empty params)', async () => {
@@ -404,8 +424,8 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Nothing to update.');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (group not found)', async () => {
@@ -414,8 +434,8 @@ describe('Group API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found.');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (name already taken)', async () => {
@@ -429,8 +449,8 @@ describe('Group API', () => {
         `Group name '${globalData.testGroupNoLeaders.name}' is already taken.`
       );
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (invalid member object shape)', async () => {
@@ -444,8 +464,8 @@ describe('Group API', () => {
         'Invalid members list. Must be an array of { username: string; role?: string; }.'
       );
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (invalid member role)', async () => {
@@ -467,8 +487,8 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'members' is not a valid array.");
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (invalid banner image url)', async () => {
@@ -480,8 +500,8 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'bannerImage' is not a valid URL.");
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (over max length for banner image url)', async () => {
@@ -500,8 +520,8 @@ describe('Group API', () => {
         "Parameter 'bannerImage' must have a maximum of 255 character(s)."
       );
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (invalid profile image url)', async () => {
@@ -513,8 +533,8 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'profileImage' is not a valid URL.");
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (over max length for profile image url)', async () => {
@@ -533,8 +553,8 @@ describe('Group API', () => {
         "Parameter 'profileImage' must have a maximum of 255 character(s)."
       );
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit profile image (not a patron)', async () => {
@@ -548,8 +568,8 @@ describe('Group API', () => {
         'Banner or profile images can only be uploaded by patron groups.'
       );
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit banner image (not a patron)', async () => {
@@ -563,8 +583,8 @@ describe('Group API', () => {
         'Banner or profile images can only be uploaded by patron groups.'
       );
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (invalid social link url)', async () => {
@@ -578,8 +598,8 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'socialLinks.twitter' is not a valid URL.");
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit social links (not a patron)', async () => {
@@ -593,8 +613,8 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Social links can only be added to patron groups.');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (invalid member name)', async () => {
@@ -611,9 +631,9 @@ describe('Group API', () => {
       expect(response.body.message).toMatch('Found 1 invalid usernames');
       expect(response.body.data).toEqual(['Some really long username']);
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit profile image (unauthorized image source)', async () => {
@@ -637,9 +657,9 @@ describe('Group API', () => {
         'Cannot upload images from external sources. Please upload an image via the website.'
       );
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit banner image (unauthorized image source)', async () => {
@@ -663,9 +683,9 @@ describe('Group API', () => {
         'Cannot upload images from external sources. Please upload an image via the website.'
       );
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should edit members list', async () => {
@@ -698,64 +718,68 @@ describe('Group API', () => {
       expect(response.body.memberships.filter(m => m.role === 'leader').length).toBe(1);
 
       // 2 players removed
-      expect(onMembersLeftEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 2 }));
+      expect(groupMembersLeftEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          groupId: globalData.testGroupOneLeader.id,
+          events: expect.objectContaining({ length: 2 })
+        })
+      );
 
-      const leftEvents = onMembersLeftEvent.mock.calls[0][0];
+      const leftEvents = groupMembersLeftEvent.mock.calls[0][0].events;
+
       expect(leftEvents.length).toBe(2);
 
       expect(leftEvents[0]).toEqual({
-        groupId: globalData.testGroupOneLeader.id,
         playerId: before.body.memberships.find(m => m.player.username === 'test player').playerId,
-        role: 'leader',
-        type: 'left'
+        role: 'leader'
       });
 
       expect(leftEvents[1]).toEqual({
-        groupId: globalData.testGroupOneLeader.id,
         playerId: before.body.memberships.find(m => m.player.username === 'alt player').playerId,
-        type: 'left',
         role: 'captain'
       });
 
       // 3 new players added
-      expect(onMembersJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 3 }));
+      expect(groupMembersJoinedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          groupId: globalData.testGroupOneLeader.id,
+          events: expect.objectContaining({ length: 3 })
+        })
+      );
 
-      const joinedEvents = onMembersJoinedEvent.mock.calls[0][0];
+      const joinedEvents = groupMembersJoinedEvent.mock.calls[0][0].events;
       expect(joinedEvents.length).toBe(3);
 
       expect(joinedEvents[0]).toEqual({
-        groupId: globalData.testGroupOneLeader.id,
         playerId: response.body.memberships.find(m => m.player.username === 'psikoi').playerId,
-        role: 'achiever',
-        type: 'joined'
+        role: 'achiever'
       });
 
       expect(joinedEvents[1]).toEqual({
-        groupId: globalData.testGroupOneLeader.id,
         playerId: response.body.memberships.find(m => m.player.username === 'alexsuperfly').playerId,
-        role: 'leader',
-        type: 'joined'
+        role: 'leader'
       });
 
       expect(joinedEvents[2]).toEqual({
-        groupId: globalData.testGroupOneLeader.id,
         playerId: response.body.memberships.find(m => m.player.username === 'rorro').playerId,
-        role: 'member',
-        type: 'joined'
+        role: 'member'
       });
 
       // 1 player changed role
-      expect(onMembersRolesChangedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 1 }));
+      expect(groupMembersRolesChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          groupId: response.body.id,
+          events: expect.objectContaining({ length: 1 })
+        })
+      );
 
-      const roleChangeEvent = onMembersRolesChangedEvent.mock.calls[0][0][0];
+      const roleChangeEvent = groupMembersRolesChangedEvent.mock.calls[0][0].events[0];
       const changedMembershipZezima = response.body.memberships.find(m => m.player.username === 'zezima');
 
       expect(roleChangeEvent).toEqual({
-        groupId: globalData.testGroupOneLeader.id,
         playerId: changedMembershipZezima.playerId,
         role: 'firemaker',
-        previousRole: 'member',
-        type: 'changed_role'
+        previousRole: 'member'
       });
 
       const latestActivities = await prisma.memberActivity.findMany({
@@ -774,46 +798,34 @@ describe('Group API', () => {
       ]);
 
       expect(latestActivities[0]).toMatchObject({
-        groupId: globalData.testGroupOneLeader.id,
         playerId: before.body.memberships.find(m => m.player.username === 'test player').playerId,
-        role: 'leader',
-        type: 'left'
+        role: 'leader'
       });
 
       expect(latestActivities[1]).toMatchObject({
-        groupId: globalData.testGroupOneLeader.id,
         playerId: before.body.memberships.find(m => m.player.username === 'alt player').playerId,
-        role: 'captain',
-        type: 'left'
+        role: 'captain'
       });
 
       expect(latestActivities[2]).toMatchObject({
-        groupId: globalData.testGroupOneLeader.id,
         playerId: response.body.memberships.find(m => m.player.username === 'psikoi').playerId,
-        role: 'achiever',
-        type: 'joined'
+        role: 'achiever'
       });
 
       expect(latestActivities[3]).toMatchObject({
-        groupId: globalData.testGroupOneLeader.id,
         playerId: response.body.memberships.find(m => m.player.username === 'alexsuperfly').playerId,
-        role: 'leader',
-        type: 'joined'
+        role: 'leader'
       });
 
       expect(latestActivities[4]).toMatchObject({
-        groupId: globalData.testGroupOneLeader.id,
         playerId: response.body.memberships.find(m => m.player.username === 'rorro').playerId,
-        role: 'member',
-        type: 'joined'
+        role: 'member'
       });
 
       expect(latestActivities[5]).toMatchObject({
-        groupId: globalData.testGroupOneLeader.id,
         playerId: response.body.memberships.find(m => m.player.username === 'zezima').playerId,
         role: 'firemaker',
-        previousRole: 'member',
-        type: 'changed_role'
+        previousRole: 'member'
       });
     });
 
@@ -828,9 +840,9 @@ describe('Group API', () => {
       expect(response.body.memberCount).toBe(5); // shouldn't change
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000);
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
 
       globalData.testGroupOneLeader.name = response.body.name;
     });
@@ -852,9 +864,9 @@ describe('Group API', () => {
       });
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000);
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should edit name (capitalization)', async () => {
@@ -866,9 +878,9 @@ describe('Group API', () => {
       expect(response.status).toBe(200);
       expect(response.body.name).toBe(globalData.testGroupOneLeader.name.toUpperCase());
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should edit (only add players)', async () => {
@@ -897,27 +909,23 @@ describe('Group API', () => {
       expect(editResponse.body.memberships[1].player.username).toBe('cookmeplox');
       expect(editResponse.body.memberships[2].player.username).toBe('psikoi');
 
-      const joinedEvents = onMembersJoinedEvent.mock.calls[0][0];
+      const joinedEvents = groupMembersJoinedEvent.mock.calls[0][0].events;
       expect(joinedEvents.length).toBe(2);
 
-      const { id, memberships } = editResponse.body;
+      const { memberships } = editResponse.body;
 
       expect(joinedEvents[0]).toEqual({
-        groupId: id,
         role: 'cook',
-        playerId: memberships.find(m => m.player.username === 'cookmeplox').playerId,
-        type: 'joined'
+        playerId: memberships.find(m => m.player.username === 'cookmeplox').playerId
       });
 
       expect(joinedEvents[1]).toEqual({
-        groupId: id,
         role: 'deputy_owner',
-        playerId: memberships.find(m => m.player.username === 'riblet').playerId,
-        type: 'joined'
+        playerId: memberships.find(m => m.player.username === 'riblet').playerId
       });
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
 
       const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
         verificationCode: createResponse.body.verificationCode
@@ -949,27 +957,23 @@ describe('Group API', () => {
       expect(editResponse.body.memberships.length).toBe(1);
       expect(editResponse.body.memberships[0].player.username).toBe('psikoi');
 
-      const leftEvents = onMembersLeftEvent.mock.calls[0][0];
+      const leftEvents = groupMembersLeftEvent.mock.calls[0][0].events;
       expect(leftEvents.length).toBe(2);
 
-      const { id, memberships } = createResponse.body.group;
+      const { memberships } = createResponse.body.group;
 
       expect(leftEvents[0]).toEqual({
-        groupId: id,
         playerId: memberships.find(m => m.player.username === 'cookmeplox').playerId,
-        role: 'cook',
-        type: 'left'
+        role: 'cook'
       });
 
       expect(leftEvents[1]).toEqual({
-        groupId: id,
         playerId: memberships.find(m => m.player.username === 'riblet').playerId,
-        type: 'left',
         role: 'deputy_owner'
       });
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
 
       const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
         verificationCode: createResponse.body.verificationCode
@@ -1007,31 +1011,27 @@ describe('Group API', () => {
       expect(editResponse.body.memberships[1].player.username).toBe('riblet');
       expect(editResponse.body.memberships[2].player.username).toBe('cookmeplox');
 
-      const changedRoleEvents = onMembersRolesChangedEvent.mock.calls[0][0];
+      const changedRoleEvents = groupMembersRolesChangedEvent.mock.calls[0][0].events;
       expect(changedRoleEvents.length).toBe(2);
 
-      const { id, memberships } = editResponse.body;
+      const { memberships } = editResponse.body;
 
       const changedMembershipPsikoi = memberships.find(m => m.player.username === 'psikoi');
       expect(changedRoleEvents[0]).toEqual({
-        groupId: id,
         role: 'owner',
         previousRole: 'member',
-        playerId: changedMembershipPsikoi.playerId,
-        type: 'changed_role'
+        playerId: changedMembershipPsikoi.playerId
       });
 
       const changedMembershipCookmeplox = memberships.find(m => m.player.username === 'cookmeplox');
       expect(changedRoleEvents[1]).toEqual({
-        groupId: id,
         role: 'cook',
         previousRole: 'owner',
-        playerId: changedMembershipCookmeplox.playerId,
-        type: 'changed_role'
+        playerId: changedMembershipCookmeplox.playerId
       });
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
 
       const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
         verificationCode: createResponse.body.verificationCode
@@ -1081,33 +1081,27 @@ describe('Group API', () => {
       expect(editResponse.body.memberships[3].player.username).toBe('h');
       expect(editResponse.body.memberships[4].player.username).toBe('t');
 
-      const { id, memberships } = editResponse.body;
+      const { memberships } = editResponse.body;
 
-      const joinedEvents = onMembersJoinedEvent.mock.calls[0][0];
+      const joinedEvents = groupMembersJoinedEvent.mock.calls[0][0].events;
       expect(joinedEvents.length).toBe(2);
 
       expect(joinedEvents[0]).toEqual({
-        groupId: id,
         role: 'member',
-        playerId: memberships.find(m => m.player.username === 'h').playerId,
-        type: 'joined'
+        playerId: memberships.find(m => m.player.username === 'h').playerId
       });
 
       expect(joinedEvents[1]).toEqual({
-        groupId: id,
         role: 'member',
-        playerId: memberships.find(m => m.player.username === 't').playerId,
-        type: 'joined'
+        playerId: memberships.find(m => m.player.username === 't').playerId
       });
 
-      const leftEvents = onMembersLeftEvent.mock.calls[0][0];
+      const leftEvents = groupMembersLeftEvent.mock.calls[0][0].events;
       expect(leftEvents.length).toBe(1);
 
       expect(leftEvents[0]).toEqual({
-        groupId: id,
         role: 'member',
-        playerId: createResponse.body.group.memberships.find(m => m.player.username === 'k').playerId,
-        type: 'left'
+        playerId: createResponse.body.group.memberships.find(m => m.player.username === 'k').playerId
       });
 
       const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
@@ -1135,9 +1129,9 @@ describe('Group API', () => {
       expect(response.status).toBe(200);
       expect(response.body.profileImage).toBe('https://img.wiseoldman.net/some_fake_profile_image.png');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should edit banner image', async () => {
@@ -1159,9 +1153,9 @@ describe('Group API', () => {
       expect(response.status).toBe(200);
       expect(response.body.bannerImage).toBe('https://img.wiseoldman.net/some_fake_banner_image.png');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should edit social links', async () => {
@@ -1210,9 +1204,9 @@ describe('Group API', () => {
         twitch: null
       });
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should edit group role order', async () => {
@@ -1404,7 +1398,7 @@ describe('Group API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found.');
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (invalid verification code)', async () => {
@@ -1415,7 +1409,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (incorrect verification code)', async () => {
@@ -1427,7 +1421,7 @@ describe('Group API', () => {
       expect(response.status).toBe(403);
       expect(response.body.message).toMatch('Incorrect verification code.');
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (invalid members list)', async () => {
@@ -1439,7 +1433,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'members' is not a valid array.");
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (empty members list)', async () => {
@@ -1451,7 +1445,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'members' must have a minimum of 1 element(s).");
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (invalid member object shape)', async () => {
@@ -1463,7 +1457,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid members list.');
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (invalid member name)', async () => {
@@ -1477,7 +1471,7 @@ describe('Group API', () => {
       expect(response.body.data.length).toBe(1);
       expect(response.body.data).toContain('elvard@invalid');
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (invalid member role)', async () => {
@@ -1489,7 +1483,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'role'.");
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (already members)', async () => {
@@ -1501,7 +1495,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('All players given are already members.');
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should add members', async () => {
@@ -1552,30 +1546,29 @@ describe('Group API', () => {
         new Date(before.body.updatedAt).getTime()
       );
 
-      expect(onMembersJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 3 }));
+      expect(groupMembersJoinedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          groupId: globalData.testGroupNoLeaders.id,
+          events: expect.objectContaining({ length: 3 })
+        })
+      );
 
-      const joinedEvents = onMembersJoinedEvent.mock.calls[0][0];
+      const joinedEvents = groupMembersJoinedEvent.mock.calls[0][0].events;
       expect(joinedEvents.length).toBe(3);
 
       expect(joinedEvents[0]).toEqual({
-        groupId: globalData.testGroupNoLeaders.id,
         playerId: after.body.memberships.find(m => m.player.username === 'sethmare').playerId,
-        role: 'magician',
-        type: 'joined'
+        role: 'magician'
       });
 
       expect(joinedEvents[1]).toEqual({
-        groupId: globalData.testGroupNoLeaders.id,
         playerId: after.body.memberships.find(m => m.player.username === 'rro').playerId,
-        role: 'ranger',
-        type: 'joined'
+        role: 'ranger'
       });
 
       expect(joinedEvents[2]).toEqual({
-        groupId: globalData.testGroupNoLeaders.id,
         playerId: after.body.memberships.find(m => m.player.username === 'lynx titan').playerId,
-        role: 'magician',
-        type: 'joined'
+        role: 'magician'
       });
     });
   });
@@ -1591,7 +1584,7 @@ describe('Group API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Group not found.');
 
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (invalid verification code)', async () => {
@@ -1603,7 +1596,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
 
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (incorrect verification code)', async () => {
@@ -1616,7 +1609,7 @@ describe('Group API', () => {
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect verification code.');
 
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (undefined username)', async () => {
@@ -1627,7 +1620,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'username' is undefined.");
 
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (undefined role)', async () => {
@@ -1638,7 +1631,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'role' is undefined.");
 
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (empty role)', async () => {
@@ -1651,7 +1644,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'role'.");
 
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (invalid role)', async () => {
@@ -1664,7 +1657,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'role'.");
 
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (not a member)', async () => {
@@ -1677,7 +1670,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe(`usbc is not a member of ${globalData.testGroupNoLeaders.name}.`);
 
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (already has role)', async () => {
@@ -1690,7 +1683,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('sethmare is already a magician.');
 
-      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+      expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should change role', async () => {
@@ -1709,17 +1702,21 @@ describe('Group API', () => {
         player: { username: 'sethmare' }
       });
 
-      expect(onMembersRolesChangedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 1 }));
-      const event = onMembersRolesChangedEvent.mock.calls[0][0][0];
+      expect(groupMembersRolesChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          groupId: globalData.testGroupNoLeaders.id,
+          events: expect.objectContaining({ length: 1 })
+        })
+      );
+
+      const event = groupMembersRolesChangedEvent.mock.calls[0][0].events[0];
 
       const playerSethmare = (await prisma.player.findFirst({
         where: { username: 'sethmare' }
       }))!;
 
       expect(event).toEqual({
-        groupId: globalData.testGroupNoLeaders.id,
         playerId: playerSethmare.id,
-        type: 'changed_role',
         role: 'dragon',
         previousRole: 'magician'
       });
@@ -1839,7 +1836,7 @@ describe('Group API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Group not found.');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members (invalid verification code)', async () => {
@@ -1850,7 +1847,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members (incorrect verification code)', async () => {
@@ -1862,7 +1859,7 @@ describe('Group API', () => {
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect verification code.');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members, incorrect admin override (invalid verification code)', async () => {
@@ -1874,7 +1871,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members, incorrect admin override (incorrect verification code)', async () => {
@@ -1887,7 +1884,7 @@ describe('Group API', () => {
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect verification code.');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members (invalid members list)', async () => {
@@ -1899,7 +1896,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'members' is not a valid array.");
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members (empty members list)', async () => {
@@ -1911,7 +1908,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'members' must have a minimum of 1 element(s).");
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members (no valid players found)', async () => {
@@ -1923,7 +1920,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('None of the players given were members of that group.');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members (not members)', async () => {
@@ -1935,7 +1932,7 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('None of the players given were members of that group.');
 
-      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should remove members', async () => {
@@ -1955,23 +1952,24 @@ describe('Group API', () => {
         message: 'Successfully removed 2 members.'
       });
 
-      expect(onMembersLeftEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 2 }));
+      expect(groupMembersLeftEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          groupId: globalData.testGroupNoLeaders.id,
+          events: expect.objectContaining({ length: 2 })
+        })
+      );
 
-      const leftEvents = onMembersLeftEvent.mock.calls[0][0];
+      const leftEvents = groupMembersLeftEvent.mock.calls[0][0].events;
       expect(leftEvents.length).toBe(2);
 
       expect(leftEvents[0]).toEqual({
-        groupId: globalData.testGroupNoLeaders.id,
         playerId: before.body.memberships.find(m => m.player.username === 'sethmare').playerId,
-        role: 'dragon',
-        type: 'left'
+        role: 'dragon'
       });
 
       expect(leftEvents[1]).toEqual({
-        groupId: globalData.testGroupNoLeaders.id,
         playerId: before.body.memberships.find(m => m.player.username === 'zezima').playerId,
-        role: 'member',
-        type: 'left'
+        role: 'member'
       });
 
       const latestActivities = await prisma.memberActivity.findMany({
@@ -2024,7 +2022,12 @@ describe('Group API', () => {
         message: 'Successfully removed 1 members.'
       });
 
-      expect(onMembersLeftEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 1 }));
+      expect(groupMembersLeftEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          groupId: createResponse.body.group.id,
+          events: expect.objectContaining({ length: 1 })
+        })
+      );
 
       const after = await api.get(`/groups/${createResponse.body.group.id}`);
       expect(after.status).toBe(200);

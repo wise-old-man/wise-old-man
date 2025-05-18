@@ -1,11 +1,10 @@
 import prisma from '../../../../prisma';
 import { GroupRole } from '../../../../utils';
 import logger from '../../../util/logging';
-import { omit } from '../../../util/objects';
 import { BadRequestError, ServerError } from '../../../errors';
 import { ActivityType, MembershipWithPlayer } from '../group.types';
 import { standardize } from '../../players/player.utils';
-import * as groupEvents from '../group.events';
+import { eventEmitter, EventType } from '../../../events';
 
 async function changeMemberRole(
   groupId: number,
@@ -57,7 +56,7 @@ async function changeMemberRole(
         }
       });
 
-      const activity = await transaction.memberActivity.create({
+      await transaction.memberActivity.create({
         data: {
           groupId: membership.groupId,
           playerId: membership.playerId,
@@ -67,7 +66,16 @@ async function changeMemberRole(
         }
       });
 
-      groupEvents.onMembersRolesChanged([omit({ ...activity, previousRole: membership.role }, 'createdAt')]);
+      eventEmitter.emit(EventType.GROUP_MEMBERS_ROLES_CHANGED, {
+        groupId: membership.groupId,
+        events: [
+          {
+            playerId: membership.playerId,
+            role: newRole,
+            previousRole: membership.role
+          }
+        ]
+      });
 
       return updatedMembership;
     })

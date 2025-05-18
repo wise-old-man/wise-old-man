@@ -11,11 +11,11 @@ import {
 } from '../../../src/utils';
 import prisma from '../../../src/prisma';
 import apiServer from '../../../src/api';
-import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
 import { registerHiscoresMock, resetDatabase, readFile, sleep } from '../../utils';
 import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
+import * as GroupMembersJoinedEvent from '../../../src/api/events/handlers/group-members-joined.event';
 import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
 import * as PlayerNameChangedEvent from '../../../src/api/events/handlers/player-name-changed.event';
 import * as NameChangeCreatedEvent from '../../../src/api/events/handlers/name-change-created.event';
@@ -23,8 +23,7 @@ import * as NameChangeCreatedEvent from '../../../src/api/events/handlers/name-c
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
-
+const groupMembersJoinedEvent = jest.spyOn(GroupMembersJoinedEvent, 'handler');
 const playerArchivedEvent = jest.spyOn(PlayerArchivedEvent, 'handler');
 const playerNameChangedEvent = jest.spyOn(PlayerNameChangedEvent, 'handler');
 const nameChangeCreatedEvent = jest.spyOn(NameChangeCreatedEvent, 'handler');
@@ -743,7 +742,7 @@ describe('Names API', () => {
         })
       );
 
-      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
 
       // "New" player profile was archived
       expect(playerArchivedEvent).toHaveBeenCalledWith(

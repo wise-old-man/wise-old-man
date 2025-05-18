@@ -1,5 +1,6 @@
 import prisma from '../../../../prisma';
 import { BadRequestError, ServerError } from '../../../errors';
+import { eventEmitter, EventType } from '../../../events';
 import logger from '../../../util/logging';
 import { standardize } from '../../players/player.utils';
 import * as groupEvents from '../group.events';
@@ -74,7 +75,13 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
     });
 
   groupEvents.onGroupUpdated(groupId);
-  groupEvents.onMembersLeft(newActivites);
+
+  eventEmitter.emit(EventType.GROUP_MEMBERS_LEFT, {
+    groupId,
+    events: newActivites.map(n => ({
+      playerId: n.playerId
+    }))
+  });
 
   return { count: removedCount };
 }

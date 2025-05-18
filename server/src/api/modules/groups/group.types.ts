@@ -69,12 +69,6 @@ export interface GroupStatistics {
   metricLeaders: MetricLeaders;
 }
 
-export type MemberRoleChangeEvent = Omit<MemberActivity, 'createdAt'>;
-
-export type MemberJoinedEvent = Omit<MemberActivity, 'createdAt' | 'previousRole'>;
-
-export type MemberLeftEvent = Omit<MemberActivity, 'createdAt' | 'previousRole'>;
-
 export type MemberActivityWithPlayer = MemberActivity & {
   player: Player;
 };
