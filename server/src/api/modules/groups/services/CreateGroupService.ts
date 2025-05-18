@@ -82,7 +82,7 @@ async function createGroup(
   if (createdGroup.memberships.length > 0) {
     eventEmitter.emit(EventType.GROUP_MEMBERS_JOINED, {
       groupId: createdGroup.id,
-      events: createdGroup.memberships.map(m => ({
+      members: createdGroup.memberships.map(m => ({
         playerId: m.playerId,
         role: m.role
       }))

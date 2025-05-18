@@ -374,21 +374,21 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
   if (leftEvents.length > 0) {
     eventEmitter.emit(EventType.GROUP_MEMBERS_LEFT, {
       groupId,
-      events: leftEvents.map(l => ({ playerId: l.playerId }))
+      members: leftEvents.map(l => ({ playerId: l.playerId }))
     });
   }
 
   if (joinedEvents.length > 0) {
     eventEmitter.emit(EventType.GROUP_MEMBERS_JOINED, {
       groupId,
-      events: joinedEvents.map(j => ({ playerId: j.playerId, role: j.role }))
+      members: joinedEvents.map(j => ({ playerId: j.playerId, role: j.role }))
     });
   }
 
   if (changedRoleEvents.length > 0) {
     eventEmitter.emit(EventType.GROUP_MEMBERS_ROLES_CHANGED, {
       groupId,
-      events: changedRoleEvents.map(c => ({
+      members: changedRoleEvents.map(c => ({
         playerId: c.playerId,
         role: c.role,
         previousRole: c.previousRole

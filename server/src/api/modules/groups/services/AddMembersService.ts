@@ -80,7 +80,7 @@ async function addMembers(
 
       eventEmitter.emit(EventType.GROUP_MEMBERS_JOINED, {
         groupId,
-        events: newMemberships.map(m => ({
+        members: newMemberships.map(m => ({
           playerId: m.playerId,
           role: m.role
         }))

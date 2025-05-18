@@ -78,7 +78,7 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
 
   eventEmitter.emit(EventType.GROUP_MEMBERS_LEFT, {
     groupId,
-    events: newActivites.map(n => ({
+    members: newActivites.map(n => ({
       playerId: n.playerId
     }))
   });

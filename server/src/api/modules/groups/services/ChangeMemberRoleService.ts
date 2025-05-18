@@ -68,7 +68,7 @@ async function changeMemberRole(
 
       eventEmitter.emit(EventType.GROUP_MEMBERS_ROLES_CHANGED, {
         groupId: membership.groupId,
-        events: [
+        members: [
           {
             playerId: membership.playerId,
             role: newRole,

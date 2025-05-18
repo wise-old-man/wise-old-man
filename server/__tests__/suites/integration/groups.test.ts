@@ -266,7 +266,7 @@ describe('Group API', () => {
       expect(groupMembersJoinedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           groupId: response.body.group.id,
-          events: expect.objectContaining({ length: 5 })
+          members: expect.objectContaining({ length: 5 })
         })
       );
 
@@ -301,7 +301,7 @@ describe('Group API', () => {
       expect(groupMembersJoinedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           groupId: response.body.group.id,
-          events: expect.objectContaining({ length: 4 })
+          members: expect.objectContaining({ length: 4 })
         })
       );
 
@@ -359,7 +359,7 @@ describe('Group API', () => {
       expect(groupMembersJoinedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           groupId: response.body.group.id,
-          events: expect.objectContaining({ length: 3 })
+          members: expect.objectContaining({ length: 3 })
         })
       );
     });
@@ -721,11 +721,11 @@ describe('Group API', () => {
       expect(groupMembersLeftEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           groupId: globalData.testGroupOneLeader.id,
-          events: expect.objectContaining({ length: 2 })
+          members: expect.objectContaining({ length: 2 })
         })
       );
 
-      const leftEvents = groupMembersLeftEvent.mock.calls[0][0].events;
+      const leftEvents = groupMembersLeftEvent.mock.calls[0][0].members;
 
       expect(leftEvents.length).toBe(2);
 
@@ -741,11 +741,11 @@ describe('Group API', () => {
       expect(groupMembersJoinedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           groupId: globalData.testGroupOneLeader.id,
-          events: expect.objectContaining({ length: 3 })
+          members: expect.objectContaining({ length: 3 })
         })
       );
 
-      const joinedEvents = groupMembersJoinedEvent.mock.calls[0][0].events;
+      const joinedEvents = groupMembersJoinedEvent.mock.calls[0][0].members;
       expect(joinedEvents.length).toBe(3);
 
       expect(joinedEvents[0]).toEqual({
@@ -767,11 +767,11 @@ describe('Group API', () => {
       expect(groupMembersRolesChangedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           groupId: response.body.id,
-          events: expect.objectContaining({ length: 1 })
+          members: expect.objectContaining({ length: 1 })
         })
       );
 
-      const roleChangeEvent = groupMembersRolesChangedEvent.mock.calls[0][0].events[0];
+      const roleChangeEvent = groupMembersRolesChangedEvent.mock.calls[0][0].members[0];
       const changedMembershipZezima = response.body.memberships.find(m => m.player.username === 'zezima');
 
       expect(roleChangeEvent).toEqual({
@@ -907,7 +907,7 @@ describe('Group API', () => {
       expect(editResponse.body.memberships[1].player.username).toBe('cookmeplox');
       expect(editResponse.body.memberships[2].player.username).toBe('psikoi');
 
-      const joinedEvents = groupMembersJoinedEvent.mock.calls[0][0].events;
+      const joinedEvents = groupMembersJoinedEvent.mock.calls[0][0].members;
       expect(joinedEvents.length).toBe(2);
 
       const { memberships } = editResponse.body;
@@ -955,7 +955,7 @@ describe('Group API', () => {
       expect(editResponse.body.memberships.length).toBe(1);
       expect(editResponse.body.memberships[0].player.username).toBe('psikoi');
 
-      const leftEvents = groupMembersLeftEvent.mock.calls[0][0].events;
+      const leftEvents = groupMembersLeftEvent.mock.calls[0][0].members;
       expect(leftEvents.length).toBe(2);
 
       const { memberships } = createResponse.body.group;
@@ -1007,7 +1007,7 @@ describe('Group API', () => {
       expect(editResponse.body.memberships[1].player.username).toBe('riblet');
       expect(editResponse.body.memberships[2].player.username).toBe('cookmeplox');
 
-      const changedRoleEvents = groupMembersRolesChangedEvent.mock.calls[0][0].events;
+      const changedRoleEvents = groupMembersRolesChangedEvent.mock.calls[0][0].members;
       expect(changedRoleEvents.length).toBe(2);
 
       const { memberships } = editResponse.body;
@@ -1079,7 +1079,7 @@ describe('Group API', () => {
 
       const { memberships } = editResponse.body;
 
-      const joinedEvents = groupMembersJoinedEvent.mock.calls[0][0].events;
+      const joinedEvents = groupMembersJoinedEvent.mock.calls[0][0].members;
       expect(joinedEvents.length).toBe(2);
 
       expect(joinedEvents[0]).toEqual({
@@ -1092,7 +1092,7 @@ describe('Group API', () => {
         playerId: memberships.find(m => m.player.username === 't').playerId
       });
 
-      const leftEvents = groupMembersLeftEvent.mock.calls[0][0].events;
+      const leftEvents = groupMembersLeftEvent.mock.calls[0][0].members;
       expect(leftEvents.length).toBe(1);
 
       expect(leftEvents[0]).toEqual({
@@ -1544,11 +1544,11 @@ describe('Group API', () => {
       expect(groupMembersJoinedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           groupId: globalData.testGroupNoLeaders.id,
-          events: expect.objectContaining({ length: 3 })
+          members: expect.objectContaining({ length: 3 })
         })
       );
 
-      const joinedEvents = groupMembersJoinedEvent.mock.calls[0][0].events;
+      const joinedEvents = groupMembersJoinedEvent.mock.calls[0][0].members;
       expect(joinedEvents.length).toBe(3);
 
       expect(joinedEvents[0]).toEqual({
@@ -1700,11 +1700,11 @@ describe('Group API', () => {
       expect(groupMembersRolesChangedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           groupId: globalData.testGroupNoLeaders.id,
-          events: expect.objectContaining({ length: 1 })
+          members: expect.objectContaining({ length: 1 })
         })
       );
 
-      const event = groupMembersRolesChangedEvent.mock.calls[0][0].events[0];
+      const event = groupMembersRolesChangedEvent.mock.calls[0][0].members[0];
 
       const playerSethmare = (await prisma.player.findFirst({
         where: { username: 'sethmare' }
@@ -1950,11 +1950,11 @@ describe('Group API', () => {
       expect(groupMembersLeftEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           groupId: globalData.testGroupNoLeaders.id,
-          events: expect.objectContaining({ length: 2 })
+          members: expect.objectContaining({ length: 2 })
         })
       );
 
-      const leftEvents = groupMembersLeftEvent.mock.calls[0][0].events;
+      const leftEvents = groupMembersLeftEvent.mock.calls[0][0].members;
       expect(leftEvents.length).toBe(2);
 
       expect(leftEvents[0]).toEqual({
@@ -2018,7 +2018,7 @@ describe('Group API', () => {
       expect(groupMembersLeftEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           groupId: createResponse.body.group.id,
-          events: expect.objectContaining({ length: 1 })
+          members: expect.objectContaining({ length: 1 })
         })
       );
 

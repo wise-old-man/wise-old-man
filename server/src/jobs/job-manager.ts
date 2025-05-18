@@ -38,7 +38,6 @@ class JobManager {
       throw new Error(`No job implementation found for "${type}".`);
     }
 
-    // @ts-expect-error -- Unknown payload type
     await new handlerClass(this).execute(payload);
   }
 

@@ -4,20 +4,20 @@ import { EventType } from './event-type.enum';
 export type EventPayloadMap = {
   [EventType.GROUP_MEMBERS_JOINED]: {
     groupId: number;
-    events: Array<{
+    members: Array<{
       playerId: number;
       role: GroupRole;
     }>;
   };
   [EventType.GROUP_MEMBERS_LEFT]: {
     groupId: number;
-    events: Array<{
+    members: Array<{
       playerId: number;
     }>;
   };
   [EventType.GROUP_MEMBERS_ROLES_CHANGED]: {
     groupId: number;
-    events: Array<{
+    members: Array<{
       playerId: number;
       role: GroupRole;
       previousRole: GroupRole;
