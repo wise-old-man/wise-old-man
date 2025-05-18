@@ -30,7 +30,7 @@ type DiscordBotEventPayloadMap = {
   [DiscordBotEventType.MEMBER_NAME_CHANGED]: {
     groupId: number;
     player: Player;
-    previousDisplayName: string;
+    previousName: string;
   };
   [DiscordBotEventType.OFFENSIVE_NAMES_FOUND]: Array<{
     id: number;

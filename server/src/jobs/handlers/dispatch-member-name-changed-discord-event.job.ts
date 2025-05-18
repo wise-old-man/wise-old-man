@@ -38,7 +38,7 @@ export class DispatchMemberNameChangedDiscordEventJob extends Job<Payload> {
       await dispatchDiscordBotEvent(DiscordBotEventType.MEMBER_NAME_CHANGED, {
         groupId,
         player,
-        previousDisplayName: payload.previousDisplayName
+        previousName: payload.previousDisplayName
       });
     }
   }
