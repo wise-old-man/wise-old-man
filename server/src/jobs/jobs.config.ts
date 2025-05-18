@@ -1,3 +1,4 @@
+import { AddPlayersToGroupCompetitionsJob } from './handlers/add-players-to-group-competitions.job';
 import { AssertPlayerTypeJob } from './handlers/assert-player-type.job';
 import { CalculateComputedRankTablesJob } from './handlers/calculate-computed-rank-tables.job';
 import { CheckCreationSpamJob } from './handlers/check-creation-spam.job';
@@ -11,6 +12,7 @@ import { DispatchMemberNameChangedDiscordEventJob } from './handlers/dispatch-me
 import { DispatchPlayerFlaggedDiscordEventJob } from './handlers/dispatch-player-flagged-discord-event.job';
 import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
 import { RecalculatePlayerAchievementsJob } from './handlers/recalculate-player-achievements.job';
+import { RemovePlayersFromGroupCompetitionsJob } from './handlers/remove-players-from-group-competitions.job';
 import { ReviewNameChangeJob } from './handlers/review-name-change.job';
 import { ScheduleBannedPlayerChecksJob } from './handlers/schedule-banned-player-checks.job';
 import { ScheduleCompetitionEventsJob } from './handlers/schedule-competition-events.job';
@@ -33,6 +35,7 @@ import { UpdateQueueMetricsJob } from './handlers/update-queue-metrics.job';
 import { JobType } from './types/job-type.enum';
 
 export const JOB_HANDLER_MAP = {
+  [JobType.ADD_PLAYERS_TO_GROUP_COMPETITIONS]: AddPlayersToGroupCompetitionsJob,
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJob,
   [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJob,
   [JobType.CHECK_CREATION_SPAM]: CheckCreationSpamJob,
@@ -46,6 +49,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT]: DispatchPlayerFlaggedDiscordEventJob,
   [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
   [JobType.RECALCULATE_PLAYER_ACHIEVEMENTS]: RecalculatePlayerAchievementsJob,
+  [JobType.REMOVE_PLAYERS_FROM_GROUP_COMPETITIONS]: RemovePlayersFromGroupCompetitionsJob,
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangeJob,
   [JobType.SCHEDULE_BANNED_PLAYER_CHECKS]: ScheduleBannedPlayerChecksJob,
   [JobType.SCHEDULE_COMPETITION_EVENTS]: ScheduleCompetitionEventsJob,

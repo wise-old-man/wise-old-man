@@ -1,4 +1,5 @@
 export enum JobType {
+  ADD_PLAYERS_TO_GROUP_COMPETITIONS = 'add-players-to-group-competitions',
   ASSERT_PLAYER_TYPE = 'assert-player-type',
   CALCULATE_COMPUTED_RANK_TABLES = 'calculate-computed-rank-tables',
   CHECK_CREATION_SPAM = 'check-creation-spam',
@@ -12,6 +13,7 @@ export enum JobType {
   DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT = 'dispatch-player-flagged-discord-event',
   INVALIDATE_DELTAS = 'invalidate-deltas',
   RECALCULATE_PLAYER_ACHIEVEMENTS = 'recalculate-player-achievements',
+  REMOVE_PLAYERS_FROM_GROUP_COMPETITIONS = 'remove-players-from-group-competitions',
   REVIEW_NAME_CHANGE = 'review-name-change',
   SCHEDULE_BANNED_PLAYER_CHECKS = 'schedule-banned-player-checks',
   SCHEDULE_COMPETITION_EVENTS = 'schedule-competition-events',

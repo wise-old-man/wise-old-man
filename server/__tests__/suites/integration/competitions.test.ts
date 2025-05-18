@@ -33,6 +33,9 @@ const globalData = {
 
 beforeEach(() => {
   jest.resetAllMocks();
+
+  // re-init the event emitter to re-attach the mocked event handlers
+  eventEmitter.init();
 });
 
 beforeAll(async () => {

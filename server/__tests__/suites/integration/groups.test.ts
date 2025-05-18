@@ -730,13 +730,11 @@ describe('Group API', () => {
       expect(leftEvents.length).toBe(2);
 
       expect(leftEvents[0]).toEqual({
-        playerId: before.body.memberships.find(m => m.player.username === 'test player').playerId,
-        role: 'leader'
+        playerId: before.body.memberships.find(m => m.player.username === 'test player').playerId
       });
 
       expect(leftEvents[1]).toEqual({
-        playerId: before.body.memberships.find(m => m.player.username === 'alt player').playerId,
-        role: 'captain'
+        playerId: before.body.memberships.find(m => m.player.username === 'alt player').playerId
       });
 
       // 3 new players added
@@ -963,13 +961,11 @@ describe('Group API', () => {
       const { memberships } = createResponse.body.group;
 
       expect(leftEvents[0]).toEqual({
-        playerId: memberships.find(m => m.player.username === 'cookmeplox').playerId,
-        role: 'cook'
+        playerId: memberships.find(m => m.player.username === 'cookmeplox').playerId
       });
 
       expect(leftEvents[1]).toEqual({
-        playerId: memberships.find(m => m.player.username === 'riblet').playerId,
-        role: 'deputy_owner'
+        playerId: memberships.find(m => m.player.username === 'riblet').playerId
       });
 
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -1100,7 +1096,6 @@ describe('Group API', () => {
       expect(leftEvents.length).toBe(1);
 
       expect(leftEvents[0]).toEqual({
-        role: 'member',
         playerId: createResponse.body.group.memberships.find(m => m.player.username === 'k').playerId
       });
 
@@ -1963,13 +1958,11 @@ describe('Group API', () => {
       expect(leftEvents.length).toBe(2);
 
       expect(leftEvents[0]).toEqual({
-        playerId: before.body.memberships.find(m => m.player.username === 'sethmare').playerId,
-        role: 'dragon'
+        playerId: before.body.memberships.find(m => m.player.username === 'sethmare').playerId
       });
 
       expect(leftEvents[1]).toEqual({
-        playerId: before.body.memberships.find(m => m.player.username === 'zezima').playerId,
-        role: 'member'
+        playerId: before.body.memberships.find(m => m.player.username === 'zezima').playerId
       });
 
       const latestActivities = await prisma.memberActivity.findMany({
