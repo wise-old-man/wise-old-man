@@ -116,37 +116,6 @@ async function parseHiscoresSnapshot(playerId: number, rawCSV: string, previous?
   return snapshotFields as Snapshot;
 }
 
-async function parseCMLSnapshot(playerId: number, rawCSV: string) {
-  // CML separates the data "blocks" by a space, for whatever reason.
-  // These blocks are the datapoint timestamp, and the experience and rank arrays respectively.
-  const rows = rawCSV.split(' ');
-  const [timestamp, experienceCSV, ranksCSV] = rows;
-
-  // Convert the experience and rank from CSV data into arrays
-  const exps = (await csv({ noheader: true, output: 'csv' }).fromString(experienceCSV))[0];
-  const ranks = (await csv({ noheader: true, output: 'csv' }).fromString(ranksCSV))[0];
-
-  // If a new skill/activity/boss was added to the CML API,
-  // prevent any further snapshot saves to prevent incorrect DB data
-  if (exps.length !== SKILLS.length || ranks.length !== SKILLS.length) {
-    throw new ServerError('The CML API was updated. Please wait for a fix.');
-  }
-
-  const snapshotFields: Partial<Snapshot> = {
-    playerId,
-    importedAt: new Date(),
-    createdAt: new Date(parseInt(timestamp, 10) * 1000) // CML stores timestamps in seconds, we need milliseconds
-  };
-
-  // Populate the skills' values with experience and rank data
-  SKILLS.forEach((s, i) => {
-    snapshotFields[getMetricRankKey(s)] = parseInt(ranks[i]);
-    snapshotFields[getMetricValueKey(s)] = parseInt(exps[i]);
-  });
-
-  return snapshotFields as Snapshot;
-}
-
 function formatSnapshot(snapshot: Snapshot, efficiencyMap: Map<Skill | Boss, number>): FormattedSnapshot {
   const { id, playerId, createdAt, importedAt } = snapshot;
 
@@ -368,7 +337,6 @@ function isZerker(snapshot: Snapshot) {
 
 export {
   parseHiscoresSnapshot,
-  parseCMLSnapshot,
   formatSnapshot,
   average,
   hasChanged,

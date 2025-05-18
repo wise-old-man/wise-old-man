@@ -1,36 +1,30 @@
 import axios from 'axios';
-import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { PlayerType, SKILLS, getMetricValueKey, getMetricRankKey, Metric } from '../../../src/utils';
-import * as utils from '../../../src/api/modules/snapshots/snapshot.utils';
-import apiServer from '../../../src/api';
 import {
-  resetDatabase,
-  readFile,
-  registerHiscoresMock,
-  registerCMLMock,
-  modifyRawHiscoresData
-} from '../../utils';
+  PlayerType,
+  SKILLS,
+  getMetricValueKey,
+  getMetricRankKey,
+  Metric,
+  PeriodProps,
+  Period
+} from '../../../src/utils';
+import * as utils from '../../../src/api/modules/snapshots/snapshot.utils';
+import { resetDatabase, readFile, registerHiscoresMock, modifyRawHiscoresData } from '../../utils';
 import { Snapshot } from '../../../src/api/modules/snapshots/snapshot.types';
 import { findPlayerSnapshots } from '../../../src/api/modules/snapshots/services/FindPlayerSnapshotsService';
-import { saveAllSnapshots } from '../../../src/api/modules/players/services/ImportPlayerHistoryService';
 import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
+import prisma from '../../../src/prisma';
 
-const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const HISCORES_FILE_PATH_P = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
-const CML_FILE_PATH_P = `${__dirname}/../../data/cml/psikoi_cml.txt`;
-
 const HISCORES_FILE_PATH_LT = `${__dirname}/../../data/hiscores/lynx_titan_hiscores.txt`;
-const CML_FILE_PATH_LT = `${__dirname}/../../data/cml/lynx_titan_cml.txt`;
 
 const globalData = {
   hiscoresRawDataP: '',
   hiscoresRawDataLT: '',
-  cmlRawDataP: '',
-  cmlRawDataLT: '',
   testPlayerId: -1,
   secondaryPlayerId: -1,
   testGroupId: -1,
@@ -43,17 +37,8 @@ beforeAll(async () => {
   await resetDatabase();
   await redisClient.flushall();
 
-  // Fake the current date to be May 8th 2020 (when the CML history ends)
-  jest.useFakeTimers().setSystemTime(new Date('2020-05-08T17:14:00.000Z'));
-
   globalData.hiscoresRawDataP = await readFile(HISCORES_FILE_PATH_P);
   globalData.hiscoresRawDataLT = await readFile(HISCORES_FILE_PATH_LT);
-
-  globalData.cmlRawDataP = await readFile(CML_FILE_PATH_P);
-  globalData.cmlRawDataLT = await readFile(CML_FILE_PATH_LT);
-
-  // Mock the history fetch from CML to always fail with a 404 status code
-  registerCMLMock(axiosMock, 404);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
@@ -145,140 +130,117 @@ describe('Snapshots API', () => {
       // Now these shouldn't be unranked
       expect(newSnapshot.bounty_hunter_rogueScore).toBe(45);
       expect(newSnapshot.bounty_hunter_hunterScore).toBe(17);
+
+      const player = await prisma.player.create({
+        data: {
+          username: 'psikoi',
+          displayName: 'Psikoi'
+        }
+      });
+
+      globalData.testPlayerId = player.id;
+
+      const snapshots = [
+        {
+          ...snapshot,
+          playerId: player.id,
+          createdAt: new Date(Date.now() - PeriodProps[Period.DAY].milliseconds * 5)
+        },
+        {
+          ...snapshot,
+          playerId: player.id,
+          createdAt: new Date(Date.now() - PeriodProps[Period.DAY].milliseconds)
+        },
+        { ...newSnapshot, playerId: player.id }
+      ];
+
+      await prisma.snapshot.createMany({
+        data: [
+          {
+            ...snapshot,
+            playerId: player.id,
+            createdAt: new Date(Date.now() - PeriodProps[Period.DAY].milliseconds * 5)
+          },
+          {
+            ...snapshot,
+            playerId: player.id,
+            createdAt: new Date(Date.now() - PeriodProps[Period.DAY].milliseconds)
+          },
+          { ...newSnapshot, playerId: player.id }
+        ]
+      });
+
+      globalData.snapshots = snapshots;
     });
   });
 
-  describe('2 - Creating from CrystalMathLabs', () => {
-    it('should not create snapshot (invalid input)', async () => {
-      await expect(utils.parseCMLSnapshot(1, '')).rejects.toThrow();
-    });
-
-    it('should not create snapshot (CML changed)', async () => {
-      const missingData = globalData.cmlRawDataLT
-        .split('\n')
-        .filter(r => r.length)[0]
-        .slice(0, -5);
-
-      await expect(utils.parseCMLSnapshot(1, missingData)).rejects.toThrow(
-        'The CML API was updated. Please wait for a fix.'
-      );
-
-      const excessiveData = globalData.cmlRawDataLT.split('\n').filter(r => r.length)[0] + ',1';
-
-      await expect(utils.parseCMLSnapshot(1, excessiveData)).rejects.toThrow(
-        'The CML API was updated. Please wait for a fix.'
-      );
-    });
-
-    it('should create snapshot (Lynx Titan)', async () => {
-      const data = globalData.cmlRawDataLT.split('\n').filter(r => r.length)[0];
-
-      const snapshot = await utils.parseCMLSnapshot(1, data);
-
-      expect(snapshot.playerId).toBe(1);
-      expect(snapshot.importedAt).not.toBeUndefined();
-
-      SKILLS.forEach(skill => {
-        if (skill === Metric.OVERALL) {
-          expect(snapshot.overallRank).toBe(1);
-          expect(snapshot.overallExperience).toBe((SKILLS.length - 1) * 200000000);
-        } else {
-          expect(snapshot[getMetricRankKey(skill)]).toBeLessThan(1000);
-          expect(snapshot[getMetricValueKey(skill)]).toBe(200000000);
-        }
-      });
-    });
-
-    it('should create snapshot (Psikoi)', async () => {
-      const data = globalData.cmlRawDataP.split('\n').filter(r => r.length)[0];
-
-      const snapshot = await utils.parseCMLSnapshot(1, data);
-
-      expect(snapshot.playerId).toBe(1);
-      expect(snapshot.createdAt.getTime()).toBe(1588939931000);
-      expect(snapshot.importedAt).not.toBeUndefined();
-
-      SKILLS.forEach(skill => {
-        if (skill === Metric.OVERALL) {
-          expect(snapshot.overallRank).toBe(30156);
-          expect(snapshot.overallExperience).toBe(279142172);
-        } else {
-          expect(snapshot[getMetricRankKey(skill)]).toBeLessThan(260_000);
-          expect(snapshot[getMetricValueKey(skill)]).toBeGreaterThan(3_000_000);
-        }
-      });
-    });
-
-    it('should save all CML history as snapshots', async () => {
-      const trackResponse = await api.post(`/players/psikoi`);
-      expect(trackResponse.status).toBe(201);
-
-      globalData.testPlayerId = trackResponse.body.id;
-
-      const cml = globalData.cmlRawDataP.split('\n').filter(r => r.length);
-
-      const snapshots = await Promise.all(
-        cml.map(row => utils.parseCMLSnapshot(globalData.testPlayerId, row))
-      );
-
-      const { count } = await saveAllSnapshots(snapshots);
-      expect(count).toBe(219);
-
-      const snapshotResponse = await findPlayerSnapshots(
-        trackResponse.body.id,
-        undefined,
-        new Date('2010-01-01T00:00:00.000Z'),
-        new Date('2030-01-01T00:00:00.000Z')
-      );
-
-      globalData.snapshots = snapshotResponse.slice(1);
-
-      expect(snapshotResponse.length).toBe(220); // 219 imported + 1 tracked
-
-      snapshotResponse.forEach(snapshot => {
-        expect(snapshot.playerId).toBe(globalData.testPlayerId);
-      });
-    });
-  });
-
-  describe('3 - Snapshot Utils', () => {
+  describe('2 - Snapshot Utils', () => {
     it('should detect changes between snapshots', () => {
       // No changes between these
-      expect(utils.hasChanged(globalData.snapshots[1], globalData.snapshots[0])).toBe(false);
+      expect(utils.hasChanged(globalData.snapshots[0], globalData.snapshots[0])).toBe(false);
+
       // Some changes between these
-      expect(utils.hasChanged(globalData.snapshots[10], globalData.snapshots[0])).toBe(true);
+      expect(
+        utils.hasChanged(globalData.snapshots[0], {
+          ...globalData.snapshots[0],
+          magicExperience: globalData.snapshots[0].magicExperience + 50
+        })
+      ).toBe(true);
+
       // EHP and EHB changed shouldn't count, as they can fluctuate without the player's envolvement
-      const ehpChanged = { ...globalData.snapshots[0], ehpValue: 1, ehbValue: 1 };
-      expect(utils.hasChanged(globalData.snapshots[0], ehpChanged)).toBe(false);
+
+      expect(
+        utils.hasChanged(globalData.snapshots[0], { ...globalData.snapshots[0], ehpValue: 1, ehbValue: 1 })
+      ).toBe(false);
     });
 
     it('should detect negative gains between snapshots', () => {
       // No changes between these
-      expect(utils.getNegativeGains(globalData.snapshots[1], globalData.snapshots[0])).toBeNull();
+      expect(utils.getNegativeGains(globalData.snapshots[0], globalData.snapshots[0])).toBeNull();
 
       // Positive changes between these
-      expect(utils.getNegativeGains(globalData.snapshots[10], globalData.snapshots[0])).toBeNull();
+      expect(
+        utils.getNegativeGains(globalData.snapshots[0], {
+          ...globalData.snapshots[0],
+          magicExperience: globalData.snapshots[0].magicExperience + 5000
+        })
+      ).toBeNull();
 
       // Negative last_man_standing gains
-      const negativeLmsStart = { ...globalData.snapshots[0], last_man_standingScore: 1000 };
-      const negativeLmsEnd = { ...globalData.snapshots[0], last_man_standingScore: 700 };
-      expect(utils.getNegativeGains(negativeLmsStart, negativeLmsEnd)).toBeNull(); // LMS score can decrease, so it shouldn't count as negative gains
+      expect(
+        utils.getNegativeGains(
+          { ...globalData.snapshots[0], last_man_standingScore: 1000 },
+          { ...globalData.snapshots[0], last_man_standingScore: 700 }
+        )
+      ).toBeNull(); // LMS score can decrease, so it shouldn't count as negative gains
 
       // Negative pvp_arena gains
-      const negativePvpArenaStart = { ...globalData.snapshots[0], pvp_arenaScore: 1000 };
-      const negativePvpArenaEnd = { ...globalData.snapshots[0], pvp_arenaScore: 700 };
-      expect(utils.getNegativeGains(negativePvpArenaStart, negativePvpArenaEnd)).toBeNull(); // PVP Arena score can decrease, so it shouldn't count as negative gains
+      expect(
+        utils.getNegativeGains(
+          { ...globalData.snapshots[0], pvp_arenaScore: 1000 },
+          { ...globalData.snapshots[0], pvp_arenaScore: 700 }
+        )
+      ).toBeNull(); // PVP Arena score can decrease, so it shouldn't count as negative gains
 
       // Negative firemaking and magic gains
-      const negativeFiremaking = { ...globalData.snapshots[0], firemakingExperience: 1, magicExperience: 5 };
-      expect(utils.getNegativeGains(globalData.snapshots[10], negativeFiremaking)).toEqual({
-        firemaking: -6397195,
-        magic: -19219575
+      expect(
+        utils.getNegativeGains(globalData.snapshots[0], {
+          ...globalData.snapshots[0],
+          firemakingExperience: 1,
+          magicExperience: 5
+        })
+      ).toEqual({
+        firemaking: -13034873,
+        magic: -19288599
       });
 
       // Unranked farming exp., shouldn't count (farming became unranked)
-      const unrankedFarming = { ...globalData.snapshots[0], farmingExperience: -1 };
-      expect(utils.getNegativeGains(globalData.snapshots[10], unrankedFarming)).toBeNull();
+      expect(
+        utils.getNegativeGains(globalData.snapshots[0], {
+          ...globalData.snapshots[0],
+          farmingExperience: -1
+        })
+      ).toBeNull();
 
       // Negative BH score (not allowed, happened before the BH update on May 24th 2023)
       expect(
@@ -293,7 +255,7 @@ describe('Snapshots API', () => {
       // Negative BH score (allowed, the BH update on May 24th 2023 reset people's BH scores, so negative gains are acceptable)
       expect(
         utils.getNegativeGains(
-          { ...globalData.snapshots[0], bounty_hunter_hunterScore: 70 },
+          { ...globalData.snapshots[0], createdAt: new Date('2023-01-01'), bounty_hunter_hunterScore: 70 },
           { ...globalData.snapshots[0], createdAt: new Date('2024-01-01'), bounty_hunter_hunterScore: 10 }
         )
       ).toBeNull();
@@ -301,19 +263,22 @@ describe('Snapshots API', () => {
 
     it('should detect excessive gains between snapshots', () => {
       // No changes between these
-      expect(utils.getExcessiveGains(globalData.snapshots[1], globalData.snapshots[0])).toBeNull();
+      expect(utils.getExcessiveGains(globalData.snapshots[0], globalData.snapshots[0])).toBeNull();
 
       // Small changes between these
-      expect(utils.getExcessiveGains(globalData.snapshots[10], globalData.snapshots[0])).toBeNull();
+      expect(
+        utils.getExcessiveGains(globalData.snapshots[0], {
+          ...globalData.snapshots[0],
+          magicExperience: globalData.snapshots[0].magicExperience + 50
+        })
+      ).toBeNull();
 
       // Excessive changes between these
-      const bigGains = {
+      const result = utils.getExcessiveGains(globalData.snapshots[0], {
         ...globalData.snapshots[0],
         runecraftingExperience: 200_000_000,
         zulrahKills: 5000
-      };
-
-      const result = utils.getExcessiveGains(globalData.snapshots[10], bigGains);
+      });
 
       if (!result) {
         expect(result).not.toBeNull();
@@ -323,26 +288,10 @@ describe('Snapshots API', () => {
     });
   });
 
-  describe('4 - Get Player Snapshots', () => {
+  describe('3 - Get Player Snapshots', () => {
     it('should not fetch all (player not found)', async () => {
       const result = await findPlayerSnapshots(2_000_000);
       expect(result.length).toBe(0);
-    });
-
-    it('should fetch all snapshots (high limit)', async () => {
-      const result = await findPlayerSnapshots(globalData.testPlayerId);
-
-      expect(result.length).toBe(220);
-      expect(result.filter(r => r.importedAt === null).length).toBe(1);
-      expect(result.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
-      expect(result[0].createdAt.getTime() - Date.now()).toBeLessThan(365_000);
-      expect(result[0].zulrahKills).toBe(1646);
-
-      // Ensure the list is sorted by "createdAt" descending
-      for (let i = 0; i < result.length; i++) {
-        if (i === 0) continue;
-        expect(result[i].createdAt < result[i - 1].createdAt).toBe(true);
-      }
     });
 
     it('should fetch all snapshots (limited)', async () => {
@@ -351,8 +300,8 @@ describe('Snapshots API', () => {
         offset: 0
       });
 
-      expect(result.length).toBe(10);
-      expect(result.filter(r => r.importedAt === null).length).toBe(1);
+      expect(result.length).toBe(3);
+      expect(result.filter(r => r.importedAt === null).length).toBe(3);
       expect(result.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
       expect(result[0].createdAt.getTime() - Date.now()).toBeLessThan(365_000);
       expect(result[0].zulrahKills).toBe(1646);
@@ -387,13 +336,13 @@ describe('Snapshots API', () => {
     });
 
     it('should fetch snapshots between', async () => {
-      const startDate = new Date('2019-07-03T21:13:56.000Z');
-      const endDate = new Date('2020-04-14T21:08:55.000Z');
+      const startDate = new Date(Date.now() - PeriodProps[Period.DAY].milliseconds * 2);
+      const endDate = new Date();
 
       const result = await findPlayerSnapshots(globalData.testPlayerId, undefined, startDate, endDate);
 
-      expect(result.length).toBe(85);
-      expect(result.filter(r => r.createdAt >= startDate && r.createdAt <= endDate).length).toBe(85);
+      expect(result.length).toBe(2);
+      expect(result.filter(r => r.createdAt >= startDate && r.createdAt <= endDate).length).toBe(2);
       expect(result.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
 
       // Ensure the list is sorted by "createdAt" descending
@@ -413,8 +362,8 @@ describe('Snapshots API', () => {
       const now = new Date();
       const results = await findPlayerSnapshots(globalData.testPlayerId, 'week');
 
-      expect(results.length).toBe(7);
-      expect(results[6].createdAt.toISOString()).toBe('2020-05-01T20:24:34.000Z');
+      expect(results.length).toBe(3);
+      expect((Date.now() - results[2].createdAt.getTime()) / 86_400_000).toBeCloseTo(5);
       expect(results.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
       expect(results.filter(r => r.createdAt > now).length).toBe(0);
       expect(results.filter(r => now.getTime() - r.createdAt.getTime() > 604_800_000).length).toBe(0); // no snapshots over a week old
@@ -428,13 +377,13 @@ describe('Snapshots API', () => {
 
     it('should fetch period snapshots (custom period)', async () => {
       const now = new Date();
-      const results = await findPlayerSnapshots(globalData.testPlayerId, '2w3d');
+      const results = await findPlayerSnapshots(globalData.testPlayerId, '2d3h');
 
-      expect(results.length).toBe(12);
-      expect(results[11].createdAt.toISOString()).toBe('2020-04-21T23:58:48.000Z');
+      expect(results.length).toBe(2);
+      expect((Date.now() - results[1].createdAt.getTime()) / 86_400_000).toBeCloseTo(1);
       expect(results.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
       expect(results.filter(r => r.createdAt > now).length).toBe(0);
-      expect(results.filter(r => now.getTime() - r.createdAt.getTime() > 1_468_800_000).length).toBe(0); // no snapshots over 17 days old
+      expect(results.filter(r => now.getTime() - r.createdAt.getTime() > 183_600_000).length).toBe(0); // no snapshots over 51 hours old
 
       // Ensure the list is sorted by "createdAt" descending
       for (let i = 0; i < results.length; i++) {

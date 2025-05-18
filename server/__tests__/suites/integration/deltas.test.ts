@@ -3,14 +3,7 @@ import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import { PlayerType, Metric } from '../../../src/utils';
 import apiServer from '../../../src/api';
-import {
-  registerCMLMock,
-  registerHiscoresMock,
-  resetDatabase,
-  sleep,
-  readFile,
-  modifyRawHiscoresData
-} from '../../utils';
+import { registerHiscoresMock, resetDatabase, sleep, readFile, modifyRawHiscoresData } from '../../utils';
 import prisma from '../../../src/prisma';
 import * as PlayerDeltaUpdatedEvent from '../../../src/api/events/handlers/player-delta-updated.event';
 import { findPlayerDeltas } from '../../../src/api/modules/deltas/services/FindPlayerDeltasService';
@@ -45,9 +38,6 @@ beforeAll(async () => {
   await redisClient.flushall();
 
   globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
-
-  // Mock the history fetch from CML to always fail with a 404 status code
-  registerCMLMock(axiosMock, 404);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
