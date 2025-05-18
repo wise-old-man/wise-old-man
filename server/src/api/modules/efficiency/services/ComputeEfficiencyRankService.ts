@@ -1,4 +1,4 @@
-import { RANK_RESOLUTION } from '../../../../jobs-new/handlers/calculate-computed-rank-tables.job';
+import { RANK_RESOLUTION } from '../../../../jobs/handlers/calculate-computed-rank-tables.job';
 import prisma from '../../../../prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 import {

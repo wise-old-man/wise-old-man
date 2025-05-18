@@ -1,7 +1,7 @@
 import { getThreadIndex } from './env';
 import logger from './api/util/logging';
 import { eventEmitter } from './api/events';
-import { jobManager } from './jobs-new';
+import { jobManager } from './jobs';
 import api from './api';
 import { redisClient } from './services/redis.service';
 

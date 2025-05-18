@@ -1,4 +1,4 @@
-import { JobType, jobManager } from '../../../jobs-new';
+import { JobType, jobManager } from '../../../jobs';
 import prisma from '../../../prisma';
 import { MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';

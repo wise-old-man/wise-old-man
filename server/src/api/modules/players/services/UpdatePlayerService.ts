@@ -1,4 +1,4 @@
-import { JobType, jobManager } from '../../../../jobs-new';
+import { JobType, jobManager } from '../../../../jobs';
 import prisma, { Player, PrismaTypes, Snapshot, PlayerAnnotation } from '../../../../prisma';
 import { PlayerBuild, PlayerStatus, PlayerType, PlayerAnnotationType } from '../../../../utils';
 import { BadRequestError, ForbiddenError, RateLimitError, ServerError } from '../../../errors';
