@@ -131,7 +131,8 @@ async function findPlayerParticipationsStandings2(
 
   const allGroups = await prisma.group.findMany({
     where: {
-      id: { in: Array.from(dedupedGroupIds) }
+      id: { in: Array.from(dedupedGroupIds) },
+      visible: true
     },
     include: {
       _count: {
@@ -262,6 +263,12 @@ async function findPlayerParticipationsStandings2(
         : { gained: 0, start: -1, end: -1 };
 
     const group = groupId === null ? undefined : groupMap.get(groupId);
+
+    // If it's a group competition and the group is not found, then it probably
+    // means the group is not visible, and we should treat this competition as not visible as well.
+    if (groupId !== null && group === undefined) {
+      continue;
+    }
 
     results.push({
       ...omit(playerParticipation, 'startSnapshotId', 'endSnapshotId'),

@@ -2937,10 +2937,45 @@ describe('Competition API', () => {
     });
 
     it('should list player competitions (w/ upcoming status filter)', async () => {
-      const response = await api.get(`/players/psikoi/competitions`).query({ status: 'upcoming' });
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Soon hidden group!',
+        members: [{ username: 'Psikoi' }]
+      });
+      expect(createGroupResponse.status).toBe(201);
 
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(0);
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Idk',
+        metric: 'agility',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
+        groupId: createGroupResponse.body.group.id,
+        groupVerificationCode: createGroupResponse.body.verificationCode
+      });
+      expect(createCompetitionResponse.status).toBe(201);
+
+      const firstResponse = await api.get(`/players/psikoi/competitions`).query({
+        status: 'upcoming'
+      });
+
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body.length).toBe(1);
+
+      await prisma.group.update({
+        where: {
+          id: createGroupResponse.body.group.id
+        },
+        data: {
+          visible: false
+        }
+      });
+
+      // The hidden group's competition should no longer be listed
+      const secondResponse = await api.get(`/players/psikoi/competitions`).query({
+        status: 'upcoming'
+      });
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.length).toBe(0);
     });
   });
 
@@ -3034,18 +3069,65 @@ describe('Competition API', () => {
     });
 
     it('should list player competitions standings (finished competitions)', async () => {
-      const response = await api.get(`/players/psikoi/competitions/standings`).query({ status: 'finished' });
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Soon hidden group!!!!!',
+        members: [{ username: 'Psikoi' }]
+      });
+      expect(createGroupResponse.status).toBe(201);
 
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Idk',
+        metric: 'agility',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
+        groupId: createGroupResponse.body.group.id,
+        groupVerificationCode: createGroupResponse.body.verificationCode
+      });
+      expect(createCompetitionResponse.status).toBe(201);
+
+      // Force the competition to be finished
+      await prisma.competition.update({
+        where: {
+          id: createCompetitionResponse.body.competition.id
+        },
+        data: {
+          startsAt: new Date(Date.now() - 604_800_000),
+          endsAt: new Date(Date.now() - 1_200_000)
+        }
+      });
+
+      const firstResponse = await api.get(`/players/psikoi/competitions/standings`).query({
+        status: 'finished'
+      });
+
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body.length).toBe(2);
+
+      await prisma.group.update({
+        where: {
+          id: createGroupResponse.body.group.id
+        },
+        data: {
+          visible: false
+        }
+      });
+
+      const secondResponse = await api.get(`/players/psikoi/competitions/standings`).query({
+        status: 'finished'
+      });
+
+      expect(secondResponse.status).toBe(200);
+
+      // The hidden group's competition should no longer be listed
+      expect(secondResponse.body.length).toBe(1);
 
       // Hashes shouldn't be exposed to the API consumer
-      expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
+      expect(secondResponse.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
       // Snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
-      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
+      expect(secondResponse.body.filter(p => !!p.startSnapshotId).length).toBe(0);
+      expect(secondResponse.body.filter(p => !!p.endSnapshotId).length).toBe(0);
 
-      expect(response.body[0]).toMatchObject({
+      expect(secondResponse.body[0]).toMatchObject({
         teamName: null,
         competitionId: globalData.testCompetitionEnded.id,
         competition: {

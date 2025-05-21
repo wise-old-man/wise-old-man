@@ -48,7 +48,10 @@ async function findPlayerParticipations(
 
   const groups = await prisma.group.findMany({
     where: {
-      id: { in: participations.map(p => p.competition.groupId).filter(Boolean) }
+      id: {
+        in: participations.map(p => p.competition.groupId).filter(Boolean)
+      },
+      visible: true
     },
     include: {
       _count: {
@@ -73,25 +76,33 @@ async function findPlayerParticipations(
   const participantCountsMap = new Map(participantCounts.map(p => [p.competitionId, p._count]));
 
   return sortCompetitions(
-    participations.map(participation => {
-      const group = participation.competition.groupId
-        ? groupsMap.get(participation.competition.groupId)
-        : undefined;
+    participations
+      .map(participation => {
+        const group = participation.competition.groupId
+          ? groupsMap.get(participation.competition.groupId)
+          : undefined;
 
-      return {
-        ...omit(participation, 'startSnapshotId', 'endSnapshotId'),
-        competition: {
-          ...omit(participation.competition, 'verificationHash'),
-          group: group
-            ? {
-                ...omit(group, '_count', 'verificationHash'),
-                memberCount: group._count.memberships
-              }
-            : undefined,
-          participantCount: participantCountsMap.get(participation.competitionId) ?? 0
+        // If it's a group competition and the group is not found, then it probably
+        // means the group is not visible, and we should treat this competition as not visible as well.
+        if (participation.competition.groupId !== null && group === undefined) {
+          return null;
         }
-      };
-    })
+
+        return {
+          ...omit(participation, 'startSnapshotId', 'endSnapshotId'),
+          competition: {
+            ...omit(participation.competition, 'verificationHash'),
+            group: group
+              ? {
+                  ...omit(group, '_count', 'verificationHash'),
+                  memberCount: group._count.memberships
+                }
+              : undefined,
+            participantCount: participantCountsMap.get(participation.competitionId) ?? 0
+          }
+        };
+      })
+      .filter(Boolean)
   );
 }
 
