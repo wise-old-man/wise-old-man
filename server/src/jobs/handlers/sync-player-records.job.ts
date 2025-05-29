@@ -2,7 +2,6 @@ import { prepareRecordValue } from '../../api/modules/records/record.utils';
 import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snapshot.utils';
 import prisma, { PrismaTypes } from '../../prisma';
 import { getMetricValueKey, Metric, METRICS, Period } from '../../utils';
-import type { JobManager } from '../job-manager';
 import { Job } from '../job.class';
 
 interface Payload {
@@ -12,13 +11,9 @@ interface Payload {
 }
 
 export class SyncPlayerRecordsJob extends Job<Payload> {
-  constructor(jobManager: JobManager) {
-    super(jobManager);
-
-    this.options = {
-      maxConcurrent: 20
-    };
-  }
+  static options = {
+    maxConcurrent: 20
+  };
 
   async execute({ username, period, periodStartDate }: Payload) {
     const currentDelta = await prisma.delta.findFirst({

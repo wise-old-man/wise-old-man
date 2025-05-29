@@ -139,7 +139,7 @@ class JobManager {
 
     for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {
       const jobHandler = new jobClass(this);
-      const { options } = jobHandler;
+      const { options } = jobClass;
 
       const scheduler = new QueueScheduler(jobType, {
         prefix: REDIS_PREFIX,

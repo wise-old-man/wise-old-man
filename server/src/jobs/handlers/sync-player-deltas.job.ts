@@ -2,7 +2,6 @@ import { ACTIVITIES, BOSSES, COMPUTED_METRICS, METRICS, Period, PeriodProps, SKI
 import { Job } from '../job.class';
 import prisma, { Delta, PrismaTypes } from '../../prisma';
 import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
-import type { JobManager } from '../job-manager';
 import { eventEmitter, EventType } from '../../api/events';
 
 interface Payload {
@@ -11,13 +10,9 @@ interface Payload {
 }
 
 export class SyncPlayerDeltasJob extends Job<Payload> {
-  constructor(jobManager: JobManager) {
-    super(jobManager);
-
-    this.options = {
-      maxConcurrent: 20
-    };
-  }
+  static options = {
+    maxConcurrent: 20
+  };
 
   async execute({ username, period }: Payload) {
     const playerAndSnapshot = await prisma.player.findFirst({
