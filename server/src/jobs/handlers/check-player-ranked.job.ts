@@ -2,7 +2,6 @@ import { BadRequestError } from '../../api/errors';
 import * as jagexService from '../../api/services/external/jagex.service';
 import prisma from '../../prisma';
 import { PlayerStatus } from '../../utils';
-import type { JobManager } from '../job-manager';
 import { Job } from '../job.class';
 import { JobType } from '../types/job-type.enum';
 
@@ -11,19 +10,15 @@ interface Payload {
 }
 
 export class CheckPlayerRankedJob extends Job<Payload> {
-  constructor(jobManager: JobManager) {
-    super(jobManager);
-
-    this.options = {
-      rateLimiter: { max: 1, duration: 5_000 },
-      attempts: 3,
-      backoff: {
-        type: 'exponential',
-        // first attempt after 60 seconds, then 120, and then 240 (total: 7 minutes span)
-        delay: 60_000
-      }
-    };
-  }
+  static options = {
+    rateLimiter: { max: 1, duration: 5_000 },
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      // first attempt after 60 seconds, then 120, and then 240 (total: 7 minutes span)
+      delay: 60_000
+    }
+  };
 
   async execute(payload: Payload) {
     if (process.env.NODE_ENV === 'test') {

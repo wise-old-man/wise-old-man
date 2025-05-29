@@ -4,7 +4,6 @@ import { denyNameChange } from '../../api/modules/name-changes/services/DenyName
 import { fetchNameChangeDetails } from '../../api/modules/name-changes/services/FetchNameChangeDetailsService';
 import prisma from '../../prisma';
 import { Metric, NameChange, NameChangeDetails, NameChangeStatus, SkipContext } from '../../utils';
-import { JobManager } from '../job-manager';
 import { Job } from '../job.class';
 
 const BASE_MAX_HOURS = 504;
@@ -15,13 +14,9 @@ interface Payload {
 }
 
 export class ReviewNameChangeJob extends Job<Payload> {
-  constructor(jobManager: JobManager) {
-    super(jobManager);
-
-    this.options = {
-      rateLimiter: { max: 1, duration: 5000 }
-    };
-  }
+  static options = {
+    rateLimiter: { max: 1, duration: 5000 }
+  };
 
   async execute(payload: Payload) {
     if (process.env.NODE_ENV === 'test') {

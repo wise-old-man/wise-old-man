@@ -5,7 +5,6 @@ import prometheusService from '../../api/services/external/prometheus.service';
 import prisma from '../../prisma';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import { Period, PeriodProps, PlayerStatus, PlayerType } from '../../utils';
-import type { JobManager } from '../job-manager';
 import { Job } from '../job.class';
 
 interface Payload {
@@ -23,15 +22,11 @@ interface Payload {
 }
 
 export class UpdatePlayerJob extends Job<Payload> {
-  constructor(jobManager: JobManager) {
-    super(jobManager);
-
-    this.options = {
-      backoff: 30_000,
-      maxConcurrent: 4,
-      rateLimiter: { max: 1, duration: 250 }
-    };
-  }
+  static options = {
+    backoff: 30_000,
+    maxConcurrent: 4,
+    rateLimiter: { max: 1, duration: 250 }
+  };
 
   async execute(payload: Payload): Promise<void> {
     if (process.env.NODE_ENV === 'test') {

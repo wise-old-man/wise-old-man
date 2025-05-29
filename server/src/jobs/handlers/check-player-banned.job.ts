@@ -4,7 +4,6 @@ import { getRuneMetricsBannedStatus } from '../../api/services/external/jagex.se
 import logger from '../../api/util/logging';
 import prisma from '../../prisma';
 import { PlayerStatus } from '../../utils';
-import type { JobManager } from '../job-manager';
 import { Job } from '../job.class';
 
 interface Payload {
@@ -12,13 +11,9 @@ interface Payload {
 }
 
 export class CheckPlayerBannedJob extends Job<Payload> {
-  constructor(jobManager: JobManager) {
-    super(jobManager);
-
-    this.options = {
-      rateLimiter: { max: 1, duration: 5000 }
-    };
-  }
+  static options = {
+    rateLimiter: { max: 1, duration: 5000 }
+  };
 
   async execute(payload: Payload) {
     if (process.env.NODE_ENV === 'test') {

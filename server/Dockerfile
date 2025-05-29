@@ -11,4 +11,4 @@ COPY . .
 RUN npx prisma generate
 RUN npm run build
 
-CMD ["bash", "./scripts/run-prod.sh"]
+CMD ["npm", "run", "prod"]

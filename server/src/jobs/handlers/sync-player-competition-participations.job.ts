@@ -1,19 +1,14 @@
 import { Job } from '../job.class';
 import prisma, { PrismaTypes } from '../../prisma';
-import type { JobManager } from '../job-manager';
 
 interface Payload {
   username: string;
 }
 
 export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
-  constructor(jobManager: JobManager) {
-    super(jobManager);
-
-    this.options = {
-      maxConcurrent: 5
-    };
-  }
+  static options = {
+    maxConcurrent: 5
+  };
 
   async execute(payload: Payload) {
     const now = new Date();

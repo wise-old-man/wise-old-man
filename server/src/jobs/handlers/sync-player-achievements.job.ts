@@ -8,7 +8,6 @@ import { findPlayerSnapshots } from '../../api/modules/snapshots/services/FindPl
 import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snapshot.utils';
 import { getMetricValueKey } from '../../utils';
 import { eventEmitter, EventType } from '../../api/events';
-import type { JobManager } from '../job-manager';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
 const UNKNOWN_DATE = new Date(0);
@@ -19,13 +18,9 @@ interface Payload {
 }
 
 export class SyncPlayerAchievementsJob extends Job<Payload> {
-  constructor(jobManager: JobManager) {
-    super(jobManager);
-
-    this.options = {
-      maxConcurrent: 5
-    };
-  }
+  static options = {
+    maxConcurrent: 5
+  };
 
   async execute(payload: Payload) {
     // This can be deleted in the future
