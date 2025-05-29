@@ -138,7 +138,6 @@ class JobManager {
     }
 
     for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {
-      const jobHandler = new jobClass(this);
       const { options } = jobClass;
 
       const scheduler = new QueueScheduler(jobType, {
@@ -152,7 +151,7 @@ class JobManager {
         defaultJobOptions: { removeOnComplete: true, removeOnFail: true, ...(options || {}) }
       });
 
-      const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, jobHandler), {
+      const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
         prefix: REDIS_PREFIX,
         limiter: options?.rateLimiter,
         connection: redisConfig,
