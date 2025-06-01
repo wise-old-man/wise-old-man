@@ -34,6 +34,8 @@ const envVariablesSchema = z.object({
   PATREON_BEARER_TOKEN: prodOnly(z.string().trim().min(1)),
   // Discord Bot API URL (to send events to)
   DISCORD_BOT_API_URL: prodOnly(z.string().trim().min(1).url()),
+  // Our Prometheus metrics aggregator service URL
+  PROMETHEUS_METRICS_SERVICE_URL: prodOnly(z.string().trim().min(1).url()),
   // Discord Monitoring Webhooks
   DISCORD_PATREON_WEBHOOK_URL: prodOnly(z.string().trim().min(1).url()),
   DISCORD_MONITORING_WEBHOOK_URL: prodOnly(z.string().trim().min(1).url()),

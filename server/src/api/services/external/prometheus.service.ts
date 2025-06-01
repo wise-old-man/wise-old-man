@@ -1,5 +1,7 @@
+import axios from 'axios';
 import prometheus, { Histogram, Gauge, Registry, Counter } from 'prom-client';
 import { getThreadIndex } from '../../../env';
+import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 
 type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
 type EffectParams = 'effectName' | 'status';
@@ -77,6 +79,52 @@ class PrometheusService {
     this.registry.registerMetric(this.eventCounter);
     this.registry.registerMetric(this.customPeriodCounter);
     this.registry.registerMetric(this.updatePlayerJobSourceCounter);
+
+    setInterval(() => {
+      this.pushMetrics();
+    }, 60_000);
+  }
+
+  async pushMetrics(): AsyncResult<
+    true,
+    | { code: 'NOT_ALLOWED_IN_TEST_ENV' }
+    | { code: 'MISSING_METRICS_URL' }
+    | { code: 'FAILED_TO_GET_PROMETHEUS_METRICS'; subError: unknown }
+    | { code: 'FAILED_TO_PUSH_PROMETHEUS_METRICS'; subError: unknown }
+  > {
+    if (process.env.NODE_ENV === 'test') {
+      return errored({ code: 'NOT_ALLOWED_IN_TEST_ENV' });
+    }
+
+    if (!process.env.PROMETHEUS_METRICS_SERVICE_URL) {
+      return errored({ code: 'MISSING_METRICS_URL' });
+    }
+
+    const metricsResult = await fromPromise(this.registry.getMetricsAsJSON());
+
+    if (isErrored(metricsResult)) {
+      return errored({
+        code: 'FAILED_TO_GET_PROMETHEUS_METRICS',
+        subError: metricsResult.error
+      });
+    }
+
+    const requestResult = await fromPromise(
+      axios.post(process.env.PROMETHEUS_METRICS_SERVICE_URL, {
+        source: 'api',
+        data: metricsResult.value,
+        threadIndex: getThreadIndex()
+      })
+    );
+
+    if (isErrored(requestResult)) {
+      return errored({
+        code: 'FAILED_TO_PUSH_PROMETHEUS_METRICS',
+        subError: requestResult.error
+      });
+    }
+
+    return complete(true);
   }
 
   trackHttpRequestStarted() {
@@ -133,10 +181,6 @@ class PrometheusService {
     for (const [state, count] of Object.entries(counts)) {
       this.jobQueueGauge.set({ queueName, state }, count);
     }
-  }
-
-  async getMetrics() {
-    return this.registry.getMetricsAsJSON();
   }
 }
 
