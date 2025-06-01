@@ -3,6 +3,7 @@ import logger from './api/util/logging';
 import { eventEmitter } from './api/events';
 import { jobManager } from './jobs';
 import api from './api';
+import prometheusService from './api/services/external/prometheus.service';
 import { redisClient } from './services/redis.service';
 
 (async () => {
@@ -16,6 +17,7 @@ import { redisClient } from './services/redis.service';
   });
 
   function handleShutdown() {
+    prometheusService.shutdown();
     server.close();
     redisClient.quit();
     jobManager.shutdown();
@@ -25,5 +27,6 @@ import { redisClient } from './services/redis.service';
   process.on('SIGINT', handleShutdown);
   process.on('exit', handleShutdown);
 
+  prometheusService.init();
   await jobManager.init();
 })();

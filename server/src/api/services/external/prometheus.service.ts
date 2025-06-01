@@ -21,6 +21,8 @@ class PrometheusService {
   private customPeriodCounter: Counter<CustomPeriodParams>;
   private updatePlayerJobSourceCounter: Counter<UpdatePlayerJobSourceParams>;
 
+  private pushInterval: NodeJS.Timeout | null = null;
+
   constructor() {
     this.registry = new prometheus.Registry();
     this.registry.setDefaultLabels({ app: 'wise-old-man', threadIndex: getThreadIndex() });
@@ -79,10 +81,18 @@ class PrometheusService {
     this.registry.registerMetric(this.eventCounter);
     this.registry.registerMetric(this.customPeriodCounter);
     this.registry.registerMetric(this.updatePlayerJobSourceCounter);
+  }
 
-    setInterval(() => {
+  init() {
+    this.pushInterval = setInterval(() => {
       this.pushMetrics();
     }, 60_000);
+  }
+
+  shutdown() {
+    if (this.pushInterval !== null) {
+      clearInterval(this.pushInterval);
+    }
   }
 
   async pushMetrics(): AsyncResult<
