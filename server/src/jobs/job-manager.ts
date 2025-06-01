@@ -126,17 +126,6 @@ class JobManager {
 
     const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
 
-    const queuesToInit = { ...JOB_HANDLER_MAP };
-
-    if (isMainThread) {
-      // Only initialize queues and workers for cron/startup jobs if we're running this on the "min" thread.
-      Object.keys({ ...CRON_CONFIG, ...STARTUP_JOBS }).forEach(jobType => {
-        if (queuesToInit[jobType] === undefined) {
-          queuesToInit[jobType] = JOB_HANDLER_MAP[jobType];
-        }
-      });
-    }
-
     for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {
       const { options } = jobClass;
 

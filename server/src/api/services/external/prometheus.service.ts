@@ -1,5 +1,7 @@
+import axios from 'axios';
 import prometheus, { Histogram, Gauge, Registry, Counter } from 'prom-client';
 import { getThreadIndex } from '../../../env';
+import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 
 type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
 type EffectParams = 'effectName' | 'status';
@@ -18,6 +20,8 @@ class PrometheusService {
   private eventCounter: Counter<EventParams>;
   private customPeriodCounter: Counter<CustomPeriodParams>;
   private updatePlayerJobSourceCounter: Counter<UpdatePlayerJobSourceParams>;
+
+  private pushInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     this.registry = new prometheus.Registry();
@@ -79,6 +83,60 @@ class PrometheusService {
     this.registry.registerMetric(this.updatePlayerJobSourceCounter);
   }
 
+  init() {
+    this.pushInterval = setInterval(() => {
+      this.pushMetrics();
+    }, 60_000);
+  }
+
+  shutdown() {
+    if (this.pushInterval !== null) {
+      clearInterval(this.pushInterval);
+    }
+  }
+
+  async pushMetrics(): AsyncResult<
+    true,
+    | { code: 'NOT_ALLOWED_IN_TEST_ENV' }
+    | { code: 'MISSING_METRICS_URL' }
+    | { code: 'FAILED_TO_GET_PROMETHEUS_METRICS'; subError: unknown }
+    | { code: 'FAILED_TO_PUSH_PROMETHEUS_METRICS'; subError: unknown }
+  > {
+    if (process.env.NODE_ENV === 'test') {
+      return errored({ code: 'NOT_ALLOWED_IN_TEST_ENV' });
+    }
+
+    if (!process.env.PROMETHEUS_METRICS_SERVICE_URL) {
+      return errored({ code: 'MISSING_METRICS_URL' });
+    }
+
+    const metricsResult = await fromPromise(this.registry.getMetricsAsJSON());
+
+    if (isErrored(metricsResult)) {
+      return errored({
+        code: 'FAILED_TO_GET_PROMETHEUS_METRICS',
+        subError: metricsResult.error
+      });
+    }
+
+    const requestResult = await fromPromise(
+      axios.post(process.env.PROMETHEUS_METRICS_SERVICE_URL, {
+        source: 'api',
+        data: metricsResult.value,
+        threadIndex: getThreadIndex()
+      })
+    );
+
+    if (isErrored(requestResult)) {
+      return errored({
+        code: 'FAILED_TO_PUSH_PROMETHEUS_METRICS',
+        subError: requestResult.error
+      });
+    }
+
+    return complete(true);
+  }
+
   trackHttpRequestStarted() {
     return this.httpHistogram.startTimer();
   }
@@ -133,10 +191,6 @@ class PrometheusService {
     for (const [state, count] of Object.entries(counts)) {
       this.jobQueueGauge.set({ queueName, state }, count);
     }
-  }
-
-  async getMetrics() {
-    return this.registry.getMetricsAsJSON();
   }
 }
 
