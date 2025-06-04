@@ -140,17 +140,22 @@ class JobManager {
         defaultJobOptions: { removeOnComplete: true, removeOnFail: true, ...(options || {}) }
       });
 
-      const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
-        prefix: REDIS_PREFIX,
-        limiter: options?.rateLimiter,
-        connection: redisConfig,
-        concurrency: options.maxConcurrent ?? 1,
-        autorun: true
-      });
-
       this.schedulers.push(scheduler);
       this.queues.push(queue);
-      this.workers.push(worker);
+
+      if (getThreadIndex() !== 2) {
+        // Currently disabling job workers on a given thread
+        // to monitor the impact it has on CPU and memory usage
+        const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
+          prefix: REDIS_PREFIX,
+          limiter: options?.rateLimiter,
+          connection: redisConfig,
+          concurrency: options.maxConcurrent ?? 1,
+          autorun: true
+        });
+
+        this.workers.push(worker);
+      }
     }
 
     // sleep for 5 seconds to allow the workers to start up
