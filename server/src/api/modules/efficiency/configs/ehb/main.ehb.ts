@@ -62,5 +62,6 @@ export default [
   { boss: Boss.VENENATIS, rate: 40 },
   { boss: Boss.VETION, rate: 50 },
   { boss: Boss.VORKATH, rate: 34 },
+  { boss: Boss.YAMA, rate: 20 },
   { boss: Boss.ZULRAH, rate: 44 }
 ];
