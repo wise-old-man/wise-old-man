@@ -61,11 +61,7 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
           <PlayerStatusAlert player={player} />
         </div>
       )}
-      {player.annotations.length > 0 && (
-        <div className="mb-7">
-          <PlayerAnnotationsAlert player={player} />
-        </div>
-      )}
+      {player.annotations.length > 0 && <PlayerAnnotationsAlert player={player} />}
       <Header {...player} />
       <div className="mt-7">
         <PlayerNavigation username={username} />
@@ -359,43 +355,47 @@ function PlayerAnnotationsAlert(props: { player: PlayerDetails }) {
 
   if (annotationTypes.includes(PlayerAnnotationType.OPT_OUT)) {
     return (
-      <Alert variant="default" className="border-blue-700 bg-blue-900/10">
-        <AlertTitle>Opted out of tracking</AlertTitle>
-        <AlertDescription>
-          <p>
-            This player has requested to be excluded from tracking. For help or more information{" "}
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://wiseoldman.net/discord"
-              className="text-white underline"
-            >
-              contact us on Discord
-            </a>
-          </p>
-        </AlertDescription>
-      </Alert>
+      <div className="mb-7">
+        <Alert variant="default" className="border-blue-700 bg-blue-900/10">
+          <AlertTitle>Opted out of tracking</AlertTitle>
+          <AlertDescription>
+            <p>
+              This player has requested to be excluded from tracking. For help or more information{" "}
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://wiseoldman.net/discord"
+                className="text-white underline"
+              >
+                contact us on Discord
+              </a>
+            </p>
+          </AlertDescription>
+        </Alert>
+      </div>
     );
   }
 
   if (annotationTypes.includes(PlayerAnnotationType.BLOCKED)) {
     return (
-      <Alert variant="warn" className="border-blue-700 bg-blue-900/10">
-        <AlertTitle>Blocked</AlertTitle>
-        <AlertDescription>
-          <p>
-            This player has been blocked from tracking by the developers. For help or more information{" "}
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://wiseoldman.net/discord"
-              className="text-white underline"
-            >
-              contact us on Discord
-            </a>
-          </p>
-        </AlertDescription>
-      </Alert>
+      <div className="mb-7">
+        <Alert variant="warn" className="border-blue-700 bg-blue-900/10">
+          <AlertTitle>Blocked</AlertTitle>
+          <AlertDescription>
+            <p>
+              This player has been blocked from tracking by the developers. For help or more information{" "}
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://wiseoldman.net/discord"
+                className="text-white underline"
+              >
+                contact us on Discord
+              </a>
+            </p>
+          </AlertDescription>
+        </Alert>
+      </div>
     );
   }
 
