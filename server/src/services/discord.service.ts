@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { WebhookClient } from 'discord.js';
 import logger from '../api/util/logging';
 import { Achievement, FlaggedPlayerReviewContext, Group, GroupRole, Player } from '../utils';
@@ -134,14 +135,21 @@ export async function dispatchDiscordBotEvent<
     return errored({ code: 'MISSING_DISCORD_BOT_API_URL' });
   }
 
+  const eventId = cuid2();
+
+  logger.info(`Dispatching Discord Bot Event: ${type} with ID: ${eventId}`, payload);
+
   const requestResult = await fromPromise(
     axios.post(process.env.DISCORD_BOT_API_URL, {
+      eventId,
       type,
       data: payload
     })
   );
 
   if (isErrored(requestResult)) {
+    logger.error(`Failed to send Discord Bot Event: ${type} with ID: ${eventId}`, requestResult.error);
+
     return errored({
       code: 'FAILED_TO_SEND_DISCORD_BOT_EVENT',
       subError: requestResult.error

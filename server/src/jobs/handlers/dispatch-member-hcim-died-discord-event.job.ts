@@ -1,12 +1,22 @@
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import prisma from '../../prisma';
 import { Job } from '../job.class';
+import { isErrored } from '@attio/fetchable';
+import { JobOptions } from '../types/job-options.type';
 
 interface Payload {
   username: string;
 }
 
 export class DispatchMemberHcimDiedDiscordEventJob extends Job<Payload> {
+  static options: JobOptions = {
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 30_000
+    }
+  };
+
   async execute(payload: Payload) {
     if (process.env.NODE_ENV === 'test') {
       return;
@@ -34,10 +44,15 @@ export class DispatchMemberHcimDiedDiscordEventJob extends Job<Payload> {
     }
 
     for (const { groupId } of memberships) {
-      await dispatchDiscordBotEvent(DiscordBotEventType.MEMBER_HCIM_DIED, {
+      const dispatchResult = await dispatchDiscordBotEvent(DiscordBotEventType.MEMBER_HCIM_DIED, {
         groupId,
         player
       });
+
+      if (isErrored(dispatchResult) && dispatchResult.error.code === 'FAILED_TO_SEND_DISCORD_BOT_EVENT') {
+        // Throw an error to ensure the job fails and is retried
+        throw dispatchResult.error;
+      }
     }
   }
 }
