@@ -1,7 +1,9 @@
+import { isErrored } from '@attio/fetchable';
 import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import { GroupRole } from '../../utils';
 import { Job } from '../job.class';
+import { JobOptions } from '../types/job-options.type';
 
 interface Payload {
   groupId: number;
@@ -13,6 +15,14 @@ interface Payload {
 }
 
 export class DispatchMembersRolesChangedDiscordEventJob extends Job<Payload> {
+  static options: JobOptions = {
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 30_000
+    }
+  };
+
   async execute(payload: Payload) {
     if (process.env.NODE_ENV === 'test') {
       return;
@@ -33,7 +43,7 @@ export class DispatchMembersRolesChangedDiscordEventJob extends Job<Payload> {
     const roleMap = new Map(payload.members.map(m => [m.playerId, m.role]));
     const previousRoleMap = new Map(payload.members.map(m => [m.playerId, m.previousRole]));
 
-    await dispatchDiscordBotEvent(DiscordBotEventType.GROUP_MEMBERS_CHANGED_ROLES, {
+    const dispatchResult = await dispatchDiscordBotEvent(DiscordBotEventType.GROUP_MEMBERS_CHANGED_ROLES, {
       groupId: payload.groupId,
       members: players.map(player => ({
         player,
@@ -41,5 +51,10 @@ export class DispatchMembersRolesChangedDiscordEventJob extends Job<Payload> {
         previousRole: previousRoleMap.get(player.id)!
       }))
     });
+
+    if (isErrored(dispatchResult) && dispatchResult.error.code === 'FAILED_TO_SEND_DISCORD_BOT_EVENT') {
+      // Throw an error to ensure the job fails and is retried
+      throw dispatchResult.error;
+    }
   }
 }
