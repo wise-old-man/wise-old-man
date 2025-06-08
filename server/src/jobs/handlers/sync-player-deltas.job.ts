@@ -3,6 +3,7 @@ import { Job } from '../job.class';
 import prisma, { Delta, PrismaTypes } from '../../prisma';
 import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
 import { eventEmitter, EventType } from '../../api/events';
+import { JobOptions } from '../types/job-options.type';
 
 interface Payload {
   username: string;
@@ -10,7 +11,7 @@ interface Payload {
 }
 
 export class SyncPlayerDeltasJob extends Job<Payload> {
-  static options = {
+  static options: JobOptions = {
     maxConcurrent: 20
   };
 

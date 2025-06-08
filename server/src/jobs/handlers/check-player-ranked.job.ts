@@ -3,6 +3,7 @@ import * as jagexService from '../../api/services/external/jagex.service';
 import prisma from '../../prisma';
 import { PlayerStatus } from '../../utils';
 import { Job } from '../job.class';
+import { JobOptions } from '../types/job-options.type';
 import { JobType } from '../types/job-type.enum';
 
 interface Payload {
@@ -10,7 +11,7 @@ interface Payload {
 }
 
 export class CheckPlayerRankedJob extends Job<Payload> {
-  static options = {
+  static options: JobOptions = {
     rateLimiter: { max: 1, duration: 5_000 },
     attempts: 3,
     backoff: {

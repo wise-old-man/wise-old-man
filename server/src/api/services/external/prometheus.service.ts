@@ -46,7 +46,7 @@ class PrometheusService {
     this.jobHistogram = new prometheus.Histogram({
       name: 'job_duration_seconds',
       help: 'Duration of jobs in microseconds',
-      labelNames: ['jobName', 'version', 'status'],
+      labelNames: ['jobName', 'status'],
       buckets: [0.1, 0.5, 1, 5, 10, 30, 60]
     });
 

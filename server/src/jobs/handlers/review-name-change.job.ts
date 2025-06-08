@@ -5,6 +5,7 @@ import { fetchNameChangeDetails } from '../../api/modules/name-changes/services/
 import prisma from '../../prisma';
 import { Metric, NameChange, NameChangeDetails, NameChangeStatus, SkipContext } from '../../utils';
 import { Job } from '../job.class';
+import { JobOptions } from '../types/job-options.type';
 
 const BASE_MAX_HOURS = 504;
 const BASE_MIN_TOTAL_LEVEL = 700;
@@ -14,7 +15,7 @@ interface Payload {
 }
 
 export class ReviewNameChangeJob extends Job<Payload> {
-  static options = {
+  static options: JobOptions = {
     rateLimiter: { max: 1, duration: 5000 }
   };
 

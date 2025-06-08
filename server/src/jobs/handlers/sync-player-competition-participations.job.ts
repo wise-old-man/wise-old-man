@@ -1,12 +1,13 @@
 import { Job } from '../job.class';
 import prisma, { PrismaTypes } from '../../prisma';
+import { JobOptions } from '../types/job-options.type';
 
 interface Payload {
   username: string;
 }
 
 export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
-  static options = {
+  static options: JobOptions = {
     maxConcurrent: 5
   };
 

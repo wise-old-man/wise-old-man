@@ -39,7 +39,7 @@ import { UpdateQueueMetricsJob } from './handlers/update-queue-metrics.job';
 import { Job } from './job.class';
 import { JobType } from './types/job-type.enum';
 
-export const JOB_HANDLER_MAP: Record<JobType, typeof Job<unknown>> = {
+export const JOB_HANDLER_MAP = {
   [JobType.ADD_PLAYERS_TO_GROUP_COMPETITIONS]: AddPlayersToGroupCompetitionsJob,
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJob,
   [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJob,
@@ -78,7 +78,7 @@ export const JOB_HANDLER_MAP: Record<JobType, typeof Job<unknown>> = {
   [JobType.UPDATE_NEW_GROUP_MEMBERS]: UpdateNewGroupMembersJob,
   [JobType.UPDATE_PLAYER]: UpdatePlayerJob,
   [JobType.UPDATE_QUEUE_METRICS]: UpdateQueueMetricsJob
-};
+} satisfies Record<JobType, typeof Job<unknown>>;
 
 export const CRON_CONFIG = [
   // every 1 min

@@ -1,4 +1,4 @@
-import { Job as BullJob, JobsOptions as BullJobOptions, Queue, QueueScheduler, Worker } from 'bullmq';
+import { Job as BullJob, JobsOptions as BullJobOptions, Queue, Worker } from 'bullmq';
 import prometheus from '../api/services/external/prometheus.service';
 import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
@@ -16,12 +16,10 @@ const REDIS_PREFIX = 'jobs-v2';
 class JobManager {
   private queues: Queue[];
   private workers: Worker[];
-  private schedulers: QueueScheduler[];
 
   constructor() {
     this.queues = [];
     this.workers = [];
-    this.schedulers = [];
   }
 
   /**
@@ -38,6 +36,7 @@ class JobManager {
       throw new Error(`No job implementation found for "${type}".`);
     }
 
+    // @ts-expect-error -- 🤷‍♂️
     await new handlerClass(this).execute(payload);
   }
 
@@ -129,18 +128,12 @@ class JobManager {
     for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {
       const { options } = jobClass;
 
-      const scheduler = new QueueScheduler(jobType, {
-        prefix: REDIS_PREFIX,
-        connection: redisConfig
-      });
-
       const queue = new Queue(jobType, {
         prefix: REDIS_PREFIX,
         connection: redisConfig,
         defaultJobOptions: { removeOnComplete: true, removeOnFail: true, ...(options || {}) }
       });
 
-      this.schedulers.push(scheduler);
       this.queues.push(queue);
 
       if (getThreadIndex() !== 2) {
@@ -205,10 +198,6 @@ class JobManager {
 
     for (const worker of this.workers) {
       await worker.close();
-    }
-
-    for (const scheduler of this.schedulers) {
-      await scheduler.close();
     }
   }
 
