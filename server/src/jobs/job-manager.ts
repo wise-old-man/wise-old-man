@@ -36,6 +36,7 @@ class JobManager {
       throw new Error(`No job implementation found for "${type}".`);
     }
 
+    // @ts-expect-error -- 🤷‍♂️
     await new handlerClass(this).execute(payload);
   }
 

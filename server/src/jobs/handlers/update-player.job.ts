@@ -6,6 +6,7 @@ import prisma from '../../prisma';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import { Period, PeriodProps, PlayerStatus, PlayerType } from '../../utils';
 import { Job } from '../job.class';
+import { JobOptions } from '../types/job-options.type';
 
 interface Payload {
   username: string;
@@ -22,7 +23,7 @@ interface Payload {
 }
 
 export class UpdatePlayerJob extends Job<Payload> {
-  static options = {
+  static options: JobOptions = {
     backoff: 30_000,
     maxConcurrent: 4,
     rateLimiter: { max: 1, duration: 250 }

@@ -3,6 +3,7 @@ import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snap
 import prisma, { PrismaTypes } from '../../prisma';
 import { getMetricValueKey, Metric, METRICS, Period } from '../../utils';
 import { Job } from '../job.class';
+import { JobOptions } from '../types/job-options.type';
 
 interface Payload {
   username: string;
@@ -11,7 +12,7 @@ interface Payload {
 }
 
 export class SyncPlayerRecordsJob extends Job<Payload> {
-  static options = {
+  static options: JobOptions = {
     maxConcurrent: 20
   };
 

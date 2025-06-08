@@ -5,13 +5,14 @@ import logger from '../../api/util/logging';
 import prisma from '../../prisma';
 import { PlayerStatus } from '../../utils';
 import { Job } from '../job.class';
+import { JobOptions } from '../types/job-options.type';
 
 interface Payload {
   username: string;
 }
 
 export class CheckPlayerBannedJob extends Job<Payload> {
-  static options = {
+  static options: JobOptions = {
     rateLimiter: { max: 1, duration: 5000 }
   };
 
