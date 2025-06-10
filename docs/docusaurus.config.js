@@ -47,29 +47,17 @@ const config = {
         respectPrefersColorScheme: false
       },
       navbar: {
-        title: 'Wise Old Man (API docs)',
         logo: {
           alt: 'Wise Old Man Logo',
-          src: 'img/logo.png'
+          src: 'img/logo.svg',
+          width: 120
         },
         items: [
           {
             type: 'docSidebar',
             position: 'left',
             sidebarId: 'api',
-            label: 'Docs',
-          },
-          {
-            type: 'docSidebar',
-            position: 'left',
-            sidebarId: 'guides',
-            label: 'Guides',
-          },
-          {
-            type: 'docSidebar',
-            position: 'left',
-            sidebarId: 'faq',
-            label: 'FAQ',
+            label: 'API Docs'
           },
           {
             href: 'https://github.com/wise-old-man/wise-old-man',

@@ -17,6 +17,8 @@ html {
 
 .navbar {
   background: hsl(225, 8%, 12%);
+  padding: 0px 16px;
+  height: 64px;
 }
 
 .container {
