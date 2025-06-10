@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[54],{7275:(e,t,c)=>{c.r(t),c.d(t,{default:()=>n});var s=c(7294),u=c(6550),a=c(4996);function n(){return s.createElement(u.l_,{to:(0,a.Z)("/api")})}}}]);
