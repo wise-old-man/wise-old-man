@@ -13,14 +13,18 @@
 
 html {
   background: hsl(225, 8%, 15%);
+  scroll-padding-top: 32px;
 }
 
 .navbar {
   background: hsl(225, 8%, 12%);
+  padding: 0px 16px;
+  height: 64px;
 }
 
 .container {
   padding: 4rem;
+  padding-top: 40px !important;
 }
 
 .tabs {
