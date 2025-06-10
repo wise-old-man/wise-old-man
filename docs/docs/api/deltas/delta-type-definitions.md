@@ -15,4 +15,4 @@ sidebar_position: 1
 | gained    | long                                                         | The delta's gained value.                  |
 | startDate | date                                                         | The starting date of the delta's timespan. |
 | endDate   | date                                                         | The ending date of the delta's timespan.   |
-| player    | [Player](/players-api/player-type-definitions#object-player) | The delta's parent player object.          |
+| player    | [Player](/api/players/player-type-definitions#object-player) | The delta's parent player object.          |

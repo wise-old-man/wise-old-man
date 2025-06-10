@@ -10,9 +10,9 @@ import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBloc
 
 ## Related Endpoints
 
-- [Players - Get Player Competition Participations](/players-api/player-endpoints#get-player-competition-participations)
-- [Players - Get Player Competition Standings](/players-api/player-endpoints#get-player-competition-standings)
-- [Groups - Get Group Competitions](/groups-api/group-endpoints#get-group-competitions)
+- [Players - Get Player Competition Participations](/api/players/player-endpoints#get-player-competition-participations)
+- [Players - Get Player Competition Standings](/api/players/player-endpoints#get-player-competition-standings)
+- [Groups - Get Group Competitions](/api/groups/group-endpoints#get-group-competitions)
 
 <br />
 
@@ -21,7 +21,7 @@ import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBloc
 <Endpoint verb="GET" path="/competitions" />
 <br />
 
-Searches for competitions that match a title, type, metric and status filter. Returns an array of [Competition](/competitions-api/competition-type-definitions#object-competition) objects.
+Searches for competitions that match a title, type, metric and status filter. Returns an array of [Competition](/api/competitions/competition-type-definitions#object-competition) objects.
 
 <br />
 
@@ -30,9 +30,9 @@ Searches for competitions that match a title, type, metric and status filter. Re
 | Field  | Type                                                                                        | Required | Description                                                        |
 | ------ | ------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------ |
 | title  | string                                                                                      | `false`  | The partial title for the competition you're trying to search for. |
-| type   | [CompetitionType](/competitions-api/competition-type-definitions#enum-competition-type)     | `false`  | The type to filter the competitions by.                            |
-| status | [CompetitionStatus](/competitions-api/competition-type-definitions#enum-competition-status) | `false`  | The status to filter the competitions by.                          |
-| metric | [Metric](/global-type-definitions#enum-metric)                                              | `false`  | The metric to filter the competitions by.                          |
+| type   | [CompetitionType](/api/competitions/competition-type-definitions#enum-competition-type)     | `false`  | The type to filter the competitions by.                            |
+| status | [CompetitionStatus](/api/competitions/competition-type-definitions#enum-competition-status) | `false`  | The status to filter the competitions by.                          |
+| metric | [Metric](/api/global-type-definitions#enum-metric)                                          | `false`  | The metric to filter the competitions by.                          |
 | limit  | integer                                                                                     | `false`  | The pagination limit. See [Pagination](/#pagination)               |
 | offset | integer                                                                                     | `false`  | The pagination offset. See [Pagination](/#pagination)              |
 
@@ -132,7 +132,7 @@ const competitions = await client.competitions.searchCompetitions(
 <Endpoint verb="GET" path="/competitions/:id" />
 <br />
 
-Fetches the competition's full details, including all the participants and their progress. Returns a [CompetitionDetails](/competitions-api/competition-type-definitions#object-competition-details) object.
+Fetches the competition's full details, including all the participants and their progress. Returns a [CompetitionDetails](/api/competitions/competition-type-definitions#object-competition-details) object.
 
 <br />
 
@@ -146,9 +146,9 @@ Fetches the competition's full details, including all the participants and their
 
 **Query Params**
 
-| Field  | Type                                           | Required | Description                                                                                                                                                                                                                                        |
-| ------ | ---------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| metric | [Metric](/global-type-definitions#enum-metric) | `false`  | An alternative metric to preview the competition's progress in. (Ex: If it's originally an `agility` competition, you can still use this param to preview what the competition would have looked like if it were a `fishing` competition instead.) |
+| Field  | Type                                               | Required | Description                                                                                                                                                                                                                                        |
+| ------ | -------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| metric | [Metric](/api/global-type-definitions#enum-metric) | `false`  | An alternative metric to preview the competition's progress in. (Ex: If it's originally an `agility` competition, you can still use this param to preview what the competition would have looked like if it were a `fishing` competition instead.) |
 
 <br />
 
@@ -294,7 +294,7 @@ This endpoint returns plain text, not a JSON response.
 
 | Field    | Type                                                                                       | Required | Description                                                                                                                                                                                                                                        |
 | -------- | ------------------------------------------------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| metric   | [Metric](/global-type-definitions#enum-metric)                                             | `false`  | An alternative metric to preview the competition's progress in. (Ex: If it's originally an `agility` competition, you can still use this param to preview what the competition would have looked like if it were a `fishing` competition instead.) |
+| metric   | [Metric](/api/global-type-definitions#enum-metric)                                         | `false`  | An alternative metric to preview the competition's progress in. (Ex: If it's originally an `agility` competition, you can still use this param to preview what the competition would have looked like if it were a `fishing` competition instead.) |
 | teamName | string                                                                                     | `false`  | The optional team name to get competition details for. Only used when `table` is set to `'team'`.                                                                                                                                                  |
 | table    | [Competition CSV Table Type](competition-type-definitions#enum-competition-csv-table-type) | `false`  | The optional CSV table type to use, defaults to `'participants'`.                                                                                                                                                                                  |
 
@@ -338,7 +338,7 @@ Rank,Username,Start,End,Gained,Last Updated
 <Endpoint verb="GET" path="/competitions/:id/top-history" />
 <br />
 
-Fetches all the values (exp, kc, etc) in chronological order within the bounds of the competition, for the top 5 participants. Returns an array of [Top5ProgressResult](/competitions-api/competition-type-definitions#object-top-5-progress-result) objects.
+Fetches all the values (exp, kc, etc) in chronological order within the bounds of the competition, for the top 5 participants. Returns an array of [Top5ProgressResult](/api/competitions/competition-type-definitions#object-top-5-progress-result) objects.
 
 <br />
 
@@ -352,9 +352,9 @@ Fetches all the values (exp, kc, etc) in chronological order within the bounds o
 
 **Query Params**
 
-| Field  | Type                                           | Required | Description                                                                                                                                                                                                                                        |
-| ------ | ---------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| metric | [Metric](/global-type-definitions#enum-metric) | `false`  | An alternative metric to preview the competition's progress in. (Ex: If it's originally an `agility` competition, you can still use this param to preview what the competition would have looked like if it were a `fishing` competition instead.) |
+| Field  | Type                                               | Required | Description                                                                                                                                                                                                                                        |
+| ------ | -------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| metric | [Metric](/api/global-type-definitions#enum-metric) | `false`  | An alternative metric to preview the competition's progress in. (Ex: If it's originally an `agility` competition, you can still use this param to preview what the competition would have looked like if it were a `fishing` competition instead.) |
 
 <br />
 
@@ -468,7 +468,7 @@ const top5History = await client.competitions.getCompetitionTopHistory(123);
 <Endpoint verb="POST" path="/competitions" />
 <br />
 
-Creates a new competition. Returns the new [CompetitionWithParticipations](/competitions-api/competition-type-definitions#object-competition-with-participations) object, and the secret verification code to manage it.
+Creates a new competition. Returns the new [CompetitionWithParticipations](/api/competitions/competition-type-definitions#object-competition-with-participations) object, and the secret verification code to manage it.
 
 <br />
 
@@ -477,13 +477,13 @@ Creates a new competition. Returns the new [CompetitionWithParticipations](/comp
 | Field                 | Type                                                                  | Required | Description                                       |
 | --------------------- | --------------------------------------------------------------------- | -------- | ------------------------------------------------- |
 | title                 | string                                                                | `true`   | The competition's title.                          |
-| metric                | [Metric](/global-type-definitions#enum-metric)                        | `true`   | The competition's metric.                         |
+| metric                | [Metric](/api/global-type-definitions#enum-metric)                    | `true`   | The competition's metric.                         |
 | startsAt              | date                                                                  | `true`   | The competition's start date.                     |
 | endsAt                | date                                                                  | `true`   | The competition's end date.                       |
 | groupId               | integer?                                                              | `false`  | The competition's host group ID.                  |
 | groupVerificationCode | string?                                                               | `false`  | The competition's host group's verification code. |
 | participants          | string[]?                                                             | `false`  | The usernames of all the starting participants.   |
-| teams                 | [Team](/competitions-api/competition-type-definitions#object-team)[]? | `false`  | The competition's starting teams.                 |
+| teams                 | [Team](/api/competitions/competition-type-definitions#object-team)[]? | `false`  | The competition's starting teams.                 |
 
 :::info
 The parameters `groupId`, `participants` and `teams` are mutually exclusive.
@@ -638,7 +638,7 @@ const newCompetition = await client.competitions.createCompetition({
 <Endpoint verb="PUT" path="/competitions/:id" />
 <br />
 
-Edits an existing competition. Returns the updated [CompetitionWithParticipations](/competitions-api/competition-type-definitions#object-competition-with-participations) object.
+Edits an existing competition. Returns the updated [CompetitionWithParticipations](/api/competitions/competition-type-definitions#object-competition-with-participations) object.
 
 <br />
 
@@ -655,11 +655,11 @@ Edits an existing competition. Returns the updated [CompetitionWithParticipation
 | Field            | Type                                                                  | Required | Description                                                                                        |
 | ---------------- | --------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------- |
 | title            | string?                                                               | `false`  | The competition's title.                                                                           |
-| metric           | [Metric](/global-type-definitions#enum-metric)?                       | `false`  | The competition's metric.                                                                          |
+| metric           | [Metric](/api/global-type-definitions#enum-metric)?                   | `false`  | The competition's metric.                                                                          |
 | startsAt         | date?                                                                 | `false`  | The competition's start date.                                                                      |
 | endsAt           | date?                                                                 | `false`  | The competition's end date.                                                                        |
 | participants     | string[]?                                                             | `false`  | The usernames of all the new participants.                                                         |
-| teams            | [Team](/competitions-api/competition-type-definitions#object-team)[]? | `false`  | The competition's new teams.                                                                       |
+| teams            | [Team](/api/competitions/competition-type-definitions#object-team)[]? | `false`  | The competition's new teams.                                                                       |
 | verificationCode | string                                                                | `true`   | The competition's verification code (Or the host group's verification code, if linked to a group). |
 
 :::info
@@ -667,7 +667,7 @@ Only the fields provided in the body params are updated.
 :::
 
 :::caution
-The participants/teams list provided will replace the existing one. To add participants to an existing competition, please check out [Add Participants](/competitions-api/competition-endpoints#add-participants), or to add participants to an existing competition, please check out [Add Teams](/competitions-api/competition-endpoints#add-teams).
+The participants/teams list provided will replace the existing one. To add participants to an existing competition, please check out [Add Participants](/api/competitions/competition-endpoints#add-participants), or to add participants to an existing competition, please check out [Add Teams](/api/competitions/competition-endpoints#add-teams).
 :::
 
 <br />
@@ -1041,7 +1041,7 @@ Adds all (valid) given teams to a team competition, ignoring duplicates.
 
 | Field            | Type                                                                 | Required | Description                                                                                        |
 | ---------------- | -------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------- |
-| teams            | [Team](/competitions-api/competition-type-definitions#object-team)[] | `true`   | The new teams to add.                                                                              |
+| teams            | [Team](/api/competitions/competition-type-definitions#object-team)[] | `true`   | The new teams to add.                                                                              |
 | verificationCode | string                                                               | `true`   | The competition's verification code (Or the host group's verification code, if linked to a group). |
 
 <br />

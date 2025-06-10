@@ -8,7 +8,7 @@ import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBloc
 
 ## Related Endpoints
 
-- [Players - Get Player Group Memberships](/players-api/player-endpoints#get-player-group-memberships)
+- [Players - Get Player Group Memberships](/api/players/player-endpoints#get-player-group-memberships)
 
 <br />
 
@@ -17,7 +17,7 @@ import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBloc
 <Endpoint verb="GET" path="/groups" />
 <br />
 
-Searches for groups that match a partial name. Returns an array of [Group](/groups-api/group-type-definitions#object-group) objects.
+Searches for groups that match a partial name. Returns an array of [Group](/api/groups/group-type-definitions#object-group) objects.
 
 <br />
 
@@ -96,7 +96,7 @@ const groups = await client.groups.searchGroups('the', { limit: 2 });
 <Endpoint verb="GET" path="/groups/:id" />
 <br />
 
-Searches for groups that match a partial name. Returns a [GroupDetails](/groups-api/group-type-definitions#object-group-details) object.
+Searches for groups that match a partial name. Returns a [GroupDetails](/api/groups/group-type-definitions#object-group-details) object.
 
 <br />
 
@@ -210,7 +210,7 @@ const group = await client.groups.getGroupDetails(123);
 <Endpoint verb="POST" path="/groups" />
 <br />
 
-Creates a new group. Returns the new [GroupDetails](/groups-api/group-type-definitions#object-group-details) object, and the secret verification code to manage it.
+Creates a new group. Returns the new [GroupDetails](/api/groups/group-type-definitions#object-group-details) object, and the secret verification code to manage it.
 
 <br />
 
@@ -222,7 +222,7 @@ Creates a new group. Returns the new [GroupDetails](/groups-api/group-type-defin
 | clanChat    | string?                                                                                  | `false`  | The group's clanChat.     |
 | description | string?                                                                                  | `false`  | The group's description.  |
 | homeworld   | number?                                                                                  | `false`  | The group's homeworld.    |
-| members     | [GroupMemberFragment](/groups-api/group-type-definitions#object-group-member-fragment)[] | `true`   | The group's members list. |
+| members     | [GroupMemberFragment](/api/groups/group-type-definitions#object-group-member-fragment)[] | `true`   | The group's members list. |
 
 <br />
 
@@ -387,7 +387,7 @@ const newGroup = await client.groups.createGroup({
 <Endpoint verb="PUT" path="/groups/:id" />
 <br />
 
-Edit an existing group. Returns the updated [GroupDetails](/groups-api/group-type-definitions#object-group-details) object.
+Edit an existing group. Returns the updated [GroupDetails](/api/groups/group-type-definitions#object-group-details) object.
 
 <br />
 
@@ -407,10 +407,10 @@ Edit an existing group. Returns the updated [GroupDetails](/groups-api/group-typ
 | clanChat         | string?                                                                                    | `false`  | The group's clanChat.                                   |
 | description      | string?                                                                                    | `false`  | The group's description.                                |
 | homeworld        | number?                                                                                    | `false`  | The group's homeworld.                                  |
-| members          | [GroupMemberFragment](/groups-api/group-type-definitions#object-group-member-fragment)[] ? | `false`  | The group's new members list.                           |
+| members          | [GroupMemberFragment](/api/groups/group-type-definitions#object-group-member-fragment)[] ? | `false`  | The group's new members list.                           |
 | bannerImage      | string?                                                                                    | `false`  | The group's banner image URL **(only patron groups)**.  |
 | profileImage     | string?                                                                                    | `false`  | The group's profile image URL **(only patron groups)**. |
-| socialLinks      | [GroupSocialLinks](/groups-api/group-type-definitions#object-groupsociallinks)?            | `false`  | The group's social links **(only patron groups)**.      |
+| socialLinks      | [GroupSocialLinks](/api/groups/group-type-definitions#object-groupsociallinks)?            | `false`  | The group's social links **(only patron groups)**.      |
 | verificationCode | string                                                                                     | `true`   | The group's verification code.                          |
 
 :::info
@@ -422,7 +422,7 @@ Image urls (for `bannerImage` and `profileImage`) must be uploaded to WOM's imag
 :::
 
 :::caution
-The members list provided will replace the existing one. To add members to an existing group, please check out [Add Members](/groups-api/group-endpoints#add-members)
+The members list provided will replace the existing one. To add members to an existing group, please check out [Add Members](/api/groups/group-endpoints#add-members)
 :::
 
 <br />
@@ -670,7 +670,7 @@ Add members to an existing group.
 | Field            | Type                                                                                     | Required | Description                      |
 | ---------------- | ---------------------------------------------------------------------------------------- | -------- | -------------------------------- |
 | verificationCode | string                                                                                   | `true`   | The group's verification code.   |
-| members          | [GroupMemberFragment](/groups-api/group-type-definitions#object-group-member-fragment)[] | `true`   | The members to add to the group. |
+| members          | [GroupMemberFragment](/api/groups/group-type-definitions#object-group-member-fragment)[] | `true`   | The members to add to the group. |
 
 <br />
 
@@ -814,7 +814,7 @@ Changes the role of an existing group member.
 | ---------------- | --------------------------------------------------------------- | -------- | --------------------------------------------------- |
 | verificationCode | string                                                          | `true`   | The group's verification code.                      |
 | username         | string                                                          | `true`   | The username of the member you're trying to modify. |
-| role             | [GroupRole](/groups-api/group-type-definitions#enum-group-role) | `true`   | The new role to be assigned to the member.          |
+| role             | [GroupRole](/api/groups/group-type-definitions#enum-group-role) | `true`   | The new role to be assigned to the member.          |
 
 <br />
 
@@ -955,7 +955,7 @@ await client.groups.updateAll(123, '759-236-892');
 <Endpoint verb="GET" path="/groups/:id/competitions" />
 <br />
 
-Fetches all of the group's competitions. Returns an array of [Competition](/competitions-api/competition-type-definitions#object-competition) objects.
+Fetches all of the group's competitions. Returns an array of [Competition](/api/competitions/competition-type-definitions#object-competition) objects.
 
 <br />
 
@@ -1067,7 +1067,7 @@ const competitions = await client.groups.getGroupCompetitions(123, { limit: 5 })
 <Endpoint verb="GET" path="/groups/:id/gained" />
 <br />
 
-Fetches the top gains for a group's member list (filtered by metric and period/date range). Returns an array of [DeltaLeaderboardEntry](/deltas-api/delta-type-definitions#object-delta-leaderboard-entry) objects.
+Fetches the top gains for a group's member list (filtered by metric and period/date range). Returns an array of [DeltaLeaderboardEntry](/api/deltas/delta-type-definitions#object-delta-leaderboard-entry) objects.
 
 <br />
 
@@ -1081,14 +1081,14 @@ Fetches the top gains for a group's member list (filtered by metric and period/d
 
 **Query Params**
 
-| Field     | Type                                           | Required | Description                                           |
-| --------- | ---------------------------------------------- | -------- | ----------------------------------------------------- |
-| metric    | [Metric](/global-type-definitions#enum-metric) | `true`   | The metric to filter the deltas by.                   |
-| period    | [Period](/global-type-definitions#enum-period) | `false`  | The period to filter the deltas by.                   |
-| startDate | date                                           | `false`  | The minimum date for the deltas.                      |
-| endDate   | date                                           | `false`  | The maximum date for the deltas.                      |
-| limit     | integer                                        | `false`  | The pagination limit. See [Pagination](/#pagination)  |
-| offset    | integer                                        | `false`  | The pagination offset. See [Pagination](/#pagination) |
+| Field     | Type                                               | Required | Description                                           |
+| --------- | -------------------------------------------------- | -------- | ----------------------------------------------------- |
+| metric    | [Metric](/api/global-type-definitions#enum-metric) | `true`   | The metric to filter the deltas by.                   |
+| period    | [Period](/api/global-type-definitions#enum-period) | `false`  | The period to filter the deltas by.                   |
+| startDate | date                                               | `false`  | The minimum date for the deltas.                      |
+| endDate   | date                                               | `false`  | The maximum date for the deltas.                      |
+| limit     | integer                                            | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset    | integer                                            | `false`  | The pagination offset. See [Pagination](/#pagination) |
 
 :::info
 This endpoint accepts either `period` or `startDate` + `endDate`.
@@ -1195,7 +1195,7 @@ const gains = await client.groups.getGroupGains(
 <Endpoint verb="GET" path="/groups/:id/achievements" />
 <br />
 
-Fetches the group's latest achievements. Returns an array of [Achievement](/players-api/player-type-definitions#object-achievement) objects.
+Fetches the group's latest achievements. Returns an array of [Achievement](/api/players/player-type-definitions#object-achievement) objects.
 
 <br />
 
@@ -1307,7 +1307,7 @@ const achievements = await client.groups.getGroupAchievements(123, { limit: 5 })
 <Endpoint verb="GET" path="/groups/:id/records" />
 <br />
 
-Fetches a group's record leaderboard for a specific metric and period. Returns an array of [RecordLeaderboardEntry](/records-api/record-type-definitions#object-record-leaderboard-entry) objects.
+Fetches a group's record leaderboard for a specific metric and period. Returns an array of [RecordLeaderboardEntry](/api/records/record-type-definitions#object-record-leaderboard-entry) objects.
 
 <br />
 
@@ -1321,12 +1321,12 @@ Fetches a group's record leaderboard for a specific metric and period. Returns a
 
 **Query Params**
 
-| Field  | Type                                           | Required | Description                                           |
-| ------ | ---------------------------------------------- | -------- | ----------------------------------------------------- |
-| period | [Period](/global-type-definitions#enum-period) | `true`   | The record's time period.                             |
-| metric | [Metric](/global-type-definitions#enum-metric) | `true`   | The record's metric.                                  |
-| limit  | integer                                        | `false`  | The pagination limit. See [Pagination](/#pagination)  |
-| offset | integer                                        | `false`  | The pagination offset. See [Pagination](/#pagination) |
+| Field  | Type                                               | Required | Description                                           |
+| ------ | -------------------------------------------------- | -------- | ----------------------------------------------------- |
+| period | [Period](/api/global-type-definitions#enum-period) | `true`   | The record's time period.                             |
+| metric | [Metric](/api/global-type-definitions#enum-metric) | `true`   | The record's metric.                                  |
+| limit  | integer                                            | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset | integer                                            | `false`  | The pagination offset. See [Pagination](/#pagination) |
 
 <br />
 
@@ -1423,7 +1423,7 @@ const records = await client.groups.getGroupRecords(
 <Endpoint verb="GET" path="/groups/:id/hiscores" />
 <br />
 
-Fetches a group's hiscores for a specific metric. Returns an array of [GroupHiscoresEntry](/groups-api/group-type-definitions#object-group-hiscores-entry) objects.
+Fetches a group's hiscores for a specific metric. Returns an array of [GroupHiscoresEntry](/api/groups/group-type-definitions#object-group-hiscores-entry) objects.
 
 <br />
 
@@ -1437,11 +1437,11 @@ Fetches a group's hiscores for a specific metric. Returns an array of [GroupHisc
 
 **Query Params**
 
-| Field  | Type                                           | Required | Description                                           |
-| ------ | ---------------------------------------------- | -------- | ----------------------------------------------------- |
-| metric | [Metric](/global-type-definitions#enum-metric) | `true`   | The hiscores' metric.                                 |
-| limit  | integer                                        | `false`  | The pagination limit. See [Pagination](/#pagination)  |
-| offset | integer                                        | `false`  | The pagination offset. See [Pagination](/#pagination) |
+| Field  | Type                                               | Required | Description                                           |
+| ------ | -------------------------------------------------- | -------- | ----------------------------------------------------- |
+| metric | [Metric](/api/global-type-definitions#enum-metric) | `true`   | The hiscores' metric.                                 |
+| limit  | integer                                            | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset | integer                                            | `false`  | The pagination offset. See [Pagination](/#pagination) |
 
 :::info
 Unlike most other endpoints, this one does not have a maximum result limit.
@@ -1538,7 +1538,7 @@ const hiscores = await client.groups.getGroupHiscores(123, Metric.AGILITY, { lim
 <Endpoint verb="GET" path="/groups/:id/name-changes" />
 <br />
 
-Fetches a group's latest name changes. Returns an array of [NameChange](/names-api/name-type-definitions#object-name-change) objects.
+Fetches a group's latest name changes. Returns an array of [NameChange](/api/name-changes/name-type-definitions#object-name-change) objects.
 
 <br />
 
@@ -1654,7 +1654,7 @@ const nameChanges = await client.groups.getGroupNameChanges(123, { limit: 5 });
 <Endpoint verb="GET" path="/groups/:id/statistics" />
 <br />
 
-Fetches a group's general statistics. Returns a [GroupStatistics](/groups-api/group-type-definitions#object-group-statistics) object.
+Fetches a group's general statistics. Returns a [GroupStatistics](/api/groups/group-type-definitions#object-group-statistics) object.
 
 <br />
 
@@ -1838,7 +1838,7 @@ const statistics = await client.groups.getGroupStatistics(123);
 <Endpoint verb="GET" path="/groups/:id/activity" />
 <br />
 
-Fetches a group's activity. Returns an array of [GroupActivity](/groups-api/group-type-definitions#object-group-activity) objects.
+Fetches a group's activity. Returns an array of [GroupActivity](/api/groups/group-type-definitions#object-group-activity) objects.
 
 <br />
 

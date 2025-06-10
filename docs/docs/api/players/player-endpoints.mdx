@@ -13,7 +13,7 @@ import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBloc
 <Endpoint verb="GET" path="/players/search" />
 <br />
 
-Searches players by partial username. Returns an array of [Player](/players-api/player-type-definitions#object-player) objects.
+Searches players by partial username. Returns an array of [Player](/api/players/player-type-definitions#object-player) objects.
 
 <br />
 
@@ -100,7 +100,7 @@ const players = await client.players.searchPlayers('zezi', { limit: 2 });
 <Endpoint verb="POST" path="/players/:username" />
 <br />
 
-Tracks or updates a player. Returns a [PlayerDetails](/players-api/player-type-definitions#object-player-details) object on success, which includes their latest snapshot.
+Tracks or updates a player. Returns a [PlayerDetails](/api/players/player-type-definitions#object-player-details) object on success, which includes their latest snapshot.
 
 **Request Params**
 
@@ -214,7 +214,7 @@ const playerDetails = await client.players.updatePlayer('zezima');
 <Endpoint verb="POST" path="/players/:username/assert-type" />
 <br />
 
-Asserts (and attempts to fix, if necessary) a player's game-mode type. Returns the updated [Player](/players-api/player-type-definitions#object-player) and an indication of whether the type was changed.
+Asserts (and attempts to fix, if necessary) a player's game-mode type. Returns the updated [Player](/api/players/player-type-definitions#object-player) and an indication of whether the type was changed.
 
 **Request Params**
 
@@ -279,7 +279,7 @@ const { player, changed } = await client.players.assertPlayerType('zezima');
 <Endpoint verb="GET" path="/players/:username" />
 <br />
 
-Fetches a player's details. Returns a [PlayerDetails](/players-api/player-type-definitions#object-player-details) object.
+Fetches a player's details. Returns a [PlayerDetails](/api/players/player-type-definitions#object-player-details) object.
 
 **Request Params**
 
@@ -393,7 +393,7 @@ const playerDetails = await client.players.getPlayerDetails('zezima');
 <Endpoint verb="GET" path="/players/id/:id" />
 <br />
 
-Fetches a player's details by their ID. Returns a [PlayerDetails](/players-api/player-type-definitions#object-player-details) object.
+Fetches a player's details by their ID. Returns a [PlayerDetails](/api/players/player-type-definitions#object-player-details) object.
 
 **Request Params**
 
@@ -500,7 +500,7 @@ const playerDetails = await client.players.getPlayerDetailsById(123);
 <Endpoint verb="GET" path="/players/:username/achievements" />
 <br />
 
-Fetches a player's current achievements. Returns an array of [Achievement](/players-api/player-type-definitions#object-achievement) objects.
+Fetches a player's current achievements. Returns an array of [Achievement](/api/players/player-type-definitions#object-achievement) objects.
 
 **Request Params**
 
@@ -563,7 +563,7 @@ const achievements = await client.players.getPlayerAchievements('zezima');
 <Endpoint verb="GET" path="/players/:username/achievements/progress" />
 <br />
 
-Fetches a player's current progress towards every possible achievement. Returns an array of [AchievementProgress](/players-api/player-type-definitions#object-achievement-progress) objects.
+Fetches a player's current progress towards every possible achievement. Returns an array of [AchievementProgress](/api/players/player-type-definitions#object-achievement-progress) objects.
 
 **Request Params**
 
@@ -656,7 +656,7 @@ const achievementsProgress = await client.players.getPlayerAchievementProgress('
 <Endpoint verb="GET" path="/players/:username/competitions" />
 <br />
 
-Fetches all of the player's competition participations. Returns an array of [PlayerParticipation](/competitions-api/competition-type-definitions#object-player-participation) objects.
+Fetches all of the player's competition participations. Returns an array of [PlayerParticipation](/api/competitions/competition-type-definitions#object-player-participation) objects.
 
 **Request Params**
 
@@ -668,9 +668,9 @@ Fetches all of the player's competition participations. Returns an array of [Pla
 
 **Query Params**
 
-| Field  | Type                                                                                        | Required | Description                                           |
-| ------ | ------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------- |
-| status | [CompetitionStatus](/competitions-api/competition-type-definitions#enum-competition-status) | `false`  | The competition status filter.                        |
+| Field  | Type                                                                                        | Required | Description                    |
+| ------ | ------------------------------------------------------------------------------------------- | -------- | ------------------------------ |
+| status | [CompetitionStatus](/api/competitions/competition-type-definitions#enum-competition-status) | `false`  | The competition status filter. |
 
 <br />
 
@@ -781,7 +781,7 @@ const participations = await client.players.getPlayerCompetitions('zezima', {
 <Endpoint verb="GET" path="/players/:username/competitions/standings" />
 <br />
 
-Fetches all of the player's competition standings. Returns an array of [PlayerCompetitionStanding](/competitions-api/competition-type-definitions#object-player-competition-standing) objects.
+Fetches all of the player's competition standings. Returns an array of [PlayerCompetitionStanding](/api/competitions/competition-type-definitions#object-player-competition-standing) objects.
 
 **Request Params**
 
@@ -795,7 +795,7 @@ Fetches all of the player's competition standings. Returns an array of [PlayerCo
 
 | Field  | Type                                                                                        | Required | Description                    |
 | ------ | ------------------------------------------------------------------------------------------- | -------- | ------------------------------ |
-| status | [CompetitionStatus](/competitions-api/competition-type-definitions#enum-competition-status) | `true`   | The competition status filter. |
+| status | [CompetitionStatus](/api/competitions/competition-type-definitions#enum-competition-status) | `true`   | The competition status filter. |
 
 <br />
 
@@ -882,7 +882,7 @@ const standings = await client.players.getPlayerCompetitionStandings('zezima', {
 <Endpoint verb="GET" path="/players/:username/groups" />
 <br />
 
-Fetches all of the player's group memberships. Returns an array of [PlayerMembership](/groups-api/group-type-definitions#object-player-membership) objects.
+Fetches all of the player's group memberships. Returns an array of [PlayerMembership](/api/groups/group-type-definitions#object-player-membership) objects.
 
 **Request Params**
 
@@ -980,7 +980,7 @@ const memberships = await client.players.getPlayerGroups('zezima');
 <Endpoint verb="GET" path="/players/:username/gained" />
 <br />
 
-Fetches all of the player's for a specific period or time range. Returns a [PlayerGains](/players-api/player-type-definitions#object-player-gains) object.
+Fetches all of the player's for a specific period or time range. Returns a [PlayerGains](/api/players/player-type-definitions#object-player-gains) object.
 
 **Request Params**
 
@@ -992,11 +992,11 @@ Fetches all of the player's for a specific period or time range. Returns a [Play
 
 **Query Params**
 
-| Field     | Type                                           | Required | Description                              |
-| --------- | ---------------------------------------------- | -------- | ---------------------------------------- |
-| period    | [Period](/global-type-definitions#enum-period) | `false`  | The duration of the gains' time range.   |
-| startDate | date                                           | `false`  | The start date of the gains' time range. |
-| endDate   | date                                           | `false`  | The end date of the gains' time range.   |
+| Field     | Type                                               | Required | Description                              |
+| --------- | -------------------------------------------------- | -------- | ---------------------------------------- |
+| period    | [Period](/api/global-type-definitions#enum-period) | `false`  | The duration of the gains' time range.   |
+| startDate | date                                               | `false`  | The start date of the gains' time range. |
+| endDate   | date                                               | `false`  | The end date of the gains' time range.   |
 
 :::info
 This endpoint accepts either `period` or `startDate` + `endDate`.
@@ -1122,7 +1122,7 @@ const gains = await client.players.getPlayerGains('zezima', { period: Period.WEE
 <Endpoint verb="GET" path="/players/:username/records" />
 <br />
 
-Fetches all of the player's records. Returns an array of [Record](/records-api/record-type-definitions#object-record) objects.
+Fetches all of the player's records. Returns an array of [Record](/api/records/record-type-definitions#object-record) objects.
 
 **Request Params**
 
@@ -1134,10 +1134,10 @@ Fetches all of the player's records. Returns an array of [Record](/records-api/r
 
 **Query Params**
 
-| Field  | Type                                           | Required | Description               |
-| ------ | ---------------------------------------------- | -------- | ------------------------- |
-| period | [Period](/global-type-definitions#enum-period) | `false`  | The record's time period. |
-| metric | [Metric](/global-type-definitions#enum-metric) | `false`  | The record's metric.      |
+| Field  | Type                                               | Required | Description               |
+| ------ | -------------------------------------------------- | -------- | ------------------------- |
+| period | [Period](/api/global-type-definitions#enum-period) | `false`  | The record's time period. |
+| metric | [Metric](/api/global-type-definitions#enum-metric) | `false`  | The record's metric.      |
 
 <br />
 
@@ -1208,7 +1208,7 @@ const records = await client.players.getPlayerRecords('zezima', { metric: Metric
 <Endpoint verb="GET" path="/players/:username/snapshots" />
 <br />
 
-Fetches all of the player's past snapshots. Returns an array of [Snapshot](/players-api/player-type-definitions#object-snapshot) objects.
+Fetches all of the player's past snapshots. Returns an array of [Snapshot](/api/players/player-type-definitions#object-snapshot) objects.
 
 **Request Params**
 
@@ -1220,13 +1220,13 @@ Fetches all of the player's past snapshots. Returns an array of [Snapshot](/play
 
 **Request Params**
 
-| Field     | Type                                           | Required | Description                                           |
-| --------- | ---------------------------------------------- | -------- | ----------------------------------------------------- |
-| period    | [Period](/global-type-definitions#enum-period) | `false`  | The period to filter the snapshots by.                |
-| startDate | date                                           | `false`  | The minimum date for the snapshots.                   |
-| endDate   | date                                           | `false`  | The maximum date for the snapshots.                   |
-| limit     | integer                                        | `false`  | The pagination limit. See [Pagination](/#pagination)  |
-| offset    | integer                                        | `false`  | The pagination offset. See [Pagination](/#pagination) |
+| Field     | Type                                               | Required | Description                                           |
+| --------- | -------------------------------------------------- | -------- | ----------------------------------------------------- |
+| period    | [Period](/api/global-type-definitions#enum-period) | `false`  | The period to filter the snapshots by.                |
+| startDate | date                                               | `false`  | The minimum date for the snapshots.                   |
+| endDate   | date                                               | `false`  | The maximum date for the snapshots.                   |
+| limit     | integer                                            | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset    | integer                                            | `false`  | The pagination offset. See [Pagination](/#pagination) |
 
 :::info
 This endpoint accepts either `period` or `startDate` + `endDate`.
@@ -1310,7 +1310,7 @@ const snapshots = await client.players.getPlayerSnapshots('zezima', { period: Pe
 <Endpoint verb="GET" path="/players/:username/snapshots/timeline" />
 <br />
 
-Fetches all of the player's past snapshots (as a value/date timeseries array). Returns an array of [Timeline Datapoints](/players-api/player-type-definitions#object-timeline-datapoint) objects.
+Fetches all of the player's past snapshots (as a value/date timeseries array). Returns an array of [Timeline Datapoints](/api/players/player-type-definitions#object-timeline-datapoint) objects.
 
 **Request Params**
 
@@ -1322,12 +1322,12 @@ Fetches all of the player's past snapshots (as a value/date timeseries array). R
 
 **Request Params**
 
-| Field     | Type                                           | Required | Description                            |
-| --------- | ---------------------------------------------- | -------- | -------------------------------------- |
-| metric    | [Metric](/global-type-definitions#enum-metric) | `true`   | The record's metric.                   |
-| period    | [Period](/global-type-definitions#enum-period) | `false`  | The period to filter the snapshots by. |
-| startDate | date                                           | `false`  | The minimum date for the snapshots.    |
-| endDate   | date                                           | `false`  | The maximum date for the snapshots.    |
+| Field     | Type                                               | Required | Description                            |
+| --------- | -------------------------------------------------- | -------- | -------------------------------------- |
+| metric    | [Metric](/api/global-type-definitions#enum-metric) | `true`   | The record's metric.                   |
+| period    | [Period](/api/global-type-definitions#enum-period) | `false`  | The period to filter the snapshots by. |
+| startDate | date                                               | `false`  | The minimum date for the snapshots.    |
+| endDate   | date                                               | `false`  | The maximum date for the snapshots.    |
 
 :::info
 This endpoint accepts either `period` or `startDate` + `endDate`.
@@ -1387,7 +1387,7 @@ const snapshots = await client.players.getPlayerSnapshotTimeline('zezima', Metri
 <Endpoint verb="GET" path="/players/:username/names" />
 <br />
 
-Fetches all of the player's approved name changes. Returns an array of [NameChange](/names-api/name-type-definitions#object-name-change) objects.
+Fetches all of the player's approved name changes. Returns an array of [NameChange](/api/name-changes/name-type-definitions#object-name-change) objects.
 
 **Request Params**
 
@@ -1454,7 +1454,7 @@ const nameChanges = await client.players.getPlayerNames('zezima');
 <Endpoint verb="GET" path="/players/:username/archives" />
 <br />
 
-Fetches all previous archived player profiles that held this username. Returns an array of [PlayerArchiveWithPlayer](/players-api/player-type-definitions#object-player-archive-with-player) objects.
+Fetches all previous archived player profiles that held this username. Returns an array of [PlayerArchiveWithPlayer](/api/players/player-type-definitions#object-player-archive-with-player) objects.
 
 **Request Params**
 

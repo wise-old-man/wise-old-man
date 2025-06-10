@@ -26,15 +26,15 @@ sidebar_position: 1
 
 ### `(Object)` Bonus
 
-| Field       | Type                                         | Description                                                                         |
-| :---------- | :------------------------------------------- | :---------------------------------------------------------------------------------- |
-| originSkill | [Skill](/global-type-definitions#enum-skill) | The skill that gives the bonus.                                                     |
-| bonusSkill  | [Skill](/global-type-definitions#enum-skill) | The skill that receives the bonus.                                                  |
-| startExp    | number                                       | Start exp of origin skill for which bonus skill starts receiving bonus exp.         |
-| endExp      | number                                       | End exp of origin skill for which bonus skill stops receiving bonus exp.            |
-| maxBonus?   | number                                       | Calculated max bonus a bonus skill can receive from origin skill.                   |
-| end         | boolean                                      | Whether the bonus exp is added at the end when calculating EHP for the bonus skill. |
-| ratio       | number                                       | The ratio of bonus xp given to bonus skill per exp in origin skill.                 |
+| Field       | Type                                             | Description                                                                         |
+| :---------- | :----------------------------------------------- | :---------------------------------------------------------------------------------- |
+| originSkill | [Skill](/api/global-type-definitions#enum-skill) | The skill that gives the bonus.                                                     |
+| bonusSkill  | [Skill](/api/global-type-definitions#enum-skill) | The skill that receives the bonus.                                                  |
+| startExp    | number                                           | Start exp of origin skill for which bonus skill starts receiving bonus exp.         |
+| endExp      | number                                           | End exp of origin skill for which bonus skill stops receiving bonus exp.            |
+| maxBonus?   | number                                           | Calculated max bonus a bonus skill can receive from origin skill.                   |
+| end         | boolean                                          | Whether the bonus exp is added at the end when calculating EHP for the bonus skill. |
+| ratio       | number                                           | The ratio of bonus xp given to bonus skill per exp in origin skill.                 |
 
 <br />
 
@@ -42,15 +42,15 @@ sidebar_position: 1
 
 | Field   | Type                                                                                      | Description                                        |
 | :------ | :---------------------------------------------------------------------------------------- | :------------------------------------------------- |
-| skill   | [Skill](/global-type-definitions#enum-skill)                                              |                                                    |
-| methods | [SkillMetaMethod[]](/efficiency-api/efficiency-type-definitions#object-skill-meta-method) | An array of skill methods used to calculate EHP.   |
-| bonuses | [Bonus[]](/efficiency-api/efficiency-type-definitions#object-bonus)                       | A list of bonuses the skill gives to other skills. |
+| skill   | [Skill](/api/global-type-definitions#enum-skill)                                          |                                                    |
+| methods | [SkillMetaMethod[]](/api/efficiency/efficiency-type-definitions#object-skill-meta-method) | An array of skill methods used to calculate EHP.   |
+| bonuses | [Bonus[]](/api/efficiency/efficiency-type-definitions#object-bonus)                       | A list of bonuses the skill gives to other skills. |
 
 <br />
 
 ### `(Object)` Boss Meta Config
 
-| Field | Type                                       | Description                            |
-| :---- | :----------------------------------------- | :------------------------------------- |
-| boss  | [Boss](/global-type-definitions#enum-boss) |                                        |
-| rate  | number                                     | The kills per hour for a certain boss. |
+| Field | Type                                           | Description                            |
+| :---- | :--------------------------------------------- | :------------------------------------- |
+| boss  | [Boss](/api/global-type-definitions#enum-boss) |                                        |
+| rate  | number                                         | The kills per hour for a certain boss. |

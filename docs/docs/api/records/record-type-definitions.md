@@ -9,19 +9,19 @@ sidebar_position: 1
 
 ### `(Object)` Record
 
-| Field     | Type                                           | Description                              |
-| :-------- | :--------------------------------------------- | :--------------------------------------- |
-| id        | integer                                        | The record's unique ID.                  |
-| playerId  | integer                                        | The record's parent player ID.           |
-| period    | [Period](/global-type-definitions#enum-period) | The record's time period.                |
-| metric    | [Metric](/global-type-definitions#enum-metric) | The record's metric.                     |
-| value     | long (bigint)                                  | The record's value (gained value).       |
-| updatedAt | date                                           | The record's creation/modification date. |
+| Field     | Type                                               | Description                              |
+| :-------- | :------------------------------------------------- | :--------------------------------------- |
+| id        | integer                                            | The record's unique ID.                  |
+| playerId  | integer                                            | The record's parent player ID.           |
+| period    | [Period](/api/global-type-definitions#enum-period) | The record's time period.                |
+| metric    | [Metric](/api/global-type-definitions#enum-metric) | The record's metric.                     |
+| value     | long (bigint)                                      | The record's value (gained value).       |
+| updatedAt | date                                               | The record's creation/modification date. |
 
 ### `(Object)` Record Leaderboard Entry
 
-> extends [Record](/records-api/record-type-definitions#object-record)
+> extends [Record](/api/records/record-type-definitions#object-record)
 
 | Field  | Type                                                         | Description                 |
 | :----- | :----------------------------------------------------------- | :-------------------------- |
-| player | [Player](/players-api/player-type-definitions#object-player) | The record's parent player. |
+| player | [Player](/api/players/player-type-definitions#object-player) | The record's parent player. |

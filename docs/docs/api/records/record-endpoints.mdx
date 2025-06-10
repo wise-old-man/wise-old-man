@@ -10,8 +10,8 @@ import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBloc
 
 ## Related Endpoints
 
-- [Players - Get Player Records](/players-api/player-endpoints#get-player-records)
-- [Groups - Get Group Records](/groups-api/group-endpoints#get-group-records)
+- [Players - Get Player Records](/api/players/player-endpoints#get-player-records)
+- [Groups - Get Group Records](/api/groups/group-endpoints#get-group-records)
 
 <br />
 
@@ -20,7 +20,7 @@ import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBloc
 <Endpoint verb="GET" path="/records/leaderboard" />
 <br />
 
-Fetches the current records leaderboard for a specific metric and period. Returns an array of [RecordLeaderboardEntry](/records-api/record-type-definitions#object-record-leaderboard-entry) objects.
+Fetches the current records leaderboard for a specific metric and period. Returns an array of [RecordLeaderboardEntry](/api/records/record-type-definitions#object-record-leaderboard-entry) objects.
 
 <br />
 
@@ -28,11 +28,11 @@ Fetches the current records leaderboard for a specific metric and period. Return
 
 | Field       | Type                                                                   | Required | Description                                  |
 | ----------- | ---------------------------------------------------------------------- | -------- | -------------------------------------------- |
-| period      | [Period](/global-type-definitions#enum-period)                         | `true`   | The record's time period.                    |
-| metric      | [Metric](/global-type-definitions#enum-metric)                         | `true`   | The record's metric.                         |
-| playerType  | [PlayerType](/players-api/player-type-definitions#enum-player-type)?   | `false`  | The player's account type to filter by.      |
-| playerBuild | [PlayerBuild](/players-api/player-type-definitions#enum-player-build)? | `false`  | The player's account build to filter by.     |
-| country     | [Country](/players-api/player-type-definitions#enum-country)?          | `false`  | The player's country of origin to filter by. |
+| period      | [Period](/api/global-type-definitions#enum-period)                     | `true`   | The record's time period.                    |
+| metric      | [Metric](/api/global-type-definitions#enum-metric)                     | `true`   | The record's metric.                         |
+| playerType  | [PlayerType](/api/players/player-type-definitions#enum-player-type)?   | `false`  | The player's account type to filter by.      |
+| playerBuild | [PlayerBuild](/api/players/player-type-definitions#enum-player-build)? | `false`  | The player's account build to filter by.     |
+| country     | [Country](/api/players/player-type-definitions#enum-country)?          | `false`  | The player's country of origin to filter by. |
 
 <br />
 

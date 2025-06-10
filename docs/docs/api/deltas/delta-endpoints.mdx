@@ -10,8 +10,8 @@ import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBloc
 
 ## Related Endpoints
 
-- [Players - Get Player Gains](/players-api/player-endpoints#get-player-gains)
-- [Groups - Get Group Gains](/groups-api/group-endpoints#get-group-gains)
+- [Players - Get Player Gains](/api/players/player-endpoints#get-player-gains)
+- [Groups - Get Group Gains](/api/groups/group-endpoints#get-group-gains)
 
 <br />
 
@@ -22,7 +22,7 @@ import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBloc
 <Endpoint verb="GET" path="/deltas/leaderboard" />
 <br />
 
-Fetches the current top deltas leaderboard for a specific metric and period. Returns an array of [DeltaLeaderboardEntry](/deltas-api/delta-type-definitions#object-delta-leaderboard-entry) objects.
+Fetches the current top deltas leaderboard for a specific metric and period. Returns an array of [DeltaLeaderboardEntry](/api/deltas/delta-type-definitions#object-delta-leaderboard-entry) objects.
 
 <br />
 
@@ -30,11 +30,11 @@ Fetches the current top deltas leaderboard for a specific metric and period. Ret
 
 | Field       | Type                                                                   | Required | Description                                  |
 | ----------- | ---------------------------------------------------------------------- | -------- | -------------------------------------------- |
-| period      | [Period](/global-type-definitions#enum-period)                         | `true`   | The delta's time period.                     |
-| metric      | [Metric](/global-type-definitions#enum-metric)                         | `true`   | The delta's metric.                          |
-| playerType  | [PlayerType](/players-api/player-type-definitions#enum-player-type)?   | `false`  | The player's account type to filter by.      |
-| playerBuild | [PlayerBuild](/players-api/player-type-definitions#enum-player-build)? | `false`  | The player's account build to filter by.     |
-| country     | [Country](/players-api/player-type-definitions#enum-country)?          | `false`  | The player's country of origin to filter by. |
+| period      | [Period](/api/global-type-definitions#enum-period)                     | `true`   | The delta's time period.                     |
+| metric      | [Metric](/api/global-type-definitions#enum-metric)                     | `true`   | The delta's metric.                          |
+| playerType  | [PlayerType](/api/players/player-type-definitions#enum-player-type)?   | `false`  | The player's account type to filter by.      |
+| playerBuild | [PlayerBuild](/api/players/player-type-definitions#enum-player-build)? | `false`  | The player's account build to filter by.     |
+| country     | [Country](/api/players/player-type-definitions#enum-country)?          | `false`  | The player's country of origin to filter by. |
 
 <br />
 

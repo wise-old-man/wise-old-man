@@ -86,16 +86,16 @@ These are examples of all possible shapes:
 
 ### `(Object)` Name Change
 
-| Field         | Type                                                                          | Description                                                                 |
-| :------------ | :---------------------------------------------------------------------------- | :-------------------------------------------------------------------------- |
-| id            | integer                                                                       | The name change's unique ID.                                                |
-| playerId      | integer                                                                       | The name change's parent player ID.                                         |
-| oldName       | string                                                                        | The player's "previous" username.                                           |
-| newName       | string                                                                        | The player's "new" username.                                                |
-| status        | [NameChangeStatus](/names-api/name-type-definitions#enum-name-change-status)  | The name change's status.                                                   |
-| reviewContext | [ReviewContext](/names-api/name-type-definitions#name-change-review-context)? | The name change's reason to have been denied or skipped during auto-review. |
-| resolvedAt    | date?                                                                         | The date at which the name change has been approved/denied.                 |
-| updatedAt     | date                                                                          | The date at which the name change was last modified.                        |
-| createdAt     | date                                                                          | The date at which the name change was submitted.                            |
+| Field         | Type                                                                                 | Description                                                                 |
+| :------------ | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------------- |
+| id            | integer                                                                              | The name change's unique ID.                                                |
+| playerId      | integer                                                                              | The name change's parent player ID.                                         |
+| oldName       | string                                                                               | The player's "previous" username.                                           |
+| newName       | string                                                                               | The player's "new" username.                                                |
+| status        | [NameChangeStatus](/api/name-changes/name-type-definitions#enum-name-change-status)  | The name change's status.                                                   |
+| reviewContext | [ReviewContext](/api/name-changes/name-type-definitions#name-change-review-context)? | The name change's reason to have been denied or skipped during auto-review. |
+| resolvedAt    | date?                                                                                | The date at which the name change has been approved/denied.                 |
+| updatedAt     | date                                                                                 | The date at which the name change was last modified.                        |
+| createdAt     | date                                                                                 | The date at which the name change was submitted.                            |
 
 <br />

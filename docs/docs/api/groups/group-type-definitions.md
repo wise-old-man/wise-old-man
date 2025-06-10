@@ -57,12 +57,12 @@ sidebar_position: 1
 
 ### `(Object)` Group Details
 
-> extends [Group](/groups-api/group-type-definitions#object-group)
+> extends [Group](/api/groups/group-type-definitions#object-group)
 
 | Field       | Type                                                                            | Description                                   |
 | :---------- | :------------------------------------------------------------------------------ | :-------------------------------------------- |
-| memberships | [GroupMembership](/groups-api/group-type-definitions#object-group-membership)[] | The group's memberships.                      |
-| socialLinks | [GroupSocialLinks](/groups-api/group-type-definitions#object-groupsociallinks)  | The group's social links (Patreon exclusive). |
+| memberships | [GroupMembership](/api/groups/group-type-definitions#object-group-membership)[] | The group's memberships.                      |
+| socialLinks | [GroupSocialLinks](/api/groups/group-type-definitions#object-groupsociallinks)  | The group's social links (Patreon exclusive). |
 
 <br />
 
@@ -72,7 +72,7 @@ sidebar_position: 1
 | :-------- | :--------------------------------------------------------------- | :--------------------------------------------------------------- |
 | playerId  | integer                                                          | The player's ID.                                                 |
 | groupId   | integer                                                          | The group's ID.                                                  |
-| role      | [GroupRole](/groups-api/group-type-definitions#enum-group-role)? | The player's role (rank) in the group.                           |
+| role      | [GroupRole](/api/groups/group-type-definitions#enum-group-role)? | The player's role (rank) in the group.                           |
 | createdAt | date                                                             | The date at which the player was added as a member to the group. |
 | updatedAt | date                                                             | The date at which the membership was updated.                    |
 
@@ -82,11 +82,11 @@ sidebar_position: 1
 
 Returned in group-centric endpoints.
 
-> extends [Membership](/groups-api/group-type-definitions#object-membership)
+> extends [Membership](/api/groups/group-type-definitions#object-membership)
 
 | Field  | Type                                                         | Description              |
 | :----- | :----------------------------------------------------------- | :----------------------- |
-| player | [Player](/players-api/player-type-definitions#object-player) | The membership's player. |
+| player | [Player](/api/players/player-type-definitions#object-player) | The membership's player. |
 
 <br />
 
@@ -94,11 +94,11 @@ Returned in group-centric endpoints.
 
 Returned in player-centric endpoints.
 
-> extends [Membership](/groups-api/group-type-definitions#object-membership)
+> extends [Membership](/api/groups/group-type-definitions#object-membership)
 
 | Field | Type                                                     | Description                          |
 | :---- | :------------------------------------------------------- | :----------------------------------- |
-| group | [Group](/groups-api/group-type-definitions#object-group) | The group the player is a member in. |
+| group | [Group](/api/groups/group-type-definitions#object-group) | The group the player is a member in. |
 
 <br />
 
@@ -109,7 +109,7 @@ Used as an input for group modification endpoints (create, edit, add members, et
 | Field    | Type                                                             | Description                            |
 | :------- | :--------------------------------------------------------------- | :------------------------------------- |
 | username | string                                                           | The player's username.                 |
-| role     | [GroupRole](/groups-api/group-type-definitions#enum-group-role)? | The player's role (rank) in the group. |
+| role     | [GroupRole](/api/groups/group-type-definitions#enum-group-role)? | The player's role (rank) in the group. |
 
 <br />
 
@@ -117,8 +117,8 @@ Used as an input for group modification endpoints (create, edit, add members, et
 
 | Field  | Type                                                                                                                                                                                                                                                                                                                                                                                                                    | Description                                         |
 | :----- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------- |
-| player | [Player](/players-api/player-type-definitions#object-player)                                                                                                                                                                                                                                                                                                                                                            | The hiscores entry's parent player.                 |
-| data   | [GroupHiscoresSkillItem](/groups-api/group-type-definitions#object-group-hiscores-skill-item) \| [GroupHiscoresBossItem](/groups-api/group-type-definitions#object-group-hiscores-boss-item) \| [GroupHiscoresActivityItem](/groups-api/group-type-definitions#object-group-hiscores-activity-item) \| [GroupHiscoresComputedMetricItem](/groups-api/group-type-definitions#object-group-hiscores-computed-metric-item) | The player's hiscores values for a specific metric. |
+| player | [Player](/api/players/player-type-definitions#object-player)                                                                                                                                                                                                                                                                                                                                                            | The hiscores entry's parent player.                 |
+| data   | [GroupHiscoresSkillItem](/api/groups/group-type-definitions#object-group-hiscores-skill-item) \| [GroupHiscoresBossItem](/api/groups/group-type-definitions#object-group-hiscores-boss-item) \| [GroupHiscoresActivityItem](/api/groups/group-type-definitions#object-group-hiscores-activity-item) \| [GroupHiscoresComputedMetricItem](/api/groups/group-type-definitions#object-group-hiscores-computed-metric-item) | The player's hiscores values for a specific metric. |
 
 <br />
 
@@ -177,8 +177,8 @@ Used as an input for group modification endpoints (create, edit, add members, et
 
 | Field     | Type                                                                                   | Description                                |
 | :-------- | :------------------------------------------------------------------------------------- | :----------------------------------------- |
-| player    | [Player](/players-api/player-type-definitions#object-player)                           | The delta's parent player object.          |
-| data      | [Group Delta Progress](/groups-api/group-type-definitions#object-group-delta-progress) | The delta's progress.                      |
+| player    | [Player](/api/players/player-type-definitions#object-player)                           | The delta's parent player object.          |
+| data      | [Group Delta Progress](/api/groups/group-type-definitions#object-group-delta-progress) | The delta's progress.                      |
 | startDate | date                                                                                   | The starting date of the delta's timespan. |
 | endDate   | date                                                                                   | The ending date of the delta's timespan.   |
 
@@ -191,8 +191,8 @@ Used as an input for group modification endpoints (create, edit, add members, et
 | maxedCombatCount | integer                                                                    | The total amount of members with 126 combat level (max combat). |
 | maxedTotalCount  | integer                                                                    | The total amount of members with 2277 total level (maxed).      |
 | maxed200msCount  | integer                                                                    | The total amount of 200m exp skills between all members.        |
-| averageStats     | [Snapshot](/players-api/player-type-definitions#object-snapshot)           | The average stats of all group members.                         |
-| metricLeaders    | [Metric Leaders](/groups-api/group-type-definitions#object-metric-leaders) | The best player in each metric out of all group members.        |
+| averageStats     | [Snapshot](/api/players/player-type-definitions#object-snapshot)           | The average stats of all group members.                         |
+| metricLeaders    | [Metric Leaders](/api/groups/group-type-definitions#object-metric-leaders) | The best player in each metric out of all group members.        |
 
 <br />
 
@@ -299,9 +299,9 @@ Used as an input for group modification endpoints (create, edit, add members, et
 | :-------- | :-------------------------------------------------------------------- | :----------------------------------------- |
 | groupId   | integer                                                               | The group's ID.                            |
 | playerId  | integer                                                               | The player's ID.                           |
-| type      | [ActivityType](/groups-api/group-type-definitions#enum-activity-type) | The type of activity.                      |
-| role      | [GroupRole](/groups-api/group-type-definitions#enum-group-role)?      | The player's role (rank) in the group.     |
+| type      | [ActivityType](/api/groups/group-type-definitions#enum-activity-type) | The type of activity.                      |
+| role      | [GroupRole](/api/groups/group-type-definitions#enum-group-role)?      | The player's role (rank) in the group.     |
 | createdAt | date                                                                  | The date at which the activity happened.   |
-| player    | [Player](/players-api/player-type-definitions#object-player)          | The activity entry's parent player object. |
+| player    | [Player](/api/players/player-type-definitions#object-player)          | The activity entry's parent player object. |
 
 <br />

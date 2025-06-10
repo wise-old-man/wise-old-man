@@ -10,8 +10,8 @@ import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBloc
 
 ## Related Endpoints
 
-- [Players - Get Player Name Changes](/players-api/player-endpoints#get-player-name-changes)
-- [Groups - Get Group Name Changes](/groups-api/group-endpoints#get-group-name-changes)
+- [Players - Get Player Name Changes](/api/players/player-endpoints#get-player-name-changes)
+- [Groups - Get Group Name Changes](/api/groups/group-endpoints#get-group-name-changes)
 
 <br />
 
@@ -20,18 +20,18 @@ import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBloc
 <Endpoint verb="GET" path="/names" />
 <br />
 
-Searches for name changes that match a name and/or status filter. Returns an array of [NameChange](/names-api/name-type-definitions#object-name-change) objects.
+Searches for name changes that match a name and/or status filter. Returns an array of [NameChange](/api/name-changes/name-type-definitions#object-name-change) objects.
 
 <br />
 
 **Query Params**
 
-| Field    | Type                                                                         | Required | Description                                                      |
-| -------- | ---------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------- |
-| username | string                                                                       | `false`  | The partial username for the player you're trying to search for. |
-| status   | [NameChangeStatus](/names-api/name-type-definitions#enum-name-change-status) | `false`  | The status to filter the results by.                             |
-| limit    | integer                                                                      | `false`  | The pagination limit. See [Pagination](/#pagination)             |
-| offset   | integer                                                                      | `false`  | The pagination offset. See [Pagination](/#pagination)            |
+| Field    | Type                                                                                | Required | Description                                                      |
+| -------- | ----------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------- |
+| username | string                                                                              | `false`  | The partial username for the player you're trying to search for. |
+| status   | [NameChangeStatus](/api/name-changes/name-type-definitions#enum-name-change-status) | `false`  | The status to filter the results by.                             |
+| limit    | integer                                                                             | `false`  | The pagination limit. See [Pagination](/#pagination)             |
+| offset   | integer                                                                             | `false`  | The pagination offset. See [Pagination](/#pagination)            |
 
 <br />
 
@@ -100,7 +100,7 @@ const nameChanges = await client.nameChanges.searchNameChanges(
 <Endpoint verb="POST" path="/names" />
 <br />
 
-Submits a name change request between two usernames (old and new). Returns a (pending) [NameChange](/names-api/name-type-definitions#object-name-change) object.
+Submits a name change request between two usernames (old and new). Returns a (pending) [NameChange](/api/name-changes/name-type-definitions#object-name-change) object.
 
 <br />
 

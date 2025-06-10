@@ -13,20 +13,20 @@ import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBloc
 <Endpoint verb="GET" path="/efficiency/leaderboard" />
 <br />
 
-Fetches the current efficiency leaderboard for a specific efficiency metric. Returns an array of [Player](/players-api/player-type-definitions#object-player) objects.
+Fetches the current efficiency leaderboard for a specific efficiency metric. Returns an array of [Player](/api/players/player-type-definitions#object-player) objects.
 
 <br />
 
 **Query Params**
 
-| Field       | Type                                                                         | Required | Description                                           |
-| ----------- | ---------------------------------------------------------------------------- | -------- | ----------------------------------------------------- |
-| metric      | [ComputedMetric](/global-type-definitions#enum-computed-metric) or `ehp+ehb` | `true`   | The efficiency metric.                                |
-| playerType  | [PlayerType](/players-api/player-type-definitions#enum-player-type)?         | `false`  | The player's account type to filter by.               |
-| playerBuild | [PlayerBuild](/players-api/player-type-definitions#enum-player-build)?       | `false`  | The player's account build to filter by.              |
-| country     | [Country](/players-api/player-type-definitions#enum-country)?                | `false`  | The player's country of origin to filter by.          |
-| limit       | integer                                                                      | `false`  | The pagination limit. See [Pagination](/#pagination)  |
-| offset      | integer                                                                      | `false`  | The pagination offset. See [Pagination](/#pagination) |
+| Field       | Type                                                                             | Required | Description                                           |
+| ----------- | -------------------------------------------------------------------------------- | -------- | ----------------------------------------------------- |
+| metric      | [ComputedMetric](/api/global-type-definitions#enum-computed-metric) or `ehp+ehb` | `true`   | The efficiency metric.                                |
+| playerType  | [PlayerType](/api/players/player-type-definitions#enum-player-type)?             | `false`  | The player's account type to filter by.               |
+| playerBuild | [PlayerBuild](/api/players/player-type-definitions#enum-player-build)?           | `false`  | The player's account build to filter by.              |
+| country     | [Country](/api/players/player-type-definitions#enum-country)?                    | `false`  | The player's country of origin to filter by.          |
+| limit       | integer                                                                          | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset      | integer                                                                          | `false`  | The pagination offset. See [Pagination](/#pagination) |
 
 <br />
 
@@ -106,7 +106,7 @@ const efficiencyLeaderboards = await client.efficiency.getEfficiencyLeaderboards
 <Endpoint verb="GET" path="/efficiency/rates" />
 <br />
 
-Fetches the current efficiency rates for skills and bosses. Returns an array of [SkillMetaConfig](/efficiency-api/efficiency-type-definitions#object-skill-meta-config) or [BossMetaConfig](/efficiency-api/efficiency-type-definitions#object-boss-meta-config) objects based on choice of metric.
+Fetches the current efficiency rates for skills and bosses. Returns an array of [SkillMetaConfig](/api/efficiency/efficiency-type-definitions#object-skill-meta-config) or [BossMetaConfig](/api/efficiency/efficiency-type-definitions#object-boss-meta-config) objects based on choice of metric.
 
 <br />
 
@@ -114,7 +114,7 @@ Fetches the current efficiency rates for skills and bosses. Returns an array of 
 
 | Field  | Type                                                                                                  | Required | Description                             |
 | ------ | ----------------------------------------------------------------------------------------------------- | -------- | --------------------------------------- |
-| type   | [EfficiencyAlgorithmType](/efficiency-api/efficiency-type-definitions#enum-efficiency-algorithm-type) | `true`   | The efficiency type to fetch metas for. |
+| type   | [EfficiencyAlgorithmType](/api/efficiency/efficiency-type-definitions#enum-efficiency-algorithm-type) | `true`   | The efficiency type to fetch metas for. |
 | metric | `ehp` or `ehb`                                                                                        | `true`   | The efficiency metric.                  |
 
 <br />

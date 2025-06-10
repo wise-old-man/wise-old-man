@@ -107,7 +107,7 @@ sidebar_position: 1
 | playerId   | integer                                                                                  | The snapshot's parent player ID.                                                     |
 | createdAt  | date                                                                                     | The snapshot's creaton date.                                                         |
 | importedAt | date?                                                                                    | The date at which the snapshot was imported at.                                      |
-| data       | [Snapshot Data Values](/players-api/player-type-definitions#object-snapshot-data-values) | The exp / kc / rank / etc values for each skill, boss, activity and computed metric. |
+| data       | [Snapshot Data Values](/api/players/player-type-definitions#object-snapshot-data-values) | The exp / kc / rank / etc values for each skill, boss, activity and computed metric. |
 
 <br />
 
@@ -118,14 +118,14 @@ sidebar_position: 1
 | id             | integer | The annotations's unique ID.        |
 | playerId       | integer | The annotations's parent player ID. |
 | createdAt      | date    | The annotation's creation date.     |
-| annotationType | Enum    | The opt_out / fake_f2p / blocked |
+| annotationType | Enum    | The opt_out / fake_f2p / blocked    |
 
 <br />
 
 ### `(Object)` Player
 
 :::note
-Not to be confused with [Player Details](/players-api/player-type-definitions#object-player-details), which extends `Player`.
+Not to be confused with [Player Details](/api/players/player-type-definitions#object-player-details), which extends `Player`.
 :::
 
 | Field          | Type                                                                    | Description                                                                                                 |
@@ -133,10 +133,10 @@ Not to be confused with [Player Details](/players-api/player-type-definitions#ob
 | id             | integer                                                                 | The player's unique ID.                                                                                     |
 | username       | string                                                                  | The player's usernam. (lowercase 1-12 characters)                                                           |
 | displayName    | string                                                                  | The player's display name, very similar to `username`, except it supports capitalization. (1-12 characters) |
-| type           | [PlayerType](/players-api/player-type-definitions#enum-player-type)     | The player's account type. (Default: `unknown`)                                                             |
-| build          | [PlayerBuild](/players-api/player-type-definitions#enum-player-build)   | The player's account build. (Default: `main`)                                                               |
-| country        | [Country](/players-api/player-type-definitions#enum-country)?           | The player's country of origin.                                                                             |
-| status         | [PlayerStatus](/players-api/player-type-definitions#enum-player-status) | The player's account status. (Default: `active`)                                                            |
+| type           | [PlayerType](/api/players/player-type-definitions#enum-player-type)     | The player's account type. (Default: `unknown`)                                                             |
+| build          | [PlayerBuild](/api/players/player-type-definitions#enum-player-build)   | The player's account build. (Default: `main`)                                                               |
+| country        | [Country](/api/players/player-type-definitions#enum-country)?           | The player's country of origin.                                                                             |
+| status         | [PlayerStatus](/api/players/player-type-definitions#enum-player-status) | The player's account status. (Default: `active`)                                                            |
 | patron         | boolean                                                                 | The player's patronage status (subscribed to our Patreon)                                                   |
 | exp            | long (bigint)                                                           | The player's overall experience.                                                                            |
 | ehp            | float                                                                   | The player's (skilling) Efficient Hours Played.                                                             |
@@ -152,14 +152,14 @@ Not to be confused with [Player Details](/players-api/player-type-definitions#ob
 
 ### `(Object)` Player Details
 
-> extends [Player](/players-api/player-type-definitions#object-player)
+> extends [Player](/api/players/player-type-definitions#object-player)
 
 | Field          | Type                                                                          | Description                                                         |
 | :------------- | :---------------------------------------------------------------------------- | :------------------------------------------------------------------ |
 | combatLevel    | integer                                                                       | The player's combat level.                                          |
-| archive        | [PlayerArchive](/players-api/player-type-definitions#object-player-archive) ? | The player's archive. (only applicable to archived player profiles) |
-| latestSnapshot | [Snapshot](/players-api/player-type-definitions#object-snapshot) ?            | The player's latest snapshot.                                       |
-| annotations    | [PlayerAnnotation](/players-api/player-type-definitions#object-annotation) ?  | The player's annotations (Ex: fake_f2p)                             |
+| archive        | [PlayerArchive](/api/players/player-type-definitions#object-player-archive) ? | The player's archive. (only applicable to archived player profiles) |
+| latestSnapshot | [Snapshot](/api/players/player-type-definitions#object-snapshot) ?            | The player's latest snapshot.                                       |
+| annotations    | [PlayerAnnotation](/api/players/player-type-definitions#object-annotation) ?  | The player's annotations (Ex: fake_f2p)                             |
 
 <br />
 
@@ -169,8 +169,8 @@ Not to be confused with [Player Details](/players-api/player-type-definitions#ob
 | :-------- | :---------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | playerId  | integer                                                                             | The parent player's ID.                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | name      | string                                                                              | The achievement's description/name.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| metric    | [Metric](/global-type-definitions#enum-metric)                                      | The achievement's metric (Ex: `agility`).                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| measure   | [AchievementMeasure](/players-api/player-type-definitions#enum-achievement-measure) | The achievement's measure (Ex: `experience`).                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| metric    | [Metric](/api/global-type-definitions#enum-metric)                                  | The achievement's metric (Ex: `agility`).                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| measure   | [AchievementMeasure](/api/players/player-type-definitions#enum-achievement-measure) | The achievement's measure (Ex: `experience`).                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | threshold | long (bigint)                                                                       | The achievement's threshold. (Ex: `13034431`)                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | createdAt | date                                                                                | The achievement's creation date.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | accuracy  | long? (bigint?)                                                                     | The achievement's creation date's accuracy (aka the margin of error, in milliseconds). <br/><br/> This value is the number of milliseconds between the "before" and the "after" snapshots, the lower this number is, the more certain we are that the `createdAt` date is accurate. <br /><br /> Note: This number can be `null` if the achievement hasn't been recalculated since the addition of this field. It can also be `-1` on achievements with unknown dates. |
@@ -181,20 +181,20 @@ Not to be confused with [Player Details](/players-api/player-type-definitions#ob
 
 Used in endpoints where the resource context is not the player (ex: group achievements).
 
-> extends [Achievement](/players-api/player-type-definitions#object-achievement)
+> extends [Achievement](/api/players/player-type-definitions#object-achievement)
 
 | Field  | Type                                                         | Description              |
 | :----- | :----------------------------------------------------------- | :----------------------- |
-| player | [Player](/players-api/player-type-definitions#object-player) | The membership's player. |
+| player | [Player](/api/players/player-type-definitions#object-player) | The membership's player. |
 
 <br />
 
 ### `(Object)` Player Achievement Progress
 
-> extends [Achievement](/players-api/player-type-definitions#object-achievement)
+> extends [Achievement](/api/players/player-type-definitions#object-achievement)
 
 :::caution
-Although this type mostly extends from [Achievement](/players-api/player-type-definitions#object-achievement), please note that `createdAt` now becomes nullable, as null `createdAt` dates signify that the achievement has not been yet been achieved.
+Although this type mostly extends from [Achievement](/api/players/player-type-definitions#object-achievement), please note that `createdAt` now becomes nullable, as null `createdAt` dates signify that the achievement has not been yet been achieved.
 :::
 
 | Field            | Type    | Description                                                                                                                                                                                                                                                                                                                                                                                        |
@@ -230,11 +230,11 @@ Although this type mostly extends from [Achievement](/players-api/player-type-de
 
 ### `(Object)` Player Archive With Player
 
-> extends [PlayerArchive](/players-api/player-type-definitions#object-player-archive)
+> extends [PlayerArchive](/api/players/player-type-definitions#object-player-archive)
 
 | Field  | Type                                                         | Description           |
 | :----- | :----------------------------------------------------------- | :-------------------- |
-| player | [Player](/players-api/player-type-definitions#object-player) | The archive's player. |
+| player | [Player](/api/players/player-type-definitions#object-player) | The archive's player. |
 
 <br />
 ````

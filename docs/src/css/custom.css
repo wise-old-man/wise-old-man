@@ -13,6 +13,7 @@
 
 html {
   background: hsl(225, 8%, 15%);
+  scroll-padding-top: 32px;
 }
 
 .navbar {

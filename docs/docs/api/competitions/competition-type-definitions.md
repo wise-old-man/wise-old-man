@@ -57,8 +57,8 @@ sidebar_position: 1
 | :--------------- | :-------------------------------------------------------------------------------------- | :---------------------------------------------- |
 | id               | integer                                                                                 | The competition's unique ID.                    |
 | title            | string                                                                                  | The competition's title.                        |
-| metric           | [Metric](/global-type-definitions#enum-metric)                                          | The competition's metric.                       |
-| type             | [CompetitionType](/competitions-api/competition-type-definitions#enum-competition-type) | The competition's type.                         |
+| metric           | [Metric](/api/global-type-definitions#enum-metric)                                      | The competition's metric.                       |
+| type             | [CompetitionType](/api/competitions/competition-type-definitions#enum-competition-type) | The competition's type.                         |
 | startsAt         | date                                                                                    | The competition's start date.                   |
 | endsAt           | date                                                                                    | The competition's end date.                     |
 | groupId          | integer?                                                                                | The competition's host group ID.                |
@@ -66,7 +66,7 @@ sidebar_position: 1
 | createdAt        | date                                                                                    | The competition's creation date.                |
 | updatedAt        | date                                                                                    | The competition's last modification date.       |
 | participantCount | number                                                                                  | The competition's total number of participants. |
-| group            | [Group](/groups-api/group-type-definitions#object-group)                                | The competition's host group.                   |
+| group            | [Group](/api/groups/group-type-definitions#object-group)                                | The competition's host group.                   |
 
 <br />
 
@@ -86,11 +86,11 @@ sidebar_position: 1
 
 Returned in competition-centric endpoints.
 
-> extends [Participation](/competitions-api/competition-type-definitions#object-participation)
+> extends [Participation](/api/competitions/competition-type-definitions#object-participation)
 
 | Field  | Type                                                         | Description                 |
 | :----- | :----------------------------------------------------------- | :-------------------------- |
-| player | [Player](/players-api/player-type-definitions#object-player) | The participation's player. |
+| player | [Player](/api/players/player-type-definitions#object-player) | The participation's player. |
 
 <br />
 
@@ -98,42 +98,42 @@ Returned in competition-centric endpoints.
 
 Returned in player-centric endpoints.
 
-> extends [Participation](/competitions-api/competition-type-definitions#object-participation)
+> extends [Participation](/api/competitions/competition-type-definitions#object-participation)
 
 | Field       | Type                                                                             | Description                                 |
 | :---------- | :------------------------------------------------------------------------------- | :------------------------------------------ |
-| competition | [Competition](/competitions-api/competition-type-definitions#object-competition) | The competition the player is competing in. |
+| competition | [Competition](/api/competitions/competition-type-definitions#object-competition) | The competition the player is competing in. |
 
 <br />
 
 ### `(Object)` Player Competition Standing
 
-> extends [PlayerParticipation](/competitions-api/competition-type-definitions#object-player-participation)
+> extends [PlayerParticipation](/api/competitions/competition-type-definitions#object-player-participation)
 
 | Field    | Type                                                                                                           | Description                                                                             |
 | :------- | :------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
-| progress | [CompetitionProgress](/competitions-api/competition-type-definitions#object-competition-player-progress)       | The player's progress in the competition.                                               |
-| levels   | [CompetitionLevelProgress](/competitions-api/competition-type-definitions#object-competition-levels-progress)? | The player's levels progress in the competition. (Only exists in skilling competitions) |
+| progress | [CompetitionProgress](/api/competitions/competition-type-definitions#object-competition-player-progress)       | The player's progress in the competition.                                               |
+| levels   | [CompetitionLevelProgress](/api/competitions/competition-type-definitions#object-competition-levels-progress)? | The player's levels progress in the competition. (Only exists in skilling competitions) |
 | rank     | number                                                                                                         | The player's rank in the competition.                                                   |
 
 ### `(Object)` Competition Participation Details
 
-> extends [CompetitionParticipation](/competitions-api/competition-type-definitions#object-competition-participation)
+> extends [CompetitionParticipation](/api/competitions/competition-type-definitions#object-competition-participation)
 
 | Field    | Type                                                                                                           | Description                                                                             |
 | :------- | :------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
-| progress | [CompetitionProgress](/competitions-api/competition-type-definitions#object-competition-player-progress)       | The player's progress in the competition.                                               |
-| levels   | [CompetitionLevelProgress](/competitions-api/competition-type-definitions#object-competition-levels-progress)? | The player's levels progress in the competition. (Only exists in skilling competitions) |
+| progress | [CompetitionProgress](/api/competitions/competition-type-definitions#object-competition-player-progress)       | The player's progress in the competition.                                               |
+| levels   | [CompetitionLevelProgress](/api/competitions/competition-type-definitions#object-competition-levels-progress)? | The player's levels progress in the competition. (Only exists in skilling competitions) |
 
 <br />
 
 ### `(Object)` Competition Details
 
-> extends [Competition](/competitions-api/competition-type-definitions#object-competition)
+> extends [Competition](/api/competitions/competition-type-definitions#object-competition)
 
 | Field          | Type                                                                                                                       | Description                                             |
 | :------------- | :------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------ |
-| participations | [CompetitionParticipationDetails](/competitions-api/competition-type-definitions#object-competition-participation-details) | The competition's participants, and all their progress. |
+| participations | [CompetitionParticipationDetails](/api/competitions/competition-type-definitions#object-competition-participation-details) | The competition's participants, and all their progress. |
 
 <br />
 
@@ -150,8 +150,8 @@ Returned in player-centric endpoints.
 
 | Field   | Type                                                                                                               | Description                                           |
 | :------ | :----------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------- |
-| player  | [Player](/players-api/player-type-definitions#object-player)                                                       | The participant.                                      |
-| history | [CompetitionHistoryDataPoint](/competitions-api/competition-type-definitions#object-competition-history-datapoint) | The participant's history throughout the competition. |
+| player  | [Player](/api/players/player-type-definitions#object-player)                                                       | The participant.                                      |
+| history | [CompetitionHistoryDataPoint](/api/competitions/competition-type-definitions#object-competition-history-datapoint) | The participant's history throughout the competition. |
 
 <br />
 
@@ -166,10 +166,10 @@ Returned in player-centric endpoints.
 
 ### `(Object)` Competition With Participations
 
-> extends [Competition](/competitions-api/competition-type-definitions#object-competition)
+> extends [Competition](/api/competitions/competition-type-definitions#object-competition)
 
 | Field          | Type                                                                                                          | Description                     |
 | :------------- | :------------------------------------------------------------------------------------------------------------ | :------------------------------ |
-| participations | [CompetitionParticipation](/competitions-api/competition-type-definitions#object-competition-participation)[] | The competition's participants. |
+| participations | [CompetitionParticipation](/api/competitions/competition-type-definitions#object-competition-participation)[] | The competition's participants. |
 
 <br />
