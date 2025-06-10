@@ -25,7 +25,7 @@ type DiscordBotEventPayloadMap = {
   [DiscordBotEventType.GROUP_MEMBERS_CHANGED_ROLES]: {
     groupId: number;
     members: Array<{
-      player: Player;
+      player: Pick<Player, 'displayName'>;
       role: GroupRole;
       previousRole: GroupRole;
     }>;
@@ -33,13 +33,13 @@ type DiscordBotEventPayloadMap = {
   [DiscordBotEventType.GROUP_MEMBERS_JOINED]: {
     groupId: number;
     members: Array<{
-      player: Player;
+      player: Pick<Player, 'displayName'>;
       role: GroupRole;
     }>;
   };
   [DiscordBotEventType.GROUP_MEMBERS_LEFT]: {
     groupId: number;
-    players: Array<Player>;
+    players: Array<Pick<Player, 'displayName'>>;
   };
   [DiscordBotEventType.MEMBER_ACHIEVEMENTS]: {
     groupId: number;

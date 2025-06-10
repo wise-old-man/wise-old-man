@@ -44,7 +44,9 @@ export class DispatchMembersJoinedDiscordEventJob extends Job<Payload> {
     const dispatchResult = await dispatchDiscordBotEvent(DiscordBotEventType.GROUP_MEMBERS_JOINED, {
       groupId: payload.groupId,
       members: players.map(player => ({
-        player,
+        player: {
+          displayName: player.displayName
+        },
         role: roleMap.get(player.id)!
       }))
     });
