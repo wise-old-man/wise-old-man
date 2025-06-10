@@ -37,7 +37,9 @@ export class DispatchMembersLeftDiscordEventJob extends Job<Payload> {
 
     const dispatchResult = await dispatchDiscordBotEvent(DiscordBotEventType.GROUP_MEMBERS_LEFT, {
       groupId: payload.groupId,
-      players
+      players: players.map(p => ({
+        displayName: p.displayName
+      }))
     });
 
     if (isErrored(dispatchResult) && dispatchResult.error.code === 'FAILED_TO_SEND_DISCORD_BOT_EVENT') {
