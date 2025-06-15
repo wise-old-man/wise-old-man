@@ -13,6 +13,7 @@ class PrometheusService {
   private customPeriodCounter: Counter<'customPeriod'>;
   private updatePlayerJobSourceCounter: Counter<'source'>;
 
+  private hiscoresHistogram: Histogram<'status'>;
   private runeMetricsHistogram: Histogram<'status'>;
 
   private pushInterval: NodeJS.Timeout | null = null;
@@ -75,6 +76,13 @@ class PrometheusService {
       buckets: [0.1, 0.3, 0.5, 1, 5, 10, 30]
     });
 
+    this.hiscoresHistogram = new prometheus.Histogram({
+      name: 'hiscores_duration_seconds',
+      help: 'Duration of hiscores requests in microseconds',
+      labelNames: ['status'],
+      buckets: [0.1, 0.3, 0.5, 1, 5, 10, 30]
+    });
+
     this.registry.registerMetric(this.jobHistogram);
     this.registry.registerMetric(this.jobQueueGauge);
     this.registry.registerMetric(this.httpHistogram);
@@ -83,6 +91,7 @@ class PrometheusService {
     this.registry.registerMetric(this.customPeriodCounter);
     this.registry.registerMetric(this.updatePlayerJobSourceCounter);
     this.registry.registerMetric(this.runeMetricsHistogram);
+    this.registry.registerMetric(this.hiscoresHistogram);
   }
 
   init() {
@@ -145,6 +154,10 @@ class PrometheusService {
 
   trackRuneMetricsRequest() {
     return this.runeMetricsHistogram.startTimer();
+  }
+
+  trackHiscoresRequest() {
+    return this.hiscoresHistogram.startTimer();
   }
 
   async trackEffect(effectName: string, fn: () => Promise<void>) {
