@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import proxiesService from '../api/services/external/proxies.service';
 import { AsyncResult, fromPromise, isErrored, errored, complete } from '@attio/fetchable';
 
@@ -11,11 +11,11 @@ export async function fetchWithProxy<T>(url: string): AsyncResult<
   T,
   | {
       code: 'FAILED_TO_FETCH';
-      subError: unknown;
+      subError: AxiosError;
     }
   | {
       code: 'PROXY_ERROR';
-      subError: unknown;
+      subError: AxiosError;
     }
 > {
   const proxy = proxiesService.getNextProxy();
@@ -31,13 +31,13 @@ export async function fetchWithProxy<T>(url: string): AsyncResult<
     if (proxy && PROXY_ERROR_RESPONSE_SCHEMA.safeParse(fetchResult.error).success) {
       return errored({
         code: 'PROXY_ERROR',
-        subError: fetchResult.error
+        subError: fetchResult.error as AxiosError
       });
     }
 
     return errored({
       code: 'FAILED_TO_FETCH',
-      subError: fetchResult.error
+      subError: fetchResult.error as AxiosError
     });
   }
 
