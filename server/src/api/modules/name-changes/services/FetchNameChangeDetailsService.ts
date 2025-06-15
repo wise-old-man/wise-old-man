@@ -1,7 +1,7 @@
 import prisma, { NameChangeStatus } from '../../../../prisma';
+import { adaptFetchableToThrowable, fetchHiscoresData } from '../../../../services/jagex.service';
 import { PlayerType, PlayerBuild } from '../../../../utils';
 import { NotFoundError, ServerError } from '../../../errors';
-import * as jagexService from '../../../services/external/jagex.service';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import { standardize } from '../../players/player.utils';
@@ -41,7 +41,7 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
   }
 
   try {
-    oldHiscores = await jagexService.fetchHiscoresData(nameChange.oldName);
+    oldHiscores = adaptFetchableToThrowable(await fetchHiscoresData(nameChange.oldName));
   } catch (e) {
     // If te hiscores failed to load, abort mission
     if (e instanceof ServerError) throw e;
@@ -156,14 +156,14 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
 async function fetchHiscoresWithFallback(username: string) {
   // Try fetching from the regular hiscores
   try {
-    return await jagexService.fetchHiscoresData(username);
+    return adaptFetchableToThrowable(await fetchHiscoresData(username));
   } catch (error) {
     if (error instanceof ServerError) throw error;
   }
 
   // If the regular hiscores failed, try the ironman hiscores
   try {
-    return await jagexService.fetchHiscoresData(username, PlayerType.IRONMAN);
+    return adaptFetchableToThrowable(await fetchHiscoresData(username, PlayerType.IRONMAN));
   } catch (error) {
     if (error instanceof ServerError) throw error;
   }

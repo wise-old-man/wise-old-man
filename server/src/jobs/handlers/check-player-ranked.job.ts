@@ -1,6 +1,6 @@
 import { BadRequestError } from '../../api/errors';
-import * as jagexService from '../../api/services/external/jagex.service';
 import prisma from '../../prisma';
+import { adaptFetchableToThrowable, fetchHiscoresData } from '../../services/jagex.service';
 import { PlayerStatus } from '../../utils';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
@@ -34,7 +34,7 @@ export class CheckPlayerRankedJob extends Job<Payload> {
     // meaning that it will retry a few times, with a longer delay between each attempt.
 
     // Try to fetch stats for this player, let it throw an error if it fails.
-    await jagexService.fetchHiscoresData(payload.username);
+    adaptFetchableToThrowable(await fetchHiscoresData(payload.username));
   }
 
   async onFailedAllAttempts(payload: Payload, error: Error) {

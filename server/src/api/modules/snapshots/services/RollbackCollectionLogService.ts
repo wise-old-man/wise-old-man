@@ -1,10 +1,10 @@
 import prisma from '../../../../prisma';
+import { adaptFetchableToThrowable, fetchHiscoresData } from '../../../../services/jagex.service';
 import { ServerError } from '../../../errors';
-import * as jagexService from '../../../services/external/jagex.service';
 import { parseHiscoresSnapshot } from '../snapshot.utils';
 
 export async function rollbackCollectionLog(playerId: number, username: string) {
-  const rawHiscoresResponse = await jagexService.fetchHiscoresData(username);
+  const rawHiscoresResponse = adaptFetchableToThrowable(await fetchHiscoresData(username));
 
   if (!rawHiscoresResponse) {
     throw new ServerError('Failed to fetch hiscores data.');

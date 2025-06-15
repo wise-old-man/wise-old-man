@@ -2,7 +2,6 @@ import { JobType, jobManager } from '../../../../jobs';
 import prisma, { Player, PrismaTypes, Snapshot, PlayerAnnotation } from '../../../../prisma';
 import { PlayerBuild, PlayerStatus, PlayerType, PlayerAnnotationType } from '../../../../utils';
 import { BadRequestError, ForbiddenError, RateLimitError, ServerError } from '../../../errors';
-import * as jagexService from '../../../services/external/jagex.service';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import { getBuild, sanitize, standardize, validateUsername } from '../player.utils';
@@ -11,6 +10,7 @@ import { assertPlayerType } from './AssertPlayerTypeService';
 import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 import { eventEmitter, EventType } from '../../../events';
+import { adaptFetchableToThrowable, fetchHiscoresData } from '../../../../services/jagex.service';
 
 type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
@@ -218,7 +218,9 @@ async function reviewType(player: Player) {
 
 async function fetchStats(player: Player, type?: PlayerType, previousStats?: Snapshot): Promise<Snapshot> {
   // Load data from OSRS hiscores
-  const hiscoresCSV = await jagexService.fetchHiscoresData(player.username, type || player.type);
+  const hiscoresCSV = adaptFetchableToThrowable(
+    await fetchHiscoresData(player.username, type || player.type)
+  );
 
   // Convert the csv data to a Snapshot instance
   const newSnapshot = await snapshotUtils.parseHiscoresSnapshot(player.id, hiscoresCSV, previousStats);
