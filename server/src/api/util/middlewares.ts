@@ -33,11 +33,6 @@ export async function detectRuneLiteNameChange(req: unknown, res: Response, next
   await redisClient.set(buildCompoundRedisKey('runelite_hash', accountHash), username);
 
   if (storedUsername && storedUsername !== username) {
-    logger.debug('Detected name change from account hash, auto-submitting name change.', {
-      oldName: storedUsername,
-      newName: username
-    });
-
     try {
       await submitNameChange(storedUsername, username);
 
