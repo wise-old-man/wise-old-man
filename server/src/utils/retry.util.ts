@@ -1,11 +1,10 @@
 import { AsyncResult, errored } from '@attio/fetchable';
 import { sleep } from './sleep.util';
 
-const DEFAULT_TIMEOUT = 1000;
 const DEFAULT_MAX_ATTEMPTS = 3;
 
 type RetryOptions = {
-  timeout?: number;
+  backoff?: number;
   maxAttempts?: number;
 };
 
@@ -27,7 +26,9 @@ export async function retry<TValue, TError>(
       return errored({ code: 'FAILED_ALL_RETRIES', subError: e } as const);
     }
 
-    await sleep(options?.timeout ?? DEFAULT_TIMEOUT);
+    if (options?.backoff) {
+      await sleep(options.backoff);
+    }
 
     return retry(retryFn, options, attemptsLeft - 1);
   }
