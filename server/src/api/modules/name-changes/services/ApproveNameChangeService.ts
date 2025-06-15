@@ -47,7 +47,7 @@ async function approveNameChange(id: number): Promise<NameChange> {
 
   // Attempt to transfer data between both accounts
   const updatedPlayer = await transferPlayerData(oldPlayer, newPlayer, nameChange.newName).catch(e => {
-    logger.debug('Failed to transfer name change data.', e);
+    logger.error('Failed to transfer name change data.', e);
     throw e;
   });
 
