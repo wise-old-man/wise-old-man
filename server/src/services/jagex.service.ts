@@ -3,6 +3,7 @@ import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import { fetchWithProxy } from '../utils/fetch-with-proxy.util';
 import { retry } from '../utils/retry.util';
 import logger from '../api/util/logging';
+import prometheus from '../api/services/external/prometheus.service';
 
 const RUNEMETRICS_URL = 'https://apps.runescape.com/runemetrics/profile/profile';
 
@@ -22,7 +23,10 @@ export async function getRuneMetricsBannedStatus(
 
     logger.debug(`Attempt ${attemptIndex + 1} to fetch RuneMetrics for user: ${username}`);
 
+    const stopTrackingTimer = prometheus.trackRuneMetricsRequest();
+
     const fetchResult = await fetchWithProxy(url);
+    stopTrackingTimer();
 
     if (isErrored(fetchResult)) {
       // If it's a proxy error, we throw it so that it can be retried with other proxies

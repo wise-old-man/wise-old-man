@@ -119,7 +119,7 @@ class API {
 
       res.locals.userAgent = userAgent;
 
-      const endTimer = prometheus.trackHttpRequestStarted();
+      const endTimer = prometheus.trackHttpRequest();
 
       res.on('finish', () => {
         if (!req.route) return;
@@ -132,7 +132,12 @@ class API {
 
         const origin = res.locals.apiKey ? `${res.locals.apiKey}-${userAgent}` : userAgent;
 
-        prometheus.trackHttpRequestEnded(endTimer, route, status, method, origin);
+        endTimer({
+          route,
+          status,
+          method,
+          userAgent: origin
+        });
       });
 
       next();

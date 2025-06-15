@@ -3,23 +3,17 @@ import prometheus, { Histogram, Gauge, Registry, Counter } from 'prom-client';
 import { getThreadIndex } from '../../../env';
 import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 
-type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
-type EffectParams = 'effectName' | 'status';
-type JobParams = 'jobName' | 'status';
-type JobQueueParams = 'queueName' | 'state';
-type EventParams = 'eventType';
-type CustomPeriodParams = 'customPeriod';
-type UpdatePlayerJobSourceParams = 'source';
-
 class PrometheusService {
   private registry: Registry;
-  private jobHistogram: Histogram<JobParams>;
-  private jobQueueGauge: Gauge<JobQueueParams>;
-  private httpHistogram: Histogram<HttpParams>;
-  private effectHistogram: Histogram<EffectParams>;
-  private eventCounter: Counter<EventParams>;
-  private customPeriodCounter: Counter<CustomPeriodParams>;
-  private updatePlayerJobSourceCounter: Counter<UpdatePlayerJobSourceParams>;
+  private jobHistogram: Histogram<'jobName' | 'status'>;
+  private jobQueueGauge: Gauge<'queueName' | 'state'>;
+  private httpHistogram: Histogram<'method' | 'route' | 'status' | 'userAgent'>;
+  private effectHistogram: Histogram<'effectName' | 'status'>;
+  private eventCounter: Counter<'eventType'>;
+  private customPeriodCounter: Counter<'customPeriod'>;
+  private updatePlayerJobSourceCounter: Counter<'source'>;
+
+  private runeMetricsHistogram: Histogram<'status'>;
 
   private pushInterval: NodeJS.Timeout | null = null;
 
@@ -74,6 +68,13 @@ class PrometheusService {
       labelNames: ['source']
     });
 
+    this.runeMetricsHistogram = new prometheus.Histogram({
+      name: 'runemetrics_duration_seconds',
+      help: 'Duration of RuneMetrics requests in microseconds',
+      labelNames: ['status'],
+      buckets: [0.1, 0.3, 0.5, 1, 5, 10, 30]
+    });
+
     this.registry.registerMetric(this.jobHistogram);
     this.registry.registerMetric(this.jobQueueGauge);
     this.registry.registerMetric(this.httpHistogram);
@@ -81,6 +82,7 @@ class PrometheusService {
     this.registry.registerMetric(this.eventCounter);
     this.registry.registerMetric(this.customPeriodCounter);
     this.registry.registerMetric(this.updatePlayerJobSourceCounter);
+    this.registry.registerMetric(this.runeMetricsHistogram);
   }
 
   init() {
@@ -137,18 +139,12 @@ class PrometheusService {
     return complete(true);
   }
 
-  trackHttpRequestStarted() {
+  trackHttpRequest() {
     return this.httpHistogram.startTimer();
   }
 
-  trackHttpRequestEnded(
-    endTimerFn: (labels?: Partial<Record<HttpParams, string | number>>) => number,
-    route: string,
-    status: number,
-    method: string,
-    userAgent: string
-  ) {
-    endTimerFn({ route, status, method, userAgent });
+  trackRuneMetricsRequest() {
+    return this.runeMetricsHistogram.startTimer();
   }
 
   async trackEffect(effectName: string, fn: () => Promise<void>) {
