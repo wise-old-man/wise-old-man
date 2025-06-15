@@ -1,7 +1,7 @@
 import fs from 'fs';
 import MockAdapter from 'axios-mock-adapter/types';
 import prisma from '../src/prisma';
-import { OSRS_HISCORES_URLS } from '../src/api/services/external/jagex.service';
+import { OSRS_HISCORES_URLS } from '../src/services/jagex.service';
 import { PlayerType, METRICS, Metric, SKILLS } from '../src/utils';
 import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/snapshot.utils';
 

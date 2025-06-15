@@ -13,6 +13,6 @@ export class Job<T> {
 
   async execute(payload: T): Promise<void> {}
   async onSuccess(payload: T): Promise<void> {}
-  async onFailure(payload: T, error: Error): Promise<void> {}
-  async onFailedAllAttempts(payload: T, error: Error): Promise<void> {}
+  async onFailure(payload: T, error: unknown): Promise<void> {}
+  async onFailedAllAttempts(payload: T, error: unknown): Promise<void> {}
 }

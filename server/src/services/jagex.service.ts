@@ -5,6 +5,7 @@ import { retry } from '../utils/retry.util';
 import logger from '../api/util/logging';
 import prometheus from '../api/services/external/prometheus.service';
 import { PlayerType } from '../utils';
+import { BadRequestError, ServerError } from '../api/errors';
 
 const RUNEMETRICS_URL = 'https://apps.runescape.com/runemetrics/profile/profile';
 
@@ -120,4 +121,28 @@ export async function fetchHiscoresData(
   }
 
   return retry(retriedFunction);
+}
+
+/**
+ * We're moving the hiscores fetches to typed fetchables, but the consumers
+ * of this function expect errors to be thrown instead of returned.
+ *
+ * For now, this function adapts the fetchable to throw errors instead,
+ * but this should be soon refactored to use the fetchable directly.
+ */
+export function adaptFetchableToThrowable(result: Awaited<ReturnType<typeof fetchHiscoresData>>) {
+  if (isErrored(result)) {
+    switch (result.error.code) {
+      case 'HISCORES_USERNAME_NOT_FOUND':
+        throw new BadRequestError('Failed to load hiscores: Invalid username.');
+      case 'HISCORES_SERVICE_UNAVAILABLE':
+        throw new ServerError('Failed to load hiscores: Jagex service is unavailable');
+      case 'HISCORES_UNEXPECTED_ERROR':
+      case 'FAILED_ALL_RETRIES':
+      default:
+        throw new ServerError('Failed to load hiscores: Connection refused.');
+    }
+  }
+
+  return result.value;
 }
