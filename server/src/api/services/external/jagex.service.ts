@@ -1,10 +1,7 @@
-import { AsyncResult, complete, errored } from '@attio/fetchable';
 import axios from 'axios';
 import { PlayerType } from '../../../utils';
 import { BadRequestError, ServerError } from '../../errors';
 import proxiesService from './proxies.service';
-
-const RUNEMETRICS_URL = 'https://apps.runescape.com/runemetrics/profile/profile';
 
 export const OSRS_HISCORES_URLS = {
   [PlayerType.REGULAR]: 'https://services.runescape.com/m=hiscore_oldschool/index_lite.ws',
@@ -12,23 +9,6 @@ export const OSRS_HISCORES_URLS = {
   [PlayerType.HARDCORE]: 'https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
   [PlayerType.ULTIMATE]: 'https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws'
 };
-
-export async function getRuneMetricsBannedStatus(
-  username: string
-): AsyncResult<{ isBanned: boolean }, { code: 'FAILED_TO_LOAD_RUNEMETRICS'; subError: unknown }> {
-  const url = `${RUNEMETRICS_URL}?user=${username}`;
-  try {
-    const data = await fetchWithProxy(url);
-
-    if ('error' in data && data.error === 'NOT_A_MEMBER') {
-      return complete({ isBanned: true });
-    }
-
-    return complete({ isBanned: false });
-  } catch (e) {
-    return errored({ code: 'FAILED_TO_LOAD_RUNEMETRICS', subError: e });
-  }
-}
 
 /**
  * Fetches the player data from the Hiscores API.

@@ -1,8 +1,8 @@
 import { isErrored } from '@attio/fetchable';
 import { standardize } from '../../api/modules/players/player.utils';
-import { getRuneMetricsBannedStatus } from '../../api/services/external/jagex.service';
 import logger from '../../api/util/logging';
 import prisma from '../../prisma';
+import { getRuneMetricsBannedStatus } from '../../services/jagex.service';
 import { PlayerStatus } from '../../utils';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
@@ -27,7 +27,9 @@ export class CheckPlayerBannedJob extends Job<Payload> {
       where: { username }
     });
 
-    if (!player) return;
+    if (!player) {
+      return;
+    }
 
     const bannedStatusResult = await getRuneMetricsBannedStatus(username);
 
@@ -36,7 +38,9 @@ export class CheckPlayerBannedJob extends Job<Payload> {
       throw bannedStatusResult.error;
     }
 
-    if (player.status === PlayerStatus.UNRANKED && bannedStatusResult.value.isBanned) {
+    const { isBanned } = bannedStatusResult.value;
+
+    if (player.status === PlayerStatus.UNRANKED && isBanned) {
       await prisma.player.update({
         where: { username },
         data: { status: PlayerStatus.BANNED }
@@ -44,7 +48,7 @@ export class CheckPlayerBannedJob extends Job<Payload> {
       return;
     }
 
-    if (player.status === PlayerStatus.BANNED && !bannedStatusResult.value.isBanned) {
+    if (player.status === PlayerStatus.BANNED && !isBanned) {
       await prisma.player.update({
         where: { username },
         data: { status: PlayerStatus.UNRANKED }
