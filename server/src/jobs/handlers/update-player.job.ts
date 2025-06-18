@@ -1,10 +1,8 @@
-import { BadRequestError, RateLimitError, ServerError } from '../../api/errors';
-import { standardize } from '../../api/modules/players/player.utils';
+import { isComplete } from '@attio/fetchable';
 import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerService';
 import prometheusService from '../../api/services/external/prometheus.service';
-import prisma from '../../prisma';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
-import { Period, PeriodProps, PlayerStatus, PlayerType } from '../../utils';
+import { assertNever } from '../../utils/assert-never.util';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 
@@ -36,71 +34,32 @@ export class UpdatePlayerJob extends Job<Payload> {
 
     prometheusService.trackUpdatePlayerJobSource(payload.source);
 
-    try {
-      await updatePlayer(payload.username);
-    } catch (error) {
-      if (await shouldRetry(payload.username, error)) {
-        throw error;
+    const updateResult = await updatePlayer(payload.username);
+
+    if (isComplete(updateResult)) {
+      return;
+    }
+
+    switch (updateResult.error.code) {
+      case 'PLAYER_OPTED_OUT':
+      case 'PLAYER_IS_FLAGGED':
+      case 'PLAYER_IS_BLOCKED':
+      case 'PLAYER_IS_ARCHIVED':
+      case 'USERNAME_VALIDATION_ERROR':
+      case 'HISCORES_USERNAME_NOT_FOUND': {
+        // This player doesn't need to be auto-updated anytime soon
+        const cooldownKey = buildCompoundRedisKey('player-update-cooldown', payload.username);
+        await redisClient.set(cooldownKey, 'true', 'PX', 86_400_000); // 24 hours
+        break;
       }
-    }
-  }
-}
-
-/**
- * Some of the reasons a player update might fail aren't necessarily
- * a network/hiscores issue, so we should be selective about when
- * we retry a job to avoid wasting resources.
- */
-async function shouldRetry(username: string, error: Error) {
-  if (error instanceof RateLimitError) {
-    return false;
-  }
-
-  if (error instanceof BadRequestError) {
-    // Invalid username, no point in retrying this job
-    if (error.message.includes('Validation error')) {
-      return false;
-    }
-
-    // Archived player, no point in retrying this job
-    if (error.message.includes('Player is archived')) {
-      return false;
-    }
-
-    const player = await prisma.player.findFirst({
-      where: {
-        username: standardize(username)
+      case 'PLAYER_IS_RATE_LIMITED':
+      case 'HISCORES_UNEXPECTED_ERROR':
+      case 'HISCORES_SERVICE_UNAVAILABLE': {
+        // These can be retried later
+        throw updateResult.error;
       }
-    });
-
-    if (!player) {
-      return true;
-    }
-
-    if (
-      player.type === PlayerType.UNKNOWN ||
-      player.status === PlayerStatus.UNRANKED ||
-      player.status === PlayerStatus.BANNED
-    ) {
-      await redisClient.set(
-        buildCompoundRedisKey('player-update-cooldown', player.username),
-        'true',
-        'PX',
-        PeriodProps[Period.DAY].milliseconds
-      );
-
-      // This player likely doesn't exist on the hiscores, we can save on resources by not auto-retrying
-      return false;
-    }
-  } else if (error instanceof ServerError) {
-    if (error.message.includes('Player is flagged.')) {
-      return false;
-    }
-
-    if (error.message.includes('The OSRS Hiscores were updated.')) {
-      return false;
+      default:
+        assertNever(updateResult.error);
     }
   }
-
-  return true;
 }

@@ -1,17 +1,19 @@
+import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
 import { JobType, jobManager } from '../../../jobs';
 import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../../utils';
-import { NotFoundError, ServerError } from '../../errors';
+import { assertNever } from '../../../utils/assert-never.util';
+import { BadRequestError, ForbiddenError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getDateSchema, getPaginationSchema } from '../../util/validation';
 import { findPlayerAchievementProgress } from '../achievements/services/FindPlayerAchievementProgressService';
 import { findPlayerAchievements } from '../achievements/services/FindPlayerAchievementsService';
 import { findPlayerParticipations } from '../competitions/services/FindPlayerParticipationsService';
-import { findPlayerParticipationsStandings } from '../competitions/services/FindPlayerParticipationsStandingsService';
 import { findPlayerParticipationsStandings2 } from '../competitions/services/FindPlayerParticipationsStandings2Service';
+import { findPlayerParticipationsStandings } from '../competitions/services/FindPlayerParticipationsStandingsService';
 import { findPlayerDeltas } from '../deltas/services/FindPlayerDeltasService';
 import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
 import { findPlayerMemberships } from '../groups/services/FindPlayerMembershipsService';
@@ -19,20 +21,20 @@ import { findPlayerNameChanges } from '../name-changes/services/FindPlayerNameCh
 import { findPlayerRecords } from '../records/services/FindPlayerRecordsService';
 import { findPlayerSnapshotTimeline } from '../snapshots/services/FindPlayerSnapshotTimelineService';
 import { findPlayerSnapshots } from '../snapshots/services/FindPlayerSnapshotsService';
-import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsService';
 import { rollbackCollectionLog } from '../snapshots/services/RollbackCollectionLogService';
+import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsService';
 import { formatSnapshot } from '../snapshots/snapshot.utils';
 import { standardize } from './player.utils';
 import { archivePlayer } from './services/ArchivePlayerService';
 import { assertPlayerType } from './services/AssertPlayerTypeService';
 import { changePlayerCountry } from './services/ChangePlayerCountryService';
+import { createPlayerAnnotation } from './services/CreateAnnotationService';
+import { deletePlayerAnnotation } from './services/DeleteAnnotationService';
 import { deletePlayer } from './services/DeletePlayerService';
 import { fetchPlayerDetails } from './services/FetchPlayerDetailsService';
 import { findPlayerArchives } from './services/FindPlayerArchivesService';
 import { searchPlayers } from './services/SearchPlayersService';
 import { updatePlayer } from './services/UpdatePlayerService';
-import { createPlayerAnnotation } from './services/CreateAnnotationService';
-import { deletePlayerAnnotation } from './services/DeleteAnnotationService';
 
 const router = Router();
 
@@ -72,10 +74,40 @@ router.post(
     const { username } = req.params;
     const { force } = req.body;
 
-    const { isNew } = await updatePlayer(username, force);
+    const updateResult = await updatePlayer(username, force);
+
+    if (isErrored(updateResult)) {
+      switch (updateResult.error.code) {
+        case 'HISCORES_USERNAME_NOT_FOUND':
+          throw new BadRequestError('Failed to load hiscores: Player not found.');
+        case 'HISCORES_SERVICE_UNAVAILABLE':
+          throw new ServerError('Failed to load hiscores: Jagex service is unavailable');
+        case 'HISCORES_UNEXPECTED_ERROR':
+          throw new ServerError('Failed to load hiscores: Connection refused.');
+        case 'PLAYER_IS_ARCHIVED':
+          throw new BadRequestError('Failed to update: Player is archived.');
+        case 'PLAYER_IS_RATE_LIMITED':
+          throw new RateLimitError(`Error: ${username} has been updated recently.`);
+        case 'PLAYER_IS_BLOCKED':
+          throw new ForbiddenError(
+            'Failed to update: This player has been blocked, please contact us on Discord for more information.'
+          );
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenError(
+            'Failed to update: Player has opted out of tracking. If this is your account and you want to opt back in, contact us on Discord.'
+          );
+        case 'PLAYER_IS_FLAGGED':
+          throw new ServerError('Failed to update: Player is flagged.');
+        case 'USERNAME_VALIDATION_ERROR':
+          throw new BadRequestError(`Validation error: ${updateResult.error.subError.code}`);
+        default:
+          assertNever(updateResult.error);
+      }
+    }
+
     const playerDetails = await fetchPlayerDetails(username);
 
-    res.status(isNew ? 201 : 200).json(playerDetails);
+    res.status(updateResult.value.isNew ? 201 : 200).json(playerDetails);
   })
 );
 
@@ -134,13 +166,20 @@ router.post(
       where: { username: standardize(username) }
     });
 
-    if (!player) {
+    if (player === null) {
       throw new NotFoundError('Player not found.');
     }
 
-    const [, updatedPlayer, changed] = await assertPlayerType(player, true);
+    const assertionResult = await assertPlayerType(player);
 
-    res.status(200).json({ player: updatedPlayer, changed });
+    if (isErrored(assertionResult)) {
+      throw new ServerError('Failed to assert player type.');
+    }
+
+    res.status(200).json({
+      changed: assertionResult.value.changed,
+      player: assertionResult.value.changed ? assertionResult.value.updatedPlayer : player
+    });
   })
 );
 
@@ -192,12 +231,16 @@ router.post(
       untilLastChange && player.lastChangedAt ? player.lastChangedAt : undefined
     );
 
-    const { updatedPlayer } = await updatePlayer(username);
+    const updateResult = await updatePlayer(username);
+
+    if (isErrored(updateResult)) {
+      throw new ServerError('Failed to update player after rollback.');
+    }
 
     jobManager.add(JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW, {}, { delay: 5_000 });
 
     res.status(200).json({
-      message: `Successfully rolled back player: ${updatedPlayer.displayName}`
+      message: `Successfully rolled back player: ${updateResult.value.player.displayName}`
     });
   })
 );
@@ -217,18 +260,26 @@ router.post(
       where: { username: standardize(username) }
     });
 
-    if (!player) {
+    if (player === null) {
       throw new NotFoundError('Player not found.');
     }
 
-    await rollbackCollectionLog(player.id, username);
+    const rollbackResult = await rollbackCollectionLog(player.id, username);
 
-    const { updatedPlayer } = await updatePlayer(username);
+    if (isErrored(rollbackResult)) {
+      throw new ServerError('Failed to rollback collection log data from snapshots.');
+    }
+
+    const updateResult = await updatePlayer(username);
+
+    if (isErrored(updateResult)) {
+      throw new ServerError('Failed to update player after rollback.');
+    }
 
     jobManager.add(JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW, {}, { delay: 5_000 });
 
     res.status(200).json({
-      message: `Successfully rolled back collection logs for player: ${updatedPlayer.displayName}`
+      message: `Successfully rolled back collection logs for player: ${updateResult.value.player.displayName}`
     });
   })
 );

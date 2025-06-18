@@ -1,18 +1,29 @@
+import { AsyncResult, bindError, complete, errored, isComplete, isErrored } from '@attio/fetchable';
 import prisma, { NameChangeStatus } from '../../../../prisma';
-import { adaptFetchableToThrowable, fetchHiscoresData } from '../../../../services/jagex.service';
-import { PlayerType, PlayerBuild } from '../../../../utils';
-import { NotFoundError, ServerError } from '../../../errors';
+import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
+import { PlayerBuild, PlayerType } from '../../../../utils';
+import { assertNever } from '../../../../utils/assert-never.util';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import { standardize } from '../../players/player.utils';
-import { parseHiscoresSnapshot, formatSnapshot, getNegativeGains } from '../../snapshots/snapshot.utils';
+import { formatSnapshot, getNegativeGains, parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
 import { NameChange, NameChangeDetails } from '../name-change.types';
 
-async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
-  const nameChange = await prisma.nameChange.findFirst({ where: { id } });
+async function fetchNameChangeDetails(id: number): AsyncResult<
+  NameChangeDetails,
+  | { code: 'NAME_CHANGE_NOT_FOUND' }
+  | { code: 'OLD_STATS_NOT_FOUND' }
+  | {
+      code: 'FAILED_TO_LOAD_HISCORES';
+      subError: Exclude<HiscoresError, { code: 'HISCORES_USERNAME_NOT_FOUND' }>;
+    }
+> {
+  const nameChange = await prisma.nameChange.findFirst({
+    where: { id }
+  });
 
-  if (!nameChange) {
-    throw new NotFoundError('Name change id was not found.');
+  if (nameChange === null) {
+    return errored({ code: 'NAME_CHANGE_NOT_FOUND' } as const);
   }
 
   const oldPlayer = await prisma.player.findFirst({
@@ -24,27 +35,48 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
   });
 
   if (!oldPlayer || nameChange.status !== NameChangeStatus.PENDING) {
-    return { nameChange: nameChange as NameChange };
+    return complete({
+      nameChange: nameChange as NameChange
+    });
   }
 
-  let newHiscores;
-  let oldHiscores;
+  // Attempt to fetch hiscores data for the new name
+  // if they can't be found on the regular hiscores, fallback to trying the ironman hiscores
+  // before asserting that the new name is not on the hiscores at all
+  const newHiscoresResult = await fetchHiscoresWithFallback(nameChange.newName).then(result =>
+    bindError(result, error => {
+      switch (error.code) {
+        case 'HISCORES_USERNAME_NOT_FOUND':
+          return complete(null);
+        case 'HISCORES_SERVICE_UNAVAILABLE':
+        case 'HISCORES_UNEXPECTED_ERROR':
+          return errored({ code: 'FAILED_TO_LOAD_HISCORES', subError: error } as const);
+        default:
+          assertNever(error);
+      }
+    })
+  );
 
-  try {
-    // Attempt to fetch hiscores data for the new name
-    // if they can't be found on the regular hiscores, fallback to trying the ironman and FSW hiscores
-    // before asserting that the new name is not on the hiscores at all
-    newHiscores = await fetchHiscoresWithFallback(nameChange.newName);
-  } catch (e) {
-    // If te hiscores failed to load, abort mission
-    if (e instanceof ServerError) throw e;
+  if (isErrored(newHiscoresResult)) {
+    return newHiscoresResult;
   }
 
-  try {
-    oldHiscores = adaptFetchableToThrowable(await fetchHiscoresData(nameChange.oldName));
-  } catch (e) {
-    // If te hiscores failed to load, abort mission
-    if (e instanceof ServerError) throw e;
+  const oldHiscoresResult = await fetchHiscoresData(nameChange.oldName).then(result =>
+    bindError(result, error => {
+      switch (error.code) {
+        case 'HISCORES_USERNAME_NOT_FOUND':
+          return complete(null);
+        case 'HISCORES_SERVICE_UNAVAILABLE':
+        case 'HISCORES_UNEXPECTED_ERROR':
+          return errored({ code: 'FAILED_TO_LOAD_HISCORES', subError: error } as const);
+        default:
+          assertNever(error);
+      }
+    })
+  );
+
+  if (isErrored(oldHiscoresResult)) {
+    return oldHiscoresResult;
   }
 
   // Fetch the last snapshot from the old name
@@ -54,12 +86,15 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
   });
 
   if (!oldStats) {
-    throw new ServerError('Old stats could not be found.');
+    return errored({
+      code: 'OLD_STATS_NOT_FOUND'
+    });
   }
 
   // Fetch either the first snapshot of the new name, or the current hiscores stats
   // Note: this playerId isn't needed, and won't be used or exposed to the user
-  let newStats = newHiscores ? await parseHiscoresSnapshot(1, newHiscores) : null;
+  let newStats =
+    newHiscoresResult.value === null ? null : await parseHiscoresSnapshot(1, newHiscoresResult.value);
 
   if (newPlayer) {
     // If the new name is already a tracked player and was tracked
@@ -101,12 +136,12 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
 
   // If new stats cannot be found on the hiscores or our database, there's nothing to compare oldStats to.
   if (!newStats) {
-    return {
+    return complete({
       nameChange: nameChange as NameChange,
       data: {
-        isNewOnHiscores: !!newHiscores,
-        isOldOnHiscores: !!oldHiscores,
-        isNewTracked: !!newPlayer,
+        isNewOnHiscores: newHiscoresResult.value !== null,
+        isOldOnHiscores: oldHiscoresResult.value !== null,
+        isNewTracked: newPlayer !== null,
         negativeGains: null,
         hasNegativeGains: false,
         timeDiff,
@@ -116,7 +151,7 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
         oldStats: formatSnapshot(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
         newStats: null
       }
-    };
+    });
   }
 
   const newPlayerComputedMetrics = await computePlayerMetrics(
@@ -135,14 +170,14 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
 
   const negativeGains = getNegativeGains(oldStats, newStats);
 
-  return {
+  return complete({
     nameChange: nameChange as NameChange,
     data: {
-      isNewOnHiscores: !!newHiscores,
-      isOldOnHiscores: !!oldHiscores,
-      isNewTracked: !!newPlayer,
+      isNewOnHiscores: newHiscoresResult.value !== null,
+      isOldOnHiscores: oldHiscoresResult.value !== null,
+      isNewTracked: newPlayer !== null,
       negativeGains,
-      hasNegativeGains: !!negativeGains,
+      hasNegativeGains: negativeGains !== null,
       timeDiff,
       hoursDiff,
       ehpDiff: newStats.ehpValue - oldStats.ehpValue,
@@ -150,25 +185,26 @@ async function fetchNameChangeDetails(id: number): Promise<NameChangeDetails> {
       oldStats: formatSnapshot(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
       newStats: formatSnapshot(newStats, getPlayerEfficiencyMap(newStats, newPlayer ?? oldPlayer))
     }
-  };
+  });
 }
 
-async function fetchHiscoresWithFallback(username: string) {
-  // Try fetching from the regular hiscores
-  try {
-    return adaptFetchableToThrowable(await fetchHiscoresData(username));
-  } catch (error) {
-    if (error instanceof ServerError) throw error;
+async function fetchHiscoresWithFallback(username: string): AsyncResult<string, HiscoresError> {
+  const regularHiscoresDataResult = await fetchHiscoresData(username);
+
+  if (isComplete(regularHiscoresDataResult)) {
+    return regularHiscoresDataResult;
   }
 
-  // If the regular hiscores failed, try the ironman hiscores
-  try {
-    return adaptFetchableToThrowable(await fetchHiscoresData(username, PlayerType.IRONMAN));
-  } catch (error) {
-    if (error instanceof ServerError) throw error;
+  switch (regularHiscoresDataResult.error.code) {
+    case 'HISCORES_USERNAME_NOT_FOUND':
+      // If not found on the regular hiscores, fallback to trying the ironman hiscores instead
+      return fetchHiscoresData(username, PlayerType.IRONMAN);
+    case 'HISCORES_UNEXPECTED_ERROR':
+    case 'HISCORES_SERVICE_UNAVAILABLE':
+      return regularHiscoresDataResult;
+    default:
+      assertNever(regularHiscoresDataResult.error);
   }
-
-  return undefined;
 }
 
 export { fetchNameChangeDetails };

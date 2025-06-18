@@ -1,9 +1,10 @@
-import * as playerUtils from '../../api/modules/players/player.utils';
+import { isErrored } from '@attio/fetchable';
 import { approveNameChange } from '../../api/modules/name-changes/services/ApproveNameChangeService';
 import { denyNameChange } from '../../api/modules/name-changes/services/DenyNameChangeService';
 import { fetchNameChangeDetails } from '../../api/modules/name-changes/services/FetchNameChangeDetailsService';
+import * as playerUtils from '../../api/modules/players/player.utils';
 import prisma from '../../prisma';
-import { Metric, NameChange, NameChangeDetails, NameChangeStatus, SkipContext } from '../../utils';
+import { Metric, NameChange, NameChangeStatus, SkipContext } from '../../utils';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 
@@ -26,20 +27,31 @@ export class ReviewNameChangeJob extends Job<Payload> {
 
     const { nameChangeId } = payload;
 
-    let details: NameChangeDetails | null = null;
+    const detailsResult = await fetchNameChangeDetails(nameChangeId);
 
-    try {
-      details = await fetchNameChangeDetails(nameChangeId);
-    } catch (error) {
-      if (error.message === 'Old stats could not be found.') {
-        await denyNameChange(nameChangeId, { reason: 'old_stats_cannot_be_found' });
-        return;
+    if (isErrored(detailsResult)) {
+      switch (detailsResult.error.code) {
+        case 'NAME_CHANGE_NOT_FOUND':
+          return;
+        case 'OLD_STATS_NOT_FOUND': {
+          await denyNameChange(nameChangeId, { reason: 'old_stats_cannot_be_found' });
+          return;
+        }
+        case 'FAILED_TO_LOAD_HISCORES':
+          throw detailsResult.error;
       }
     }
 
-    if (!details || !details.data || details.nameChange.status !== NameChangeStatus.PENDING) return;
+    const nameChangeDetails = detailsResult.value;
 
-    const { data, nameChange } = details;
+    if (
+      nameChangeDetails.data === undefined ||
+      nameChangeDetails.nameChange.status !== NameChangeStatus.PENDING
+    ) {
+      return;
+    }
+
+    const { data, nameChange } = nameChangeDetails;
     const { isNewOnHiscores, negativeGains, hoursDiff, ehpDiff, ehbDiff, oldStats } = data;
 
     // If it's a capitalization change, auto-approve

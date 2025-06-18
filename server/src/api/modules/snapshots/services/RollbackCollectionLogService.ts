@@ -1,20 +1,34 @@
+import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { adaptFetchableToThrowable, fetchHiscoresData } from '../../../../services/jagex.service';
-import { ServerError } from '../../../errors';
+import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
 import { parseHiscoresSnapshot } from '../snapshot.utils';
 
-export async function rollbackCollectionLog(playerId: number, username: string) {
-  const rawHiscoresResponse = adaptFetchableToThrowable(await fetchHiscoresData(username));
+export async function rollbackCollectionLog(
+  playerId: number,
+  username: string
+): AsyncResult<
+  true,
+  | { code: 'COLLECTIONS_LOGGED_UNRANKED' }
+  | { code: 'FAILED_TO_ROLLBACK_COLLECTION_LOG' }
+  | { code: 'FAILED_TO_LOAD_HISCORES'; subError: HiscoresError }
+> {
+  const rawHiscoresResult = await fetchHiscoresData(username);
 
-  if (!rawHiscoresResponse) {
-    throw new ServerError('Failed to fetch hiscores data.');
+  if (isErrored(rawHiscoresResult)) {
+    return errored({
+      code: 'FAILED_TO_LOAD_HISCORES',
+      subError: rawHiscoresResult.error
+    });
   }
 
-  const currentCollectionsLogged = (await parseHiscoresSnapshot(1, rawHiscoresResponse))
-    .collections_loggedScore;
+  const parsedSnapshot = await parseHiscoresSnapshot(1, rawHiscoresResult.value);
+
+  const currentCollectionsLogged = parsedSnapshot.collections_loggedScore;
 
   if (currentCollectionsLogged === -1) {
-    throw new ServerError('Collections Logged unranked.');
+    return errored({
+      code: 'COLLECTIONS_LOGGED_UNRANKED'
+    });
   }
 
   // Rollback their collection log scores that are over their hiscores
@@ -29,6 +43,10 @@ export async function rollbackCollectionLog(playerId: number, username: string) 
   });
 
   if (result.count === 0) {
-    throw new ServerError('Failed to rollback collection log data from snapshots.');
+    return errored({
+      code: 'FAILED_TO_ROLLBACK_COLLECTION_LOG'
+    });
   }
+
+  return complete(true);
 }

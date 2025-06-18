@@ -1,7 +1,8 @@
-import { PlayerBuild, PlayerDetails } from '../../../utils';
+import { complete, errored, isComplete, Result } from '@attio/fetchable';
 import prisma, { Player, PlayerAnnotation, PlayerArchive, Snapshot } from '../../../prisma';
-import * as snapshotUtils from '../snapshots/snapshot.utils';
+import { PlayerBuild, PlayerDetails } from '../../../utils';
 import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
+import * as snapshotUtils from '../snapshots/snapshot.utils';
 import { formatSnapshot } from '../snapshots/snapshot.utils';
 
 function formatPlayerDetails(
@@ -34,33 +35,42 @@ function sanitize(username: string): string {
   return username.replace(/[-_\s]/g, ' ').trim();
 }
 
-function validateUsername(username: string): Error | null {
+export type PlayerUsernameValidationError =
+  | { code: 'USERNAME_IS_UNDEFINED' }
+  | { code: 'USERNAME_TOO_SHORT' }
+  | { code: 'USERNAME_TOO_LONG' }
+  | { code: 'USERNAME_STARTS_OR_ENDS_WITH_SPACE' }
+  | { code: 'USERNAME_HAS_SPECIAL_CHARACTERS' };
+
+export function validateUsername(username: string): Result<null, PlayerUsernameValidationError> {
   const standardized = standardize(username);
 
   if (!standardized) {
-    return new Error('Username must be defined.');
+    return errored({ code: 'USERNAME_IS_UNDEFINED' });
   }
 
-  // If doesn't meet the size requirements
-  if (standardized.length < 1 || standardized.length > 12) {
-    return new Error('Username must be between 1 and 12 characters long.');
+  if (standardized.length < 1) {
+    return errored({ code: 'USERNAME_TOO_SHORT' });
   }
 
-  // If starts or ends with a space
+  if (standardized.length > 12) {
+    return errored({ code: 'USERNAME_TOO_LONG' });
+  }
+
   if (standardized.startsWith(' ') || standardized.endsWith(' ')) {
-    return new Error('Username cannot start or end with spaces.');
+    return errored({ code: 'USERNAME_STARTS_OR_ENDS_WITH_SPACE' });
   }
 
   // If has any special characters
   if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(standardized)) {
-    return new Error('Username cannot contain any special characters.');
+    return errored({ code: 'USERNAME_HAS_SPECIAL_CHARACTERS' });
   }
 
-  return null;
+  return complete(null);
 }
 
 function isValidUsername(username: string): boolean {
-  return validateUsername(username) === null;
+  return isComplete(validateUsername(username));
 }
 
 function getBuild(snapshot: Snapshot, isFakeF2p: boolean): PlayerBuild {
@@ -145,12 +155,4 @@ async function splitArchivalData(playerId: number, lastSnapshotDate: Date) {
   };
 }
 
-export {
-  formatPlayerDetails,
-  standardize,
-  sanitize,
-  validateUsername,
-  isValidUsername,
-  getBuild,
-  splitArchivalData
-};
+export { formatPlayerDetails, getBuild, isValidUsername, sanitize, splitArchivalData, standardize };

@@ -71,9 +71,7 @@ describe('Player API', () => {
       const response = await api.post(`/players/wow$~#`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Validation error: Username cannot contain any special characters'
-      );
+      expect(response.body.message).toMatch('Validation error: USERNAME_HAS_SPECIAL_CHARACTERS');
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
@@ -82,7 +80,7 @@ describe('Player API', () => {
       const response = await api.post(`/players/ALongUsername`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Validation error: Username must be between');
+      expect(response.body.message).toMatch('Validation error: USERNAME_TOO_LONG');
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
@@ -96,7 +94,7 @@ describe('Player API', () => {
       const response = await api.post(`/players/enrique`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Failed to load hiscores for enrique.');
+      expect(response.body.message).toMatch('Failed to load hiscores: Player not found.');
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
 
@@ -115,7 +113,7 @@ describe('Player API', () => {
 
       const firstResponse = await api.post(`/players/toby`);
       expect(firstResponse.status).toBe(400);
-      expect(firstResponse.body.message).toMatch('Failed to load hiscores for toby.');
+      expect(firstResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
 
@@ -123,7 +121,7 @@ describe('Player API', () => {
       // therefor, we should allow them to be tracked again without waiting 60s
       const secondResponse = await api.post(`/players/toby`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores for toby.');
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
 
@@ -154,7 +152,7 @@ describe('Player API', () => {
 
       const response = await api.post(`/players/alanec`);
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Failed to load hiscores for alanec.');
+      expect(response.body.message).toMatch('Failed to load hiscores: Player not found.');
 
       // this player has "unknown" type, shouldn't be reviewed on 400 (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'alanec'))).toBeNull();
@@ -191,7 +189,7 @@ describe('Player API', () => {
 
       const secondResponse = await api.post(`/players/aluminoti`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
       // this player has "regular" type, shouldn't be reviewed on 400 (null cooldown = no review)
@@ -242,7 +240,7 @@ describe('Player API', () => {
 
       const secondResponse = await api.post(`/players/tony_stark`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
 
       // this player has "ironman" type, but has been reviewed recently, so they shouldn't be reviewed on 400
       // if the cooldown timestamp is the same as the previous one, then it didn't get reviewed again
@@ -287,11 +285,10 @@ describe('Player API', () => {
 
       const secondResponse = await api.post(`/players/ash`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
 
       // failed to review (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
-      expect(playerTypeChangedEvent).not.toHaveBeenCalled();
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
 

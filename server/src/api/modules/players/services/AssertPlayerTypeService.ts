@@ -1,83 +1,175 @@
+import { AsyncResult, complete, errored, isComplete, isErrored } from '@attio/fetchable';
 import prisma, { Player } from '../../../../prisma';
-import { adaptFetchableToThrowable, fetchHiscoresData } from '../../../../services/jagex.service';
+import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
 import { PlayerType } from '../../../../utils';
-import { BadRequestError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
 
-type AssertPlayerTypeResult = [type: PlayerType, player: Player, changed: boolean];
+async function assertPlayerType(player: Player): AsyncResult<
+  | {
+      type: PlayerType;
+      changed: false;
+    }
+  | {
+      type: PlayerType;
+      changed: true;
+      updatedPlayer: Player;
+    },
+  HiscoresError
+> {
+  const confirmedTypeResult = await checkType(player.username);
 
-async function assertPlayerType(player: Player, updateIfChanged = false): Promise<AssertPlayerTypeResult> {
-  const confirmedType = await getType(player);
-
-  if (player.type !== confirmedType && updateIfChanged) {
-    const updatedPlayer = await prisma.player.update({
-      data: { type: confirmedType },
-      where: { id: player.id }
-    });
-
-    eventEmitter.emit(EventType.PLAYER_TYPE_CHANGED, {
-      username: player.username,
-      previousType: player.type,
-      newType: confirmedType
-    });
-
-    return [confirmedType, updatedPlayer, true];
+  if (isErrored(confirmedTypeResult)) {
+    return errored(confirmedTypeResult.error.subError);
   }
 
-  return [confirmedType, player, false];
+  if (player.type === confirmedTypeResult.value) {
+    return complete({
+      type: confirmedTypeResult.value,
+      changed: false
+    });
+  }
+
+  const updatedPlayer = await prisma.player.update({
+    where: {
+      id: player.id
+    },
+    data: {
+      type: confirmedTypeResult.value
+    }
+  });
+
+  eventEmitter.emit(EventType.PLAYER_TYPE_CHANGED, {
+    username: player.username,
+    previousType: player.type,
+    newType: confirmedTypeResult.value
+  });
+
+  return complete({
+    changed: true,
+    updatedPlayer,
+    type: confirmedTypeResult.value
+  });
 }
 
-async function getType(player: Pick<Player, 'username' | 'type'>): Promise<PlayerType> {
-  const regularExp = await getOverallExperience(player, PlayerType.REGULAR);
+async function findIronmanSubType(username: string): AsyncResult<
+  { type: PlayerType; exp: number },
+  | {
+      code: 'FAILED_TO_LOAD_HISCORES';
+      subError: Exclude<HiscoresError, { code: 'HISCORES_USERNAME_NOT_FOUND' }>;
+    }
+  | { code: 'NOT_AN_IRONMAN' }
+> {
+  const ironmanExpResult = await getOverallExperience(username, PlayerType.IRONMAN);
 
-  // This username is not on the hiscores
-  if (!regularExp) {
-    // Low level ironman accounts show up on the ironman hiscores, but not yet on the main ones
-    // (due to minimum fixed rank requirement), so let's not keep them as unknown until they git gud, that's not nice
-    const ironmanExp = await getOverallExperience(player, PlayerType.IRONMAN);
+  if (isErrored(ironmanExpResult)) {
+    return ironmanExpResult;
+  }
 
-    if (ironmanExp) {
-      const hardcoreExp = await getOverallExperience(player, PlayerType.HARDCORE);
-      if (hardcoreExp && hardcoreExp >= ironmanExp) return PlayerType.HARDCORE;
+  if (ironmanExpResult.value === -1) {
+    return errored({ code: 'NOT_AN_IRONMAN' } as const);
+  }
 
-      const ultimateExp = await getOverallExperience(player, PlayerType.ULTIMATE);
-      if (ultimateExp && ultimateExp >= ironmanExp) return PlayerType.ULTIMATE;
+  const hardcoreExpResult = await getOverallExperience(username, PlayerType.HARDCORE);
 
-      return PlayerType.IRONMAN;
+  if (isErrored(hardcoreExpResult)) {
+    return hardcoreExpResult;
+  }
+
+  if (hardcoreExpResult.value && hardcoreExpResult.value >= ironmanExpResult.value) {
+    return complete({
+      type: PlayerType.HARDCORE,
+      exp: hardcoreExpResult.value
+    });
+  }
+
+  const ultimateExpResult = await getOverallExperience(username, PlayerType.ULTIMATE);
+
+  if (isErrored(ultimateExpResult)) {
+    return ultimateExpResult;
+  }
+
+  if (ultimateExpResult.value && ultimateExpResult.value >= ironmanExpResult.value) {
+    return complete({
+      type: PlayerType.ULTIMATE,
+      exp: ultimateExpResult.value
+    });
+  }
+
+  return complete({
+    type: PlayerType.IRONMAN,
+    exp: ironmanExpResult.value
+  });
+}
+
+async function checkType(
+  username: string
+): AsyncResult<PlayerType, { code: 'FAILED_TO_LOAD_HISCORES'; subError: HiscoresError }> {
+  const regularExpResult = await getOverallExperience(username, PlayerType.REGULAR);
+
+  if (isErrored(regularExpResult)) {
+    return regularExpResult;
+  }
+
+  const ironmanSubTypeResult = await findIronmanSubType(username);
+
+  if (isComplete(ironmanSubTypeResult)) {
+    if (ironmanSubTypeResult.value.exp < regularExpResult.value) {
+      // They're on the IM hiscores, but their main stats have diverged, which means they have deironed
+      return complete(PlayerType.REGULAR);
     }
 
-    throw new BadRequestError(`Failed to load hiscores for ${player.username}.`);
+    return complete(ironmanSubTypeResult.value.type);
   }
 
-  const ironmanExp = await getOverallExperience(player, PlayerType.IRONMAN);
-  if (!ironmanExp || ironmanExp < regularExp) return PlayerType.REGULAR;
+  if (ironmanSubTypeResult.error.code !== 'NOT_AN_IRONMAN') {
+    // If the hiscores request failed for some reason other than 404 not found
+    return errored({
+      code: 'FAILED_TO_LOAD_HISCORES',
+      subError: ironmanSubTypeResult.error.subError
+    } as const);
+  }
 
-  const hardcoreExp = await getOverallExperience(player, PlayerType.HARDCORE);
-  if (hardcoreExp && hardcoreExp >= ironmanExp) return PlayerType.HARDCORE;
+  if (regularExpResult.value === -1) {
+    // This username is not on the regular hiscores or the ironman hiscores
+    // Low level ironman accounts show up on the ironman hiscores, but not yet on the regular,
+    // but in this case, they don't show up in either hiscores, so we can assume they don't exist
 
-  const ultimateExp = await getOverallExperience(player, PlayerType.ULTIMATE);
-  if (ultimateExp && ultimateExp >= ironmanExp) return PlayerType.ULTIMATE;
+    return errored({
+      code: 'FAILED_TO_LOAD_HISCORES',
+      subError: { code: 'HISCORES_USERNAME_NOT_FOUND' }
+    } as const);
+  }
 
-  return PlayerType.IRONMAN;
+  return complete(PlayerType.REGULAR);
 }
 
-async function getOverallExperience(player: Pick<Player, 'username' | 'type'>, type: PlayerType) {
-  try {
-    // Load data from OSRS hiscores
-    const hiscoresCSV = adaptFetchableToThrowable(
-      await fetchHiscoresData(player.username, type || player.type)
-    );
-
-    // Convert the csv data to a Snapshot instance
-    // The playerId doesn't matter here, this snapshot won't be saved to this id
-    const snapshot = await parseHiscoresSnapshot(1, hiscoresCSV);
-
-    return snapshot.overallExperience;
-  } catch (e) {
-    if (e instanceof ServerError) throw e;
-    return null;
+async function getOverallExperience(
+  username: string,
+  type: PlayerType
+): AsyncResult<
+  number,
+  {
+    code: 'FAILED_TO_LOAD_HISCORES';
+    subError: Exclude<HiscoresError, { code: 'HISCORES_USERNAME_NOT_FOUND' }>;
   }
+> {
+  const hiscoresCSVResult = await fetchHiscoresData(username, type);
+
+  if (isComplete(hiscoresCSVResult)) {
+    const parsedSnapshot = await parseHiscoresSnapshot(1, hiscoresCSVResult.value);
+
+    return complete(parsedSnapshot.overallExperience);
+  }
+
+  if (hiscoresCSVResult.error.code === 'HISCORES_USERNAME_NOT_FOUND') {
+    return complete(-1);
+  }
+
+  return errored({
+    code: 'FAILED_TO_LOAD_HISCORES',
+    subError: hiscoresCSVResult.error
+  } as const);
 }
 
 export { assertPlayerType };

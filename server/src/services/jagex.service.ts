@@ -1,11 +1,10 @@
+import { AsyncResult, complete, errored, isComplete, isErrored } from '@attio/fetchable';
 import { z } from 'zod';
-import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
+import prometheus from '../api/services/external/prometheus.service';
+import logger from '../api/util/logging';
+import { PlayerType } from '../utils';
 import { fetchWithProxy } from '../utils/fetch-with-proxy.util';
 import { retry } from '../utils/retry.util';
-import logger from '../api/util/logging';
-import prometheus from '../api/services/external/prometheus.service';
-import { PlayerType } from '../utils';
-import { BadRequestError, ServerError } from '../api/errors';
 
 const RUNEMETRICS_URL = 'https://apps.runescape.com/runemetrics/profile/profile';
 
@@ -20,12 +19,12 @@ const RUNEMETRICS_ERROR_RESPONSE_SCHEMA = z.object({
   error: z.string()
 });
 
-export async function getRuneMetricsBannedStatus(
-  username: string
-): AsyncResult<
+export async function getRuneMetricsBannedStatus(username: string): AsyncResult<
   { isBanned: boolean },
-  | { code: 'FAILED_TO_LOAD_RUNEMETRICS'; subError: unknown }
-  | { code: 'FAILED_ALL_RETRIES'; subError: unknown }
+  {
+    code: 'FAILED_TO_LOAD_RUNEMETRICS';
+    subError: unknown;
+  }
 > {
   async function retriedFunction(attemptIndex: number) {
     const url = `${RUNEMETRICS_URL}?user=${username}`;
@@ -55,27 +54,31 @@ export async function getRuneMetricsBannedStatus(
     return complete({ isBanned });
   }
 
-  return retry(retriedFunction);
+  const result = await retry(retriedFunction);
+
+  if (isComplete(result)) {
+    return result;
+  }
+
+  return errored({
+    code: 'FAILED_TO_LOAD_RUNEMETRICS',
+    subError: result.error.subError
+  } as const);
 }
+
+export const HiscoresErrorSchema = z.union([
+  z.object({ code: z.literal('HISCORES_USERNAME_NOT_FOUND') }),
+  z.object({ code: z.literal('HISCORES_SERVICE_UNAVAILABLE') }),
+  z.object({ code: z.literal('HISCORES_UNEXPECTED_ERROR'), subError: z.unknown() })
+]);
+
+export type HiscoresError = z.infer<typeof HiscoresErrorSchema>;
 
 export async function fetchHiscoresData(
   username: string,
   type: PlayerType = PlayerType.REGULAR
-): AsyncResult<
-  string,
-  | { code: 'HISCORES_USERNAME_NOT_FOUND' }
-  | { code: 'HISCORES_SERVICE_UNAVAILABLE' }
-  | { code: 'HISCORES_UNEXPECTED_ERROR'; subError: unknown }
-  | { code: 'FAILED_ALL_RETRIES'; subError: unknown }
-> {
-  async function retriedFunction(
-    attemptIndex: number
-  ): AsyncResult<
-    string,
-    | { code: 'HISCORES_USERNAME_NOT_FOUND' }
-    | { code: 'HISCORES_SERVICE_UNAVAILABLE' }
-    | { code: 'HISCORES_UNEXPECTED_ERROR'; subError: unknown }
-  > {
+): AsyncResult<string, HiscoresError> {
+  async function retriedFunction(attemptIndex: number): AsyncResult<string, HiscoresError> {
     const hiscoresType = type === PlayerType.UNKNOWN ? PlayerType.REGULAR : type;
 
     const url = `${OSRS_HISCORES_URLS[hiscoresType]}?player=${username}`;
@@ -120,29 +123,20 @@ export async function fetchHiscoresData(
     return complete(data);
   }
 
-  return retry(retriedFunction);
-}
+  const result = await retry(retriedFunction);
 
-/**
- * We're moving the hiscores fetches to typed fetchables, but the consumers
- * of this function expect errors to be thrown instead of returned.
- *
- * For now, this function adapts the fetchable to throw errors instead,
- * but this should be soon refactored to use the fetchable directly.
- */
-export function adaptFetchableToThrowable(result: Awaited<ReturnType<typeof fetchHiscoresData>>) {
-  if (isErrored(result)) {
-    switch (result.error.code) {
-      case 'HISCORES_USERNAME_NOT_FOUND':
-        throw new BadRequestError('Failed to load hiscores: Invalid username.');
-      case 'HISCORES_SERVICE_UNAVAILABLE':
-        throw new ServerError('Failed to load hiscores: Jagex service is unavailable');
-      case 'HISCORES_UNEXPECTED_ERROR':
-      case 'FAILED_ALL_RETRIES':
-      default:
-        throw new ServerError('Failed to load hiscores: Connection refused.');
-    }
+  if (isComplete(result)) {
+    return result;
   }
 
-  return result.value;
+  const parsedError = HiscoresErrorSchema.safeParse(result.error);
+
+  if (parsedError.success) {
+    return errored(parsedError.data);
+  }
+
+  return errored({
+    code: 'HISCORES_UNEXPECTED_ERROR',
+    subError: result.error
+  } as const);
 }

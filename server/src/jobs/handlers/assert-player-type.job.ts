@@ -1,9 +1,11 @@
+import { isErrored } from '@attio/fetchable';
 import { NotFoundError } from '../../api/errors';
 import { standardize } from '../../api/modules/players/player.utils';
 import { assertPlayerType } from '../../api/modules/players/services/AssertPlayerTypeService';
 import prisma from '../../prisma';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
+import { assertNever } from '../../utils/assert-never.util';
 
 interface Payload {
   username: string;
@@ -28,6 +30,19 @@ export class AssertPlayerTypeJob extends Job<Payload> {
       throw new NotFoundError('Player not found.');
     }
 
-    await assertPlayerType(player, true);
+    const assertionResult = await assertPlayerType(player);
+
+    if (isErrored(assertionResult)) {
+      switch (assertionResult.error.code) {
+        case 'HISCORES_SERVICE_UNAVAILABLE':
+        case 'HISCORES_UNEXPECTED_ERROR':
+          // throw here to retry the job
+          throw assertionResult.error;
+        case 'HISCORES_USERNAME_NOT_FOUND':
+          break;
+        default:
+          assertNever(assertionResult.error);
+      }
+    }
   }
 }
