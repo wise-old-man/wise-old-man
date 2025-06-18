@@ -1,5 +1,7 @@
+import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
+import { NotFoundError, ServerError } from '../../errors';
 import logger from '../../util/logging';
 import { checkAdminPermission } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
@@ -87,7 +89,19 @@ router.get(
     const { id } = req.params;
 
     const result = await fetchNameChangeDetails(id);
-    res.status(200).json(result);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'FAILED_TO_LOAD_HISCORES':
+          throw new ServerError('Failed to load the hiscores.');
+        case 'OLD_STATS_NOT_FOUND':
+          throw new ServerError('Old stats for this name change could not be found.');
+        case 'NAME_CHANGE_NOT_FOUND':
+          throw new NotFoundError('Name change id was not found.');
+      }
+    }
+
+    res.status(200).json(result.value);
   })
 );
 
