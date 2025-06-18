@@ -166,13 +166,20 @@ router.post(
       where: { username: standardize(username) }
     });
 
-    if (!player) {
+    if (player === null) {
       throw new NotFoundError('Player not found.');
     }
 
-    const [, updatedPlayer, changed] = await assertPlayerType(player, true);
+    const assertionResult = await assertPlayerType(player);
 
-    res.status(200).json({ player: updatedPlayer, changed });
+    if (isErrored(assertionResult)) {
+      throw new ServerError('Failed to assert player type.');
+    }
+
+    res.status(200).json({
+      changed: assertionResult.value.changed,
+      player: assertionResult.value.changed ? assertionResult.value.updatedPlayer : player
+    });
   })
 );
 

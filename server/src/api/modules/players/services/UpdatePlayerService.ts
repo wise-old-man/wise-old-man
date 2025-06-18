@@ -68,8 +68,13 @@ async function updatePlayer(
 
   // Always determine the rank before tracking (to fetch correct ranks)
   if (player.type === PlayerType.UNKNOWN) {
-    const [type] = await assertPlayerType(player);
-    updatedPlayerFields.type = type;
+    const typeAssertionResult = await assertPlayerType(player);
+
+    if (isErrored(typeAssertionResult)) {
+      return typeAssertionResult;
+    }
+
+    updatedPlayerFields.type = typeAssertionResult.value.type;
   }
 
   // Fetch the previous player stats from the database
@@ -83,10 +88,17 @@ async function updatePlayer(
     // we should at least check if their type has changed (e.g. the name was transfered to a regular acc)
     if (currentStatsResult.error.code === 'HISCORES_USERNAME_NOT_FOUND') {
       if (await shouldReviewType(player)) {
-        const hasTypeChanged = await reviewType(player).catch(() => false);
+        const typeReviewResult = await reviewType(player);
+
+        if (isErrored(typeReviewResult)) {
+          return typeReviewResult;
+        }
+
         // If they did in fact change type, call this function recursively,
         // so that it fetches their stats from the correct hiscores.
-        if (hasTypeChanged) return updatePlayer(player.username);
+        if (typeReviewResult.value.changed) {
+          return updatePlayer(player.username);
+        }
       }
 
       // If it failed to load their stats, and the player isn't unranked,
@@ -216,8 +228,12 @@ async function handlePlayerFlagged(player: Player, previousStats: Snapshot, reje
   return true;
 }
 
-async function reviewType(player: Player) {
-  const [, , changed] = await assertPlayerType(player, true);
+async function reviewType(player: Player): AsyncResult<{ changed: boolean }, HiscoresError> {
+  const typeAssertionResult = await assertPlayerType(player);
+
+  if (isErrored(typeAssertionResult)) {
+    return typeAssertionResult;
+  }
 
   // Store the current timestamp in Redis, so that we don't review this player again for 7 days
   await redisClient.set(
@@ -236,7 +252,9 @@ async function reviewType(player: Player) {
     604_800_000
   );
 
-  return changed;
+  return complete({
+    changed: typeAssertionResult.value.changed
+  });
 }
 
 async function fetchStats(
