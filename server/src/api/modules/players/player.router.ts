@@ -253,11 +253,15 @@ router.post(
       where: { username: standardize(username) }
     });
 
-    if (!player) {
+    if (player === null) {
       throw new NotFoundError('Player not found.');
     }
 
-    await rollbackCollectionLog(player.id, username);
+    const rollbackResult = await rollbackCollectionLog(player.id, username);
+
+    if (isErrored(rollbackResult)) {
+      throw new ServerError('Failed to rollback collection log data from snapshots.');
+    }
 
     const updateResult = await updatePlayer(username);
 
