@@ -4,6 +4,8 @@ import { CalendarHeatmap } from "../CalendarHeatmap";
 
 interface PlayerGainedHeatmapProps {
   data: Array<{ date: Date; value: number | null }>;
+  username: string;
+  excludeInitial: boolean;
 }
 
 export function PlayerGainedHeatmap(props: PlayerGainedHeatmapProps) {
@@ -18,7 +20,15 @@ export function PlayerGainedHeatmap(props: PlayerGainedHeatmapProps) {
     );
   }
 
-  return <CalendarHeatmap data={data} />;
+  const valueToExclude = props.excludeInitial ? data.find((x) => x.value !== null) : null;
+  const includedData = data.map((item) => {
+    if (valueToExclude && item.date === valueToExclude.date) {
+      return { ...item, value: null };
+    }
+    return item;
+  });
+
+  return <CalendarHeatmap data={includedData} />;
 }
 
 export function PlayerGainedHeatmapSkeleton() {
