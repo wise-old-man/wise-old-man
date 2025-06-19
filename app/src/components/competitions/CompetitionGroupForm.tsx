@@ -37,7 +37,7 @@ export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
   const [groupVerificationCode, setGroupVerificationCode] = useState(props.groupVerificationCode);
 
   const canSubmit =
-    !isGroupCompetition || !!(group && groupVerificationCode && groupVerificationCode.length === 11);
+    !isGroupCompetition || !!(group && groupVerificationCode);
 
   const checkMutation = useMutation({
     mutationFn: async () => {
@@ -121,7 +121,6 @@ export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
             type="password"
             className="h-12"
             placeholder="Ex: 123-456-789"
-            maxLength={11}
             value={groupVerificationCode}
             onChange={(e) => setGroupVerificationCode(e.target.value)}
           />
