@@ -1,5 +1,5 @@
+import { eventEmitter, EventType } from '../../api/events';
 import {
-  onCompetitionEnded,
   onCompetitionEnding,
   onCompetitionStarted,
   onCompetitionStarting
@@ -86,7 +86,7 @@ async function scheduleEnding(delayMs: number): Promise<void> {
       () => {
         // If competition is ending in < 1min, schedule the "ended" event instead
         if (delayMs === 0) {
-          onCompetitionEnded(c);
+          eventEmitter.emit(EventType.COMPETITION_ENDED, { competitionId: c.id });
         } else {
           onCompetitionEnding(c, getEventPeriodDelay(delayMs));
         }

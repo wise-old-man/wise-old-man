@@ -1,13 +1,15 @@
-import axios from 'axios';
+import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
+import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import logger from '../api/util/logging';
-import { Achievement, FlaggedPlayerReviewContext, Group, GroupRole, Player } from '../utils';
-import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import { Competition } from '../prisma';
+import { Achievement, FlaggedPlayerReviewContext, Group, GroupRole, Player } from '../utils';
 
 export enum DiscordBotEventType {
   // Player-facing Events
+  COMPETITION_CREATED = 'COMPETITION_CREATED',
+  COMPETITION_ENDED = 'COMPETITION_ENDED',
   GROUP_MEMBERS_CHANGED_ROLES = 'GROUP_MEMBERS_CHANGED_ROLES',
   GROUP_MEMBERS_JOINED = 'GROUP_MEMBERS_JOINED',
   GROUP_MEMBERS_LEFT = 'GROUP_MEMBERS_LEFT',
@@ -22,6 +24,19 @@ export enum DiscordBotEventType {
 }
 
 type DiscordBotEventPayloadMap = {
+  [DiscordBotEventType.COMPETITION_CREATED]: {
+    groupId: number;
+    competition: Competition;
+  };
+  [DiscordBotEventType.COMPETITION_ENDED]: {
+    groupId: number;
+    competition: Competition;
+    standings: Array<{
+      gained: number;
+      displayName: string;
+      teamName: string | null;
+    }>;
+  };
   [DiscordBotEventType.GROUP_MEMBERS_CHANGED_ROLES]: {
     groupId: number;
     members: Array<{

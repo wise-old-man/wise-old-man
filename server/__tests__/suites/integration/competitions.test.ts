@@ -8,12 +8,13 @@ import * as competitionEvents from '../../../src/api/modules/competitions/compet
 import { resetDatabase, registerHiscoresMock, readFile, modifyRawHiscoresData, sleep } from '../../utils';
 import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
+import * as CompetitionCreatedEvent from '../../../src/api/events/handlers/competition-created.event';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const onCompetitionCreatedEvent = jest.spyOn(competitionEvents, 'onCompetitionCreated');
 const onParticipantsJoinedEvent = jest.spyOn(competitionEvents, 'onParticipantsJoined');
+const competitionCreatedEvent = jest.spyOn(CompetitionCreatedEvent, 'handler');
 
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
@@ -76,7 +77,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'title' is undefined.");
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -86,7 +87,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'title' must have a minimum of 1 character(s).");
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -96,7 +97,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'metric' is undefined.");
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -106,7 +107,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'startsAt' is not a valid date.");
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -118,7 +119,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'startsAt' is not a valid date.");
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -130,7 +131,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'endsAt' is not a valid date.");
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -142,7 +143,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'endsAt' is not a valid date.");
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -156,7 +157,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Start date must be before the end date.');
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -170,7 +171,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid dates: All start and end dates must be in the future.');
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -180,7 +181,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -193,7 +194,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'title' must have a maximum of 50 character(s).");
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -206,7 +207,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'participants' is not a valid array.");
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -220,7 +221,7 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch('Found 1 invalid usernames:');
       expect(response.body.data).toContain('areallylongusername');
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -236,7 +237,7 @@ describe('Competition API', () => {
         'Cannot include both "participants" and "teams", they are mutually exclusive.'
       );
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -249,7 +250,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'teams' is not a valid array.");
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -264,7 +265,7 @@ describe('Competition API', () => {
         'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
       );
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -279,7 +280,7 @@ describe('Competition API', () => {
         'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
       );
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -294,7 +295,7 @@ describe('Competition API', () => {
         'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
       );
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -307,7 +308,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('All teams must have a valid non-empty participants array.');
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -322,7 +323,7 @@ describe('Competition API', () => {
         'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
       );
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -335,7 +336,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Team names must have at least one character.');
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -348,7 +349,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Team names cannot be longer than 30 characters.');
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -364,7 +365,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found repeated team names: [warriors]');
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -380,7 +381,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found repeated usernames: [zezima]');
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -394,7 +395,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found.');
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -407,7 +408,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid group verification code.');
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -433,7 +434,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(403);
       expect(response.body.message).toMatch('Incorrect group verification code.');
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -448,7 +449,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Cannot include both "participants" and "groupId"');
 
-      expect(onCompetitionCreatedEvent).not.toHaveBeenCalled();
+      expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
@@ -474,10 +475,9 @@ describe('Competition API', () => {
       expect(response.body.competition.verificationHash).not.toBeDefined();
       expect(response.body.competition.participations.length).toBe(0);
 
-      expect(onCompetitionCreatedEvent).toHaveBeenCalledWith(
+      expect(competitionCreatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Wise Old Man',
-          metric: 'smithing'
+          competitionId: response.body.competition.id
         })
       );
 
@@ -519,10 +519,9 @@ describe('Competition API', () => {
       expect(response.body.competition.verificationHash).not.toBeDefined();
       expect(response.body.competition.participations.length).toBe(4);
 
-      expect(onCompetitionCreatedEvent).toHaveBeenCalledWith(
+      expect(competitionCreatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'BOTW Zulrah #3',
-          metric: 'zulrah'
+          competitionId: response.body.competition.id
         })
       );
 
@@ -590,10 +589,9 @@ describe('Competition API', () => {
       expect(response.body.competition.participations.map(p => p.player.username)).toContain('rorro');
       expect(response.body.competition.participations.map(p => p.player.username)).toContain('usbc');
 
-      expect(onCompetitionCreatedEvent).toHaveBeenCalledWith(
+      expect(competitionCreatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'SOTW Thieving 💰 #5',
-          metric: 'thieving'
+          competitionId: response.body.competition.id
         })
       );
 
@@ -667,10 +665,9 @@ describe('Competition API', () => {
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
 
-      expect(onCompetitionCreatedEvent).toHaveBeenCalledWith(
+      expect(competitionCreatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Soul Wars Competition',
-          metric: 'soul_wars_zeal'
+          competitionId: response.body.competition.id
         })
       );
 
@@ -717,10 +714,9 @@ describe('Competition API', () => {
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
 
-      expect(onCompetitionCreatedEvent).toHaveBeenCalledWith(
+      expect(competitionCreatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'OVERALL Competition',
-          metric: 'overall'
+          competitionId: response.body.competition.id
         })
       );
 
@@ -769,10 +765,9 @@ describe('Competition API', () => {
         id: globalData.testGroup.id
       });
 
-      expect(onCompetitionCreatedEvent).toHaveBeenCalledWith(
+      expect(competitionCreatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Fishing Competition',
-          metric: 'fishing'
+          competitionId: response.body.competition.id
         })
       );
 

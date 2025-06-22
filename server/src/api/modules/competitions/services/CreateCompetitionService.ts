@@ -1,6 +1,7 @@
 import prisma from '../../../../prisma';
 import { CompetitionType, Metric } from '../../../../utils';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
+import { eventEmitter, EventType } from '../../../events';
 import * as cryptService from '../../../services/external/crypt.service';
 import { omit } from '../../../util/objects';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -139,7 +140,9 @@ async function createCompetition(
     }))
   };
 
-  competitionEvents.onCompetitionCreated(formattedCompetition);
+  eventEmitter.emit(EventType.COMPETITION_CREATED, {
+    competitionId: createdCompetition.id
+  });
 
   if (createdCompetition.participations.length > 0) {
     competitionEvents.onParticipantsJoined(createdCompetition.participations);

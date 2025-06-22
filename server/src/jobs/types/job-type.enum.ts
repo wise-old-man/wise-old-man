@@ -7,6 +7,8 @@ export enum JobType {
   CHECK_MISSING_COMPUTED_RANK_TABLES = 'check-missing-computed-rank-tables',
   CHECK_PLAYER_BANNED = 'check-player-banned',
   CHECK_PLAYER_RANKED = 'check-player-ranked',
+  DISPATCH_COMPETITION_CREATED_DISCORD_EVENT = 'dispatch-competition-created-discord-event',
+  DISPATCH_COMPETITION_ENDED_DISCORD_EVENT = 'dispatch-competition-ended-discord-event',
   DISPATCH_MEMBER_ACHIEVEMENTS_DISCORD_EVENT = 'dispatch-member-achievements-discord-event',
   DISPATCH_MEMBER_HCIM_DIED_DISCORD_EVENT = 'dispatch-member-hcim-died-discord-event',
   DISPATCH_MEMBER_NAME_CHANGED_DISCORD_EVENT = 'dispatch-member-name-changed-discord-event',

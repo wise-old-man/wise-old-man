@@ -2,6 +2,12 @@ import { FlaggedPlayerReviewContext, GroupRole, Metric, Period, PlayerType } fro
 import { EventType } from './event-type.enum';
 
 export type EventPayloadMap = {
+  [EventType.COMPETITION_CREATED]: {
+    competitionId: number;
+  };
+  [EventType.COMPETITION_ENDED]: {
+    competitionId: number;
+  };
   [EventType.GROUP_CREATED]: {
     groupId: number;
   };

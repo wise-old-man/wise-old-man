@@ -1,6 +1,6 @@
 import { JobPriority, JobType, jobManager } from '../../../jobs';
 import prisma, { Competition, Participation } from '../../../prisma';
-import { CompetitionWithParticipations, PlayerType } from '../../../utils';
+import { PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
 import { EventPeriodDelay } from '../../services/external/discord.service';
 import prometheus from '../../services/external/prometheus.service';
@@ -26,13 +26,6 @@ async function onParticipantsJoined(participations: Pick<Participation, 'playerI
   });
 }
 
-async function onCompetitionCreated(competition: CompetitionWithParticipations) {
-  // Dispatch a competition created event to our discord bot API.
-  await prometheus.trackEffect('dispatchCompetitionCreated', async () => {
-    discordService.dispatchCompetitionCreated(competition);
-  });
-}
-
 async function onCompetitionStarted(competition: Competition) {
   // Update all players when the competition starts
   await prometheus.trackEffect('updateAllParticipants', async () => {
@@ -42,18 +35,6 @@ async function onCompetitionStarted(competition: Competition) {
   // Dispatch a competition started event to our discord bot API.
   await prometheus.trackEffect('dispatchCompetitionStarted', async () => {
     discordService.dispatchCompetitionStarted(competition);
-  });
-
-  jobManager.add(JobType.UPDATE_COMPETITION_SCORE, { competitionId: competition.id });
-}
-
-async function onCompetitionEnded(competition: Competition) {
-  const competitionDetails = await fetchCompetitionDetails(competition.id);
-  if (!competitionDetails) return;
-
-  // Dispatch a competition ended event to our discord bot API.
-  await prometheus.trackEffect('dispatchCompetitionEnded', async () => {
-    discordService.dispatchCompetitionEnded(competitionDetails);
   });
 
   jobManager.add(JobType.UPDATE_COMPETITION_SCORE, { competitionId: competition.id });
@@ -116,11 +97,4 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
   }
 }
 
-export {
-  onCompetitionCreated,
-  onCompetitionEnded,
-  onCompetitionEnding,
-  onCompetitionStarted,
-  onCompetitionStarting,
-  onParticipantsJoined
-};
+export { onCompetitionEnding, onCompetitionStarted, onCompetitionStarting, onParticipantsJoined };
