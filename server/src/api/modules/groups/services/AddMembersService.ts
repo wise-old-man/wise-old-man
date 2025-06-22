@@ -3,7 +3,6 @@ import { GroupRole } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, ServerError } from '../../../errors';
 import { isValidUsername, standardize } from '../../players/player.utils';
-import * as groupEvents from '../group.events';
 import { ActivityType } from '../group.types';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { eventEmitter, EventType } from '../../../events';
@@ -76,7 +75,11 @@ async function addMembers(
         data: { updatedAt: new Date() }
       });
 
-      await transaction.memberActivity.createMany({ data: newActivites });
+      await transaction.memberActivity.createMany({
+        data: newActivites
+      });
+
+      eventEmitter.emit(EventType.GROUP_UPDATED, { groupId });
 
       eventEmitter.emit(EventType.GROUP_MEMBERS_JOINED, {
         groupId,
@@ -92,8 +95,6 @@ async function addMembers(
       logger.error('Failed to add members', error);
       throw new ServerError('Failed to add members.');
     });
-
-  groupEvents.onGroupUpdated(groupId);
 
   return { count: addedCount };
 }

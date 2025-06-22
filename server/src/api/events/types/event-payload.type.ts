@@ -26,6 +26,9 @@ export type EventPayloadMap = {
       previousRole: GroupRole;
     }>;
   };
+  [EventType.GROUP_UPDATED]: {
+    groupId: number;
+  };
   [EventType.NAME_CHANGE_CREATED]: {
     nameChangeId: number;
   };

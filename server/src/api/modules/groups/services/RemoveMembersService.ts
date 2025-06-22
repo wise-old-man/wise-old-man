@@ -3,7 +3,6 @@ import { BadRequestError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import logger from '../../../util/logging';
 import { standardize } from '../../players/player.utils';
-import * as groupEvents from '../group.events';
 import { ActivityType } from '../group.types';
 
 async function removeMembers(groupId: number, members: string[]): Promise<{ count: number }> {
@@ -74,7 +73,7 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
       throw new ServerError('Failed to remove members');
     });
 
-  groupEvents.onGroupUpdated(groupId);
+  eventEmitter.emit(EventType.GROUP_UPDATED, { groupId });
 
   eventEmitter.emit(EventType.GROUP_MEMBERS_LEFT, {
     groupId,

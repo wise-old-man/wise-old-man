@@ -5,6 +5,7 @@ import * as GroupCreated from './handlers/group-created.event';
 import * as GroupMembersJoined from './handlers/group-members-joined.event';
 import * as GroupMembersLeft from './handlers/group-members-left.event';
 import * as GroupMembersRolesChanged from './handlers/group-members-roles-changed.event';
+import * as GroupUpdated from './handlers/group-updated.event';
 import * as NameChangeCreated from './handlers/name-change-created.event';
 import * as PlayerAchievementsCreated from './handlers/player-achievements-created.event';
 import * as PlayerArchived from './handlers/player-archived.event';
@@ -34,6 +35,7 @@ export class TypedEventEmitter extends EventEmitter {
     this.on(EventType.GROUP_MEMBERS_JOINED, GroupMembersJoined.handler);
     this.on(EventType.GROUP_MEMBERS_LEFT, GroupMembersLeft.handler);
     this.on(EventType.GROUP_MEMBERS_ROLES_CHANGED, GroupMembersRolesChanged.handler);
+    this.on(EventType.GROUP_UPDATED, GroupUpdated.handler);
     this.on(EventType.NAME_CHANGE_CREATED, NameChangeCreated.handler);
     this.on(EventType.PLAYER_ACHIEVEMENTS_CREATED, PlayerAchievementsCreated.handler);
     this.on(EventType.PLAYER_ARCHIVED, PlayerArchived.handler);

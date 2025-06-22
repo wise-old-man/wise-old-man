@@ -6,7 +6,6 @@ import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { onGroupUpdated } from '../group.events';
 import { ActivityType, GroupDetails } from '../group.types';
 import { buildDefaultSocialLinks, sanitizeName, sortMembers } from '../group.utils';
 
@@ -200,7 +199,7 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     throw new ServerError('Failed to edit group. (EditGroupService)');
   }
 
-  onGroupUpdated(groupId);
+  eventEmitter.emit(EventType.GROUP_UPDATED, { groupId });
 
   const sortedMemberships = sortMembers(updatedGroup.memberships, updatedGroup.roleOrders);
 
