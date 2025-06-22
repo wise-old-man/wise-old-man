@@ -1,4 +1,6 @@
 export enum EventType {
+  COMPETITION_CREATED = 'competition-created',
+  COMPETITION_ENDED = 'competition-ended',
   GROUP_CREATED = 'group-created',
   GROUP_MEMBERS_JOINED = 'group-members-joined',
   GROUP_MEMBERS_LEFT = 'group-members-left',

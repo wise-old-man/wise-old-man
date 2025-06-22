@@ -1,11 +1,6 @@
 import axios from 'axios';
 import { Competition } from '../../../prisma';
-import {
-  CompetitionDetails,
-  CompetitionWithParticipations
-} from '../../modules/competitions/competition.types';
 import logger from '../../util/logging';
-import { omit } from '../../util/objects';
 
 export interface EventPeriodDelay {
   hours?: number;
@@ -31,17 +26,6 @@ function dispatch(type: string, payload: unknown) {
 /**
  * Dispatch a competition created event to our discord bot API.
  */
-function dispatchCompetitionCreated(competition: CompetitionWithParticipations) {
-  // Omit participations field when sending to discord, to decrease payload size
-  dispatch('COMPETITION_CREATED', {
-    groupId: competition.groupId,
-    competition: omit(competition, 'participations')
-  });
-}
-
-/**
- * Dispatch a competition created event to our discord bot API.
- */
 function dispatchCompetitionStarted(competition: Competition) {
   const { groupId } = competition;
 
@@ -49,28 +33,6 @@ function dispatchCompetitionStarted(competition: Competition) {
   if (!groupId) return;
 
   dispatch('COMPETITION_STARTED', { groupId, competition });
-}
-
-/**
- * Dispatch a competition ended event to our discord bot API.
- */
-function dispatchCompetitionEnded(competition: CompetitionDetails) {
-  const { groupId, participations } = competition;
-
-  // Only dispatch this event for group competitions
-  if (!groupId) return;
-
-  // Map the competition's end standings
-  const standings = participations
-    .filter(p => p.progress.gained > 0)
-    .map(p => ({ displayName: p.player.displayName, teamName: p.teamName, gained: p.progress.gained }));
-
-  // Omit participations field when sending to discord, to decrease payload size
-  dispatch('COMPETITION_ENDED', {
-    competition: omit(competition, 'participations'),
-    standings,
-    groupId
-  });
 }
 
 /**
@@ -97,11 +59,4 @@ function dispatchCompetitionEnding(competition: Competition, period: EventPeriod
   dispatch('COMPETITION_ENDING', { groupId, competition, period });
 }
 
-export {
-  dispatch,
-  dispatchCompetitionCreated,
-  dispatchCompetitionEnded,
-  dispatchCompetitionEnding,
-  dispatchCompetitionStarted,
-  dispatchCompetitionStarting
-};
+export { dispatchCompetitionEnding, dispatchCompetitionStarted, dispatchCompetitionStarting };
