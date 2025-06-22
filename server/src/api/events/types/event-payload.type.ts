@@ -2,6 +2,9 @@ import { FlaggedPlayerReviewContext, GroupRole, Metric, Period, PlayerType } fro
 import { EventType } from './event-type.enum';
 
 export type EventPayloadMap = {
+  [EventType.GROUP_CREATED]: {
+    groupId: number;
+  };
   [EventType.GROUP_MEMBERS_JOINED]: {
     groupId: number;
     members: Array<{

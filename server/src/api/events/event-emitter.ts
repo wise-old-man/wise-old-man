@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import logger from '../../api/util/logging';
 import prometheus from '../services/external/prometheus.service';
+import * as GroupCreated from './handlers/group-created.event';
 import * as GroupMembersJoined from './handlers/group-members-joined.event';
 import * as GroupMembersLeft from './handlers/group-members-left.event';
 import * as GroupMembersRolesChanged from './handlers/group-members-roles-changed.event';
@@ -29,6 +30,7 @@ export class TypedEventEmitter extends EventEmitter {
   init() {
     this.removeAllListeners();
 
+    this.on(EventType.GROUP_CREATED, GroupCreated.handler);
     this.on(EventType.GROUP_MEMBERS_JOINED, GroupMembersJoined.handler);
     this.on(EventType.GROUP_MEMBERS_LEFT, GroupMembersLeft.handler);
     this.on(EventType.GROUP_MEMBERS_ROLES_CHANGED, GroupMembersRolesChanged.handler);
