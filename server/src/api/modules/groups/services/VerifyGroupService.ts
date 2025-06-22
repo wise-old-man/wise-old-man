@@ -2,7 +2,7 @@ import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 import { omit } from '../../../util/objects';
 import { GroupListItem } from '../group.types';
-import { onGroupUpdated } from '../group.events';
+import { eventEmitter, EventType } from '../../../events';
 
 async function verifyGroup(groupId: number): Promise<GroupListItem> {
   try {
@@ -18,7 +18,7 @@ async function verifyGroup(groupId: number): Promise<GroupListItem> {
       }
     });
 
-    onGroupUpdated(groupId);
+    eventEmitter.emit(EventType.GROUP_UPDATED, { groupId });
 
     return {
       ...omit(updatedGroup, '_count', 'verificationHash'),

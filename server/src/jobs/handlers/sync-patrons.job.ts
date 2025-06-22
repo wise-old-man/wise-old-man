@@ -1,4 +1,3 @@
-import { onGroupUpdated } from '../../api/modules/groups/group.events';
 import { sendDiscordWebhook } from '../../services/discord.service';
 import {
   getPatrons,
@@ -8,6 +7,7 @@ import {
 import { omit } from '../../api/util/objects';
 import prisma, { Patron } from '../../prisma';
 import { Job } from '../job.class';
+import { eventEmitter, EventType } from '../../api/events';
 
 export class SyncPatronsJob extends Job<unknown> {
   async execute() {
@@ -201,7 +201,9 @@ async function syncBenefits() {
   });
 
   newPatronGroups.forEach(group => {
-    onGroupUpdated(group.id);
+    eventEmitter.emit(EventType.GROUP_UPDATED, {
+      groupId: group.id
+    });
   });
 }
 

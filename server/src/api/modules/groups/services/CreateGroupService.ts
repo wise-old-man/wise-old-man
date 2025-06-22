@@ -6,7 +6,6 @@ import * as cryptService from '../../../services/external/crypt.service';
 import { omit } from '../../../util/objects';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { onGroupCreated } from '../group.events';
 import { GroupDetails } from '../group.types';
 import { buildDefaultSocialLinks, sanitizeName } from '../group.utils';
 
@@ -77,7 +76,7 @@ async function createGroup(
     }
   });
 
-  onGroupCreated(createdGroup.id);
+  eventEmitter.emit(EventType.GROUP_CREATED, { groupId: createdGroup.id });
 
   if (createdGroup.memberships.length > 0) {
     eventEmitter.emit(EventType.GROUP_MEMBERS_JOINED, {
