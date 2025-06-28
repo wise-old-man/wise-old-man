@@ -8,6 +8,7 @@ import { assertNever } from '../../../utils/assert-never.util';
 import { BadRequestError, ForbiddenError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import logging from '../../util/logging';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
+import { omit } from '../../util/objects';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getDateSchema, getPaginationSchema } from '../../util/validation';
 import { findPlayerAchievementProgress } from '../achievements/services/FindPlayerAchievementProgressService';
@@ -468,11 +469,19 @@ router.get(
         ? await findPlayerParticipationsStandings2(username, status)
         : await findPlayerParticipationsStandings(username, status);
 
-     // Random 10% sample
+    // Random 10% sample
     if (Math.random() < 0.1 && version !== 'v2') {
       const v2Results = await findPlayerParticipationsStandings2(username, status);
 
-      const v1JSON = JSON.stringify(results);
+      // Fix the key sorting here to ensure consistent comparison
+      const v1JSON = JSON.stringify(
+        results.map(r => ({
+          ...omit(r, 'progress', 'levels'),
+          progress: r.progress,
+          levels: r.levels
+        }))
+      );
+
       const v2JSON = JSON.stringify(v2Results);
 
       if (v1JSON !== v2JSON) {
