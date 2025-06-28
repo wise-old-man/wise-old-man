@@ -6,6 +6,7 @@ import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../../utils';
 import { assertNever } from '../../../utils/assert-never.util';
 import { BadRequestError, ForbiddenError, NotFoundError, RateLimitError, ServerError } from '../../errors';
+import logging from '../../util/logging';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getDateSchema, getPaginationSchema } from '../../util/validation';
@@ -466,6 +467,26 @@ router.get(
       version === 'v2'
         ? await findPlayerParticipationsStandings2(username, status)
         : await findPlayerParticipationsStandings(username, status);
+
+     // Random 10% sample
+    if (Math.random() < 0.1 && version !== 'v2') {
+      const v2Results = await findPlayerParticipationsStandings2(username, status);
+
+      const v1JSON = JSON.stringify(results);
+      const v2JSON = JSON.stringify(v2Results);
+
+      if (v1JSON !== v2JSON) {
+        console.warn(
+          `Discrepancy found in player standings for ${username} (${status}): v1 and v2 results differ.`
+        );
+        console.warn('v1:', v1JSON);
+        console.warn('v2:', v2JSON);
+
+        logging.debug('Discrepancy found in player standings.', { username, status, v1JSON, v2JSON });
+      } else {
+        logging.debug('Player standings match between v1 and v2.', { username, status });
+      }
+    }
 
     res.status(200).json(results);
   })
