@@ -82,7 +82,8 @@ export const Activity = {
   PVP_ARENA: 'pvp_arena',
   SOUL_WARS_ZEAL: 'soul_wars_zeal',
   GUARDIANS_OF_THE_RIFT: 'guardians_of_the_rift',
-  COLOSSEUM_GLORY: 'colosseum_glory'
+  COLOSSEUM_GLORY: 'colosseum_glory',
+  COLLECTIONS_LOGGED: 'collections_logged'
 } as const;
 
 export const Boss = {
@@ -135,6 +136,7 @@ export const Boss = {
   THE_CORRUPTED_GAUNTLET: 'the_corrupted_gauntlet',
   THE_HUEYCOATL: 'the_hueycoatl',
   THE_LEVIATHAN: 'the_leviathan',
+  THE_ROYAL_TITANS: 'the_royal_titans',
   THE_WHISPERER: 'the_whisperer',
   THEATRE_OF_BLOOD: 'theatre_of_blood',
   THEATRE_OF_BLOOD_HARD_MODE: 'theatre_of_blood_hard_mode',
@@ -148,6 +150,7 @@ export const Boss = {
   VETION: 'vetion',
   VORKATH: 'vorkath',
   WINTERTODT: 'wintertodt',
+  YAMA: 'yama',
   ZALCANO: 'zalcano',
   ZULRAH: 'zulrah'
 } as const;

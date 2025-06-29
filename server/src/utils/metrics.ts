@@ -1,5 +1,5 @@
-import { Skill, Boss, Activity, ComputedMetric, Metric } from '../prisma/enum-adapter';
 import { mapValues } from '../api/util/objects';
+import { Activity, Boss, ComputedMetric, Metric, Skill } from '../prisma/enum-adapter';
 import { MapOf } from './types';
 
 enum MetricType {
@@ -132,6 +132,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
     [Boss.THE_GAUNTLET]: { name: 'The Gauntlet' },
     [Boss.THE_CORRUPTED_GAUNTLET]: { name: 'The Corrupted Gauntlet' },
     [Boss.THE_LEVIATHAN]: { name: 'The Leviathan' },
+    [Boss.THE_ROYAL_TITANS]: { name: 'The Royal Titans' },
     [Boss.THE_WHISPERER]: { name: 'The Whisperer' },
     [Boss.THEATRE_OF_BLOOD]: { name: 'Theatre Of Blood' },
     [Boss.THEATRE_OF_BLOOD_HARD_MODE]: { name: 'Theatre Of Blood (HM)' },
@@ -145,6 +146,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
     [Boss.VETION]: { name: "Vet'ion" },
     [Boss.VORKATH]: { name: 'Vorkath' },
     [Boss.WINTERTODT]: { name: 'Wintertodt' },
+    [Boss.YAMA]: { name: 'Yama' },
     [Boss.ZALCANO]: { name: 'Zalcano' },
     [Boss.ZULRAH]: { name: 'Zulrah' }
   },
@@ -173,7 +175,8 @@ const ActivityProps: MapOf<Activity, ActivityProperties> = mapValues(
     [Activity.PVP_ARENA]: { name: 'PvP Arena', minimumValue: 2525 },
     [Activity.SOUL_WARS_ZEAL]: { name: 'Soul Wars Zeal', minimumValue: 200 },
     [Activity.GUARDIANS_OF_THE_RIFT]: { name: 'Guardians of the Rift', minimumValue: 2 },
-    [Activity.COLOSSEUM_GLORY]: { name: 'Colosseum Glory', minimumValue: 300 }
+    [Activity.COLOSSEUM_GLORY]: { name: 'Colosseum Glory', minimumValue: 300 },
+    [Activity.COLLECTIONS_LOGGED]: { name: 'Collection Logs', minimumValue: 500 }
   },
   props => ({
     ...props,
@@ -284,38 +287,38 @@ function getParentEfficiencyMetric(metric: Metric) {
 }
 
 export {
+  ACTIVITIES,
+  Activity,
+  Boss,
+  BOSSES,
+  COMBAT_SKILLS,
+  COMPUTED_METRICS,
+  ComputedMetric,
+  F2P_BOSSES,
+  // Functions
+  findMetric,
+  getMetricMeasure,
+  getMetricName,
+  getMetricRankKey,
+  getMetricValueKey,
+  getMinimumValue,
+  getParentEfficiencyMetric,
+  isActivity,
+  isBoss,
+  isComputedMetric,
+  isMetric,
+  isSkill,
+  MEMBER_SKILLS,
   // Enums
   Metric,
-  Skill,
-  Boss,
-  Activity,
-  ComputedMetric,
-  MetricType,
   MetricMeasure,
   // Maps
   MetricProps,
-  // Lists
-  SKILLS,
-  ACTIVITIES,
-  BOSSES,
-  COMPUTED_METRICS,
   METRICS,
-  F2P_BOSSES,
-  REAL_SKILLS,
-  MEMBER_SKILLS,
-  COMBAT_SKILLS,
+  MetricType,
   REAL_METRICS,
-  // Functions
-  findMetric,
-  getMetricRankKey,
-  getMetricValueKey,
-  getMetricMeasure,
-  getMetricName,
-  getMinimumValue,
-  getParentEfficiencyMetric,
-  isMetric,
-  isSkill,
-  isActivity,
-  isBoss,
-  isComputedMetric
+  REAL_SKILLS,
+  Skill,
+  // Lists
+  SKILLS
 };
