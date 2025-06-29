@@ -9,11 +9,11 @@ import {
   Snapshot
 } from '../../../../utils';
 import { NotFoundError } from '../../../errors';
+import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
 import { calculateLevelDiff, calculateMetricDelta } from '../../deltas/delta.utils';
 import { standardize } from '../../players/player.utils';
 import { ParticipationWithCompetitionAndStandings } from '../competition.types';
-import logger from '../../../util/logging';
 
 /**
  * To reduce number of columns returned from our snapshot queries,
@@ -81,6 +81,10 @@ async function findPlayerParticipationsStandings2(
     },
     orderBy: [{ competition: { score: 'desc' } }, { createdAt: 'desc' }]
   });
+
+  if (playerParticipations.length === 0) {
+    return [];
+  }
 
   // Find all other players in those same competitions
   const allParticipations = await prisma.participation.findMany({
@@ -232,7 +236,12 @@ async function findPlayerParticipationsStandings2(
           progress
         };
       })
-      .sort((a, b) => b.progress.gained - a.progress.gained || b.progress.start - a.progress.start);
+      .sort(
+        (a, b) =>
+          b.progress.gained - a.progress.gained ||
+          b.progress.start - a.progress.start ||
+          a.playerId - b.playerId
+      );
 
     // Find where our player is in the sorted list
     const targetPlayerIndex = sortedParticipants.findIndex(p => p.playerId === player.id);

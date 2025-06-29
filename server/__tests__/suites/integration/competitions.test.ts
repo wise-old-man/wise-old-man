@@ -1,14 +1,14 @@
 import axios from 'axios';
-import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
+import supertest from 'supertest';
 import apiServer from '../../../src/api';
-import prisma from '../../../src/prisma';
-import { PlayerType } from '../../../src/utils';
-import * as competitionEvents from '../../../src/api/modules/competitions/competition.events';
-import { resetDatabase, registerHiscoresMock, readFile, modifyRawHiscoresData, sleep } from '../../utils';
-import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
 import * as CompetitionCreatedEvent from '../../../src/api/events/handlers/competition-created.event';
+import * as competitionEvents from '../../../src/api/modules/competitions/competition.events';
+import prisma from '../../../src/prisma';
+import { redisClient } from '../../../src/services/redis.service';
+import { PlayerType } from '../../../src/utils';
+import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -3025,7 +3025,7 @@ describe('Competition API', () => {
           id: globalData.testCompetitionEnding.id,
           participantCount: 11
         },
-        rank: 11,
+        rank: 1,
         progress: { end: -1, gained: 0, start: -1 }
       });
 
@@ -3036,7 +3036,7 @@ describe('Competition API', () => {
           id: globalData.testCompetitionWithGroup.id,
           participantCount: 4
         },
-        rank: 2,
+        rank: 1,
         progress: { end: 6350129, gained: 0, start: 6350129 }
       });
 

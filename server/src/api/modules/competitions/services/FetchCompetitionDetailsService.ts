@@ -1,9 +1,9 @@
 import prisma from '../../../../prisma';
-import { omit } from '../../../util/objects';
 import { getMetricValueKey, isComputedMetric, isSkill, Metric, Skill } from '../../../../utils';
 import { NotFoundError } from '../../../errors';
-import { CompetitionDetails } from '../competition.types';
+import { omit } from '../../../util/objects';
 import * as deltaUtils from '../../deltas/delta.utils';
+import { CompetitionDetails } from '../competition.types';
 
 async function fetchCompetitionDetails(id: number, metric?: Metric): Promise<CompetitionDetails> {
   const competition = await prisma.competition.findFirst({
@@ -91,7 +91,12 @@ async function calculateParticipantsStandings(competitionId: number, metric: Met
         levels
       };
     })
-    .sort((a, b) => b.progress.gained - a.progress.gained || b.progress.start - a.progress.start);
+    .sort(
+      (a, b) =>
+        b.progress.gained - a.progress.gained ||
+        b.progress.start - a.progress.start ||
+        a.playerId - b.playerId
+    );
 }
 
-export { fetchCompetitionDetails, calculateParticipantsStandings };
+export { calculateParticipantsStandings, fetchCompetitionDetails };

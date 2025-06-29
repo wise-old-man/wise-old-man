@@ -470,7 +470,7 @@ router.get(
         : await findPlayerParticipationsStandings(username, status);
 
     // Random 10% sample
-    if (Math.random() < 0.1 && version !== 'v2') {
+    if (Math.random() < 0.1 && version !== 'v2' && results.length > 0) {
       const v2Results = await findPlayerParticipationsStandings2(username, status);
 
       // Fix the key sorting here to ensure consistent comparison
