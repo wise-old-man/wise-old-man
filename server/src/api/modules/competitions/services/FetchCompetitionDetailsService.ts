@@ -99,4 +99,4 @@ async function calculateParticipantsStandings(competitionId: number, metric: Met
     );
 }
 
-export { calculateParticipantsStandings, fetchCompetitionDetails };
+export { fetchCompetitionDetails };
