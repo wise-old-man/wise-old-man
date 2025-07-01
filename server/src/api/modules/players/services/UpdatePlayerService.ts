@@ -19,7 +19,7 @@ let UPDATE_COOLDOWN = process.env.NODE_ENV === 'test' ? 0 : 60;
 
 type UpdatePlayerResult = [playerDetails: PlayerDetails, isNew: boolean];
 
-async function updatePlayer(username: string, skipFlagChecks = false): Promise<UpdatePlayerResult> {
+async function updatePlayer(username: string, skipFlagChecks = true): Promise<UpdatePlayerResult> {
   // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findOrCreate(username);
 
