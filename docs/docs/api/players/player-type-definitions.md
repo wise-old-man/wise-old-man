@@ -26,7 +26,7 @@ sidebar_position: 1
 ### `(Enum)` Player Annotation
 
 ```bash
-'opt_out', 'blocked', 'fake_f2p'
+'opt_out', 'opt_out_groups', 'opt_out_competitions', 'blocked', 'fake_f2p'
 ```
 
 <br />
@@ -113,12 +113,12 @@ sidebar_position: 1
 
 ### `(Object)` Annotation
 
-| Field          | Type    | Description                         |
-| :------------- | :------ | :---------------------------------- |
-| id             | integer | The annotations's unique ID.        |
-| playerId       | integer | The annotations's parent player ID. |
-| createdAt      | date    | The annotation's creation date.     |
-| annotationType | Enum    | The opt_out / fake_f2p / blocked    |
+| Field          | Type    | Description                        |
+| :------------- | :------ | :--------------------------------- |
+| id             | integer | The annotation's unique ID.        |
+| playerId       | integer | The annotation's parent player ID. |
+| createdAt      | date    | The annotation's creation date.    |
+| annotationType | Enum    | The annotation0s type.             |
 
 <br />
 

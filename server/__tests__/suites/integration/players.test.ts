@@ -2,6 +2,13 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import supertest from 'supertest';
 import apiServer from '../../../src/api';
+import { eventEmitter } from '../../../src/api/events';
+import * as GroupMembersJoinedEvent from '../../../src/api/events/handlers/group-members-joined.event';
+import * as GroupMembersLeftEvent from '../../../src/api/events/handlers/group-members-left.event';
+import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
+import * as PlayerFlaggedEvent from '../../../src/api/events/handlers/player-flagged.event';
+import * as PlayerTypeChangedEvent from '../../../src/api/events/handlers/player-type-changed.event';
+import * as PlayerUpdatedEvent from '../../../src/api/events/handlers/player-updated.event';
 import { getPlayerEfficiencyMap } from '../../../src/api/modules/efficiency/efficiency.utils';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
 import { findOrCreatePlayers } from '../../../src/api/modules/players/services/FindOrCreatePlayersService';
@@ -12,13 +19,6 @@ import prisma from '../../../src/prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
 import { BOSSES, Metric, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/utils';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
-import { eventEmitter } from '../../../src/api/events';
-import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
-import * as PlayerFlaggedEvent from '../../../src/api/events/handlers/player-flagged.event';
-import * as PlayerTypeChangedEvent from '../../../src/api/events/handlers/player-type-changed.event';
-import * as PlayerUpdatedEvent from '../../../src/api/events/handlers/player-updated.event';
-import * as GroupMembersLeftEvent from '../../../src/api/events/handlers/group-members-left.event';
-import * as GroupMembersJoinedEvent from '../../../src/api/events/handlers/group-members-joined.event';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -2304,9 +2304,7 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe(
-        "Invalid enum value for 'annotationType'. Expected opt_out | blocked | fake_f2p"
-      );
+      expect(response.body.message).toBe("Invalid enum value for 'annotationType'.");
     });
 
     it('shoould return 400 when annotation is missing', async () => {
