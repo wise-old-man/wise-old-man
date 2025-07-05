@@ -265,7 +265,9 @@ async function executeUpdate(
         player: {
           username: { in: missingUsernames }
         },
-        type: PlayerAnnotationType.OPT_OUT
+        type: {
+          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS]
+        }
       },
       include: {
         player: {

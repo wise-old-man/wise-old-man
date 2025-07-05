@@ -49,7 +49,9 @@ async function addTeams(id: number, teams: Team[]): Promise<{ count: number }> {
       playerId: {
         in: newPlayers.map(p => p.id)
       },
-      type: PlayerAnnotationType.OPT_OUT
+      type: {
+        in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS]
+      }
     },
     include: {
       player: {

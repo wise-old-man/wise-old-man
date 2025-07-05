@@ -128,7 +128,9 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
             in: members.map(m => standardize(m.username))
           }
         },
-        type: PlayerAnnotationType.OPT_OUT
+        type: {
+          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]
+        }
       },
       include: {
         player: {

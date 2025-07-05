@@ -709,14 +709,29 @@ describe('Group API', () => {
         }
       });
 
+      await prisma.player.create({
+        data: {
+          username: 'claudia',
+          displayName: 'Claudia',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT_GROUPS }]
+          }
+        }
+      });
+
       const editResponse = await api.put(`/groups/${createGroupResponse.body.group.id}`).send({
         verificationCode: createGroupResponse.body.verificationCode,
-        members: [{ username: 'Martha' }, { username: 'Noah' }, { username: 'Bartosz' }]
+        members: [
+          { username: 'Martha' },
+          { username: 'Noah' },
+          { username: 'Bartosz' },
+          { username: 'claudia' }
+        ]
       });
 
       expect(editResponse.status).toBe(403);
       expect(editResponse.body.message).toMatch('One or more players have opted out');
-      expect(editResponse.body.data).toEqual(['Noah']);
+      expect(editResponse.body.data).toEqual(['Noah', 'Claudia']);
 
       const deleteGroupResponse = await api.delete(`/groups/${createGroupResponse.body.group.id}`).send({
         verificationCode: createGroupResponse.body.verificationCode
@@ -1551,14 +1566,29 @@ describe('Group API', () => {
         }
       });
 
+      await prisma.player.create({
+        data: {
+          username: 'regina',
+          displayName: 'Regina',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT_GROUPS }]
+          }
+        }
+      });
+
       const addMembersResponse = await api.post(`/groups/${createGroupResponse.body.group.id}/members`).send({
         verificationCode: createGroupResponse.body.verificationCode,
-        members: [{ username: 'Martha' }, { username: 'Mikkel' }, { username: 'Bartosz' }]
+        members: [
+          { username: 'Martha' },
+          { username: 'Mikkel' },
+          { username: 'Bartosz' },
+          { username: 'regina' }
+        ]
       });
 
       expect(addMembersResponse.status).toBe(403);
       expect(addMembersResponse.body.message).toMatch('One or more players have opted out');
-      expect(addMembersResponse.body.data).toEqual(['Mikkel']);
+      expect(addMembersResponse.body.data).toEqual(['Mikkel', 'Regina']);
 
       const deleteGroupResponse = await api.delete(`/groups/${createGroupResponse.body.group.id}`).send({
         verificationCode: createGroupResponse.body.verificationCode

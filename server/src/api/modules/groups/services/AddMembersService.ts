@@ -44,7 +44,9 @@ async function addMembers(
       playerId: {
         in: newPlayers.map(p => p.id)
       },
-      type: PlayerAnnotationType.OPT_OUT
+      type: {
+        in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]
+      }
     },
     include: {
       player: {

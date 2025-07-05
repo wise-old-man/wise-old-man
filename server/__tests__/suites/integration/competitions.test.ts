@@ -1146,16 +1146,26 @@ describe('Competition API', () => {
         }
       });
 
+      await prisma.player.create({
+        data: {
+          username: 'adam',
+          displayName: 'Adam',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT_COMPETITIONS }]
+          }
+        }
+      });
+
       const editResponse = await api
         .put(`/competitions/${createCompetitionResponse.body.competition.id}`)
         .send({
           verificationCode: createCompetitionResponse.body.verificationCode,
-          participants: ['Martha', 'Noah', 'Bartosz']
+          participants: ['Martha', 'Noah', 'Bartosz', 'adam']
         });
 
       expect(editResponse.status).toBe(403);
       expect(editResponse.body.message).toMatch('One or more players have opted out');
-      expect(editResponse.body.data).toEqual(['Noah']);
+      expect(editResponse.body.data).toEqual(['Noah', 'Adam']);
 
       const deleteResponse = await api
         .delete(`/competitions/${createCompetitionResponse.body.competition.id}`)
@@ -1761,16 +1771,26 @@ describe('Competition API', () => {
         }
       });
 
+      await prisma.player.create({
+        data: {
+          username: 'franziska',
+          displayName: 'Franziska',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT_COMPETITIONS }]
+          }
+        }
+      });
+
       const addParticipantsResponse = await api
         .post(`/competitions/${createCompetitionResponse.body.competition.id}/participants`)
         .send({
           verificationCode: createCompetitionResponse.body.verificationCode,
-          participants: ['Helge', 'Katharina']
+          participants: ['Helge', 'Katharina', 'franziska']
         });
 
       expect(addParticipantsResponse.status).toBe(403);
       expect(addParticipantsResponse.body.message).toMatch('One or more players have opted out');
-      expect(addParticipantsResponse.body.data).toEqual(['Katharina']);
+      expect(addParticipantsResponse.body.data).toEqual(['Katharina', 'Franziska']);
 
       const deleteResponse = await api
         .delete(`/competitions/${createCompetitionResponse.body.competition.id}`)
@@ -2285,16 +2305,26 @@ describe('Competition API', () => {
         }
       });
 
+      await prisma.player.create({
+        data: {
+          username: 'egon',
+          displayName: 'Egon',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT_COMPETITIONS }]
+          }
+        }
+      });
+
       const addTeamsResponse = await api
         .post(`/competitions/${createCompetitionResponse.body.competition.id}/teams`)
         .send({
           verificationCode: createCompetitionResponse.body.verificationCode,
-          teams: [{ name: 'Winden', participants: ['Jonas', 'Magnus'] }]
+          teams: [{ name: 'Winden', participants: ['Jonas', 'Magnus', 'egon'] }]
         });
 
       expect(addTeamsResponse.status).toBe(403);
       expect(addTeamsResponse.body.message).toMatch('One or more players have opted out');
-      expect(addTeamsResponse.body.data).toEqual(['Magnus']);
+      expect(addTeamsResponse.body.data).toEqual(['Magnus', 'Egon']);
 
       const deleteResponse = await api
         .delete(`/competitions/${createCompetitionResponse.body.competition.id}`)
