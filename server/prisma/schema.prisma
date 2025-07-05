@@ -742,6 +742,8 @@ enum PlayerStatus {
 
 enum PlayerAnnotationType {
   opt_out
+  opt_out_groups
+  opt_out_competitions
   blocked
   fake_f2p
 

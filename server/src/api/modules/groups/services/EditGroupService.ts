@@ -1,6 +1,6 @@
 import prisma, { Membership, Player, PrismaTypes } from '../../../../prisma';
-import { GroupRole, NameChangeStatus } from '../../../../utils';
-import { BadRequestError, ServerError } from '../../../errors';
+import { GroupRole, NameChangeStatus, PlayerAnnotationType } from '../../../../utils';
+import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
@@ -118,6 +118,31 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
         `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
          contain no special characters, and/or contain no space at the beginning or end of the name.`,
         invalidUsernames
+      );
+    }
+
+    const optOuts = await prisma.playerAnnotation.findMany({
+      where: {
+        player: {
+          username: {
+            in: members.map(m => standardize(m.username))
+          }
+        },
+        type: {
+          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]
+        }
+      },
+      include: {
+        player: {
+          select: { displayName: true }
+        }
+      }
+    });
+
+    if (optOuts.length > 0) {
+      throw new ForbiddenError(
+        'One or more players have opted out of joining groups, so they cannot be added as members.',
+        optOuts.map(o => o.player.displayName)
       );
     }
   }

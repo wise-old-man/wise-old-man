@@ -7,7 +7,7 @@ import * as CompetitionCreatedEvent from '../../../src/api/events/handlers/compe
 import * as competitionEvents from '../../../src/api/modules/competitions/competition.events';
 import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
-import { PlayerType } from '../../../src/utils';
+import { PlayerAnnotationType, PlayerType } from '../../../src/utils';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);
@@ -1126,6 +1126,56 @@ describe('Competition API', () => {
       expect(getResponse.body.participations.length).toEqual(response.body.participations.length);
     });
 
+    it('should not edit participants list (a player has opted out)', async () => {
+      const createCompetitionResponse = await api.post(`/competitions`).send({
+        title: 'Test Competition',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000)
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+
+      await prisma.player.create({
+        data: {
+          username: 'noah',
+          displayName: 'Noah',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT }]
+          }
+        }
+      });
+
+      await prisma.player.create({
+        data: {
+          username: 'adam',
+          displayName: 'Adam',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT_COMPETITIONS }]
+          }
+        }
+      });
+
+      const editResponse = await api
+        .put(`/competitions/${createCompetitionResponse.body.competition.id}`)
+        .send({
+          verificationCode: createCompetitionResponse.body.verificationCode,
+          participants: ['Martha', 'Noah', 'Bartosz', 'adam']
+        });
+
+      expect(editResponse.status).toBe(403);
+      expect(editResponse.body.message).toMatch('One or more players have opted out');
+      expect(editResponse.body.data).toEqual(['Noah', 'Adam']);
+
+      const deleteResponse = await api
+        .delete(`/competitions/${createCompetitionResponse.body.competition.id}`)
+        .send({
+          verificationCode: createCompetitionResponse.body.verificationCode
+        });
+
+      expect(deleteResponse.status).toBe(200);
+    });
+
     it('should edit (own fields)', async () => {
       const response = await api.put(`/competitions/${globalData.testCompetitionStarting.id}`).send({
         verificationCode: globalData.testCompetitionStarting.verificationCode,
@@ -1701,6 +1751,56 @@ describe('Competition API', () => {
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
+    it('should not add participants (a player has opted out)', async () => {
+      const createCompetitionResponse = await api.post(`/competitions`).send({
+        title: 'Test Competition',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000)
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+
+      await prisma.player.create({
+        data: {
+          username: 'katharina',
+          displayName: 'Katharina',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT }]
+          }
+        }
+      });
+
+      await prisma.player.create({
+        data: {
+          username: 'franziska',
+          displayName: 'Franziska',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT_COMPETITIONS }]
+          }
+        }
+      });
+
+      const addParticipantsResponse = await api
+        .post(`/competitions/${createCompetitionResponse.body.competition.id}/participants`)
+        .send({
+          verificationCode: createCompetitionResponse.body.verificationCode,
+          participants: ['Helge', 'Katharina', 'franziska']
+        });
+
+      expect(addParticipantsResponse.status).toBe(403);
+      expect(addParticipantsResponse.body.message).toMatch('One or more players have opted out');
+      expect(addParticipantsResponse.body.data).toEqual(['Katharina', 'Franziska']);
+
+      const deleteResponse = await api
+        .delete(`/competitions/${createCompetitionResponse.body.competition.id}`)
+        .send({
+          verificationCode: createCompetitionResponse.body.verificationCode
+        });
+
+      expect(deleteResponse.status).toBe(200);
+    });
+
     it('should add participants', async () => {
       const before = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
       expect(before.status).toBe(200);
@@ -2182,6 +2282,57 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch('Cannot add teams to a classic competition.');
 
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not add teams (a player has opted out)', async () => {
+      const createCompetitionResponse = await api.post(`/competitions`).send({
+        title: 'Test Competition',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        teams: [{ name: 'Dark', participants: ['Martha', 'Bartosz'] }]
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+
+      await prisma.player.create({
+        data: {
+          username: 'magnus',
+          displayName: 'Magnus',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT }]
+          }
+        }
+      });
+
+      await prisma.player.create({
+        data: {
+          username: 'egon',
+          displayName: 'Egon',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT_COMPETITIONS }]
+          }
+        }
+      });
+
+      const addTeamsResponse = await api
+        .post(`/competitions/${createCompetitionResponse.body.competition.id}/teams`)
+        .send({
+          verificationCode: createCompetitionResponse.body.verificationCode,
+          teams: [{ name: 'Winden', participants: ['Jonas', 'Magnus', 'egon'] }]
+        });
+
+      expect(addTeamsResponse.status).toBe(403);
+      expect(addTeamsResponse.body.message).toMatch('One or more players have opted out');
+      expect(addTeamsResponse.body.data).toEqual(['Magnus', 'Egon']);
+
+      const deleteResponse = await api
+        .delete(`/competitions/${createCompetitionResponse.body.competition.id}`)
+        .send({
+          verificationCode: createCompetitionResponse.body.verificationCode
+        });
+
+      expect(deleteResponse.status).toBe(200);
     });
 
     it('should add teams', async () => {

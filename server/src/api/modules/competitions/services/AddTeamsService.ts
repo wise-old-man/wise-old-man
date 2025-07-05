@@ -1,6 +1,6 @@
 import prisma from '../../../../prisma';
-import { CompetitionType } from '../../../../utils';
-import { BadRequestError, NotFoundError } from '../../../errors';
+import { CompetitionType, PlayerAnnotationType } from '../../../../utils';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { onParticipantsJoined } from '../competition.events';
 import { Team } from '../competition.types';
@@ -43,6 +43,29 @@ async function addTeams(id: number, teams: Team[]): Promise<{ count: number }> {
   ]);
 
   const newPlayers = await findOrCreatePlayers(newTeams.map(t => t.participants).flat());
+
+  const optOuts = await prisma.playerAnnotation.findMany({
+    where: {
+      playerId: {
+        in: newPlayers.map(p => p.id)
+      },
+      type: {
+        in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS]
+      }
+    },
+    include: {
+      player: {
+        select: { displayName: true }
+      }
+    }
+  });
+
+  if (optOuts.length > 0) {
+    throw new ForbiddenError(
+      'One or more players have opted out of joining competitions, so they cannot be added as participants.',
+      optOuts.map(o => o.player.displayName)
+    );
+  }
 
   // Map player usernames into IDs, for O(1) checks below
   const playerMap = Object.fromEntries(newPlayers.map(p => [p.username, p.id]));
