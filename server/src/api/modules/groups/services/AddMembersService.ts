@@ -1,11 +1,11 @@
 import prisma from '../../../../prisma';
-import { GroupRole } from '../../../../utils';
-import logger from '../../../util/logging';
-import { BadRequestError, ServerError } from '../../../errors';
-import { isValidUsername, standardize } from '../../players/player.utils';
-import { ActivityType } from '../group.types';
-import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
+import { GroupRole, PlayerAnnotationType } from '../../../../utils';
+import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
+import logger from '../../../util/logging';
+import { isValidUsername, standardize } from '../../players/player.utils';
+import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
+import { ActivityType } from '../group.types';
 
 async function addMembers(
   groupId: number,
@@ -37,6 +37,27 @@ async function addMembers(
 
   if (!newPlayers || newPlayers.length === 0) {
     throw new BadRequestError('All players given are already members.');
+  }
+
+  const optOuts = await prisma.playerAnnotation.findMany({
+    where: {
+      playerId: {
+        in: newPlayers.map(p => p.id)
+      },
+      type: PlayerAnnotationType.OPT_OUT
+    },
+    include: {
+      player: {
+        select: { displayName: true }
+      }
+    }
+  });
+
+  if (optOuts.length > 0) {
+    throw new ForbiddenError(
+      'One or more players have opted out of joining groups, so they cannot be added as members.',
+      optOuts.map(o => o.player.displayName)
+    );
   }
 
   const newMemberships = newPlayers.map(player => {

@@ -1,15 +1,15 @@
 import axios from 'axios';
-import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
+import supertest from 'supertest';
 import apiServer from '../../../src/api';
-import prisma from '../../../src/prisma';
-import { PlayerType } from '../../../src/utils';
-import * as GroupMembersLeftEvent from '../../../src/api/events/handlers/group-members-left.event';
-import * as GroupMembersJoinedEvent from '../../../src/api/events/handlers/group-members-joined.event';
-import * as GroupMembersRolesChangedEvent from '../../../src/api/events/handlers/group-members-roles-changed.event';
-import { resetDatabase, registerHiscoresMock, readFile, modifyRawHiscoresData } from '../../utils';
-import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
+import * as GroupMembersJoinedEvent from '../../../src/api/events/handlers/group-members-joined.event';
+import * as GroupMembersLeftEvent from '../../../src/api/events/handlers/group-members-left.event';
+import * as GroupMembersRolesChangedEvent from '../../../src/api/events/handlers/group-members-roles-changed.event';
+import prisma from '../../../src/prisma';
+import { redisClient } from '../../../src/services/redis.service';
+import { PlayerAnnotationType, PlayerType } from '../../../src/utils';
+import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase } from '../../utils';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -686,6 +686,43 @@ describe('Group API', () => {
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
       expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not edit members list (a player has opted out)', async () => {
+      const createGroupResponse = await api.post(`/groups`).send({
+        name: 'test',
+        members: [
+          { username: 'Jonas', role: 'legend' },
+          { username: 'Ulrich', role: 'cook' }
+        ]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      await prisma.player.create({
+        data: {
+          username: 'noah',
+          displayName: 'Noah',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT }]
+          }
+        }
+      });
+
+      const editResponse = await api.put(`/groups/${createGroupResponse.body.group.id}`).send({
+        verificationCode: createGroupResponse.body.verificationCode,
+        members: [{ username: 'Martha' }, { username: 'Noah' }, { username: 'Bartosz' }]
+      });
+
+      expect(editResponse.status).toBe(403);
+      expect(editResponse.body.message).toMatch('One or more players have opted out');
+      expect(editResponse.body.data).toEqual(['Noah']);
+
+      const deleteGroupResponse = await api.delete(`/groups/${createGroupResponse.body.group.id}`).send({
+        verificationCode: createGroupResponse.body.verificationCode
+      });
+
+      expect(deleteGroupResponse.status).toBe(200);
     });
 
     it('should edit members list', async () => {
@@ -1491,6 +1528,43 @@ describe('Group API', () => {
       expect(response.body.message).toMatch('All players given are already members.');
 
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not add members (a player has opted out)', async () => {
+      const createGroupResponse = await api.post(`/groups`).send({
+        name: 'test',
+        members: [
+          { username: 'Jonas', role: 'legend' },
+          { username: 'Ulrich', role: 'cook' }
+        ]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      await prisma.player.create({
+        data: {
+          username: 'mikkel',
+          displayName: 'Mikkel',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT }]
+          }
+        }
+      });
+
+      const addMembersResponse = await api.post(`/groups/${createGroupResponse.body.group.id}/members`).send({
+        verificationCode: createGroupResponse.body.verificationCode,
+        members: [{ username: 'Martha' }, { username: 'Mikkel' }, { username: 'Bartosz' }]
+      });
+
+      expect(addMembersResponse.status).toBe(403);
+      expect(addMembersResponse.body.message).toMatch('One or more players have opted out');
+      expect(addMembersResponse.body.data).toEqual(['Mikkel']);
+
+      const deleteGroupResponse = await api.delete(`/groups/${createGroupResponse.body.group.id}`).send({
+        verificationCode: createGroupResponse.body.verificationCode
+      });
+
+      expect(deleteGroupResponse.status).toBe(200);
     });
 
     it('should add members', async () => {

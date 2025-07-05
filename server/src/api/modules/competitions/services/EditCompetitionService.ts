@@ -1,6 +1,6 @@
 import prisma, { Participation, Player, PrismaPromise, PrismaTypes } from '../../../../prisma';
-import { CompetitionType, Metric, Snapshot } from '../../../../utils';
-import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
+import { CompetitionType, Metric, PlayerAnnotationType, Snapshot } from '../../../../utils';
+import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../../../errors';
 import { omit } from '../../../util/objects';
 import { standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -258,6 +258,29 @@ async function executeUpdate(
 
   const missingParticipations = nextParticipations.filter(p => missingUsernames.includes(p.username));
   const keptParticipations = nextParticipations.filter(p => keptUsernames.includes(p.username));
+
+  if (missingUsernames.length > 0) {
+    const optOuts = await prisma.playerAnnotation.findMany({
+      where: {
+        player: {
+          username: { in: missingUsernames }
+        },
+        type: PlayerAnnotationType.OPT_OUT
+      },
+      include: {
+        player: {
+          select: { displayName: true }
+        }
+      }
+    });
+
+    if (optOuts.length > 0) {
+      throw new ForbiddenError(
+        'One or more players have opted out of joining competitions, so they cannot be added as participants.',
+        optOuts.map(o => o.player.displayName)
+      );
+    }
+  }
 
   const results = await prisma.$transaction([
     // Remove any players that are no longer participants

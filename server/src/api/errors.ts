@@ -32,12 +32,14 @@ export class ForbiddenError extends Error {
   message: string;
   name: string;
   statusCode: number;
+  data: unknown;
 
-  constructor(message: string) {
+  constructor(message: string, data?: unknown) {
     super(message);
     this.message = message;
     this.name = 'ForbiddenError';
     this.statusCode = 403;
+    this.data = data;
   }
 }
 

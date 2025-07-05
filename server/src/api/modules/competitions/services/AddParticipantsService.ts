@@ -1,9 +1,9 @@
 import prisma from '../../../../prisma';
-import { CompetitionType } from '../../../../utils';
-import { BadRequestError, NotFoundError } from '../../../errors';
+import { CompetitionType, PlayerAnnotationType } from '../../../../utils';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { validateInvalidParticipants, validateParticipantDuplicates } from '../competition.utils';
 import { onParticipantsJoined } from '../competition.events';
+import { validateInvalidParticipants, validateParticipantDuplicates } from '../competition.utils';
 
 async function addParticipants(id: number, participants: string[]): Promise<{ count: number }> {
   const competition = await prisma.competition.findFirst({
@@ -38,6 +38,27 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
 
   if (!newPlayers || !newPlayers.length) {
     throw new BadRequestError('All players given are already competing.');
+  }
+
+  const optOuts = await prisma.playerAnnotation.findMany({
+    where: {
+      playerId: {
+        in: newPlayers.map(p => p.id)
+      },
+      type: PlayerAnnotationType.OPT_OUT
+    },
+    include: {
+      player: {
+        select: { displayName: true }
+      }
+    }
+  });
+
+  if (optOuts.length > 0) {
+    throw new ForbiddenError(
+      'One or more players have opted out of joining competitions, so they cannot be added as participants.',
+      optOuts.map(o => o.player.displayName)
+    );
   }
 
   const newParticipations = newPlayers.map(p => ({ playerId: p.id, competitionId: id }));
