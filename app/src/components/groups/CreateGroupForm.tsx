@@ -81,7 +81,14 @@ export function CreateGroupForm() {
     },
     onError: (error) => {
       if (error instanceof Error) {
-        toast.toast({ variant: "error", title: error.message });
+        toast.toast({
+          variant: "error",
+          title: error.message,
+          description:
+            "data" in error && error.data
+              ? `Opted out: ${(error.data as string[]).join(", ")}`
+              : undefined,
+        });
       }
     },
   });
@@ -256,7 +263,7 @@ function GroupImportOptions() {
           <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
           Previous
         </Button>
-      </div>      
+      </div>
     </div>
   );
 }

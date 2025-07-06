@@ -410,7 +410,14 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
     },
     onError: (error) => {
       if (error instanceof Error) {
-        toast.toast({ variant: "error", title: error.message });
+        toast.toast({
+          variant: "error",
+          title: error.message,
+          description:
+            "data" in error && error.data
+              ? `Opted out: ${(error.data as string[]).join(", ")}`
+              : undefined,
+        });
       }
     },
   });
