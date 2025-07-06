@@ -1,5 +1,5 @@
 import prisma from '../../../../prisma';
-import { CompetitionType, Metric } from '../../../../utils';
+import { CompetitionType, Metric, PlayerAnnotationType } from '../../../../utils';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import * as cryptService from '../../../services/external/crypt.service';
@@ -78,6 +78,31 @@ async function createCompetition(
     validateParticipantDuplicates(sanitizedTeams.map(t => t.participants).flat());
 
     participations = await getTeamsParticipations(sanitizedTeams);
+  }
+
+  if (participations.length > 0) {
+    const optOuts = await prisma.playerAnnotation.findMany({
+      where: {
+        playerId: {
+          in: participations.map(p => p.playerId)
+        },
+        type: {
+          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]
+        }
+      },
+      include: {
+        player: {
+          select: { displayName: true }
+        }
+      }
+    });
+
+    if (optOuts.length > 0) {
+      throw new ForbiddenError(
+        'One or more players have opted out of joining competitions, so they cannot be added as participants.',
+        optOuts.map(o => o.player.displayName)
+      );
+    }
   }
 
   if (isGroupCompetition) {

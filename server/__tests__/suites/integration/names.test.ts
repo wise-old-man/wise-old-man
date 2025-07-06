@@ -1,24 +1,24 @@
 import axios from 'axios';
-import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import {
-  getMetricValueKey,
-  getMetricRankKey,
-  METRICS,
-  PlayerType,
-  PlayerStatus,
-  PlayerAnnotationType
-} from '../../../src/utils';
-import prisma from '../../../src/prisma';
+import supertest from 'supertest';
 import apiServer from '../../../src/api';
-import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
-import { registerHiscoresMock, resetDatabase, readFile, sleep } from '../../utils';
-import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
 import * as GroupMembersJoinedEvent from '../../../src/api/events/handlers/group-members-joined.event';
+import * as NameChangeCreatedEvent from '../../../src/api/events/handlers/name-change-created.event';
 import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
 import * as PlayerNameChangedEvent from '../../../src/api/events/handlers/player-name-changed.event';
-import * as NameChangeCreatedEvent from '../../../src/api/events/handlers/name-change-created.event';
+import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
+import prisma from '../../../src/prisma';
+import { redisClient } from '../../../src/services/redis.service';
+import {
+  getMetricRankKey,
+  getMetricValueKey,
+  METRICS,
+  PlayerAnnotationType,
+  PlayerStatus,
+  PlayerType
+} from '../../../src/utils';
+import { readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -1272,6 +1272,8 @@ describe('Names API', () => {
         name: 'Names Test Group',
         members: [{ username: 'USBC' }, { username: 'Jakesterwars' }]
       };
+
+      await prisma.playerAnnotation.deleteMany();
 
       // Create group
       const createGroupResponse = await api.post('/groups').send(payload);
