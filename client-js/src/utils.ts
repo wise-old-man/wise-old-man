@@ -41,7 +41,7 @@ export function handleError(status: number, path: string, data?: APIErrorData) {
   }
 
   if (status === 403) {
-    throw new ForbiddenError(path, data.message);
+    throw new ForbiddenError(path, data.message, data.data);
   }
 
   if (status === 404) {
@@ -76,12 +76,14 @@ class ForbiddenError extends Error {
   name: string;
   resource: string;
   statusCode: number;
+  data?: unknown;
 
-  constructor(resource: string, message: string) {
+  constructor(resource: string, message: string, data?: unknown) {
     super(message);
     this.name = 'ForbiddenError';
     this.resource = resource;
     this.statusCode = 403;
+    this.data = data;
   }
 }
 
