@@ -120,31 +120,6 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
         invalidUsernames
       );
     }
-
-    const optOuts = await prisma.playerAnnotation.findMany({
-      where: {
-        player: {
-          username: {
-            in: members.map(m => standardize(m.username))
-          }
-        },
-        type: {
-          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]
-        }
-      },
-      include: {
-        player: {
-          select: { displayName: true }
-        }
-      }
-    });
-
-    if (optOuts.length > 0) {
-      throw new ForbiddenError(
-        'One or more players have opted out of joining groups, so they cannot be added as members.',
-        optOuts.map(o => o.player.displayName)
-      );
-    }
   }
 
   if (name) {
@@ -260,6 +235,31 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
 
   const keptPlayers = nextPlayers.filter(p => keptUsernames.includes(p.username));
   const missingPlayers = nextPlayers.filter(p => missingUsernames.includes(p.username));
+
+  if (missingPlayers.length > 0) {
+    const optOuts = await prisma.playerAnnotation.findMany({
+      where: {
+        playerId: {
+          in: missingPlayers.map(p => p.id)
+        },
+        type: {
+          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]
+        }
+      },
+      include: {
+        player: {
+          select: { displayName: true }
+        }
+      }
+    });
+
+    if (optOuts.length > 0) {
+      throw new ForbiddenError(
+        'One or more players have opted out of joining groups, so they cannot be added as members.',
+        optOuts.map(o => o.player.displayName)
+      );
+    }
+  }
 
   const leftEvents: Array<{
     groupId: number;

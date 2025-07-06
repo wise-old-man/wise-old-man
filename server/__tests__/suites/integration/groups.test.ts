@@ -726,15 +726,30 @@ describe('Group API', () => {
     });
 
     it('should not edit members list (a player has opted out)', async () => {
+      const player = await prisma.player.create({
+        data: {
+          username: 'tanno',
+          displayName: 'Tanno'
+        }
+      });
+
       const createGroupResponse = await api.post(`/groups`).send({
         name: 'test',
         members: [
+          { username: 'Tanno', role: 'legend' },
           { username: 'Jonas', role: 'legend' },
           { username: 'Ulrich', role: 'cook' }
         ]
       });
 
       expect(createGroupResponse.status).toBe(201);
+
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: player.id,
+          type: PlayerAnnotationType.OPT_OUT
+        }
+      });
 
       await prisma.player.create({
         data: {
@@ -762,7 +777,8 @@ describe('Group API', () => {
           { username: 'Martha' },
           { username: 'Noah' },
           { username: 'Bartosz' },
-          { username: 'claudia' }
+          { username: 'claudia' },
+          { username: 'tanno' }
         ]
       });
 
