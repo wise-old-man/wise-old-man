@@ -1,7 +1,7 @@
-import axios from 'axios';
-import prometheus, { Histogram, Gauge, Registry, Counter } from 'prom-client';
-import { getThreadIndex } from '../../../env';
 import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
+import axios from 'axios';
+import prometheus, { Counter, Gauge, Histogram, Registry } from 'prom-client';
+import { getThreadIndex } from '../../../env';
 
 class PrometheusService {
   private registry: Registry;
@@ -10,7 +10,6 @@ class PrometheusService {
   private httpHistogram: Histogram<'method' | 'route' | 'status' | 'userAgent'>;
   private effectHistogram: Histogram<'effectName' | 'status'>;
   private eventCounter: Counter<'eventType'>;
-  private customPeriodCounter: Counter<'customPeriod'>;
   private updatePlayerJobSourceCounter: Counter<'source'>;
 
   private hiscoresHistogram: Histogram<'status'>;
@@ -57,12 +56,6 @@ class PrometheusService {
       labelNames: ['eventType']
     });
 
-    this.customPeriodCounter = new prometheus.Counter({
-      name: 'custom_period_counter',
-      help: 'Count of custom period expressions used',
-      labelNames: ['customPeriod']
-    });
-
     this.updatePlayerJobSourceCounter = new prometheus.Counter({
       name: 'update_player_job_source_counter',
       help: 'Count of update player jobs dispatched',
@@ -88,7 +81,6 @@ class PrometheusService {
     this.registry.registerMetric(this.httpHistogram);
     this.registry.registerMetric(this.effectHistogram);
     this.registry.registerMetric(this.eventCounter);
-    this.registry.registerMetric(this.customPeriodCounter);
     this.registry.registerMetric(this.updatePlayerJobSourceCounter);
     this.registry.registerMetric(this.runeMetricsHistogram);
     this.registry.registerMetric(this.hiscoresHistogram);
@@ -186,10 +178,6 @@ class PrometheusService {
 
   trackEventEmitted(eventType: string) {
     this.eventCounter.inc({ eventType });
-  }
-
-  trackCustomPeriodExpression(customPeriod: string) {
-    this.customPeriodCounter.inc({ customPeriod });
   }
 
   trackUpdatePlayerJobSource(source: string) {

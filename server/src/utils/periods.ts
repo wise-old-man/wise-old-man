@@ -1,4 +1,3 @@
-import prometheusService from '../api/services/external/prometheus.service';
 import { Period } from '../prisma/enum-adapter';
 import { MapOf } from './types';
 
@@ -38,8 +37,6 @@ function parsePeriodExpression(periodExpression: string) {
     };
   }
 
-  prometheusService.trackCustomPeriodExpression(fixed);
-
   const result = fixed.match(CUSTOM_PERIOD_REGEX);
 
   if (!result || result.length === 0 || result[0] !== fixed) return null;
@@ -65,13 +62,13 @@ function parsePeriodExpression(periodExpression: string) {
 }
 
 export {
+  findPeriod,
+  // Functions
+  isPeriod,
+  parsePeriodExpression,
   // Enums
   Period,
   PeriodProps,
   // Lists
-  PERIODS,
-  // Functions
-  isPeriod,
-  findPeriod,
-  parsePeriodExpression
+  PERIODS
 };
