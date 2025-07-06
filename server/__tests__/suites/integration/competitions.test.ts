@@ -453,6 +453,41 @@ describe('Competition API', () => {
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
+    it('should not create (a player has opted out)', async () => {
+      await prisma.player.create({
+        data: {
+          username: 'carmen',
+          displayName: 'Carmen',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT }]
+          }
+        }
+      });
+
+      await prisma.player.create({
+        data: {
+          username: 'richie',
+          displayName: 'Richie',
+          annotations: {
+            create: [{ type: PlayerAnnotationType.OPT_OUT_GROUPS }]
+          }
+        }
+      });
+
+      const createCompetitionResponse = await api.post(`/competitions`).send({
+        title: 'Test Competition',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        participants: ['sydney', 'carmen', 'richie', 'fak']
+      });
+
+      expect(createCompetitionResponse.status).toBe(403);
+      expect(createCompetitionResponse.body.message).toMatch('One or more players have opted out');
+      expect(createCompetitionResponse.body.data.includes('Carmen')).toBe(true);
+      expect(createCompetitionResponse.body.data.includes('Richie')).toBe(true);
+    });
+
     it('should create (no participants)', async () => {
       // Starting in 20mins, ending in a week (upcoming)
       const response = await api.post('/competitions').send({
@@ -1127,14 +1162,29 @@ describe('Competition API', () => {
     });
 
     it('should not edit participants list (a player has opted out)', async () => {
+      const player = await prisma.player.create({
+        data: {
+          username: 'tanno',
+          displayName: 'Tanno'
+        }
+      });
+
       const createCompetitionResponse = await api.post(`/competitions`).send({
         title: 'Test Competition',
         metric: 'smithing',
         startsAt: new Date(Date.now() + 1_200_000),
-        endsAt: new Date(Date.now() + 2_400_000)
+        endsAt: new Date(Date.now() + 2_400_000),
+        participants: ['tanno']
       });
 
       expect(createCompetitionResponse.status).toBe(201);
+
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: player.id,
+          type: PlayerAnnotationType.OPT_OUT
+        }
+      });
 
       await prisma.player.create({
         data: {
@@ -1160,7 +1210,7 @@ describe('Competition API', () => {
         .put(`/competitions/${createCompetitionResponse.body.competition.id}`)
         .send({
           verificationCode: createCompetitionResponse.body.verificationCode,
-          participants: ['Martha', 'Noah', 'Bartosz', 'adam']
+          participants: ['Martha', 'Noah', 'Bartosz', 'adam', 'tanno']
         });
 
       expect(editResponse.status).toBe(403);

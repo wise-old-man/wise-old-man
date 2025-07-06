@@ -1,6 +1,6 @@
 import prisma from '../../../../prisma';
-import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
-import { BadRequestError } from '../../../errors';
+import { GroupRole, PlayerAnnotationType, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
+import { BadRequestError, ForbiddenError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import * as cryptService from '../../../services/external/crypt.service';
 import { omit } from '../../../util/objects';
@@ -39,6 +39,33 @@ async function createGroup(
        contain no special characters, and/or contain no space at the beginning or end of the name.`,
       invalidUsernames
     );
+  }
+
+  if (payload.members.length > 0) {
+    const optOuts = await prisma.playerAnnotation.findMany({
+      where: {
+        player: {
+          username: {
+            in: payload.members.map(m => standardize(m.username))
+          }
+        },
+        type: {
+          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]
+        }
+      },
+      include: {
+        player: {
+          select: { displayName: true }
+        }
+      }
+    });
+
+    if (optOuts.length > 0) {
+      throw new ForbiddenError(
+        'One or more players have opted out of joining groups, so they cannot be added as members.',
+        optOuts.map(o => o.player.displayName)
+      );
+    }
   }
 
   // Check for duplicate names
