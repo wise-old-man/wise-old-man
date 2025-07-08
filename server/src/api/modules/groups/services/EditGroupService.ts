@@ -1,6 +1,6 @@
 import prisma, { Membership, Player, PrismaTypes } from '../../../../prisma';
-import { GroupRole, NameChangeStatus, PlayerAnnotationType } from '../../../../utils';
-import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
+import { GroupRole, NameChangeStatus } from '../../../../utils';
+import { BadRequestError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
@@ -236,30 +236,30 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
   const keptPlayers = nextPlayers.filter(p => keptUsernames.includes(p.username));
   const missingPlayers = nextPlayers.filter(p => missingUsernames.includes(p.username));
 
-  if (missingPlayers.length > 0) {
-    const optOuts = await prisma.playerAnnotation.findMany({
-      where: {
-        playerId: {
-          in: missingPlayers.map(p => p.id)
-        },
-        type: {
-          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]
-        }
-      },
-      include: {
-        player: {
-          select: { displayName: true }
-        }
-      }
-    });
+  // if (missingPlayers.length > 0) {
+  //   const optOuts = await prisma.playerAnnotation.findMany({
+  //     where: {
+  //       playerId: {
+  //         in: missingPlayers.map(p => p.id)
+  //       },
+  //       type: {
+  //         in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]
+  //       }
+  //     },
+  //     include: {
+  //       player: {
+  //         select: { displayName: true }
+  //       }
+  //     }
+  //   });
 
-    if (optOuts.length > 0) {
-      throw new ForbiddenError(
-        'One or more players have opted out of joining groups, so they cannot be added as members.',
-        optOuts.map(o => o.player.displayName)
-      );
-    }
-  }
+  //   if (optOuts.length > 0) {
+  //     throw new ForbiddenError(
+  //       'One or more players have opted out of joining groups, so they cannot be added as members.',
+  //       optOuts.map(o => o.player.displayName)
+  //     );
+  //   }
+  // }
 
   const leftEvents: Array<{
     groupId: number;
