@@ -11,7 +11,7 @@ import {
   SKILLS,
   isMetric,
 } from "@wise-old-man/utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DateValue, TimeValue } from "react-aria";
 import { cn } from "~/utils/styling";
 import { useHasMounted } from "~/hooks/useHasMounted";
@@ -57,16 +57,18 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
   const hasMounted = useHasMounted();
 
   const [title, setTitle] = useState(competition.title);
-  const [metric, setMetric] = useState<Metric>(competition.metric);
+  const [metric, setMetric] = useState(competition.metric);
 
-  let startsAt = competition.startsAt;
-  let endsAt = competition.endsAt;
+  const timezoneOffset = useMemo(() => {
+    return timezone === "utc" ? new Date().getTimezoneOffset() * 60_000 : 0;
+  }, [timezone]);
 
-  if (timezone === "utc") {
-    const offsetMs = new Date().getTimezoneOffset() * 60_000;
-    startsAt = new Date(startsAt.getTime() + offsetMs);
-    endsAt = new Date(endsAt.getTime() + offsetMs);
-  }
+  const { startsAt, endsAt } = useMemo(() => {
+    return {
+      startsAt: new Date(competition.startsAt.getTime() + timezoneOffset),
+      endsAt: new Date(competition.endsAt.getTime() + timezoneOffset),
+    };
+  }, [competition, timezoneOffset]);
 
   const [startDate, setStartDate] = useState<DateValue>(toCalendarDate(startsAt));
   const [startTime, setStartTime] = useState<TimeValue>(
@@ -82,16 +84,12 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
     timezone
   );
 
+  const hasPastStartDate = toDate(startDate, startTime).getTime() < Date.now();
+  const hasPastEndDate = toDate(endDate, endTime).getTime() < Date.now();
+
   function handleSubmit() {
-    let startsAt = toDate(startDate, startTime);
-    let endsAt = toDate(endDate, endTime);
-
-    if (timezone === "utc") {
-      const offsetMs = new Date().getTimezoneOffset() * -1 * 60_000;
-
-      startsAt = new Date(startsAt.getTime() + offsetMs);
-      endsAt = new Date(endsAt.getTime() + offsetMs);
-    }
+    const startsAt = new Date(toDate(startDate, startTime).getTime() + timezoneOffset);
+    const endsAt = new Date(toDate(endDate, endTime).getTime() + timezoneOffset);
 
     onCompetitionChanged({ ...competition, title, metric, startsAt, endsAt });
   }
@@ -155,6 +153,11 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
               <TimeField value={startTime} onChange={setStartTime} />
             </div>
           </div>
+          {hasPastStartDate && (
+            <p className="mb-2 mt-2 text-sm text-red-500">
+              The start date and time you selected is in the past. Please select a future date.
+            </p>
+          )}
           <div className="mt-5 flex grow gap-x-4">
             <div className="grow">
               <Label className="mb-2 block text-xs text-gray-200">End date</Label>
@@ -165,10 +168,15 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
               <TimeField value={endTime} onChange={setEndTime} />
             </div>
           </div>
+          {hasPastEndDate && (
+            <p className="mb-2 mt-2 text-sm text-red-500">
+              The end date and time you selected is in the past. Please select a future date.
+            </p>
+          )}
         </div>
       </div>
       {/* Allow the parent pages to render what they need on the actions slot (Previous/Next or Save) */}
-      {props.formActions(title.length === 0, hasUnsavedChanges)}
+      {props.formActions(title.length === 0 || hasPastStartDate || hasPastEndDate, hasUnsavedChanges)}
     </form>
   );
 }
