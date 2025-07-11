@@ -2,6 +2,7 @@ import { STATIC_PATRON_GROUP_IDS } from '../../api/services/external/patreon.ser
 import prisma from '../../prisma';
 import { Period, PeriodProps, PlayerStatus } from '../../utils';
 import { Job } from '../job.class';
+import { JobPriority } from '../types/job-priority.enum';
 import { JobType } from '../types/job-type.enum';
 
 export class SchedulePatronGroupUpdatesJob extends Job<unknown> {
@@ -36,7 +37,7 @@ export class SchedulePatronGroupUpdatesJob extends Job<unknown> {
 
     // Execute the update action for every member
     outdatedPatronMembers.forEach(({ player: { username } }) => {
-      this.jobManager.add(JobType.UPDATE_PLAYER, { username, source: 'schedule-patron-group-updates' });
+      this.jobManager.add(JobType.UPDATE_PLAYER, { username }, { priority: JobPriority.LOW });
     });
   }
 }

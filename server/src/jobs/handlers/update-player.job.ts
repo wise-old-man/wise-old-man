@@ -1,6 +1,5 @@
 import { isComplete } from '@attio/fetchable';
 import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerService';
-import prometheusService from '../../api/services/external/prometheus.service';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import { assertNever } from '../../utils/assert-never.util';
 import { Job } from '../job.class';
@@ -8,16 +7,6 @@ import { JobOptions } from '../types/job-options.type';
 
 interface Payload {
   username: string;
-  source:
-    | 'update-all-members'
-    | 'update-all-participants'
-    | 'on-participants-joined'
-    | 'on-members-joined'
-    | 'on-player-name-changed'
-    | 'on-competition-ending-2h'
-    | 'on-competition-ending-12h'
-    | 'schedule-patron-group-updates'
-    | 'schedule-patron-player-updates';
 }
 
 export class UpdatePlayerJob extends Job<Payload> {
@@ -31,8 +20,6 @@ export class UpdatePlayerJob extends Job<Payload> {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
-
-    prometheusService.trackUpdatePlayerJobSource(payload.source);
 
     const updateResult = await updatePlayer(payload.username);
 

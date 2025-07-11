@@ -4,7 +4,7 @@ import { EventPayloadMap } from '../types/event-payload.type';
 import { EventType } from '../types/event-type.enum';
 
 export function handler({ username, previousDisplayName }: EventPayloadMap[EventType.PLAYER_NAME_CHANGED]) {
-  jobManager.add(JobType.UPDATE_PLAYER, { username, source: 'on-player-name-changed' });
+  jobManager.add(JobType.UPDATE_PLAYER, { username });
 
   if (standardize(username) !== standardize(previousDisplayName)) {
     jobManager.add(JobType.ASSERT_PLAYER_TYPE, { username });

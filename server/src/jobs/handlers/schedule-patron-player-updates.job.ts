@@ -2,6 +2,7 @@ import { STATIC_PATRON_PLAYER_IDS } from '../../api/services/external/patreon.se
 import prisma from '../../prisma';
 import { Period, PeriodProps } from '../../utils';
 import { Job } from '../job.class';
+import { JobPriority } from '../types/job-priority.enum';
 import { JobType } from '../types/job-type.enum';
 
 export class SchedulePatronPlayerUpdatesJob extends Job<unknown> {
@@ -36,7 +37,7 @@ export class SchedulePatronPlayerUpdatesJob extends Job<unknown> {
     });
 
     [...outdatedPatronPlayers, ...outdatedStaticPatronPlayers].forEach(({ username }) => {
-      this.jobManager.add(JobType.UPDATE_PLAYER, { username, source: 'schedule-patron-player-updates' });
+      this.jobManager.add(JobType.UPDATE_PLAYER, { username }, { priority: JobPriority.LOW });
     });
   }
 }

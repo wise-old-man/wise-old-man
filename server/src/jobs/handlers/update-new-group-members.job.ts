@@ -31,7 +31,7 @@ export class UpdateNewGroupMembersJob extends Job<Payload> {
         return;
       }
 
-      this.jobManager.add(JobType.UPDATE_PLAYER, { username, source: 'on-members-joined' });
+      this.jobManager.add(JobType.UPDATE_PLAYER, { username });
     });
   }
 }

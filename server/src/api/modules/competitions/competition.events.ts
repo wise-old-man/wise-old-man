@@ -22,7 +22,7 @@ async function onParticipantsJoined(participations: Pick<Participation, 'playerI
       return;
     }
 
-    jobManager.add(JobType.UPDATE_PLAYER, { username, source: 'on-participants-joined' });
+    jobManager.add(JobType.UPDATE_PLAYER, { username });
   });
 }
 
@@ -64,8 +64,7 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
       .filter(p => p.progress.gained > 0) // Only update players that have gained xp
       .forEach(p => {
         jobManager.add(JobType.UPDATE_PLAYER, {
-          username: p.player.username,
-          source: 'on-competition-ending-2h'
+          username: p.player.username
         });
       });
 
@@ -88,11 +87,7 @@ async function onCompetitionEnding(competition: Competition, period: EventPeriod
         return !p.player.updatedAt || Date.now() - p.player.updatedAt.getTime() > 1000 * 60 * 60 * 24;
       })
       .forEach(({ player: { username } }) => {
-        jobManager.add(
-          JobType.UPDATE_PLAYER,
-          { username, source: 'on-competition-ending-12h' },
-          { priority: JobPriority.LOW }
-        );
+        jobManager.add(JobType.UPDATE_PLAYER, { username }, { priority: JobPriority.LOW });
       });
   }
 }

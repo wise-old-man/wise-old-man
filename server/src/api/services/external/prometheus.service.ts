@@ -10,7 +10,6 @@ class PrometheusService {
   private httpHistogram: Histogram<'method' | 'route' | 'status' | 'userAgent'>;
   private effectHistogram: Histogram<'effectName' | 'status'>;
   private eventCounter: Counter<'eventType'>;
-  private updatePlayerJobSourceCounter: Counter<'source'>;
 
   private hiscoresHistogram: Histogram<'status'>;
   private runeMetricsHistogram: Histogram<'status'>;
@@ -56,12 +55,6 @@ class PrometheusService {
       labelNames: ['eventType']
     });
 
-    this.updatePlayerJobSourceCounter = new prometheus.Counter({
-      name: 'update_player_job_source_counter',
-      help: 'Count of update player jobs dispatched',
-      labelNames: ['source']
-    });
-
     this.runeMetricsHistogram = new prometheus.Histogram({
       name: 'runemetrics_duration_seconds',
       help: 'Duration of RuneMetrics requests in microseconds',
@@ -81,7 +74,6 @@ class PrometheusService {
     this.registry.registerMetric(this.httpHistogram);
     this.registry.registerMetric(this.effectHistogram);
     this.registry.registerMetric(this.eventCounter);
-    this.registry.registerMetric(this.updatePlayerJobSourceCounter);
     this.registry.registerMetric(this.runeMetricsHistogram);
     this.registry.registerMetric(this.hiscoresHistogram);
   }
@@ -178,10 +170,6 @@ class PrometheusService {
 
   trackEventEmitted(eventType: string) {
     this.eventCounter.inc({ eventType });
-  }
-
-  trackUpdatePlayerJobSource(source: string) {
-    this.updatePlayerJobSourceCounter.inc({ source });
   }
 
   async updateQueueMetrics(queueName: string, counts: Record<string, number>) {
