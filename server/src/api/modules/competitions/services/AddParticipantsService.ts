@@ -1,8 +1,8 @@
 import prisma from '../../../../prisma';
 import { CompetitionType, PlayerAnnotationType } from '../../../../utils';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
+import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { onParticipantsJoined } from '../competition.events';
 import { validateInvalidParticipants, validateParticipantDuplicates } from '../competition.utils';
 
 async function addParticipants(id: number, participants: string[]): Promise<{ count: number }> {
@@ -70,7 +70,12 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
   });
 
   if (newParticipations.length > 0) {
-    onParticipantsJoined(newParticipations);
+    eventEmitter.emit(EventType.COMPETITION_PARTICIPANTS_JOINED, {
+      competitionId: id,
+      participants: newParticipations.map(p => ({
+        playerId: p.playerId
+      }))
+    });
   }
 
   await prisma.competition.update({

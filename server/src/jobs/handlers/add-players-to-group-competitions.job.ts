@@ -1,4 +1,4 @@
-import { onParticipantsJoined } from '../../api/modules/competitions/competition.events';
+import { eventEmitter, EventType } from '../../api/events';
 import prisma, { Participation } from '../../prisma';
 import { CompetitionType } from '../../utils';
 import { Job } from '../job.class';
@@ -40,6 +40,22 @@ export class AddPlayersToGroupCompetitionsJob extends Job<Payload> {
       skipDuplicates: true
     });
 
-    await onParticipantsJoined(newParticipations);
+    const groupedByCompetitionId = new Map<number, number[]>();
+
+    for (const participation of newParticipations) {
+      if (!groupedByCompetitionId.has(participation.competitionId)) {
+        groupedByCompetitionId.set(participation.competitionId, []);
+      }
+      groupedByCompetitionId.get(participation.competitionId)?.push(participation.playerId);
+    }
+
+    for (const [competitionId, playerIds] of groupedByCompetitionId.entries()) {
+      eventEmitter.emit(EventType.COMPETITION_PARTICIPANTS_JOINED, {
+        competitionId,
+        participants: playerIds.map(playerId => ({
+          playerId
+        }))
+      });
+    }
   }
 }

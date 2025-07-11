@@ -1,11 +1,11 @@
 import prisma, { Participation, Player, PrismaPromise, PrismaTypes } from '../../../../prisma';
 import { CompetitionType, Metric, PlayerAnnotationType, Snapshot } from '../../../../utils';
 import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../../../errors';
+import { eventEmitter, EventType } from '../../../events';
 import { omit } from '../../../util/objects';
 import { standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
-import { onParticipantsJoined } from '../competition.events';
 import { CompetitionWithParticipations, Team } from '../competition.types';
 import {
   sanitizeTeams,
@@ -104,7 +104,12 @@ async function editCompetition(
   }
 
   if (addedParticipations.length > 0) {
-    onParticipantsJoined(addedParticipations);
+    eventEmitter.emit(EventType.COMPETITION_PARTICIPANTS_JOINED, {
+      competitionId: id,
+      participants: addedParticipations.map(p => ({
+        playerId: p.playerId
+      }))
+    });
   }
 
   // if start date changed
