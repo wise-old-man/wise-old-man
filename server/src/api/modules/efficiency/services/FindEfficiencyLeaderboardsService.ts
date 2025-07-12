@@ -1,13 +1,5 @@
 import prisma, { Player, PrismaTypes } from '../../../../prisma';
-import {
-  ComputedMetric,
-  Country,
-  getMetricValueKey,
-  Metric,
-  PlayerBuild,
-  PlayerStatus,
-  PlayerType
-} from '../../../../utils';
+import { ComputedMetric, Country, Metric, PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
 import { omit } from '../../../util/objects';
 import { PaginationOptions } from '../../../util/validation';
 
@@ -32,17 +24,12 @@ async function findEfficiencyLeaderboards(
   const requiresSorting = offset < 50 && metric === Metric.EHP && playerBuild === PlayerBuild.MAIN;
 
   if (requiresSorting) {
-    const valueKey = getMetricValueKey(metric);
-
     // Fetch top 100 players, and include their snapshots
     const sortedPlayers = (await fetchSortedPlayersList(metric, filter)).sort((a, b) => {
-      const aMetric = a.latestSnapshot?.[valueKey] ?? 0;
-      const bMetric = b.latestSnapshot?.[valueKey] ?? 0;
-
       const aRank = a.latestSnapshot?.overallRank ?? Number.MAX_SAFE_INTEGER;
       const bRank = b.latestSnapshot?.overallRank ?? Number.MAX_SAFE_INTEGER;
 
-      return bMetric - aMetric || aRank - bRank;
+      return (b[metric] ?? 0) - (a[metric] ?? 0) || aRank - bRank;
     });
 
     // Once we've used their snapshots to sort by rank, we can omit them from the response
