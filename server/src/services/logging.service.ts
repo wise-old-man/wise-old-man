@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { Logger as WinstonLogger, createLogger, transports, format } from 'winston';
+import { Logger as WinstonLogger, createLogger, format, transports } from 'winston';
 
 class Logger {
   private errorLogger: WinstonLogger;

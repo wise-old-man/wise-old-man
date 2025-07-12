@@ -1,7 +1,7 @@
 import prisma from '../../../../prisma';
 import { getMetricValueKey, isComputedMetric, isSkill, Metric, Skill } from '../../../../utils';
+import { omit } from '../../../../utils/omit.util';
 import { NotFoundError } from '../../../errors';
-import { omit } from '../../../util/objects';
 import * as deltaUtils from '../../deltas/delta.utils';
 import { CompetitionDetails } from '../competition.types';
 

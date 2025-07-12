@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { isValidDate } from './dates';
 import { GroupRole } from '../../utils';
+import { isValidDate } from '../../utils/is-valid-date.util';
 
 function enumErrorMap(path: Array<string | number>, options: Array<string | number>) {
   if (path.length === 1 && path[0] === 'country') {

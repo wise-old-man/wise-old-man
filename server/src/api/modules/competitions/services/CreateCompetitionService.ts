@@ -2,9 +2,9 @@ import { isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
 import { CompetitionType, Metric, PlayerAnnotationType } from '../../../../utils';
+import { omit } from '../../../../utils/omit.util';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
-import { omit } from '../../../util/objects';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { CompetitionWithParticipations, Team } from '../competition.types';
 import {

@@ -1,7 +1,7 @@
 import { Job as BullJob, JobsOptions as BullJobOptions, Queue, Worker } from 'bullmq';
-import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
+import logger from '../services/logging.service';
 import prometheus from '../services/prometheus.service';
 import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 import { Job } from './job.class';

@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import logger from '../../api/util/logging';
+import logger from '../../services/logging.service';
 import prometheus from '../../services/prometheus.service';
 import * as CompetitionCreated from './handlers/competition-created.event';
 import * as CompetitionEnded from './handlers/competition-ended.event';

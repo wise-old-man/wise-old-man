@@ -1,5 +1,5 @@
 import { GroupRole } from '../prisma/enum-adapter';
-import { mapValues } from '../api/util/objects';
+import { mapValues } from './map-values.util';
 import { MapOf } from './types';
 
 const GROUP_ROLES = Object.values(GroupRole);
@@ -307,13 +307,13 @@ function isGroupRole(roleString: string): roleString is GroupRole {
 }
 
 export {
+  findGroupRole,
+  // Lists
+  GROUP_ROLES,
   // Enums
   GroupRole,
   GroupRoleProps,
-  // Lists
-  GROUP_ROLES,
-  PRIVELEGED_GROUP_ROLES,
   // Functions
   isGroupRole,
-  findGroupRole
+  PRIVELEGED_GROUP_ROLES
 };

@@ -1,8 +1,8 @@
 import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import axios from 'axios';
 import { z } from 'zod';
-import { isValidDate } from '../api/util/dates';
 import { Patron } from '../prisma';
+import { isValidDate } from '../utils/is-valid-date.util';
 
 export const STATIC_PATRON_GROUP_IDS = [
   139, // Exclusive Elite Club

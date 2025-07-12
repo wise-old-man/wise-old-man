@@ -1,5 +1,5 @@
 import { CompetitionCSVTableType, CompetitionType, Metric } from '../../../../utils';
-import { formatDate } from '../../../util/dates';
+import { formatDate } from '../../../../utils/format-date.util';
 import { BadRequestError } from '../../../errors';
 import { CompetitionDetails, ParticipationWithPlayerAndProgress } from '../competition.types';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';

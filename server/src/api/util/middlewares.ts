@@ -2,10 +2,10 @@ import { isErrored } from '@attio/fetchable';
 import { NextFunction, Request, Response } from 'express';
 import prisma from '../../prisma';
 import * as cryptService from '../../services/crypt.service';
+import logger from '../../services/logging.service';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../errors';
 import { submitNameChange } from '../modules/name-changes/services/SubmitNameChangeService';
-import logger from '../util/logging';
 
 export async function detectRuneLiteNameChange(req: unknown, res: Response, next: NextFunction) {
   if (!req) {

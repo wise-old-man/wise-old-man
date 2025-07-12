@@ -1,8 +1,8 @@
 import api from './api';
 import { eventEmitter } from './api/events';
-import logger from './api/util/logging';
 import { getThreadIndex } from './env';
 import { jobManager } from './jobs';
+import logger from './services/logging.service';
 import prometheusService from './services/prometheus.service';
 import { redisClient } from './services/redis.service';
 
