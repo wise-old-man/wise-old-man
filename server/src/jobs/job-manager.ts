@@ -1,9 +1,8 @@
 import { Job as BullJob, JobsOptions as BullJobOptions, Queue, Worker } from 'bullmq';
-import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
 import logger from '../services/logging.service';
 import prometheus from '../services/prometheus.service';
-import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
+import { buildCompoundRedisKey, REDIS_CONFIG, redisClient } from '../services/redis.service';
 import { Job } from './job.class';
 import { CRON_CONFIG, JOB_HANDLER_MAP, STARTUP_JOBS } from './jobs.config';
 import type { JobOptions } from './types/job-options.type';
@@ -131,7 +130,7 @@ class JobManager {
 
       const queue = new Queue(jobType, {
         prefix: REDIS_PREFIX,
-        connection: redisConfig,
+        connection: REDIS_CONFIG,
         defaultJobOptions: { removeOnComplete: true, removeOnFail: true, ...(options || {}) }
       });
 
@@ -143,7 +142,7 @@ class JobManager {
         const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
           prefix: REDIS_PREFIX,
           limiter: options?.rateLimiter,
-          connection: redisConfig,
+          connection: REDIS_CONFIG,
           concurrency: options.maxConcurrent ?? 1,
           autorun: true
         });
