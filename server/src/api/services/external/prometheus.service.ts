@@ -8,9 +8,7 @@ class PrometheusService {
   private jobHistogram: Histogram<'jobName' | 'status'>;
   private jobQueueGauge: Gauge<'queueName' | 'state'>;
   private httpHistogram: Histogram<'method' | 'route' | 'status' | 'userAgent'>;
-  private effectHistogram: Histogram<'effectName' | 'status'>;
   private eventCounter: Counter<'eventType'>;
-
   private hiscoresHistogram: Histogram<'status'>;
   private runeMetricsHistogram: Histogram<'status'>;
 
@@ -21,13 +19,6 @@ class PrometheusService {
     this.registry.setDefaultLabels({ app: 'wise-old-man', threadIndex: getThreadIndex() });
 
     prometheus.collectDefaultMetrics({ register: this.registry });
-
-    this.effectHistogram = new prometheus.Histogram({
-      name: 'effect_duration_seconds',
-      help: 'Duration of effects in microseconds',
-      labelNames: ['effectName', 'status'],
-      buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10, 30]
-    });
 
     this.httpHistogram = new prometheus.Histogram({
       name: 'http_request_duration_seconds',
@@ -72,7 +63,6 @@ class PrometheusService {
     this.registry.registerMetric(this.jobHistogram);
     this.registry.registerMetric(this.jobQueueGauge);
     this.registry.registerMetric(this.httpHistogram);
-    this.registry.registerMetric(this.effectHistogram);
     this.registry.registerMetric(this.eventCounter);
     this.registry.registerMetric(this.runeMetricsHistogram);
     this.registry.registerMetric(this.hiscoresHistogram);
@@ -142,18 +132,6 @@ class PrometheusService {
 
   trackHiscoresRequest() {
     return this.hiscoresHistogram.startTimer();
-  }
-
-  async trackEffect(effectName: string, fn: () => Promise<void>) {
-    const endTimer = this.effectHistogram.startTimer();
-
-    try {
-      await fn();
-      endTimer({ effectName, status: 1 });
-    } catch (error) {
-      endTimer({ effectName, status: 0 });
-      throw error;
-    }
   }
 
   async trackJob(jobName: string, handler: () => Promise<void>) {
