@@ -22,10 +22,6 @@ export class UpdateNewGroupMembersJob extends Job<Payload> {
       where: { id: { in: payload.playerIds } }
     });
 
-    if (!players || players.length === 0) {
-      return;
-    }
-
     players.forEach(({ username, type, registeredAt }) => {
       if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) {
         return;
