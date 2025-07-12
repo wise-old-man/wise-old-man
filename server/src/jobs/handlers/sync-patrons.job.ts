@@ -1,13 +1,14 @@
+import { isErrored } from '@attio/fetchable';
+import { eventEmitter, EventType } from '../../api/events';
+import { omit } from '../../api/util/objects';
+import prisma, { Patron } from '../../prisma';
 import { sendDiscordWebhook } from '../../services/discord.service';
 import {
   getPatrons,
   STATIC_PATRON_GROUP_IDS,
   STATIC_PATRON_PLAYER_IDS
-} from '../../api/services/external/patreon.service';
-import { omit } from '../../api/util/objects';
-import prisma, { Patron } from '../../prisma';
+} from '../../services/patreon.service';
 import { Job } from '../job.class';
-import { eventEmitter, EventType } from '../../api/events';
 
 export class SyncPatronsJob extends Job<unknown> {
   async execute() {
@@ -27,17 +28,23 @@ async function syncPatrons() {
   const toUpdate: Patron[] = [];
   const toDelete: Patron[] = [];
 
-  const patrons = await getPatrons();
+  const patronsResult = await getPatrons();
 
-  if (patrons.every(p => p.patron.discordId === null)) {
-    throw new Error("Found no Discord IDs in the patrons list. This is likely an outage on Patreon's side.");
+  if (isErrored(patronsResult)) {
+    // Throw an error to ensure the job fails and can be retried
+    throw patronsResult.error;
   }
 
-  const newPatronIds = patrons.map(p => p.patron.id);
+  if (patronsResult.value.every(p => p.patron.discordId === null)) {
+    // Found no Discord IDs in the patrons list. This is likely an outage on Patreon's side.
+    return;
+  }
+
+  const newPatronIds = patronsResult.value.map(p => p.patron.id);
 
   const updatedFieldsMap = new Map<string, string>();
 
-  patrons.forEach(p => {
+  patronsResult.value.forEach(p => {
     const match = currentPatrons.find(cp => cp.id === p.patron.id);
 
     if (!match) {
@@ -106,7 +113,7 @@ async function syncPatrons() {
   });
 
   Array.from(updatedFieldsMap.entries()).forEach(([patronId, field]) => {
-    const p = patrons.find(patron => patron.patron.id === patronId)?.patron;
+    const p = patronsResult.value.find(patron => patron.patron.id === patronId)?.patron;
     if (!p) return;
 
     const discordTag = p.discordId ? `<@${p.discordId}>` : '';

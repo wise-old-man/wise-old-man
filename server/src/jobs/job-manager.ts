@@ -1,8 +1,8 @@
 import { Job as BullJob, JobsOptions as BullJobOptions, Queue, Worker } from 'bullmq';
-import prometheus from '../api/services/external/prometheus.service';
 import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
+import prometheus from '../services/prometheus.service';
 import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 import { Job } from './job.class';
 import { CRON_CONFIG, JOB_HANDLER_MAP, STARTUP_JOBS } from './jobs.config';
@@ -99,15 +99,16 @@ class JobManager {
     const maxAttempts = bullJob.opts.attempts ?? 1;
     const attemptTag = maxAttempts > 1 ? `(#${bullJob.attemptsMade})` : '';
 
+    const endTimer = prometheus.trackJob();
+
     try {
       logger.info(`[v2] Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
 
-      await prometheus.trackJob(bullJob.name, async () => {
-        await jobHandler.execute(bullJob.data);
-      });
-
+      await jobHandler.execute(bullJob.data);
+      endTimer({ jobName: bullJob.name, status: 1 });
       await jobHandler.onSuccess(bullJob.data);
     } catch (error) {
+      endTimer({ jobName: bullJob.name, status: 0 });
       logger.error(`[v2] Failed job: ${bullJob.name}`, { ...bullJob.data, error }, true);
 
       await jobHandler.onFailure(bullJob.data, error);
@@ -204,7 +205,7 @@ class JobManager {
   async updateQueueMetrics() {
     for (const queue of this.queues) {
       const queueMetrics = await queue.getJobCounts();
-      await prometheus.updateQueueMetrics(queue.name, queueMetrics);
+      prometheus.updateQueueMetrics(queue.name, queueMetrics);
     }
   }
 }

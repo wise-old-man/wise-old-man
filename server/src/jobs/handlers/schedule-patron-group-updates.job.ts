@@ -1,5 +1,5 @@
-import { STATIC_PATRON_GROUP_IDS } from '../../api/services/external/patreon.service';
 import prisma from '../../prisma';
+import { STATIC_PATRON_GROUP_IDS } from '../../services/patreon.service';
 import { Period, PeriodProps, PlayerStatus } from '../../utils';
 import { Job } from '../job.class';
 import { JobPriority } from '../types/job-priority.enum';

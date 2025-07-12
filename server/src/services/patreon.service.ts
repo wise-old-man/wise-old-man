@@ -1,6 +1,8 @@
-import { z } from 'zod';
+import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import axios from 'axios';
-import { isValidDate } from '../../util/dates';
+import { z } from 'zod';
+import { isValidDate } from '../api/util/dates';
+import { Patron } from '../prisma';
 
 export const STATIC_PATRON_GROUP_IDS = [
   139, // Exclusive Elite Club
@@ -77,9 +79,17 @@ const membersResponseSchema = z.object({
 type MembersResponse = z.infer<typeof membersResponseSchema>;
 type PatreonUser = z.infer<typeof userSchema>;
 
-export async function getPatrons() {
-  const members = await fetchMembers(CAMPAIGN_ID);
-  const { data, included } = members;
+export async function getPatrons(): AsyncResult<
+  Array<{ patron: Patron; isInGracePeriod: boolean }>,
+  { code: 'FAILED_TO_FETCH_PATRONS'; subError: unknown }
+> {
+  const membersResult = await fetchMembers(CAMPAIGN_ID);
+
+  if (isErrored(membersResult)) {
+    return membersResult;
+  }
+
+  const { data, included } = membersResult.value;
 
   const userMap = new Map<string, PatreonUser>();
   included.forEach(i => {
@@ -136,10 +146,16 @@ export async function getPatrons() {
     };
   });
 
-  return patrons.filter(Boolean);
+  return complete(patrons.filter(Boolean));
 }
 
-async function fetchMembers(campaignId: string): Promise<Omit<MembersResponse, 'meta'>> {
+async function fetchMembers(campaignId: string): AsyncResult<
+  Omit<MembersResponse, 'meta'>,
+  {
+    code: 'FAILED_TO_FETCH_PATRONS';
+    subError: unknown;
+  }
+> {
   const url = new URL(`https://www.patreon.com/api/oauth2/v2/campaigns/${campaignId}/members`);
 
   url.searchParams.set('include', ['currently_entitled_tiers', 'user'].join(','));
@@ -158,11 +174,22 @@ async function fetchMembers(campaignId: string): Promise<Omit<MembersResponse, '
   // Check at max 10 pages
   // (I don't trust Patreon API, so I'd rather not get stuck in an infinite loop if they mess up)
   for (let i = 0; i < 10; i++) {
-    const { data: response } = await axios.get(url.toString(), {
-      headers: {
-        Authorization: `Bearer ${process.env.PATREON_BEARER_TOKEN}`
-      }
-    });
+    const requestResult = await fromPromise(
+      axios.get(url.toString(), {
+        headers: {
+          Authorization: `Bearer ${process.env.PATREON_BEARER_TOKEN}`
+        }
+      })
+    );
+
+    if (isErrored(requestResult)) {
+      return errored({
+        code: 'FAILED_TO_FETCH_PATRONS',
+        subError: requestResult.error
+      });
+    }
+
+    const response = requestResult.value.data;
 
     const parsedData = membersResponseSchema.parse(response);
 
@@ -176,5 +203,5 @@ async function fetchMembers(campaignId: string): Promise<Omit<MembersResponse, '
     url.searchParams.set('page[cursor]', response.meta.pagination.cursors.next);
   }
 
-  return result;
+  return complete(result);
 }

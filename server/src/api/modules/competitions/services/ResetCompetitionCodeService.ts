@@ -1,5 +1,6 @@
+import { isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import * as cryptService from '../../../services/external/crypt.service';
+import * as cryptService from '../../../../services/crypt.service';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
 async function resetCompetitionCode(id: number): Promise<{ newCode: string }> {
@@ -17,9 +18,19 @@ async function resetCompetitionCode(id: number): Promise<{ newCode: string }> {
     );
   }
 
-  const [code, hash] = await cryptService.generateVerification();
+  const generateVerificationResult = await cryptService.generateVerification();
 
-  await prisma.competition.update({ where: { id }, data: { verificationHash: hash } });
+  if (isErrored(generateVerificationResult)) {
+    // TODO: When this file returns a fetchable, stop throwing here and just return the error
+    throw generateVerificationResult.error.subError;
+  }
+
+  const { code, hash } = generateVerificationResult.value;
+
+  await prisma.competition.update({
+    where: { id },
+    data: { verificationHash: hash }
+  });
 
   return { newCode: code };
 }

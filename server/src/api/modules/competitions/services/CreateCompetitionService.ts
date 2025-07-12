@@ -1,8 +1,9 @@
+import { isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
+import * as cryptService from '../../../../services/crypt.service';
 import { CompetitionType, Metric, PlayerAnnotationType } from '../../../../utils';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
-import * as cryptService from '../../../services/external/crypt.service';
 import { omit } from '../../../util/objects';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { CompetitionWithParticipations, Team } from '../competition.types';
@@ -113,7 +114,14 @@ async function createCompetition(
     }
   }
 
-  const [code, hash] = await cryptService.generateVerification();
+  const generateVerificationResult = await cryptService.generateVerification();
+
+  if (isErrored(generateVerificationResult)) {
+    // TODO: When this file returns a fetchable, stop throwing here and just return the error
+    throw generateVerificationResult.error.subError;
+  }
+
+  const { code, hash } = generateVerificationResult.value;
 
   const createdCompetition = await prisma.competition.create({
     data: {
@@ -223,9 +231,9 @@ async function validateGroupVerification(groupId: number, groupVerificationCode:
     throw new NotFoundError('Group not found.');
   }
 
-  const verified = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
+  const verificationResult = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
 
-  if (!verified) {
+  if (isErrored(verificationResult)) {
     throw new ForbiddenError('Incorrect group verification code.');
   }
 }

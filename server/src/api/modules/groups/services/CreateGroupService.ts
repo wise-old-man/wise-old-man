@@ -1,8 +1,9 @@
+import { isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
+import * as cryptService from '../../../../services/crypt.service';
 import { GroupRole, PlayerAnnotationType, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import { BadRequestError, ForbiddenError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
-import * as cryptService from '../../../services/external/crypt.service';
 import { omit } from '../../../util/objects';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -77,7 +78,15 @@ async function createGroup(
     throw new BadRequestError(`Group name '${name}' is already taken. (ID: ${duplicateGroup.id})`);
   }
 
-  const [code, hash] = await cryptService.generateVerification();
+  const generateVerificationResult = await cryptService.generateVerification();
+
+  if (isErrored(generateVerificationResult)) {
+    // TODO: When this file returns a fetchable, stop throwing here and just return the error
+    throw generateVerificationResult.error.subError;
+  }
+
+  const { code, hash } = generateVerificationResult.value;
+
   const memberships = await prepareMemberships(payload.members);
 
   const createdGroup = await prisma.group.create({
