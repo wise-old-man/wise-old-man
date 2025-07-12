@@ -1,8 +1,8 @@
 import prisma from '../../../../prisma';
+import { omit } from '../../../../utils/omit.util';
 import { NotFoundError } from '../../../errors';
-import { omit } from '../../../util/objects';
-import { GroupListItem } from '../group.types';
 import { eventEmitter, EventType } from '../../../events';
+import { GroupListItem } from '../group.types';
 
 async function verifyGroup(groupId: number): Promise<GroupListItem> {
   try {

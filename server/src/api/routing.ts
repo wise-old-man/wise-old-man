@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/node';
 import express from 'express';
 import { ZodError } from 'zod';
+import logger from '../services/logging.service';
 import { BadRequestError, NotFoundError } from './errors';
 import competitionRouter from './modules/competitions/competition.router';
 import deltaRouter from './modules/deltas/delta.router';
@@ -11,7 +12,6 @@ import nameRouter from './modules/name-changes/name-change.router';
 import patronRouter from './modules/patrons/patron.router';
 import playerRouter from './modules/players/player.router';
 import recordRouter from './modules/records/record.router';
-import logger from './util/logging';
 
 class RoutingHandler {
   router: express.Router;

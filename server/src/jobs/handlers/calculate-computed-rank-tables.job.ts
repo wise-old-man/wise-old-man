@@ -1,7 +1,7 @@
-import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import { getAlgorithmType } from '../../api/modules/efficiency/efficiency.utils';
-import logger from '../../api/util/logging';
 import prisma from '../../prisma';
+import logger from '../../services/logging.service';
+import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import {
   ComputedMetric,
   EfficiencyAlgorithmType,

@@ -1,17 +1,17 @@
 import prisma from '../../../../prisma';
 import {
+  getLevel,
   getMetricMeasure,
   getMetricRankKey,
   getMetricValueKey,
   Metric,
-  MetricMeasure,
-  getLevel
+  MetricMeasure
 } from '../../../../utils';
-import { omit } from '../../../util/objects';
-import { PaginationOptions } from '../../../util/validation';
+import { omit } from '../../../../utils/omit.util';
 import { NotFoundError } from '../../../errors';
-import { GroupHiscoresEntry, GroupHiscoresSkillItem } from '../group.types';
+import { PaginationOptions } from '../../../util/validation';
 import { getTotalLevel } from '../../snapshots/snapshot.utils';
+import { GroupHiscoresEntry, GroupHiscoresSkillItem } from '../group.types';
 
 async function fetchGroupHiscores(
   groupId: number,

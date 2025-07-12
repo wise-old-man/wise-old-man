@@ -1,18 +1,18 @@
 import prisma, {
-  Player,
-  Record,
   NameChange,
   NameChangeStatus,
-  PrismaTypes,
   Participation,
-  PlayerAnnotation
+  Player,
+  PlayerAnnotation,
+  PrismaTypes,
+  Record
 } from '../../../../prisma';
+import logger from '../../../../services/logging.service';
 import { ActivityType, MemberActivity, Membership, PlayerStatus } from '../../../../utils';
-import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
-import { archivePlayer } from '../../players/services/ArchivePlayerService';
 import { eventEmitter, EventType } from '../../../events';
 import * as playerUtils from '../../players/player.utils';
+import { archivePlayer } from '../../players/services/ArchivePlayerService';
 import { prepareRecordValue } from '../../records/record.utils';
 
 async function approveNameChange(id: number): Promise<NameChange> {

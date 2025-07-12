@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import logger from '../../../services/logging.service';
 import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric, Team } from '../../../utils';
-import logger from '../../util/logging';
 import { checkAdminPermission, checkCompetitionVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';

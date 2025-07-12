@@ -1,9 +1,9 @@
-import { PlayerStatus } from '../../../../utils';
 import { ServerError } from '../../../../api/errors';
-import logger from '../../../util/logging';
 import prisma, { NameChangeStatus, Player } from '../../../../prisma';
-import { splitArchivalData } from '../player.utils';
+import logger from '../../../../services/logging.service';
+import { PlayerStatus } from '../../../../utils';
 import { eventEmitter, EventType } from '../../../events';
+import { splitArchivalData } from '../player.utils';
 
 interface ArchivePlayerResult {
   newPlayer: Player | null;

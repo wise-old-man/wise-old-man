@@ -1,8 +1,8 @@
 import { isErrored } from '@attio/fetchable';
 import { standardize } from '../../api/modules/players/player.utils';
-import logger from '../../api/util/logging';
 import prisma from '../../prisma';
 import { getRuneMetricsBannedStatus } from '../../services/jagex.service';
+import logger from '../../services/logging.service';
 import { PlayerStatus } from '../../utils';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';

@@ -1,10 +1,10 @@
 import { AsyncResult, complete, errored, isComplete, isErrored } from '@attio/fetchable';
 import { z } from 'zod';
-import prometheus from '../api/services/external/prometheus.service';
-import logger from '../api/util/logging';
+import prometheus from '../services/prometheus.service';
 import { PlayerType } from '../utils';
 import { fetchWithProxy } from '../utils/fetch-with-proxy.util';
 import { retry } from '../utils/retry.util';
+import logger from './logging.service';
 
 const RUNEMETRICS_URL = 'https://apps.runescape.com/runemetrics/profile/profile';
 

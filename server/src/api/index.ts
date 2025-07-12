@@ -5,8 +5,8 @@ import express, { Express } from 'express';
 import userAgent from 'express-useragent';
 import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
 import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
+import prometheus from './../services/prometheus.service';
 import router from './routing';
-import prometheus from './services/external/prometheus.service';
 import { getRequestIpHash } from './util/request';
 import { parseUserAgent } from './util/user-agents';
 

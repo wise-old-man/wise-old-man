@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import axios, { AxiosError } from 'axios';
-import proxiesService from '../api/services/external/proxies.service';
-import { AsyncResult, fromPromise, isErrored, errored, complete } from '@attio/fetchable';
+import { z } from 'zod';
+import proxyService from '../services/proxy.service';
 
 const PROXY_ERROR_RESPONSE_SCHEMA = z.object({
   code: z.literal('ECONNREFUSED')
@@ -18,7 +18,7 @@ export async function fetchWithProxy<T>(url: string): AsyncResult<
       subError: AxiosError;
     }
 > {
-  const proxy = proxiesService.getNextProxy();
+  const proxy = proxyService.getNextProxy();
 
   const fetchResult = await fromPromise(
     axios({

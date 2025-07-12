@@ -1,7 +1,7 @@
 import prisma from '../../../../prisma';
+import logger from '../../../../services/logging.service';
 import { BadRequestError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
-import logger from '../../../util/logging';
 import { standardize } from '../../players/player.utils';
 import { ActivityType } from '../group.types';
 

@@ -1,8 +1,8 @@
 import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
+import logger from '../../../services/logging.service';
 import { NotFoundError, ServerError } from '../../errors';
-import logger from '../../util/logging';
 import { checkAdminPermission } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';

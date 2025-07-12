@@ -1,9 +1,10 @@
+import { isErrored } from '@attio/fetchable';
 import { z } from 'zod';
-import { Job } from '../job.class';
-import { OpenAiService } from '../../api/services/external/openai.service';
 import prisma from '../../prisma';
-import { MetricProps, METRICS } from '../../utils';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
+import { OpenAiService } from '../../services/openai.service';
+import { MetricProps, METRICS } from '../../utils';
+import { Job } from '../job.class';
 
 const WHITELISTED_TERMS = [
   'noob',
@@ -123,12 +124,25 @@ export class CheckInappropriateContentJob extends Job<unknown> {
       whiteListedTerms: WHITELISTED_TERMS
     };
 
-    const response = await openAi.makePrompt('gpt-4o', JSON.stringify(input), SYSTEM_PROMPT, RESPONSE_SCHEMA);
+    const promptResult = await openAi.makePrompt(
+      'gpt-4o',
+      JSON.stringify(input),
+      SYSTEM_PROMPT,
+      RESPONSE_SCHEMA
+    );
 
-    if (response.offensiveEntities.length === 0) {
+    if (isErrored(promptResult)) {
+      // Throw an error to ensure the job fails and is retried
+      throw promptResult.error;
+    }
+
+    if (promptResult.value.offensiveEntities.length === 0) {
       return;
     }
 
-    await dispatchDiscordBotEvent(DiscordBotEventType.OFFENSIVE_NAMES_FOUND, response.offensiveEntities);
+    await dispatchDiscordBotEvent(
+      DiscordBotEventType.OFFENSIVE_NAMES_FOUND,
+      promptResult.value.offensiveEntities
+    );
   }
 }

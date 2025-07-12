@@ -1,6 +1,6 @@
 import prisma, { Player, PrismaTypes } from '../../../../prisma';
 import { ComputedMetric, Country, Metric, PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
-import { omit } from '../../../util/objects';
+import { omit } from '../../../../utils/omit.util';
 import { PaginationOptions } from '../../../util/validation';
 
 const COMBINED_METRIC = 'ehp+ehb';

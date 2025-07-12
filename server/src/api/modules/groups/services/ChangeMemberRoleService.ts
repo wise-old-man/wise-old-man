@@ -1,10 +1,10 @@
 import prisma from '../../../../prisma';
+import logger from '../../../../services/logging.service';
 import { GroupRole } from '../../../../utils';
-import logger from '../../../util/logging';
 import { BadRequestError, ServerError } from '../../../errors';
-import { ActivityType, MembershipWithPlayer } from '../group.types';
-import { standardize } from '../../players/player.utils';
 import { eventEmitter, EventType } from '../../../events';
+import { standardize } from '../../players/player.utils';
+import { ActivityType, MembershipWithPlayer } from '../group.types';
 
 async function changeMemberRole(
   groupId: number,

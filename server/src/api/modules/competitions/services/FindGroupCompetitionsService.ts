@@ -1,5 +1,5 @@
 import prisma from '../../../../prisma';
-import { omit } from '../../../util/objects';
+import { omit } from '../../../../utils/omit.util';
 import { NotFoundError } from '../../../errors';
 import { CompetitionListItem } from '../competition.types';
 

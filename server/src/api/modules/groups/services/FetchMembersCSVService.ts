@@ -1,5 +1,5 @@
 import prisma from '../../../../prisma';
-import { formatDate } from '../../../util/dates';
+import { formatDate } from '../../../../utils/format-date.util';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { sortMembers } from '../group.utils';
 

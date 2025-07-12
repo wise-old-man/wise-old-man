@@ -1,8 +1,8 @@
 import prisma, { Participation, Player, PrismaPromise, PrismaTypes } from '../../../../prisma';
 import { CompetitionType, Metric, PlayerAnnotationType, Snapshot } from '../../../../utils';
+import { omit } from '../../../../utils/omit.util';
 import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
-import { omit } from '../../../util/objects';
 import { standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';

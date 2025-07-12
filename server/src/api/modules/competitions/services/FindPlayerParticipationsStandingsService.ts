@@ -1,4 +1,5 @@
 import prisma, { Participation } from '../../../../prisma';
+import logger from '../../../../services/logging.service';
 import {
   BOSSES,
   CompetitionStatus,
@@ -8,9 +9,8 @@ import {
   SKILLS,
   Snapshot
 } from '../../../../utils';
+import { omit } from '../../../../utils/omit.util';
 import { NotFoundError } from '../../../errors';
-import logger from '../../../util/logging';
-import { omit } from '../../../util/objects';
 import { calculateLevelDiff, calculateMetricDelta } from '../../deltas/delta.utils';
 import { standardize } from '../../players/player.utils';
 import { ParticipationWithCompetitionAndStandings } from '../competition.types';

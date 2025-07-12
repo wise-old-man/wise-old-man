@@ -1,7 +1,7 @@
 import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import axios from 'axios';
 import prometheus, { Counter, Gauge, Histogram, Registry } from 'prom-client';
-import { getThreadIndex } from '../../../env';
+import { getThreadIndex } from '../env';
 
 class PrometheusService {
   private registry: Registry;
@@ -16,7 +16,11 @@ class PrometheusService {
 
   constructor() {
     this.registry = new prometheus.Registry();
-    this.registry.setDefaultLabels({ app: 'wise-old-man', threadIndex: getThreadIndex() });
+
+    this.registry.setDefaultLabels({
+      app: 'wise-old-man',
+      threadIndex: getThreadIndex()
+    });
 
     prometheus.collectDefaultMetrics({ register: this.registry });
 
@@ -134,23 +138,15 @@ class PrometheusService {
     return this.hiscoresHistogram.startTimer();
   }
 
-  async trackJob(jobName: string, handler: () => Promise<void>) {
-    const endTimer = this.jobHistogram.startTimer();
-
-    try {
-      await handler();
-      endTimer({ jobName, status: 1 });
-    } catch (error) {
-      endTimer({ jobName, status: 0 });
-      throw error;
-    }
+  trackJob() {
+    return this.jobHistogram.startTimer();
   }
 
   trackEventEmitted(eventType: string) {
     this.eventCounter.inc({ eventType });
   }
 
-  async updateQueueMetrics(queueName: string, counts: Record<string, number>) {
+  updateQueueMetrics(queueName: string, counts: Record<string, number>) {
     for (const [state, count] of Object.entries(counts)) {
       this.jobQueueGauge.set({ queueName, state }, count);
     }
