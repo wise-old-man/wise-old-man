@@ -10,6 +10,9 @@ export enum DiscordBotEventType {
   // Player-facing Events
   COMPETITION_CREATED = 'COMPETITION_CREATED',
   COMPETITION_ENDED = 'COMPETITION_ENDED',
+  COMPETITION_ENDING = 'COMPETITION_ENDING',
+  COMPETITION_STARTED = 'COMPETITION_STARTED',
+  COMPETITION_STARTING = 'COMPETITION_STARTING',
   GROUP_MEMBERS_CHANGED_ROLES = 'GROUP_MEMBERS_CHANGED_ROLES',
   GROUP_MEMBERS_JOINED = 'GROUP_MEMBERS_JOINED',
   GROUP_MEMBERS_LEFT = 'GROUP_MEMBERS_LEFT',
@@ -36,6 +39,20 @@ type DiscordBotEventPayloadMap = {
       displayName: string;
       teamName: string | null;
     }>;
+  };
+  [DiscordBotEventType.COMPETITION_STARTED]: {
+    groupId: number;
+    competition: Competition;
+  };
+  [DiscordBotEventType.COMPETITION_STARTING]: {
+    groupId: number;
+    competition: Competition;
+    minutesLeft: number;
+  };
+  [DiscordBotEventType.COMPETITION_ENDING]: {
+    groupId: number;
+    competition: Competition;
+    minutesLeft: number;
   };
   [DiscordBotEventType.GROUP_MEMBERS_CHANGED_ROLES]: {
     groupId: number;

@@ -8,6 +8,9 @@ import { CheckPlayerBannedJob } from './handlers/check-player-banned.job';
 import { CheckPlayerRankedJob } from './handlers/check-player-ranked.job';
 import { DispatchCompetitionCreatedDiscordEventJob } from './handlers/dispatch-competition-created-discord-event.job';
 import { DispatchCompetitionEndedDiscordEventJob } from './handlers/dispatch-competition-ended-discord-event.job';
+import { DispatchCompetitionEndingDiscordEventJob } from './handlers/dispatch-competition-ending-discord-event.job';
+import { DispatchCompetitionStartedDiscordEventJob } from './handlers/dispatch-competition-started-discord-event.job';
+import { DispatchCompetitionStartingDiscordEventJob } from './handlers/dispatch-competition-starting-discord-event.job';
 import { DispatchMemberAchievementsDiscordEventJob } from './handlers/dispatch-member-achievements-discord-event.job';
 import { DispatchMemberHcimDiedDiscordEventJob } from './handlers/dispatch-member-hcim-died-discord-event.job';
 import { DispatchMemberNameChangedDiscordEventJob } from './handlers/dispatch-member-name-changed-discord-event.job';
@@ -33,8 +36,10 @@ import { SyncPlayerAchievementsJob } from './handlers/sync-player-achievements.j
 import { SyncPlayerCompetitionParticipationsJob } from './handlers/sync-player-competition-participations.job';
 import { SyncPlayerDeltasJob } from './handlers/sync-player-deltas.job';
 import { SyncPlayerRecordsJob } from './handlers/sync-player-records.job';
+import { UpdateCompetitionParticipantsJob } from './handlers/update-competition-participants.job';
 import { UpdateCompetitionScoreJob } from './handlers/update-competition-score.job';
 import { UpdateGroupScoreJob } from './handlers/update-group-score.job';
+import { UpdateNewCompetitionParticipantsJob } from './handlers/update-new-competition-participants.job';
 import { UpdateNewGroupMembersJob } from './handlers/update-new-group-members.job';
 import { UpdatePlayerJob } from './handlers/update-player.job';
 import { UpdateQueueMetricsJob } from './handlers/update-queue-metrics.job';
@@ -52,6 +57,9 @@ export const JOB_HANDLER_MAP = {
   [JobType.CHECK_PLAYER_RANKED]: CheckPlayerRankedJob,
   [JobType.DISPATCH_COMPETITION_CREATED_DISCORD_EVENT]: DispatchCompetitionCreatedDiscordEventJob,
   [JobType.DISPATCH_COMPETITION_ENDED_DISCORD_EVENT]: DispatchCompetitionEndedDiscordEventJob,
+  [JobType.DISPATCH_COMPETITION_ENDING_DISCORD_EVENT]: DispatchCompetitionEndingDiscordEventJob,
+  [JobType.DISPATCH_COMPETITION_STARTED_DISCORD_EVENT]: DispatchCompetitionStartedDiscordEventJob,
+  [JobType.DISPATCH_COMPETITION_STARTING_DISCORD_EVENT]: DispatchCompetitionStartingDiscordEventJob,
   [JobType.DISPATCH_MEMBER_ACHIEVEMENTS_DISCORD_EVENT]: DispatchMemberAchievementsDiscordEventJob,
   [JobType.DISPATCH_MEMBER_HCIM_DIED_DISCORD_EVENT]: DispatchMemberHcimDiedDiscordEventJob,
   [JobType.DISPATCH_MEMBER_NAME_CHANGED_DISCORD_EVENT]: DispatchMemberNameChangedDiscordEventJob,
@@ -77,8 +85,10 @@ export const JOB_HANDLER_MAP = {
   [JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS]: SyncPlayerCompetitionParticipationsJob,
   [JobType.SYNC_PLAYER_DELTAS]: SyncPlayerDeltasJob,
   [JobType.SYNC_PLAYER_RECORDS]: SyncPlayerRecordsJob,
+  [JobType.UPDATE_COMPETITION_PARTICIPANTS]: UpdateCompetitionParticipantsJob,
   [JobType.UPDATE_COMPETITION_SCORE]: UpdateCompetitionScoreJob,
   [JobType.UPDATE_GROUP_SCORE]: UpdateGroupScoreJob,
+  [JobType.UPDATE_NEW_COMPETITION_PARTICIPANTS]: UpdateNewCompetitionParticipantsJob,
   [JobType.UPDATE_NEW_GROUP_MEMBERS]: UpdateNewGroupMembersJob,
   [JobType.UPDATE_PLAYER]: UpdatePlayerJob,
   [JobType.UPDATE_QUEUE_METRICS]: UpdateQueueMetricsJob

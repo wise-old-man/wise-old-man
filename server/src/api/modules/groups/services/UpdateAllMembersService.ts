@@ -20,7 +20,7 @@ async function updateAllMembers(groupId: number): Promise<number> {
 
   // Schedule an update job for every member
   for (const player of outdatedPlayers) {
-    jobManager.add(JobType.UPDATE_PLAYER, { username: player.username, source: 'update-all-members' });
+    jobManager.add(JobType.UPDATE_PLAYER, { username: player.username });
   }
 
   return outdatedPlayers.length;

@@ -1,10 +1,4 @@
 import { eventEmitter, EventType } from '../../api/events';
-import {
-  onCompetitionEnding,
-  onCompetitionStarted,
-  onCompetitionStarting
-} from '../../api/modules/competitions/competition.events';
-import { EventPeriodDelay } from '../../api/services/external/discord.service';
 import prisma from '../../prisma';
 import { Job } from '../job.class';
 
@@ -48,21 +42,21 @@ async function scheduleStarting(delayMs: number): Promise<void> {
     }
   });
 
-  competitionsStarting.forEach((c, index) => {
+  competitionsStarting.forEach(c => {
     const eventDelay = Math.max(0, c.startsAt.getTime() - delayMs - Date.now());
 
-    setTimeout(
-      () => {
-        // If competition is starting in < 1min, schedule the "started" event instead
-        if (delayMs === 0) {
-          onCompetitionStarted(c);
-        } else {
-          onCompetitionStarting(c, getEventPeriodDelay(delayMs));
-        }
-        // stagger each event by 500ms to avoid overloading the database
-      },
-      eventDelay + index * 500
-    );
+    setTimeout(() => {
+      if (delayMs === 0) {
+        eventEmitter.emit(EventType.COMPETITION_STARTED, {
+          competitionId: c.id
+        });
+      } else {
+        eventEmitter.emit(EventType.COMPETITION_STARTING, {
+          competitionId: c.id,
+          minutesLeft: delayMs / 1000 / 60
+        });
+      }
+    }, eventDelay);
   });
 }
 
@@ -79,25 +73,21 @@ async function scheduleEnding(delayMs: number): Promise<void> {
     }
   });
 
-  competitionsEnding.forEach((c, index) => {
+  competitionsEnding.forEach(c => {
     const eventDelay = Math.max(0, c.endsAt.getTime() - delayMs - Date.now());
 
-    setTimeout(
-      () => {
-        // If competition is ending in < 1min, schedule the "ended" event instead
-        if (delayMs === 0) {
-          eventEmitter.emit(EventType.COMPETITION_ENDED, { competitionId: c.id });
-        } else {
-          onCompetitionEnding(c, getEventPeriodDelay(delayMs));
-        }
-        // stagger each event by 500ms to avoid overloading the database
-      },
-      eventDelay + index * 500
-    );
+    setTimeout(() => {
+      // If competition is ending in < 1min, schedule the "ended" event instead
+      if (delayMs === 0) {
+        eventEmitter.emit(EventType.COMPETITION_ENDED, {
+          competitionId: c.id
+        });
+      } else {
+        eventEmitter.emit(EventType.COMPETITION_ENDING, {
+          competitionId: c.id,
+          minutesLeft: delayMs / 1000 / 60
+        });
+      }
+    }, eventDelay);
   });
-}
-
-function getEventPeriodDelay(delayMs: number): EventPeriodDelay {
-  const minutes = delayMs / 1000 / 60;
-  return minutes < 60 ? { minutes } : { hours: minutes / 60 };
 }

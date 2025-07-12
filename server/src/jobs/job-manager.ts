@@ -3,13 +3,13 @@ import prometheus from '../api/services/external/prometheus.service';
 import logger from '../api/util/logging';
 import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
-import { CRON_CONFIG, JOB_HANDLER_MAP, STARTUP_JOBS } from './jobs.config';
+import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 import { Job } from './job.class';
+import { CRON_CONFIG, JOB_HANDLER_MAP, STARTUP_JOBS } from './jobs.config';
 import type { JobOptions } from './types/job-options.type';
 import type { JobPayloadMapper } from './types/job-payload.type';
 import { JobPriority } from './types/job-priority.enum';
 import { JobType } from './types/job-type.enum';
-import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 
 const REDIS_PREFIX = 'jobs-v2';
 
@@ -92,7 +92,7 @@ class JobManager {
     }
 
     // Temporary, this should be fixed so that every job defines its own unique ID based on the payload shape
-    return JSON.stringify({ ...payload, source: undefined });
+    return JSON.stringify(payload);
   }
 
   async handleJob(bullJob: BullJob, jobHandler: Job<unknown>) {

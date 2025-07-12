@@ -5,7 +5,6 @@ import { eventEmitter, EventType } from '../../../events';
 import * as cryptService from '../../../services/external/crypt.service';
 import { omit } from '../../../util/objects';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import * as competitionEvents from '../competition.events';
 import { CompetitionWithParticipations, Team } from '../competition.types';
 import {
   sanitizeTeams,
@@ -170,7 +169,12 @@ async function createCompetition(
   });
 
   if (createdCompetition.participations.length > 0) {
-    competitionEvents.onParticipantsJoined(createdCompetition.participations);
+    eventEmitter.emit(EventType.COMPETITION_PARTICIPANTS_JOINED, {
+      competitionId: createdCompetition.id,
+      participants: createdCompetition.participations.map(p => ({
+        playerId: p.playerId
+      }))
+    });
   }
 
   return {

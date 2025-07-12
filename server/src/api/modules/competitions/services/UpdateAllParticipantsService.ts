@@ -47,7 +47,7 @@ async function updateAllParticipants(
 
   // Schedule an update job for every participant
   for (const player of outdatedPlayers) {
-    jobManager.add(JobType.UPDATE_PLAYER, { username: player.username, source: 'update-all-participants' });
+    jobManager.add(JobType.UPDATE_PLAYER, { username: player.username });
   }
 
   return { outdatedCount: outdatedPlayers.length, cooldownDuration };

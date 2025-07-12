@@ -1,8 +1,8 @@
 import prisma from '../../../../prisma';
 import { CompetitionType, PlayerAnnotationType } from '../../../../utils';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
+import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { onParticipantsJoined } from '../competition.events';
 import { Team } from '../competition.types';
 import {
   sanitizeTeams,
@@ -79,7 +79,12 @@ async function addTeams(id: number, teams: Team[]): Promise<{ count: number }> {
   });
 
   if (newParticipations.length > 0) {
-    onParticipantsJoined(newParticipations);
+    eventEmitter.emit(EventType.COMPETITION_PARTICIPANTS_JOINED, {
+      competitionId: id,
+      participants: newParticipations.map(p => ({
+        playerId: p.playerId
+      }))
+    });
   }
 
   await prisma.competition.update({
