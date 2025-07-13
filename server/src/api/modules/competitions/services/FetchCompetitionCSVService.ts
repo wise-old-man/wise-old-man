@@ -1,5 +1,5 @@
+import dayjs from 'dayjs';
 import { CompetitionCSVTableType, CompetitionType, Metric } from '../../../../utils';
-import { formatDate } from '../../../util/dates';
 import { BadRequestError } from '../../../errors';
 import { CompetitionDetails, ParticipationWithPlayerAndProgress } from '../competition.types';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
@@ -57,7 +57,7 @@ function getParticipantsCSV(competitionDetails: CompetitionDetails): string {
     { header: 'Gained', resolveCell: row => String(row.progress.gained) },
     {
       header: 'Last Updated',
-      resolveCell: row => (row.updatedAt ? formatDate(row.updatedAt, 'MM/DD/YYYY HH:mm:ss') : '')
+      resolveCell: row => (row.updatedAt ? dayjs(row.updatedAt).format('MM/DD/YYYY HH:mm:ss') : '')
     }
   ];
 
@@ -120,7 +120,7 @@ function getTeamCSV(competitionDetails: CompetitionDetails, teamName: string): s
     { header: 'Start', resolveCell: row => String(row.progress.start) },
     { header: 'End', resolveCell: row => String(row.progress.end) },
     { header: 'Gained', resolveCell: row => String(row.progress.gained) },
-    { header: 'Last Updated', resolveCell: row => formatDate(row.updatedAt) }
+    { header: 'Last Updated', resolveCell: row => dayjs(row.updatedAt).format('MM-DD-YYYY HH:mm:ss') }
   ];
 
   const headers = columns.map(c => c.header).join(',');

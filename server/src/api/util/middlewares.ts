@@ -1,10 +1,11 @@
+import { isErrored } from '@attio/fetchable';
 import { NextFunction, Request, Response } from 'express';
 import prisma from '../../prisma';
-import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../errors';
+import * as cryptService from '../../services/crypt.service';
+import logger from '../../services/logging.service';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
+import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../errors';
 import { submitNameChange } from '../modules/name-changes/services/SubmitNameChangeService';
-import * as cryptService from '../services/external/crypt.service';
-import logger from '../util/logging';
 
 export async function detectRuneLiteNameChange(req: unknown, res: Response, next: NextFunction) {
   if (!req) {
@@ -90,9 +91,9 @@ export async function checkCompetitionVerificationCode(req: unknown, _res: Respo
   // If it is a group competition, use the group's code to verify instead
   const hash = competition.group ? competition.group.verificationHash : competition.verificationHash;
 
-  const verified = await cryptService.verifyCode(hash, verificationCode);
+  const verificationResult = await cryptService.verifyCode(hash, verificationCode);
 
-  if (!verified) {
+  if (isErrored(verificationResult)) {
     return next(new ForbiddenError('Incorrect verification code.'));
   }
 
@@ -125,9 +126,9 @@ export async function checkGroupVerificationCode(req: unknown, _res: Response, n
     return next(new NotFoundError('Group not found.'));
   }
 
-  const verified = await cryptService.verifyCode(group.verificationHash, String(verificationCode));
+  const verificationResult = await cryptService.verifyCode(group.verificationHash, String(verificationCode));
 
-  if (!verified) {
+  if (isErrored(verificationResult)) {
     return next(new ForbiddenError('Incorrect verification code.'));
   }
 

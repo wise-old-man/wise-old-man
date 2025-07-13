@@ -1,9 +1,9 @@
-import { getThreadIndex } from './env';
-import logger from './api/util/logging';
-import { eventEmitter } from './api/events';
-import { jobManager } from './jobs';
 import api from './api';
-import prometheusService from './api/services/external/prometheus.service';
+import { eventEmitter } from './api/events';
+import { getThreadIndex } from './env';
+import { jobManager } from './jobs';
+import logger from './services/logging.service';
+import prometheusService from './services/prometheus.service';
 import { redisClient } from './services/redis.service';
 
 (async () => {

@@ -10,6 +10,6 @@ export class UpdateQueueMetricsJob extends Job<unknown> {
       return;
     }
 
-    this.jobManager.updateQueueMetrics();
+    await this.jobManager.updateQueueMetrics();
   }
 }

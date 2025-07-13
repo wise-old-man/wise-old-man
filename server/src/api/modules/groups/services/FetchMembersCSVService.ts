@@ -1,5 +1,5 @@
+import dayjs from 'dayjs';
 import prisma from '../../../../prisma';
-import { formatDate } from '../../../util/dates';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { sortMembers } from '../group.utils';
 
@@ -37,8 +37,8 @@ async function fetchGroupMembersCSV(groupId: number): Promise<string> {
       player.displayName,
       role,
       player.exp,
-      player.lastChangedAt ? formatDate(player.lastChangedAt, 'MM/DD/YYYY HH:mm:ss') : '',
-      player.updatedAt ? formatDate(player.updatedAt, 'MM/DD/YYYY HH:mm:ss') : ''
+      player.lastChangedAt ? dayjs(player.lastChangedAt).format('MM/DD/YYYY HH:mm:ss') : '',
+      player.updatedAt ? dayjs(player.updatedAt).format('MM/DD/YYYY HH:mm:ss') : ''
     ].join(',');
   });
 

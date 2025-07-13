@@ -1,7 +1,7 @@
 import { isErrored } from '@attio/fetchable';
-import logger from '../../api/util/logging';
 import prisma from '../../prisma';
 import { fetchHiscoresData, HiscoresErrorSchema } from '../../services/jagex.service';
+import logger from '../../services/logging.service';
 import { PlayerStatus } from '../../utils';
 import { assertNever } from '../../utils/assert-never.util';
 import { Job } from '../job.class';

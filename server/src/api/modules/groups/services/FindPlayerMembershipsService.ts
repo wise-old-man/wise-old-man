@@ -1,6 +1,6 @@
 import prisma from '../../../../prisma';
+import { omit } from '../../../../utils/omit.util';
 import { NotFoundError } from '../../../errors';
-import { omit } from '../../../util/objects';
 import { PaginationOptions } from '../../../util/validation';
 import { standardize } from '../../players/player.utils';
 import { MembershipWithGroup } from '../group.types';

@@ -1,5 +1,5 @@
 import prisma from '../../../../prisma';
-import { omit } from '../../../util/objects';
+import { omit } from '../../../../utils/omit.util';
 import { NotFoundError } from '../../../errors';
 import { GroupDetails } from '../group.types';
 import { buildDefaultSocialLinks, sortMembers } from '../group.utils';

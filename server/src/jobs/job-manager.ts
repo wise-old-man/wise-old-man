@@ -1,9 +1,8 @@
 import { Job as BullJob, JobsOptions as BullJobOptions, Queue, Worker } from 'bullmq';
-import prometheus from '../api/services/external/prometheus.service';
-import logger from '../api/util/logging';
-import redisConfig from '../config/redis.config';
 import { getThreadIndex } from '../env';
-import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
+import logger from '../services/logging.service';
+import prometheus from '../services/prometheus.service';
+import { buildCompoundRedisKey, REDIS_CONFIG, redisClient } from '../services/redis.service';
 import { Job } from './job.class';
 import { CRON_CONFIG, JOB_HANDLER_MAP, STARTUP_JOBS } from './jobs.config';
 import type { JobOptions } from './types/job-options.type';
@@ -99,15 +98,16 @@ class JobManager {
     const maxAttempts = bullJob.opts.attempts ?? 1;
     const attemptTag = maxAttempts > 1 ? `(#${bullJob.attemptsMade})` : '';
 
+    const endTimer = prometheus.trackJob();
+
     try {
       logger.info(`[v2] Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
 
-      await prometheus.trackJob(bullJob.name, async () => {
-        await jobHandler.execute(bullJob.data);
-      });
-
+      await jobHandler.execute(bullJob.data);
+      endTimer({ jobName: bullJob.name, status: 1 });
       await jobHandler.onSuccess(bullJob.data);
     } catch (error) {
+      endTimer({ jobName: bullJob.name, status: 0 });
       logger.error(`[v2] Failed job: ${bullJob.name}`, { ...bullJob.data, error }, true);
 
       await jobHandler.onFailure(bullJob.data, error);
@@ -130,7 +130,7 @@ class JobManager {
 
       const queue = new Queue(jobType, {
         prefix: REDIS_PREFIX,
-        connection: redisConfig,
+        connection: REDIS_CONFIG,
         defaultJobOptions: { removeOnComplete: true, removeOnFail: true, ...(options || {}) }
       });
 
@@ -142,7 +142,7 @@ class JobManager {
         const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
           prefix: REDIS_PREFIX,
           limiter: options?.rateLimiter,
-          connection: redisConfig,
+          connection: REDIS_CONFIG,
           concurrency: options.maxConcurrent ?? 1,
           autorun: true
         });
@@ -204,7 +204,7 @@ class JobManager {
   async updateQueueMetrics() {
     for (const queue of this.queues) {
       const queueMetrics = await queue.getJobCounts();
-      await prometheus.updateQueueMetrics(queue.name, queueMetrics);
+      prometheus.updateQueueMetrics(queue.name, queueMetrics);
     }
   }
 }
