@@ -1,8 +1,8 @@
 import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import axios from 'axios';
+import dayjs from 'dayjs';
 import { z } from 'zod';
 import { Patron } from '../prisma';
-import { isValidDate } from '../utils/is-valid-date.util';
 
 export const STATIC_PATRON_GROUP_IDS = [
   139, // Exclusive Elite Club
@@ -45,9 +45,9 @@ const memberDataSchema = z.array(
   z.object({
     attributes: z.object({
       email: z.string(),
-      last_charge_date: z.null().or(z.string().refine(isValidDate)),
+      last_charge_date: z.null().or(z.string().refine(d => dayjs(d).isValid())),
       patron_status: z.enum(['declined_patron', 'former_patron', 'active_patron']).or(z.null()),
-      pledge_relationship_start: z.string().refine(isValidDate)
+      pledge_relationship_start: z.string().refine(d => dayjs(d).isValid())
     }),
     relationships: z.object({
       currently_entitled_tiers: z.object({

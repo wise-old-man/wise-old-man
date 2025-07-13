@@ -1,6 +1,6 @@
+import dayjs from 'dayjs';
 import { z } from 'zod';
 import { GroupRole } from '../../utils';
-import { isValidDate } from '../../utils/is-valid-date.util';
 
 function enumErrorMap(path: Array<string | number>, options: Array<string | number>) {
   if (path.length === 1 && path[0] === 'country') {
@@ -144,7 +144,7 @@ export const socialLinksSchema = z.object({
 export function getDateSchema(propName: string) {
   return z
     .any()
-    .refine(s => typeof s === 'string' && isValidDate(s), {
+    .refine(s => typeof s === 'string' && dayjs(s).isValid(), {
       message: `Parameter '${propName}' is not a valid date.`
     })
     .pipe(z.coerce.date()) as unknown as z.ZodDate;

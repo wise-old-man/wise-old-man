@@ -5,7 +5,7 @@ export function omit<T extends object, K extends keyof T>(
   const clone = { ...object };
 
   fields.forEach(f => {
-    delete clone[f as keyof object];
+    delete clone[f];
   });
 
   return clone;
