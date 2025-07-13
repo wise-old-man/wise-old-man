@@ -113,6 +113,7 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
       <div className="mt-10">
         {step === "info" && (
           <CompetitionInfoForm
+            mode="create"
             timezone={timezone}
             competition={competition}
             onTimezoneChanged={(tz) => {
