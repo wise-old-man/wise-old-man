@@ -42,6 +42,8 @@ type TimezoneOption = "utc" | "local";
 type Payload = Pick<CreateCompetitionPayload, "title" | "metric" | "startsAt" | "endsAt">;
 
 interface CompetitionInfoFormProps {
+  mode: "create" | "edit";
+
   competition: Payload;
   onCompetitionChanged: (competition: Payload) => void;
 
@@ -52,7 +54,7 @@ interface CompetitionInfoFormProps {
 }
 
 export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
-  const { competition, onCompetitionChanged, timezone, onTimezoneChanged } = props;
+  const { mode, competition, onCompetitionChanged, timezone, onTimezoneChanged } = props;
 
   const hasMounted = useHasMounted();
 
@@ -86,6 +88,9 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
 
   const hasPastStartDate = toDate(startDate, startTime).getTime() < Date.now();
   const hasPastEndDate = toDate(endDate, endTime).getTime() < Date.now();
+
+  const isEndDateAfterStartDate =
+    toDate(endDate, endTime).getTime() > toDate(startDate, startTime).getTime();
 
   function handleSubmit() {
     const startsAt = new Date(toDate(startDate, startTime).getTime() + timezoneOffset);
@@ -153,10 +158,12 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
               <TimeField value={startTime} onChange={setStartTime} />
             </div>
           </div>
-          {hasPastStartDate && (
-            <p className="mb-2 mt-2 text-sm text-red-500">
-              The start date and time you selected is in the past. Please select a future date.
-            </p>
+          {mode === "create" && hasPastStartDate && (
+            <Alert className="mt-3 px-4 py-3" variant="error">
+              <AlertDescription className="text-white">
+                The start date and time you selected is in the past. Please select a future date.
+              </AlertDescription>
+            </Alert>
           )}
           <div className="mt-5 flex grow gap-x-4">
             <div className="grow">
@@ -168,15 +175,29 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
               <TimeField value={endTime} onChange={setEndTime} />
             </div>
           </div>
-          {hasPastEndDate && (
-            <p className="mb-2 mt-2 text-sm text-red-500">
-              The end date and time you selected is in the past. Please select a future date.
-            </p>
+          {mode === "create" && hasPastEndDate && (
+            <Alert className="mt-3 px-4 py-3" variant="error">
+              <AlertDescription className="text-white">
+                The end date/time you selected is in the past. Please select a future date.
+              </AlertDescription>
+            </Alert>
+          )}
+          {!isEndDateAfterStartDate && (
+            <Alert className="mt-3 px-4 py-3" variant="error">
+              <AlertDescription className="text-white">
+                The end date/time you selected is before the start date/time.
+              </AlertDescription>
+            </Alert>
           )}
         </div>
       </div>
       {/* Allow the parent pages to render what they need on the actions slot (Previous/Next or Save) */}
-      {props.formActions(title.length === 0 || hasPastStartDate || hasPastEndDate, hasUnsavedChanges)}
+      {props.formActions(
+        title.length === 0 ||
+          !isEndDateAfterStartDate ||
+          (mode === "create" && (hasPastStartDate || hasPastEndDate)),
+        hasUnsavedChanges
+      )}
     </form>
   );
 }

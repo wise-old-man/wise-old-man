@@ -197,6 +197,7 @@ function GeneralSection(props: EditCompetitionFormProps & { verificationCode: st
   return (
     <div className="w-full">
       <CompetitionInfoForm
+        mode="edit"
         timezone={timezone}
         competition={competition}
         onTimezoneChanged={(tz) => {
