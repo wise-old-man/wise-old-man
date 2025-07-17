@@ -53,7 +53,7 @@ async function claimPatreonBenefits(
       id: patronage.id
     },
     data: {
-      groupId,
+      groupId: groupId ?? null,
       playerId
     }
   });
