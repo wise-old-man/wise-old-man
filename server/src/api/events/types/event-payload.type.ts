@@ -1,4 +1,5 @@
-import { FlaggedPlayerReviewContext, GroupRole, Metric, PlayerType } from '../../../utils';
+import { FlaggedPlayerReviewContext, Metric, PlayerType } from '../../../utils';
+import { GroupRole } from '../../../utils/shared/group.utils';
 import { Period } from '../../../utils/shared/period.utils';
 import { EventType } from './event-type.enum';
 

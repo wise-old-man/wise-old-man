@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
-import { GroupRole, Metric } from '../../../utils';
+import { Metric } from '../../../utils';
+import { GroupRole } from '../../../utils/shared/group.utils';
 import { Period } from '../../../utils/shared/period.utils';
 import { checkAdminPermission, checkGroupVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';

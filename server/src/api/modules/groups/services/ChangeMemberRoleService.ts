@@ -1,6 +1,6 @@
 import prisma from '../../../../prisma';
 import logger from '../../../../services/logging.service';
-import { GroupRole } from '../../../../utils';
+import { GroupRole } from '../../../../utils/shared/group.utils';
 import { BadRequestError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { standardize } from '../../players/player.utils';
@@ -72,7 +72,7 @@ async function changeMemberRole(
           {
             playerId: membership.playerId,
             role: newRole,
-            previousRole: membership.role
+            previousRole: membership.role as GroupRole
           }
         ]
       });

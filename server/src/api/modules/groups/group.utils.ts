@@ -1,5 +1,6 @@
+import { PRIVELEGED_GROUP_ROLES } from '../../../utils/shared/group.utils';
 import { MembershipWithPlayer } from './group.types';
-import { PRIVELEGED_GROUP_ROLES } from '../../../utils';
+
 import { GroupRoleOrder } from '@prisma/client';
 
 function sanitizeName(name: string): string {
@@ -38,4 +39,4 @@ function sortMembers(
     (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
   );
 }
-export { sanitizeName, buildDefaultSocialLinks, sortMembers };
+export { buildDefaultSocialLinks, sanitizeName, sortMembers };

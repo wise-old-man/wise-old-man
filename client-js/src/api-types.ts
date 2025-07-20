@@ -4,7 +4,6 @@ import {
   Country,
   EfficiencyAlgorithmType,
   GroupDetails,
-  GroupRole,
   GroupRoleOrder,
   Metric,
   NameChangeStatus,
@@ -17,6 +16,7 @@ import {
 
 import { CompetitionCSVTableType } from '../../server/src/api/types/competition-csv-table-type.enum';
 import { CompetitionStatus, CompetitionType } from '../../server/src/utils/shared/competition.utils';
+import { GroupRole } from '../../server/src/utils/shared/group.utils';
 import { Period } from '../../server/src/utils/shared/period.utils';
 
 export interface GenericCountMessageResponse {

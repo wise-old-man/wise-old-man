@@ -1,6 +1,7 @@
 import prisma from '../../../../prisma';
 import logger from '../../../../services/logging.service';
-import { GroupRole, PlayerAnnotationType } from '../../../../utils';
+import { PlayerAnnotationType } from '../../../../utils';
+import { GroupRole } from '../../../../utils/shared/group.utils';
 import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, standardize } from '../../players/player.utils';

@@ -1,6 +1,6 @@
-import { GroupRole } from '../../../utils';
-import { Group, Membership, Player, MemberActivity, GroupSocialLinks, GroupRoleOrder } from '../../../prisma';
-import { MetricLeaders, FormattedSnapshot } from '../snapshots/snapshot.types';
+import { Group, GroupRoleOrder, GroupSocialLinks, MemberActivity, Membership, Player } from '../../../prisma';
+import { GroupRole } from '../../../utils/shared/group.utils';
+import { FormattedSnapshot, MetricLeaders } from '../snapshots/snapshot.types';
 
 export { ActivityType } from '../../../prisma/enum-adapter';
 
@@ -73,4 +73,4 @@ export type MemberActivityWithPlayer = MemberActivity & {
   player: Player;
 };
 
-export { Group, Membership, MemberActivity, GroupRoleOrder };
+export { Group, GroupRoleOrder, MemberActivity, Membership };

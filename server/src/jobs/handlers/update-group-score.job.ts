@@ -1,7 +1,8 @@
 import { findGroupCompetitions } from '../../api/modules/competitions/services/FindGroupCompetitionsService';
 import { fetchGroupDetails } from '../../api/modules/groups/services/FetchGroupDetailsService';
 import prisma from '../../prisma';
-import { GroupDetails, PRIVELEGED_GROUP_ROLES } from '../../utils';
+import { GroupDetails } from '../../utils';
+import { PRIVELEGED_GROUP_ROLES } from '../../utils/shared/group.utils';
 import { Job } from '../job.class';
 
 interface Payload {

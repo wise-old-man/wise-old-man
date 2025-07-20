@@ -2,6 +2,7 @@ import WOMClient from './client';
 
 export * from '../../server/src/utils';
 export * from '../../server/src/utils/shared/competition.utils';
+export * from '../../server/src/utils/shared/group.utils';
 export * from '../../server/src/utils/shared/period.utils';
 
 export * from './api-types';
