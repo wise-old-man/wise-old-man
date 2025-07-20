@@ -1,4 +1,4 @@
-import { Boss } from '../../../../../utils';
+import { Boss } from '../../../../../types';
 
 export default [
   { boss: Boss.ABYSSAL_SIRE, rate: 45 },

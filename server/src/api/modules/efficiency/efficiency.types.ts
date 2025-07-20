@@ -1,4 +1,4 @@
-import { Skill, Boss } from '../../../utils';
+import { Boss, Skill } from '../../../types';
 
 export enum EfficiencyAlgorithmType {
   MAIN = 'main',

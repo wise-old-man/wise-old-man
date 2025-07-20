@@ -1,20 +1,15 @@
+import { Metric, MetricMeasure, METRICS } from '../../../src/types';
+import { getMetricRankKey } from '../../../src/utils/get-metric-rank-key.util';
+import { getMetricValueKey } from '../../../src/utils/get-metric-value-key.util';
 import {
-  Metric,
-  METRICS,
-  MetricProps,
-  findMetric,
-  isSkill,
-  isBoss,
-  isActivity,
-  isComputedMetric,
-  getMetricRankKey,
-  getMetricValueKey,
-  getMetricMeasure,
-  getMetricName,
   getMinimumValue,
   getParentEfficiencyMetric,
-  MetricMeasure
-} from '../../../src/utils';
+  isActivity,
+  isBoss,
+  isComputedMetric,
+  isSkill,
+  MetricProps
+} from '../../../src/utils/shared';
 
 describe('Util - Metrics', () => {
   test('Props', () => {
@@ -22,18 +17,11 @@ describe('Util - Metrics', () => {
     expect(Object.keys(Metric).length).toBe(Object.keys(MetricProps).length);
   });
 
-  test('findMetric', () => {
-    expect(findMetric('AGILITY')).toBe(Metric.AGILITY);
-    expect(findMetric('MAgiC')).toBe(Metric.MAGIC);
-    expect(findMetric('Other')).toBe(null);
-  });
-
   test('isSkill', () => {
     expect(isSkill('Other' as Metric)).toBe(false);
     expect(isSkill(Metric.ZULRAH)).toBe(false);
     expect(isSkill(Metric.LAST_MAN_STANDING)).toBe(false);
     expect(isSkill(Metric.WOODCUTTING)).toBe(true);
-    expect(isSkill(findMetric('Runecrafting') as Metric)).toBe(true);
   });
 
   test('isBoss', () => {
@@ -41,7 +29,6 @@ describe('Util - Metrics', () => {
     expect(isBoss(Metric.WOODCUTTING)).toBe(false);
     expect(isBoss(Metric.LAST_MAN_STANDING)).toBe(false);
     expect(isBoss(Metric.ZULRAH)).toBe(true);
-    expect(isBoss(findMetric('Obor') as Metric)).toBe(true);
   });
 
   test('isActivity', () => {
@@ -49,7 +36,6 @@ describe('Util - Metrics', () => {
     expect(isActivity(Metric.WOODCUTTING)).toBe(false);
     expect(isActivity(Metric.ZULRAH)).toBe(false);
     expect(isActivity(Metric.LAST_MAN_STANDING)).toBe(true);
-    expect(isActivity(findMetric('Soul Wars Zeal') as Metric)).toBe(true);
   });
 
   test('isComputedMetric', () => {
@@ -57,7 +43,6 @@ describe('Util - Metrics', () => {
     expect(isComputedMetric(Metric.WOODCUTTING)).toBe(false);
     expect(isComputedMetric(Metric.LAST_MAN_STANDING)).toBe(false);
     expect(isComputedMetric(Metric.EHP)).toBe(true);
-    expect(isComputedMetric(findMetric('EHB') as Metric)).toBe(true);
   });
 
   test('getMetricRankKey', () => {
@@ -74,18 +59,15 @@ describe('Util - Metrics', () => {
     expect(getMetricValueKey(Metric.SOUL_WARS_ZEAL)).toBe('soul_wars_zealScore');
   });
 
-  test('getMetricMeasure', () => {
-    expect(getMetricMeasure(Metric.EHP)).toBe(MetricMeasure.VALUE);
-    expect(getMetricMeasure(Metric.ZALCANO)).toBe(MetricMeasure.KILLS);
-    expect(getMetricMeasure(Metric.WOODCUTTING)).toBe(MetricMeasure.EXPERIENCE);
-    expect(getMetricMeasure(Metric.SOUL_WARS_ZEAL)).toBe(MetricMeasure.SCORE);
-  });
-
-  test('getMetricName', () => {
-    expect(getMetricName(Metric.EHP)).toBe('EHP');
-    expect(getMetricName(Metric.ZALCANO)).toBe('Zalcano');
-    expect(getMetricName(Metric.WOODCUTTING)).toBe('Woodcutting');
-    expect(getMetricName(Metric.SOUL_WARS_ZEAL)).toBe('Soul Wars Zeal');
+  test('MetricProps', () => {
+    expect(MetricProps[Metric.EHP].measure).toBe(MetricMeasure.VALUE);
+    expect(MetricProps[Metric.ZALCANO].measure).toBe(MetricMeasure.KILLS);
+    expect(MetricProps[Metric.WOODCUTTING].measure).toBe(MetricMeasure.EXPERIENCE);
+    expect(MetricProps[Metric.SOUL_WARS_ZEAL].measure).toBe(MetricMeasure.SCORE);
+    expect(MetricProps[Metric.EHP].name).toBe('EHP');
+    expect(MetricProps[Metric.ZALCANO].name).toBe('Zalcano');
+    expect(MetricProps[Metric.WOODCUTTING].name).toBe('Woodcutting');
+    expect(MetricProps[Metric.SOUL_WARS_ZEAL].name).toBe('Soul Wars Zeal');
   });
 
   test('getMinimumValue', () => {

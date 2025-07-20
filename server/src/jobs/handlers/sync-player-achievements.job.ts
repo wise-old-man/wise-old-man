@@ -1,13 +1,13 @@
-import { Job } from '../job.class';
-import prisma from '../../prisma';
+import { eventEmitter, EventType } from '../../api/events';
 import {
   calculatePastDates,
   getAchievementDefinitions
 } from '../../api/modules/achievements/achievement.utils';
 import { findPlayerSnapshots } from '../../api/modules/snapshots/services/FindPlayerSnapshotsService';
 import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snapshot.utils';
-import { getMetricValueKey } from '../../utils';
-import { eventEmitter, EventType } from '../../api/events';
+import prisma from '../../prisma';
+import { getMetricValueKey } from '../../utils/get-metric-value-key.util';
+import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();

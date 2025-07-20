@@ -2,26 +2,24 @@ import { Player, Snapshot } from '../../../prisma';
 import {
   ACTIVITIES,
   Activity,
-  BOSSES,
   Boss,
+  BOSSES,
   COMPUTED_METRICS,
   ComputedMetric,
-  MapOf,
   Metric,
-  SKILLS,
   Skill,
-  getMetricRankKey,
-  getMetricValueKey,
-  getMinimumValue,
-  isComputedMetric,
-  isSkill
-} from '../../../utils';
+  SKILLS
+} from '../../../types';
+import { MapOf } from '../../../utils';
+import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
+import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
+
 import { roundNumber } from '../../../utils/round-number.util';
-import { getLevel } from '../../../utils/shared';
+import { getLevel, getMinimumValue, isComputedMetric, isSkill } from '../../../utils/shared';
 import {
+  getPlayerEfficiencyMap,
   getPlayerEHB,
-  getPlayerEHP,
-  getPlayerEfficiencyMap
+  getPlayerEHP
 } from '../../modules/efficiency/efficiency.utils';
 import { getTotalLevel } from '../snapshots/snapshot.utils';
 import {

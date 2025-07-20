@@ -1,17 +1,16 @@
 import prisma from '../../../../prisma';
-import { PlayerBuild, PlayerType } from '../../../../types';
 import {
   ACTIVITIES,
   BOSSES,
   COMPUTED_METRICS,
   Metric,
-  MetricLeaders,
-  Player,
-  SKILLS,
-  Snapshot,
-  getMetricRankKey,
-  getMetricValueKey
-} from '../../../../utils';
+  PlayerBuild,
+  PlayerType,
+  SKILLS
+} from '../../../../types';
+import { MetricLeaders, Player, Snapshot } from '../../../../utils';
+import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
+import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { getLevel } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';

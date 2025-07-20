@@ -1,7 +1,8 @@
 import { Achievement, Snapshot } from '../../../prisma';
-import { getMetricMeasure, getMetricValueKey, isMetric, Metric, REAL_SKILLS } from '../../../utils';
+import { Metric } from '../../../types';
 import { formatNumber } from '../../../utils/format-number.util';
-import { getLevel, SKILL_EXP_AT_99 } from '../../../utils/shared';
+import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
+import { getLevel, isMetric, MetricProps, REAL_SKILLS, SKILL_EXP_AT_99 } from '../../../utils/shared';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 import { AchievementDefinition, ExtendedAchievement } from './achievement.types';
 
@@ -12,7 +13,7 @@ function extend(achievement: Achievement): ExtendedAchievement {
 
 function getAchievementMeasure(metric: Metric, threshold: number): string {
   if (metric === Metric.OVERALL && threshold <= SKILL_EXP_AT_99) return 'levels';
-  return getMetricMeasure(metric);
+  return MetricProps[metric].measure;
 }
 
 function getAchievemenName(name: string, threshold: number): string {
@@ -57,7 +58,7 @@ function getAchievementDefinitions(): AchievementDefinition[] {
       definitions.push({
         name: newName,
         metric,
-        measure: measure || getMetricMeasure(metric),
+        measure: measure ?? MetricProps[metric].measure,
         threshold,
         validate: validateFn,
         getCurrentValue: getCurrentValueFn

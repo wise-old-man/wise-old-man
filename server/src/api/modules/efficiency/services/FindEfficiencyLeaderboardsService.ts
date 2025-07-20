@@ -1,6 +1,5 @@
 import prisma, { Player, PrismaTypes } from '../../../../prisma';
-import { Country, PlayerBuild, PlayerStatus, PlayerType } from '../../../../types';
-import { ComputedMetric, Metric } from '../../../../utils';
+import { ComputedMetric, Country, Metric, PlayerBuild, PlayerStatus, PlayerType } from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
 import { PaginationOptions } from '../../../util/validation';
 

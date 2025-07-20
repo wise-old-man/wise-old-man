@@ -1,6 +1,7 @@
 import { fetchCompetitionDetails } from '../../api/modules/competitions/services/FetchCompetitionDetailsService';
 import prisma, { Competition } from '../../prisma';
-import { isActivity, isBoss, isSkill, Metric } from '../../utils';
+import { Metric } from '../../types';
+import { isActivity, isBoss, isSkill } from '../../utils/shared';
 import { Job } from '../job.class';
 
 interface Payload {

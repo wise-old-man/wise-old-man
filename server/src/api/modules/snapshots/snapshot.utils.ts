@@ -7,19 +7,22 @@ import {
   BOSSES,
   COMPUTED_METRICS,
   ComputedMetric,
-  F2P_BOSSES,
-  getMetricRankKey,
-  getMetricValueKey,
-  MapOf,
-  MEMBER_SKILLS,
   Metric,
   METRICS,
-  MetricValueKey,
-  REAL_SKILLS,
   Skill,
   SKILLS
-} from '../../../utils';
-import { getCombatLevel, getLevel, MAX_SKILL_EXP } from '../../../utils/shared';
+} from '../../../types';
+import { MapOf } from '../../../utils';
+import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
+import { getMetricValueKey, MetricValueKey } from '../../../utils/get-metric-value-key.util';
+import {
+  F2P_BOSSES,
+  getCombatLevel,
+  getLevel,
+  MAX_SKILL_EXP,
+  MEMBER_SKILLS,
+  REAL_SKILLS
+} from '../../../utils/shared';
 import { ServerError } from '../../errors';
 import { getPlayerEHB, getPlayerEHP } from '../../modules/efficiency/efficiency.utils';
 import {
@@ -193,7 +196,7 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
 function hasChanged(before: Snapshot, after: Snapshot): boolean {
   // EHP and EHB can fluctuate without the player's envolvement
   const metricsToIgnore = [Metric.EHP, Metric.EHB];
-  const isValidKey = (key: MetricValueKey) => !metricsToIgnore.map(getMetricValueKey).includes(key);
+  const isValidKey = (key: MetricValueKey<Metric>) => !metricsToIgnore.map(getMetricValueKey).includes(key);
 
   return METRICS.map(getMetricValueKey).some(k => isValidKey(k) && after[k] > -1 && after[k] > before[k]);
 }

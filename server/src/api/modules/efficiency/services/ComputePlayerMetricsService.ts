@@ -1,5 +1,5 @@
-import { Snapshot } from '../../../../prisma';
-import { Metric, Player } from '../../../../utils';
+import { Player, Snapshot } from '../../../../prisma';
+import { Metric } from '../../../../types';
 import { getAlgorithm, getExperienceMap, getKillcountMap } from '../efficiency.utils';
 import { computeEfficiencyRank } from './ComputeEfficiencyRankService';
 

@@ -6,8 +6,8 @@ import { eventEmitter } from '../../../src/api/events';
 import * as PlayerAchievementsCreatedEvent from '../../../src/api/events/handlers/player-achievements-created.event';
 import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
 import { redisClient } from '../../../src/services/redis.service';
-import { PlayerType } from '../../../src/types';
-import { Achievement, Metric } from '../../../src/utils';
+import { Metric, PlayerType } from '../../../src/types';
+import { Achievement } from '../../../src/utils';
 import { SKILL_EXP_AT_99 } from '../../../src/utils/shared';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 

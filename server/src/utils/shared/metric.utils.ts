@@ -1,51 +1,28 @@
-import { Activity, Boss, ComputedMetric, Metric, Skill } from '../prisma/enum-adapter';
-import { mapValues } from './map-values.util';
-import { MapOf } from './types';
+import {
+  ACTIVITIES,
+  Activity,
+  Boss,
+  BOSSES,
+  ComputedMetric,
+  Metric,
+  MetricMeasure,
+  MetricType,
+  Skill,
+  SKILLS
+} from '../../types';
+import { mapValues } from '../map-values.util';
+import { MapOf } from '../types';
 
-enum MetricType {
-  SKILL = 'skill',
-  BOSS = 'boss',
-  ACTIVITY = 'activity',
-  COMPUTED = 'computed'
-}
-
-enum MetricMeasure {
-  EXPERIENCE = 'experience',
-  KILLS = 'kills',
-  SCORE = 'score',
-  VALUE = 'value'
-}
-
-interface SkillProperties {
-  name: string;
-  isCombat: boolean;
-  isMembers: boolean;
-  type: MetricType;
-  measure: MetricMeasure;
-}
-
-interface BossProperties {
-  name: string;
-  minimumValue: number;
-  isMembers: boolean;
-  type: MetricType;
-  measure: MetricMeasure;
-}
-
-interface ActivityProperties {
-  name: string;
-  minimumValue: number;
-  type: MetricType;
-  measure: MetricMeasure;
-}
-
-interface ComputedMetricProperties {
-  name: string;
-  type: MetricType;
-  measure: MetricMeasure;
-}
-
-const SkillProps: MapOf<Skill, SkillProperties> = mapValues(
+export const SkillProps: MapOf<
+  Skill,
+  {
+    name: string;
+    isCombat: boolean;
+    isMembers: boolean;
+    type: MetricType;
+    measure: MetricMeasure;
+  }
+> = mapValues(
   {
     [Skill.OVERALL]: { name: 'Overall' },
     [Skill.ATTACK]: { name: 'Attack', isCombat: true },
@@ -81,7 +58,16 @@ const SkillProps: MapOf<Skill, SkillProperties> = mapValues(
   })
 );
 
-const BossProps: MapOf<Boss, BossProperties> = mapValues(
+export const BossProps: MapOf<
+  Boss,
+  {
+    name: string;
+    minimumValue: number;
+    isMembers: boolean;
+    type: MetricType;
+    measure: MetricMeasure;
+  }
+> = mapValues(
   {
     [Boss.ABYSSAL_SIRE]: { name: 'Abyssal Sire' },
     [Boss.ALCHEMICAL_HYDRA]: { name: 'Alchemical Hydra' },
@@ -159,7 +145,15 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
   })
 );
 
-const ActivityProps: MapOf<Activity, ActivityProperties> = mapValues(
+export const ActivityProps: MapOf<
+  Activity,
+  {
+    name: string;
+    minimumValue: number;
+    type: MetricType;
+    measure: MetricMeasure;
+  }
+> = mapValues(
   {
     [Activity.LEAGUE_POINTS]: { name: 'League Points', minimumValue: 100 },
     [Activity.BOUNTY_HUNTER_HUNTER]: { name: 'Bounty Hunter (Hunter)', minimumValue: 2 },
@@ -186,7 +180,14 @@ const ActivityProps: MapOf<Activity, ActivityProperties> = mapValues(
   })
 );
 
-const ComputedMetricProps: MapOf<ComputedMetric, ComputedMetricProperties> = mapValues(
+export const ComputedMetricProps: MapOf<
+  ComputedMetric,
+  {
+    name: string;
+    type: MetricType;
+    measure: MetricMeasure;
+  }
+> = mapValues(
   {
     [ComputedMetric.EHP]: { name: 'EHP' },
     [ComputedMetric.EHB]: { name: 'EHB' }
@@ -194,131 +195,45 @@ const ComputedMetricProps: MapOf<ComputedMetric, ComputedMetricProperties> = map
   props => ({ ...props, type: MetricType.COMPUTED, measure: MetricMeasure.VALUE })
 );
 
-const MetricProps = {
+export const MetricProps = {
   ...SkillProps,
   ...BossProps,
   ...ActivityProps,
   ...ComputedMetricProps
 } as const;
 
-const METRICS = Object.values(Metric) as Metric[];
-const SKILLS = Object.values(Skill) as Skill[];
-const BOSSES = Object.values(Boss) as Boss[];
-const ACTIVITIES = Object.values(Activity) as Activity[];
-const COMPUTED_METRICS = Object.values(ComputedMetric) as ComputedMetric[];
+export const REAL_SKILLS = SKILLS.filter(s => s !== Skill.OVERALL) as Skill[];
+export const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers) as Boss[];
+export const MEMBER_SKILLS = SKILLS.filter(s => MetricProps[s].isMembers) as Skill[];
+export const COMBAT_SKILLS = SKILLS.filter(s => MetricProps[s].isCombat) as Skill[];
+export const REAL_METRICS = [...SKILLS, ...BOSSES, ...ACTIVITIES];
 
-const REAL_SKILLS = SKILLS.filter(s => s !== Skill.OVERALL) as Skill[];
-const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers) as Boss[];
-const MEMBER_SKILLS = SKILLS.filter(s => MetricProps[s].isMembers) as Skill[];
-const COMBAT_SKILLS = SKILLS.filter(s => MetricProps[s].isCombat) as Skill[];
-const REAL_METRICS = [...SKILLS, ...BOSSES, ...ACTIVITIES];
-
-function findMetric(metricName: string): Metric | null {
-  for (const [key, value] of Object.entries(MetricProps)) {
-    if (value.name.toUpperCase() === metricName.toUpperCase()) return key as Metric;
-  }
-
-  return null;
-}
-
-function isMetric(metric: Metric | string): metric is Metric {
+export function isMetric(metric: Metric | string): metric is Metric {
   return metric in MetricProps;
 }
 
-function isSkill(metric: Metric | string): metric is Skill {
+export function isSkill(metric: Metric | string): metric is Skill {
   return metric in SkillProps;
 }
 
-function isActivity(metric: Metric | string): metric is Activity {
+export function isActivity(metric: Metric | string): metric is Activity {
   return metric in ActivityProps;
 }
 
-function isBoss(metric: Metric | string): metric is Boss {
+export function isBoss(metric: Metric | string): metric is Boss {
   return metric in BossProps;
 }
 
-function isComputedMetric(metric: Metric | string): metric is ComputedMetric {
+export function isComputedMetric(metric: Metric | string): metric is ComputedMetric {
   return metric in ComputedMetricProps;
 }
 
-function getMetricRankKey<T extends Metric>(metric: T): `${T}Rank` {
-  return `${metric}Rank`;
-}
-
-export type MetricValueKey =
-  | `${Skill}Experience`
-  | `${Boss}Kills`
-  | `${Activity}Score`
-  | `${ComputedMetric}Value`;
-
-// Maybe someday I'll be good enough with TS to restrict the return type to the input metric type
-function getMetricValueKey(metric: Metric): MetricValueKey {
-  if (isSkill(metric)) {
-    return `${metric}Experience`;
-  }
-
-  if (isBoss(metric)) {
-    return `${metric}Kills`;
-  }
-
-  if (isActivity(metric)) {
-    return `${metric}Score`;
-  }
-
-  return `${metric}Value`;
-}
-
-function getMetricMeasure(metric: Metric) {
-  return MetricProps[metric].measure;
-}
-
-function getMetricName(metric: Metric) {
-  return MetricProps[metric].name;
-}
-
-function getMinimumValue(metric: Metric) {
+export function getMinimumValue(metric: Metric) {
   return isBoss(metric) || isActivity(metric) ? MetricProps[metric].minimumValue : 1;
 }
 
-function getParentEfficiencyMetric(metric: Metric) {
+export function getParentEfficiencyMetric(metric: Metric) {
   if (isBoss(metric)) return Metric.EHB;
   if (isSkill(metric)) return Metric.EHP;
   return null;
 }
-
-export {
-  ACTIVITIES,
-  Activity,
-  Boss,
-  BOSSES,
-  COMBAT_SKILLS,
-  COMPUTED_METRICS,
-  ComputedMetric,
-  F2P_BOSSES,
-  // Functions
-  findMetric,
-  getMetricMeasure,
-  getMetricName,
-  getMetricRankKey,
-  getMetricValueKey,
-  getMinimumValue,
-  getParentEfficiencyMetric,
-  isActivity,
-  isBoss,
-  isComputedMetric,
-  isMetric,
-  isSkill,
-  MEMBER_SKILLS,
-  // Enums
-  Metric,
-  MetricMeasure,
-  // Maps
-  MetricProps,
-  METRICS,
-  MetricType,
-  REAL_METRICS,
-  REAL_SKILLS,
-  Skill,
-  // Lists
-  SKILLS
-};

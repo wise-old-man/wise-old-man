@@ -3,8 +3,9 @@ import { approveNameChange } from '../../api/modules/name-changes/services/Appro
 import { denyNameChange } from '../../api/modules/name-changes/services/DenyNameChangeService';
 import { fetchNameChangeDetails } from '../../api/modules/name-changes/services/FetchNameChangeDetailsService';
 import * as playerUtils from '../../api/modules/players/player.utils';
-import prisma from '../../prisma';
-import { Metric, NameChange, NameChangeStatus, SkipContext } from '../../utils';
+import prisma, { NameChange } from '../../prisma';
+import { Metric, NameChangeStatus } from '../../types';
+import { SkipContext } from '../../utils';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 

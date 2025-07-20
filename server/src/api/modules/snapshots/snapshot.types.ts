@@ -1,5 +1,6 @@
-import { Skill, Boss, Activity, ComputedMetric, MapOf, Player } from '../../../utils';
 import { Snapshot } from '../../../prisma';
+import { Activity, Boss, ComputedMetric, Skill } from '../../../types';
+import { MapOf, Player } from '../../../utils';
 
 export type SnapshotFragment = Omit<Snapshot, 'id'>;
 

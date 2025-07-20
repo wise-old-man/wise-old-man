@@ -1,13 +1,9 @@
 import prisma from '../../../../prisma';
-import {
-  getMetricMeasure,
-  getMetricRankKey,
-  getMetricValueKey,
-  Metric,
-  MetricMeasure
-} from '../../../../utils';
+import { Metric, MetricMeasure } from '../../../../types';
+import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
+import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { omit } from '../../../../utils/omit.util';
-import { getLevel } from '../../../../utils/shared';
+import { getLevel, MetricProps } from '../../../../utils/shared';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { getTotalLevel } from '../../snapshots/snapshot.utils';
@@ -41,7 +37,7 @@ async function fetchGroupHiscores(
     return [];
   }
 
-  const measure = getMetricMeasure(metric);
+  const measure = MetricProps[metric].measure;
   const rankKey = getMetricRankKey(metric);
   const valueKey = getMetricValueKey(metric);
 

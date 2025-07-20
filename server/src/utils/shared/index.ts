@@ -3,6 +3,7 @@ export * from './competition-type.utils';
 export * from './country.utils';
 export * from './experience.utils';
 export * from './group-role.utils';
+export * from './metric.utils';
 export * from './period.utils';
 export * from './player-build.utils';
 export * from './player-status.utils';

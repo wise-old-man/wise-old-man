@@ -1,6 +1,5 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { CompetitionStatus, CompetitionType } from '../../../../types';
-import { Metric } from '../../../../utils';
+import { CompetitionStatus, CompetitionType, Metric } from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
 import { PaginationOptions } from '../../../util/validation';
 import { CompetitionListItem } from '../competition.types';

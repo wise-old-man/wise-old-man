@@ -1,5 +1,6 @@
 import { NameChange } from '../../../prisma';
-import { MapOf, Metric, Player } from '../../../utils';
+import { Metric } from '../../../types';
+import { MapOf, Player } from '../../../utils';
 import { FormattedSnapshot } from '../snapshots/snapshot.types';
 export { NameChangeStatus } from '../../../types';
 

@@ -3,8 +3,7 @@ import fs from 'fs';
 import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/snapshot.utils';
 import prisma from '../src/prisma';
 import { OSRS_HISCORES_URLS } from '../src/services/jagex.service';
-import { PlayerType } from '../src/types';
-import { METRICS, Metric, SKILLS } from '../src/utils';
+import { METRICS, Metric, PlayerType, SKILLS } from '../src/types';
 
 type HiscoresMockConfig = {
   [playerType in PlayerType]?: {

@@ -1,8 +1,7 @@
 import { isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
-import { CompetitionType, PlayerAnnotationType } from '../../../../types';
-import { Metric } from '../../../../utils';
+import { CompetitionType, Metric, PlayerAnnotationType } from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';

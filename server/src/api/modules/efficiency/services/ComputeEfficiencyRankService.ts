@@ -1,8 +1,14 @@
 import { RANK_RESOLUTION } from '../../../../jobs/handlers/calculate-computed-rank-tables.job';
-import prisma from '../../../../prisma';
+import prisma, { Player } from '../../../../prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
-import { PLAYER_BUILDS, PLAYER_TYPES, PlayerBuild, PlayerStatus, PlayerType } from '../../../../types';
-import { ComputedMetric, Player } from '../../../../utils';
+import {
+  ComputedMetric,
+  PLAYER_BUILDS,
+  PLAYER_TYPES,
+  PlayerBuild,
+  PlayerStatus,
+  PlayerType
+} from '../../../../types';
 import { getAlgorithmType } from '../efficiency.utils';
 
 async function computeEfficiencyRank(

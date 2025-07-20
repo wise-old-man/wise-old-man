@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
-import { CompetitionStatus, CompetitionType } from '../../../types';
-import { Metric, Team } from '../../../utils';
+import { CompetitionStatus, CompetitionType, Metric } from '../../../types';
+import { Team } from '../../../utils';
 import { CompetitionCSVTableType } from '../../types/competition-csv-table-type.enum';
 import { checkAdminPermission, checkCompetitionVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';

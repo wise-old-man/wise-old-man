@@ -11,7 +11,8 @@ import {
   isZerker
 } from '../../../src/api/modules/snapshots/snapshot.utils';
 import { Snapshot } from '../../../src/prisma';
-import { getMetricValueKey, SKILLS } from '../../../src/utils';
+import { SKILLS } from '../../../src/types';
+import { getMetricValueKey } from '../../../src/utils/get-metric-value-key.util';
 import {
   getCombatLevel,
   getExpForLevel,

@@ -1,17 +1,13 @@
+import { Boss, BOSSES, Skill, SKILLS } from '../../../types';
 import {
-  BOSSES,
   Bonus,
-  Boss,
   BossMetaConfig,
   EfficiencyAlgorithmType,
-  REAL_SKILLS,
-  SKILLS,
-  Skill,
   SkillMetaConfig,
   SkillMetaMethod
 } from '../../../utils';
 import { roundNumber } from '../../../utils/round-number.util';
-import { MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '../../../utils/shared';
+import { MAX_SKILL_EXP, REAL_SKILLS, SKILL_EXP_AT_99 } from '../../../utils/shared';
 
 enum BonusType {
   START,

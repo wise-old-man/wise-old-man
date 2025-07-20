@@ -6,8 +6,9 @@ import { Snapshot } from '../../../src/api/modules/snapshots/snapshot.types';
 import * as utils from '../../../src/api/modules/snapshots/snapshot.utils';
 import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
-import { Period, PlayerType } from '../../../src/types';
-import { getMetricRankKey, getMetricValueKey, Metric, SKILLS } from '../../../src/utils';
+import { Metric, Period, PlayerType, SKILLS } from '../../../src/types';
+import { getMetricRankKey } from '../../../src/utils/get-metric-rank-key.util';
+import { getMetricValueKey } from '../../../src/utils/get-metric-value-key.util';
 import { PeriodProps } from '../../../src/utils/shared';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase } from '../../utils';
 

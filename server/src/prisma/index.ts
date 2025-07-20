@@ -20,7 +20,8 @@ import {
   Snapshot as PrismaSnapshot,
   TrendDatapoint as PrismaTrendDatapoint
 } from '@prisma/client';
-import { DenyContext, SkipContext, isComputedMetric } from '../utils';
+import { DenyContext, SkipContext } from '../utils';
+import { isComputedMetric } from '../utils/shared';
 
 // @ts-expect-error - This is a polyfill for BigInt support in JSON
 BigInt.prototype.toJSON = function () {

@@ -1,6 +1,5 @@
 import prisma, { Player, Snapshot } from '../../../../prisma';
-import { Period } from '../../../../types';
-import { Metric } from '../../../../utils';
+import { Metric, Period } from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
 import { parsePeriodExpression } from '../../../../utils/parse-period-expression.util';
 import { BadRequestError, NotFoundError } from '../../../errors';

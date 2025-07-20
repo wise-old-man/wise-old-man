@@ -3,7 +3,8 @@ import { z } from 'zod';
 import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import { OpenAiService } from '../../services/openai.service';
-import { MetricProps, METRICS } from '../../utils';
+import { METRICS } from '../../types';
+import { MetricProps } from '../../utils/shared';
 import { Job } from '../job.class';
 
 const WHITELISTED_TERMS = [

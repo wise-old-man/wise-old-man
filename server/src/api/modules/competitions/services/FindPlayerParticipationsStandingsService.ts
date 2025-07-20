@@ -1,8 +1,9 @@
-import prisma, { Participation } from '../../../../prisma';
+import prisma, { Participation, Snapshot } from '../../../../prisma';
 import logger from '../../../../services/logging.service';
-import { CompetitionStatus } from '../../../../types';
-import { BOSSES, getMetricValueKey, isSkill, Metric, SKILLS, Snapshot } from '../../../../utils';
+import { BOSSES, CompetitionStatus, Metric, SKILLS } from '../../../../types';
+import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { omit } from '../../../../utils/omit.util';
+import { isSkill } from '../../../../utils/shared';
 import { NotFoundError } from '../../../errors';
 import { calculateLevelDiff, calculateMetricDelta } from '../../deltas/delta.utils';
 import { standardize } from '../../players/player.utils';

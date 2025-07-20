@@ -8,8 +8,7 @@ import { findGroupDeltas } from '../../../src/api/modules/deltas/services/FindGr
 import { findPlayerDeltas } from '../../../src/api/modules/deltas/services/FindPlayerDeltasService';
 import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
-import { PlayerType } from '../../../src/types';
-import { Metric } from '../../../src/utils';
+import { Metric, PlayerType } from '../../../src/types';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);

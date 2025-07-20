@@ -1,4 +1,5 @@
-import { Metric, isComputedMetric } from '../../../utils';
+import { Metric } from '../../../types';
+import { isComputedMetric } from '../../../utils/shared';
 
 // All records' values are stored as an Integer, but EHP/EHB records can have
 // float values, so they're multiplied by 10,000 when saving to the database.

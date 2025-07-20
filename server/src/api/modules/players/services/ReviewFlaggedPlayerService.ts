@@ -1,8 +1,10 @@
-import { Snapshot, Player } from '../../../../prisma';
-import { BOSSES, FlaggedPlayerReviewContext, Metric, REAL_SKILLS } from '../../../../utils';
+import { Player, Snapshot } from '../../../../prisma';
+import { BOSSES, Metric } from '../../../../types';
+import { FlaggedPlayerReviewContext } from '../../../../utils';
+import { REAL_SKILLS } from '../../../../utils/shared';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { FormattedSnapshot } from '../../snapshots/snapshot.types';
-import { getNegativeGains, getExcessiveGains, formatSnapshot } from '../../snapshots/snapshot.utils';
+import { formatSnapshot, getExcessiveGains, getNegativeGains } from '../../snapshots/snapshot.utils';
 
 const STACKABLE_EXP_SKILLS = [
   Metric.COOKING,

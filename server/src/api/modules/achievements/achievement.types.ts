@@ -1,5 +1,6 @@
-import { Metric, Player } from '../../../utils';
 import { Achievement, Snapshot } from '../../../prisma';
+import { Metric } from '../../../types';
+import { Player } from '../../../utils';
 
 interface AchievementTemplate {
   name: string;
@@ -35,9 +36,9 @@ interface AchievementProgress extends Omit<ExtendedAchievement, 'createdAt'> {
 
 export {
   Achievement,
-  ExtendedAchievement,
-  ExtendedAchievementWithPlayer,
-  AchievementProgress,
   AchievementDefinition,
-  AchievementTemplate
+  AchievementProgress,
+  AchievementTemplate,
+  ExtendedAchievement,
+  ExtendedAchievementWithPlayer
 };

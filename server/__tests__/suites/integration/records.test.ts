@@ -5,8 +5,7 @@ import apiServer from '../../../src/api';
 import { eventEmitter } from '../../../src/api/events';
 import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
-import { PlayerType } from '../../../src/types';
-import { Metric } from '../../../src/utils';
+import { Metric, PlayerType } from '../../../src/types';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);

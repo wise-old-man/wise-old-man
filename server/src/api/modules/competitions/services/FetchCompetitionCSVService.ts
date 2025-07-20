@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
-import { CompetitionType } from '../../../../types';
-import { Metric } from '../../../../utils';
+import { CompetitionType, Metric } from '../../../../types';
 import { BadRequestError } from '../../../errors';
 import { CompetitionCSVTableType } from '../../../types/competition-csv-table-type.enum';
 import { CompetitionDetails, ParticipationWithPlayerAndProgress } from '../competition.types';

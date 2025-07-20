@@ -10,8 +10,9 @@ import * as PlayerNameChangedEvent from '../../../src/api/events/handlers/player
 import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
 import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
-import { PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
-import { getMetricRankKey, getMetricValueKey, METRICS } from '../../../src/utils';
+import { METRICS, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
+import { getMetricRankKey } from '../../../src/utils/get-metric-rank-key.util';
+import { getMetricValueKey } from '../../../src/utils/get-metric-value-key.util';
 import { readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);

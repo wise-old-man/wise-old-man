@@ -1,8 +1,7 @@
 import { eventEmitter, EventType } from '../../api/events';
 import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
 import prisma, { Delta, PrismaTypes } from '../../prisma';
-import { Period } from '../../types';
-import { ACTIVITIES, BOSSES, COMPUTED_METRICS, METRICS, SKILLS } from '../../utils';
+import { ACTIVITIES, BOSSES, COMPUTED_METRICS, METRICS, Period, SKILLS } from '../../types';
 import { PeriodProps } from '../../utils/shared';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';

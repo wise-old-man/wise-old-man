@@ -1,6 +1,5 @@
 import prisma, { PrismaTypes, Record } from '../../../../prisma';
-import { Period } from '../../../../types';
-import { Metric } from '../../../../utils';
+import { Metric, Period } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 
