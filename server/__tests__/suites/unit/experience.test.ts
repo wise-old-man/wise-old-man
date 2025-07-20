@@ -1,25 +1,24 @@
-import { Snapshot } from '../../../src/prisma';
 import {
-  isF2p,
-  isLvl3,
+  get200msCount,
+  getCappedExp,
+  getCombatLevelFromSnapshot,
+  getMinimumExp,
+  getTotalLevel,
   is10HP,
   is1Def,
-  isZerker,
-  get200msCount,
-  getMinimumExp,
-  getCappedExp,
-  getTotalLevel,
-  getCombatLevelFromSnapshot
+  isF2p,
+  isLvl3,
+  isZerker
 } from '../../../src/api/modules/snapshots/snapshot.utils';
+import { Snapshot } from '../../../src/prisma';
+import { getMetricValueKey, SKILLS } from '../../../src/utils';
 import {
-  SKILLS,
-  getMetricValueKey,
-  getLevel,
+  getCombatLevel,
   getExpForLevel,
-  SKILL_EXP_AT_99,
+  getLevel,
   MAX_SKILL_EXP,
-  getCombatLevel
-} from '../../../src/utils';
+  SKILL_EXP_AT_99
+} from '../../../src/utils/shared/experience.utils';
 
 describe('Util - Experience', () => {
   test('getExpForLevel', () => {

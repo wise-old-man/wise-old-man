@@ -1,6 +1,5 @@
 import prisma from '../../../../prisma';
 import {
-  getLevel,
   getMetricMeasure,
   getMetricRankKey,
   getMetricValueKey,
@@ -8,6 +7,7 @@ import {
   MetricMeasure
 } from '../../../../utils';
 import { omit } from '../../../../utils/omit.util';
+import { getLevel } from '../../../../utils/shared/experience.utils';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { getTotalLevel } from '../../snapshots/snapshot.utils';

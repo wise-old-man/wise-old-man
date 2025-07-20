@@ -1,13 +1,14 @@
 import axios from 'axios';
-import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
+import supertest from 'supertest';
 import apiServer from '../../../src/api';
-import { Achievement, Metric, PlayerType, SKILL_EXP_AT_99 } from '../../../src/utils';
-import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
-import { registerHiscoresMock, resetDatabase, sleep, readFile, modifyRawHiscoresData } from '../../utils';
-import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
 import * as PlayerAchievementsCreatedEvent from '../../../src/api/events/handlers/player-achievements-created.event';
+import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
+import { redisClient } from '../../../src/services/redis.service';
+import { Achievement, Metric, PlayerType } from '../../../src/utils';
+import { SKILL_EXP_AT_99 } from '../../../src/utils/shared/experience.utils';
+import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });

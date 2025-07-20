@@ -1,16 +1,15 @@
+import { Achievement, Snapshot } from '../../../prisma';
 import {
-  Metric,
+  formatNumber,
   getMetricMeasure,
   getMetricValueKey,
-  getLevel,
-  SKILL_EXP_AT_99,
   isMetric,
-  REAL_SKILLS,
-  formatNumber
+  Metric,
+  REAL_SKILLS
 } from '../../../utils';
-import { Achievement, Snapshot } from '../../../prisma';
+import { getLevel, SKILL_EXP_AT_99 } from '../../../utils/shared/experience.utils';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
-import { ExtendedAchievement, AchievementDefinition } from './achievement.types';
+import { AchievementDefinition, ExtendedAchievement } from './achievement.types';
 
 function extend(achievement: Achievement): ExtendedAchievement {
   const measure = getAchievementMeasure(achievement.metric, achievement.threshold);
@@ -109,4 +108,4 @@ function calculatePastDates(pastSnapshots: Snapshot[], definitions: AchievementD
   return dateMap;
 }
 
-export { extend, calculatePastDates, getAchievementDefinitions };
+export { calculatePastDates, extend, getAchievementDefinitions };

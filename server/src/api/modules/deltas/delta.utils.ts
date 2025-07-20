@@ -1,37 +1,37 @@
-import { Snapshot, Player } from '../../../prisma';
+import { Player, Snapshot } from '../../../prisma';
 import {
-  getLevel,
-  SKILLS,
-  BOSSES,
   ACTIVITIES,
-  COMPUTED_METRICS,
-  Metric,
-  Skill,
-  Boss,
   Activity,
+  BOSSES,
+  Boss,
+  COMPUTED_METRICS,
   ComputedMetric,
-  isSkill,
-  isComputedMetric,
-  getMinimumValue,
+  MapOf,
+  Metric,
+  SKILLS,
+  Skill,
   getMetricRankKey,
   getMetricValueKey,
-  round,
-  MapOf
+  getMinimumValue,
+  isComputedMetric,
+  isSkill,
+  round
 } from '../../../utils';
+import { getLevel } from '../../../utils/shared/experience.utils';
 import {
-  getPlayerEHP,
   getPlayerEHB,
+  getPlayerEHP,
   getPlayerEfficiencyMap
 } from '../../modules/efficiency/efficiency.utils';
+import { getTotalLevel } from '../snapshots/snapshot.utils';
 import {
   ActivityDelta,
   BossDelta,
+  ComputedMetricDelta,
   MeasuredDeltaProgress,
   PlayerDeltasMap,
-  SkillDelta,
-  ComputedMetricDelta
+  SkillDelta
 } from './delta.types';
-import { getTotalLevel } from '../snapshots/snapshot.utils';
 
 const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 });
 

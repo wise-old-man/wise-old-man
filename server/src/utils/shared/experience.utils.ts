@@ -1,17 +1,17 @@
 // Maximum effective skill level at 13,034,431 experience.
-const MAX_LEVEL = 99;
+export const MAX_LEVEL = 99;
 
 // The maximum virtual skill level for any skill (200M experience).
-const MAX_VIRTUAL_LEVEL = 126;
+export const MAX_VIRTUAL_LEVEL = 126;
 
 // The maximum skill experience (200M experience).
-const MAX_SKILL_EXP = 200_000_000;
+export const MAX_SKILL_EXP = 200_000_000;
 
 // The minimum skill exp for level 99
-const SKILL_EXP_AT_99 = 13_034_431;
+export const SKILL_EXP_AT_99 = 13_034_431;
 
 // The maximum skill at exactly 99 on all skills
-const CAPPED_MAX_TOTAL_XP = 23 * SKILL_EXP_AT_99;
+export const CAPPED_MAX_TOTAL_XP = 23 * SKILL_EXP_AT_99;
 
 // Builds a lookup table for each level's required experience
 // exp = XP_FOR_LEVEL[level - 1] || 13m = XP_FOR_LEVEL[98]
@@ -27,12 +27,12 @@ const XP_FOR_LEVEL = (function () {
   return array;
 })();
 
-function getExpForLevel(level: number): number {
+export function getExpForLevel(level: number): number {
   if (level < 1 || level > MAX_VIRTUAL_LEVEL) return 0;
   return XP_FOR_LEVEL[level - 1];
 }
 
-function getLevel(exp: number, virtual = false): number {
+export function getLevel(exp: number, virtual = false): number {
   if (!exp || exp < 0) {
     return 1;
   }
@@ -56,7 +56,7 @@ function getLevel(exp: number, virtual = false): number {
   return high + 1;
 }
 
-function getCombatLevel(
+export function getCombatLevel(
   attack: number,
   strength: number,
   defence: number,
@@ -73,16 +73,3 @@ function getCombatLevel(
   const mageCombat = 0.325 * Math.floor((3 * magic) / 2);
   return Math.floor(baseCombat + Math.max(meleeCombat, rangeCombat, mageCombat));
 }
-
-export {
-  // Constants
-  MAX_LEVEL,
-  MAX_VIRTUAL_LEVEL,
-  MAX_SKILL_EXP,
-  CAPPED_MAX_TOTAL_XP,
-  SKILL_EXP_AT_99,
-  // Functions
-  getCombatLevel,
-  getExpForLevel,
-  getLevel
-};

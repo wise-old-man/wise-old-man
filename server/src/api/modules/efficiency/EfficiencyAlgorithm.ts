@@ -4,15 +4,14 @@ import {
   Boss,
   BossMetaConfig,
   EfficiencyAlgorithmType,
-  MAX_SKILL_EXP,
   REAL_SKILLS,
   SKILLS,
-  SKILL_EXP_AT_99,
   Skill,
   SkillMetaConfig,
   SkillMetaMethod,
   round
 } from '../../../utils';
+import { MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '../../../utils/shared/experience.utils';
 
 enum BonusType {
   START,

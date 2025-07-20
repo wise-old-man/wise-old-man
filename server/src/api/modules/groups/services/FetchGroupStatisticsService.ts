@@ -10,10 +10,10 @@ import {
   PlayerType,
   SKILLS,
   Snapshot,
-  getLevel,
   getMetricRankKey,
   getMetricValueKey
 } from '../../../../utils';
+import { getLevel } from '../../../../utils/shared/experience.utils';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import {
