@@ -3,6 +3,7 @@ export * from './competition-status.enum';
 export * from './competition-type.enum';
 export * from './country.enum';
 export * from './group-role.enum';
+export * from './member-activity-type.enum';
 export * from './metric-measure.enum';
 export * from './metric-type.enum';
 export * from './metric.enum';

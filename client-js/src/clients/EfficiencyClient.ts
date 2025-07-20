@@ -1,5 +1,6 @@
-import type { EfficiencyLeaderboardsFilter, EfficiencyAlgorithmTypeUnion } from '../api-types';
-import { Metric, SkillMetaConfig, BossMetaConfig, Player } from '../../../server/src/utils';
+import { Metric } from '../../../server/src/types';
+import { BossMetaConfig, Player, SkillMetaConfig } from '../../../server/src/utils';
+import type { EfficiencyAlgorithmTypeUnion, EfficiencyLeaderboardsFilter } from '../api-types';
 import { PaginationOptions } from '../utils';
 import BaseAPIClient from './BaseAPIClient';
 

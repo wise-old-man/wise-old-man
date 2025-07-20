@@ -1,24 +1,24 @@
-import type {
-  TimeRangeFilter,
-  PlayerRecordsFilter,
-  AssertPlayerTypeResponse,
-  GetPlayerGainsResponse,
-  PlayerCompetitionsFilter
-} from '../api-types';
+import { Metric } from '../../../server/src/types';
 import {
-  Record,
-  Player,
-  PlayerDetails,
-  NameChange,
   AchievementProgress,
   ExtendedAchievement,
-  ParticipationWithCompetition,
   FormattedSnapshot,
   MembershipWithGroup,
+  NameChange,
+  ParticipationWithCompetition,
   ParticipationWithCompetitionAndStandings,
-  Metric,
-  PlayerArchiveWithPlayer
+  Player,
+  PlayerArchiveWithPlayer,
+  PlayerDetails,
+  Record
 } from '../../../server/src/utils';
+import type {
+  AssertPlayerTypeResponse,
+  GetPlayerGainsResponse,
+  PlayerCompetitionsFilter,
+  PlayerRecordsFilter,
+  TimeRangeFilter
+} from '../api-types';
 import { PaginationOptions } from '../utils';
 import BaseAPIClient from './BaseAPIClient';
 

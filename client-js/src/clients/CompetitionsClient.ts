@@ -1,19 +1,19 @@
+import { Metric } from '../../../server/src/types';
 import {
   CompetitionDetails,
   CompetitionListItem,
   CompetitionWithParticipations,
-  Metric,
   Team,
   Top5ProgressResult
 } from '../../../server/src/utils';
 import type {
+  CompetitionDetailsCSVParams,
   CompetitionsSearchFilter,
-  EditCompetitionPayload,
   CreateCompetitionPayload,
   CreateCompetitionResponse,
+  EditCompetitionPayload,
   GenericCountMessageResponse,
-  GenericMessageResponse,
-  CompetitionDetailsCSVParams
+  GenericMessageResponse
 } from '../api-types';
 import { PaginationOptions } from '../utils';
 import BaseAPIClient from './BaseAPIClient';

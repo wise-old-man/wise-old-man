@@ -1,23 +1,25 @@
 import { GroupSocialLinks } from '../../server/src/prisma';
 import {
-  CompetitionWithParticipations,
+  CompetitionCSVTableType,
+  CompetitionStatus,
+  CompetitionType,
   Country,
+  GroupRole,
+  Metric,
+  Period,
+  PlayerBuild,
+  PlayerType
+} from '../../server/src/types';
+import {
+  CompetitionWithParticipations,
   EfficiencyAlgorithmType,
   GroupDetails,
   GroupRoleOrder,
-  Metric,
   NameChangeStatus,
   Player,
-  PlayerBuild,
   PlayerDeltasMap,
-  PlayerType,
   Team
 } from '../../server/src/utils';
-
-import { CompetitionCSVTableType } from '../../server/src/api/types/competition-csv-table-type.enum';
-import { CompetitionStatus, CompetitionType } from '../../server/src/utils/shared/competition.utils';
-import { GroupRole } from '../../server/src/utils/shared/group.utils';
-import { Period } from '../../server/src/utils/shared/period.utils';
 
 export interface GenericCountMessageResponse {
   count: number;

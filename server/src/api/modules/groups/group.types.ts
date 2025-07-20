@@ -2,8 +2,6 @@ import { Group, GroupRoleOrder, GroupSocialLinks, MemberActivity, Membership, Pl
 import { GroupRole } from '../../../types';
 import { FormattedSnapshot, MetricLeaders } from '../snapshots/snapshot.types';
 
-export { ActivityType } from '../../../prisma/enum-adapter';
-
 export interface GroupListItem extends Omit<Group, 'verificationHash'> {
   memberCount: number;
 }

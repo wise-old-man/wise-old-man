@@ -7,13 +7,13 @@ import prisma, {
   Record
 } from '../../../../prisma';
 import logger from '../../../../services/logging.service';
-import { NameChangeStatus, PlayerStatus } from '../../../../types';
-import { ActivityType, MemberActivity, Membership } from '../../../../utils';
+import { MemberActivityType, NameChangeStatus, PlayerStatus } from '../../../../types';
+import { MemberActivity, Membership } from '../../../../utils';
+import { prepareRecordValue } from '../../../../utils/prepare-record-value.util';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import * as playerUtils from '../../players/player.utils';
 import { archivePlayer } from '../../players/services/ArchivePlayerService';
-import { prepareRecordValue } from '../../records/record.utils';
 
 async function approveNameChange(id: number): Promise<NameChange> {
   const nameChange = await prisma.nameChange.findFirst({
@@ -160,8 +160,8 @@ async function transferPlayerData(
     memberActivity = await prisma.memberActivity.findMany({
       where: {
         OR: [
-          { playerId: oldPlayer.id, type: ActivityType.LEFT },
-          { playerId: newPlayer.id, type: ActivityType.JOINED }
+          { playerId: oldPlayer.id, type: MemberActivityType.LEFT },
+          { playerId: newPlayer.id, type: MemberActivityType.JOINED }
         ]
       }
     });
@@ -245,11 +245,11 @@ async function deduplicateGroupActivity(
   if (memberActivity.length === 0) return;
 
   const leftActivity = memberActivity.filter(activity => {
-    return activity.type === ActivityType.LEFT;
+    return activity.type === MemberActivityType.LEFT;
   });
 
   const joinedActivity = memberActivity.filter(activity => {
-    return activity.type === ActivityType.JOINED;
+    return activity.type === MemberActivityType.JOINED;
   });
 
   const activityToDelete: MemberActivity[] = [];
