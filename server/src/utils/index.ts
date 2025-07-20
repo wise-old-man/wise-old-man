@@ -1,4 +1,3 @@
-export * from './competitions';
 export * from './countries';
 export * from './experience';
 export * from './groups';

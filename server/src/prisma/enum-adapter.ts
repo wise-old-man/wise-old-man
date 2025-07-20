@@ -233,13 +233,6 @@ export const PlayerStatus = {
 
 export type PlayerStatus = (typeof PlayerStatus)[keyof typeof PlayerStatus];
 
-export const CompetitionType = {
-  CLASSIC: 'classic',
-  TEAM: 'team'
-} as const;
-
-export type CompetitionType = (typeof CompetitionType)[keyof typeof CompetitionType];
-
 export const GroupRole = {
   ACHIEVER: 'achiever',
   ADAMANT: 'adamant',
