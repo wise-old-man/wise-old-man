@@ -271,7 +271,7 @@ function GroupSocialLinks(props: NonNullable<GroupDetails["socialLinks"]>) {
       {discord && discord.trim().length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <a href={discord} target="_blank" rel="noopener noreferrer">
+            <a href={discord} target="_blank" rel="noopener noreferrer" aria-label="Discord server">
               <Button className="rounded-lg p-2" size="sm">
                 <DiscordIcon className="h-4 w-4 text-gray-100" />
               </Button>
@@ -283,7 +283,7 @@ function GroupSocialLinks(props: NonNullable<GroupDetails["socialLinks"]>) {
       {twitter && twitter.trim().length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <a href={twitter} target="_blank" rel="noopener noreferrer">
+            <a href={twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
               <Button className="rounded-lg p-2" size="sm">
                 <TwitterIcon className="h-4 w-4 text-gray-100" />
               </Button>
@@ -295,7 +295,7 @@ function GroupSocialLinks(props: NonNullable<GroupDetails["socialLinks"]>) {
       {twitch && twitch.trim().length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <a href={twitch} target="_blank" rel="noopener noreferrer">
+            <a href={twitch} target="_blank" rel="noopener noreferrer" aria-label="Twitch">
               <Button className="rounded-lg p-2" size="sm">
                 <TwitchIcon className="h-4 w-4 text-gray-100" />
               </Button>
@@ -307,7 +307,7 @@ function GroupSocialLinks(props: NonNullable<GroupDetails["socialLinks"]>) {
       {youtube && youtube.trim().length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <a href={youtube} target="_blank" rel="noopener noreferrer">
+            <a href={youtube} target="_blank" rel="noopener noreferrer" aria-label="Youtube">
               <Button className="rounded-lg p-2" size="sm">
                 <YoutubeIcon className="h-4 w-4 text-gray-100" />
               </Button>
