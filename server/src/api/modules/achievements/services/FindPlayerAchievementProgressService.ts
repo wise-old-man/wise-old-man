@@ -1,5 +1,6 @@
 import prisma, { Achievement } from '../../../../prisma';
-import { Metric, MetricMeasure, round } from '../../../../utils';
+import { Metric, MetricMeasure } from '../../../../utils';
+import { roundNumber } from '../../../../utils/round-number.util';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 import { AchievementDefinition, AchievementProgress } from '../achievement.types';
@@ -91,7 +92,7 @@ function clusterDefinitions(definitions: AchievementDefinition[]) {
 }
 
 function clamp(val: number) {
-  return round(Math.min(Math.max(val, 0), 1), 4);
+  return roundNumber(Math.min(Math.max(val, 0), 1), 4);
 }
 
 export { findPlayerAchievementProgress };

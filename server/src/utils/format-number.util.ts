@@ -1,4 +1,4 @@
-function formatNumber(num: number, withLetters = false, decimalPrecision = 2) {
+export function formatNumber(num: number, withLetters = false, decimalPrecision = 2) {
   if (num === undefined || num === null) return -1;
 
   // If number is float
@@ -36,14 +36,3 @@ function formatNumber(num: number, withLetters = false, decimalPrecision = 2) {
 
   return `${(num / 1_000_000_000).toFixed(decimalPrecision)}b`;
 }
-
-function padNumber(value: number): string {
-  if (!value) return '00';
-  return value < 10 ? `0${value}` : value.toString();
-}
-
-function round(num: number, cases: number) {
-  return Math.round(num * Math.pow(10, cases)) / Math.pow(10, cases);
-}
-
-export { formatNumber, padNumber, round };

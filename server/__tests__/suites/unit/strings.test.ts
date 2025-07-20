@@ -1,4 +1,6 @@
-import { formatNumber, padNumber, round } from '../../../src/utils';
+import { formatNumber } from '../../../src/utils/format-number.util';
+import { padNumber } from '../../../src/utils/pad-number.util';
+import { roundNumber } from '../../../src/utils/round-number.util';
 
 describe('Util - Strings', () => {
   test('formatNumber', () => {
@@ -38,9 +40,9 @@ describe('Util - Strings', () => {
     expect(padNumber(123)).toBe('123');
   });
 
-  test('round', () => {
-    expect(round(12.34567, 2)).toBe(12.35);
-    expect(round(12.34567, 1)).toBe(12.3);
-    expect(round(-5.6657, 0)).toBe(-6);
+  test('roundNumber', () => {
+    expect(roundNumber(12.34567, 2)).toBe(12.35);
+    expect(roundNumber(12.34567, 1)).toBe(12.3);
+    expect(roundNumber(-5.6657, 0)).toBe(-6);
   });
 });

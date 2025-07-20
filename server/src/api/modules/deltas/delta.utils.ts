@@ -14,9 +14,9 @@ import {
   getMetricValueKey,
   getMinimumValue,
   isComputedMetric,
-  isSkill,
-  round
+  isSkill
 } from '../../../utils';
+import { roundNumber } from '../../../utils/round-number.util';
 import { getLevel } from '../../../utils/shared';
 import {
   getPlayerEHB,
@@ -91,7 +91,7 @@ function calculateValueDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot
   const startValue = startSnapshot && startSnapshot[valueKey] ? startSnapshot[valueKey] : -1;
   const endValue = endSnapshot && endSnapshot[valueKey] ? endSnapshot[valueKey] : -1;
 
-  let gainedValue = round(Math.max(0, endValue - Math.max(0, minimumValue - 1, startValue)), 5);
+  let gainedValue = roundNumber(Math.max(0, endValue - Math.max(0, minimumValue - 1, startValue)), 5);
 
   // Some players with low total level (but high exp) can sometimes fall off the hiscores
   // causing their starting exp to be -1, this would then cause the diff to think
@@ -118,7 +118,7 @@ function calculateEfficiencyDiff(
   const endEfficiency = endMap.get(metric)!;
 
   return {
-    gained: round(endEfficiency - startEfficiency, 5),
+    gained: roundNumber(endEfficiency - startEfficiency, 5),
     start: startEfficiency,
     end: endEfficiency
   };
@@ -132,7 +132,7 @@ function calculateEHPDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player
   const endEHP = endSnapshot ? getPlayerEHP(endSnapshot, player) : 0;
 
   return {
-    gained: Math.max(0, round(endEHP - startEHP, 5)),
+    gained: Math.max(0, roundNumber(endEHP - startEHP, 5)),
     start: startEHP,
     end: endEHP
   };
@@ -146,7 +146,7 @@ function calculateEHBDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player
   const endEHB = endSnapshot ? getPlayerEHB(endSnapshot, player) : 0;
 
   return {
-    gained: Math.max(0, round(endEHB - startEHB, 5)),
+    gained: Math.max(0, roundNumber(endEHB - startEHB, 5)),
     start: startEHB,
     end: endEHB
   };

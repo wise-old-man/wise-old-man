@@ -8,9 +8,9 @@ import {
   SKILLS,
   Skill,
   SkillMetaConfig,
-  SkillMetaMethod,
-  round
+  SkillMetaMethod
 } from '../../../utils';
+import { roundNumber } from '../../../utils/round-number.util';
 import { MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '../../../utils/shared';
 
 enum BonusType {
@@ -135,7 +135,7 @@ class EfficiencyAlgorithm {
     this.bossMetas.forEach(meta => {
       if (!meta || meta.rate <= 0) return;
 
-      map.set(meta.boss, round((fixedKillcount.get(meta.boss) ?? 0) / meta.rate, 5));
+      map.set(meta.boss, roundNumber((fixedKillcount.get(meta.boss) ?? 0) / meta.rate, 5));
     });
 
     return map;

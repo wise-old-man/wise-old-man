@@ -1,12 +1,6 @@
 import { Achievement, Snapshot } from '../../../prisma';
-import {
-  formatNumber,
-  getMetricMeasure,
-  getMetricValueKey,
-  isMetric,
-  Metric,
-  REAL_SKILLS
-} from '../../../utils';
+import { getMetricMeasure, getMetricValueKey, isMetric, Metric, REAL_SKILLS } from '../../../utils';
+import { formatNumber } from '../../../utils/format-number.util';
 import { getLevel, SKILL_EXP_AT_99 } from '../../../utils/shared';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 import { AchievementDefinition, ExtendedAchievement } from './achievement.types';
