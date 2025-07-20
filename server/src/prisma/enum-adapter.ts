@@ -181,16 +181,6 @@ export const NameChangeStatus = {
 
 export type NameChangeStatus = (typeof NameChangeStatus)[keyof typeof NameChangeStatus];
 
-export const Period = {
-  FIVE_MIN: 'five_min',
-  DAY: 'day',
-  WEEK: 'week',
-  MONTH: 'month',
-  YEAR: 'year'
-} as const;
-
-export type Period = (typeof Period)[keyof typeof Period];
-
 export const PlayerType = {
   UNKNOWN: 'unknown',
   REGULAR: 'regular',

@@ -1,5 +1,5 @@
 import prisma from '../../prisma';
-import { Period, PeriodProps } from '../../utils';
+import { Period, PeriodProps } from '../../utils/shared/period.utils';
 import { Job } from '../job.class';
 import { JobType } from '../types/job-type.enum';
 

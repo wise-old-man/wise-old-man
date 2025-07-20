@@ -1,6 +1,6 @@
 import prisma from '../../prisma';
 import { STATIC_PATRON_PLAYER_IDS } from '../../services/patreon.service';
-import { Period, PeriodProps } from '../../utils';
+import { Period, PeriodProps } from '../../utils/shared/period.utils';
 import { Job } from '../job.class';
 import { JobPriority } from '../types/job-priority.enum';
 import { JobType } from '../types/job-type.enum';

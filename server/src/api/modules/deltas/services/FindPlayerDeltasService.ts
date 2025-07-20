@@ -1,9 +1,10 @@
 import prisma from '../../../../prisma';
-import { Period, parsePeriodExpression } from '../../../../utils';
+import { parsePeriodExpression } from '../../../../utils/parse-period-expression.util';
+import { Period } from '../../../../utils/shared/period.utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
+import { standardize } from '../../players/player.utils';
 import { PlayerDeltasMap } from '../delta.types';
 import { calculatePlayerDeltas, emptyPlayerDelta } from '../delta.utils';
-import { standardize } from '../../players/player.utils';
 
 export interface FindPlayerDeltasResult {
   startsAt: Date | null;

@@ -8,7 +8,6 @@ import {
   GroupRoleOrder,
   Metric,
   NameChangeStatus,
-  Period,
   Player,
   PlayerBuild,
   PlayerDeltasMap,
@@ -18,6 +17,7 @@ import {
 
 import { CompetitionCSVTableType } from '../../server/src/api/types/competition-csv-table-type.enum';
 import { CompetitionStatus, CompetitionType } from '../../server/src/utils/shared/competition.utils';
+import { Period } from '../../server/src/utils/shared/period.utils';
 
 export interface GenericCountMessageResponse {
   count: number;
