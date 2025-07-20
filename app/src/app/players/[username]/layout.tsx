@@ -101,7 +101,7 @@ function Header(props: PlayerDetails) {
             <UpdatePlayerForm player={props} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button iconButton>
+                <Button iconButton aria-label="Open player actions menu">
                   <OverflowIcon className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>

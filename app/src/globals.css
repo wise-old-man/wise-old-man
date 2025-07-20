@@ -23,6 +23,7 @@ textarea {
 
 :root {
   scrollbar-color: hsl(220 23% 31%) transparent;
+  scrollbar-width: thin;
 }
 
 ::-webkit-scrollbar {
