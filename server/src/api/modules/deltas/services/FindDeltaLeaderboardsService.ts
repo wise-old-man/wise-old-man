@@ -1,13 +1,6 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import {
-  Country,
-  DeltaLeaderboardEntry,
-  Metric,
-  PlayerBuild,
-  PlayerStatus,
-  PlayerType
-} from '../../../../utils';
-import { Period } from '../../../../utils/shared/period.utils';
+import { DeltaLeaderboardEntry, Metric, PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
+import { Country, Period } from '../../../../utils/shared';
 import { parseNum } from '../delta.utils';
 
 const MAX_RESULTS = 20;

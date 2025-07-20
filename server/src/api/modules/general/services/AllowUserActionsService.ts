@@ -1,5 +1,5 @@
 import prisma from '../../../../prisma';
-import { Period, PeriodProps } from '../../../../utils/shared/period.utils';
+import { Period, PeriodProps } from '../../../../utils/shared';
 
 async function allowUserActions(ipHash: string) {
   const dayAgo = new Date(Date.now() - PeriodProps[Period.DAY].milliseconds);

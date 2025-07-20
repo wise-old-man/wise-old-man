@@ -3,7 +3,7 @@ import prisma from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
 import { PlayerAnnotationType } from '../../../../utils';
 import { omit } from '../../../../utils/omit.util';
-import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils/shared/group.utils';
+import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils/shared';
 import { BadRequestError, ForbiddenError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
@@ -120,7 +120,7 @@ async function createGroup(
       groupId: createdGroup.id,
       members: createdGroup.memberships.map(m => ({
         playerId: m.playerId,
-        role: m.role as GroupRole
+        role: m.role
       }))
     });
   }

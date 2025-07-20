@@ -18,7 +18,7 @@ import {
   getLevel,
   MAX_SKILL_EXP,
   SKILL_EXP_AT_99
-} from '../../../src/utils/shared/experience.utils';
+} from '../../../src/utils/shared';
 
 describe('Util - Experience', () => {
   test('getExpForLevel', () => {

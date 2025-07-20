@@ -2,7 +2,7 @@ import prisma, { Membership, Player, PrismaTypes } from '../../../../prisma';
 import logger from '../../../../services/logging.service';
 import { NameChangeStatus, PlayerAnnotationType } from '../../../../utils';
 import { omit } from '../../../../utils/omit.util';
-import { GroupRole } from '../../../../utils/shared/group.utils';
+import { GroupRole } from '../../../../utils/shared';
 import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
@@ -336,7 +336,7 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
           .map(m => ({
             groupId,
             playerId: m.playerId,
-            role: m.role as GroupRole,
+            role: m.role,
             type: ActivityType.LEFT
           }))
       );
@@ -359,7 +359,7 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
       const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, members);
 
       const currentRoleMap = new Map<number, GroupRole>(
-        Array.from(memberships).map(m => [m.playerId, m.role as GroupRole])
+        Array.from(memberships).map(m => [m.playerId, m.role])
       );
 
       for (const role of roleUpdatesMap.keys()) {
@@ -510,11 +510,11 @@ function calculateRoleChangeMaps(
   const currentRoleMap = new Map<GroupRole, number[]>();
 
   currentMemberships.forEach(m => {
-    const current = currentRoleMap.get(m.role as GroupRole);
+    const current = currentRoleMap.get(m.role);
     if (current) {
       current.push(m.playerId);
     } else {
-      currentRoleMap.set(m.role as GroupRole, [m.playerId]);
+      currentRoleMap.set(m.role, [m.playerId]);
     }
   });
 

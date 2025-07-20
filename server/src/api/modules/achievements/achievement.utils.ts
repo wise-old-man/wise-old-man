@@ -7,7 +7,7 @@ import {
   Metric,
   REAL_SKILLS
 } from '../../../utils';
-import { getLevel, SKILL_EXP_AT_99 } from '../../../utils/shared/experience.utils';
+import { getLevel, SKILL_EXP_AT_99 } from '../../../utils/shared';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 import { AchievementDefinition, ExtendedAchievement } from './achievement.types';
 

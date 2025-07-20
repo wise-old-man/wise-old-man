@@ -1,5 +1,5 @@
 import prisma from '../../prisma';
-import { Period, PeriodProps, PERIODS } from '../../utils/shared/period.utils';
+import { Period, PeriodProps, PERIODS } from '../../utils/shared';
 import { Job } from '../job.class';
 
 export class InvalidateDeltasJob extends Job<unknown> {

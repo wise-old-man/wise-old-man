@@ -19,7 +19,7 @@ import {
   Skill,
   SKILLS
 } from '../../../utils';
-import { getCombatLevel, getLevel, MAX_SKILL_EXP } from '../../../utils/shared/experience.utils';
+import { getCombatLevel, getLevel, MAX_SKILL_EXP } from '../../../utils/shared';
 import { ServerError } from '../../errors';
 import { getPlayerEHB, getPlayerEHP } from '../../modules/efficiency/efficiency.utils';
 import {

@@ -1,6 +1,6 @@
 import prisma, { PrismaTypes, Snapshot } from '../../../../prisma';
 import { parsePeriodExpression } from '../../../../utils/parse-period-expression.util';
-import { Period } from '../../../../utils/shared/period.utils';
+import { Period } from '../../../../utils/shared';
 import { BadRequestError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 

@@ -2,7 +2,7 @@ import prisma, { Participation } from '../../../../prisma';
 import logger from '../../../../services/logging.service';
 import { BOSSES, getMetricValueKey, isSkill, Metric, SKILLS, Snapshot } from '../../../../utils';
 import { omit } from '../../../../utils/omit.util';
-import { CompetitionStatus } from '../../../../utils/shared/competition.utils';
+import { CompetitionStatus } from '../../../../utils/shared';
 import { NotFoundError } from '../../../errors';
 import { calculateLevelDiff, calculateMetricDelta } from '../../deltas/delta.utils';
 import { standardize } from '../../players/player.utils';

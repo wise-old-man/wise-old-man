@@ -7,7 +7,7 @@ import * as PlayerAchievementsCreatedEvent from '../../../src/api/events/handler
 import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
 import { redisClient } from '../../../src/services/redis.service';
 import { Achievement, Metric, PlayerType } from '../../../src/utils';
-import { SKILL_EXP_AT_99 } from '../../../src/utils/shared/experience.utils';
+import { SKILL_EXP_AT_99 } from '../../../src/utils/shared';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);

@@ -11,7 +11,7 @@ import {
   SkillMetaMethod,
   round
 } from '../../../utils';
-import { MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '../../../utils/shared/experience.utils';
+import { MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '../../../utils/shared';
 
 enum BonusType {
   START,

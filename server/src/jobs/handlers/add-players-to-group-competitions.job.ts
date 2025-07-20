@@ -1,6 +1,6 @@
 import { eventEmitter, EventType } from '../../api/events';
 import prisma, { Participation } from '../../prisma';
-import { CompetitionType } from '../../utils/shared/competition.utils';
+import { CompetitionType } from '../../utils/shared';
 import { Job } from '../job.class';
 
 interface Payload {

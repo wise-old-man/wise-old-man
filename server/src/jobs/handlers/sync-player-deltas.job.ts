@@ -2,7 +2,7 @@ import { eventEmitter, EventType } from '../../api/events';
 import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
 import prisma, { Delta, PrismaTypes } from '../../prisma';
 import { ACTIVITIES, BOSSES, COMPUTED_METRICS, METRICS, SKILLS } from '../../utils';
-import { Period, PeriodProps } from '../../utils/shared/period.utils';
+import { Period, PeriodProps } from '../../utils/shared';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 

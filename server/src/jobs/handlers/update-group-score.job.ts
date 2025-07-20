@@ -2,7 +2,7 @@ import { findGroupCompetitions } from '../../api/modules/competitions/services/F
 import { fetchGroupDetails } from '../../api/modules/groups/services/FetchGroupDetailsService';
 import prisma from '../../prisma';
 import { GroupDetails } from '../../utils';
-import { PRIVELEGED_GROUP_ROLES } from '../../utils/shared/group.utils';
+import { PRIVELEGED_GROUP_ROLES } from '../../utils/shared';
 import { Job } from '../job.class';
 
 interface Payload {

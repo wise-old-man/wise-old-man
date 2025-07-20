@@ -1,4 +1,4 @@
-import { PRIVELEGED_GROUP_ROLES } from '../../../utils/shared/group.utils';
+import { PRIVELEGED_GROUP_ROLES } from '../../../utils/shared';
 import { MembershipWithPlayer } from './group.types';
 
 import { GroupRoleOrder } from '@prisma/client';

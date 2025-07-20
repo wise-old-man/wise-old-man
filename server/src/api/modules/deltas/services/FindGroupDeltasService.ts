@@ -2,7 +2,7 @@ import prisma, { Player, Snapshot } from '../../../../prisma';
 import { Metric } from '../../../../utils';
 import { omit } from '../../../../utils/omit.util';
 import { parsePeriodExpression } from '../../../../utils/parse-period-expression.util';
-import { Period } from '../../../../utils/shared/period.utils';
+import { Period } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';

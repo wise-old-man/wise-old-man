@@ -4,7 +4,7 @@ import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import { Competition } from '../prisma';
 import { Achievement, FlaggedPlayerReviewContext, Group, Player } from '../utils';
-import { GroupRole } from '../utils/shared/group.utils';
+import { GroupRole } from '../utils/shared';
 import logger from './logging.service';
 
 export enum DiscordBotEventType {

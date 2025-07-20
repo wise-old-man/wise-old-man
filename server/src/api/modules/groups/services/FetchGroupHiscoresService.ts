@@ -7,7 +7,7 @@ import {
   MetricMeasure
 } from '../../../../utils';
 import { omit } from '../../../../utils/omit.util';
-import { getLevel } from '../../../../utils/shared/experience.utils';
+import { getLevel } from '../../../../utils/shared';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { getTotalLevel } from '../../snapshots/snapshot.utils';

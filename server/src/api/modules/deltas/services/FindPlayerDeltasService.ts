@@ -1,6 +1,6 @@
 import prisma from '../../../../prisma';
 import { parsePeriodExpression } from '../../../../utils/parse-period-expression.util';
-import { Period } from '../../../../utils/shared/period.utils';
+import { Period } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 import { PlayerDeltasMap } from '../delta.types';

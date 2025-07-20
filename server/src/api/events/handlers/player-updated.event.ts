@@ -1,5 +1,5 @@
 import { jobManager, JobType } from '../../../jobs';
-import { PeriodProps, PERIODS } from '../../../utils/shared/period.utils';
+import { PeriodProps, PERIODS } from '../../../utils/shared';
 import { EventPayloadMap } from '../types/event-payload.type';
 import { EventType } from '../types/event-type.enum';
 

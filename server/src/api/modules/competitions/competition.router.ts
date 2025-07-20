@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { Metric, Team } from '../../../utils';
-import { CompetitionStatus, CompetitionType } from '../../../utils/shared/competition.utils';
+import { CompetitionStatus, CompetitionType } from '../../../utils/shared';
 import { CompetitionCSVTableType } from '../../types/competition-csv-table-type.enum';
 import { checkAdminPermission, checkCompetitionVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';

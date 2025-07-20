@@ -7,7 +7,7 @@ import * as utils from '../../../src/api/modules/snapshots/snapshot.utils';
 import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
 import { getMetricRankKey, getMetricValueKey, Metric, PlayerType, SKILLS } from '../../../src/utils';
-import { Period, PeriodProps } from '../../../src/utils/shared/period.utils';
+import { Period, PeriodProps } from '../../../src/utils/shared';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase } from '../../utils';
 
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });

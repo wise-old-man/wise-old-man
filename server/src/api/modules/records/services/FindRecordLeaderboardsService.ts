@@ -1,6 +1,7 @@
 import { Period } from '@prisma/client';
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { Country, Metric, PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
+import { Metric, PlayerBuild, PlayerStatus, PlayerType } from '../../../../utils';
+import { Country } from '../../../../utils/shared';
 import { RecordLeaderboardEntry } from '../record.types';
 
 const MAX_RESULTS = 20;

@@ -13,7 +13,7 @@ import {
   getMetricRankKey,
   getMetricValueKey
 } from '../../../../utils';
-import { getLevel } from '../../../../utils/shared/experience.utils';
+import { getLevel } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import {

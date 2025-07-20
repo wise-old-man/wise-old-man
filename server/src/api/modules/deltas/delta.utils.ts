@@ -17,7 +17,7 @@ import {
   isSkill,
   round
 } from '../../../utils';
-import { getLevel } from '../../../utils/shared/experience.utils';
+import { getLevel } from '../../../utils/shared';
 import {
   getPlayerEHB,
   getPlayerEHP,
