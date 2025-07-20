@@ -47,7 +47,11 @@ export function MembersTable(props: MembersTableProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <QueryLink query={{ dialog: "export" }}>
-                      <Button className="flex w-9 justify-center" iconButton>
+                      <Button
+                        className="flex w-9 justify-center"
+                        iconButton
+                        aria-label="Export group members table"
+                      >
                         <ExportIcon className="h-4 w-4 text-gray-100" />
                       </Button>
                     </QueryLink>

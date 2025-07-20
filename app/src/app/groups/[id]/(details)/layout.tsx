@@ -160,7 +160,7 @@ function Header(props: GroupDetails) {
           </QueryLink>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button iconButton>
+              <Button iconButton aria-label="Open group actions menu">
                 <OverflowIcon className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
