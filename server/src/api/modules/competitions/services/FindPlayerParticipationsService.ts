@@ -1,6 +1,6 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
+import { CompetitionStatus } from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
-import { CompetitionStatus } from '../../../../utils/shared';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 import { ParticipationWithCompetition } from '../competition.types';

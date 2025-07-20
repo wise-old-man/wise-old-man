@@ -1,5 +1,5 @@
-import { FlaggedPlayerReviewContext, Metric, PlayerType } from '../../../utils';
-import { GroupRole, Period } from '../../../utils/shared';
+import { GroupRole, Period, PlayerType } from '../../../types';
+import { FlaggedPlayerReviewContext, Metric } from '../../../utils';
 import { EventType } from './event-type.enum';
 
 export type EventPayloadMap = {

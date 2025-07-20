@@ -7,7 +7,7 @@ import * as CompetitionCreatedEvent from '../../../src/api/events/handlers/compe
 import * as ParticipantsJoinedEvent from '../../../src/api/events/handlers/competition-participants-joined.event';
 import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
-import { PlayerAnnotationType, PlayerType } from '../../../src/utils';
+import { PlayerAnnotationType, PlayerType } from '../../../src/types';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);

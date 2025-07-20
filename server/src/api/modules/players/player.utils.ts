@@ -1,9 +1,10 @@
 import { complete, errored, isComplete, Result } from '@attio/fetchable';
 import prisma, { Player, PlayerAnnotation, PlayerArchive, Snapshot } from '../../../prisma';
-import { PlayerBuild, PlayerDetails } from '../../../utils';
+import { PlayerBuild } from '../../../types';
 import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
 import { formatSnapshot } from '../snapshots/snapshot.utils';
+import { PlayerDetails } from './player.types';
 
 function formatPlayerDetails(
   player: Player,

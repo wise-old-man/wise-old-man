@@ -1,7 +1,7 @@
 import { AsyncResult, bindError, complete, errored, isComplete, isErrored } from '@attio/fetchable';
-import prisma, { NameChangeStatus } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
-import { PlayerBuild, PlayerType } from '../../../../utils';
+import { NameChangeStatus, PlayerBuild, PlayerType } from '../../../../types';
 import { assertNever } from '../../../../utils/assert-never.util';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';

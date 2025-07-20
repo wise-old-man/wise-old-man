@@ -6,7 +6,8 @@ import EfficiencyAlgorithm from '../../../src/api/modules/efficiency/EfficiencyA
 import { computeEfficiencyRank } from '../../../src/api/modules/efficiency/services/ComputeEfficiencyRankService';
 import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
-import { Boss, EfficiencyAlgorithmType, PlayerBuild, PlayerType, SKILLS } from '../../../src/utils';
+import { PlayerBuild, PlayerType } from '../../../src/types';
+import { Boss, EfficiencyAlgorithmType, SKILLS } from '../../../src/utils';
 import { MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '../../../src/utils/shared';
 import testBossingMetas from '../../data/efficiency/configs/test.ehb';
 import testSkillingMetas from '../../data/efficiency/configs/test.ehp';

@@ -1,5 +1,6 @@
-import { NotFoundError, ConflictRequestError } from '../../../errors';
-import prisma, { PlayerAnnotationType, PlayerAnnotation } from '../../../../prisma';
+import prisma, { PlayerAnnotation } from '../../../../prisma';
+import { PlayerAnnotationType } from '../../../../types';
+import { ConflictRequestError, NotFoundError } from '../../../errors';
 import { standardize } from '../player.utils';
 
 async function createPlayerAnnotation(

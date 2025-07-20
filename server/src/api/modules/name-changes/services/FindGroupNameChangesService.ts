@@ -1,4 +1,5 @@
-import prisma, { NameChangeStatus } from '../../../../prisma';
+import prisma from '../../../../prisma';
+import { NameChangeStatus } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { NameChangeWithPlayer } from '../name-change.types';

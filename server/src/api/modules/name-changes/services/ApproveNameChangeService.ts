@@ -1,6 +1,5 @@
 import prisma, {
   NameChange,
-  NameChangeStatus,
   Participation,
   Player,
   PlayerAnnotation,
@@ -8,7 +7,8 @@ import prisma, {
   Record
 } from '../../../../prisma';
 import logger from '../../../../services/logging.service';
-import { ActivityType, MemberActivity, Membership, PlayerStatus } from '../../../../utils';
+import { NameChangeStatus, PlayerStatus } from '../../../../types';
+import { ActivityType, MemberActivity, Membership } from '../../../../utils';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import * as playerUtils from '../../players/player.utils';

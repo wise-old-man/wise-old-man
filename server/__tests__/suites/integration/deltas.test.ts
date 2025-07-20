@@ -1,15 +1,16 @@
 import axios from 'axios';
-import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { PlayerType, Metric } from '../../../src/utils';
+import supertest from 'supertest';
 import apiServer from '../../../src/api';
-import { registerHiscoresMock, resetDatabase, sleep, readFile, modifyRawHiscoresData } from '../../utils';
-import prisma from '../../../src/prisma';
-import * as PlayerDeltaUpdatedEvent from '../../../src/api/events/handlers/player-delta-updated.event';
-import { findPlayerDeltas } from '../../../src/api/modules/deltas/services/FindPlayerDeltasService';
-import { findGroupDeltas } from '../../../src/api/modules/deltas/services/FindGroupDeltasService';
-import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
+import * as PlayerDeltaUpdatedEvent from '../../../src/api/events/handlers/player-delta-updated.event';
+import { findGroupDeltas } from '../../../src/api/modules/deltas/services/FindGroupDeltasService';
+import { findPlayerDeltas } from '../../../src/api/modules/deltas/services/FindPlayerDeltasService';
+import prisma from '../../../src/prisma';
+import { redisClient } from '../../../src/services/redis.service';
+import { PlayerType } from '../../../src/types';
+import { Metric } from '../../../src/utils';
+import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });

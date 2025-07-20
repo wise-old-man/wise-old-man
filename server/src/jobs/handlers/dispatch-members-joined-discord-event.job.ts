@@ -1,7 +1,7 @@
 import { isErrored } from '@attio/fetchable';
 import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
-import { GroupRole } from '../../utils/shared';
+import { GroupRole } from '../../types';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 

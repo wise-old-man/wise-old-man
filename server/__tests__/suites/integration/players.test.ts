@@ -17,7 +17,8 @@ import { setUpdateCooldown } from '../../../src/api/modules/players/services/Upd
 import { formatSnapshot, parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
 import prisma from '../../../src/prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
-import { BOSSES, Metric, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/utils';
+import { PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
+import { BOSSES, Metric } from '../../../src/utils';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);

@@ -1,5 +1,5 @@
 import prisma from '../../prisma';
-import { PlayerType } from '../../utils';
+import { PlayerType } from '../../types';
 import { Job } from '../job.class';
 import { JobType } from '../types/job-type.enum';
 

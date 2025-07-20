@@ -1,29 +1,26 @@
 import {
+  GroupRoleOrder,
+  MemberActivity,
+  Membership,
+  Participation,
+  Patron,
+  PlayerAnnotation,
+  PlayerArchive,
+  Prisma,
+  Achievement as PrismaAchievement,
   PrismaClient,
-  PrismaPromise,
+  Competition as PrismaCompetition,
   Delta as PrismaDelta,
+  Group as PrismaGroup,
+  GroupSocialLinks as PrismaGroupSocialLinks,
+  NameChange as PrismaNameChange,
   Player as PrismaPlayer,
+  PrismaPromise,
   Record as PrismaRecord,
   Snapshot as PrismaSnapshot,
-  Achievement as PrismaAchievement,
-  TrendDatapoint as PrismaTrendDatapoint,
-  Patron,
-  Competition as PrismaCompetition,
-  Participation,
-  NameChange as PrismaNameChange,
-  Group as PrismaGroup,
-  PlayerArchive,
-  Membership,
-  Prisma,
-  Country,
-  MemberActivity,
-  GroupSocialLinks as PrismaGroupSocialLinks,
-  GroupRoleOrder,
-  PlayerAnnotationType,
-  PlayerAnnotation
+  TrendDatapoint as PrismaTrendDatapoint
 } from '@prisma/client';
 import { DenyContext, SkipContext, isComputedMetric } from '../utils';
-import { NameChangeStatus } from './enum-adapter';
 
 // @ts-expect-error - This is a polyfill for BigInt support in JSON
 BigInt.prototype.toJSON = function () {
@@ -194,30 +191,27 @@ type NameChange = Omit<PrismaNameChange, 'reviewContext'> & {
 type GroupSocialLinks = Omit<PrismaGroupSocialLinks, 'id' | 'groupId' | 'createdAt' | 'updatedAt'>;
 
 export {
-  Prisma as PrismaTypes,
-  PrismaPromise,
+  Achievement,
+  Competition,
+  Delta,
+  Group,
+  GroupRoleOrder,
+  GroupSocialLinks,
+  MemberActivity,
+  Membership,
   // Models
   NameChange,
-  Patron,
-  Group,
-  Membership,
-  Competition,
   Participation,
-  PlayerArchive,
+  Patron,
   Player,
-  Delta,
-  Record,
-  Snapshot,
-  Achievement,
-  MemberActivity,
-  GroupSocialLinks,
-  TrendDatapoint,
-  GroupRoleOrder,
   PlayerAnnotation,
   // Enums
-  PlayerAnnotationType,
-  Country,
-  NameChangeStatus
+  PlayerArchive,
+  PrismaPromise,
+  Prisma as PrismaTypes,
+  Record,
+  Snapshot,
+  TrendDatapoint
 };
 
 export default extendedClient;

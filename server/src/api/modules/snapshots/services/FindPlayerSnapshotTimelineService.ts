@@ -1,7 +1,7 @@
 import prisma, { PrismaTypes, Snapshot } from '../../../../prisma';
+import { Period } from '../../../../types';
 import { Metric, getMetricRankKey, getMetricValueKey } from '../../../../utils';
 import { parsePeriodExpression } from '../../../../utils/parse-period-expression.util';
-import { Period } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 

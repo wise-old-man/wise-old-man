@@ -1,7 +1,7 @@
 import { AsyncResult, complete, errored, isComplete, isErrored } from '@attio/fetchable';
 import { z } from 'zod';
 import prometheus from '../services/prometheus.service';
-import { PlayerType } from '../utils';
+import { PlayerType } from '../types';
 import { fetchWithProxy } from '../utils/fetch-with-proxy.util';
 import { retry } from '../utils/retry.util';
 import logger from './logging.service';

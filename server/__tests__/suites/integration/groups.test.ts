@@ -8,7 +8,7 @@ import * as GroupMembersLeftEvent from '../../../src/api/events/handlers/group-m
 import * as GroupMembersRolesChangedEvent from '../../../src/api/events/handlers/group-members-roles-changed.event';
 import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
-import { PlayerAnnotationType, PlayerType } from '../../../src/utils';
+import { PlayerAnnotationType, PlayerType } from '../../../src/types';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase } from '../../utils';
 
 const api = supertest(apiServer.express);

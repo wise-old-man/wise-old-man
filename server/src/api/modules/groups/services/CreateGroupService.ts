@@ -1,9 +1,9 @@
 import { isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
-import { PlayerAnnotationType } from '../../../../utils';
+import { GroupRole, PlayerAnnotationType } from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
-import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils/shared';
+import { PRIVELEGED_GROUP_ROLES } from '../../../../utils/shared';
 import { BadRequestError, ForbiddenError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';

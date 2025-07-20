@@ -1,6 +1,7 @@
 import { getAlgorithmType } from '../../api/modules/efficiency/efficiency.utils';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
-import { COMPUTED_METRICS, PLAYER_BUILDS, PLAYER_TYPES, PlayerType } from '../../utils';
+import { PLAYER_BUILDS, PLAYER_TYPES, PlayerType } from '../../types';
+import { COMPUTED_METRICS } from '../../utils';
 import { Job } from '../job.class';
 import { JobType } from '../types/job-type.enum';
 

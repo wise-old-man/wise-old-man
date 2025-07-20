@@ -1,11 +1,5 @@
-import {
-  Country,
-  COUNTRY_CODES,
-  CountryProps,
-  findCountry,
-  findCountryByCode,
-  findCountryByName
-} from '../../../src/utils/shared';
+import { Country, COUNTRY_CODES } from '../../../src/types';
+import { CountryProps, findCountry, findCountryByCode, findCountryByName } from '../../../src/utils/shared';
 
 describe('Util - Countries', () => {
   test('Props', () => {

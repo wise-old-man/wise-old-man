@@ -1,6 +1,6 @@
 import prisma from '../../../../prisma';
+import { Period } from '../../../../types';
 import { Metric } from '../../../../utils';
-import { Period } from '../../../../utils/shared';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { RecordLeaderboardEntry } from '../record.types';

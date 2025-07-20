@@ -173,56 +173,6 @@ export type Boss = (typeof Boss)[keyof typeof Boss];
 export type ComputedMetric = (typeof ComputedMetric)[keyof typeof ComputedMetric];
 export type Metric = (typeof Metric)[keyof typeof Metric];
 
-export const NameChangeStatus = {
-  PENDING: 'pending',
-  DENIED: 'denied',
-  APPROVED: 'approved'
-} as const;
-
-export type NameChangeStatus = (typeof NameChangeStatus)[keyof typeof NameChangeStatus];
-
-export const PlayerType = {
-  UNKNOWN: 'unknown',
-  REGULAR: 'regular',
-  IRONMAN: 'ironman',
-  HARDCORE: 'hardcore',
-  ULTIMATE: 'ultimate'
-} as const;
-
-export type PlayerType = (typeof PlayerType)[keyof typeof PlayerType];
-
-export const PlayerAnnotationType = {
-  OPT_OUT: 'opt_out',
-  OPT_OUT_GROUPS: 'opt_out_groups',
-  OPT_OUT_COMPETITIONS: 'opt_out_competitions',
-  BLOCKED: 'blocked',
-  FAKE_F2P: 'fake_f2p'
-} as const;
-
-export type PlayerAnnotationType = (typeof PlayerAnnotationType)[keyof typeof PlayerAnnotationType];
-
-export const PlayerBuild = {
-  MAIN: 'main',
-  F2P: 'f2p',
-  F2P_LVL3: 'f2p_lvl3',
-  LVL3: 'lvl3',
-  ZERKER: 'zerker',
-  DEF1: 'def1',
-  HP10: 'hp10'
-} as const;
-
-export type PlayerBuild = (typeof PlayerBuild)[keyof typeof PlayerBuild];
-
-export const PlayerStatus = {
-  ACTIVE: 'active',
-  UNRANKED: 'unranked',
-  FLAGGED: 'flagged',
-  ARCHIVED: 'archived',
-  BANNED: 'banned'
-} as const;
-
-export type PlayerStatus = (typeof PlayerStatus)[keyof typeof PlayerStatus];
-
 export const ActivityType = {
   JOINED: 'joined',
   LEFT: 'left',

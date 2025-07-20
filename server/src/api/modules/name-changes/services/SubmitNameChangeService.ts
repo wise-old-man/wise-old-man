@@ -1,4 +1,5 @@
-import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
+import prisma, { NameChange } from '../../../../prisma';
+import { NameChangeStatus } from '../../../../types';
 import { BadRequestError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, sanitize, standardize } from '../../../modules/players/player.utils';

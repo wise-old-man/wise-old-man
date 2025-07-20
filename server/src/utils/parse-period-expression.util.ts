@@ -1,4 +1,5 @@
-import { isPeriod, Period, PeriodProps } from './shared';
+import { Period } from '../types';
+import { isPeriod, PeriodProps } from './shared';
 
 const CUSTOM_PERIOD_REGEX = /(\d+y)?(\d+m)?(\d+w)?(\d+d)?(\d+h)?/;
 

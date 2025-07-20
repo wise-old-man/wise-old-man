@@ -1,12 +1,12 @@
 import axios from 'axios';
-import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
+import supertest from 'supertest';
 import apiServer from '../../../src/api';
-import prisma from '../../../src/prisma';
-import { PlayerType } from '../../../src/utils';
-import { readFile, registerHiscoresMock, resetDatabase } from '../../utils';
-import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
+import prisma from '../../../src/prisma';
+import { redisClient } from '../../../src/services/redis.service';
+import { PlayerType } from '../../../src/types';
+import { readFile, registerHiscoresMock, resetDatabase } from '../../utils';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });

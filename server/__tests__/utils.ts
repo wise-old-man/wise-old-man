@@ -1,9 +1,10 @@
-import fs from 'fs';
 import MockAdapter from 'axios-mock-adapter/types';
+import fs from 'fs';
+import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/snapshot.utils';
 import prisma from '../src/prisma';
 import { OSRS_HISCORES_URLS } from '../src/services/jagex.service';
-import { PlayerType, METRICS, Metric, SKILLS } from '../src/utils';
-import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/snapshot.utils';
+import { PlayerType } from '../src/types';
+import { METRICS, Metric, SKILLS } from '../src/utils';
 
 type HiscoresMockConfig = {
   [playerType in PlayerType]?: {
@@ -70,4 +71,4 @@ function modifyRawHiscoresData(rawData: string, modifications: { metric: Metric;
     .join('\n');
 }
 
-export { resetDatabase, sleep, readFile, registerHiscoresMock, modifyRawHiscoresData };
+export { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep };

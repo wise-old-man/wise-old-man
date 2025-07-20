@@ -1,5 +1,5 @@
 import prisma from '../../../../prisma';
-import { PlayerStatus } from '../../../../utils';
+import { PlayerStatus } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { PlayerDetails } from '../player.types';
 import { formatPlayerDetails, standardize } from '../player.utils';

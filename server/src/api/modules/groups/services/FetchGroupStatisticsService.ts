@@ -1,4 +1,5 @@
 import prisma from '../../../../prisma';
+import { PlayerBuild, PlayerType } from '../../../../types';
 import {
   ACTIVITIES,
   BOSSES,
@@ -6,8 +7,6 @@ import {
   Metric,
   MetricLeaders,
   Player,
-  PlayerBuild,
-  PlayerType,
   SKILLS,
   Snapshot,
   getMetricRankKey,
