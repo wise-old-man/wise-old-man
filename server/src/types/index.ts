@@ -1,3 +1,4 @@
+export * from './competition-csv-table-type.enum';
 export * from './competition-status.enum';
 export * from './competition-type.enum';
 export * from './country.enum';

@@ -1,4 +1,4 @@
-import { PlayerBuild } from '../../types/player-build.enum';
+import { PlayerBuild } from '../../types';
 import { MapOf } from '../types';
 
 export const PlayerBuildProps: MapOf<PlayerBuild, { name: string }> = {

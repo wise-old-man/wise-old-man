@@ -1,4 +1,4 @@
-import { CompetitionType } from '../../types/competition-type.enum';
+import { CompetitionType } from '../../types';
 import { MapOf } from '../types';
 
 export const CompetitionTypeProps: MapOf<CompetitionType, { name: string }> = {

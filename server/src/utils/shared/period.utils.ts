@@ -1,4 +1,4 @@
-import { Period } from '../../types/period.enum';
+import { Period } from '../../types';
 import { MapOf } from '../types';
 
 export const PeriodProps: MapOf<Period, { name: string; milliseconds: number }> = {

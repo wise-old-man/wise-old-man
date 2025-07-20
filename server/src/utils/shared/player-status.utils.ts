@@ -1,4 +1,4 @@
-import { PlayerStatus } from '../../types/player-status.enum';
+import { PlayerStatus } from '../../types';
 import { MapOf } from '../types';
 
 export const PlayerStatusProps: MapOf<PlayerStatus, { name: string }> = {

@@ -1,4 +1,4 @@
-import { Country } from '../../types/country.enum';
+import { Country } from '../../types';
 import { MapOf } from '../types';
 
 export const CountryProps: MapOf<Country, { code: Country; name: string }> = {

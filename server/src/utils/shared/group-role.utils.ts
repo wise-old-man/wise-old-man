@@ -1,4 +1,4 @@
-import { GroupRole } from '../../types/group-role.enum';
+import { GroupRole } from '../../types';
 
 export const GroupRoleProps = {
   [GroupRole.ACHIEVER]: { name: 'Achiever' },
