@@ -47,8 +47,14 @@ export function GroupVerificationCodeCheckDialog(props: GroupVerificationCodeChe
         throw error;
       }
     },
-    onError: () => {
-      toast.toast({ variant: "error", title: "Incorrect verification code." });
+    onError: (error) => {
+      toast.toast({
+        variant: "error",
+        title:
+          "statusCode" in error && error.statusCode === 403
+            ? "Incorrect verification code."
+            : "An unexpected error occurred. Please try again later.",
+      });
     },
     onSuccess: (code) => {
       setTimeout(() => {
