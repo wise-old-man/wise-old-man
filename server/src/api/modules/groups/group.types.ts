@@ -1,5 +1,12 @@
-import { Group, GroupRoleOrder, GroupSocialLinks, MemberActivity, Membership, Player } from '../../../prisma';
-import { GroupRole } from '../../../types';
+import {
+  Group,
+  GroupRole,
+  GroupRoleOrder,
+  GroupSocialLinks,
+  MemberActivity,
+  Membership,
+  Player
+} from '../../../types';
 import { FormattedSnapshot, MetricLeaders } from '../snapshots/snapshot.types';
 
 export interface GroupListItem extends Omit<Group, 'verificationHash'> {
@@ -70,5 +77,3 @@ export interface GroupStatistics {
 export type MemberActivityWithPlayer = MemberActivity & {
   player: Player;
 };
-
-export { Group, GroupRoleOrder, MemberActivity, Membership };

@@ -3,9 +3,8 @@ import { approveNameChange } from '../../api/modules/name-changes/services/Appro
 import { denyNameChange } from '../../api/modules/name-changes/services/DenyNameChangeService';
 import { fetchNameChangeDetails } from '../../api/modules/name-changes/services/FetchNameChangeDetailsService';
 import * as playerUtils from '../../api/modules/players/player.utils';
-import prisma, { NameChange } from '../../prisma';
-import { Metric, NameChangeStatus } from '../../types';
-import { SkipContext } from '../../utils';
+import prisma from '../../prisma';
+import { Metric, NameChange, NameChangeSkipContext, NameChangeStatus } from '../../types';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 
@@ -169,7 +168,7 @@ async function getBundleModifier(nameChange: NameChange): Promise<number> {
   return approvedRate >= 0.5 ? BOOSTED_MODIFIER : REGULAR_MODIFIER;
 }
 
-async function skipReview(id: number, skipContext: SkipContext) {
+async function skipReview(id: number, skipContext: NameChangeSkipContext) {
   await prisma.nameChange.update({
     where: { id },
     data: { reviewContext: skipContext }

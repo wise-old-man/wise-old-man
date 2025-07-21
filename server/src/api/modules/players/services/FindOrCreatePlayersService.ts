@@ -1,4 +1,5 @@
-import prisma, { Player } from '../../../../prisma';
+import prisma from '../../../../prisma';
+import { Player } from '../../../../types';
 import { sanitize, standardize } from '../player.utils';
 
 async function findOrCreatePlayers(usernames: string[]): Promise<Player[]> {

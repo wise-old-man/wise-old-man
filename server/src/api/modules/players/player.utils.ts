@@ -1,6 +1,6 @@
 import { complete, errored, isComplete, Result } from '@attio/fetchable';
-import prisma, { Player, PlayerAnnotation, PlayerArchive, Snapshot } from '../../../prisma';
-import { PlayerBuild } from '../../../types';
+import prisma from '../../../prisma';
+import { Player, PlayerAnnotation, PlayerArchive, PlayerBuild, Snapshot } from '../../../types';
 import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
 import { formatSnapshot } from '../snapshots/snapshot.utils';

@@ -1,5 +1,5 @@
-import prisma, { PrismaTypes, Snapshot } from '../../../../prisma';
-import { Metric, Period } from '../../../../types';
+import prisma, { PrismaTypes } from '../../../../prisma';
+import { Metric, Period, Snapshot } from '../../../../types';
 import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { parsePeriodExpression } from '../../../../utils/parse-period-expression.util';

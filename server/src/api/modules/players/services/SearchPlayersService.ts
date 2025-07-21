@@ -1,4 +1,5 @@
-import prisma, { Player } from '../../../../prisma';
+import prisma from '../../../../prisma';
+import { Player } from '../../../../types';
 import { PaginationOptions } from '../../../util/validation';
 
 async function searchPlayers(username: string, pagination: PaginationOptions): Promise<Player[]> {

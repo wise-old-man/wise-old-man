@@ -1,5 +1,4 @@
-import { Snapshot } from '../../../prisma';
-import { Metric } from '../../../types';
+import { Metric, Snapshot } from '../../../types';
 import { REAL_SKILLS } from '../../../utils/shared';
 import { getCappedExp } from '../snapshots/snapshot.utils';
 import { AchievementTemplate } from './achievement.types';

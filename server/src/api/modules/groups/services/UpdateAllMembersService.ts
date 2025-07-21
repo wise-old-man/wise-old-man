@@ -1,6 +1,6 @@
 import { jobManager, JobType } from '../../../../jobs';
-import prisma, { Player } from '../../../../prisma';
-import { Period } from '../../../../types';
+import prisma from '../../../../prisma';
+import { Period, Player } from '../../../../types';
 import { PeriodProps } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError } from '../../../errors';
 

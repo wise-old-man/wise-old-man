@@ -1,4 +1,3 @@
-import { Player, Snapshot } from '../../../prisma';
 import {
   ACTIVITIES,
   Activity,
@@ -7,8 +6,10 @@ import {
   COMPUTED_METRICS,
   ComputedMetric,
   Metric,
+  Player,
   Skill,
-  SKILLS
+  SKILLS,
+  Snapshot
 } from '../../../types';
 import { MapOf } from '../../../utils';
 import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';

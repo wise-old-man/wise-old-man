@@ -1,5 +1,15 @@
-import { Player, Snapshot } from '../../../prisma';
-import { BOSSES, Boss, ComputedMetric, Metric, PlayerBuild, PlayerType, SKILLS, Skill } from '../../../types';
+import {
+  BOSSES,
+  Boss,
+  ComputedMetric,
+  Metric,
+  Player,
+  PlayerBuild,
+  PlayerType,
+  SKILLS,
+  Skill,
+  Snapshot
+} from '../../../types';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
 import EfficiencyAlgorithm from './EfficiencyAlgorithm';
 import def1BossingMetas from './configs/ehb/def1.ehb';

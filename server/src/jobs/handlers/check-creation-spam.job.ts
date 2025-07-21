@@ -1,7 +1,6 @@
-import prisma, { Competition } from '../../prisma';
+import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
-import { Period } from '../../types';
-import { Group } from '../../utils';
+import { Competition, Group, Period } from '../../types';
 import { PeriodProps } from '../../utils/shared';
 import { Job } from '../job.class';
 

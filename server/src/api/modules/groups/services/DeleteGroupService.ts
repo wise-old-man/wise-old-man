@@ -1,4 +1,5 @@
-import prisma, { Group, PrismaTypes } from '../../../../prisma';
+import prisma, { PrismaTypes } from '../../../../prisma';
+import { Group } from '../../../../types';
 import { NotFoundError, ServerError } from '../../../errors';
 
 async function deleteGroup(id: number): Promise<Group> {
@@ -7,7 +8,7 @@ async function deleteGroup(id: number): Promise<Group> {
       where: { id }
     });
 
-    return deletedGroup;
+    return deletedGroup as Group;
   } catch (error) {
     if (error instanceof PrismaTypes.PrismaClientKnownRequestError && error.code === 'P2025') {
       // Failed to find group with that id

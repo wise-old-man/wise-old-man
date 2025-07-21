@@ -1,5 +1,5 @@
-import prisma, { NameChange } from '../../../../prisma';
-import { NameChangeStatus } from '../../../../types';
+import prisma from '../../../../prisma';
+import { NameChange, NameChangeStatus } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 

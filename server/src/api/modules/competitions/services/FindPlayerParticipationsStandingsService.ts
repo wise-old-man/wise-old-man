@@ -1,6 +1,6 @@
-import prisma, { Participation, Snapshot } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import logger from '../../../../services/logging.service';
-import { BOSSES, CompetitionStatus, Metric, SKILLS } from '../../../../types';
+import { BOSSES, CompetitionStatus, Metric, Participation, SKILLS, Snapshot } from '../../../../types';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { omit } from '../../../../utils/omit.util';
 import { isSkill } from '../../../../utils/shared';

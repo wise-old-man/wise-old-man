@@ -1,5 +1,5 @@
-import { Activity, Boss, ComputedMetric, Skill } from '../../../types';
-import { MapOf, Player } from '../../../utils';
+import { Activity, Boss, ComputedMetric, Player, Skill } from '../../../types';
+import { MapOf } from '../../../utils';
 
 export interface MeasuredDeltaProgress {
   start: number;

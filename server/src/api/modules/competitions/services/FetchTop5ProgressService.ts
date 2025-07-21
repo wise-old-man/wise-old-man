@@ -1,5 +1,5 @@
-import prisma, { Snapshot } from '../../../../prisma';
-import { Metric } from '../../../../types';
+import prisma from '../../../../prisma';
+import { Metric, Snapshot } from '../../../../types';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { Top5ProgressResult } from '../competition.types';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';

@@ -10,8 +10,7 @@ import {
   isLvl3,
   isZerker
 } from '../../../src/api/modules/snapshots/snapshot.utils';
-import { Snapshot } from '../../../src/prisma';
-import { SKILLS } from '../../../src/types';
+import { SKILLS, Snapshot } from '../../../src/types';
 import { getMetricValueKey } from '../../../src/utils/get-metric-value-key.util';
 import {
   getCombatLevel,

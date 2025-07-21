@@ -1,26 +1,4 @@
-import {
-  GroupRoleOrder,
-  MemberActivity,
-  Membership,
-  Participation,
-  Patron,
-  PlayerAnnotation,
-  PlayerArchive,
-  Prisma,
-  Achievement as PrismaAchievement,
-  PrismaClient,
-  Competition as PrismaCompetition,
-  Delta as PrismaDelta,
-  Group as PrismaGroup,
-  GroupSocialLinks as PrismaGroupSocialLinks,
-  NameChange as PrismaNameChange,
-  Player as PrismaPlayer,
-  PrismaPromise,
-  Record as PrismaRecord,
-  Snapshot as PrismaSnapshot,
-  TrendDatapoint as PrismaTrendDatapoint
-} from '@prisma/client';
-import { DenyContext, SkipContext } from '../utils';
+import { Prisma, PrismaClient, PrismaPromise } from '@prisma/client';
 import { isComputedMetric } from '../utils/shared';
 
 // @ts-expect-error - This is a polyfill for BigInt support in JSON
@@ -102,20 +80,6 @@ const extendedClient = prisma
           }
         }
       },
-      trendDatapoint: {
-        sum: {
-          needs: { sum: true },
-          compute({ sum }) {
-            return parseBigInt(sum);
-          }
-        },
-        maxValue: {
-          needs: { maxValue: true },
-          compute({ maxValue }) {
-            return parseBigInt(maxValue);
-          }
-        }
-      },
       group: {
         creatorIpHash: {
           compute() {
@@ -155,64 +119,6 @@ const extendedClient = prisma
     }
   });
 
-type Achievement = Omit<PrismaAchievement, 'threshold' | 'accuracy'> & {
-  threshold: number;
-  accuracy: number | null;
-};
-
-type Record = Omit<PrismaRecord, 'value'> & {
-  value: number;
-};
-
-type Delta = Omit<PrismaDelta, 'overall'> & {
-  overall: number;
-};
-
-type Snapshot = Omit<PrismaSnapshot, 'overallExperience'> & {
-  overallExperience: number;
-};
-
-type TrendDatapoint = Omit<PrismaTrendDatapoint, 'sum' | 'maxValue'> & {
-  sum: number;
-  maxValue: number;
-};
-
-type Player = Omit<PrismaPlayer, 'exp' | 'latestSnapshotId'> & {
-  exp: number;
-};
-
-type Group = Omit<PrismaGroup, 'creatorIpHash'>;
-
-type Competition = Omit<PrismaCompetition, 'creatorIpHash'>;
-
-type NameChange = Omit<PrismaNameChange, 'reviewContext'> & {
-  reviewContext: SkipContext | DenyContext | null;
-};
-
-type GroupSocialLinks = Omit<PrismaGroupSocialLinks, 'id' | 'groupId' | 'createdAt' | 'updatedAt'>;
-
-export {
-  Achievement,
-  Competition,
-  Delta,
-  Group,
-  GroupRoleOrder,
-  GroupSocialLinks,
-  MemberActivity,
-  Membership,
-  // Models
-  NameChange,
-  Participation,
-  Patron,
-  Player,
-  PlayerAnnotation,
-  // Enums
-  PlayerArchive,
-  PrismaPromise,
-  Prisma as PrismaTypes,
-  Record,
-  Snapshot,
-  TrendDatapoint
-};
+export { PrismaPromise, Prisma as PrismaTypes };
 
 export default extendedClient;

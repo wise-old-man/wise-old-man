@@ -2,9 +2,8 @@ import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/f
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
-import { Competition } from '../prisma';
-import { GroupRole } from '../types';
-import { Achievement, FlaggedPlayerReviewContext, Group, Player } from '../utils';
+import { Achievement, Competition, Group, GroupRole, Player } from '../types';
+import { FlaggedPlayerReviewContext } from '../utils';
 import logger from './logging.service';
 
 export enum DiscordBotEventType {

@@ -1,5 +1,5 @@
-import prisma, { Achievement } from '../../../../prisma';
-import { Metric, MetricMeasure } from '../../../../types';
+import prisma from '../../../../prisma';
+import { Achievement, Metric, MetricMeasure } from '../../../../types';
 import { roundNumber } from '../../../../utils/round-number.util';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';

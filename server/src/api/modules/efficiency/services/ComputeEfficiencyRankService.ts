@@ -1,8 +1,9 @@
 import { RANK_RESOLUTION } from '../../../../jobs/handlers/calculate-computed-rank-tables.job';
-import prisma, { Player } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 import {
   ComputedMetric,
+  Player,
   PLAYER_BUILDS,
   PLAYER_TYPES,
   PlayerBuild,

@@ -1,5 +1,4 @@
-import { Achievement, Snapshot } from '../../../prisma';
-import { Metric } from '../../../types';
+import { Achievement, Metric, Snapshot } from '../../../types';
 import { formatNumber } from '../../../utils/format-number.util';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
 import { getLevel, isMetric, MetricProps, REAL_SKILLS, SKILL_EXP_AT_99 } from '../../../utils/shared';

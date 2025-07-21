@@ -4,11 +4,13 @@ import {
   BOSSES,
   COMPUTED_METRICS,
   Metric,
+  Player,
   PlayerBuild,
   PlayerType,
-  SKILLS
+  SKILLS,
+  Snapshot
 } from '../../../../types';
-import { MetricLeaders, Player, Snapshot } from '../../../../utils';
+import { MetricLeaders } from '../../../../utils';
 import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { getLevel } from '../../../../utils/shared';

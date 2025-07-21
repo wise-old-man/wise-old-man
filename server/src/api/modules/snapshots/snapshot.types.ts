@@ -1,6 +1,5 @@
-import { Snapshot } from '../../../prisma';
-import { Activity, Boss, ComputedMetric, Skill } from '../../../types';
-import { MapOf, Player } from '../../../utils';
+import { Activity, Boss, ComputedMetric, Player, Skill, Snapshot } from '../../../types';
+import { MapOf } from '../../../utils';
 
 export type SnapshotFragment = Omit<Snapshot, 'id'>;
 
@@ -50,5 +49,3 @@ export interface FormattedSnapshot {
     computed: MapOf<ComputedMetric, ComputedMetricValue>;
   };
 }
-
-export { Snapshot };

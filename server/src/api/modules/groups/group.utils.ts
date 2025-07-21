@@ -1,7 +1,6 @@
+import { GroupRoleOrder } from '../../../types';
 import { PRIVELEGED_GROUP_ROLES } from '../../../utils/shared';
 import { MembershipWithPlayer } from './group.types';
-
-import { GroupRoleOrder } from '@prisma/client';
 
 function sanitizeName(name: string): string {
   return name

@@ -1,7 +1,6 @@
-import { Metric } from '@prisma/client';
 import { Router } from 'express';
 import { z } from 'zod';
-import { Country, Period, PlayerBuild, PlayerType } from '../../../types';
+import { Country, Metric, Period, PlayerBuild, PlayerType } from '../../../types';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { findRecordLeaderboards } from './services/FindRecordLeaderboardsService';
 

@@ -1,5 +1,5 @@
-import prisma, { Player } from '../../../../prisma';
-import { Country } from '../../../../types';
+import prisma from '../../../../prisma';
+import { Country, Player } from '../../../../types';
 import { findCountry } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { standardize } from '../player.utils';

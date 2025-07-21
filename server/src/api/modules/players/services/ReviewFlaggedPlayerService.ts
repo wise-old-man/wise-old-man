@@ -1,5 +1,4 @@
-import { Player, Snapshot } from '../../../../prisma';
-import { BOSSES, Metric } from '../../../../types';
+import { BOSSES, Metric, Player, Snapshot } from '../../../../types';
 import { FlaggedPlayerReviewContext } from '../../../../utils';
 import { REAL_SKILLS } from '../../../../utils/shared';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';

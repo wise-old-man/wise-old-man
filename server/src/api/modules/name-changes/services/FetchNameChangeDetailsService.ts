@@ -1,13 +1,13 @@
 import { AsyncResult, bindError, complete, errored, isComplete, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
-import { NameChangeStatus, PlayerBuild, PlayerType } from '../../../../types';
+import { NameChange, NameChangeStatus, PlayerBuild, PlayerType } from '../../../../types';
 import { assertNever } from '../../../../utils/assert-never.util';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import { standardize } from '../../players/player.utils';
 import { formatSnapshot, getNegativeGains, parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
-import { NameChange, NameChangeDetails } from '../name-change.types';
+import { NameChangeDetails } from '../name-change.types';
 
 async function fetchNameChangeDetails(id: number): AsyncResult<
   NameChangeDetails,

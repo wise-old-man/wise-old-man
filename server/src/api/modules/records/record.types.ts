@@ -1,4 +1,5 @@
-import { Record, Player } from '../../../prisma';
+import { Player, Record } from '../../../types';
 
-export type RecordLeaderboardEntry = Record & { player: Player };
-export { Record } from '../../../prisma';
+export type RecordLeaderboardEntry = Record & {
+  player: Player;
+};

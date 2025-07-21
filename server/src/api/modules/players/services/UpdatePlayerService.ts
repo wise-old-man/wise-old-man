@@ -1,9 +1,17 @@
 import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import { jobManager, JobType } from '../../../../jobs';
-import prisma, { Player, PlayerAnnotation, PrismaTypes, Snapshot } from '../../../../prisma';
+import prisma, { PrismaTypes } from '../../../../prisma';
 import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
-import { PlayerAnnotationType, PlayerBuild, PlayerStatus, PlayerType } from '../../../../types';
+import {
+  Player,
+  PlayerAnnotation,
+  PlayerAnnotationType,
+  PlayerBuild,
+  PlayerStatus,
+  PlayerType,
+  Snapshot
+} from '../../../../types';
 import { eventEmitter, EventType } from '../../../events';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';

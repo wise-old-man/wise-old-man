@@ -1,5 +1,5 @@
-import prisma, { PlayerAnnotation } from '../../../../prisma';
-import { PlayerAnnotationType } from '../../../../types';
+import prisma from '../../../../prisma';
+import { PlayerAnnotation, PlayerAnnotationType } from '../../../../types';
 import { ConflictRequestError, NotFoundError } from '../../../errors';
 import { standardize } from '../player.utils';
 

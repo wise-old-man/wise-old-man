@@ -1,9 +1,8 @@
-import prisma, { NameChange } from '../../../../prisma';
-import { NameChangeStatus } from '../../../../types';
-import { DenyContext } from '../../../../utils';
+import prisma from '../../../../prisma';
+import { NameChange, NameChangeDenyContext, NameChangeStatus } from '../../../../types';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
-async function denyNameChange(id: number, reviewContext: DenyContext): Promise<NameChange> {
+async function denyNameChange(id: number, reviewContext: NameChangeDenyContext): Promise<NameChange> {
   const nameChange = await prisma.nameChange.findFirst({
     where: { id }
   });

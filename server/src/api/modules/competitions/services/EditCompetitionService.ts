@@ -1,6 +1,12 @@
-import prisma, { Participation, Player, PrismaPromise, PrismaTypes } from '../../../../prisma';
-import { CompetitionType, Metric, PlayerAnnotationType } from '../../../../types';
-import { Snapshot } from '../../../../utils';
+import prisma, { PrismaPromise, PrismaTypes } from '../../../../prisma';
+import {
+  CompetitionType,
+  Metric,
+  Participation,
+  Player,
+  PlayerAnnotationType,
+  Snapshot
+} from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
 import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';

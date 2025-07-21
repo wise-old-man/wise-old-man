@@ -1,12 +1,13 @@
 import { isErrored } from '@attio/fetchable';
 import { eventEmitter, EventType } from '../../api/events';
-import prisma, { Patron } from '../../prisma';
+import prisma from '../../prisma';
 import { sendDiscordWebhook } from '../../services/discord.service';
 import {
   getPatrons,
   STATIC_PATRON_GROUP_IDS,
   STATIC_PATRON_PLAYER_IDS
 } from '../../services/patreon.service';
+import { Patron } from '../../types';
 import { omit } from '../../utils/omit.util';
 import { Job } from '../job.class';
 

@@ -1,14 +1,17 @@
-import prisma, {
+import prisma, { PrismaTypes } from '../../../../prisma';
+import logger from '../../../../services/logging.service';
+import {
+  MemberActivity,
+  MemberActivityType,
+  Membership,
   NameChange,
+  NameChangeStatus,
   Participation,
   Player,
   PlayerAnnotation,
-  PrismaTypes,
+  PlayerStatus,
   Record
-} from '../../../../prisma';
-import logger from '../../../../services/logging.service';
-import { MemberActivityType, NameChangeStatus, PlayerStatus } from '../../../../types';
-import { MemberActivity, Membership } from '../../../../utils';
+} from '../../../../types';
 import { prepareRecordValue } from '../../../../utils/prepare-record-value.util';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';

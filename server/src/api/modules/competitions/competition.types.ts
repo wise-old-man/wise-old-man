@@ -1,4 +1,4 @@
-import { Competition, Participation, Player } from '../../../prisma';
+import { Competition, Participation, Player } from '../../../types';
 import { MeasuredDeltaProgress } from '../deltas/delta.types';
 import { GroupListItem } from '../groups/group.types';
 

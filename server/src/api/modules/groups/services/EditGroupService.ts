@@ -1,6 +1,13 @@
-import prisma, { Membership, Player, PrismaTypes } from '../../../../prisma';
+import prisma, { PrismaTypes } from '../../../../prisma';
 import logger from '../../../../services/logging.service';
-import { GroupRole, MemberActivityType, NameChangeStatus, PlayerAnnotationType } from '../../../../types';
+import {
+  GroupRole,
+  MemberActivityType,
+  Membership,
+  NameChangeStatus,
+  Player,
+  PlayerAnnotationType
+} from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
 
 import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
