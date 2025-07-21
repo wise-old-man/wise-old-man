@@ -91,7 +91,9 @@ export function CompetitionVerificationCodeCheckDialog(
               </>
             ) : (
               <>
-                <Label className="text-xs font-normal text-gray-200">Verification code</Label>
+                <Label className="text-xs font-normal text-gray-200" htmlFor="verificationCode">
+                  Verification code
+                </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span>
@@ -114,6 +116,7 @@ export function CompetitionVerificationCodeCheckDialog(
             )}
           </div>
           <Input
+            id="verificationCode"
             type="password"
             autoFocus
             name="verificationCode"

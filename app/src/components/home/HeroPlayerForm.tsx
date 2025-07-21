@@ -51,6 +51,7 @@ export function HeroPlayerForm() {
         value={username}
         maxLength={12}
         placeholder="Enter your username"
+        aria-label="Enter your username"
         className=" h-12 rounded-lg bg-gray-900 px-4 shadow-gray-950/70 focus-visible:bg-gray-950"
         onChange={(e) => {
           setUsername(e.currentTarget.value);

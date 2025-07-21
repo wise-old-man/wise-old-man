@@ -95,7 +95,9 @@ function DeleteCompetitionForm(props: DeleteCompetitionFormProps) {
     >
       <div className="flex flex-col">
         <div className="mb-2 flex items-center">
-          <Label className="text-xs font-normal text-gray-200">Verification code</Label>
+          <Label className="text-xs font-normal text-gray-200" htmlFor="verificationCode">
+            Verification code
+          </Label>
           <Tooltip>
             <TooltipTrigger asChild>
               <span>
@@ -116,6 +118,7 @@ function DeleteCompetitionForm(props: DeleteCompetitionFormProps) {
           </Tooltip>
         </div>
         <Input
+          id="verificationCode"
           autoFocus
           type="password"
           name="verificationCode"
