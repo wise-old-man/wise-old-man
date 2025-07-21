@@ -1,9 +1,8 @@
 import prisma from '../../../../prisma';
-import { CompetitionType, PlayerAnnotationType } from '../../../../types';
+import { CompetitionTeam, CompetitionType, PlayerAnnotationType } from '../../../../types';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { Team } from '../competition.types';
 import {
   sanitizeTeams,
   validateInvalidParticipants,
@@ -11,7 +10,7 @@ import {
   validateTeamDuplicates
 } from '../competition.utils';
 
-async function addTeams(id: number, teams: Team[]): Promise<{ count: number }> {
+async function addTeams(id: number, teams: CompetitionTeam[]): Promise<{ count: number }> {
   const competition = await prisma.competition.findFirst({
     where: { id }
   });
@@ -95,7 +94,7 @@ async function addTeams(id: number, teams: Team[]): Promise<{ count: number }> {
   return { count };
 }
 
-async function fetchCurrentTeams(id: number): Promise<Team[]> {
+async function fetchCurrentTeams(id: number): Promise<CompetitionTeam[]> {
   const participations = await prisma.participation.findMany({
     where: { competitionId: id },
     select: { teamName: true, player: { select: { username: true } } }

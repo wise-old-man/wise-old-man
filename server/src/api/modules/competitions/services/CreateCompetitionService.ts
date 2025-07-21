@@ -1,12 +1,12 @@
 import { isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
-import { CompetitionType, Metric, PlayerAnnotationType } from '../../../../types';
+import { CompetitionTeam, CompetitionType, Metric, PlayerAnnotationType } from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { CompetitionWithParticipations, Team } from '../competition.types';
+import { CompetitionWithParticipations } from '../competition.types';
 import {
   sanitizeTeams,
   sanitizeTitle,
@@ -23,7 +23,7 @@ interface CreateCompetitionPayload {
   groupId?: number;
   groupVerificationCode?: string;
   participants?: string[];
-  teams?: Team[];
+  teams?: CompetitionTeam[];
 }
 
 type CreateCompetitionResult = { competition: CompetitionWithParticipations; verificationCode: string };
@@ -198,7 +198,7 @@ async function getParticipations(participants: string[]) {
   return players.map(p => ({ playerId: p.id, teamName: null }));
 }
 
-async function getTeamsParticipations(teams: Team[]) {
+async function getTeamsParticipations(teams: CompetitionTeam[]) {
   // Find or create all players with the given usernames
   const players = await findOrCreatePlayers(teams.map(t => t.participants).flat());
 

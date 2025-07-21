@@ -1,7 +1,14 @@
 import { Metric, Snapshot } from '../../../types';
 import { REAL_SKILLS } from '../../../utils/shared';
 import { getCappedExp } from '../snapshots/snapshot.utils';
-import { AchievementTemplate } from './achievement.types';
+
+interface AchievementTemplate {
+  name: string;
+  metric: Metric;
+  measure?: string;
+  thresholds: number[];
+  getCurrentValue?: (snapshot: Snapshot, threshold: number) => number;
+}
 
 export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ------------------

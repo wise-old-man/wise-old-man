@@ -1,12 +1,4 @@
-import {
-  Group,
-  GroupRole,
-  GroupRoleOrder,
-  GroupSocialLinks,
-  MemberActivity,
-  Membership,
-  Player
-} from '../../../types';
+import { Group, GroupRoleOrder, GroupSocialLinks, MemberActivity, Membership, Player } from '../../../types';
 import { FormattedSnapshot, MetricLeaders } from '../snapshots/snapshot.types';
 
 export interface GroupListItem extends Omit<Group, 'verificationHash'> {
@@ -25,11 +17,6 @@ export interface MembershipWithGroup extends Membership {
 
 export interface MembershipWithPlayer extends Membership {
   player: Player;
-}
-
-export interface MemberInput {
-  username: string;
-  role: string | GroupRole;
 }
 
 export interface GroupHiscoresSkillItem {

@@ -2,8 +2,15 @@ import { getAlgorithmType } from '../../api/modules/efficiency/efficiency.utils'
 import prisma from '../../prisma';
 import logger from '../../services/logging.service';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
-import { ComputedMetric, PLAYER_BUILDS, PLAYER_TYPES, PlayerBuild, PlayerType } from '../../types';
-import { EfficiencyAlgorithmType } from '../../utils';
+import {
+  ComputedMetric,
+  EfficiencyAlgorithmType,
+  PLAYER_BUILDS,
+  PLAYER_TYPES,
+  PlayerBuild,
+  PlayerType
+} from '../../types';
+
 import { Job } from '../job.class';
 
 // The higher the resolution, the more accurate the estimates are, but the more memory is used

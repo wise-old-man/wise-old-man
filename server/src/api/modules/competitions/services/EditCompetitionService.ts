@@ -1,5 +1,6 @@
 import prisma, { PrismaPromise, PrismaTypes } from '../../../../prisma';
 import {
+  CompetitionTeam,
   CompetitionType,
   Metric,
   Participation,
@@ -13,7 +14,7 @@ import { eventEmitter, EventType } from '../../../events';
 import { standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
-import { CompetitionWithParticipations, Team } from '../competition.types';
+import { CompetitionWithParticipations } from '../competition.types';
 import {
   sanitizeTeams,
   sanitizeTitle,
@@ -28,7 +29,7 @@ interface EditCompetitionPayload {
   startsAt?: Date;
   endsAt?: Date;
   participants?: string[];
-  teams?: Team[];
+  teams?: CompetitionTeam[];
 }
 
 interface PartialParticipation {
@@ -398,7 +399,7 @@ async function getParticipations(id: number, participants: string[]) {
   }));
 }
 
-async function getTeamsParticipations(id: number, teams: Team[]) {
+async function getTeamsParticipations(id: number, teams: CompetitionTeam[]) {
   // ensures every team name is sanitized, and every username is standardized
   const newTeams = sanitizeTeams(teams);
 

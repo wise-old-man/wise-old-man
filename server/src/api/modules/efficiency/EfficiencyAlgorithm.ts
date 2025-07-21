@@ -1,11 +1,14 @@
-import { Boss, BOSSES, Skill, SKILLS } from '../../../types';
 import {
-  Bonus,
+  Boss,
+  BOSSES,
   BossMetaConfig,
   EfficiencyAlgorithmType,
+  Skill,
+  SkillMetaBonus,
   SkillMetaConfig,
-  SkillMetaMethod
-} from '../../../utils';
+  SkillMetaMethod,
+  SKILLS
+} from '../../../types';
 import { roundNumber } from '../../../utils/round-number.util';
 import { MAX_SKILL_EXP, REAL_SKILLS, SKILL_EXP_AT_99 } from '../../../utils/shared';
 
@@ -19,8 +22,8 @@ class EfficiencyAlgorithm {
   public skillMetas: SkillMetaConfig[];
   public bossMetas: BossMetaConfig[];
 
-  private startBonuses: Bonus[];
-  private endBonuses: Bonus[];
+  private startBonuses: SkillMetaBonus[];
+  private endBonuses: SkillMetaBonus[];
 
   private bonusDirectionMap: Map<Skill, Skill[]>;
   private maximumEHPMap: Map<Skill, number>;
@@ -313,7 +316,7 @@ class EfficiencyAlgorithm {
     return map;
   }
 
-  private getBonusDirectionMap(bonuses: Bonus[]) {
+  private getBonusDirectionMap(bonuses: SkillMetaBonus[]) {
     const map = new Map();
 
     bonuses.forEach(b => {
@@ -330,7 +333,7 @@ class EfficiencyAlgorithm {
     return map;
   }
 
-  private getBonuses(metas: SkillMetaConfig[], type: BonusType): Bonus[] {
+  private getBonuses(metas: SkillMetaConfig[], type: BonusType): SkillMetaBonus[] {
     return metas
       .filter(r => r.bonuses.length > 0)
       .map(r => r.bonuses)

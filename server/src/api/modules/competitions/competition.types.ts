@@ -40,11 +40,6 @@ export interface ParticipationWithCompetitionAndStandings extends ParticipationW
   rank: number;
 }
 
-export interface Team {
-  name: string;
-  participants: string[];
-}
-
 export type Top5ProgressResult = Array<{
   player: Player;
   history: Array<{

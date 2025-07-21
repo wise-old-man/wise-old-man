@@ -1,6 +1,6 @@
+import { CompetitionTeam } from '../../../types';
 import { BadRequestError } from '../../errors';
 import * as playerUtils from '../players/player.utils';
-import { Team } from './competition.types';
 
 export function sanitizeTitle(title: string): string {
   return title
@@ -10,7 +10,7 @@ export function sanitizeTitle(title: string): string {
     .trim();
 }
 
-export function sanitizeTeams(teamInputs: Team[]): Team[] {
+export function sanitizeTeams(teamInputs: CompetitionTeam[]): CompetitionTeam[] {
   // Sanitize the team inputs
   return teamInputs.map(t => ({
     name: sanitizeTitle(t.name),
@@ -18,7 +18,7 @@ export function sanitizeTeams(teamInputs: Team[]): Team[] {
   }));
 }
 
-export function validateTeamDuplicates(teams: Team[]) {
+export function validateTeamDuplicates(teams: CompetitionTeam[]) {
   // Check for duplicate team names
   const teamNames = teams.map(t => t.name.toLowerCase());
   const duplicateTeamNames = [...new Set(teamNames.filter(t => teamNames.filter(it => it === t).length > 1))];

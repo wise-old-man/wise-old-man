@@ -2,6 +2,7 @@ import {
   BOSSES,
   Boss,
   ComputedMetric,
+  EfficiencyAlgorithmType,
   Metric,
   Player,
   PlayerBuild,
@@ -25,7 +26,6 @@ import ironmanSkillingMetas from './configs/ehp/ironman.ehp';
 import lvl3SkillingMetas from './configs/ehp/lvl3.ehp';
 import mainSkillingMetas from './configs/ehp/main.ehp';
 import ultimateSkillingMetas from './configs/ehp/ultimate.ehp';
-import { EfficiencyAlgorithmType } from './efficiency.types';
 
 export const ALGORITHMS = new Map<EfficiencyAlgorithmType, EfficiencyAlgorithm>(
   [
