@@ -1,16 +1,13 @@
-import { Metric } from '../../../server/src/types';
+import { Metric, NameChange, Player, Record } from '../../../server/src/types';
 import {
   AchievementProgress,
   ExtendedAchievement,
   FormattedSnapshot,
   MembershipWithGroup,
-  NameChange,
   ParticipationWithCompetition,
   ParticipationWithCompetitionAndStandings,
-  Player,
   PlayerArchiveWithPlayer,
-  PlayerDetails,
-  Record
+  PlayerDetails
 } from '../../../server/src/utils';
 import type {
   AssertPlayerTypeResponse,

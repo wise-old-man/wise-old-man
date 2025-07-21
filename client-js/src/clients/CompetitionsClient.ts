@@ -1,9 +1,8 @@
-import { Metric } from '../../../server/src/types';
+import { CompetitionTeam, Metric } from '../../../server/src/types';
 import {
   CompetitionDetails,
   CompetitionListItem,
   CompetitionWithParticipations,
-  Team,
   Top5ProgressResult
 } from '../../../server/src/utils';
 import type {
@@ -107,7 +106,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * Adds all (valid) given teams to a team competition, ignoring duplicates.
    * @returns The number of participants added and a confirmation message.
    */
-  addTeams(id: number, teams: Team[], verificationCode: string) {
+  addTeams(id: number, teams: CompetitionTeam[], verificationCode: string) {
     return this.postRequest<GenericCountMessageResponse>(`/competitions/${id}/teams`, {
       verificationCode,
       teams

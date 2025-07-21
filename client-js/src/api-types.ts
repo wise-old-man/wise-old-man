@@ -1,25 +1,21 @@
-import { GroupSocialLinks } from '../../server/src/prisma';
 import {
   CompetitionCSVTableType,
   CompetitionStatus,
+  CompetitionTeam,
   CompetitionType,
   Country,
+  EfficiencyAlgorithmType,
   GroupRole,
+  GroupRoleOrder,
+  GroupSocialLinks,
   Metric,
+  NameChangeStatus,
   Period,
+  Player,
   PlayerBuild,
   PlayerType
 } from '../../server/src/types';
-import {
-  CompetitionWithParticipations,
-  EfficiencyAlgorithmType,
-  GroupDetails,
-  GroupRoleOrder,
-  NameChangeStatus,
-  Player,
-  PlayerDeltasMap,
-  Team
-} from '../../server/src/utils';
+import { CompetitionWithParticipations, GroupDetails, PlayerDeltasMap } from '../../server/src/utils';
 
 export interface GenericCountMessageResponse {
   count: number;
@@ -112,7 +108,7 @@ export type CreateCompetitionPayload = {
       participants: string[];
     }
   | {
-      teams: Team[];
+      teams: CompetitionTeam[];
     }
 );
 
@@ -122,7 +118,7 @@ export type EditCompetitionPayload = {
   startsAt?: Date;
   endsAt?: Date;
   participants?: string[];
-  teams?: Team[];
+  teams?: CompetitionTeam[];
 };
 
 export type CreateCompetitionResponse = {

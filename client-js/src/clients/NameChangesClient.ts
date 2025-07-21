@@ -1,5 +1,5 @@
+import { NameChange } from '../../../server/src/types';
 import type { NameChangesSearchFilter } from '../api-types';
-import { NameChange } from '../../../server/src/utils';
 import { PaginationOptions } from '../utils';
 import BaseAPIClient from './BaseAPIClient';
 
