@@ -113,6 +113,7 @@ model Delta {
   dagannoth_rex                    Int       @default(0)
   dagannoth_supreme                Int       @default(0)
   deranged_archaeologist           Int       @default(0)
+  doom_of_mokhaiotl                Int       @default(0)
   duke_sucellus                    Int       @default(0)
   general_graardor                 Int       @default(0)
   giant_mole                       Int       @default(0)
@@ -521,6 +522,8 @@ model Snapshot {
   dagannoth_supremeKills                Int       @default(-1)
   deranged_archaeologistRank            Int       @default(-1)
   deranged_archaeologistKills           Int       @default(-1)
+  doom_of_mokhaiotlRank                 Int       @default(-1)
+  doom_of_mokhaiotlKills                Int       @default(-1)
   duke_sucellusRank                     Int       @default(-1)
   duke_sucellusKills                    Int       @default(-1)
   general_graardorRank                  Int       @default(-1)
@@ -1334,6 +1337,7 @@ enum Metric {
   dagannoth_rex
   dagannoth_supreme
   deranged_archaeologist
+  doom_of_mokhaiotl
   duke_sucellus
   general_graardor
   giant_mole
