@@ -76,6 +76,7 @@ export function SaveCompetitionVerificationCodeDialog(
             </DialogHeader>
             <div className="relative flex items-center gap-x-2">
               <Input
+                aria-label="Verification code"
                 ref={inputRef}
                 readOnly
                 autoFocus={false}

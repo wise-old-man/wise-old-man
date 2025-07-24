@@ -96,6 +96,8 @@ function ImportFromFileForm(props: ImportFromFileDialogProps) {
         </ComboboxContent>
       </Combobox>
       <TextArea
+        id="importUsernames"
+        aria-label="Paste usernames"
         className={cn("mt-3 min-h-[12rem]", usernames.length > 1 && "border-green-400")}
         value={input}
         placeholder="The contents of your text file"

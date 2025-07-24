@@ -87,6 +87,7 @@ function SearchInput(props: SearchInputProps) {
     <Input
       value={searchInput}
       placeholder="Search name changes..."
+      aria-label="Search name changes"
       className="border-gray-600"
       containerClassName="md:max-w-xs w-full"
       leftElement={<SearchIcon className="h-5 w-5 text-gray-300" />}
