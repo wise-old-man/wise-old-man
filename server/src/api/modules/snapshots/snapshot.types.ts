@@ -1,7 +1,5 @@
-import { Activity, Boss, ComputedMetric, Player, Skill, Snapshot } from '../../../types';
+import { Activity, Boss, ComputedMetric, Player, Skill } from '../../../types';
 import { MapOf } from '../../../utils';
-
-export type SnapshotFragment = Omit<Snapshot, 'id'>;
 
 export interface SkillValue {
   metric: Skill;

@@ -1,9 +1,9 @@
 import prisma from '../../../../prisma';
-import { Achievement, Metric, MetricMeasure } from '../../../../types';
+import { Achievement, AchievementDefinition, Metric, MetricMeasure } from '../../../../types';
 import { roundNumber } from '../../../../utils/round-number.util';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
-import { AchievementDefinition, AchievementProgress } from '../achievement.types';
+import { AchievementProgress } from '../achievement.types';
 import { getAchievementDefinitions } from '../achievement.utils';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();

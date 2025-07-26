@@ -1,13 +1,4 @@
-import { Achievement, Metric, Player, Snapshot } from '../../../types';
-
-interface AchievementDefinition {
-  name: string;
-  metric: Metric;
-  measure: string;
-  threshold: number;
-  validate: (snapshot: Snapshot) => boolean;
-  getCurrentValue: (snapshot: Snapshot) => number;
-}
+import { Achievement, Player } from '../../../types';
 
 interface ExtendedAchievement extends Achievement {
   measure: string;
@@ -24,4 +15,4 @@ interface AchievementProgress extends Omit<ExtendedAchievement, 'createdAt'> {
   relativeProgress: number;
 }
 
-export { AchievementDefinition, AchievementProgress, ExtendedAchievement, ExtendedAchievementWithPlayer };
+export { AchievementProgress, ExtendedAchievement, ExtendedAchievementWithPlayer };

@@ -1,3 +1,4 @@
+export * from './achievement-definition.type';
 export * from './achievement.type';
 export * from './boss-meta-config.type';
 export * from './competition-csv-table-type.enum';
