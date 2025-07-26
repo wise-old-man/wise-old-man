@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Dialog as HeadlessDialog, Transition } from "@headlessui/react";
 import { cn } from "~/utils/styling";
 import useChangelog from "~/hooks/useChangelog";
+import { LEAGUES } from "../../config";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 import Logo from "~/assets/logo.svg";
@@ -195,20 +196,22 @@ function SideBar(props: SideBarProps) {
             </a>
           </li>
         ))}
-        <li>
-          <a
-            href="https://league.wiseoldman.net"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between px-5 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700"
-          >
-            <div className="flex items-center">
-              <CompassIcon className="mr-2 h-5 w-5" />
-              Raging Echoes Edition
-            </div>
-            <span className="mt-px text-xs text-blue-400">New</span>
-          </a>
-        </li>
+        {LEAGUES.active && (
+          <li>
+            <a
+              href="https://league.wiseoldman.net"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between px-5 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700"
+            >
+              <div className="flex items-center">
+                <CompassIcon className="mr-2 h-5 w-5" />
+                {LEAGUES.editionName} Edition
+              </div>
+              <span className="mt-px text-xs text-blue-400">New</span>
+            </a>
+          </li>
+        )}
       </ul>
 
       <div className="mt-auto block lg:hidden">

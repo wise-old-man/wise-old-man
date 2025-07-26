@@ -5,6 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import { ParticipantsTable } from "~/components/competitions/ParticipantsTable";
 import { CompetitionWidgets } from "~/components/competitions/CompetitionWidgets";
 import { CompetitionStatusWarning } from "~/components/competitions/CompetitionStatusWarning";
+import { LEAGUES } from "../../../../../config";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -59,16 +60,16 @@ export default async function CompetitionOverviewPage(props: PageProps) {
       {isEndingSoon && <CompetitionStatusWarning status="ending" />}
       {isStartingSoon && <CompetitionStatusWarning status="starting" />}
 
-      {metric === Metric.LEAGUE_POINTS && (
+      {LEAGUES.active && metric === Metric.LEAGUE_POINTS && (
         <Alert className="pb-4" variant="error">
           <AlertTitle>League Points competitions are not supported on this version.</AlertTitle>
           <AlertDescription>
-            <p className="mb-3">{`You might want to use the "Raging Echoes" version of our website that does allow you to create League-specific competitions.`}</p>
+            <p className="mb-3">{`You might want to use the "${LEAGUES.editionName}" version of our website that does allow you to create League-specific competitions.`}</p>
             <a
               href="https://league.wiseoldman.net"
               className="font-medium text-blue-400 hover:text-blue-400"
             >
-              Go to Raging Echoes Website
+              Go to {LEAGUES.editionName} Website
             </a>
           </AlertDescription>
         </Alert>

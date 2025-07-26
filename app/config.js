@@ -9,7 +9,13 @@ const ANNOUNCEMENT_BANNER = {
   message: undefined,
 };
 
+const LEAGUES = {
+  active: false,
+  editionName: "Raging Echoes",
+};
+
 module.exports = {
+  LEAGUES,
   MAINTENANCE_MODE,
   ANNOUNCEMENT_BANNER,
 };
