@@ -5,6 +5,8 @@ import { cn } from "~/utils/styling";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 import VerifiedIcon from "~/assets/verified.svg";
+import GlobeIcon from "~/assets/globe.svg";
+import PeopleIcon from "~/assets/people-2.svg";
 
 export function GroupCard(props: GroupListItem) {
   return (
@@ -34,9 +36,29 @@ export function GroupCard(props: GroupListItem) {
                 </Tooltip>
               )}
             </div>
-            <span className="text-xs text-gray-200">
-              {props.memberCount} {props.memberCount === 1 ? "member" : "members"}
-            </span>
+            <div className="mt-1 flex items-center gap-x-3 text-gray-200">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center">
+                    <PeopleIcon className="mr-1 h-5 w-5 text-gray-200" />
+                    <span className="text-xs text-gray-200">{props.memberCount}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>{props.memberCount} members</TooltipContent>
+              </Tooltip>
+
+              {props.homeworld && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-start">
+                      <GlobeIcon className="mr-1 h-4 w-4 text-gray-200" />
+                      <span className="text-xs text-gray-200">{props.homeworld}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>Home world: {props.homeworld}</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           </div>
         </div>
         <p className="mt-4 line-clamp-2 text-sm leading-5 text-gray-200">{props.description}</p>
