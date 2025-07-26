@@ -21,5 +21,5 @@ export interface Player {
   updatedAt: Date | null;
   lastChangedAt: Date | null;
   lastImportedAt: Date | null;
-  // no latestSnapshotId until we have formatters
+  latestSnapshotId: number | null;
 }

@@ -13,4 +13,5 @@ export interface Group {
   verificationHash: string;
   createdAt: Date;
   updatedAt: Date;
+  creatorIpHash: string | null;
 }

@@ -14,4 +14,5 @@ export interface Competition {
   verificationHash: string;
   createdAt: Date | null;
   updatedAt: Date | null;
+  creatorIpHash: string | null;
 }
