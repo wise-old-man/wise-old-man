@@ -11,9 +11,8 @@ import {
   SKILLS
 } from '../../types';
 import { mapValues } from '../map-values.util';
-import { MapOf } from '../types';
 
-export const SkillProps: MapOf<
+export const SkillProps: Record<
   Skill,
   {
     name: string;
@@ -58,7 +57,7 @@ export const SkillProps: MapOf<
   })
 );
 
-export const BossProps: MapOf<
+export const BossProps: Record<
   Boss,
   {
     name: string;
@@ -145,7 +144,7 @@ export const BossProps: MapOf<
   })
 );
 
-export const ActivityProps: MapOf<
+export const ActivityProps: Record<
   Activity,
   {
     name: string;
@@ -180,7 +179,7 @@ export const ActivityProps: MapOf<
   })
 );
 
-export const ComputedMetricProps: MapOf<
+export const ComputedMetricProps: Record<
   ComputedMetric,
   {
     name: string;

@@ -1,6 +1,5 @@
 import csv from 'csvtojson';
 import { ACTIVITIES, BOSSES, Metric, METRICS, SKILLS, Snapshot } from '../../../types';
-import { MapOf } from '../../../utils';
 import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey, MetricValueKey } from '../../../utils/get-metric-value-key.util';
 import {
@@ -165,7 +164,7 @@ function getNegativeGains(before: Snapshot, after: Snapshot) {
       const valueKey = getMetricValueKey(metric);
       return [metric, Math.max(0, after[valueKey]) - Math.max(0, before[valueKey])];
     })
-  ) as MapOf<Metric, number>;
+  ) as Record<Metric, number>;
 
   return negativeGains;
 }

@@ -1,7 +1,6 @@
 import { PlayerType } from '../../types';
-import { MapOf } from '../types';
 
-export const PlayerTypeProps: MapOf<PlayerType, { name: string }> = {
+export const PlayerTypeProps: Record<PlayerType, { name: string }> = {
   [PlayerType.UNKNOWN]: { name: 'Unknown' },
   [PlayerType.REGULAR]: { name: 'Regular' },
   [PlayerType.IRONMAN]: { name: 'Ironman' },

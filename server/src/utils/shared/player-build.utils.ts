@@ -1,7 +1,6 @@
 import { PlayerBuild } from '../../types';
-import { MapOf } from '../types';
 
-export const PlayerBuildProps: MapOf<PlayerBuild, { name: string }> = {
+export const PlayerBuildProps: Record<PlayerBuild, { name: string }> = {
   [PlayerBuild.MAIN]: { name: 'Main' },
   [PlayerBuild.F2P]: { name: 'F2P' },
   [PlayerBuild.F2P_LVL3]: { name: 'F2P & Level 3' },

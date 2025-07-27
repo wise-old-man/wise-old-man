@@ -1,7 +1,6 @@
 import { Period } from '../../types';
-import { MapOf } from '../types';
 
-export const PeriodProps: MapOf<Period, { name: string; milliseconds: number }> = {
+export const PeriodProps: Record<Period, { name: string; milliseconds: number }> = {
   [Period.FIVE_MIN]: { name: '5 Min', milliseconds: 300_000 },
   [Period.DAY]: { name: 'Day', milliseconds: 86_400_000 },
   [Period.WEEK]: { name: 'Week', milliseconds: 604_800_000 },

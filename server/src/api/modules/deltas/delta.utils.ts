@@ -11,7 +11,7 @@ import {
   SKILLS,
   Snapshot
 } from '../../../types';
-import { MapOf } from '../../../utils';
+
 import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
 
@@ -274,7 +274,7 @@ export function emptyPlayerDelta(): PlayerDeltasMap {
           experience: EMPTY_PROGRESS
         }
       ])
-    ) as MapOf<Skill, SkillDelta>,
+    ) as Record<Skill, SkillDelta>,
     bosses: Object.fromEntries(
       BOSSES.map(boss => [
         boss,
@@ -285,7 +285,7 @@ export function emptyPlayerDelta(): PlayerDeltasMap {
           kills: EMPTY_PROGRESS
         }
       ])
-    ) as MapOf<Boss, BossDelta>,
+    ) as Record<Boss, BossDelta>,
     activities: Object.fromEntries(
       ACTIVITIES.map(activity => [
         activity,
@@ -295,7 +295,7 @@ export function emptyPlayerDelta(): PlayerDeltasMap {
           score: EMPTY_PROGRESS
         }
       ])
-    ) as MapOf<Activity, ActivityDelta>,
+    ) as Record<Activity, ActivityDelta>,
     computed: Object.fromEntries(
       COMPUTED_METRICS.map(computedMetric => [
         computedMetric,
@@ -305,6 +305,6 @@ export function emptyPlayerDelta(): PlayerDeltasMap {
           value: EMPTY_PROGRESS
         }
       ])
-    ) as MapOf<ComputedMetric, ComputedMetricDelta>
+    ) as Record<ComputedMetric, ComputedMetricDelta>
   };
 }

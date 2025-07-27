@@ -1,7 +1,6 @@
 import { PlayerStatus } from '../../types';
-import { MapOf } from '../types';
 
-export const PlayerStatusProps: MapOf<PlayerStatus, { name: string }> = {
+export const PlayerStatusProps: Record<PlayerStatus, { name: string }> = {
   [PlayerStatus.ACTIVE]: { name: 'Active' },
   [PlayerStatus.UNRANKED]: { name: 'Unranked' },
   [PlayerStatus.FLAGGED]: { name: 'Flagged' },
