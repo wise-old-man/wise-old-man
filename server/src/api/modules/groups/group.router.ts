@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { GroupRole, Metric, Period } from '../../../types';
+import { formatAchievementResponse } from '../../responses/achievement.response';
+import { formatPlayerResponse } from '../../responses/player.response';
 import { checkAdminPermission, checkGroupVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
@@ -348,8 +350,14 @@ router.get(
     const { id } = req.params;
     const { limit, offset } = req.query;
 
-    const result = await findGroupAchievements(id, { limit, offset });
-    res.status(200).json(result);
+    const achievements = await findGroupAchievements(id, { limit, offset });
+
+    const response = achievements.map(a => ({
+      ...formatAchievementResponse(a),
+      player: formatPlayerResponse(a.player)
+    }));
+
+    res.status(200).json(response);
   })
 );
 

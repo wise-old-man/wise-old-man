@@ -6,6 +6,8 @@ import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../../types';
 import { assertNever } from '../../../utils/assert-never.util';
 import { BadRequestError, ForbiddenError, NotFoundError, RateLimitError, ServerError } from '../../errors';
+import { formatAchievementProgressResponse } from '../../responses/achievement-progress.response';
+import { formatAchievementResponse } from '../../responses/achievement.response';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getDateSchema, getPaginationSchema } from '../../util/validation';
@@ -533,8 +535,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const results = await findPlayerAchievements(username);
-    res.status(200).json(results);
+    const achievements = await findPlayerAchievements(username);
+    const response = achievements.map(formatAchievementResponse);
+
+    res.status(200).json(response);
   })
 );
 
@@ -548,8 +552,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const results = await findPlayerAchievementProgress(username);
-    res.status(200).json(results);
+    const achievements = await findPlayerAchievementProgress(username);
+    const response = achievements.map(formatAchievementProgressResponse);
+
+    res.status(200).json(response);
   })
 );
 

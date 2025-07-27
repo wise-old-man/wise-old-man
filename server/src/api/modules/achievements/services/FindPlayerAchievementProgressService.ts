@@ -1,14 +1,22 @@
 import prisma from '../../../../prisma';
 import { Achievement, AchievementDefinition, Metric, MetricMeasure } from '../../../../types';
+import { pick } from '../../../../utils/pick.util';
 import { roundNumber } from '../../../../utils/round-number.util';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
-import { AchievementProgress } from '../achievement.types';
 import { getAchievementDefinitions } from '../achievement.utils';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
 
-async function findPlayerAchievementProgress(username: string): Promise<AchievementProgress[]> {
+async function findPlayerAchievementProgress(username: string): Promise<
+  Array<{
+    achievement: Omit<Achievement, 'createdAt'>;
+    createdAt: Date | null;
+    currentValue: number;
+    absoluteProgress: number;
+    relativeProgress: number;
+  }>
+> {
   const player = await prisma.player.findFirst({
     where: {
       username: standardize(username)
@@ -64,8 +72,11 @@ async function findPlayerAchievementProgress(username: string): Promise<Achievem
     if (relativeProgress === 1 && currentValue < d.threshold) relativeProgress = 0.9999;
 
     return {
-      ...d,
-      playerId: player.id,
+      achievement: {
+        ...pick(d, 'name', 'metric', 'threshold'),
+        playerId: player.id,
+        accuracy: existingAchievement ? existingAchievement.accuracy : null
+      },
       createdAt: existingAchievement ? existingAchievement.createdAt : null,
       accuracy: existingAchievement ? existingAchievement.accuracy : null,
       currentValue,
