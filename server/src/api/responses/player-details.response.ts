@@ -1,6 +1,8 @@
 /**
  * Response types are used to format the data returned by the API.
- * They often include transformations, additional properties or sensitive field omissions.
+ *
+ * Although sometimes very similar to our database models,
+ * they often include transformations, additional properties or sensitive field omissions.
  */
 import { Player, PlayerAnnotation, PlayerArchive, Snapshot } from '../../types';
 import { getPlayerEfficiencyMap } from '../modules/efficiency/efficiency.utils';

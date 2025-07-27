@@ -1,6 +1,8 @@
 /**
  * Response types are used to format the data returned by the API.
- * They often include transformations, additional properties or sensitive field omissions.
+ *
+ * Although sometimes very similar to our database models,
+ * they often include transformations, additional properties or sensitive field omissions.
  */
 import { Record } from '../../types';
 import { pick } from '../../utils/pick.util';
