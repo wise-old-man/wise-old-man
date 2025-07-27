@@ -115,7 +115,7 @@ class EfficiencyAlgorithm {
         }
       });
 
-      map.set(originSkill, timeSum);
+      map.set(originSkill, roundNumber(timeSum, 5));
     });
 
     const totalEHP = Array.from(map.values()).reduce((a, b) => a + b, 0);

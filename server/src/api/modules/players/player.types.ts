@@ -1,12 +1,4 @@
-import { Player, PlayerAnnotation, PlayerArchive } from '../../../types';
 import { FormattedSnapshot } from '../snapshots/snapshot.types';
-
-export interface PlayerDetails extends Player {
-  combatLevel: number;
-  archive: PlayerArchive | null;
-  latestSnapshot: FormattedSnapshot | null;
-  annotations: PlayerAnnotation[];
-}
 
 export interface FlaggedPlayerReviewContext {
   previous: FormattedSnapshot;
@@ -25,7 +17,3 @@ export interface FlaggedPlayerReviewContext {
     rejectedRank: number;
   };
 }
-
-export type PlayerArchiveWithPlayer = PlayerArchive & {
-  player: Player;
-};

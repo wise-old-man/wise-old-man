@@ -9,6 +9,8 @@ import { BadRequestError, ForbiddenError, NotFoundError, RateLimitError, ServerE
 import { formatAchievementProgressResponse } from '../../responses/achievement-progress.response';
 import { formatAchievementResponse } from '../../responses/achievement.response';
 import { formatNameChangeResponse } from '../../responses/name-change.response';
+import { formatPlayerArchiveResponse } from '../../responses/player-archive-response';
+import { formatPlayerDetailsResponse } from '../../responses/player-details.response';
 import { formatRecordResponse } from '../../responses/record.response';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
@@ -108,9 +110,10 @@ router.post(
       }
     }
 
-    const playerDetails = await fetchPlayerDetails(username);
+    const { latestSnapshot, annotations, archive, ...player } = await fetchPlayerDetails(username);
+    const response = formatPlayerDetailsResponse(player, latestSnapshot, annotations, archive);
 
-    res.status(updateResult.value.isNew ? 201 : 200).json(playerDetails);
+    res.status(updateResult.value.isNew ? 201 : 200).json(response);
   })
 );
 
@@ -124,8 +127,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const result = await fetchPlayerDetails(username);
-    res.status(200).json(result);
+    const { latestSnapshot, annotations, archive, ...player } = await fetchPlayerDetails(username);
+    const response = formatPlayerDetailsResponse(player, latestSnapshot, annotations, archive);
+
+    res.status(200).json(response);
   })
 );
 
@@ -149,9 +154,10 @@ router.get(
       throw new NotFoundError('Player not found.');
     }
 
-    const result = await fetchPlayerDetails(query.username);
+    const { latestSnapshot, annotations, archive, ...player } = await fetchPlayerDetails(query.username);
+    const response = formatPlayerDetailsResponse(player, latestSnapshot, annotations, archive);
 
-    res.status(200).json(result);
+    res.status(200).json(response);
   })
 );
 
@@ -407,8 +413,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const results = await findPlayerArchives(username);
-    res.status(200).json(results);
+    const archives = await findPlayerArchives(username);
+    const response = archives.map(formatPlayerArchiveResponse);
+
+    res.status(200).json(response);
   })
 );
 
