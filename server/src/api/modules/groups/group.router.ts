@@ -4,6 +4,7 @@ import logger from '../../../services/logging.service';
 import { GroupRole, Metric, Period } from '../../../types';
 import { formatAchievementResponse } from '../../responses/achievement.response';
 import { formatGroupDetailsResponse } from '../../responses/group-details.response';
+import { formatGroupHiscoresEntryResponse } from '../../responses/group-hiscores-entry.response';
 import { formatGroupResponse } from '../../responses/group.response';
 import { formatMemberActivityResponse } from '../../responses/member-activity.response';
 import { formatMembershipResponse } from '../../responses/membership.response';
@@ -269,8 +270,10 @@ router.get(
     const { id } = req.params;
     const { metric, limit, offset } = req.query;
 
-    const result = await fetchGroupHiscores(id, metric, { limit, offset });
-    res.status(200).json(result);
+    const hiscores = await fetchGroupHiscores(id, metric, { limit, offset });
+    const response = hiscores.map(entry => formatGroupHiscoresEntryResponse(entry.player, entry.data));
+
+    res.status(200).json(response);
   })
 );
 
