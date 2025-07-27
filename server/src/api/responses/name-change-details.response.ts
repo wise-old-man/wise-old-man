@@ -1,3 +1,7 @@
+/**
+ * Response types are used to format the data returned by the API.
+ * They often include transformations, additional properties or sensitive field omissions.
+ */
 import { Metric } from '../../types';
 import { NameChangeResponse } from './name-change.response';
 import { SnapshotResponse } from './snapshot.response';

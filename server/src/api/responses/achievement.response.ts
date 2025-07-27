@@ -1,3 +1,7 @@
+/**
+ * Response types are used to format the data returned by the API.
+ * They often include transformations, additional properties or sensitive field omissions.
+ */
 import { Achievement, AchievementMeasure } from '../../types';
 import { getAchievementMeasure } from '../../utils/get-achievement-measure.util';
 import { pick } from '../../utils/pick.util';

@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import { Prisma, PrismaClient, PrismaPromise } from '@prisma/client';
 import { isComputedMetric } from '../utils/shared';
 
