@@ -1,6 +1,7 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
 import logger from '../../../../services/logging.service';
 import {
+  Group,
   GroupRole,
   MemberActivityType,
   Membership,
@@ -8,14 +9,12 @@ import {
   Player,
   PlayerAnnotationType
 } from '../../../../types';
-import { omit } from '../../../../utils/omit.util';
 
 import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { GroupDetails } from '../group.types';
-import { buildDefaultSocialLinks, sanitizeName, sortMembers } from '../group.utils';
+import { sanitizeName } from '../group.utils';
 
 // Only allow images from our Cloudflare R2 CDN, to make sure people don't
 // upload unresize, or uncompressed images. They musgt edit images on the website.
@@ -39,7 +38,7 @@ interface EditGroupPayload {
   roleOrders?: Array<{ role: GroupRole; index: number }>;
 }
 
-async function editGroup(groupId: number, payload: EditGroupPayload): Promise<GroupDetails> {
+async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Group> {
   const {
     name,
     clanChat,
@@ -209,15 +208,7 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
 
   eventEmitter.emit(EventType.GROUP_UPDATED, { groupId });
 
-  const sortedMemberships = sortMembers(updatedGroup.memberships, updatedGroup.roleOrders);
-
-  return {
-    ...omit(updatedGroup, 'verificationHash'),
-    socialLinks: updatedGroup.socialLinks[0] ?? buildDefaultSocialLinks(),
-    memberCount: sortedMemberships.length,
-    memberships: sortedMemberships,
-    roleOrders: updatedGroup.roleOrders
-  };
+  return updatedGroup;
 }
 
 async function updateMembers(groupId: number, members: Array<{ username: string; role: GroupRole }>) {

@@ -1,18 +1,4 @@
-import { Group, GroupRoleOrder, GroupSocialLinks, MemberActivity, Membership, Player } from '../../../types';
-
-export interface GroupListItem extends Omit<Group, 'verificationHash'> {
-  memberCount: number;
-}
-
-export interface GroupDetails extends GroupListItem {
-  socialLinks: GroupSocialLinks;
-  memberships: MembershipWithPlayer[];
-  roleOrders: GroupRoleOrder[];
-}
-
-export interface MembershipWithPlayer extends Membership {
-  player: Player;
-}
+import { Player } from '../../../types';
 
 export interface GroupHiscoresSkillItem {
   type: 'skill';
@@ -47,7 +33,3 @@ export interface GroupHiscoresEntry {
     | GroupHiscoresActivityItem
     | GroupHiscoresComputedMetricItem;
 }
-
-export type MemberActivityWithPlayer = MemberActivity & {
-  player: Player;
-};

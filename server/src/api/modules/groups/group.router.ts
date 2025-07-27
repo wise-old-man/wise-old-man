@@ -3,7 +3,10 @@ import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { GroupRole, Metric, Period } from '../../../types';
 import { formatAchievementResponse } from '../../responses/achievement.response';
+import { formatGroupDetailsResponse } from '../../responses/group-details.response';
 import { formatGroupResponse } from '../../responses/group.response';
+import { formatMemberActivityResponse } from '../../responses/member-activity.response';
+import { formatMembershipResponse } from '../../responses/membership.response';
 import { formatNameChangeResponse } from '../../responses/name-change.response';
 import { formatPlayerResponse } from '../../responses/player.response';
 import { formatRecordResponse } from '../../responses/record.response';
@@ -72,13 +75,22 @@ router.post(
   }),
   executeRequest(async (req, res) => {
     const ipHash = getRequestIpHash(req);
-    const result = await createGroup(req.body, ipHash);
-    res.status(201).json(result);
 
-    logger.moderation(`Created group ${result.group.id}`, {
+    const createResult = await createGroup(req.body, ipHash);
+
+    logger.moderation(`Created group ${createResult.group.id}`, {
       timestamp: new Date().toISOString(),
       ipHash
     });
+
+    const details = await fetchGroupDetails(createResult.group.id);
+
+    const response = {
+      verificationCode: createResult.verificationCode,
+      group: formatGroupDetailsResponse(details)
+    };
+
+    res.status(201).json(response);
   })
 );
 
@@ -104,13 +116,17 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const result = await editGroup(id, req.body);
-    res.status(200).json(result);
+    const editResult = await editGroup(id, req.body);
 
-    logger.moderation(`Edited group ${result.id}`, {
+    logger.moderation(`Edited group ${editResult.id}`, {
       timestamp: new Date().toISOString(),
       ipHash: getRequestIpHash(req)
     });
+
+    const details = await fetchGroupDetails(editResult.id);
+    const response = formatGroupDetailsResponse(details);
+
+    res.status(200).json(response);
   })
 );
 
@@ -124,8 +140,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const result = await fetchGroupDetails(id);
-    res.status(200).json(result);
+    const details = await fetchGroupDetails(id);
+    const response = formatGroupDetailsResponse(details);
+
+    res.status(200).json(response);
   })
 );
 
@@ -210,7 +228,13 @@ router.put(
     const { username, role } = req.body;
 
     const result = await changeMemberRole(id, username, role);
-    res.status(200).json(result);
+
+    const response = {
+      ...formatMembershipResponse(result),
+      player: formatPlayerResponse(result.player)
+    };
+
+    res.status(200).json(response);
   })
 );
 
@@ -262,8 +286,14 @@ router.get(
     const { id } = req.params;
     const { limit, offset } = req.query;
 
-    const result = await fetchGroupActivity(id, { limit, offset });
-    res.status(200).json(result);
+    const activity = await fetchGroupActivity(id, { limit, offset });
+
+    const response = activity.map(a => ({
+      ...formatMemberActivityResponse(a),
+      player: formatPlayerResponse(a.player)
+    }));
+
+    res.status(200).json(response);
   })
 );
 

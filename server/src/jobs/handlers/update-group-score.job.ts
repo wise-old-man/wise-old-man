@@ -1,7 +1,7 @@
 import { findGroupCompetitions } from '../../api/modules/competitions/services/FindGroupCompetitionsService';
 import { fetchGroupDetails } from '../../api/modules/groups/services/FetchGroupDetailsService';
 import prisma from '../../prisma';
-import { GroupDetails } from '../../utils';
+import { Group, Membership, Player } from '../../types';
 import { PRIVELEGED_GROUP_ROLES } from '../../utils/shared';
 import { Job } from '../job.class';
 
@@ -29,7 +29,9 @@ export class UpdateGroupScoreJob extends Job<Payload> {
   }
 }
 
-async function calculateScore(group: GroupDetails): Promise<number> {
+async function calculateScore(
+  group: Group & { memberships: Array<Membership & { player: Player }> }
+): Promise<number> {
   let score = 0;
 
   const now = new Date();

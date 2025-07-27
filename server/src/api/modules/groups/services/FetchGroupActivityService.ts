@@ -1,12 +1,12 @@
-import { PaginationOptions } from '../../../util/validation';
-import { MemberActivityWithPlayer } from '../group.types';
 import prisma from '../../../../prisma';
+import { MemberActivity, Player } from '../../../../types';
 import { NotFoundError } from '../../../errors';
+import { PaginationOptions } from '../../../util/validation';
 
 async function fetchGroupActivity(
   groupId: number,
   pagination: PaginationOptions
-): Promise<MemberActivityWithPlayer[]> {
+): Promise<Array<MemberActivity & { player: Player }>> {
   const activities = await prisma.memberActivity.findMany({
     where: { groupId },
     include: {

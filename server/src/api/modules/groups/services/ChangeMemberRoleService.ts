@@ -1,16 +1,15 @@
 import prisma from '../../../../prisma';
 import logger from '../../../../services/logging.service';
-import { GroupRole, MemberActivityType } from '../../../../types';
+import { GroupRole, MemberActivityType, Membership, Player } from '../../../../types';
 import { BadRequestError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { standardize } from '../../players/player.utils';
-import { MembershipWithPlayer } from '../group.types';
 
 async function changeMemberRole(
   groupId: number,
   username: string,
   newRole: GroupRole
-): Promise<MembershipWithPlayer> {
+): Promise<Membership & { player: Player }> {
   const membership = await prisma.membership.findFirst({
     where: {
       groupId,

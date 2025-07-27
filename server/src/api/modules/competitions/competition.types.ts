@@ -1,6 +1,6 @@
 import { Competition, Participation, Player } from '../../../types';
+import { GroupResponse } from '../../responses/group.response';
 import { MeasuredDeltaProgress } from '../deltas/delta.types';
-import { GroupListItem } from '../groups/group.types';
 
 // The verification hash shouldn't be exposed to the user
 type CleanCompetition = Omit<Competition, 'verificationHash'>;
@@ -9,7 +9,7 @@ type CleanCompetition = Omit<Competition, 'verificationHash'>;
 type CleanParticipation = Omit<Participation, 'startSnapshotId' | 'endSnapshotId'>;
 
 export interface CompetitionListItem extends CleanCompetition {
-  group?: GroupListItem;
+  group?: GroupResponse;
   participantCount: number;
 }
 

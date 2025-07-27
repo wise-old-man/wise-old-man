@@ -1,6 +1,5 @@
-import { GroupRoleOrder } from '../../../types';
+import { GroupRoleOrder, Membership } from '../../../types';
 import { PRIVELEGED_GROUP_ROLES } from '../../../utils/shared';
-import { MembershipWithPlayer } from './group.types';
 
 function sanitizeName(name: string): string {
   return name
@@ -10,20 +9,10 @@ function sanitizeName(name: string): string {
     .trim();
 }
 
-function buildDefaultSocialLinks() {
-  return {
-    website: null,
-    discord: null,
-    twitter: null,
-    youtube: null,
-    twitch: null
-  };
-}
-
-function sortMembers(
-  memberships: MembershipWithPlayer[],
-  roleOrders?: GroupRoleOrder[]
-): MembershipWithPlayer[] {
+function sortMembers<M extends Membership>(
+  memberships: Array<M>,
+  roleOrders?: Array<GroupRoleOrder>
+): Array<M> {
   if (roleOrders && roleOrders.length) {
     const roleOrderMap = new Map(roleOrders.map(r => [r.role, r.index]));
     // this assumes roleOrders is sorted by index ascending out of the database
@@ -33,9 +22,10 @@ function sortMembers(
   }
 
   const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
+
   // fallback to priority if there is no roleOrders Records
   return [...memberships].sort(
     (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
   );
 }
-export { buildDefaultSocialLinks, sanitizeName, sortMembers };
+export { sanitizeName, sortMembers };
