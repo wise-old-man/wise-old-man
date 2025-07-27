@@ -3,6 +3,7 @@ import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { GroupRole, Metric, Period } from '../../../types';
 import { formatAchievementResponse } from '../../responses/achievement.response';
+import { formatGroupResponse } from '../../responses/group.response';
 import { formatNameChangeResponse } from '../../responses/name-change.response';
 import { formatPlayerResponse } from '../../responses/player.response';
 import { formatRecordResponse } from '../../responses/record.response';
@@ -51,8 +52,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { name, limit, offset } = req.query;
 
-    const results = await searchGroups(name, { limit, offset });
-    res.status(200).json(results);
+    const groups = await searchGroups(name, { limit, offset });
+    const response = groups.map(g => formatGroupResponse(g.group, g.memberCount));
+
+    res.status(200).json(response);
   })
 );
 
@@ -439,8 +442,10 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const result = await verifyGroup(id);
-    res.status(200).json(result);
+    const { group, memberCount } = await verifyGroup(id);
+    const response = formatGroupResponse(group, memberCount);
+
+    res.status(200).json(response);
   })
 );
 

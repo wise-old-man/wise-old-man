@@ -1,6 +1,4 @@
 import { Group, GroupRoleOrder, GroupSocialLinks, MemberActivity, Membership, Player } from '../../../types';
-import { GroupMetricLeadersResponse } from '../../responses/group-metric-leaders.response';
-import { SnapshotResponse } from '../../responses/snapshot.response';
 
 export interface GroupListItem extends Omit<Group, 'verificationHash'> {
   memberCount: number;
@@ -10,10 +8,6 @@ export interface GroupDetails extends GroupListItem {
   socialLinks: GroupSocialLinks;
   memberships: MembershipWithPlayer[];
   roleOrders: GroupRoleOrder[];
-}
-
-export interface MembershipWithGroup extends Membership {
-  group: GroupListItem;
 }
 
 export interface MembershipWithPlayer extends Membership {
@@ -52,14 +46,6 @@ export interface GroupHiscoresEntry {
     | GroupHiscoresBossItem
     | GroupHiscoresActivityItem
     | GroupHiscoresComputedMetricItem;
-}
-
-export interface GroupStatistics {
-  maxedCombatCount: number;
-  maxedTotalCount: number;
-  maxed200msCount: number;
-  averageStats: SnapshotResponse;
-  metricLeaders: GroupMetricLeadersResponse;
 }
 
 export type MemberActivityWithPlayer = MemberActivity & {

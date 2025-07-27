@@ -15,6 +15,8 @@ import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { getLevel } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { GroupMetricLeadersResponse } from '../../../responses/group-metric-leaders.response';
+import { GroupStatisticsResponse } from '../../../responses/group-statistics.response';
+import { formatPlayerResponse } from '../../../responses/player.response';
 import { formatSnapshotResponse } from '../../../responses/snapshot.response';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import {
@@ -23,9 +25,8 @@ import {
   getCombatLevelFromSnapshot,
   getTotalLevel
 } from '../../snapshots/snapshot.utils';
-import { GroupStatistics } from '../group.types';
 
-async function fetchGroupStatistics(groupId: number): Promise<GroupStatistics> {
+async function fetchGroupStatistics(groupId: number): Promise<GroupStatisticsResponse> {
   const memberships = await prisma.membership.findMany({
     where: { groupId }
   });
@@ -70,14 +71,15 @@ async function fetchGroupStatistics(groupId: number): Promise<GroupStatistics> {
     build: PlayerBuild.MAIN
   });
 
-  const averageStats = formatSnapshotResponse(averageSnapshot, averageEfficiencyMap);
-
-  // @ts-expect-error -- Remove latestSnapshot to prevent it from leaking in the API response
-  players.forEach(p => delete p.latestSnapshot);
-
   const metricLeaders = await getMetricLeaders(players, allSnapshots);
 
-  return { maxedCombatCount, maxedTotalCount, maxed200msCount, averageStats, metricLeaders };
+  return {
+    maxedCombatCount,
+    maxedTotalCount,
+    maxed200msCount,
+    averageStats: formatSnapshotResponse(averageSnapshot, averageEfficiencyMap),
+    metricLeaders
+  };
 }
 
 async function getMetricLeaders(
@@ -103,12 +105,14 @@ async function getMetricLeaders(
     const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
     const experience = snapshot[valueKey];
 
+    const player = experience > -1 ? playerMap.get(snapshot.playerId) || null : null;
+
     metricLeaders.skills[skill] = {
       metric: skill,
       experience,
       rank: snapshot[getMetricRankKey(skill)],
       level: skill === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(experience),
-      player: experience > -1 ? playerMap.get(snapshot.playerId) || null : null
+      player: player === null ? null : formatPlayerResponse(player)
     };
   }
 
@@ -118,11 +122,13 @@ async function getMetricLeaders(
     const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
     const kills = snapshot[valueKey];
 
+    const player = kills > -1 ? playerMap.get(snapshot.playerId) || null : null;
+
     metricLeaders.bosses[boss] = {
       metric: boss,
       kills,
       rank: snapshot[getMetricRankKey(boss)],
-      player: kills > -1 ? playerMap.get(snapshot.playerId) || null : null
+      player: player === null ? null : formatPlayerResponse(player)
     };
   }
 
@@ -132,11 +138,13 @@ async function getMetricLeaders(
     const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
     const score = snapshot[valueKey];
 
+    const player = score > -1 ? playerMap.get(snapshot.playerId) || null : null;
+
     metricLeaders.activities[activity] = {
       metric: activity,
       score,
       rank: snapshot[getMetricRankKey(activity)],
-      player: score > -1 ? playerMap.get(snapshot.playerId) || null : null
+      player: player === null ? null : formatPlayerResponse(player)
     };
   }
 
@@ -145,11 +153,13 @@ async function getMetricLeaders(
     const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
     const val = snapshot[valueKey];
 
+    const player = val > -1 ? playerMap.get(snapshot.playerId) || null : null;
+
     metricLeaders.computed[computedMetric] = {
       metric: computedMetric,
       value: val,
       rank: snapshot[getMetricRankKey(computedMetric)],
-      player: val > -1 ? playerMap.get(snapshot.playerId) || null : null
+      player: player === null ? null : formatPlayerResponse(player)
     };
   }
 

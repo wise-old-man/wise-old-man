@@ -1,14 +1,21 @@
 import prisma from '../../../../prisma';
-import { omit } from '../../../../utils/omit.util';
+import { Group, Membership } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { standardize } from '../../players/player.utils';
-import { MembershipWithGroup } from '../group.types';
 
 async function findPlayerMemberships(
   username: string,
   pagination: PaginationOptions
-): Promise<MembershipWithGroup[]> {
+): Promise<
+  Array<
+    Membership & {
+      group: Group & {
+        memberCount: number;
+      };
+    }
+  >
+> {
   const memberships = await prisma.membership.findMany({
     where: {
       player: {
@@ -48,7 +55,7 @@ async function findPlayerMemberships(
     return {
       ...membership,
       group: {
-        ...omit(membership.group, '_count', 'verificationHash'),
+        ...membership.group,
         memberCount: membership.group._count.memberships
       }
     };

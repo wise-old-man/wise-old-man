@@ -8,8 +8,10 @@ import { assertNever } from '../../../utils/assert-never.util';
 import { BadRequestError, ForbiddenError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { formatAchievementProgressResponse } from '../../responses/achievement-progress.response';
 import { formatAchievementResponse } from '../../responses/achievement.response';
+import { formatGroupResponse } from '../../responses/group.response';
+import { formatMembershipResponse } from '../../responses/membership.response';
 import { formatNameChangeResponse } from '../../responses/name-change.response';
-import { formatPlayerArchiveResponse } from '../../responses/player-archive-response';
+import { formatPlayerArchiveResponse } from '../../responses/player-archive.response';
 import { formatPlayerDetailsResponse } from '../../responses/player-details.response';
 import { formatPlayerResponse } from '../../responses/player.response';
 import { formatRecordResponse } from '../../responses/record.response';
@@ -437,9 +439,14 @@ router.get(
     const { username } = req.params;
     const { limit, offset } = req.query;
 
-    const results = await findPlayerMemberships(username, { limit, offset });
+    const memberships = await findPlayerMemberships(username, { limit, offset });
 
-    res.status(200).json(results);
+    const response = memberships.map(m => ({
+      ...formatMembershipResponse(m),
+      group: formatGroupResponse(m.group, m.group.memberCount)
+    }));
+
+    res.status(200).json(response);
   })
 );
 

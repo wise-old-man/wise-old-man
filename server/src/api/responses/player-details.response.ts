@@ -7,8 +7,8 @@
 import { Player, PlayerAnnotation, PlayerArchive, Snapshot } from '../../types';
 import { getPlayerEfficiencyMap } from '../modules/efficiency/efficiency.utils';
 import { getCombatLevelFromSnapshot } from '../modules/snapshots/snapshot.utils';
-import { formatPlayerAnnotationResponse, PlayerAnnotationResponse } from './player-annotation-response';
-import { formatPlayerArchiveResponse, PlayerArchiveResponse } from './player-archive-response';
+import { formatPlayerAnnotationResponse, PlayerAnnotationResponse } from './player-annotation.response';
+import { formatPlayerArchiveResponse, PlayerArchiveResponse } from './player-archive.response';
 import { formatPlayerResponse, PlayerResponse } from './player.response';
 import { formatSnapshotResponse, SnapshotResponse } from './snapshot.response';
 

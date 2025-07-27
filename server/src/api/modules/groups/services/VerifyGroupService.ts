@@ -1,10 +1,12 @@
 import prisma from '../../../../prisma';
-import { omit } from '../../../../utils/omit.util';
+import { Group } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
-import { GroupListItem } from '../group.types';
 
-async function verifyGroup(groupId: number): Promise<GroupListItem> {
+async function verifyGroup(groupId: number): Promise<{
+  group: Group;
+  memberCount: number;
+}> {
   try {
     const updatedGroup = await prisma.group.update({
       where: { id: groupId },
@@ -21,7 +23,7 @@ async function verifyGroup(groupId: number): Promise<GroupListItem> {
     eventEmitter.emit(EventType.GROUP_UPDATED, { groupId });
 
     return {
-      ...omit(updatedGroup, '_count', 'verificationHash'),
+      group: updatedGroup,
       memberCount: updatedGroup._count.memberships
     };
   } catch (error) {
