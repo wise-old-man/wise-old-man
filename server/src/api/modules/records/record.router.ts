@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { Country, Metric, Period, PlayerBuild, PlayerType } from '../../../types';
+import { formatPlayerResponse } from '../../responses/player.response';
+import { formatRecordResponse } from '../../responses/record.response';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { findRecordLeaderboards } from './services/FindRecordLeaderboardsService';
 
@@ -20,13 +22,18 @@ router.get(
   executeRequest(async (req, res) => {
     const { period, metric, country, playerType, playerBuild } = req.query;
 
-    const result = await findRecordLeaderboards(period, metric, {
+    const records = await findRecordLeaderboards(period, metric, {
       country,
       playerType,
       playerBuild
     });
 
-    res.status(200).json(result);
+    const response = records.map(r => ({
+      ...formatRecordResponse(r),
+      player: formatPlayerResponse(r.player)
+    }));
+
+    res.status(200).json(response);
   })
 );
 

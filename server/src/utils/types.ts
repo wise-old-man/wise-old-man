@@ -11,5 +11,4 @@ export * from '../api/modules/deltas/delta.types';
 export * from '../api/modules/groups/group.types';
 export * from '../api/modules/name-changes/name-change.types';
 export * from '../api/modules/players/player.types';
-export * from '../api/modules/records/record.types';
 export * from '../api/modules/snapshots/snapshot.types';

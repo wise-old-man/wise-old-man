@@ -4,6 +4,7 @@ import logger from '../../../services/logging.service';
 import { GroupRole, Metric, Period } from '../../../types';
 import { formatAchievementResponse } from '../../responses/achievement.response';
 import { formatPlayerResponse } from '../../responses/player.response';
+import { formatRecordResponse } from '../../responses/record.response';
 import { checkAdminPermission, checkGroupVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
@@ -333,8 +334,14 @@ router.get(
     const { id } = req.params;
     const { metric, period, limit, offset } = req.query;
 
-    const result = await findGroupRecords(id, metric, period, { limit, offset });
-    res.status(200).json(result);
+    const records = await findGroupRecords(id, metric, period, { limit, offset });
+
+    const response = records.map(r => ({
+      ...formatRecordResponse(r),
+      player: formatPlayerResponse(r.player)
+    }));
+
+    res.status(200).json(response);
   })
 );
 

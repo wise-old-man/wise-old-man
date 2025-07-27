@@ -8,6 +8,7 @@ import { assertNever } from '../../../utils/assert-never.util';
 import { BadRequestError, ForbiddenError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { formatAchievementProgressResponse } from '../../responses/achievement-progress.response';
 import { formatAchievementResponse } from '../../responses/achievement.response';
+import { formatRecordResponse } from '../../responses/record.response';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getDateSchema, getPaginationSchema } from '../../util/validation';
@@ -520,8 +521,10 @@ router.get(
     const { username } = req.params;
     const { metric, period } = req.query;
 
-    const results = await findPlayerRecords(username, period, metric);
-    res.status(200).json(results);
+    const records = await findPlayerRecords(username, period, metric);
+    const response = records.map(formatRecordResponse);
+
+    res.status(200).json(response);
   })
 );
 
