@@ -12,6 +12,7 @@ import { formatNameChangeResponse } from '../../responses/name-change.response';
 import { formatPlayerArchiveResponse } from '../../responses/player-archive-response';
 import { formatPlayerDetailsResponse } from '../../responses/player-details.response';
 import { formatRecordResponse } from '../../responses/record.response';
+import { formatSnapshotResponse } from '../../responses/snapshot.response';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getDateSchema, getPaginationSchema } from '../../util/validation';
@@ -28,7 +29,6 @@ import { findPlayerSnapshotTimeline } from '../snapshots/services/FindPlayerSnap
 import { findPlayerSnapshots } from '../snapshots/services/FindPlayerSnapshotsService';
 import { rollbackCollectionLog } from '../snapshots/services/RollbackCollectionLogService';
 import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsService';
-import { formatSnapshot } from '../snapshots/snapshot.utils';
 import { standardize } from './player.utils';
 import { archivePlayer } from './services/ArchivePlayerService';
 import { assertPlayerType } from './services/AssertPlayerTypeService';
@@ -371,13 +371,13 @@ router.get(
       throw new NotFoundError('Player not found.');
     }
 
-    const results = await findPlayerSnapshots(player.id, period, startDate, endDate, pagination);
+    const snapshots = await findPlayerSnapshots(player.id, period, startDate, endDate, pagination);
 
-    const formattedSnapshots = results.map(s => {
-      return formatSnapshot(s, getPlayerEfficiencyMap(s, player));
-    });
+    const response = snapshots.map(snapshot =>
+      formatSnapshotResponse(snapshot, getPlayerEfficiencyMap(snapshot, player))
+    );
 
-    res.status(200).json(formattedSnapshots);
+    res.status(200).json(response);
   })
 );
 

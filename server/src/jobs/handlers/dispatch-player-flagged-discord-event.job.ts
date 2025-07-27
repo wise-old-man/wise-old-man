@@ -1,13 +1,13 @@
-import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
-import prisma from '../../prisma';
-import { Job } from '../job.class';
-import { FlaggedPlayerReviewContext } from '../../utils';
 import { isErrored } from '@attio/fetchable';
+import { FlaggedPlayerReviewContextResponse } from '../../api/responses/flagged-player-review-context.response';
+import prisma from '../../prisma';
+import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
+import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 
 interface Payload {
   username: string;
-  context: FlaggedPlayerReviewContext;
+  context: FlaggedPlayerReviewContextResponse;
 }
 
 export class DispatchPlayerFlaggedDiscordEventJob extends Job<Payload> {

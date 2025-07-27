@@ -1,9 +1,9 @@
 import { BOSSES, Metric, Player, Snapshot } from '../../../../types';
-import { FlaggedPlayerReviewContext } from '../../../../utils';
 import { REAL_SKILLS } from '../../../../utils/shared';
+import { FlaggedPlayerReviewContextResponse } from '../../../responses/flagged-player-review-context.response';
+import { formatSnapshotResponse, SnapshotResponse } from '../../../responses/snapshot.response';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
-import { FormattedSnapshot } from '../../snapshots/snapshot.types';
-import { formatSnapshot, getExcessiveGains, getNegativeGains } from '../../snapshots/snapshot.utils';
+import { getExcessiveGains, getNegativeGains } from '../../snapshots/snapshot.utils';
 
 const STACKABLE_EXP_SKILLS = [
   Metric.COOKING,
@@ -17,7 +17,7 @@ function reviewFlaggedPlayer(
   player: Player,
   previousStats: Snapshot,
   rejectedStats: Snapshot
-): FlaggedPlayerReviewContext | null {
+): FlaggedPlayerReviewContextResponse | null {
   if (!player || !previousStats || !rejectedStats) return null;
 
   const negativeGains = !!getNegativeGains(previousStats, rejectedStats);
@@ -25,8 +25,8 @@ function reviewFlaggedPlayer(
   const excessiveGains = !!getExcessiveGains(previousStats, rejectedStats);
   const excessiveGainsReversed = !!getExcessiveGains(rejectedStats, previousStats);
 
-  const previous = formatSnapshot(previousStats, getPlayerEfficiencyMap(previousStats, player));
-  const rejected = formatSnapshot(rejectedStats, getPlayerEfficiencyMap(rejectedStats, player));
+  const previous = formatSnapshotResponse(previousStats, getPlayerEfficiencyMap(previousStats, player));
+  const rejected = formatSnapshotResponse(rejectedStats, getPlayerEfficiencyMap(rejectedStats, player));
 
   if (negativeGains) {
     const possibleRollback =
@@ -60,9 +60,9 @@ function reviewFlaggedPlayer(
 }
 
 function buildExcessiveGainsReport(
-  previous: FormattedSnapshot,
-  rejected: FormattedSnapshot
-): FlaggedPlayerReviewContext['data'] {
+  previous: SnapshotResponse,
+  rejected: SnapshotResponse
+): FlaggedPlayerReviewContextResponse['data'] {
   const previousRank = previous.data.skills.overall.rank;
   const rejectedRank = rejected.data.skills.overall.rank;
 
@@ -94,9 +94,9 @@ function buildExcessiveGainsReport(
 }
 
 function buildNegativeGainsReport(
-  previous: FormattedSnapshot,
-  rejected: FormattedSnapshot
-): FlaggedPlayerReviewContext['data'] {
+  previous: SnapshotResponse,
+  rejected: SnapshotResponse
+): FlaggedPlayerReviewContextResponse['data'] {
   const previousEHP = previous.data.skills.overall.ehp;
   const rejectedEHP = rejected.data.skills.overall.ehp;
 
@@ -117,7 +117,7 @@ function buildNegativeGainsReport(
   };
 }
 
-function hasLostTooMuch(previous: FormattedSnapshot, rejected: FormattedSnapshot) {
+function hasLostTooMuch(previous: SnapshotResponse, rejected: SnapshotResponse) {
   const lostEHP = Math.abs(
     REAL_SKILLS.filter(s => rejected.data.skills[s].experience > -1)
       .map(s => rejected.data.skills[s].ehp - previous.data.skills[s].ehp)

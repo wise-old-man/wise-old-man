@@ -10,15 +10,15 @@ import {
   SKILLS,
   Snapshot
 } from '../../../../types';
-import { MetricLeaders } from '../../../../utils';
 import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { getLevel } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
+import { GroupMetricLeadersResponse } from '../../../responses/group-metric-leaders.response';
+import { formatSnapshotResponse } from '../../../responses/snapshot.response';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import {
   average,
-  formatSnapshot,
   get200msCount,
   getCombatLevelFromSnapshot,
   getTotalLevel
@@ -70,7 +70,7 @@ async function fetchGroupStatistics(groupId: number): Promise<GroupStatistics> {
     build: PlayerBuild.MAIN
   });
 
-  const averageStats = formatSnapshot(averageSnapshot, averageEfficiencyMap);
+  const averageStats = formatSnapshotResponse(averageSnapshot, averageEfficiencyMap);
 
   // @ts-expect-error -- Remove latestSnapshot to prevent it from leaking in the API response
   players.forEach(p => delete p.latestSnapshot);
@@ -80,7 +80,10 @@ async function fetchGroupStatistics(groupId: number): Promise<GroupStatistics> {
   return { maxedCombatCount, maxedTotalCount, maxed200msCount, averageStats, metricLeaders };
 }
 
-async function getMetricLeaders(players: Player[], snapshots: Snapshot[]) {
+async function getMetricLeaders(
+  players: Player[],
+  snapshots: Snapshot[]
+): Promise<GroupMetricLeadersResponse> {
   if (!snapshots || snapshots.length === 0) {
     throw new ServerError('Invalid snapshots list. Failed to find metric leaders.');
   }
@@ -92,7 +95,7 @@ async function getMetricLeaders(players: Player[], snapshots: Snapshot[]) {
     bosses: {},
     activities: {},
     computed: {}
-  };
+  } as GroupMetricLeadersResponse;
 
   for (const skill of SKILLS) {
     const valueKey = getMetricValueKey(skill);
@@ -150,7 +153,7 @@ async function getMetricLeaders(players: Player[], snapshots: Snapshot[]) {
     };
   }
 
-  return metricLeaders as MetricLeaders;
+  return metricLeaders;
 }
 
 export { fetchGroupStatistics };

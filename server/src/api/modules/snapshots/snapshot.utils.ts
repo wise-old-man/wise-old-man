@@ -1,17 +1,5 @@
 import csv from 'csvtojson';
-import {
-  ACTIVITIES,
-  Activity,
-  Boss,
-  BOSSES,
-  COMPUTED_METRICS,
-  ComputedMetric,
-  Metric,
-  METRICS,
-  Skill,
-  SKILLS,
-  Snapshot
-} from '../../../types';
+import { ACTIVITIES, BOSSES, Metric, METRICS, SKILLS, Snapshot } from '../../../types';
 import { MapOf } from '../../../utils';
 import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey, MetricValueKey } from '../../../utils/get-metric-value-key.util';
@@ -25,13 +13,6 @@ import {
 } from '../../../utils/shared';
 import { ServerError } from '../../errors';
 import { getPlayerEHB, getPlayerEHP } from '../../modules/efficiency/efficiency.utils';
-import {
-  ActivityValue,
-  BossValue,
-  ComputedMetricValue,
-  FormattedSnapshot,
-  SkillValue
-} from './snapshot.types';
 
 // Skip Deadman Points and Legacy Bounty Hunter (hunter/rogue)
 export const SKIPPED_ACTIVITY_INDICES = [1, 4, 5];
@@ -115,70 +96,6 @@ async function parseHiscoresSnapshot(playerId: number, rawCSV: string, previous?
   });
 
   return snapshotFields as Snapshot;
-}
-
-function formatSnapshot(snapshot: Snapshot, efficiencyMap: Map<Skill | Boss, number>): FormattedSnapshot {
-  const { id, playerId, createdAt, importedAt } = snapshot;
-
-  return {
-    id,
-    playerId,
-    createdAt,
-    importedAt,
-    data: {
-      skills: Object.fromEntries(
-        SKILLS.map(s => {
-          const experience = snapshot[getMetricValueKey(s)];
-
-          const value: SkillValue = {
-            metric: s,
-            experience,
-            rank: snapshot[getMetricRankKey(s)],
-            level: s === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(experience),
-            ehp: efficiencyMap.get(s) || 0
-          };
-
-          return [s, value];
-        })
-      ) as MapOf<Skill, SkillValue>,
-      bosses: Object.fromEntries(
-        BOSSES.map(b => {
-          const value: BossValue = {
-            metric: b,
-            kills: snapshot[getMetricValueKey(b)],
-            rank: snapshot[getMetricRankKey(b)],
-            ehb: efficiencyMap.get(b) || 0
-          };
-
-          return [b, value];
-        })
-      ) as MapOf<Boss, BossValue>,
-      activities: Object.fromEntries(
-        ACTIVITIES.map(a => {
-          return [
-            a,
-            {
-              metric: a,
-              score: snapshot[getMetricValueKey(a)],
-              rank: snapshot[getMetricRankKey(a)]
-            }
-          ];
-        })
-      ) as MapOf<Activity, ActivityValue>,
-      computed: Object.fromEntries(
-        COMPUTED_METRICS.map(v => {
-          return [
-            v,
-            {
-              metric: v,
-              value: snapshot[getMetricValueKey(v)],
-              rank: snapshot[getMetricRankKey(v)]
-            }
-          ];
-        })
-      ) as MapOf<ComputedMetric, ComputedMetricValue>
-    }
-  };
 }
 
 /**
@@ -338,7 +255,6 @@ function isZerker(snapshot: Snapshot) {
 
 export {
   average,
-  formatSnapshot,
   get200msCount,
   getCappedExp,
   getCombatLevelFromSnapshot,

@@ -5,10 +5,11 @@ import { NameChange, NameChangeStatus, PlayerBuild, PlayerType } from '../../../
 import { assertNever } from '../../../../utils/assert-never.util';
 import { NameChangeDetailsResponse } from '../../../responses/name-change-details.response';
 import { formatNameChangeResponse } from '../../../responses/name-change.response';
+import { formatSnapshotResponse } from '../../../responses/snapshot.response';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import { standardize } from '../../players/player.utils';
-import { formatSnapshot, getNegativeGains, parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
+import { getNegativeGains, parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
 
 async function fetchNameChangeDetails(id: number): AsyncResult<
   NameChangeDetailsResponse,
@@ -149,7 +150,7 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
         hoursDiff,
         ehpDiff: 0,
         ehbDiff: 0,
-        oldStats: formatSnapshot(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
+        oldStats: formatSnapshotResponse(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
         newStats: null
       }
     });
@@ -183,8 +184,8 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
       hoursDiff,
       ehpDiff: newStats.ehpValue - oldStats.ehpValue,
       ehbDiff: newStats.ehbValue - oldStats.ehbValue,
-      oldStats: formatSnapshot(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
-      newStats: formatSnapshot(newStats, getPlayerEfficiencyMap(newStats, newPlayer ?? oldPlayer))
+      oldStats: formatSnapshotResponse(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
+      newStats: formatSnapshotResponse(newStats, getPlayerEfficiencyMap(newStats, newPlayer ?? oldPlayer))
     }
   });
 }

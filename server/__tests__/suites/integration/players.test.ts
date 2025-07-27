@@ -14,7 +14,8 @@ import * as playerUtils from '../../../src/api/modules/players/player.utils';
 import { findOrCreatePlayers } from '../../../src/api/modules/players/services/FindOrCreatePlayersService';
 import { reviewFlaggedPlayer } from '../../../src/api/modules/players/services/ReviewFlaggedPlayerService';
 import { setUpdateCooldown } from '../../../src/api/modules/players/services/UpdatePlayerService';
-import { formatSnapshot, parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
+import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
+import { formatSnapshotResponse } from '../../../src/api/responses/snapshot.response';
 import prisma from '../../../src/prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
 import { BOSSES, Metric, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
@@ -1593,12 +1594,12 @@ describe('Player API', () => {
       rejectedSnapshot.overallRank = 60_000;
       rejectedSnapshot.overallExperience = 363_192_115;
 
-      const formattedPrevious = formatSnapshot(
+      const formattedPrevious = formatSnapshotResponse(
         previousSnapshot,
         getPlayerEfficiencyMap(previousSnapshot, player)
       );
 
-      const formattedRejected = formatSnapshot(
+      const formattedRejected = formatSnapshotResponse(
         rejectedSnapshot,
         getPlayerEfficiencyMap(rejectedSnapshot, player)
       );
@@ -1635,7 +1636,7 @@ describe('Player API', () => {
         excessiveGainsReversed: false,
         possibleRollback: false,
         data: {
-          stackableGainedRatio: 0.3766375918855809
+          stackableGainedRatio: 0.37663758607790426
         },
         previous: {
           data: {

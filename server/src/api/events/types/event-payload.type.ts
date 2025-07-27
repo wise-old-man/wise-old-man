@@ -1,5 +1,5 @@
 import { GroupRole, Metric, Period, PlayerType } from '../../../types';
-import { FlaggedPlayerReviewContext } from '../../../utils';
+import { FlaggedPlayerReviewContextResponse } from '../../responses/flagged-player-review-context.response';
 import { EventType } from './event-type.enum';
 
 export type EventPayloadMap = {
@@ -75,7 +75,7 @@ export type EventPayloadMap = {
   };
   [EventType.PLAYER_FLAGGED]: {
     username: string;
-    context: FlaggedPlayerReviewContext;
+    context: FlaggedPlayerReviewContextResponse;
   };
   [EventType.PLAYER_NAME_CHANGED]: {
     username: string;
