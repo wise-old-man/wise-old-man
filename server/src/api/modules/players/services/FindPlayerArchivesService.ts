@@ -1,13 +1,16 @@
 import prisma from '../../../../prisma';
-import { PlayerArchive } from '../../../../types';
+import { Player, PlayerArchive } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../player.utils';
 
-async function findPlayerArchives(username: string): Promise<Array<PlayerArchive>> {
+async function findPlayerArchives(username: string): Promise<Array<PlayerArchive & { player: Player }>> {
   const archives = await prisma.playerArchive.findMany({
     where: {
       previousUsername: standardize(username),
       restoredAt: null
+    },
+    include: {
+      player: true
     },
     orderBy: { createdAt: 'desc' }
   });

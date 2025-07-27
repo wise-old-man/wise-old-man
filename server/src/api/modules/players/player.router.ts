@@ -11,6 +11,7 @@ import { formatAchievementResponse } from '../../responses/achievement.response'
 import { formatNameChangeResponse } from '../../responses/name-change.response';
 import { formatPlayerArchiveResponse } from '../../responses/player-archive-response';
 import { formatPlayerDetailsResponse } from '../../responses/player-details.response';
+import { formatPlayerResponse } from '../../responses/player.response';
 import { formatRecordResponse } from '../../responses/record.response';
 import { formatSnapshotResponse } from '../../responses/snapshot.response';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
@@ -414,7 +415,11 @@ router.get(
     const { username } = req.params;
 
     const archives = await findPlayerArchives(username);
-    const response = archives.map(formatPlayerArchiveResponse);
+
+    const response = archives.map(a => ({
+      ...formatPlayerArchiveResponse(a),
+      player: formatPlayerResponse(a.player)
+    }));
 
     res.status(200).json(response);
   })
