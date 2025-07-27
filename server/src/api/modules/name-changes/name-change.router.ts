@@ -2,12 +2,13 @@ import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
+import { NameChangeStatus } from '../../../types';
 import { NotFoundError, ServerError } from '../../errors';
+import { formatNameChangeResponse } from '../../responses/name-change.response';
 import { checkAdminPermission } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getPaginationSchema } from '../../util/validation';
-import { NameChangeStatus } from './name-change.types';
 import { approveNameChange } from './services/ApproveNameChangeService';
 import { bulkSubmitNameChanges } from './services/BulkSubmitNameChangesService';
 import { clearNameChangeHistory } from './services/ClearNameChangeHistoryService';
@@ -31,8 +32,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username, status, limit, offset } = req.query;
 
-    const result = await searchNameChanges(username, status, { limit, offset });
-    res.status(200).json(result);
+    const nameChanges = await searchNameChanges(username, status, { limit, offset });
+    const response = nameChanges.map(formatNameChangeResponse);
+
+    res.status(200).json(response);
   })
 );
 

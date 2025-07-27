@@ -3,14 +3,15 @@ import prisma from '../../../../prisma';
 import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
 import { NameChange, NameChangeStatus, PlayerBuild, PlayerType } from '../../../../types';
 import { assertNever } from '../../../../utils/assert-never.util';
+import { NameChangeDetailsResponse } from '../../../responses/name-change-details.response';
+import { formatNameChangeResponse } from '../../../responses/name-change.response';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import { standardize } from '../../players/player.utils';
 import { formatSnapshot, getNegativeGains, parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
-import { NameChangeDetails } from '../name-change.types';
 
 async function fetchNameChangeDetails(id: number): AsyncResult<
-  NameChangeDetails,
+  NameChangeDetailsResponse,
   | { code: 'NAME_CHANGE_NOT_FOUND' }
   | { code: 'OLD_STATS_NOT_FOUND' }
   | {
@@ -137,7 +138,7 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
   // If new stats cannot be found on the hiscores or our database, there's nothing to compare oldStats to.
   if (!newStats) {
     return complete({
-      nameChange: nameChange as NameChange,
+      nameChange: formatNameChangeResponse(nameChange as NameChange),
       data: {
         isNewOnHiscores: newHiscoresResult.value !== null,
         isOldOnHiscores: oldHiscoresResult.value !== null,

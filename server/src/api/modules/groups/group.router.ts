@@ -3,6 +3,7 @@ import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { GroupRole, Metric, Period } from '../../../types';
 import { formatAchievementResponse } from '../../responses/achievement.response';
+import { formatNameChangeResponse } from '../../responses/name-change.response';
 import { formatPlayerResponse } from '../../responses/player.response';
 import { formatRecordResponse } from '../../responses/record.response';
 import { checkAdminPermission, checkGroupVerificationCode } from '../../util/middlewares';
@@ -380,8 +381,14 @@ router.get(
     const { id } = req.params;
     const { limit, offset } = req.query;
 
-    const result = await findGroupNameChanges(id, { limit, offset });
-    res.status(200).json(result);
+    const nameChanges = await findGroupNameChanges(id, { limit, offset });
+
+    const response = nameChanges.map(n => ({
+      ...formatNameChangeResponse(n),
+      player: formatPlayerResponse(n.player)
+    }));
+
+    res.status(200).json(response);
   })
 );
 

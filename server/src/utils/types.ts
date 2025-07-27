@@ -9,6 +9,5 @@ export type MapOf<K extends keyof any, T> = {
 export * from '../api/modules/competitions/competition.types';
 export * from '../api/modules/deltas/delta.types';
 export * from '../api/modules/groups/group.types';
-export * from '../api/modules/name-changes/name-change.types';
 export * from '../api/modules/players/player.types';
 export * from '../api/modules/snapshots/snapshot.types';

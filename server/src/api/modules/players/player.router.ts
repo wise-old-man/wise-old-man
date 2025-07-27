@@ -8,6 +8,7 @@ import { assertNever } from '../../../utils/assert-never.util';
 import { BadRequestError, ForbiddenError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { formatAchievementProgressResponse } from '../../responses/achievement-progress.response';
 import { formatAchievementResponse } from '../../responses/achievement.response';
+import { formatNameChangeResponse } from '../../responses/name-change.response';
 import { formatRecordResponse } from '../../responses/record.response';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
@@ -479,9 +480,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const results = await findPlayerNameChanges(username);
+    const nameChanges = await findPlayerNameChanges(username);
+    const response = nameChanges.map(formatNameChangeResponse);
 
-    res.status(200).json(results);
+    res.status(200).json(response);
   })
 );
 
