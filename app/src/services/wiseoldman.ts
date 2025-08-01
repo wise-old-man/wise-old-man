@@ -145,6 +145,10 @@ export const getPlayerCompetitions = cache((username: string) => {
   return handleNotFound(apiClient.players.getPlayerCompetitions(username));
 });
 
+export const getPlayerCompetitionStandings = cache((username: string, status: CompetitionStatus) => {
+  return handleNotFound(apiClient.players.getPlayerCompetitionStandings(username, { status }));
+});
+
 export const getPlayerDetails = cache((username: string) => {
   return handleNotFound(apiClient.players.getPlayerDetails(username));
 });
