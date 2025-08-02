@@ -593,6 +593,7 @@ export const Country = {
   FR: 'FR',
   GA: 'GA',
   GB: 'GB',
+  GB_ENG: 'GB_ENG',
   GB_NIR: 'GB_NIR',
   GB_SCT: 'GB_SCT',
   GB_WLS: 'GB_WLS',
