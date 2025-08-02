@@ -78,6 +78,7 @@ export const CountryProps: Record<Country, { code: Country; name: string }> = {
   [Country.FR]: { code: 'FR', name: 'France' },
   [Country.GA]: { code: 'GA', name: 'Gabon' },
   [Country.GB]: { code: 'GB', name: 'United Kingdom' },
+  [Country.GB_ENG]: { code: 'GB_ENG', name: 'England' },
   [Country.GB_NIR]: { code: 'GB_NIR', name: 'Northen Ireland' },
   [Country.GB_SCT]: { code: 'GB_SCT', name: 'Scotland' },
   [Country.GB_WLS]: { code: 'GB_WLS', name: 'Wales' },
