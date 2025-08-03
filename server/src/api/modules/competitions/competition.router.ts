@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric } from '../../../types';
+import { formatCompetitionTop5ProgressResponse } from '../../responses/competition-top-5-progress.response';
+import { formatCompetitionResponse } from '../../responses/competition.response';
 import { checkAdminPermission, checkCompetitionVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
@@ -37,8 +39,13 @@ router.get(
   executeRequest(async (req, res) => {
     const { title, metric, type, status, limit, offset } = req.query;
 
-    const result = await searchCompetitions(title, metric, type, status, { limit, offset });
-    res.status(200).json(result);
+    const competitions = await searchCompetitions(title, metric, type, status, { limit, offset });
+
+    const response = competitions.map(competition =>
+      formatCompetitionResponse(competition, competition.participantCount, competition.group)
+    );
+
+    res.status(200).json(response);
   })
 );
 
@@ -151,8 +158,13 @@ router.get(
     const { id } = req.params;
     const { metric } = req.query;
 
-    const result = await fetchCompetitionTop5Progress(id, metric);
-    res.status(200).json(result);
+    const results = await fetchCompetitionTop5Progress(id, metric);
+
+    const response = results.map(({ player, history }) =>
+      formatCompetitionTop5ProgressResponse(player, history)
+    );
+
+    res.status(200).json(response);
   })
 );
 

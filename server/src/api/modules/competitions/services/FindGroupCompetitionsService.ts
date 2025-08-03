@@ -1,9 +1,15 @@
 import prisma from '../../../../prisma';
-import { omit } from '../../../../utils/omit.util';
+import { Competition, Group } from '../../../../types';
 import { NotFoundError } from '../../../errors';
-import { CompetitionListItem } from '../competition.types';
 
-async function findGroupCompetitions(groupId: number): Promise<CompetitionListItem[]> {
+async function findGroupCompetitions(groupId: number): Promise<
+  Array<
+    Competition & {
+      participantCount: number;
+      group: Group & { memberCount: number };
+    }
+  >
+> {
   const group = await prisma.group.findFirst({
     where: { id: groupId },
     include: {
@@ -38,9 +44,9 @@ async function findGroupCompetitions(groupId: number): Promise<CompetitionListIt
   return sortCompetitions(
     competitions.map(c => {
       return {
-        ...omit(c, 'verificationHash'),
+        ...c,
         group: {
-          ...omit(group, '_count', 'verificationHash'),
+          ...group,
           memberCount: group._count.memberships
         },
         participantCount: participantCountsMap.get(c.id) ?? 0
@@ -49,10 +55,10 @@ async function findGroupCompetitions(groupId: number): Promise<CompetitionListIt
   );
 }
 
-function sortCompetitions(competitions: CompetitionListItem[]): CompetitionListItem[] {
-  const finished: CompetitionListItem[] = [];
-  const upcoming: CompetitionListItem[] = [];
-  const ongoing: CompetitionListItem[] = [];
+function sortCompetitions<T extends Pick<Competition, 'startsAt' | 'endsAt'>>(competitions: T[]): T[] {
+  const finished: T[] = [];
+  const upcoming: T[] = [];
+  const ongoing: T[] = [];
 
   competitions.forEach(c => {
     if (c.endsAt.getTime() < Date.now()) {

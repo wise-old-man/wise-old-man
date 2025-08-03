@@ -1,10 +1,20 @@
 import prisma from '../../../../prisma';
-import { Metric, Snapshot } from '../../../../types';
+import { Metric, Player, Snapshot } from '../../../../types';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
-import { Top5ProgressResult } from '../competition.types';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 
-async function fetchCompetitionTop5Progress(id: number, metric?: Metric): Promise<Top5ProgressResult> {
+async function fetchCompetitionTop5Progress(
+  id: number,
+  metric?: Metric
+): Promise<
+  Array<{
+    player: Player;
+    history: Array<{
+      value: number;
+      date: Date;
+    }>;
+  }>
+> {
   const competitionDetails = await fetchCompetitionDetails(id, metric);
   const metricValueKey = getMetricValueKey(metric || competitionDetails.metric);
 

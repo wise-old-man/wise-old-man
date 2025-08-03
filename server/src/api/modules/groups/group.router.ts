@@ -3,6 +3,7 @@ import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { GroupRole, Metric, Period } from '../../../types';
 import { formatAchievementResponse } from '../../responses/achievement.response';
+import { formatCompetitionResponse } from '../../responses/competition.response';
 import { formatGroupDetailsResponse } from '../../responses/group-details.response';
 import { formatGroupHiscoresEntryResponse } from '../../responses/group-hiscores-entry.response';
 import { formatGroupResponse } from '../../responses/group.response';
@@ -325,8 +326,13 @@ router.get(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const result = await findGroupCompetitions(id);
-    res.status(200).json(result);
+    const competitions = await findGroupCompetitions(id);
+
+    const response = competitions.map(competition =>
+      formatCompetitionResponse(competition, competition.participantCount, competition.group)
+    );
+
+    res.status(200).json(response);
   })
 );
 

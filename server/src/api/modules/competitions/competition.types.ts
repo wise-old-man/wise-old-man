@@ -8,7 +8,7 @@ type CleanCompetition = Omit<Competition, 'verificationHash'>;
 // These IDs don't need to be exposed to the user
 type CleanParticipation = Omit<Participation, 'startSnapshotId' | 'endSnapshotId'>;
 
-export interface CompetitionListItem extends CleanCompetition {
+interface CompetitionListItem extends CleanCompetition {
   group?: GroupResponse;
   participantCount: number;
 }
@@ -39,11 +39,3 @@ export interface ParticipationWithCompetitionAndStandings extends ParticipationW
   levels: MeasuredDeltaProgress;
   rank: number;
 }
-
-export type Top5ProgressResult = Array<{
-  player: Player;
-  history: Array<{
-    value: number;
-    date: Date;
-  }>;
-}>;
