@@ -51,12 +51,15 @@ router.post(
     const { oldName, newName } = req.body;
 
     const result = await submitNameChange(oldName, newName);
-    res.status(201).json(result);
 
     logger.moderation(`Submitted name change ${result.oldName} -> ${result.newName}`, {
       timestamp: new Date().toISOString(),
       ipHash: getRequestIpHash(req)
     });
+
+    const response = formatNameChangeResponse(result);
+
+    res.status(201).json(response);
   })
 );
 
@@ -120,7 +123,9 @@ router.post(
     const { id } = req.params;
 
     const result = await approveNameChange(id);
-    res.status(200).json(result);
+    const response = formatNameChangeResponse(result);
+
+    res.status(200).json(response);
   })
 );
 
@@ -136,7 +141,9 @@ router.post(
     const { id } = req.params;
 
     const result = await denyNameChange(id, { reason: 'manual_review' });
-    res.status(200).json(result);
+    const response = formatNameChangeResponse(result);
+
+    res.status(200).json(response);
   })
 );
 

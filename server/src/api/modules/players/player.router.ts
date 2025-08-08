@@ -13,7 +13,9 @@ import { formatGroupResponse } from '../../responses/group.response';
 import { formatMembershipResponse } from '../../responses/membership.response';
 import { formatNameChangeResponse } from '../../responses/name-change.response';
 import { formatParticipationResponse } from '../../responses/participation.response';
+import { formatPlayerAnnotationResponse } from '../../responses/player-annotation.response';
 import { formatPlayerArchiveResponse } from '../../responses/player-archive.response';
+import { formatPlayerCompetitionStandingResponse } from '../../responses/player-competition-standing.response';
 import { formatPlayerDetailsResponse } from '../../responses/player-details.response';
 import { formatPlayerResponse } from '../../responses/player.response';
 import { formatRecordResponse } from '../../responses/record.response';
@@ -60,8 +62,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username, limit, offset } = req.query;
 
-    const result = await searchPlayers(username, { limit, offset });
-    res.status(200).json(result);
+    const players = await searchPlayers(username, { limit, offset });
+    const response = players.map(formatPlayerResponse);
+
+    res.status(200).json(response);
   })
 );
 
@@ -190,10 +194,14 @@ router.post(
       throw new ServerError('Failed to assert player type.');
     }
 
-    res.status(200).json({
+    const response = {
       changed: assertionResult.value.changed,
-      player: assertionResult.value.changed ? assertionResult.value.updatedPlayer : player
-    });
+      player: formatPlayerResponse(
+        assertionResult.value.changed ? assertionResult.value.updatedPlayer : player
+      )
+    };
+
+    res.status(200).json(response);
   })
 );
 
@@ -213,7 +221,9 @@ router.put(
     const { country } = req.body;
 
     const result = await changePlayerCountry(username, country);
-    res.status(200).json(result);
+    const response = formatPlayerResponse(result);
+
+    res.status(200).json(response);
   })
 );
 
@@ -327,7 +337,9 @@ router.post(
 
     jobManager.add(JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW, {}, { delay: 5_000 });
 
-    res.status(200).json(archivedPlayer);
+    const response = formatPlayerResponse(archivedPlayer);
+
+    res.status(200).json(response);
   })
 );
 
@@ -497,17 +509,17 @@ router.get(
 
     const standings = await findPlayerParticipationsStandings(username, status);
 
-    const response = standings.map(s => ({
-      ...formatParticipationResponse(s),
-      competition: formatCompetitionResponse(
+    const response = standings.map(s =>
+      formatPlayerCompetitionStandingResponse(
+        s,
         s.competition,
         s.competition.participantCount,
-        s.competition.group
-      ),
-      progress: s.progress,
-      levels: s.levels,
-      rank: s.rank
-    }));
+        s.competition.group,
+        s.progress,
+        s.levels,
+        s.rank
+      )
+    );
 
     res.status(200).json(response);
   })
@@ -623,8 +635,9 @@ router.post(
     const { annotationType } = req.body;
 
     const createdAnnotation = await createPlayerAnnotation(username, annotationType);
+    const response = formatPlayerAnnotationResponse(createdAnnotation);
 
-    res.status(201).json(createdAnnotation);
+    res.status(201).json(response);
   })
 );
 

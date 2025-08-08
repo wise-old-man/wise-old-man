@@ -8,6 +8,7 @@ import {
   PlayerBuild,
   PlayerType
 } from '../../../types';
+import { formatPlayerResponse } from '../../responses/player.response';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getPaginationSchema } from '../../util/validation';
 import { getRates } from './efficiency.utils';
@@ -36,7 +37,9 @@ router.get(
       { limit, offset }
     );
 
-    res.status(200).json(result);
+    const response = result.map(formatPlayerResponse);
+
+    res.status(200).json(response);
   })
 );
 
