@@ -15,11 +15,11 @@ async function fetchCompetitionTop5Progress(
     }>;
   }>
 > {
-  const competitionDetails = await fetchCompetitionDetails(id, metric);
-  const metricValueKey = getMetricValueKey(metric || competitionDetails.metric);
+  const { competition, participations } = await fetchCompetitionDetails(id, metric);
+  const metricValueKey = getMetricValueKey(metric || competition.metric);
 
   // Select the top 5 players
-  const top5Players = competitionDetails.participations.slice(0, 5).map(p => p.player);
+  const top5Players = participations.slice(0, 5).map(p => p.player);
 
   const snapshots = (await prisma.snapshot.findMany({
     where: {
@@ -27,8 +27,8 @@ async function fetchCompetitionTop5Progress(
         in: top5Players.map(t => t.id)
       },
       createdAt: {
-        gte: competitionDetails.startsAt,
-        lte: competitionDetails.endsAt
+        gte: competition.startsAt,
+        lte: competition.endsAt
       }
     },
     select: {

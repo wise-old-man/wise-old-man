@@ -13,10 +13,6 @@ interface CompetitionListItem extends CleanCompetition {
   participantCount: number;
 }
 
-export interface CompetitionDetails extends CompetitionListItem {
-  participations: ParticipationWithPlayerAndProgress[];
-}
-
 export interface CompetitionWithParticipations extends CompetitionListItem {
   participations: ParticipationWithPlayer[];
 }
@@ -25,13 +21,8 @@ export interface ParticipationWithCompetition extends CleanParticipation {
   competition: CompetitionListItem;
 }
 
-export interface ParticipationWithPlayer extends CleanParticipation {
+interface ParticipationWithPlayer extends CleanParticipation {
   player: Player;
-}
-
-export interface ParticipationWithPlayerAndProgress extends ParticipationWithPlayer {
-  progress: MeasuredDeltaProgress;
-  levels: MeasuredDeltaProgress;
 }
 
 export interface ParticipationWithCompetitionAndStandings extends ParticipationWithCompetition {
