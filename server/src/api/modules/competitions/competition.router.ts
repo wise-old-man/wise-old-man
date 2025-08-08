@@ -66,13 +66,26 @@ router.post(
   }),
   executeRequest(async (req, res) => {
     const ipHash = getRequestIpHash(req);
-    const result = await createCompetition(req.body, ipHash);
-    res.status(201).json(result);
 
-    logger.moderation(`Created competition ${result.competition.id}`, {
+    const createResult = await createCompetition(req.body, ipHash);
+
+    logger.moderation(`Created competition ${createResult.competition.id}`, {
       timestamp: new Date().toISOString(),
       ipHash
     });
+
+    const details = await fetchCompetitionDetails(createResult.competition.id);
+
+    const response = {
+      verificationCode: createResult.verificationCode,
+      competition: formatCompetitionDetailsResponse(
+        details.competition,
+        details.group,
+        details.participations
+      )
+    };
+
+    res.status(201).json(response);
   })
 );
 
@@ -95,13 +108,22 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const result = await editCompetition(id, req.body);
-    res.status(200).json(result);
+    const updatedCompetition = await editCompetition(id, req.body);
 
-    logger.moderation(`Edited competition ${result.id}`, {
+    logger.moderation(`Edited competition ${updatedCompetition.id}`, {
       timestamp: new Date().toISOString(),
       ipHash: getRequestIpHash(req)
     });
+
+    const details = await fetchCompetitionDetails(updatedCompetition.id);
+
+    const response = formatCompetitionDetailsResponse(
+      details.competition,
+      details.group,
+      details.participations
+    );
+
+    res.status(200).json(response);
   })
 );
 

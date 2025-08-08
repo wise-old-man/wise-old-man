@@ -1,36 +1,31 @@
 import { Activity, Boss, ComputedMetric, Player, Skill } from '../../../types';
-
-export interface MeasuredDeltaProgress {
-  start: number;
-  end: number;
-  gained: number;
-}
+import { MetricDelta } from '../../../types/metric-delta.type';
 
 export interface SkillDelta {
   metric: Skill;
-  ehp: MeasuredDeltaProgress;
-  rank: MeasuredDeltaProgress;
-  level: MeasuredDeltaProgress;
-  experience: MeasuredDeltaProgress;
+  ehp: MetricDelta;
+  rank: MetricDelta;
+  level: MetricDelta;
+  experience: MetricDelta;
 }
 
 export interface BossDelta {
   metric: Boss;
-  ehb: MeasuredDeltaProgress;
-  rank: MeasuredDeltaProgress;
-  kills: MeasuredDeltaProgress;
+  ehb: MetricDelta;
+  rank: MetricDelta;
+  kills: MetricDelta;
 }
 
 export interface ActivityDelta {
   metric: Activity;
-  rank: MeasuredDeltaProgress;
-  score: MeasuredDeltaProgress;
+  rank: MetricDelta;
+  score: MetricDelta;
 }
 
 export interface ComputedMetricDelta {
   metric: ComputedMetric;
-  rank: MeasuredDeltaProgress;
-  value: MeasuredDeltaProgress;
+  rank: MetricDelta;
+  value: MetricDelta;
 }
 
 export interface PlayerDeltasMap {
@@ -52,9 +47,5 @@ export interface DeltaGroupLeaderboardEntry {
   player: Player;
   startDate: Date;
   endDate: Date;
-  data: {
-    start: number;
-    end: number;
-    gained: number;
-  };
+  data: MetricDelta;
 }

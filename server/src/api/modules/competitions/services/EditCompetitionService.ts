@@ -1,5 +1,6 @@
 import prisma, { PrismaPromise, PrismaTypes } from '../../../../prisma';
 import {
+  Competition,
   CompetitionTeam,
   CompetitionType,
   Metric,
@@ -8,13 +9,11 @@ import {
   PlayerAnnotationType,
   Snapshot
 } from '../../../../types';
-import { omit } from '../../../../utils/omit.util';
 import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
-import { CompetitionWithParticipations } from '../competition.types';
 import {
   sanitizeTeams,
   sanitizeTitle,
@@ -39,10 +38,7 @@ interface PartialParticipation {
   teamName: string | null;
 }
 
-async function editCompetition(
-  id: number,
-  payload: EditCompetitionPayload
-): Promise<CompetitionWithParticipations> {
+async function editCompetition(id: number, payload: EditCompetitionPayload): Promise<Competition> {
   const { title, metric, startsAt, endsAt, participants, teams } = payload;
 
   if (participants && participants.length > 0 && teams && teams.length > 0) {
@@ -139,19 +135,7 @@ async function editCompetition(
     await recalculateParticipationsEnd(competition.id, updatedCompetition.endsAt);
   }
 
-  return {
-    ...omit(updatedCompetition, 'verificationHash'),
-    group: updatedCompetition.group
-      ? {
-          ...omit(updatedCompetition.group, '_count', 'verificationHash'),
-          memberCount: updatedCompetition.group._count.memberships
-        }
-      : undefined,
-    participantCount: updatedCompetition.participations.length,
-    participations: updatedCompetition.participations.map(p => ({
-      ...omit(p, 'startSnapshotId', 'endSnapshotId')
-    }))
-  };
+  return updatedCompetition;
 }
 
 async function invalidateParticipations(competitionId: number) {
@@ -229,20 +213,7 @@ async function executeUpdate(
       updatedAt: new Date() // Force update the "updatedAt" field
     },
     include: {
-      group: {
-        include: {
-          _count: {
-            select: {
-              memberships: true
-            }
-          }
-        }
-      },
-      participations: {
-        include: {
-          player: true
-        }
-      }
+      participations: true
     }
   });
 

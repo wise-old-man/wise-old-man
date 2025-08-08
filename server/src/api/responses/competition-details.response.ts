@@ -5,6 +5,7 @@
  * they often include transformations, additional properties or sensitive field omissions.
  */
 import { Competition, Group, Participation, Player } from '../../types';
+import { MetricDelta } from '../../types/metric-delta.type';
 import { pick } from '../../utils/pick.util';
 import { CompetitionResponse, formatCompetitionResponse } from './competition.response';
 import { formatParticipationResponse, ParticipationResponse } from './participation.response';
@@ -14,16 +15,8 @@ export interface CompetitionDetailsResponse extends CompetitionResponse {
   participations: Array<
     ParticipationResponse & {
       player: PlayerResponse;
-      progress: {
-        start: number;
-        end: number;
-        gained: number;
-      };
-      levels: {
-        start: number;
-        end: number;
-        gained: number;
-      };
+      progress: MetricDelta;
+      levels: MetricDelta;
     }
   >;
 }
@@ -34,8 +27,8 @@ export function formatCompetitionDetailsResponse(
   participations: Array<
     Participation & {
       player: Player;
-      progress: { start: number; end: number; gained: number };
-      levels: { start: number; end: number; gained: number };
+      progress: MetricDelta;
+      levels: MetricDelta;
     }
   >
 ): CompetitionDetailsResponse {

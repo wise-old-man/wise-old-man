@@ -8,9 +8,11 @@ import { assertNever } from '../../../utils/assert-never.util';
 import { BadRequestError, ForbiddenError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { formatAchievementProgressResponse } from '../../responses/achievement-progress.response';
 import { formatAchievementResponse } from '../../responses/achievement.response';
+import { formatCompetitionResponse } from '../../responses/competition.response';
 import { formatGroupResponse } from '../../responses/group.response';
 import { formatMembershipResponse } from '../../responses/membership.response';
 import { formatNameChangeResponse } from '../../responses/name-change.response';
+import { formatParticipationResponse } from '../../responses/participation.response';
 import { formatPlayerArchiveResponse } from '../../responses/player-archive.response';
 import { formatPlayerDetailsResponse } from '../../responses/player-details.response';
 import { formatPlayerResponse } from '../../responses/player.response';
@@ -464,9 +466,18 @@ router.get(
     const { username } = req.params;
     const { status } = req.query;
 
-    const results = await findPlayerParticipations(username, status);
+    const participations = await findPlayerParticipations(username, status);
 
-    res.status(200).json(results);
+    const response = participations.map(p => ({
+      ...formatParticipationResponse(p),
+      competition: formatCompetitionResponse(
+        p.competition,
+        p.competition.participantCount,
+        p.competition.group
+      )
+    }));
+
+    res.status(200).json(response);
   })
 );
 
@@ -484,9 +495,21 @@ router.get(
     const { username } = req.params;
     const { status } = req.query;
 
-    const results = await findPlayerParticipationsStandings(username, status);
+    const standings = await findPlayerParticipationsStandings(username, status);
 
-    res.status(200).json(results);
+    const response = standings.map(s => ({
+      ...formatParticipationResponse(s),
+      competition: formatCompetitionResponse(
+        s.competition,
+        s.competition.participantCount,
+        s.competition.group
+      ),
+      progress: s.progress,
+      levels: s.levels,
+      rank: s.rank
+    }));
+
+    res.status(200).json(response);
   })
 );
 

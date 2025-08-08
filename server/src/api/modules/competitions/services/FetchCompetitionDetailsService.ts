@@ -1,5 +1,6 @@
 import prisma from '../../../../prisma';
 import { Competition, Group, Metric, Participation, Player, Skill } from '../../../../types';
+import { MetricDelta } from '../../../../types/metric-delta.type';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { isComputedMetric, isSkill } from '../../../../utils/shared';
 import { NotFoundError } from '../../../errors';
@@ -14,8 +15,8 @@ async function fetchCompetitionDetails(
   participations: Array<
     Participation & {
       player: Player;
-      progress: { start: number; end: number; gained: number };
-      levels: { start: number; end: number; gained: number };
+      progress: MetricDelta;
+      levels: MetricDelta;
     }
   >;
 }> {
@@ -61,8 +62,8 @@ async function calculateParticipantsStandings(
   Array<
     Participation & {
       player: Player;
-      progress: { start: number; end: number; gained: number };
-      levels: { start: number; end: number; gained: number };
+      progress: MetricDelta;
+      levels: MetricDelta;
     }
   >
 > {

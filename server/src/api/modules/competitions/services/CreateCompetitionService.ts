@@ -1,12 +1,16 @@
 import { isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
-import { CompetitionTeam, CompetitionType, Metric, PlayerAnnotationType } from '../../../../types';
-import { omit } from '../../../../utils/omit.util';
+import {
+  Competition,
+  CompetitionTeam,
+  CompetitionType,
+  Metric,
+  PlayerAnnotationType
+} from '../../../../types';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { CompetitionWithParticipations } from '../competition.types';
 import {
   sanitizeTeams,
   sanitizeTitle,
@@ -26,12 +30,13 @@ interface CreateCompetitionPayload {
   teams?: CompetitionTeam[];
 }
 
-type CreateCompetitionResult = { competition: CompetitionWithParticipations; verificationCode: string };
-
 async function createCompetition(
   payload: CreateCompetitionPayload,
   creatorIpHash: string | null
-): Promise<CreateCompetitionResult> {
+): Promise<{
+  competition: Competition;
+  verificationCode: string;
+}> {
   const { title, metric, startsAt, endsAt, participants, teams, groupId, groupVerificationCode } = payload;
 
   if (startsAt.getTime() > endsAt.getTime()) {
@@ -141,36 +146,9 @@ async function createCompetition(
       }
     },
     include: {
-      group: {
-        include: {
-          _count: {
-            select: {
-              memberships: true
-            }
-          }
-        }
-      },
-      participations: {
-        include: {
-          player: true
-        }
-      }
+      participations: true
     }
   });
-
-  const formattedCompetition: CompetitionWithParticipations = {
-    ...omit(createdCompetition, 'verificationHash'),
-    group: createdCompetition.group
-      ? {
-          ...omit(createdCompetition.group, '_count', 'verificationHash'),
-          memberCount: createdCompetition.group._count.memberships
-        }
-      : undefined,
-    participantCount: createdCompetition.participations.length,
-    participations: createdCompetition.participations.map(p => ({
-      ...omit(p, 'startSnapshotId', 'endSnapshotId')
-    }))
-  };
 
   eventEmitter.emit(EventType.COMPETITION_CREATED, {
     competitionId: createdCompetition.id
@@ -186,7 +164,7 @@ async function createCompetition(
   }
 
   return {
-    competition: formattedCompetition,
+    competition: createdCompetition,
     verificationCode: code
   };
 }

@@ -1,14 +1,21 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { CompetitionStatus } from '../../../../types';
-import { omit } from '../../../../utils/omit.util';
+import { Competition, CompetitionStatus, Group, Participation } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
-import { ParticipationWithCompetition } from '../competition.types';
 
 async function findPlayerParticipations(
   username: string,
   status?: CompetitionStatus
-): Promise<ParticipationWithCompetition[]> {
+): Promise<
+  Array<
+    Participation & {
+      competition: Competition & {
+        participantCount: number;
+        group: (Group & { memberCount: number }) | null;
+      };
+    }
+  >
+> {
   const competitionQuery: PrismaTypes.CompetitionWhereInput = {
     visible: true
   };
@@ -89,15 +96,15 @@ async function findPlayerParticipations(
         }
 
         return {
-          ...omit(participation, 'startSnapshotId', 'endSnapshotId'),
+          ...participation,
           competition: {
-            ...omit(participation.competition, 'verificationHash'),
+            ...participation.competition,
             group: group
               ? {
-                  ...omit(group, '_count', 'verificationHash'),
+                  ...group,
                   memberCount: group._count.memberships
                 }
-              : undefined,
+              : null,
             participantCount: participantCountsMap.get(participation.competitionId) ?? 0
           }
         };
@@ -106,10 +113,12 @@ async function findPlayerParticipations(
   );
 }
 
-function sortCompetitions(participations: ParticipationWithCompetition[]): ParticipationWithCompetition[] {
-  const finished: ParticipationWithCompetition[] = [];
-  const upcoming: ParticipationWithCompetition[] = [];
-  const ongoing: ParticipationWithCompetition[] = [];
+function sortCompetitions<T extends { competition: Pick<Competition, 'startsAt' | 'endsAt'> }>(
+  participations: T[]
+): T[] {
+  const finished: T[] = [];
+  const upcoming: T[] = [];
+  const ongoing: T[] = [];
 
   participations.forEach(p => {
     if (p.competition.endsAt.getTime() < Date.now()) {

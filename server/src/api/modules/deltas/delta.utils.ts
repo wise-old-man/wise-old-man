@@ -11,6 +11,7 @@ import {
   SKILLS,
   Snapshot
 } from '../../../types';
+import { MetricDelta } from '../../../types/metric-delta.type';
 
 import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
@@ -23,14 +24,7 @@ import {
   getPlayerEHP
 } from '../../modules/efficiency/efficiency.utils';
 import { getTotalLevel } from '../snapshots/snapshot.utils';
-import {
-  ActivityDelta,
-  BossDelta,
-  ComputedMetricDelta,
-  MeasuredDeltaProgress,
-  PlayerDeltasMap,
-  SkillDelta
-} from './delta.types';
+import { ActivityDelta, BossDelta, ComputedMetricDelta, PlayerDeltasMap, SkillDelta } from './delta.types';
 
 const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 });
 
@@ -161,7 +155,7 @@ export function calculateLevelDiff(
   metric: Metric,
   startSnapshot: Snapshot,
   endSnapshot: Snapshot,
-  valueDiff: MeasuredDeltaProgress
+  valueDiff: MetricDelta
 ) {
   if (metric === Metric.OVERALL) {
     const startTotalLevel = getTotalLevel(startSnapshot);
