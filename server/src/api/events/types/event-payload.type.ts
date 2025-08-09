@@ -1,5 +1,5 @@
 import { GroupRole, Metric, Period, PlayerType } from '../../../types';
-import { FlaggedPlayerReviewContextResponse } from '../../responses/flagged-player-review-context.response';
+import { FlaggedPlayerReviewContextResponse } from '../../responses';
 import { EventType } from './event-type.enum';
 
 export type EventPayloadMap = {

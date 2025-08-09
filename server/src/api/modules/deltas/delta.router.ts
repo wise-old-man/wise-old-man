@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { Country, Metric, Period, PlayerBuild, PlayerType } from '../../../types';
-import { formatPlayerResponse } from '../../responses/player.response';
+import { formatPlayerResponse } from '../../responses';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { findDeltaLeaderboards } from './services/FindDeltaLeaderboardsService';
 

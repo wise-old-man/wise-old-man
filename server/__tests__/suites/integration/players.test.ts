@@ -15,7 +15,7 @@ import { findOrCreatePlayers } from '../../../src/api/modules/players/services/F
 import { reviewFlaggedPlayer } from '../../../src/api/modules/players/services/ReviewFlaggedPlayerService';
 import { setUpdateCooldown } from '../../../src/api/modules/players/services/UpdatePlayerService';
 import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
-import { formatSnapshotResponse } from '../../../src/api/responses/snapshot.response';
+import { formatSnapshotResponse } from '../../../src/api/responses';
 import prisma from '../../../src/prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
 import { BOSSES, Metric, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';

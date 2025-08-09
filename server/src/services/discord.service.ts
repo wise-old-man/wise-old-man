@@ -2,7 +2,7 @@ import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/f
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
-import { FlaggedPlayerReviewContextResponse } from '../api/responses/flagged-player-review-context.response';
+import { FlaggedPlayerReviewContextResponse } from '../api/responses';
 import { Achievement, Competition, Group, GroupRole, Player } from '../types';
 import logger from './logging.service';
 

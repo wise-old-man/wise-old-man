@@ -1,8 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { Country, Metric, Period, PlayerBuild, PlayerType } from '../../../types';
-import { formatPlayerResponse } from '../../responses/player.response';
-import { formatRecordResponse } from '../../responses/record.response';
+import { formatPlayerResponse, formatRecordResponse } from '../../responses';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { findRecordLeaderboards } from './services/FindRecordLeaderboardsService';
 

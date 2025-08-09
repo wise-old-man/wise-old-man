@@ -6,20 +6,22 @@ import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../../types';
 import { assertNever } from '../../../utils/assert-never.util';
 import { BadRequestError, ForbiddenError, NotFoundError, RateLimitError, ServerError } from '../../errors';
-import { formatAchievementProgressResponse } from '../../responses/achievement-progress.response';
-import { formatAchievementResponse } from '../../responses/achievement.response';
-import { formatCompetitionResponse } from '../../responses/competition.response';
-import { formatGroupResponse } from '../../responses/group.response';
-import { formatMembershipResponse } from '../../responses/membership.response';
-import { formatNameChangeResponse } from '../../responses/name-change.response';
-import { formatParticipationResponse } from '../../responses/participation.response';
-import { formatPlayerAnnotationResponse } from '../../responses/player-annotation.response';
-import { formatPlayerArchiveResponse } from '../../responses/player-archive.response';
-import { formatPlayerCompetitionStandingResponse } from '../../responses/player-competition-standing.response';
-import { formatPlayerDetailsResponse } from '../../responses/player-details.response';
-import { formatPlayerResponse } from '../../responses/player.response';
-import { formatRecordResponse } from '../../responses/record.response';
-import { formatSnapshotResponse } from '../../responses/snapshot.response';
+import {
+  formatAchievementProgressResponse,
+  formatAchievementResponse,
+  formatCompetitionResponse,
+  formatGroupResponse,
+  formatMembershipResponse,
+  formatNameChangeResponse,
+  formatParticipationResponse,
+  formatPlayerAnnotationResponse,
+  formatPlayerArchiveResponse,
+  formatPlayerCompetitionStandingResponse,
+  formatPlayerDetailsResponse,
+  formatPlayerResponse,
+  formatRecordResponse,
+  formatSnapshotResponse
+} from '../../responses';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getDateSchema, getPaginationSchema } from '../../util/validation';

@@ -1,7 +1,10 @@
 import { BOSSES, Metric, Player, Snapshot } from '../../../../types';
 import { REAL_SKILLS } from '../../../../utils/shared';
-import { FlaggedPlayerReviewContextResponse } from '../../../responses/flagged-player-review-context.response';
-import { formatSnapshotResponse, SnapshotResponse } from '../../../responses/snapshot.response';
+import {
+  FlaggedPlayerReviewContextResponse,
+  formatSnapshotResponse,
+  SnapshotResponse
+} from '../../../responses';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { getExcessiveGains, getNegativeGains } from '../../snapshots/snapshot.utils';
 

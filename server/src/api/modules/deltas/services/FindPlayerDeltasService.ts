@@ -2,7 +2,7 @@ import prisma from '../../../../prisma';
 import { Period } from '../../../../types';
 import { parsePeriodExpression } from '../../../../utils/parse-period-expression.util';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import { PlayerDeltasMapResponse } from '../../../responses/player-deltas-map.response';
+import { PlayerDeltasMapResponse } from '../../../responses';
 import { standardize } from '../../players/player.utils';
 import { calculatePlayerDeltas, emptyPlayerDelta } from '../delta.utils';
 

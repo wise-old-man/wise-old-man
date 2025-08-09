@@ -4,7 +4,7 @@ import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { NameChangeStatus } from '../../../types';
 import { NotFoundError, ServerError } from '../../errors';
-import { formatNameChangeResponse } from '../../responses/name-change.response';
+import { formatNameChangeResponse } from '../../responses';
 import { checkAdminPermission } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';

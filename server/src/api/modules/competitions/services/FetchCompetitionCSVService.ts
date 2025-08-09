@@ -1,10 +1,7 @@
 import dayjs from 'dayjs';
 import { CompetitionCSVTableType, CompetitionType, Metric } from '../../../../types';
 import { BadRequestError } from '../../../errors';
-import {
-  CompetitionDetailsResponse,
-  formatCompetitionDetailsResponse
-} from '../../../responses/competition-details.response';
+import { CompetitionDetailsResponse, formatCompetitionDetailsResponse } from '../../../responses';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 
 type Participant = CompetitionDetailsResponse['participations'][number];

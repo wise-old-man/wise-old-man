@@ -3,9 +3,11 @@ import prisma from '../../../../prisma';
 import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
 import { NameChange, NameChangeStatus, PlayerBuild, PlayerType } from '../../../../types';
 import { assertNever } from '../../../../utils/assert-never.util';
-import { NameChangeDetailsResponse } from '../../../responses/name-change-details.response';
-import { formatNameChangeResponse } from '../../../responses/name-change.response';
-import { formatSnapshotResponse } from '../../../responses/snapshot.response';
+import {
+  formatNameChangeResponse,
+  formatSnapshotResponse,
+  NameChangeDetailsResponse
+} from '../../../responses';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import { standardize } from '../../players/player.utils';

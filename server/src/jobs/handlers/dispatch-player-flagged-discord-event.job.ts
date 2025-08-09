@@ -1,5 +1,5 @@
 import { isErrored } from '@attio/fetchable';
-import { FlaggedPlayerReviewContextResponse } from '../../api/responses/flagged-player-review-context.response';
+import { FlaggedPlayerReviewContextResponse } from '../../api/responses';
 import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import { Job } from '../job.class';

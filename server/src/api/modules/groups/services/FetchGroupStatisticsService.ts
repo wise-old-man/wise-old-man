@@ -14,10 +14,12 @@ import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { getLevel } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
-import { GroupMetricLeadersResponse } from '../../../responses/group-metric-leaders.response';
-import { GroupStatisticsResponse } from '../../../responses/group-statistics.response';
-import { formatPlayerResponse } from '../../../responses/player.response';
-import { formatSnapshotResponse } from '../../../responses/snapshot.response';
+import {
+  formatPlayerResponse,
+  formatSnapshotResponse,
+  GroupMetricLeadersResponse,
+  GroupStatisticsResponse
+} from '../../../responses';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import {
   average,

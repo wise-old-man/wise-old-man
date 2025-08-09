@@ -8,7 +8,7 @@ import {
   PlayerBuild,
   PlayerType
 } from '../../../types';
-import { formatPlayerResponse } from '../../responses/player.response';
+import { formatPlayerResponse } from '../../responses';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getPaginationSchema } from '../../util/validation';
 import { getRates } from './efficiency.utils';

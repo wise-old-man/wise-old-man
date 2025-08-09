@@ -23,7 +23,7 @@ import {
   getPlayerEHB,
   getPlayerEHP
 } from '../../modules/efficiency/efficiency.utils';
-import { PlayerDeltasMapResponse } from '../../responses/player-deltas-map.response';
+import { PlayerDeltasMapResponse } from '../../responses';
 import { getTotalLevel } from '../snapshots/snapshot.utils';
 
 const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 }) satisfies MetricDelta;

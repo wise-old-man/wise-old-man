@@ -2,16 +2,18 @@ import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { GroupRole, Metric, Period } from '../../../types';
-import { formatAchievementResponse } from '../../responses/achievement.response';
-import { formatCompetitionResponse } from '../../responses/competition.response';
-import { formatGroupDetailsResponse } from '../../responses/group-details.response';
-import { formatGroupHiscoresEntryResponse } from '../../responses/group-hiscores-entry.response';
-import { formatGroupResponse } from '../../responses/group.response';
-import { formatMemberActivityResponse } from '../../responses/member-activity.response';
-import { formatMembershipResponse } from '../../responses/membership.response';
-import { formatNameChangeResponse } from '../../responses/name-change.response';
-import { formatPlayerResponse } from '../../responses/player.response';
-import { formatRecordResponse } from '../../responses/record.response';
+import {
+  formatAchievementResponse,
+  formatCompetitionResponse,
+  formatGroupDetailsResponse,
+  formatGroupHiscoresEntryResponse,
+  formatGroupResponse,
+  formatMemberActivityResponse,
+  formatMembershipResponse,
+  formatNameChangeResponse,
+  formatPlayerResponse,
+  formatRecordResponse
+} from '../../responses';
 import { checkAdminPermission, checkGroupVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';

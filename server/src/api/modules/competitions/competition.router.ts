@@ -2,9 +2,11 @@ import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric } from '../../../types';
-import { formatCompetitionDetailsResponse } from '../../responses/competition-details.response';
-import { formatCompetitionTop5ProgressResponse } from '../../responses/competition-top-5-progress.response';
-import { formatCompetitionResponse } from '../../responses/competition.response';
+import {
+  formatCompetitionDetailsResponse,
+  formatCompetitionResponse,
+  formatCompetitionTop5ProgressResponse
+} from '../../responses';
 import { checkAdminPermission, checkCompetitionVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
