@@ -355,8 +355,16 @@ router.get(
     const { id } = req.params;
     const { metric, period, startDate, endDate, limit, offset } = req.query;
 
-    const result = await findGroupDeltas(id, metric, period, startDate, endDate, { limit, offset });
-    res.status(200).json(result);
+    const results = await findGroupDeltas(id, metric, period, startDate, endDate, { limit, offset });
+
+    const response = results.map(r => ({
+      player: formatPlayerResponse(r.player),
+      startDate: r.startDate,
+      endDate: r.endDate,
+      data: r.data
+    }));
+
+    res.status(200).json(response);
   })
 );
 

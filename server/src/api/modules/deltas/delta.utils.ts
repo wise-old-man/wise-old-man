@@ -23,10 +23,10 @@ import {
   getPlayerEHB,
   getPlayerEHP
 } from '../../modules/efficiency/efficiency.utils';
+import { PlayerDeltasMapResponse } from '../../responses/player-deltas-map.response';
 import { getTotalLevel } from '../snapshots/snapshot.utils';
-import { ActivityDelta, BossDelta, ComputedMetricDelta, PlayerDeltasMap, SkillDelta } from './delta.types';
 
-const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 });
+const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 }) satisfies MetricDelta;
 
 export function parseNum(metric: Metric, val: string) {
   return isComputedMetric(metric) ? parseFloat(val) : parseInt(val);
@@ -196,11 +196,15 @@ export function calculateMetricDelta(
 /**
  * Calculates the complete deltas for a given player (and snapshots)
  */
-export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snapshot, player: Player) {
+export function calculatePlayerDeltas(
+  startSnapshot: Snapshot,
+  endSnapshot: Snapshot,
+  player: Player
+): PlayerDeltasMapResponse {
   const startEfficiencyMap = getPlayerEfficiencyMap(startSnapshot, player);
   const endEfficiencyMap = getPlayerEfficiencyMap(endSnapshot, player);
 
-  function calculateSkillDelta(skill: Skill): SkillDelta {
+  function calculateSkillDelta(skill: Skill) {
     const valueDiff = calculateValueDiff(skill, startSnapshot, endSnapshot);
 
     return {
@@ -212,7 +216,7 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
     };
   }
 
-  function calculateBossDelta(boss: Boss): BossDelta {
+  function calculateBossDelta(boss: Boss) {
     return {
       metric: boss,
       ehb: calculateEfficiencyDiff(boss, startEfficiencyMap, endEfficiencyMap),
@@ -221,7 +225,7 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
     };
   }
 
-  function calculateActivityDelta(activity: Activity): ActivityDelta {
+  function calculateActivityDelta(activity: Activity) {
     return {
       metric: activity,
       rank: calculateRankDiff(activity, startSnapshot, endSnapshot),
@@ -229,7 +233,7 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
     };
   }
 
-  function calculateComputedMetricDelta(computedMetric: ComputedMetric): ComputedMetricDelta {
+  function calculateComputedMetricDelta(computedMetric: ComputedMetric) {
     const valueDiff =
       computedMetric === Metric.EHP
         ? calculateEHPDiff(startSnapshot, endSnapshot, player)
@@ -243,11 +247,19 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
   }
 
   const deltas = {
-    skills: Object.fromEntries(SKILLS.map(s => [s, calculateSkillDelta(s)])),
-    bosses: Object.fromEntries(BOSSES.map(b => [b, calculateBossDelta(b)])),
-    activities: Object.fromEntries(ACTIVITIES.map(a => [a, calculateActivityDelta(a)])),
-    computed: Object.fromEntries(COMPUTED_METRICS.map(v => [v, calculateComputedMetricDelta(v)]))
-  } as PlayerDeltasMap;
+    skills: Object.fromEntries(
+      SKILLS.map(s => [s, calculateSkillDelta(s)])
+    ) as PlayerDeltasMapResponse['skills'],
+    bosses: Object.fromEntries(
+      BOSSES.map(b => [b, calculateBossDelta(b)])
+    ) as PlayerDeltasMapResponse['bosses'],
+    activities: Object.fromEntries(
+      ACTIVITIES.map(a => [a, calculateActivityDelta(a)])
+    ) as PlayerDeltasMapResponse['activities'],
+    computed: Object.fromEntries(
+      COMPUTED_METRICS.map(v => [v, calculateComputedMetricDelta(v)])
+    ) as PlayerDeltasMapResponse['computed']
+  };
 
   // Special Handling for Overall EHP
   deltas.skills.overall.ehp = deltas.computed.ehp.value;
@@ -255,7 +267,7 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
   return deltas;
 }
 
-export function emptyPlayerDelta(): PlayerDeltasMap {
+export function emptyPlayerDelta(): PlayerDeltasMapResponse {
   return {
     skills: Object.fromEntries(
       SKILLS.map(skill => [
@@ -268,7 +280,7 @@ export function emptyPlayerDelta(): PlayerDeltasMap {
           experience: EMPTY_PROGRESS
         }
       ])
-    ) as Record<Skill, SkillDelta>,
+    ) as PlayerDeltasMapResponse['skills'],
     bosses: Object.fromEntries(
       BOSSES.map(boss => [
         boss,
@@ -279,7 +291,7 @@ export function emptyPlayerDelta(): PlayerDeltasMap {
           kills: EMPTY_PROGRESS
         }
       ])
-    ) as Record<Boss, BossDelta>,
+    ) as PlayerDeltasMapResponse['bosses'],
     activities: Object.fromEntries(
       ACTIVITIES.map(activity => [
         activity,
@@ -289,7 +301,7 @@ export function emptyPlayerDelta(): PlayerDeltasMap {
           score: EMPTY_PROGRESS
         }
       ])
-    ) as Record<Activity, ActivityDelta>,
+    ) as PlayerDeltasMapResponse['activities'],
     computed: Object.fromEntries(
       COMPUTED_METRICS.map(computedMetric => [
         computedMetric,
@@ -299,6 +311,6 @@ export function emptyPlayerDelta(): PlayerDeltasMap {
           value: EMPTY_PROGRESS
         }
       ])
-    ) as Record<ComputedMetric, ComputedMetricDelta>
+    ) as PlayerDeltasMapResponse['computed']
   };
 }

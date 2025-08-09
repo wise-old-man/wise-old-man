@@ -1,11 +1,10 @@
 import prisma from '../../../../prisma';
 import { Metric, Period, Player, Snapshot } from '../../../../types';
-import { omit } from '../../../../utils/omit.util';
+import { MetricDelta } from '../../../../types/metric-delta.type';
 import { parsePeriodExpression } from '../../../../utils/parse-period-expression.util';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
-import { DeltaGroupLeaderboardEntry } from '../delta.types';
 import { calculateMetricDelta } from '../delta.utils';
 
 async function findGroupDeltas(
@@ -15,7 +14,14 @@ async function findGroupDeltas(
   minDate?: Date,
   maxDate?: Date,
   pagination?: PaginationOptions
-): Promise<DeltaGroupLeaderboardEntry[]> {
+): Promise<
+  Array<{
+    player: Player;
+    startDate: Date;
+    endDate: Date;
+    data: MetricDelta;
+  }>
+> {
   if (!period && (!minDate || !maxDate)) {
     throw new BadRequestError('Invalid period and start/end dates.');
   }
@@ -64,7 +70,7 @@ async function findGroupDeltas(
       const data = calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
 
       return {
-        player: omit(player, 'latestSnapshot'),
+        player,
         data,
         startDate: startSnapshot.createdAt,
         endDate: endSnapshot.createdAt
