@@ -8,4 +8,4 @@ export const PlayerType = {
 
 export type PlayerType = (typeof PlayerType)[keyof typeof PlayerType];
 
-export const PLAYER_TYPES = Object.values(PlayerType);
+export const PLAYER_TYPES = Object.values(PlayerType) as PlayerType[];

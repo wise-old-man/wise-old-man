@@ -1,18 +1,16 @@
-import { CompetitionTeam, Metric } from '../../../server/src/types';
 import {
-  CompetitionDetails,
-  CompetitionListItem,
-  CompetitionWithParticipations,
-  Top5ProgressResult
-} from '../../../server/src/utils';
-import type {
-  CompetitionDetailsCSVParams,
-  CompetitionsSearchFilter,
+  CompetitionCSVTableType,
+  CompetitionDetailsResponse,
+  CompetitionResponse,
+  CompetitionStatus,
+  CompetitionTeam,
+  CompetitionTop5ProgressResponse,
+  CompetitionType,
   CreateCompetitionPayload,
-  CreateCompetitionResponse,
   EditCompetitionPayload,
   GenericCountMessageResponse,
-  GenericMessageResponse
+  GenericMessageResponse,
+  Metric
 } from '../api-types';
 import { PaginationOptions } from '../utils';
 import BaseAPIClient from './BaseAPIClient';
@@ -22,8 +20,16 @@ export default class CompetitionsClient extends BaseAPIClient {
    * Searches for competitions that match a title, type, metric and status filter.
    * @returns A list of competitions.
    */
-  searchCompetitions(filter: CompetitionsSearchFilter, pagination?: PaginationOptions) {
-    return this.getRequest<CompetitionListItem[]>('/competitions', { ...filter, ...pagination });
+  searchCompetitions(
+    filter: {
+      title?: string;
+      metric?: Metric;
+      type?: CompetitionType;
+      status?: CompetitionStatus;
+    },
+    pagination?: PaginationOptions
+  ) {
+    return this.getRequest<CompetitionResponse[]>('/competitions', { ...filter, ...pagination });
   }
 
   /**
@@ -31,14 +37,21 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns A competition with a list of participants.
    */
   getCompetitionDetails(id: number, previewMetric?: Metric) {
-    return this.getRequest<CompetitionDetails>(`/competitions/${id}`, { metric: previewMetric });
+    return this.getRequest<CompetitionDetailsResponse>(`/competitions/${id}`, { metric: previewMetric });
   }
 
   /**
    * Fetches the competition's participant list in CSV format.
    * @returns A string containing the CSV content.
    */
-  getCompetitionDetailsCSV(id: number, params?: CompetitionDetailsCSVParams) {
+  getCompetitionDetailsCSV(
+    id: number,
+    params?: {
+      previewMetric?: Metric;
+      teamName?: string;
+      table?: CompetitionCSVTableType;
+    }
+  ) {
     return this.getText(`/competitions/${id}/csv`, { metric: params.previewMetric, ...params });
   }
 
@@ -48,7 +61,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns A list of competition progress objects, including the player and their value history over time.
    */
   getCompetitionTopHistory(id: number, previewMetric?: Metric) {
-    return this.getRequest<Top5ProgressResult>(`/competitions/${id}/top-history`, {
+    return this.getRequest<Array<CompetitionTop5ProgressResponse>>(`/competitions/${id}/top-history`, {
       metric: previewMetric
     });
   }
@@ -58,7 +71,10 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns The newly created competition, and the verification code that authorizes future changes to it.
    */
   createCompetition(payload: CreateCompetitionPayload) {
-    return this.postRequest<CreateCompetitionResponse>('/competitions', payload);
+    return this.postRequest<{ competition: CompetitionDetailsResponse; verificationCode: string }>(
+      '/competitions',
+      payload
+    );
   }
 
   /**
@@ -66,7 +82,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns The updated competition.
    */
   editCompetition(id: number, payload: EditCompetitionPayload, verificationCode: string) {
-    return this.putRequest<CompetitionWithParticipations>(`/competitions/${id}`, {
+    return this.putRequest<CompetitionDetailsResponse>(`/competitions/${id}`, {
       ...payload,
       verificationCode
     });

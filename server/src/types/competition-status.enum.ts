@@ -4,4 +4,4 @@ export enum CompetitionStatus {
   FINISHED = 'finished'
 }
 
-export const COMPETITION_STATUSES = Object.values(CompetitionStatus);
+export const COMPETITION_STATUSES = Object.values(CompetitionStatus) as CompetitionStatus[];

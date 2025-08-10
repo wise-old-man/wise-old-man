@@ -255,4 +255,4 @@ export const Country = {
 
 export type Country = (typeof Country)[keyof typeof Country];
 
-export const COUNTRY_CODES = Object.values(Country);
+export const COUNTRY_CODES = Object.values(Country) as Country[];

@@ -272,4 +272,4 @@ export const GroupRole = {
 
 export type GroupRole = (typeof GroupRole)[keyof typeof GroupRole];
 
-export const GROUP_ROLES = Object.values(GroupRole);
+export const GROUP_ROLES = Object.values(GroupRole) as GroupRole[];

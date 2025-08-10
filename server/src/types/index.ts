@@ -17,6 +17,7 @@ export * from './group.type';
 export * from './member-activity-type.enum';
 export * from './member-activity.type';
 export * from './membership.type';
+export * from './metric-delta.type';
 export * from './metric-measure.enum';
 export * from './metric-type.enum';
 export * from './metric.enum';
