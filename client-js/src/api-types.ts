@@ -23,23 +23,7 @@ export {
   SnapshotResponse
 } from '../../server/src/api/responses';
 
-export {
-  BossMetaConfig,
-  CompetitionCSVTableType,
-  CompetitionStatus,
-  CompetitionTeam,
-  CompetitionType,
-  Country,
-  EfficiencyAlgorithmType,
-  GroupRole,
-  Metric,
-  MetricDelta,
-  NameChangeStatus,
-  Period,
-  PlayerBuild,
-  PlayerType,
-  SkillMetaConfig
-} from '../../server/src/types';
+export * from '../../server/src/types';
 
 export interface GenericCountMessageResponse {
   count: number;
