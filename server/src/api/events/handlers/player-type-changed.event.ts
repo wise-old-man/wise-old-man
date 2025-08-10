@@ -1,5 +1,5 @@
 import { jobManager, JobType } from '../../../jobs';
-import { PlayerType } from '../../../utils';
+import { PlayerType } from '../../../types';
 import { EventPayloadMap } from '../types/event-payload.type';
 import { EventType } from '../types/event-type.enum';
 

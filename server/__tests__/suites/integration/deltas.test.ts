@@ -1,15 +1,15 @@
 import axios from 'axios';
-import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { PlayerType, Metric } from '../../../src/utils';
+import supertest from 'supertest';
 import apiServer from '../../../src/api';
-import { registerHiscoresMock, resetDatabase, sleep, readFile, modifyRawHiscoresData } from '../../utils';
-import prisma from '../../../src/prisma';
-import * as PlayerDeltaUpdatedEvent from '../../../src/api/events/handlers/player-delta-updated.event';
-import { findPlayerDeltas } from '../../../src/api/modules/deltas/services/FindPlayerDeltasService';
-import { findGroupDeltas } from '../../../src/api/modules/deltas/services/FindGroupDeltasService';
-import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
+import * as PlayerDeltaUpdatedEvent from '../../../src/api/events/handlers/player-delta-updated.event';
+import { findGroupDeltas } from '../../../src/api/modules/deltas/services/FindGroupDeltasService';
+import { findPlayerDeltas } from '../../../src/api/modules/deltas/services/FindPlayerDeltasService';
+import prisma from '../../../src/prisma';
+import { redisClient } from '../../../src/services/redis.service';
+import { Metric, PlayerType } from '../../../src/types';
+import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -358,10 +358,6 @@ describe('Deltas API', () => {
         data: { gained: 0 }
       });
 
-      // Make sure latestSnapshot isn't leaking
-      expect(directResponse[0].player['latestSnapshot']).not.toBeDefined();
-      expect(directResponse[1].player['latestSnapshot']).not.toBeDefined();
-
       expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(604_800_000);
       expect(Date.now() - directResponse[0].endDate.getTime()).toBeLessThan(10_000);
     });
@@ -378,10 +374,6 @@ describe('Deltas API', () => {
         player: { username: 'hydrox6' },
         data: { gained: 0 }
       });
-
-      // Make sure latestSnapshot isn't leaking
-      expect(directResponse[0].player['latestSnapshot']).not.toBeDefined();
-      expect(directResponse[1].player['latestSnapshot']).not.toBeDefined();
 
       expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(280_800_000);
       expect(Date.now() - directResponse[0].endDate.getTime()).toBeLessThan(10_000);
@@ -428,10 +420,6 @@ describe('Deltas API', () => {
         data: { gained: 0 }
       });
 
-      // Make sure latestSnapshot isn't leaking
-      expect(recentGains[0].player['latestSnapshot']).not.toBeDefined();
-      expect(recentGains[1].player['latestSnapshot']).not.toBeDefined();
-
       expect(recentGains[0].startDate.getTime()).toBeGreaterThan(
         new Date('2021-12-14T04:15:36.000Z').getTime()
       );
@@ -444,8 +432,21 @@ describe('Deltas API', () => {
         endDate: '2025-12-14T04:15:36.000Z'
       });
 
+      for (const gain of recentGains) {
+        delete gain.player['latestSnapshot'];
+      }
+
       expect(apiResponse.status).toBe(200);
-      expect(JSON.stringify(apiResponse.body)).toEqual(JSON.stringify(recentGains));
+
+      expect(apiResponse.body.length).toBe(recentGains.length);
+      // expect(JSON.stringify(apiResponse.body)).toEqual(JSON.stringify(recentGains));
+
+      for (let i = 0; i < apiResponse.body.length; i++) {
+        expect(apiResponse.body[i].player.username).toEqual(recentGains[i].player.username);
+        expect(apiResponse.body[i].startDate).toEqual(recentGains[i].startDate.toISOString());
+        expect(apiResponse.body[i].endDate).toEqual(recentGains[i].endDate.toISOString());
+        expect(apiResponse.body[i].data).toEqual(recentGains[i].data);
+      }
 
       // Make sure latestSnapshot isn't leaking
       expect(apiResponse.body[0].player['latestSnapshot']).not.toBeDefined();

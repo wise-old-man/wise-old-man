@@ -3,9 +3,25 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { JobType, jobManager } from '../../../jobs';
 import prisma from '../../../prisma';
-import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../../utils';
+import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../../types';
 import { assertNever } from '../../../utils/assert-never.util';
 import { BadRequestError, ForbiddenError, NotFoundError, RateLimitError, ServerError } from '../../errors';
+import {
+  formatAchievementProgressResponse,
+  formatAchievementResponse,
+  formatCompetitionResponse,
+  formatGroupResponse,
+  formatMembershipResponse,
+  formatNameChangeResponse,
+  formatParticipationResponse,
+  formatPlayerAnnotationResponse,
+  formatPlayerArchiveResponse,
+  formatPlayerCompetitionStandingResponse,
+  formatPlayerDetailsResponse,
+  formatPlayerResponse,
+  formatRecordResponse,
+  formatSnapshotResponse
+} from '../../responses';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getDateSchema, getPaginationSchema } from '../../util/validation';
@@ -22,7 +38,6 @@ import { findPlayerSnapshotTimeline } from '../snapshots/services/FindPlayerSnap
 import { findPlayerSnapshots } from '../snapshots/services/FindPlayerSnapshotsService';
 import { rollbackCollectionLog } from '../snapshots/services/RollbackCollectionLogService';
 import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsService';
-import { formatSnapshot } from '../snapshots/snapshot.utils';
 import { standardize } from './player.utils';
 import { archivePlayer } from './services/ArchivePlayerService';
 import { assertPlayerType } from './services/AssertPlayerTypeService';
@@ -49,8 +64,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username, limit, offset } = req.query;
 
-    const result = await searchPlayers(username, { limit, offset });
-    res.status(200).json(result);
+    const players = await searchPlayers(username, { limit, offset });
+    const response = players.map(formatPlayerResponse);
+
+    res.status(200).json(response);
   })
 );
 
@@ -104,9 +121,10 @@ router.post(
       }
     }
 
-    const playerDetails = await fetchPlayerDetails(username);
+    const details = await fetchPlayerDetails(username);
+    const response = formatPlayerDetailsResponse(details);
 
-    res.status(updateResult.value.isNew ? 201 : 200).json(playerDetails);
+    res.status(updateResult.value.isNew ? 201 : 200).json(response);
   })
 );
 
@@ -120,8 +138,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const result = await fetchPlayerDetails(username);
-    res.status(200).json(result);
+    const details = await fetchPlayerDetails(username);
+    const response = formatPlayerDetailsResponse(details);
+
+    res.status(200).json(response);
   })
 );
 
@@ -145,9 +165,10 @@ router.get(
       throw new NotFoundError('Player not found.');
     }
 
-    const result = await fetchPlayerDetails(query.username);
+    const details = await fetchPlayerDetails(query.username);
+    const response = formatPlayerDetailsResponse(details);
 
-    res.status(200).json(result);
+    res.status(200).json(response);
   })
 );
 
@@ -175,10 +196,14 @@ router.post(
       throw new ServerError('Failed to assert player type.');
     }
 
-    res.status(200).json({
+    const response = {
       changed: assertionResult.value.changed,
-      player: assertionResult.value.changed ? assertionResult.value.updatedPlayer : player
-    });
+      player: formatPlayerResponse(
+        assertionResult.value.changed ? assertionResult.value.updatedPlayer : player
+      )
+    };
+
+    res.status(200).json(response);
   })
 );
 
@@ -198,7 +223,9 @@ router.put(
     const { country } = req.body;
 
     const result = await changePlayerCountry(username, country);
-    res.status(200).json(result);
+    const response = formatPlayerResponse(result);
+
+    res.status(200).json(response);
   })
 );
 
@@ -312,7 +339,9 @@ router.post(
 
     jobManager.add(JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW, {}, { delay: 5_000 });
 
-    res.status(200).json(archivedPlayer);
+    const response = formatPlayerResponse(archivedPlayer);
+
+    res.status(200).json(response);
   })
 );
 
@@ -361,13 +390,13 @@ router.get(
       throw new NotFoundError('Player not found.');
     }
 
-    const results = await findPlayerSnapshots(player.id, period, startDate, endDate, pagination);
+    const snapshots = await findPlayerSnapshots(player.id, period, startDate, endDate, pagination);
 
-    const formattedSnapshots = results.map(s => {
-      return formatSnapshot(s, getPlayerEfficiencyMap(s, player));
-    });
+    const response = snapshots.map(snapshot =>
+      formatSnapshotResponse(snapshot, getPlayerEfficiencyMap(snapshot, player))
+    );
 
-    res.status(200).json(formattedSnapshots);
+    res.status(200).json(response);
   })
 );
 
@@ -403,8 +432,14 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const results = await findPlayerArchives(username);
-    res.status(200).json(results);
+    const result = await findPlayerArchives(username);
+
+    const response = result.map(a => ({
+      ...formatPlayerArchiveResponse(a.archive),
+      player: formatPlayerResponse(a.player)
+    }));
+
+    res.status(200).json(response);
   })
 );
 
@@ -420,9 +455,14 @@ router.get(
     const { username } = req.params;
     const { limit, offset } = req.query;
 
-    const results = await findPlayerMemberships(username, { limit, offset });
+    const memberships = await findPlayerMemberships(username, { limit, offset });
 
-    res.status(200).json(results);
+    const response = memberships.map(m => ({
+      ...formatMembershipResponse(m.membership),
+      group: formatGroupResponse(m.group, m.group.memberCount)
+    }));
+
+    res.status(200).json(response);
   })
 );
 
@@ -440,9 +480,14 @@ router.get(
     const { username } = req.params;
     const { status } = req.query;
 
-    const results = await findPlayerParticipations(username, status);
+    const participations = await findPlayerParticipations(username, status);
 
-    res.status(200).json(results);
+    const response = participations.map(p => ({
+      ...formatParticipationResponse(p.participation),
+      competition: formatCompetitionResponse(p.competition, p.group)
+    }));
+
+    res.status(200).json(response);
   })
 );
 
@@ -460,9 +505,20 @@ router.get(
     const { username } = req.params;
     const { status } = req.query;
 
-    const results = await findPlayerParticipationsStandings(username, status);
+    const standings = await findPlayerParticipationsStandings(username, status);
 
-    res.status(200).json(results);
+    const response = standings.map(s =>
+      formatPlayerCompetitionStandingResponse(
+        s.participation,
+        s.competition,
+        s.group,
+        s.progress,
+        s.levels,
+        s.rank
+      )
+    );
+
+    res.status(200).json(response);
   })
 );
 
@@ -476,9 +532,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const results = await findPlayerNameChanges(username);
+    const nameChanges = await findPlayerNameChanges(username);
+    const response = nameChanges.map(formatNameChangeResponse);
 
-    res.status(200).json(results);
+    res.status(200).json(response);
   })
 );
 
@@ -518,8 +575,10 @@ router.get(
     const { username } = req.params;
     const { metric, period } = req.query;
 
-    const results = await findPlayerRecords(username, period, metric);
-    res.status(200).json(results);
+    const records = await findPlayerRecords(username, period, metric);
+    const response = records.map(formatRecordResponse);
+
+    res.status(200).json(response);
   })
 );
 
@@ -533,8 +592,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const results = await findPlayerAchievements(username);
-    res.status(200).json(results);
+    const achievements = await findPlayerAchievements(username);
+    const response = achievements.map(formatAchievementResponse);
+
+    res.status(200).json(response);
   })
 );
 
@@ -548,8 +609,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const results = await findPlayerAchievementProgress(username);
-    res.status(200).json(results);
+    const achievements = await findPlayerAchievementProgress(username);
+    const response = achievements.map(formatAchievementProgressResponse);
+
+    res.status(200).json(response);
   })
 );
 
@@ -569,8 +632,9 @@ router.post(
     const { annotationType } = req.body;
 
     const createdAnnotation = await createPlayerAnnotation(username, annotationType);
+    const response = formatPlayerAnnotationResponse(createdAnnotation);
 
-    res.status(201).json(createdAnnotation);
+    res.status(201).json(response);
   })
 );
 

@@ -1,5 +1,5 @@
-import { Job } from '../job.class';
 import prisma, { PrismaTypes } from '../../prisma';
+import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 
 interface Payload {
@@ -35,7 +35,7 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
       return;
     }
 
-    const player = await prisma.player.findPreExtension({
+    const player = await prisma.player.findFirst({
       where: {
         username: payload.username
       }

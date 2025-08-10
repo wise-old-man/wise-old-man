@@ -1,5 +1,5 @@
 import prisma from '../../../../prisma';
-import { CompetitionType } from '../../../../utils';
+import { CompetitionType } from '../../../../types';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { sanitizeTitle } from '../competition.utils';
 

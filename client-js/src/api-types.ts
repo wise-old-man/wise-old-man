@@ -1,23 +1,45 @@
-import { GroupSocialLinks } from '../../server/src/prisma';
-import {
-  PlayerDeltasMap,
+import { CompetitionTeam, GroupRole, Metric, Period } from '../../server/src/types';
+
+export {
+  AchievementProgressResponse,
+  AchievementResponse,
+  CompetitionDetailsResponse,
+  CompetitionResponse,
+  GroupDetailsResponse,
+  GroupHiscoresEntryResponse,
+  GroupResponse,
+  GroupStatisticsResponse,
+  MemberActivityResponse,
+  MembershipResponse,
+  NameChangeResponse,
+  ParticipantHistoryResponse,
+  ParticipationResponse,
+  PlayerArchiveResponse,
+  PlayerCompetitionStandingResponse,
+  PlayerDeltasMapResponse,
+  PlayerDetailsResponse,
+  PlayerResponse,
+  RecordResponse,
+  SnapshotResponse
+} from '../../server/src/api/responses';
+
+export {
+  BossMetaConfig,
+  CompetitionCSVTableType,
+  CompetitionStatus,
+  CompetitionTeam,
+  CompetitionType,
   Country,
+  EfficiencyAlgorithmType,
+  GroupRole,
   Metric,
+  MetricDelta,
+  NameChangeStatus,
   Period,
-  Player,
   PlayerBuild,
   PlayerType,
-  EfficiencyAlgorithmType,
-  NameChangeStatus,
-  CompetitionStatus,
-  CompetitionType,
-  CompetitionWithParticipations,
-  Team,
-  GroupRole,
-  GroupDetails,
-  CompetitionCSVTableType,
-  GroupRoleOrder
-} from '../../server/src/utils';
+  SkillMetaConfig
+} from '../../server/src/types';
 
 export interface GenericCountMessageResponse {
   count: number;
@@ -37,65 +59,28 @@ export type TimeRangeFilter =
       endDate: Date;
     };
 
-interface BasePlayerFilter {
-  country?: Country;
-  playerType?: PlayerType;
-  playerBuild?: PlayerBuild;
-}
-
-/**
- * Groups Client Types
- */
-
-export interface GroupMemberFragment {
-  username: string;
-  role?: GroupRole;
-}
-
 export interface CreateGroupPayload {
   name: string;
   clanChat?: string;
   homeworld?: number;
   description?: string;
-  members: Array<GroupMemberFragment>;
+  members: Array<{
+    username: string;
+    role?: GroupRole;
+  }>;
 }
 
 export type EditGroupPayload = Partial<CreateGroupPayload> & {
   bannerImage?: string;
   profileImage?: string;
-  socialLinks?: Partial<GroupSocialLinks>;
-  roleOrders?: Array<GroupRoleOrder>;
-};
-
-export interface CreateGroupResponse {
-  group: GroupDetails;
-  verificationCode: string;
-}
-
-export type ChangeMemberRolePayload = Required<GroupMemberFragment>;
-
-export type GetGroupGainsFilter = { metric: Metric } & TimeRangeFilter;
-
-export interface GroupRecordsFilter {
-  metric: Metric;
-  period: Period;
-}
-
-/**
- * Competitions Client Types
- */
-
-export interface CompetitionsSearchFilter {
-  title?: string;
-  metric?: Metric;
-  type?: CompetitionType;
-  status?: CompetitionStatus;
-}
-
-export type CompetitionDetailsCSVParams = {
-  previewMetric?: Metric;
-  teamName?: string;
-  table?: CompetitionCSVTableType;
+  socialLinks?: Partial<{
+    website?: string | null;
+    discord?: string | null;
+    twitter?: string | null;
+    twitch?: string | null;
+    youtube?: string | null;
+  }>;
+  roleOrders?: Array<{ role: GroupRole; index: number }>;
 };
 
 export type CreateCompetitionPayload = {
@@ -110,7 +95,7 @@ export type CreateCompetitionPayload = {
       participants: string[];
     }
   | {
-      teams: Team[];
+      teams: CompetitionTeam[];
     }
 );
 
@@ -120,75 +105,5 @@ export type EditCompetitionPayload = {
   startsAt?: Date;
   endsAt?: Date;
   participants?: string[];
-  teams?: Team[];
+  teams?: CompetitionTeam[];
 };
-
-export type CreateCompetitionResponse = {
-  competition: CompetitionWithParticipations;
-  verificationCode: string;
-};
-
-/**
- * Name Changes Client Types
- */
-
-export type NameChangesSearchFilter = {
-  username?: string;
-  status?: NameChangeStatus;
-};
-
-/**
- * Record Client Types
- */
-
-export interface RecordLeaderboardFilter extends BasePlayerFilter {
-  metric: Metric;
-  period: Period;
-}
-
-/**
- * Player Client Types
- */
-
-export interface PlayerCompetitionsFilter {
-  status?: CompetitionStatus;
-}
-
-export interface PlayerCompetitionStandingsFilter {
-  status: Exclude<CompetitionStatus, CompetitionStatus.UPCOMING>;
-}
-
-export interface PlayerRecordsFilter {
-  period: Period | string;
-  metric: Metric;
-}
-
-export interface AssertPlayerTypeResponse {
-  player: Player;
-  changed: boolean;
-}
-
-export interface GetPlayerGainsResponse {
-  startsAt: Date;
-  endsAt: Date;
-  data: PlayerDeltasMap;
-}
-
-/**
- * Efficiency Client Types
- */
-
-export type EfficiencyAlgorithmTypeUnion = `${EfficiencyAlgorithmType}`;
-
-export interface EfficiencyLeaderboardsFilter extends BasePlayerFilter {
-  metric: typeof Metric.EHP | typeof Metric.EHB | 'ehp+ehb';
-}
-
-/**
- * Delta Client Types
- */
-
-export interface DeltaLeaderboardFilter extends BasePlayerFilter {
-  metric: Metric;
-  period: Period | string;
-}

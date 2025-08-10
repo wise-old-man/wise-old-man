@@ -1,16 +1,15 @@
 import prisma from '../../../../prisma';
 import logger from '../../../../services/logging.service';
-import { GroupRole } from '../../../../utils';
+import { GroupRole, MemberActivityType, Membership, Player } from '../../../../types';
 import { BadRequestError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { standardize } from '../../players/player.utils';
-import { ActivityType, MembershipWithPlayer } from '../group.types';
 
 async function changeMemberRole(
   groupId: number,
   username: string,
   newRole: GroupRole
-): Promise<MembershipWithPlayer> {
+): Promise<{ updatedMembership: Membership; player: Player }> {
   const membership = await prisma.membership.findFirst({
     where: {
       groupId,
@@ -34,7 +33,7 @@ async function changeMemberRole(
     throw new BadRequestError(`${username} is already a ${membership.role}.`);
   }
 
-  const result = await prisma
+  const { player, ...updatedMembership } = await prisma
     .$transaction(async transaction => {
       const updatedMembership = await transaction.membership.update({
         where: {
@@ -60,7 +59,7 @@ async function changeMemberRole(
         data: {
           groupId: membership.groupId,
           playerId: membership.playerId,
-          type: ActivityType.CHANGED_ROLE,
+          type: MemberActivityType.CHANGED_ROLE,
           role: newRole,
           previousRole: membership.role
         }
@@ -84,7 +83,7 @@ async function changeMemberRole(
       throw new ServerError('Failed to change member role.');
     });
 
-  return result;
+  return { updatedMembership, player };
 }
 
 export { changeMemberRole };

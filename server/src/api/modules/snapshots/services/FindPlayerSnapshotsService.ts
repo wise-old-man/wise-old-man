@@ -1,7 +1,8 @@
-import prisma, { Snapshot, PrismaTypes } from '../../../../prisma';
-import { Period, parsePeriodExpression } from '../../../../utils';
-import { PaginationOptions } from '../../../util/validation';
+import prisma, { PrismaTypes } from '../../../../prisma';
+import { Period, Snapshot } from '../../../../types';
+import { parsePeriodExpression } from '../../../../utils/parse-period-expression.util';
 import { BadRequestError } from '../../../errors';
+import { PaginationOptions } from '../../../util/validation';
 
 async function findPlayerSnapshots(
   id: number,

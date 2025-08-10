@@ -1,6 +1,7 @@
 import prisma from '../../../../prisma';
-import { Period, PeriodProps } from '../../../../utils';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
+import { Period } from '../../../../types';
+import { PeriodProps } from '../../../../utils/shared';
 
 async function blockUserActions(ipHash: string) {
   const dayAgo = new Date(Date.now() - PeriodProps[Period.DAY].milliseconds);

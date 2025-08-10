@@ -1,15 +1,14 @@
-import { Period, Metric } from '../../../../utils';
 import prisma from '../../../../prisma';
-import { PaginationOptions } from '../../../util/validation';
+import { Metric, Period, Player, Record } from '../../../../types';
 import { NotFoundError } from '../../../errors';
-import { RecordLeaderboardEntry } from '../record.types';
+import { PaginationOptions } from '../../../util/validation';
 
 async function findGroupRecords(
   groupId: number,
   metric: Metric,
   period: Period,
   pagination: PaginationOptions
-): Promise<RecordLeaderboardEntry[]> {
+): Promise<Array<{ record: Record; player: Player }>> {
   // Fetch this group and all of its memberships
   const groupAndMemberships = await prisma.group.findFirst({
     where: { id: groupId },
@@ -39,7 +38,7 @@ async function findGroupRecords(
     skip: pagination.offset
   });
 
-  return records;
+  return records.map(({ player, ...record }) => ({ player, record }));
 }
 
 export { findGroupRecords };

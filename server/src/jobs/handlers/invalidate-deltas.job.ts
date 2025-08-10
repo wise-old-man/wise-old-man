@@ -1,6 +1,7 @@
 import prisma from '../../prisma';
+import { Period, PERIODS } from '../../types';
+import { PeriodProps } from '../../utils/shared';
 import { Job } from '../job.class';
-import { Period, PeriodProps, PERIODS } from '../../utils';
 
 export class InvalidateDeltasJob extends Job<unknown> {
   async execute() {

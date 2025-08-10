@@ -1,4 +1,5 @@
-import prisma, { PrismaTypes, Snapshot } from '../../../../prisma';
+import prisma, { PrismaTypes } from '../../../../prisma';
+import { Snapshot } from '../../../../types';
 
 async function findGroupSnapshots(
   playerIds: number[],

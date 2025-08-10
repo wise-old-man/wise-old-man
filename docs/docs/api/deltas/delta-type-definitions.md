@@ -11,7 +11,6 @@ sidebar_position: 1
 
 | Field     | Type                                                         | Description                                |
 | :-------- | :----------------------------------------------------------- | :----------------------------------------- |
-| playerId  | integer                                                      | The delta's parent player ID.              |
 | gained    | long                                                         | The delta's gained value.                  |
 | startDate | date                                                         | The starting date of the delta's timespan. |
 | endDate   | date                                                         | The ending date of the delta's timespan.   |

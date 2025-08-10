@@ -1,23 +1,40 @@
 import prisma from '../../../../prisma';
-import {
-  getLevel,
-  getMetricMeasure,
-  getMetricRankKey,
-  getMetricValueKey,
-  Metric,
-  MetricMeasure
-} from '../../../../utils';
-import { omit } from '../../../../utils/omit.util';
+import { Metric, MetricMeasure, Player } from '../../../../types';
+import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
+import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
+import { getLevel, MetricProps } from '../../../../utils/shared';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { getTotalLevel } from '../../snapshots/snapshot.utils';
-import { GroupHiscoresEntry, GroupHiscoresSkillItem } from '../group.types';
+
+type EntryType =
+  | {
+      type: 'skill';
+      rank: number;
+      level: number;
+      experience: number;
+    }
+  | {
+      type: 'boss';
+      rank: number;
+      kills: number;
+    }
+  | {
+      type: 'activity';
+      rank: number;
+      score: number;
+    }
+  | {
+      type: 'computed';
+      rank: number;
+      value: number;
+    };
 
 async function fetchGroupHiscores(
   groupId: number,
   metric: Metric,
   pagination: PaginationOptions
-): Promise<GroupHiscoresEntry[]> {
+): Promise<Array<{ player: Player; data: EntryType }>> {
   const memberships = await prisma.membership.findMany({
     where: { groupId },
     include: {
@@ -41,7 +58,7 @@ async function fetchGroupHiscores(
     return [];
   }
 
-  const measure = getMetricMeasure(metric);
+  const measure = MetricProps[metric].measure;
   const rankKey = getMetricRankKey(metric);
   const valueKey = getMetricValueKey(metric);
 
@@ -50,36 +67,42 @@ async function fetchGroupHiscores(
     .map(({ player }) => {
       const snapshot = player.latestSnapshot!;
 
-      let data: GroupHiscoresEntry['data'];
-
       const rank = snapshot[rankKey];
       const value = snapshot[valueKey];
 
-      if (measure === MetricMeasure.EXPERIENCE) {
-        const lvl = metric === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(value);
-        data = { rank, experience: value, level: lvl, type: 'skill' };
-      } else if (measure === MetricMeasure.KILLS) {
-        data = { rank, kills: value, type: 'boss' };
-      } else if (measure === MetricMeasure.SCORE) {
-        data = { rank, score: value, type: 'activity' };
-      } else {
-        data = { rank, value: value, type: 'computed' };
+      switch (measure) {
+        case MetricMeasure.EXPERIENCE: {
+          const lvl = metric === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(value);
+          return {
+            player,
+            data: { rank, experience: value, level: lvl, type: 'skill' } as const
+          };
+        }
+        case MetricMeasure.KILLS: {
+          return {
+            player,
+            data: { rank, kills: value, type: 'boss' } as const
+          };
+        }
+        case MetricMeasure.SCORE: {
+          return {
+            player,
+            data: { rank, score: value, type: 'activity' } as const
+          };
+        }
+        case MetricMeasure.VALUE:
+          return {
+            player,
+            data: { rank, value: value, type: 'computed' } as const
+          };
       }
-
-      return {
-        player: omit(player, 'latestSnapshot'),
-        data
-      };
     })
     .sort((a, b) => {
       if (metric === Metric.OVERALL) {
-        const aData = a.data as GroupHiscoresSkillItem;
-        const bData = b.data as GroupHiscoresSkillItem;
-
-        return bData.level - aData.level || bData.experience - aData.experience;
+        return b.data.level! - a.data.level! || b.data.experience! - a.data.experience!;
       }
 
-      return b.data[measure] - a.data[measure];
+      return b.data[measure]! - a.data[measure]!;
     })
     .slice(pagination.offset, pagination.offset + pagination.limit);
 }

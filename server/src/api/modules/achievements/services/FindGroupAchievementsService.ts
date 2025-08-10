@@ -1,13 +1,12 @@
 import prisma from '../../../../prisma';
-import { PaginationOptions } from '../../../util/validation';
+import { Achievement, Player } from '../../../../types';
 import { NotFoundError } from '../../../errors';
-import { ExtendedAchievementWithPlayer } from '../achievement.types';
-import { extend } from '../achievement.utils';
+import { PaginationOptions } from '../../../util/validation';
 
 async function findGroupAchievements(
   groupId: number,
   pagination: PaginationOptions
-): Promise<ExtendedAchievementWithPlayer[]> {
+): Promise<Array<{ achievement: Achievement; player: Player }>> {
   // Fetch this group and all of its memberships
   const groupAndMemberships = await prisma.group.findFirst({
     where: { id: groupId },
@@ -34,9 +33,7 @@ async function findGroupAchievements(
     skip: pagination.offset
   });
 
-  return achievements.map(a => {
-    return { ...extend(a), player: a.player };
-  });
+  return achievements.map(({ player, ...achievement }) => ({ achievement, player }));
 }
 
 export { findGroupAchievements };

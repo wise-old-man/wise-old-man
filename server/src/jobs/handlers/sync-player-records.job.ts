@@ -1,7 +1,8 @@
-import { prepareRecordValue } from '../../api/modules/records/record.utils';
 import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snapshot.utils';
 import prisma, { PrismaTypes } from '../../prisma';
-import { getMetricValueKey, Metric, METRICS, Period } from '../../utils';
+import { Metric, METRICS, Period } from '../../types';
+import { getMetricValueKey } from '../../utils/get-metric-value-key.util';
+import { prepareRecordValue } from '../../utils/prepare-record-value.util';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 

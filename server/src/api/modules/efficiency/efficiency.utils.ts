@@ -1,30 +1,31 @@
-import { Player, Snapshot } from '../../../prisma';
 import {
   BOSSES,
   Boss,
   ComputedMetric,
+  EfficiencyAlgorithmType,
   Metric,
+  Player,
   PlayerBuild,
   PlayerType,
   SKILLS,
   Skill,
-  getMetricValueKey
-} from '../../../utils';
+  Snapshot
+} from '../../../types';
+import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
 import EfficiencyAlgorithm from './EfficiencyAlgorithm';
-import mainBossingMetas from './configs/ehb/main.ehb';
-import mainSkillingMetas from './configs/ehp/main.ehp';
+import def1BossingMetas from './configs/ehb/def1.ehb';
 import ironmanBossingMetas from './configs/ehb/ironman.ehb';
+import mainBossingMetas from './configs/ehb/main.ehb';
+import ultimateBossingMetas from './configs/ehb/ultimate.ehb';
+import def1SkillingMetas from './configs/ehp/def1.ehp';
+import f2pSkillingMetas from './configs/ehp/f2p.ehp';
+import f2pIronmanSkillingMetas from './configs/ehp/f2p_ironman.ehp';
+import f2pLvl3SkillingMetas from './configs/ehp/f2p_lvl3.ehp';
+import f2pLvl3IronmanSkillingMetas from './configs/ehp/f2p_lvl3_ironman.ehp';
 import ironmanSkillingMetas from './configs/ehp/ironman.ehp';
 import lvl3SkillingMetas from './configs/ehp/lvl3.ehp';
-import f2pSkillingMetas from './configs/ehp/f2p.ehp';
-import f2pLvl3SkillingMetas from './configs/ehp/f2p_lvl3.ehp';
-import f2pIronmanSkillingMetas from './configs/ehp/f2p_ironman.ehp';
-import f2pLvl3IronmanSkillingMetas from './configs/ehp/f2p_lvl3_ironman.ehp';
-import ultimateBossingMetas from './configs/ehb/ultimate.ehb';
+import mainSkillingMetas from './configs/ehp/main.ehp';
 import ultimateSkillingMetas from './configs/ehp/ultimate.ehp';
-import def1BossingMetas from './configs/ehb/def1.ehb';
-import def1SkillingMetas from './configs/ehp/def1.ehp';
-import { EfficiencyAlgorithmType } from './efficiency.types';
 
 export const ALGORITHMS = new Map<EfficiencyAlgorithmType, EfficiencyAlgorithm>(
   [

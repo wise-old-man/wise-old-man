@@ -1,7 +1,12 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
-import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric, Team } from '../../../utils';
+import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric } from '../../../types';
+import {
+  formatCompetitionDetailsResponse,
+  formatCompetitionResponse,
+  formatParticipantHistoryResponse
+} from '../../responses';
 import { checkAdminPermission, checkCompetitionVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
@@ -13,7 +18,7 @@ import { deleteCompetition } from './services/DeleteCompetitionService';
 import { editCompetition } from './services/EditCompetitionService';
 import { fetchCompetitionCSV } from './services/FetchCompetitionCSVService';
 import { fetchCompetitionDetails } from './services/FetchCompetitionDetailsService';
-import { fetchCompetitionTop5Progress } from './services/FetchTop5ProgressService';
+import { fetchCompetitionTopHistory } from './services/FetchTopHistoryService';
 import { removeParticipants } from './services/RemoveParticipantsService';
 import { removeTeams } from './services/RemoveTeamsService';
 import { resetCompetitionCode } from './services/ResetCompetitionCodeService';
@@ -38,7 +43,9 @@ router.get(
     const { title, metric, type, status, limit, offset } = req.query;
 
     const result = await searchCompetitions(title, metric, type, status, { limit, offset });
-    res.status(200).json(result);
+    const response = result.map(c => formatCompetitionResponse(c.competition, c.group));
+
+    res.status(200).json(response);
   })
 );
 
@@ -58,13 +65,26 @@ router.post(
   }),
   executeRequest(async (req, res) => {
     const ipHash = getRequestIpHash(req);
-    const result = await createCompetition(req.body, ipHash);
-    res.status(201).json(result);
 
-    logger.moderation(`Created competition ${result.competition.id}`, {
+    const createResult = await createCompetition(req.body, ipHash);
+
+    logger.moderation(`Created competition ${createResult.competition.id}`, {
       timestamp: new Date().toISOString(),
       ipHash
     });
+
+    const details = await fetchCompetitionDetails(createResult.competition.id);
+
+    const response = {
+      verificationCode: createResult.verificationCode,
+      competition: formatCompetitionDetailsResponse(
+        details.competition,
+        details.group,
+        details.participations
+      )
+    };
+
+    res.status(201).json(response);
   })
 );
 
@@ -87,13 +107,22 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const result = await editCompetition(id, req.body);
-    res.status(200).json(result);
+    const updatedCompetition = await editCompetition(id, req.body);
 
-    logger.moderation(`Edited competition ${result.id}`, {
+    logger.moderation(`Edited competition ${updatedCompetition.id}`, {
       timestamp: new Date().toISOString(),
       ipHash: getRequestIpHash(req)
     });
+
+    const details = await fetchCompetitionDetails(updatedCompetition.id);
+
+    const response = formatCompetitionDetailsResponse(
+      details.competition,
+      details.group,
+      details.participations
+    );
+
+    res.status(200).json(response);
   })
 );
 
@@ -111,8 +140,15 @@ router.get(
     const { id } = req.params;
     const { metric } = req.query;
 
-    const result = await fetchCompetitionDetails(id, metric);
-    res.status(200).json(result);
+    const details = await fetchCompetitionDetails(id, metric);
+
+    const response = formatCompetitionDetailsResponse(
+      details.competition,
+      details.group,
+      details.participations
+    );
+
+    res.status(200).json(response);
   })
 );
 
@@ -151,8 +187,10 @@ router.get(
     const { id } = req.params;
     const { metric } = req.query;
 
-    const result = await fetchCompetitionTop5Progress(id, metric);
-    res.status(200).json(result);
+    const results = await fetchCompetitionTopHistory(id, metric);
+    const response = results.map(({ player, history }) => formatParticipantHistoryResponse(player, history));
+
+    res.status(200).json(response);
   })
 );
 
@@ -238,7 +276,7 @@ router.post(
     const { id } = req.params;
     const { teams } = req.body;
 
-    const { count } = await addTeams(id, teams as Team[]);
+    const { count } = await addTeams(id, teams);
 
     res.status(200).json({
       count,

@@ -1,8 +1,6 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { CompetitionStatus, CompetitionType, Metric } from '../../../../utils';
-import { omit } from '../../../../utils/omit.util';
+import { Competition, CompetitionStatus, CompetitionType, Group, Metric } from '../../../../types';
 import { PaginationOptions } from '../../../util/validation';
-import { CompetitionListItem } from '../competition.types';
 
 async function searchCompetitions(
   title: string | undefined,
@@ -10,7 +8,12 @@ async function searchCompetitions(
   type: CompetitionType | undefined,
   status: CompetitionStatus | undefined,
   pagination: PaginationOptions
-): Promise<CompetitionListItem[]> {
+): Promise<
+  Array<{
+    competition: Competition & { participantCount: number };
+    group: (Group & { memberCount: number }) | null;
+  }>
+> {
   const query: PrismaTypes.CompetitionWhereInput = {};
 
   if (type) query.type = type;
@@ -63,16 +66,18 @@ async function searchCompetitions(
     participantCountsMap.set(competitionId, _count);
   }
 
-  return competitions.map(g => {
+  return competitions.map(({ group, ...competition }) => {
     return {
-      ...omit(g, 'verificationHash'),
-      group: g.group
+      competition: {
+        ...competition,
+        participantCount: participantCountsMap.get(competition.id) ?? 0
+      },
+      group: group
         ? {
-            ...omit(g.group, '_count', 'verificationHash'),
-            memberCount: g.group._count.memberships
+            ...group,
+            memberCount: group._count.memberships
           }
-        : undefined,
-      participantCount: participantCountsMap.get(g.id) ?? 0
+        : null
     };
   });
 }

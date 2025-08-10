@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { z } from 'zod';
-import { GroupRole } from '../../utils';
+import { GroupRole } from '../../types';
 
 function enumErrorMap(path: Array<string | number>, options: Array<string | number>) {
   if (path.length === 1 && path[0] === 'country') {

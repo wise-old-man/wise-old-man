@@ -1,12 +1,12 @@
-import config from './config';
+import BaseAPIClient from './clients/BaseAPIClient';
+import CompetitionsClient from './clients/CompetitionsClient';
 import DeltasClient from './clients/DeltasClient';
+import EfficiencyClient from './clients/EfficiencyClient';
 import GroupsClient from './clients/GroupsClient';
+import NameChangesClient from './clients/NameChangesClient';
 import PlayersClient from './clients/PlayersClient';
 import RecordsClient from './clients/RecordsClient';
-import EfficiencyClient from './clients/EfficiencyClient';
-import NameChangesClient from './clients/NameChangesClient';
-import CompetitionsClient from './clients/CompetitionsClient';
-import BaseAPIClient from './clients/BaseAPIClient';
+import config from './config';
 
 interface WOMClientOptions {
   apiKey?: string;

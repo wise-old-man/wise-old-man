@@ -3,13 +3,13 @@ import prisma from '../../../../prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 import {
   ComputedMetric,
+  Player,
   PLAYER_BUILDS,
   PLAYER_TYPES,
-  Player,
   PlayerBuild,
   PlayerStatus,
   PlayerType
-} from '../../../../utils';
+} from '../../../../types';
 import { getAlgorithmType } from '../efficiency.utils';
 
 async function computeEfficiencyRank(

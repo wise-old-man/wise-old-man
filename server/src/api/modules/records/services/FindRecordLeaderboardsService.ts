@@ -1,6 +1,14 @@
-import { PlayerType, PlayerStatus, Period, Metric, Country, PlayerBuild } from '../../../../utils';
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { RecordLeaderboardEntry } from '../record.types';
+import {
+  Country,
+  Metric,
+  Period,
+  Player,
+  PlayerBuild,
+  PlayerStatus,
+  PlayerType,
+  Record
+} from '../../../../types';
 
 const MAX_RESULTS = 20;
 
@@ -14,7 +22,7 @@ async function findRecordLeaderboards(
   period: Period,
   metric: Metric,
   filter: Filter
-): Promise<RecordLeaderboardEntry[]> {
+): Promise<Array<{ record: Record; player: Player }>> {
   const { country, playerType, playerBuild } = filter;
 
   const playerQuery: PrismaTypes.PlayerWhereInput = {};
@@ -39,7 +47,7 @@ async function findRecordLeaderboards(
     take: MAX_RESULTS
   });
 
-  return records;
+  return records.map(({ player, ...record }) => ({ player, record }));
 }
 
 export { findRecordLeaderboards };

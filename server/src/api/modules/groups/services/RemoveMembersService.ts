@@ -1,9 +1,9 @@
 import prisma from '../../../../prisma';
 import logger from '../../../../services/logging.service';
+import { MemberActivityType } from '../../../../types';
 import { BadRequestError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { standardize } from '../../players/player.utils';
-import { ActivityType } from '../group.types';
 
 async function removeMembers(groupId: number, members: string[]): Promise<{ count: number }> {
   const groupMemberIdAndRoles = await prisma.membership.findMany({
@@ -39,7 +39,7 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
     return {
       playerId,
       groupId,
-      type: ActivityType.LEFT,
+      type: MemberActivityType.LEFT,
       role: groupMemberRoleLookup.get(playerId) ?? null
     };
   });

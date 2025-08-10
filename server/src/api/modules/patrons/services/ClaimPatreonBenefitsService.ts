@@ -1,5 +1,6 @@
 import { jobManager, JobType } from '../../../../jobs';
-import prisma, { Patron } from '../../../../prisma';
+import prisma from '../../../../prisma';
+import { Patron } from '../../../../types';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 

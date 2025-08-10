@@ -1,16 +1,20 @@
 import { AsyncResult, bindError, complete, errored, isComplete, isErrored } from '@attio/fetchable';
-import prisma, { NameChangeStatus } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
-import { PlayerBuild, PlayerType } from '../../../../utils';
+import { NameChange, NameChangeStatus, PlayerBuild, PlayerType } from '../../../../types';
 import { assertNever } from '../../../../utils/assert-never.util';
+import {
+  formatNameChangeResponse,
+  formatSnapshotResponse,
+  NameChangeDetailsResponse
+} from '../../../responses';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import { standardize } from '../../players/player.utils';
-import { formatSnapshot, getNegativeGains, parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
-import { NameChange, NameChangeDetails } from '../name-change.types';
+import { getNegativeGains, parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
 
 async function fetchNameChangeDetails(id: number): AsyncResult<
-  NameChangeDetails,
+  NameChangeDetailsResponse,
   | { code: 'NAME_CHANGE_NOT_FOUND' }
   | { code: 'OLD_STATS_NOT_FOUND' }
   | {
@@ -137,7 +141,7 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
   // If new stats cannot be found on the hiscores or our database, there's nothing to compare oldStats to.
   if (!newStats) {
     return complete({
-      nameChange: nameChange as NameChange,
+      nameChange: formatNameChangeResponse(nameChange as NameChange),
       data: {
         isNewOnHiscores: newHiscoresResult.value !== null,
         isOldOnHiscores: oldHiscoresResult.value !== null,
@@ -148,7 +152,7 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
         hoursDiff,
         ehpDiff: 0,
         ehbDiff: 0,
-        oldStats: formatSnapshot(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
+        oldStats: formatSnapshotResponse(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
         newStats: null
       }
     });
@@ -182,8 +186,8 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
       hoursDiff,
       ehpDiff: newStats.ehpValue - oldStats.ehpValue,
       ehbDiff: newStats.ehbValue - oldStats.ehbValue,
-      oldStats: formatSnapshot(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
-      newStats: formatSnapshot(newStats, getPlayerEfficiencyMap(newStats, newPlayer ?? oldPlayer))
+      oldStats: formatSnapshotResponse(oldStats, getPlayerEfficiencyMap(oldStats, oldPlayer)),
+      newStats: formatSnapshotResponse(newStats, getPlayerEfficiencyMap(newStats, newPlayer ?? oldPlayer))
     }
   });
 }

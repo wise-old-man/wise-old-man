@@ -1,36 +1,17 @@
 import csv from 'csvtojson';
+import { ACTIVITIES, BOSSES, Metric, METRICS, SKILLS, Snapshot } from '../../../types';
+import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
+import { getMetricValueKey, MetricValueKey } from '../../../utils/get-metric-value-key.util';
 import {
-  BOSSES,
-  getMetricRankKey,
-  getMetricValueKey,
-  Metric,
-  METRICS,
-  COMPUTED_METRICS,
-  ACTIVITIES,
-  getLevel,
-  SKILLS,
-  MEMBER_SKILLS,
   F2P_BOSSES,
-  MAX_SKILL_EXP,
-  REAL_SKILLS,
   getCombatLevel,
-  Skill,
-  Boss,
-  Activity,
-  ComputedMetric,
-  MapOf,
-  MetricValueKey
-} from '../../../utils';
-import { Snapshot } from '../../../prisma';
+  getLevel,
+  MAX_SKILL_EXP,
+  MEMBER_SKILLS,
+  REAL_SKILLS
+} from '../../../utils/shared';
 import { ServerError } from '../../errors';
-import { getPlayerEHP, getPlayerEHB } from '../../modules/efficiency/efficiency.utils';
-import {
-  ActivityValue,
-  BossValue,
-  ComputedMetricValue,
-  FormattedSnapshot,
-  SkillValue
-} from './snapshot.types';
+import { getPlayerEHB, getPlayerEHP } from '../../modules/efficiency/efficiency.utils';
 
 // Skip Deadman Points and Legacy Bounty Hunter (hunter/rogue)
 export const SKIPPED_ACTIVITY_INDICES = [1, 4, 5];
@@ -116,70 +97,6 @@ async function parseHiscoresSnapshot(playerId: number, rawCSV: string, previous?
   return snapshotFields as Snapshot;
 }
 
-function formatSnapshot(snapshot: Snapshot, efficiencyMap: Map<Skill | Boss, number>): FormattedSnapshot {
-  const { id, playerId, createdAt, importedAt } = snapshot;
-
-  return {
-    id,
-    playerId,
-    createdAt,
-    importedAt,
-    data: {
-      skills: Object.fromEntries(
-        SKILLS.map(s => {
-          const experience = snapshot[getMetricValueKey(s)];
-
-          const value: SkillValue = {
-            metric: s,
-            experience,
-            rank: snapshot[getMetricRankKey(s)],
-            level: s === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(experience),
-            ehp: efficiencyMap.get(s) || 0
-          };
-
-          return [s, value];
-        })
-      ) as MapOf<Skill, SkillValue>,
-      bosses: Object.fromEntries(
-        BOSSES.map(b => {
-          const value: BossValue = {
-            metric: b,
-            kills: snapshot[getMetricValueKey(b)],
-            rank: snapshot[getMetricRankKey(b)],
-            ehb: efficiencyMap.get(b) || 0
-          };
-
-          return [b, value];
-        })
-      ) as MapOf<Boss, BossValue>,
-      activities: Object.fromEntries(
-        ACTIVITIES.map(a => {
-          return [
-            a,
-            {
-              metric: a,
-              score: snapshot[getMetricValueKey(a)],
-              rank: snapshot[getMetricRankKey(a)]
-            }
-          ];
-        })
-      ) as MapOf<Activity, ActivityValue>,
-      computed: Object.fromEntries(
-        COMPUTED_METRICS.map(v => {
-          return [
-            v,
-            {
-              metric: v,
-              value: snapshot[getMetricValueKey(v)],
-              rank: snapshot[getMetricRankKey(v)]
-            }
-          ];
-        })
-      ) as MapOf<ComputedMetric, ComputedMetricValue>
-    }
-  };
-}
-
 /**
  * Decides whether two snapshots are within reasonable time/progress distance
  * of eachother. The difference between the two cannot be negative, or over the
@@ -195,7 +112,7 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
 function hasChanged(before: Snapshot, after: Snapshot): boolean {
   // EHP and EHB can fluctuate without the player's envolvement
   const metricsToIgnore = [Metric.EHP, Metric.EHB];
-  const isValidKey = (key: MetricValueKey) => !metricsToIgnore.map(getMetricValueKey).includes(key);
+  const isValidKey = (key: MetricValueKey<Metric>) => !metricsToIgnore.map(getMetricValueKey).includes(key);
 
   return METRICS.map(getMetricValueKey).some(k => isValidKey(k) && after[k] > -1 && after[k] > before[k]);
 }
@@ -247,7 +164,7 @@ function getNegativeGains(before: Snapshot, after: Snapshot) {
       const valueKey = getMetricValueKey(metric);
       return [metric, Math.max(0, after[valueKey]) - Math.max(0, before[valueKey])];
     })
-  ) as MapOf<Metric, number>;
+  ) as Record<Metric, number>;
 
   return negativeGains;
 }
@@ -336,21 +253,20 @@ function isZerker(snapshot: Snapshot) {
 }
 
 export {
-  parseHiscoresSnapshot,
-  formatSnapshot,
   average,
-  hasChanged,
+  get200msCount,
+  getCappedExp,
+  getCombatLevelFromSnapshot,
   getExcessiveGains,
+  getMinimumExp,
   getNegativeGains,
-  withinRange,
-  isF2p,
-  isZerker,
+  getTotalLevel,
+  hasChanged,
   is10HP,
   is1Def,
+  isF2p,
   isLvl3,
-  getCappedExp,
-  get200msCount,
-  getMinimumExp,
-  getTotalLevel,
-  getCombatLevelFromSnapshot
+  isZerker,
+  parseHiscoresSnapshot,
+  withinRange
 };

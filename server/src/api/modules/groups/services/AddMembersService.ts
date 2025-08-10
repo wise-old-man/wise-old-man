@@ -1,11 +1,10 @@
 import prisma from '../../../../prisma';
 import logger from '../../../../services/logging.service';
-import { GroupRole, PlayerAnnotationType } from '../../../../utils';
+import { GroupRole, MemberActivityType, PlayerAnnotationType } from '../../../../types';
 import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { ActivityType } from '../group.types';
 
 async function addMembers(
   groupId: number,
@@ -76,7 +75,7 @@ async function addMembers(
     return {
       groupId: membership.groupId,
       playerId: membership.playerId,
-      type: ActivityType.JOINED,
+      type: MemberActivityType.JOINED,
       role: membership.role
     };
   });

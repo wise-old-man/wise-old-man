@@ -1,8 +1,9 @@
-import { ACTIVITIES, BOSSES, COMPUTED_METRICS, METRICS, Period, PeriodProps, SKILLS } from '../../utils';
-import { Job } from '../job.class';
-import prisma, { Delta, PrismaTypes } from '../../prisma';
-import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
 import { eventEmitter, EventType } from '../../api/events';
+import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
+import prisma, { PrismaTypes } from '../../prisma';
+import { ACTIVITIES, BOSSES, COMPUTED_METRICS, Delta, METRICS, Period, SKILLS } from '../../types';
+import { PeriodProps } from '../../utils/shared';
+import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 
 interface Payload {

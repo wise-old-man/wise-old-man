@@ -1,10 +1,9 @@
 import prisma from '../../../../prisma';
+import { Achievement } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
-import { ExtendedAchievement } from '../achievement.types';
-import { extend } from '../achievement.utils';
 
-async function findPlayerAchievements(username: string): Promise<ExtendedAchievement[]> {
+async function findPlayerAchievements(username: string): Promise<Achievement[]> {
   const achievements = await prisma.achievement.findMany({
     where: {
       player: {
@@ -13,10 +12,7 @@ async function findPlayerAchievements(username: string): Promise<ExtendedAchieve
     }
   });
 
-  // Extend this database model to include the "measure" field
-  const extendedAchievements = achievements.map(extend);
-
-  if (extendedAchievements.length === 0) {
+  if (achievements.length === 0) {
     const player = await prisma.player.findFirst({
       where: { username: standardize(username) }
     });
@@ -26,7 +22,7 @@ async function findPlayerAchievements(username: string): Promise<ExtendedAchieve
     }
   }
 
-  return extendedAchievements;
+  return achievements;
 }
 
 export { findPlayerAchievements };

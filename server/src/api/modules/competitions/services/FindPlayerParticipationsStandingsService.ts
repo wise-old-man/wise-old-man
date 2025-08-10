@@ -1,53 +1,35 @@
-import prisma, { Participation } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import logger from '../../../../services/logging.service';
 import {
   BOSSES,
+  Competition,
   CompetitionStatus,
-  getMetricValueKey,
-  isSkill,
+  Group,
   Metric,
+  Participation,
   SKILLS,
   Snapshot
-} from '../../../../utils';
-import { omit } from '../../../../utils/omit.util';
+} from '../../../../types';
+import { MetricDelta } from '../../../../types/metric-delta.type';
+import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
+import { isSkill } from '../../../../utils/shared';
 import { NotFoundError } from '../../../errors';
 import { calculateLevelDiff, calculateMetricDelta } from '../../deltas/delta.utils';
 import { standardize } from '../../players/player.utils';
-import { ParticipationWithCompetitionAndStandings } from '../competition.types';
 
-/**
- * To reduce number of columns returned from our snapshot queries,
- * we can calculate which fields are required based on the metric.
- *
- * Most metrics only require their own value, but some metrics require
- * other metrics to be calculated. For example, Overall and EHP requires all skills.
- */
-function getRequiredSnapshotFields(metrics: Metric[]): Partial<Record<keyof Snapshot, true>> {
-  const requiredSnapshotFields: Partial<Record<keyof Snapshot, true>> = {
-    id: true
-  };
-
-  for (const metric of metrics) {
-    if (metric === Metric.OVERALL || metric === Metric.EHP) {
-      SKILLS.forEach(skill => {
-        requiredSnapshotFields[getMetricValueKey(skill)] = true;
-      });
-    } else if (metric === Metric.EHB) {
-      BOSSES.forEach(boss => {
-        requiredSnapshotFields[getMetricValueKey(boss)] = true;
-      });
-    } else {
-      requiredSnapshotFields[getMetricValueKey(metric)] = true;
-    }
-  }
-
-  return requiredSnapshotFields;
-}
+type ReturnType = {
+  participation: Participation;
+  competition: Competition & { participantCount: number };
+  group: (Group & { memberCount: number }) | null;
+  progress: MetricDelta;
+  levels: MetricDelta;
+  rank: number;
+};
 
 async function findPlayerParticipationsStandings(
   username: string,
   status: CompetitionStatus.ONGOING | CompetitionStatus.FINISHED
-): Promise<ParticipationWithCompetitionAndStandings[]> {
+): Promise<Array<ReturnType>> {
   const player = await prisma.player.findFirst({
     where: {
       username: standardize(username)
@@ -183,7 +165,7 @@ async function findPlayerParticipationsStandings(
    * We can then find our target player in the sorted list to get their rank.
    */
 
-  const results: Array<ParticipationWithCompetitionAndStandings> = [];
+  const results: Array<ReturnType> = [];
 
   for (const playerParticipation of playerParticipations) {
     const participations = participationsPerCompetitionMap.get(playerParticipation.competitionId);
@@ -280,18 +262,18 @@ async function findPlayerParticipationsStandings(
     }
 
     results.push({
-      ...omit(playerParticipation, 'startSnapshotId', 'endSnapshotId'),
+      participation: playerParticipation,
       competition: {
-        ...omit(playerParticipation.competition, 'verificationHash'),
-        group:
-          group === undefined
-            ? group
-            : {
-                ...omit(group, '_count', 'verificationHash'),
-                memberCount: group._count.memberships
-              },
+        ...playerParticipation.competition,
         participantCount: participations.length
       },
+      group:
+        group === undefined
+          ? null
+          : {
+              ...group,
+              memberCount: group._count.memberships
+            },
       rank,
       progress,
       levels
@@ -305,6 +287,35 @@ async function findPlayerParticipationsStandings(
       return a.competition.endsAt.getTime() - b.competition.endsAt.getTime();
     }
   });
+}
+
+/**
+ * To reduce number of columns returned from our snapshot queries,
+ * we can calculate which fields are required based on the metric.
+ *
+ * Most metrics only require their own value, but some metrics require
+ * other metrics to be calculated. For example, Overall and EHP requires all skills.
+ */
+function getRequiredSnapshotFields(metrics: Metric[]): Partial<Record<keyof Snapshot, true>> {
+  const requiredSnapshotFields: Partial<Record<keyof Snapshot, true>> = {
+    id: true
+  };
+
+  for (const metric of metrics) {
+    if (metric === Metric.OVERALL || metric === Metric.EHP) {
+      SKILLS.forEach(skill => {
+        requiredSnapshotFields[getMetricValueKey(skill)] = true;
+      });
+    } else if (metric === Metric.EHB) {
+      BOSSES.forEach(boss => {
+        requiredSnapshotFields[getMetricValueKey(boss)] = true;
+      });
+    } else {
+      requiredSnapshotFields[getMetricValueKey(metric)] = true;
+    }
+  }
+
+  return requiredSnapshotFields;
 }
 
 export { findPlayerParticipationsStandings };

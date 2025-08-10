@@ -1,6 +1,5 @@
-import { MembershipWithPlayer } from './group.types';
-import { PRIVELEGED_GROUP_ROLES } from '../../../utils';
-import { GroupRoleOrder } from '@prisma/client';
+import { GroupRoleOrder, Membership } from '../../../types';
+import { PRIVILEGED_GROUP_ROLES } from '../../../utils/shared';
 
 function sanitizeName(name: string): string {
   return name
@@ -10,32 +9,26 @@ function sanitizeName(name: string): string {
     .trim();
 }
 
-function buildDefaultSocialLinks() {
-  return {
-    website: null,
-    discord: null,
-    twitter: null,
-    youtube: null,
-    twitch: null
-  };
-}
-
-function sortMembers(
-  memberships: MembershipWithPlayer[],
-  roleOrders?: GroupRoleOrder[]
-): MembershipWithPlayer[] {
+function sortMembers<M extends { membership: Membership }>(
+  memberships: Array<M>,
+  roleOrders?: Array<GroupRoleOrder>
+): Array<M> {
   if (roleOrders && roleOrders.length) {
     const roleOrderMap = new Map(roleOrders.map(r => [r.role, r.index]));
     // this assumes roleOrders is sorted by index ascending out of the database
     return [...memberships].sort(
-      (a, b) => (roleOrderMap.get(a.role) ?? 10000) - (roleOrderMap.get(b.role) ?? 10000)
+      (a, b) =>
+        (roleOrderMap.get(a.membership.role) ?? 10000) - (roleOrderMap.get(b.membership.role) ?? 10000)
     );
   }
 
-  const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
+  const priorities = [...PRIVILEGED_GROUP_ROLES].reverse();
+
   // fallback to priority if there is no roleOrders Records
   return [...memberships].sort(
-    (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
+    (a, b) =>
+      priorities.indexOf(b.membership.role) - priorities.indexOf(a.membership.role) ||
+      a.membership.role.localeCompare(b.membership.role)
   );
 }
-export { sanitizeName, buildDefaultSocialLinks, sortMembers };
+export { sanitizeName, sortMembers };

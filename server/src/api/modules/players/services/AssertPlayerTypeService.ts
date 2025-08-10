@@ -1,7 +1,7 @@
 import { AsyncResult, complete, errored, isComplete, isErrored } from '@attio/fetchable';
-import prisma, { Player } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
-import { PlayerType } from '../../../../utils';
+import { Player, PlayerType } from '../../../../types';
 import { eventEmitter, EventType } from '../../../events';
 import { parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
 

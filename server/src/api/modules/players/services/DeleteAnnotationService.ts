@@ -1,5 +1,6 @@
+import prisma from '../../../../prisma';
+import { PlayerAnnotation, PlayerAnnotationType } from '../../../../types';
 import { NotFoundError } from '../../../errors';
-import prisma, { PlayerAnnotationType, PlayerAnnotation } from '../../../../prisma';
 import { standardize } from '../player.utils';
 
 async function deletePlayerAnnotation(

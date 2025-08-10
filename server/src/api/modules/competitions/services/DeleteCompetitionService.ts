@@ -1,4 +1,5 @@
-import prisma, { Competition, PrismaTypes } from '../../../../prisma';
+import prisma, { PrismaTypes } from '../../../../prisma';
+import { Competition } from '../../../../types';
 import { NotFoundError, ServerError } from '../../../errors';
 
 async function deleteCompetition(id: number): Promise<Competition> {
@@ -7,7 +8,7 @@ async function deleteCompetition(id: number): Promise<Competition> {
       where: { id }
     });
 
-    return deletedCompetition;
+    return deletedCompetition as Competition;
   } catch (error) {
     if (error instanceof PrismaTypes.PrismaClientKnownRequestError && error.code === 'P2025') {
       // Failed to find competition with that id

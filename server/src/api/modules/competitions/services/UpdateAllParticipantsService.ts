@@ -1,5 +1,6 @@
 import { JobType, jobManager } from '../../../../jobs';
-import prisma, { Player } from '../../../../prisma';
+import prisma from '../../../../prisma';
+import { Player } from '../../../../types';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
 // The first and last 6h of a competition are considered a priority period

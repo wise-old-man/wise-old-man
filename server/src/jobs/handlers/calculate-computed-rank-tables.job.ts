@@ -9,7 +9,8 @@ import {
   PLAYER_TYPES,
   PlayerBuild,
   PlayerType
-} from '../../utils';
+} from '../../types';
+
 import { Job } from '../job.class';
 
 // The higher the resolution, the more accurate the estimates are, but the more memory is used

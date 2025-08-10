@@ -1,7 +1,19 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
-import { GroupRole, Metric, Period } from '../../../utils';
+import { GroupRole, Metric, Period } from '../../../types';
+import {
+  formatAchievementResponse,
+  formatCompetitionResponse,
+  formatGroupDetailsResponse,
+  formatGroupHiscoresEntryResponse,
+  formatGroupResponse,
+  formatMemberActivityResponse,
+  formatMembershipResponse,
+  formatNameChangeResponse,
+  formatPlayerResponse,
+  formatRecordResponse
+} from '../../responses';
 import { checkAdminPermission, checkGroupVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
@@ -47,8 +59,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { name, limit, offset } = req.query;
 
-    const results = await searchGroups(name, { limit, offset });
-    res.status(200).json(results);
+    const groups = await searchGroups(name, { limit, offset });
+    const response = groups.map(g => formatGroupResponse(g.group, g.memberCount));
+
+    res.status(200).json(response);
   })
 );
 
@@ -65,13 +79,22 @@ router.post(
   }),
   executeRequest(async (req, res) => {
     const ipHash = getRequestIpHash(req);
-    const result = await createGroup(req.body, ipHash);
-    res.status(201).json(result);
 
-    logger.moderation(`Created group ${result.group.id}`, {
+    const createResult = await createGroup(req.body, ipHash);
+
+    logger.moderation(`Created group ${createResult.group.id}`, {
       timestamp: new Date().toISOString(),
       ipHash
     });
+
+    const details = await fetchGroupDetails(createResult.group.id);
+
+    const response = {
+      verificationCode: createResult.verificationCode,
+      group: formatGroupDetailsResponse(details)
+    };
+
+    res.status(201).json(response);
   })
 );
 
@@ -97,13 +120,17 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const result = await editGroup(id, req.body);
-    res.status(200).json(result);
+    const editResult = await editGroup(id, req.body);
 
-    logger.moderation(`Edited group ${result.id}`, {
+    logger.moderation(`Edited group ${editResult.id}`, {
       timestamp: new Date().toISOString(),
       ipHash: getRequestIpHash(req)
     });
+
+    const details = await fetchGroupDetails(editResult.id);
+    const response = formatGroupDetailsResponse(details);
+
+    res.status(200).json(response);
   })
 );
 
@@ -117,8 +144,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const result = await fetchGroupDetails(id);
-    res.status(200).json(result);
+    const details = await fetchGroupDetails(id);
+    const response = formatGroupDetailsResponse(details);
+
+    res.status(200).json(response);
   })
 );
 
@@ -203,7 +232,13 @@ router.put(
     const { username, role } = req.body;
 
     const result = await changeMemberRole(id, username, role);
-    res.status(200).json(result);
+
+    const response = {
+      ...formatMembershipResponse(result.updatedMembership),
+      player: formatPlayerResponse(result.player)
+    };
+
+    res.status(200).json(response);
   })
 );
 
@@ -238,8 +273,10 @@ router.get(
     const { id } = req.params;
     const { metric, limit, offset } = req.query;
 
-    const result = await fetchGroupHiscores(id, metric, { limit, offset });
-    res.status(200).json(result);
+    const hiscores = await fetchGroupHiscores(id, metric, { limit, offset });
+    const response = hiscores.map(entry => formatGroupHiscoresEntryResponse(entry.player, entry.data));
+
+    res.status(200).json(response);
   })
 );
 
@@ -256,7 +293,13 @@ router.get(
     const { limit, offset } = req.query;
 
     const result = await fetchGroupActivity(id, { limit, offset });
-    res.status(200).json(result);
+
+    const response = result.map(a => ({
+      ...formatMemberActivityResponse(a.activity),
+      player: formatPlayerResponse(a.player)
+    }));
+
+    res.status(200).json(response);
   })
 );
 
@@ -286,7 +329,9 @@ router.get(
     const { id } = req.params;
 
     const result = await findGroupCompetitions(id);
-    res.status(200).json(result);
+    const response = result.map(c => formatCompetitionResponse(c.competition, c.group));
+
+    res.status(200).json(response);
   })
 );
 
@@ -309,8 +354,16 @@ router.get(
     const { id } = req.params;
     const { metric, period, startDate, endDate, limit, offset } = req.query;
 
-    const result = await findGroupDeltas(id, metric, period, startDate, endDate, { limit, offset });
-    res.status(200).json(result);
+    const results = await findGroupDeltas(id, metric, period, startDate, endDate, { limit, offset });
+
+    const response = results.map(r => ({
+      player: formatPlayerResponse(r.player),
+      startDate: r.startDate,
+      endDate: r.endDate,
+      data: r.data
+    }));
+
+    res.status(200).json(response);
   })
 );
 
@@ -332,7 +385,13 @@ router.get(
     const { metric, period, limit, offset } = req.query;
 
     const result = await findGroupRecords(id, metric, period, { limit, offset });
-    res.status(200).json(result);
+
+    const response = result.map(r => ({
+      ...formatRecordResponse(r.record),
+      player: formatPlayerResponse(r.player)
+    }));
+
+    res.status(200).json(response);
   })
 );
 
@@ -349,7 +408,13 @@ router.get(
     const { limit, offset } = req.query;
 
     const result = await findGroupAchievements(id, { limit, offset });
-    res.status(200).json(result);
+
+    const response = result.map(a => ({
+      ...formatAchievementResponse(a.achievement),
+      player: formatPlayerResponse(a.player)
+    }));
+
+    res.status(200).json(response);
   })
 );
 
@@ -365,8 +430,14 @@ router.get(
     const { id } = req.params;
     const { limit, offset } = req.query;
 
-    const result = await findGroupNameChanges(id, { limit, offset });
-    res.status(200).json(result);
+    const nameChanges = await findGroupNameChanges(id, { limit, offset });
+
+    const response = nameChanges.map(n => ({
+      ...formatNameChangeResponse(n.nameChange),
+      player: formatPlayerResponse(n.player)
+    }));
+
+    res.status(200).json(response);
   })
 );
 
@@ -417,8 +488,10 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const result = await verifyGroup(id);
-    res.status(200).json(result);
+    const { group, memberCount } = await verifyGroup(id);
+    const response = formatGroupResponse(group, memberCount);
+
+    res.status(200).json(response);
   })
 );
 

@@ -1,10 +1,14 @@
 import prisma from '../../../../prisma';
-import { PlayerStatus } from '../../../../utils';
+import { Player, PlayerAnnotation, PlayerArchive, PlayerStatus, Snapshot } from '../../../../types';
 import { NotFoundError } from '../../../errors';
-import { PlayerDetails } from '../player.types';
-import { formatPlayerDetails, standardize } from '../player.utils';
+import { standardize } from '../player.utils';
 
-async function fetchPlayerDetails(username: string): Promise<PlayerDetails> {
+async function fetchPlayerDetails(username: string): Promise<{
+  player: Player;
+  latestSnapshot: Snapshot | null;
+  archive: PlayerArchive | null;
+  annotations: Array<PlayerAnnotation>;
+}> {
   const player = await prisma.player.findFirst({
     where: { username: standardize(username) },
     include: { latestSnapshot: true, annotations: true }
@@ -26,8 +30,15 @@ async function fetchPlayerDetails(username: string): Promise<PlayerDetails> {
     }
   }
 
+  const { annotations, latestSnapshot, ...playerProps } = player;
+
   if (player.status !== PlayerStatus.ARCHIVED) {
-    return formatPlayerDetails(player, player.latestSnapshot, player.annotations);
+    return {
+      player: playerProps,
+      annotations,
+      latestSnapshot,
+      archive: null
+    };
   }
 
   const currentArchive = await prisma.playerArchive.findFirst({
@@ -40,7 +51,12 @@ async function fetchPlayerDetails(username: string): Promise<PlayerDetails> {
     }
   });
 
-  return formatPlayerDetails(player, player.latestSnapshot, player.annotations, currentArchive);
+  return {
+    player: playerProps,
+    annotations,
+    latestSnapshot,
+    archive: currentArchive
+  };
 }
 
 export { fetchPlayerDetails };

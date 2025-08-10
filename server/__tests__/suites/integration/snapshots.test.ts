@@ -1,21 +1,15 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import {
-  PlayerType,
-  SKILLS,
-  getMetricValueKey,
-  getMetricRankKey,
-  Metric,
-  PeriodProps,
-  Period
-} from '../../../src/utils';
-import * as utils from '../../../src/api/modules/snapshots/snapshot.utils';
-import { resetDatabase, readFile, registerHiscoresMock, modifyRawHiscoresData } from '../../utils';
-import { Snapshot } from '../../../src/api/modules/snapshots/snapshot.types';
-import { findPlayerSnapshots } from '../../../src/api/modules/snapshots/services/FindPlayerSnapshotsService';
-import { redisClient } from '../../../src/services/redis.service';
 import { eventEmitter } from '../../../src/api/events';
+import { findPlayerSnapshots } from '../../../src/api/modules/snapshots/services/FindPlayerSnapshotsService';
+import * as utils from '../../../src/api/modules/snapshots/snapshot.utils';
 import prisma from '../../../src/prisma';
+import { redisClient } from '../../../src/services/redis.service';
+import { Metric, Period, PlayerType, SKILLS, Snapshot } from '../../../src/types';
+import { getMetricRankKey } from '../../../src/utils/get-metric-rank-key.util';
+import { getMetricValueKey } from '../../../src/utils/get-metric-value-key.util';
+import { PeriodProps } from '../../../src/utils/shared';
+import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase } from '../../utils';
 
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 

@@ -1,12 +1,19 @@
-import prisma, { Participation, Player, PrismaPromise, PrismaTypes } from '../../../../prisma';
-import { CompetitionType, Metric, PlayerAnnotationType, Snapshot } from '../../../../utils';
-import { omit } from '../../../../utils/omit.util';
+import prisma, { PrismaPromise, PrismaTypes } from '../../../../prisma';
+import {
+  Competition,
+  CompetitionTeam,
+  CompetitionType,
+  Metric,
+  Participation,
+  Player,
+  PlayerAnnotationType,
+  Snapshot
+} from '../../../../types';
 import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
-import { CompetitionWithParticipations, Team } from '../competition.types';
 import {
   sanitizeTeams,
   sanitizeTitle,
@@ -21,7 +28,7 @@ interface EditCompetitionPayload {
   startsAt?: Date;
   endsAt?: Date;
   participants?: string[];
-  teams?: Team[];
+  teams?: CompetitionTeam[];
 }
 
 interface PartialParticipation {
@@ -31,10 +38,7 @@ interface PartialParticipation {
   teamName: string | null;
 }
 
-async function editCompetition(
-  id: number,
-  payload: EditCompetitionPayload
-): Promise<CompetitionWithParticipations> {
+async function editCompetition(id: number, payload: EditCompetitionPayload): Promise<Competition> {
   const { title, metric, startsAt, endsAt, participants, teams } = payload;
 
   if (participants && participants.length > 0 && teams && teams.length > 0) {
@@ -131,19 +135,7 @@ async function editCompetition(
     await recalculateParticipationsEnd(competition.id, updatedCompetition.endsAt);
   }
 
-  return {
-    ...omit(updatedCompetition, 'verificationHash'),
-    group: updatedCompetition.group
-      ? {
-          ...omit(updatedCompetition.group, '_count', 'verificationHash'),
-          memberCount: updatedCompetition.group._count.memberships
-        }
-      : undefined,
-    participantCount: updatedCompetition.participations.length,
-    participations: updatedCompetition.participations.map(p => ({
-      ...omit(p, 'startSnapshotId', 'endSnapshotId')
-    }))
-  };
+  return updatedCompetition;
 }
 
 async function invalidateParticipations(competitionId: number) {
@@ -221,20 +213,7 @@ async function executeUpdate(
       updatedAt: new Date() // Force update the "updatedAt" field
     },
     include: {
-      group: {
-        include: {
-          _count: {
-            select: {
-              memberships: true
-            }
-          }
-        }
-      },
-      participations: {
-        include: {
-          player: true
-        }
-      }
+      participations: true
     }
   });
 
@@ -391,7 +370,7 @@ async function getParticipations(id: number, participants: string[]) {
   }));
 }
 
-async function getTeamsParticipations(id: number, teams: Team[]) {
+async function getTeamsParticipations(id: number, teams: CompetitionTeam[]) {
   // ensures every team name is sanitized, and every username is standardized
   const newTeams = sanitizeTeams(teams);
 

@@ -1,7 +1,7 @@
 import { ServerError } from '../../../../api/errors';
-import prisma, { NameChangeStatus, Player } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import logger from '../../../../services/logging.service';
-import { PlayerStatus } from '../../../../utils';
+import { NameChangeStatus, Player, PlayerStatus } from '../../../../types';
 import { eventEmitter, EventType } from '../../../events';
 import { splitArchivalData } from '../player.utils';
 

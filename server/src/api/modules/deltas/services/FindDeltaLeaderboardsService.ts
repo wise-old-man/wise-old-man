@@ -1,13 +1,5 @@
-import {
-  Period,
-  Metric,
-  PlayerType,
-  PlayerBuild,
-  Country,
-  DeltaLeaderboardEntry,
-  PlayerStatus
-} from '../../../../utils';
 import prisma, { PrismaTypes } from '../../../../prisma';
+import { Country, Metric, Period, Player, PlayerBuild, PlayerStatus, PlayerType } from '../../../../types';
 import { parseNum } from '../delta.utils';
 
 const MAX_RESULTS = 20;
@@ -22,7 +14,14 @@ async function findDeltaLeaderboards(
   period: Period,
   metric: Metric,
   filter: Filter
-): Promise<DeltaLeaderboardEntry[]> {
+): Promise<
+  Array<{
+    player: Player;
+    startDate: Date;
+    endDate: Date;
+    gained: number;
+  }>
+> {
   const { country, playerType, playerBuild } = filter;
 
   const playerQuery: PrismaTypes.PlayerWhereInput = {};

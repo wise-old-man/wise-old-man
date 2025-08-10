@@ -2,12 +2,13 @@ import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
+import { NameChangeStatus } from '../../../types';
 import { NotFoundError, ServerError } from '../../errors';
+import { formatNameChangeResponse } from '../../responses';
 import { checkAdminPermission } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getPaginationSchema } from '../../util/validation';
-import { NameChangeStatus } from './name-change.types';
 import { approveNameChange } from './services/ApproveNameChangeService';
 import { bulkSubmitNameChanges } from './services/BulkSubmitNameChangesService';
 import { clearNameChangeHistory } from './services/ClearNameChangeHistoryService';
@@ -31,8 +32,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username, status, limit, offset } = req.query;
 
-    const result = await searchNameChanges(username, status, { limit, offset });
-    res.status(200).json(result);
+    const nameChanges = await searchNameChanges(username, status, { limit, offset });
+    const response = nameChanges.map(formatNameChangeResponse);
+
+    res.status(200).json(response);
   })
 );
 
@@ -48,12 +51,15 @@ router.post(
     const { oldName, newName } = req.body;
 
     const result = await submitNameChange(oldName, newName);
-    res.status(201).json(result);
 
     logger.moderation(`Submitted name change ${result.oldName} -> ${result.newName}`, {
       timestamp: new Date().toISOString(),
       ipHash: getRequestIpHash(req)
     });
+
+    const response = formatNameChangeResponse(result);
+
+    res.status(201).json(response);
   })
 );
 
@@ -117,7 +123,9 @@ router.post(
     const { id } = req.params;
 
     const result = await approveNameChange(id);
-    res.status(200).json(result);
+    const response = formatNameChangeResponse(result);
+
+    res.status(200).json(response);
   })
 );
 
@@ -133,7 +141,9 @@ router.post(
     const { id } = req.params;
 
     const result = await denyNameChange(id, { reason: 'manual_review' });
-    res.status(200).json(result);
+    const response = formatNameChangeResponse(result);
+
+    res.status(200).json(response);
   })
 );
 

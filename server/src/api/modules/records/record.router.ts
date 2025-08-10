@@ -1,7 +1,8 @@
-import { z } from 'zod';
 import { Router } from 'express';
-import { Country, Metric, Period, PlayerBuild, PlayerType } from '../../../utils';
-import { validateRequest, executeRequest } from '../../util/routing';
+import { z } from 'zod';
+import { Country, Metric, Period, PlayerBuild, PlayerType } from '../../../types';
+import { formatPlayerResponse, formatRecordResponse } from '../../responses';
+import { executeRequest, validateRequest } from '../../util/routing';
 import { findRecordLeaderboards } from './services/FindRecordLeaderboardsService';
 
 const router = Router();
@@ -26,7 +27,12 @@ router.get(
       playerBuild
     });
 
-    res.status(200).json(result);
+    const response = result.map(r => ({
+      ...formatRecordResponse(r.record),
+      player: formatPlayerResponse(r.player)
+    }));
+
+    res.status(200).json(response);
   })
 );
 

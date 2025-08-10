@@ -1,12 +1,16 @@
 import prisma from '../../../../prisma';
-import { omit } from '../../../../utils/omit.util';
+import { Group } from '../../../../types';
 import { PaginationOptions } from '../../../util/validation';
-import { GroupListItem } from '../group.types';
 
 async function searchGroups(
   name: string | undefined,
   pagination: PaginationOptions
-): Promise<GroupListItem[]> {
+): Promise<
+  Array<{
+    group: Group;
+    memberCount: number;
+  }>
+> {
   const groups = await prisma.group.findMany({
     where: {
       name: {
@@ -26,10 +30,10 @@ async function searchGroups(
     skip: pagination.offset
   });
 
-  return groups.map(g => {
+  return groups.map(group => {
     return {
-      ...omit(g, '_count', 'verificationHash'),
-      memberCount: g._count.memberships
+      group,
+      memberCount: group._count.memberships
     };
   });
 }

@@ -1,6 +1,7 @@
 import { jobManager, JobType } from '../../../../jobs';
-import prisma, { Player } from '../../../../prisma';
-import { Period, PeriodProps } from '../../../../utils';
+import prisma from '../../../../prisma';
+import { Period, Player } from '../../../../types';
+import { PeriodProps } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
 async function updateAllMembers(groupId: number): Promise<number> {

@@ -1,23 +1,16 @@
 import supertest from 'supertest';
-import prisma from '../../../src/prisma';
-import {
-  Boss,
-  SKILLS,
-  MAX_SKILL_EXP,
-  SKILL_EXP_AT_99,
-  EfficiencyAlgorithmType,
-  PlayerType,
-  PlayerBuild
-} from '../../../src/utils';
 import apiServer from '../../../src/api';
+import { eventEmitter } from '../../../src/api/events';
 import { ALGORITHMS, getAlgorithm } from '../../../src/api/modules/efficiency/efficiency.utils';
-import testSkillingMetas from '../../data/efficiency/configs/test.ehp';
-import testBossingMetas from '../../data/efficiency/configs/test.ehb';
-import { resetDatabase } from '../../utils';
 import EfficiencyAlgorithm from '../../../src/api/modules/efficiency/EfficiencyAlgorithm';
 import { computeEfficiencyRank } from '../../../src/api/modules/efficiency/services/ComputeEfficiencyRankService';
+import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
-import { eventEmitter } from '../../../src/api/events';
+import { Boss, EfficiencyAlgorithmType, PlayerBuild, PlayerType, SKILLS } from '../../../src/types';
+import { MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '../../../src/utils/shared';
+import testBossingMetas from '../../data/efficiency/configs/test.ehb';
+import testSkillingMetas from '../../data/efficiency/configs/test.ehp';
+import { resetDatabase } from '../../utils';
 
 const api = supertest(apiServer.express);
 

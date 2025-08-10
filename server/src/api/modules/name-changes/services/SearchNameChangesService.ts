@@ -1,4 +1,5 @@
-import prisma, { PrismaTypes, NameChange, NameChangeStatus } from '../../../../prisma';
+import prisma, { PrismaTypes } from '../../../../prisma';
+import { NameChange, NameChangeStatus } from '../../../../types';
 import { PaginationOptions } from '../../../util/validation';
 
 async function searchNameChanges(

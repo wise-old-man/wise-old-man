@@ -1,22 +1,21 @@
 import prisma from '../../../../prisma';
-import { Period, parsePeriodExpression } from '../../../../utils';
+import { Period } from '../../../../types';
+import { parsePeriodExpression } from '../../../../utils/parse-period-expression.util';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import { PlayerDeltasMap } from '../delta.types';
-import { calculatePlayerDeltas, emptyPlayerDelta } from '../delta.utils';
+import { PlayerDeltasMapResponse } from '../../../responses';
 import { standardize } from '../../players/player.utils';
-
-export interface FindPlayerDeltasResult {
-  startsAt: Date | null;
-  endsAt: Date | null;
-  data: PlayerDeltasMap;
-}
+import { calculatePlayerDeltas, emptyPlayerDelta } from '../delta.utils';
 
 async function findPlayerDeltas(
   username: string,
   period?: Period | string,
   minDate?: Date,
   maxDate?: Date
-): Promise<FindPlayerDeltasResult> {
+): Promise<{
+  startsAt: Date | null;
+  endsAt: Date | null;
+  data: PlayerDeltasMapResponse;
+}> {
   if (!period && (!minDate || !maxDate)) {
     throw new BadRequestError('Invalid period and start/end dates.');
   }

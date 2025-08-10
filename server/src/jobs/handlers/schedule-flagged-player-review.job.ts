@@ -1,6 +1,6 @@
 import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerService';
 import prisma from '../../prisma';
-import { PlayerStatus } from '../../utils';
+import { PlayerStatus } from '../../types';
 import { Job } from '../job.class';
 
 export class ScheduleFlaggedPlayerReviewJob extends Job<unknown> {

@@ -1,4 +1,4 @@
-import { Skill } from '../../../../src/utils';
+import { Skill } from '../../../../src/types';
 
 export default [
   {

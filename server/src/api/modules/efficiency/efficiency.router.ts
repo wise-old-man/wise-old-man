@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { Router } from 'express';
+import { z } from 'zod';
 import {
   ComputedMetric,
   Country,
@@ -7,8 +7,9 @@ import {
   Metric,
   PlayerBuild,
   PlayerType
-} from '../../../utils';
-import { validateRequest, executeRequest } from '../../util/routing';
+} from '../../../types';
+import { formatPlayerResponse } from '../../responses';
+import { executeRequest, validateRequest } from '../../util/routing';
 import { getPaginationSchema } from '../../util/validation';
 import { getRates } from './efficiency.utils';
 import { findEfficiencyLeaderboards } from './services/FindEfficiencyLeaderboardsService';
@@ -36,7 +37,9 @@ router.get(
       { limit, offset }
     );
 
-    res.status(200).json(result);
+    const response = result.map(formatPlayerResponse);
+
+    res.status(200).json(response);
   })
 );
 

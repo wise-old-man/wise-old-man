@@ -1,12 +1,16 @@
 import { isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
-import { CompetitionType, Metric, PlayerAnnotationType } from '../../../../utils';
-import { omit } from '../../../../utils/omit.util';
+import {
+  Competition,
+  CompetitionTeam,
+  CompetitionType,
+  Metric,
+  PlayerAnnotationType
+} from '../../../../types';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { CompetitionWithParticipations, Team } from '../competition.types';
 import {
   sanitizeTeams,
   sanitizeTitle,
@@ -23,15 +27,16 @@ interface CreateCompetitionPayload {
   groupId?: number;
   groupVerificationCode?: string;
   participants?: string[];
-  teams?: Team[];
+  teams?: CompetitionTeam[];
 }
-
-type CreateCompetitionResult = { competition: CompetitionWithParticipations; verificationCode: string };
 
 async function createCompetition(
   payload: CreateCompetitionPayload,
   creatorIpHash: string | null
-): Promise<CreateCompetitionResult> {
+): Promise<{
+  competition: Competition;
+  verificationCode: string;
+}> {
   const { title, metric, startsAt, endsAt, participants, teams, groupId, groupVerificationCode } = payload;
 
   if (startsAt.getTime() > endsAt.getTime()) {
@@ -141,36 +146,9 @@ async function createCompetition(
       }
     },
     include: {
-      group: {
-        include: {
-          _count: {
-            select: {
-              memberships: true
-            }
-          }
-        }
-      },
-      participations: {
-        include: {
-          player: true
-        }
-      }
+      participations: true
     }
   });
-
-  const formattedCompetition: CompetitionWithParticipations = {
-    ...omit(createdCompetition, 'verificationHash'),
-    group: createdCompetition.group
-      ? {
-          ...omit(createdCompetition.group, '_count', 'verificationHash'),
-          memberCount: createdCompetition.group._count.memberships
-        }
-      : undefined,
-    participantCount: createdCompetition.participations.length,
-    participations: createdCompetition.participations.map(p => ({
-      ...omit(p, 'startSnapshotId', 'endSnapshotId')
-    }))
-  };
 
   eventEmitter.emit(EventType.COMPETITION_CREATED, {
     competitionId: createdCompetition.id
@@ -186,7 +164,7 @@ async function createCompetition(
   }
 
   return {
-    competition: formattedCompetition,
+    competition: createdCompetition,
     verificationCode: code
   };
 }
@@ -198,7 +176,7 @@ async function getParticipations(participants: string[]) {
   return players.map(p => ({ playerId: p.id, teamName: null }));
 }
 
-async function getTeamsParticipations(teams: Team[]) {
+async function getTeamsParticipations(teams: CompetitionTeam[]) {
   // Find or create all players with the given usernames
   const players = await findOrCreatePlayers(teams.map(t => t.participants).flat());
 

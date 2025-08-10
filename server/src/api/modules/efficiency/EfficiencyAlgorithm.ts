@@ -1,18 +1,16 @@
 import {
-  BOSSES,
-  Bonus,
   Boss,
+  BOSSES,
   BossMetaConfig,
   EfficiencyAlgorithmType,
-  MAX_SKILL_EXP,
-  REAL_SKILLS,
-  SKILLS,
-  SKILL_EXP_AT_99,
   Skill,
+  SkillMetaBonus,
   SkillMetaConfig,
   SkillMetaMethod,
-  round
-} from '../../../utils';
+  SKILLS
+} from '../../../types';
+import { roundNumber } from '../../../utils/round-number.util';
+import { MAX_SKILL_EXP, REAL_SKILLS, SKILL_EXP_AT_99 } from '../../../utils/shared';
 
 enum BonusType {
   START,
@@ -24,8 +22,8 @@ class EfficiencyAlgorithm {
   public skillMetas: SkillMetaConfig[];
   public bossMetas: BossMetaConfig[];
 
-  private startBonuses: Bonus[];
-  private endBonuses: Bonus[];
+  private startBonuses: SkillMetaBonus[];
+  private endBonuses: SkillMetaBonus[];
 
   private bonusDirectionMap: Map<Skill, Skill[]>;
   private maximumEHPMap: Map<Skill, number>;
@@ -117,7 +115,7 @@ class EfficiencyAlgorithm {
         }
       });
 
-      map.set(originSkill, timeSum);
+      map.set(originSkill, roundNumber(timeSum, 5));
     });
 
     const totalEHP = Array.from(map.values()).reduce((a, b) => a + b, 0);
@@ -136,7 +134,7 @@ class EfficiencyAlgorithm {
     this.bossMetas.forEach(meta => {
       if (!meta || meta.rate <= 0) return;
 
-      map.set(meta.boss, round((fixedKillcount.get(meta.boss) ?? 0) / meta.rate, 5));
+      map.set(meta.boss, roundNumber((fixedKillcount.get(meta.boss) ?? 0) / meta.rate, 5));
     });
 
     return map;
@@ -318,7 +316,7 @@ class EfficiencyAlgorithm {
     return map;
   }
 
-  private getBonusDirectionMap(bonuses: Bonus[]) {
+  private getBonusDirectionMap(bonuses: SkillMetaBonus[]) {
     const map = new Map();
 
     bonuses.forEach(b => {
@@ -335,7 +333,7 @@ class EfficiencyAlgorithm {
     return map;
   }
 
-  private getBonuses(metas: SkillMetaConfig[], type: BonusType): Bonus[] {
+  private getBonuses(metas: SkillMetaConfig[], type: BonusType): SkillMetaBonus[] {
     return metas
       .filter(r => r.bonuses.length > 0)
       .map(r => r.bonuses)

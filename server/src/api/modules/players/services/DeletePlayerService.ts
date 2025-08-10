@@ -1,4 +1,5 @@
-import prisma, { Player, PrismaTypes } from '../../../../prisma';
+import prisma, { PrismaTypes } from '../../../../prisma';
+import { Player } from '../../../../types';
 import { NotFoundError, ServerError } from '../../../errors';
 import { standardize } from '../player.utils';
 

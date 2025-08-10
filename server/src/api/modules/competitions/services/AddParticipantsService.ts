@@ -1,5 +1,5 @@
 import prisma from '../../../../prisma';
-import { CompetitionType, PlayerAnnotationType } from '../../../../utils';
+import { CompetitionType, PlayerAnnotationType } from '../../../../types';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';

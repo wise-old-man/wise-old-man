@@ -1,24 +1,7 @@
 import { complete, errored, isComplete, Result } from '@attio/fetchable';
-import prisma, { Player, PlayerAnnotation, PlayerArchive, Snapshot } from '../../../prisma';
-import { PlayerBuild, PlayerDetails } from '../../../utils';
-import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
+import prisma from '../../../prisma';
+import { PlayerBuild, Snapshot } from '../../../types';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
-import { formatSnapshot } from '../snapshots/snapshot.utils';
-
-function formatPlayerDetails(
-  player: Player,
-  snapshot: Snapshot | null,
-  annotations: PlayerAnnotation[],
-  archive?: PlayerArchive | null
-): PlayerDetails {
-  return {
-    ...player,
-    combatLevel: snapshot ? snapshotUtils.getCombatLevelFromSnapshot(snapshot) : 3,
-    archive: archive ? archive : null,
-    latestSnapshot: snapshot ? formatSnapshot(snapshot, getPlayerEfficiencyMap(snapshot, player)) : null,
-    annotations
-  };
-}
 
 /**
  * Format a username into a standardized version,
@@ -155,4 +138,4 @@ async function splitArchivalData(playerId: number, lastSnapshotDate: Date) {
   };
 }
 
-export { formatPlayerDetails, getBuild, isValidUsername, sanitize, splitArchivalData, standardize };
+export { getBuild, isValidUsername, sanitize, splitArchivalData, standardize };

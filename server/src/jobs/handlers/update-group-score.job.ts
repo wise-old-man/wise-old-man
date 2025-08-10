@@ -1,7 +1,8 @@
 import { findGroupCompetitions } from '../../api/modules/competitions/services/FindGroupCompetitionsService';
 import { fetchGroupDetails } from '../../api/modules/groups/services/FetchGroupDetailsService';
 import prisma from '../../prisma';
-import { GroupDetails, PRIVELEGED_GROUP_ROLES } from '../../utils';
+import { Group, Membership, Player } from '../../types';
+import { PRIVILEGED_GROUP_ROLES } from '../../utils/shared';
 import { Job } from '../job.class';
 
 interface Payload {
@@ -14,10 +15,10 @@ export class UpdateGroupScoreJob extends Job<Payload> {
       return;
     }
 
-    const groupDetails = await fetchGroupDetails(payload.groupId);
+    const { group, memberships } = await fetchGroupDetails(payload.groupId);
 
-    const currentScore = groupDetails.score;
-    const newScore = await calculateScore(groupDetails);
+    const currentScore = group.score;
+    const newScore = await calculateScore(group, memberships);
 
     if (newScore === currentScore) return;
 
@@ -28,11 +29,13 @@ export class UpdateGroupScoreJob extends Job<Payload> {
   }
 }
 
-async function calculateScore(group: GroupDetails): Promise<number> {
+async function calculateScore(
+  group: Group,
+  memberships: Array<{ membership: Membership; player: Player }>
+): Promise<number> {
   let score = 0;
 
   const now = new Date();
-  const { memberships } = group;
 
   if (!memberships || memberships.length === 0 || !group.visible) {
     return score;
@@ -42,7 +45,7 @@ async function calculateScore(group: GroupDetails): Promise<number> {
   const averageOverallExp = memberships.reduce((acc, cur) => acc + cur.player.exp, 0) / memberships.length;
 
   // If has atleast one leader
-  if (memberships.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.role)).length >= 1) {
+  if (memberships.filter(m => PRIVILEGED_GROUP_ROLES.includes(m.membership.role)).length >= 1) {
     score += 30;
   }
 
@@ -100,12 +103,12 @@ async function calculateScore(group: GroupDetails): Promise<number> {
   }
 
   // If has atleast one ongoing competition
-  if (competitions.filter(c => c.startsAt <= now && c.endsAt >= now).length >= 1) {
+  if (competitions.filter(c => c.competition.startsAt <= now && c.competition.endsAt >= now).length >= 1) {
     score += 50;
   }
 
   // If has atleast one upcoming competition
-  if (competitions.filter(c => c.startsAt >= now).length >= 1) {
+  if (competitions.filter(c => c.competition.startsAt >= now).length >= 1) {
     score += 30;
   }
 

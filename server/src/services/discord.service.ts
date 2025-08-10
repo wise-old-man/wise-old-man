@@ -2,8 +2,8 @@ import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/f
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
-import { Competition } from '../prisma';
-import { Achievement, FlaggedPlayerReviewContext, Group, GroupRole, Player } from '../utils';
+import { FlaggedPlayerReviewContextResponse } from '../api/responses';
+import { Achievement, Competition, Group, GroupRole, Player } from '../types';
 import logger from './logging.service';
 
 export enum DiscordBotEventType {
@@ -96,7 +96,7 @@ type DiscordBotEventPayloadMap = {
   }>;
   [DiscordBotEventType.PLAYER_FLAGGED_REVIEW]: {
     player: Player;
-    flagContext: FlaggedPlayerReviewContext;
+    flagContext: FlaggedPlayerReviewContextResponse;
   };
   [DiscordBotEventType.POTENTIAL_CREATION_SPAM]: {
     ipHash: string;

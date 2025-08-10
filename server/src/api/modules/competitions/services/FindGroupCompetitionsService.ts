@@ -1,9 +1,13 @@
 import prisma from '../../../../prisma';
-import { omit } from '../../../../utils/omit.util';
+import { Competition, Group } from '../../../../types';
 import { NotFoundError } from '../../../errors';
-import { CompetitionListItem } from '../competition.types';
 
-async function findGroupCompetitions(groupId: number): Promise<CompetitionListItem[]> {
+async function findGroupCompetitions(groupId: number): Promise<
+  Array<{
+    competition: Competition & { participantCount: number };
+    group: Group & { memberCount: number };
+  }>
+> {
   const group = await prisma.group.findFirst({
     where: { id: groupId },
     include: {
@@ -38,26 +42,30 @@ async function findGroupCompetitions(groupId: number): Promise<CompetitionListIt
   return sortCompetitions(
     competitions.map(c => {
       return {
-        ...omit(c, 'verificationHash'),
-        group: {
-          ...omit(group, '_count', 'verificationHash'),
-          memberCount: group._count.memberships
+        competition: {
+          ...c,
+          participantCount: participantCountsMap.get(c.id) ?? 0
         },
-        participantCount: participantCountsMap.get(c.id) ?? 0
+        group: {
+          ...group,
+          memberCount: group._count.memberships
+        }
       };
     })
   );
 }
 
-function sortCompetitions(competitions: CompetitionListItem[]): CompetitionListItem[] {
-  const finished: CompetitionListItem[] = [];
-  const upcoming: CompetitionListItem[] = [];
-  const ongoing: CompetitionListItem[] = [];
+function sortCompetitions<T extends { competition: Pick<Competition, 'startsAt' | 'endsAt'> }>(
+  competitions: T[]
+): T[] {
+  const finished: T[] = [];
+  const upcoming: T[] = [];
+  const ongoing: T[] = [];
 
   competitions.forEach(c => {
-    if (c.endsAt.getTime() < Date.now()) {
+    if (c.competition.endsAt.getTime() < Date.now()) {
       finished.push(c);
-    } else if (c.startsAt.getTime() < Date.now()) {
+    } else if (c.competition.startsAt.getTime() < Date.now()) {
       ongoing.push(c);
     } else {
       upcoming.push(c);
@@ -66,13 +74,13 @@ function sortCompetitions(competitions: CompetitionListItem[]): CompetitionListI
 
   return [
     ...ongoing.sort((a, b) => {
-      return a.endsAt.getTime() - b.endsAt.getTime();
+      return a.competition.endsAt.getTime() - b.competition.endsAt.getTime();
     }),
     ...upcoming.sort((a, b) => {
-      return a.startsAt.getTime() - b.startsAt.getTime();
+      return a.competition.startsAt.getTime() - b.competition.startsAt.getTime();
     }),
     ...finished.sort((a, b) => {
-      return b.endsAt.getTime() - a.endsAt.getTime();
+      return b.competition.endsAt.getTime() - a.competition.endsAt.getTime();
     })
   ];
 }
