@@ -186,9 +186,12 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A list of name change (approved) requests.
    */
   getGroupNameChanges(id: number, pagination?: PaginationOptions) {
-    return this.getRequest<NameChangeResponse & { player: PlayerResponse }>(`/groups/${id}/name-changes`, {
-      ...pagination
-    });
+    return this.getRequest<Array<NameChangeResponse & { player: PlayerResponse }>>(
+      `/groups/${id}/name-changes`,
+      {
+        ...pagination
+      }
+    );
   }
 
   /**

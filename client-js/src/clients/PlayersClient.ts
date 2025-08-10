@@ -3,6 +3,7 @@ import {
   AchievementResponse,
   CompetitionResponse,
   CompetitionStatus,
+  GroupResponse,
   MembershipResponse,
   Metric,
   NameChangeResponse,
@@ -118,7 +119,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A list of memberships, with the respective group included.
    */
   getPlayerGroups(username: string, pagination?: PaginationOptions) {
-    return this.getRequest<Array<MembershipResponse & { player: PlayerResponse }>>(
+    return this.getRequest<Array<MembershipResponse & { group: GroupResponse }>>(
       `/players/${username}/groups`,
       pagination
     );
