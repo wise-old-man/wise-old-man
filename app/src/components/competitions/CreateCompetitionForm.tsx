@@ -6,8 +6,8 @@ import { useMutation } from "@tanstack/react-query";
 import {
   CompetitionType,
   CreateCompetitionPayload,
-  GroupDetails,
-  GroupListItem,
+  GroupDetailsResponse,
+  GroupResponse,
   Metric,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
@@ -30,7 +30,7 @@ type FormStep = "info" | "group" | "participants";
 type TimezoneOption = "local" | "utc";
 
 interface CreateCompetitionFormProps {
-  group?: GroupDetails;
+  group?: GroupDetailsResponse;
 }
 
 export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
@@ -38,7 +38,7 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
   const client = useWOMClient();
   const router = useRouter();
 
-  const [group, setGroup] = useState<GroupListItem | undefined>(props.group);
+  const [group, setGroup] = useState<GroupResponse | undefined>(props.group);
   const [groupVerificationCode, setGroupVerificationCode] = useState("");
 
   const [step, setStep] = useState<FormStep>("info");

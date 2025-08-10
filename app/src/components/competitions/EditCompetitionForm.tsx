@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import {
-  CompetitionDetails,
+  CompetitionDetailsResponse,
   CompetitionType,
   Metric,
-  ParticipationWithPlayerAndProgress,
-  Team,
+  CompetitionTeam,
+  PlayerResponse,
 } from "@wise-old-man/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -31,7 +31,7 @@ import WarningIcon from "~/assets/warning.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 
 interface EditCompetitionFormProps {
-  competition: CompetitionDetails;
+  competition: CompetitionDetailsResponse;
 }
 
 export function EditCompetitionForm(props: EditCompetitionFormProps) {
@@ -332,12 +332,12 @@ function TeamsSection(props: EditCompetitionFormProps & { verificationCode: stri
 
   const previousTeams = getTeams(competition);
 
-  const [teams, setTeams] = useState<Team[]>(previousTeams);
+  const [teams, setTeams] = useState<CompetitionTeam[]>(previousTeams);
 
   const hasUnsavedChanges = checkTeamsUnsavedChanges(previousTeams, teams);
 
   const editParticipantsMutation = useMutation({
-    mutationFn: (payload: { teams: Team[] }) => {
+    mutationFn: (payload: { teams: CompetitionTeam[] }) => {
       return client.competitions.editCompetition(competition.id, payload, verificationCode);
     },
     onSuccess: () => {
@@ -395,8 +395,8 @@ function checkParticipantsUnsavedChanges(previousParticipants: string[], nextPar
   return JSON.stringify(normalize(previousParticipants)) !== JSON.stringify(normalize(nextParticipants));
 }
 
-function checkTeamsUnsavedChanges(previousTeams: Team[], nextTeams: Team[]) {
-  const normalize = (teams: Team[]) => {
+function checkTeamsUnsavedChanges(previousTeams: CompetitionTeam[], nextTeams: CompetitionTeam[]) {
+  const normalize = (teams: CompetitionTeam[]) => {
     return teams
       .map((team) => ({
         name: standardizeUsername(team.name),
@@ -408,8 +408,8 @@ function checkTeamsUnsavedChanges(previousTeams: Team[], nextTeams: Team[]) {
   return JSON.stringify(normalize(previousTeams)) !== JSON.stringify(normalize(nextTeams));
 }
 
-function getTeams(competition: CompetitionDetails): Team[] {
-  const teamMap = new Map<string, ParticipationWithPlayerAndProgress[]>();
+function getTeams(competition: CompetitionDetailsResponse): CompetitionTeam[] {
+  const teamMap = new Map<string, (typeof competition)["participations"]>();
 
   competition.participations.forEach((participation) => {
     if (!participation.teamName) return;

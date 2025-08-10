@@ -1,18 +1,17 @@
 import {
-  Achievement,
-  AchievementProgress,
+  AchievementResponse,
+  AchievementProgressResponse,
   METRICS,
   Metric,
   MetricMeasure,
   MetricProps,
   MetricType,
-  Player,
   REAL_SKILLS,
-  formatNumber,
   getLevel,
   isActivity,
   isBoss,
   isSkill,
+  PlayerResponse,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { getPlayerAchievementProgress, getPlayerDetails } from "~/services/wiseoldman";
@@ -23,6 +22,7 @@ import { MetricIcon } from "~/components/Icon";
 import { QueryLink } from "~/components/QueryLink";
 import { AchievementAccuracyTooltip, IncompleteAchievementTooltip } from "~/components/AchievementDate";
 import { getBuildHiddenMetrics } from "~/utils/metrics";
+import { formatNumber } from "~/utils/numbers";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -97,8 +97,8 @@ export default async function PlayerAchievements(props: PageProps) {
 }
 
 interface ProgressTableProps {
-  player: Player;
-  achievements: AchievementProgress[];
+  player: PlayerResponse;
+  achievements: AchievementProgressResponse[];
   metricType?: MetricType;
 }
 
@@ -127,7 +127,7 @@ function ProgressTable(props: ProgressTableProps) {
 interface ProgressTableRowProps {
   metric: Metric;
   measure: MetricMeasure | "levels";
-  achievements: AchievementProgress[];
+  achievements: AchievementProgressResponse[];
 }
 
 function ProgressTableRow(props: ProgressTableRowProps) {
@@ -191,7 +191,10 @@ function ProgressTableRow(props: ProgressTableRowProps) {
                 </TooltipTrigger>
                 <TooltipContent className="p-0">
                   {a.createdAt ? (
-                    <AchievementAccuracyTooltip achievement={{ ...a } as Achievement} showTitle />
+                    <AchievementAccuracyTooltip
+                      achievement={{ ...a } as AchievementResponse}
+                      showTitle
+                    />
                   ) : (
                     <IncompleteAchievementTooltip achievement={a} />
                   )}
@@ -206,7 +209,7 @@ function ProgressTableRow(props: ProgressTableRowProps) {
 }
 
 interface RecentAchievementsProps {
-  achievements: AchievementProgress[];
+  achievements: AchievementProgressResponse[];
   metricType?: MetricType;
 }
 
@@ -240,7 +243,7 @@ function RecentAchievements(props: RecentAchievementsProps) {
 }
 
 interface NearestAchievementsProps {
-  achievements: AchievementProgress[];
+  achievements: AchievementProgressResponse[];
   metricType?: MetricType;
 }
 
@@ -299,7 +302,7 @@ function convertMetricType(metricType?: string) {
   return MetricType.SKILL;
 }
 
-function groupAchievementsByType(achievements: AchievementProgress[]) {
+function groupAchievementsByType(achievements: AchievementProgressResponse[]) {
   if (!achievements) {
     return [];
   }
@@ -307,7 +310,7 @@ function groupAchievementsByType(achievements: AchievementProgress[]) {
   const groups: Array<{
     metric: Metric;
     measure: MetricMeasure;
-    achievements: AchievementProgress[];
+    achievements: AchievementProgressResponse[];
   }> = [];
 
   achievements.forEach((a) => {

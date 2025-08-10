@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { PropsWithChildren } from "react";
-import { GroupDetails } from "@wise-old-man/utils";
+import { GroupDetailsResponse } from "@wise-old-man/utils";
 import { getGroupDetails } from "~/services/wiseoldman";
 import { cn } from "~/utils/styling";
 import { Badge } from "~/components/Badge";
@@ -121,7 +121,7 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
   );
 }
 
-function Header(props: GroupDetails) {
+function Header(props: GroupDetailsResponse) {
   const { id, name, description, clanChat, patron, profileImage, homeworld, memberCount } = props;
 
   return (
@@ -251,7 +251,7 @@ function Header(props: GroupDetails) {
   );
 }
 
-function GroupSocialLinks(props: NonNullable<GroupDetails["socialLinks"]>) {
+function GroupSocialLinks(props: NonNullable<GroupDetailsResponse["socialLinks"]>) {
   const { website, discord, twitch, twitter, youtube } = props;
 
   return (

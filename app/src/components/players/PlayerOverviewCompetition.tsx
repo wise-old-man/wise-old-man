@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { CompetitionListItem, CompetitionStatus, CompetitionStatusProps } from "@wise-old-man/utils";
+import { CompetitionResponse, CompetitionStatus, CompetitionStatusProps } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
 import { getCompetitionStatus, getPlayerCompetitions } from "~/services/wiseoldman";
@@ -39,7 +39,7 @@ export async function PlayerOverviewCompetition(props: PlayerOverviewCompetition
   );
 }
 
-function CompetitionCard(props: CompetitionListItem) {
+function CompetitionCard(props: CompetitionResponse) {
   const status = getCompetitionStatus(props);
 
   let timeagoLabel: string | undefined;

@@ -7,10 +7,9 @@ import {
   PERIODS,
   Period,
   PeriodProps,
-  Record,
+  RecordResponse,
   isComputedMetric,
 } from "@wise-old-man/utils";
-import { cn } from "~/utils/styling";
 import { formatDatetime } from "~/utils/dates";
 import { getPlayerDetails, getPlayerRecords } from "~/services/wiseoldman";
 import { MetricIcon } from "~/components/Icon";
@@ -99,14 +98,14 @@ export default async function PlayerRecordsPage(props: PageProps) {
 
 interface MetricRecordsProps {
   metric: Metric;
-  records: Record[];
+  records: RecordResponse[];
   username: string;
 }
 
 function MetricRecords(props: MetricRecordsProps) {
   const { metric, records, username } = props;
 
-  const map = new Map<Period, Record>();
+  const map = new Map<Period, RecordResponse>();
 
   records.forEach((record) => {
     const values = map.get(record.period);
@@ -183,8 +182,8 @@ function convertMetricType(metricType?: string) {
   return MetricType.SKILL;
 }
 
-function aggregateRecordsPerMetric(records: Record[]) {
-  const map = new Map<Metric, Record[]>();
+function aggregateRecordsPerMetric(records: RecordResponse[]) {
+  const map = new Map<Metric, RecordResponse[]>();
 
   records.forEach((record) => {
     const values = map.get(record.metric);

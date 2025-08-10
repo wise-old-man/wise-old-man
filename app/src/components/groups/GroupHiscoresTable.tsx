@@ -7,12 +7,8 @@ import {
   ACTIVITIES,
   BOSSES,
   COMPUTED_METRICS,
-  GroupDetails,
-  GroupHiscoresActivityItem,
-  GroupHiscoresBossItem,
-  GroupHiscoresComputedMetricItem,
-  GroupHiscoresEntry,
-  GroupHiscoresSkillItem,
+  GroupDetailsResponse,
+  GroupHiscoresEntryResponse,
   Metric,
   MetricProps,
   SKILLS,
@@ -41,10 +37,15 @@ import {
   ComboboxSeparator,
 } from "../Combobox";
 
+type GroupHiscoresSkillItem = Extract<GroupHiscoresEntryResponse["data"], { type: "skill" }>;
+type GroupHiscoresBossItem = Extract<GroupHiscoresEntryResponse["data"], { type: "boss" }>;
+type GroupHiscoresActivityItem = Extract<GroupHiscoresEntryResponse["data"], { type: "activity" }>;
+type GroupHiscoresComputedMetricItem = Extract<GroupHiscoresEntryResponse["data"], { type: "computed" }>;
+
 interface GroupHiscoresTableProps {
   metric: Metric;
-  group: GroupDetails;
-  hiscores: GroupHiscoresEntry[];
+  group: GroupDetailsResponse;
+  hiscores: GroupHiscoresEntryResponse[];
 }
 
 export function GroupHiscoresTable(props: GroupHiscoresTableProps) {
@@ -97,7 +98,7 @@ export function GroupHiscoresTable(props: GroupHiscoresTableProps) {
 }
 
 function getColumnDefinitions(page: number, metric: Metric) {
-  const columns: ColumnDef<GroupHiscoresEntry>[] = [
+  const columns: ColumnDef<GroupHiscoresEntryResponse>[] = [
     {
       id: "rank",
       header: "Rank",

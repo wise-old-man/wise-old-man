@@ -1,6 +1,5 @@
 "use client";
 
-import { formatNumber } from "@wise-old-man/utils";
 import React, { useRef, useEffect, useState } from "react";
 import {
   LineChart as LineChartPrimitive,
@@ -13,6 +12,7 @@ import {
   ResponsiveContainer,
   ReferenceArea,
 } from "recharts";
+import { formatNumber } from "~/utils/numbers";
 import { cn } from "~/utils/styling";
 
 const GRID_STYLE = { stroke: "#1f2937" };

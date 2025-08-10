@@ -3,12 +3,12 @@
 import {
   Metric,
   MetricProps,
-  Top5ProgressResult,
-  formatNumber,
+  ParticipantHistoryResponse,
   isActivity,
   isBoss,
 } from "@wise-old-man/utils";
 import dynamic from "next/dynamic";
+import { formatNumber } from "~/utils/numbers";
 
 const LineChartSSR = dynamic(() => import("../LineChart"), {
   ssr: false,
@@ -21,7 +21,7 @@ const LineChartSSR = dynamic(() => import("../LineChart"), {
 
 interface CompetitionTopParticipantsChartProps {
   metric: Metric;
-  data: Top5ProgressResult;
+  data: Array<ParticipantHistoryResponse>;
 }
 
 export function CompetitionTopParticipantsChart(props: CompetitionTopParticipantsChartProps) {
@@ -46,7 +46,7 @@ export function CompetitionTopParticipantsChart(props: CompetitionTopParticipant
   );
 }
 
-function convertToDiffTimeseries(metric: Metric, history: Top5ProgressResult[number]["history"]) {
+function convertToDiffTimeseries(metric: Metric, history: ParticipantHistoryResponse["history"]) {
   if (history.length === 0) return [];
 
   const sanitizedPoints = [...history]

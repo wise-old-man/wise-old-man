@@ -1,11 +1,12 @@
-import { Metric, PlayerDetails, PlayerStatus, formatNumber, isMetric } from "@wise-old-man/utils";
+import { Metric, PlayerDetailsResponse, PlayerStatus, isMetric } from "@wise-old-man/utils";
 import { Label } from "../Label";
 import { MetricIconSmall } from "../Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
+import { formatNumber } from "~/utils/numbers";
 
 import CheckIcon from "~/assets/check.svg";
 
-export function PlayerOverviewWidgets(props: PlayerDetails) {
+export function PlayerOverviewWidgets(props: PlayerDetailsResponse) {
   if (!props.latestSnapshot) return null;
 
   const { data } = props.latestSnapshot;

@@ -1,5 +1,5 @@
 import Image, { StaticImageData } from "next/image";
-import { formatNumber } from "@wise-old-man/utils";
+import { formatNumber } from "~/utils/numbers";
 import { apiClient } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { HeroPlayerForm } from "~/components/home/HeroPlayerForm";

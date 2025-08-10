@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { GroupListItem } from "@wise-old-man/utils";
+import { GroupResponse } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 import VerifiedIcon from "~/assets/verified.svg";
 
-export function GroupCard(props: GroupListItem) {
+export function GroupCard(props: GroupResponse) {
   return (
     <Link prefetch={false} href={`/groups/${props.id}`} className="group">
       <div className="flex h-[8.75rem] flex-col justify-between rounded-lg border border-gray-600 bg-gray-800 p-5 shadow-md group-hover:border-gray-500 group-hover:bg-gray-700">

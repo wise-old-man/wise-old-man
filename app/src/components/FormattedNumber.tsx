@@ -1,4 +1,4 @@
-import { formatNumber } from "@wise-old-man/utils";
+import { formatNumber } from "~/utils/numbers";
 import { Tooltip, TooltipTrigger, TooltipContent } from "./Tooltip";
 import { cn } from "~/utils/styling";
 

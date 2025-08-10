@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { GroupListItem } from "@wise-old-man/utils";
+import { GroupResponse } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";
 import { useWOMClient } from "~/hooks/useWOMClient";
 import { cn } from "~/utils/styling";
@@ -17,12 +17,12 @@ import CloseIcon from "~/assets/close.svg";
 import VerifiedIcon from "~/assets/verified.svg";
 
 interface CompetitionGroupFormProps {
-  group: GroupListItem | undefined;
+  group: GroupResponse | undefined;
   groupVerificationCode: string | undefined;
 
   onSkip: () => void;
   onCodeConfirmed: (code: string) => void;
-  onGroupSelected: (group: GroupListItem | undefined) => void;
+  onGroupSelected: (group: GroupResponse | undefined) => void;
 
   formActions: (disabled: boolean, loading: boolean) => JSX.Element;
 }
@@ -36,8 +36,7 @@ export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
   const [isGroupCompetition, setIsGroupCompetition] = useState(!!group);
   const [groupVerificationCode, setGroupVerificationCode] = useState(props.groupVerificationCode);
 
-  const canSubmit =
-    !isGroupCompetition || !!(group && groupVerificationCode);
+  const canSubmit = !isGroupCompetition || !!(group && groupVerificationCode);
 
   const checkMutation = useMutation({
     mutationFn: async () => {
@@ -136,8 +135,8 @@ export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
 }
 
 interface GroupSelectorProps {
-  group?: GroupListItem;
-  onGroupSelected: (group?: GroupListItem) => void;
+  group?: GroupResponse;
+  onGroupSelected: (group?: GroupResponse) => void;
 }
 
 function GroupSelector(props: GroupSelectorProps) {

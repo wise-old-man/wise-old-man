@@ -4,7 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useWOMClient } from "~/hooks/useWOMClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../Dialog";
-import { MemberActivityWithPlayer } from "@wise-old-man/utils";
+import { MemberActivityResponse, PlayerResponse } from "@wise-old-man/utils";
 import { GroupActivityItem } from "./GroupActivityItem";
 import { useInView } from "react-intersection-observer";
 
@@ -12,7 +12,7 @@ const RESULTS_PER_PAGE = 20;
 
 function useInfiniteLoad(
   groupId: number,
-  initialData: MemberActivityWithPlayer[],
+  initialData: Array<MemberActivityResponse & { player: PlayerResponse }>,
   options: { enabled?: boolean }
 ) {
   const client = useWOMClient();
@@ -38,7 +38,7 @@ function useInfiniteLoad(
 
 interface GroupActivityDialogProps {
   groupId: number;
-  initialData: MemberActivityWithPlayer[];
+  initialData: Array<MemberActivityResponse & { player: PlayerResponse }>;
 }
 
 export function GroupActivityDialog(props: GroupActivityDialogProps) {

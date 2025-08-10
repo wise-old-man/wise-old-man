@@ -22,8 +22,6 @@ import {
   Metric,
   MetricProps,
   SKILLS,
-  isCompetitionStatus,
-  isCompetitionType,
   isMetric,
 } from "@wise-old-man/utils";
 import {
@@ -218,9 +216,9 @@ function StatusSelect(props: StatusSelectProps) {
     <Combobox
       value={status}
       onValueChanged={(val) => {
-        if (val === undefined || isCompetitionStatus(val)) {
+        if (val === undefined || val in CompetitionStatusProps) {
           startTransition(() => {
-            onStatusSelected(val);
+            onStatusSelected(val as CompetitionStatus | undefined);
           });
         }
       }}
@@ -276,9 +274,9 @@ function TypeSelect(props: TypeSelectProps) {
     <Combobox
       value={type}
       onValueChanged={(val) => {
-        if (val === undefined || isCompetitionType(val)) {
+        if (val === undefined || val in CompetitionTypeProps) {
           startTransition(() => {
-            onTypeSelected(val);
+            onTypeSelected(val as CompetitionType | undefined);
           });
         }
       }}

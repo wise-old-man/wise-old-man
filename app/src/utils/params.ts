@@ -1,14 +1,16 @@
 import {
-  isMetric,
-  isPlayerType,
-  isPlayerBuild,
-  isCountry,
-  isComputedMetric,
-  NameChangeStatus,
+  CompetitionStatus,
+  CompetitionStatusProps,
+  CompetitionType,
+  CompetitionTypeProps,
   EfficiencyAlgorithmType,
-  isCompetitionStatus,
-  isCompetitionType,
+  isComputedMetric,
+  isCountry,
+  isMetric,
   isPeriod,
+  isPlayerBuild,
+  isPlayerType,
+  NameChangeStatus,
   Period,
 } from "@wise-old-man/utils";
 import { TimeRangeFilter } from "~/services/wiseoldman";
@@ -82,11 +84,11 @@ export function getAlgorithmTypeParam(param: string | undefined | null) {
 }
 
 export function getCompetitionStatusParam(param: string | undefined | null) {
-  if (!param || !isCompetitionStatus(param)) return undefined;
-  return param;
+  if (!param || !(param in CompetitionStatusProps)) return undefined;
+  return param as CompetitionStatus;
 }
 
 export function getCompetitionTypeParam(param: string | undefined | null) {
-  if (!param || !isCompetitionType(param)) return undefined;
-  return param;
+  if (!param || !(param in CompetitionTypeProps)) return undefined;
+  return param as CompetitionType;
 }

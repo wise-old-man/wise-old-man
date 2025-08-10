@@ -5,12 +5,11 @@ import { useSearchParams } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMutation } from "@tanstack/react-query";
 import {
-  CompetitionDetails,
+  CompetitionDetailsResponse,
   CompetitionType,
   Metric,
   MetricProps,
-  ParticipationWithPlayerAndProgress,
-  Player,
+  PlayerResponse,
   PlayerStatus,
   isActivity,
   isBoss,
@@ -34,7 +33,7 @@ import LoadingIcon from "~/assets/loading.svg";
 
 interface ParticipantsTableProps {
   metric: Metric;
-  competition: CompetitionDetails;
+  competition: CompetitionDetailsResponse;
   teamName?: string;
 }
 
@@ -103,8 +102,8 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
   );
 }
 
-function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
-  const columns: ColumnDef<ParticipationWithPlayerAndProgress>[] = [
+function getColumnDefinitions(metric: Metric, competition: CompetitionDetailsResponse) {
+  const columns: ColumnDef<CompetitionDetailsResponse["participations"][number]>[] = [
     {
       id: "rank",
       header: ({ column }) => {
@@ -226,8 +225,8 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
 
 function ParticipantStartCell(props: {
   metric: Metric;
-  competition: CompetitionDetails;
-  participant: ParticipationWithPlayerAndProgress;
+  competition: CompetitionDetailsResponse;
+  participant: CompetitionDetailsResponse["participations"][number];
 }) {
   const { metric, competition, participant } = props;
   const { player, progress } = participant;
@@ -293,8 +292,8 @@ function ParticipantStartCell(props: {
 
 function ParticipantEndCell(props: {
   metric: Metric;
-  competition: CompetitionDetails;
-  participant: ParticipationWithPlayerAndProgress;
+  competition: CompetitionDetailsResponse;
+  participant: CompetitionDetailsResponse["participations"][number];
 }) {
   const { metric, competition, participant } = props;
 
@@ -370,7 +369,10 @@ function ParticipantEndCell(props: {
   return <FormattedNumber value={progress.end} />;
 }
 
-function UpdateParticipantCell(props: { player: Player; competition: CompetitionDetails }) {
+function UpdateParticipantCell(props: {
+  player: PlayerResponse;
+  competition: CompetitionDetailsResponse;
+}) {
   const { player, competition } = props;
 
   const toast = useToast();

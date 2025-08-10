@@ -1,13 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { GroupRoleProps, MembershipWithGroup } from "@wise-old-man/utils";
+import { GroupResponse, GroupRoleProps, MembershipResponse } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { GroupRoleIcon } from "../Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 import VerifiedIcon from "~/assets/verified.svg";
 
-export function MembershipListItem(props: MembershipWithGroup) {
+export function MembershipListItem(props: MembershipResponse & { group: GroupResponse }) {
   const { role, group } = props;
 
   return (

@@ -3,13 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
-import {
-  CreateGroupPayload,
-  GROUP_ROLES,
-  GroupMemberFragment,
-  GroupRole,
-  GroupRoleProps,
-} from "@wise-old-man/utils";
+import { CreateGroupPayload, GROUP_ROLES, GroupRole, GroupRoleProps } from "@wise-old-man/utils";
 import Link from "next/link";
 import { cn } from "~/utils/styling";
 import { useToast } from "~/hooks/useToast";
@@ -42,6 +36,11 @@ import ChevronDownIcon from "~/assets/chevron_down.svg";
 
 type FormStep = "info" | "import" | "members";
 type ImportSource = "none" | "file";
+
+interface MemberFragment {
+  username: string;
+  role?: GroupRole;
+}
 
 const CreateGroupContext = createContext({
   step: "info" as FormStep,
@@ -93,7 +92,7 @@ export function CreateGroupForm() {
     },
   });
 
-  function handleSubmitMembers(members: GroupMemberFragment[]) {
+  function handleSubmitMembers(members: MemberFragment[]) {
     const newPayload = { ...payload, members };
     setPayload(newPayload);
 
@@ -183,7 +182,7 @@ export function CreateGroupForm() {
               <GroupMembersForm
                 payload={payload}
                 onSubmit={handleSubmitMembers}
-                onSave={(members: GroupMemberFragment[]) => {
+                onSave={(members: MemberFragment[]) => {
                   setPayload({ ...payload, members });
                 }}
               />
@@ -270,8 +269,8 @@ function GroupImportOptions() {
 
 interface GroupMembersFormProps {
   payload: CreateGroupPayload;
-  onSave: (members: GroupMemberFragment[]) => void;
-  onSubmit: (members: GroupMemberFragment[]) => void;
+  onSave: (members: MemberFragment[]) => void;
+  onSubmit: (members: MemberFragment[]) => void;
 }
 
 function GroupMembersForm(props: GroupMembersFormProps) {
@@ -280,7 +279,7 @@ function GroupMembersForm(props: GroupMembersFormProps) {
   const { importSource, showingImportDialog, setShowingImportDialog, setStep, setImportSource } =
     useContext(CreateGroupContext);
 
-  const [members, setMembers] = useState<GroupMemberFragment[]>(payload?.members || []);
+  const [members, setMembers] = useState<MemberFragment[]>(payload?.members || []);
 
   function handleAddPlayers(usernames: string) {
     // Handle comma separated usernames
@@ -373,7 +372,7 @@ function getColumnDefinitions(
   onRemoveClicked: (username: string) => void,
   onRoleChanged: (username: string, role: GroupRole) => void
 ) {
-  const MEMBERS_COLUMN_DEFS: ColumnDef<GroupMemberFragment>[] = [
+  const MEMBERS_COLUMN_DEFS: ColumnDef<MemberFragment>[] = [
     {
       accessorKey: "username",
       header: "Player",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Team } from "@wise-old-man/utils";
+import { CompetitionTeam } from "@wise-old-man/utils";
 import { Label } from "../Label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../Dialog";
 import { Input } from "../Input";
@@ -16,9 +16,9 @@ const MAX_TEAM_NAME_LENGTH = 30;
 
 interface EditTeamDialogProps {
   isOpen: boolean;
-  team: Team | null;
+  team: CompetitionTeam | null;
   onClose: () => void;
-  onSubmit: (newTeam: Team) => void;
+  onSubmit: (newTeam: CompetitionTeam) => void;
 }
 
 export function EditTeamDialog(props: EditTeamDialogProps) {

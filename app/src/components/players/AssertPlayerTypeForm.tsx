@@ -3,14 +3,14 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { Player, PlayerTypeProps } from "@wise-old-man/utils";
+import { PlayerDetailsResponse, PlayerTypeProps } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";
 import { useWOMClient } from "~/hooks/useWOMClient";
 import { DropdownMenuItem } from "../Dropdown";
 
 import LoadingIcon from "~/assets/loading.svg";
 
-export function AssertPlayerTypeForm(props: { player: Player }) {
+export function AssertPlayerTypeForm(props: { player: PlayerDetailsResponse }) {
   const { player } = props;
 
   const toast = useToast();

@@ -3,7 +3,6 @@
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { forwardRef, useEffect, useRef, useState } from "react";
 import { createCalendar, parseDate } from "@internationalized/date";
-import { padNumber } from "@wise-old-man/utils";
 import { AriaDatePickerProps, AriaTimeFieldProps, DateValue, TimeValue } from "@react-aria/datepicker";
 import {
   useButton,
@@ -22,6 +21,7 @@ import {
   useDatePickerState,
   useTimeFieldState,
 } from "react-stately";
+import { padNumber } from "~/utils/numbers";
 import { cn } from "~/utils/styling";
 import { Button } from "~/components/Button";
 import { Calendar } from "~/components/Calendar";

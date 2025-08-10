@@ -7,13 +7,14 @@ import {
   ACTIVITIES,
   BOSSES,
   COMPUTED_METRICS,
-  GroupDetails,
+  GroupDetailsResponse,
   Metric,
   MetricProps,
   PERIODS,
   Period,
   PeriodProps,
-  RecordLeaderboardEntry,
+  PlayerResponse,
+  RecordResponse,
   SKILLS,
   isMetric,
   isPeriod,
@@ -41,8 +42,8 @@ import { LocalDate } from "../LocalDate";
 interface GroupRecordsTableProps {
   metric: Metric;
   period: Period;
-  group: GroupDetails;
-  records: RecordLeaderboardEntry[];
+  group: GroupDetailsResponse;
+  records: Array<RecordResponse & { player: PlayerResponse }>;
 }
 
 export function GroupRecordsTable(props: GroupRecordsTableProps) {
@@ -114,7 +115,7 @@ export function GroupRecordsTable(props: GroupRecordsTableProps) {
 }
 
 function getColumnDefinitions(page: number, metric: Metric) {
-  const columns: ColumnDef<RecordLeaderboardEntry>[] = [
+  const columns: ColumnDef<RecordResponse & { player: PlayerResponse }>[] = [
     {
       id: "rank",
       header: "Rank",

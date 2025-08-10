@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import {
-  GroupStatistics,
+  GroupStatisticsResponse,
   MetricProps,
   isActivity,
   isBoss,
@@ -15,7 +15,7 @@ import { FormattedNumber } from "../FormattedNumber";
 import { PlayerIdentity } from "../PlayerIdentity";
 
 interface GroupBestPlayersTableProps {
-  statistics: GroupStatistics;
+  statistics: GroupStatisticsResponse;
 }
 
 export function GroupBestPlayersTable(props: GroupBestPlayersTableProps) {

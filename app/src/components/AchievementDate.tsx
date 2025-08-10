@@ -1,4 +1,5 @@
-import { Achievement, AchievementProgress, formatNumber } from "@wise-old-man/utils";
+import { AchievementResponse, AchievementProgressResponse } from "@wise-old-man/utils";
+import { formatNumber } from "~/utils/numbers";
 import { formatDatetime } from "~/utils/dates";
 import { cn } from "~/utils/styling";
 import { LocalDate } from "./LocalDate";
@@ -12,7 +13,7 @@ const ACCURACY_LEVEL_LABEL = {
   3: "Good",
 };
 
-export function AchievementDate(props: Achievement) {
+export function AchievementDate(props: AchievementResponse) {
   const { createdAt, accuracy } = props;
 
   const accuracyLevel = getAccuracyLevel(accuracy);
@@ -40,7 +41,7 @@ export function AchievementDate(props: Achievement) {
   );
 }
 
-export function IncompleteAchievementTooltip(props: { achievement: AchievementProgress }) {
+export function IncompleteAchievementTooltip(props: { achievement: AchievementProgressResponse }) {
   const { achievement } = props;
   const { currentValue, threshold, relativeProgress } = achievement;
 
@@ -61,7 +62,10 @@ export function IncompleteAchievementTooltip(props: { achievement: AchievementPr
   );
 }
 
-export function AchievementAccuracyTooltip(props: { achievement: Achievement; showTitle?: boolean }) {
+export function AchievementAccuracyTooltip(props: {
+  achievement: AchievementResponse;
+  showTitle?: boolean;
+}) {
   const { achievement, showTitle } = props;
   const { accuracy, createdAt } = achievement;
 

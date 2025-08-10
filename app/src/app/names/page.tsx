@@ -1,4 +1,4 @@
-import { NameChange, NameChangeStatus } from "@wise-old-man/utils";
+import { NameChangeResponse, NameChangeStatus } from "@wise-old-man/utils";
 import { Badge } from "~/components/Badge";
 import { Pagination } from "~/components/Pagination";
 import { ReviewContextTooltip } from "~/components/names/ReviewContextTooltip";
@@ -144,7 +144,7 @@ function StatusBadge(props: { status: NameChangeStatus }) {
   }
 }
 
-function getResolvedTimeago(nameChange: NameChange) {
+function getResolvedTimeago(nameChange: NameChangeResponse) {
   if (!nameChange.resolvedAt) {
     return `Auto-reviewed ${timeago.format(nameChange.updatedAt)} (skipped)`;
   }
@@ -160,7 +160,7 @@ function getResolvedTimeago(nameChange: NameChange) {
   return "";
 }
 
-function NameChangeCard(props: { nameChange: NameChange }) {
+function NameChangeCard(props: { nameChange: NameChangeResponse }) {
   const { nameChange } = props;
 
   return (

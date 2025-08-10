@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Player, NameChange } from "@wise-old-man/utils";
+import { PlayerResponse, NameChangeResponse } from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
 import { TableTitle } from "../Table";
 import { DataTable } from "../DataTable";
@@ -9,7 +9,7 @@ import { PlayerIdentity } from "../PlayerIdentity";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 interface GroupNameChangesTableProps {
-  nameChanges: Array<NameChange & { player: Player }>;
+  nameChanges: Array<NameChangeResponse & { player: PlayerResponse }>;
 }
 
 export function GroupNameChangesTable(props: GroupNameChangesTableProps) {
@@ -29,7 +29,7 @@ export function GroupNameChangesTable(props: GroupNameChangesTableProps) {
   );
 }
 
-const COLUMN_DEFS: ColumnDef<NameChange & { player: Player }>[] = [
+const COLUMN_DEFS: ColumnDef<NameChangeResponse & { player: PlayerResponse }>[] = [
   {
     accessorKey: "player",
     header: "Player",

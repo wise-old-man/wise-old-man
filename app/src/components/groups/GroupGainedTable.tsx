@@ -7,13 +7,14 @@ import {
   ACTIVITIES,
   BOSSES,
   COMPUTED_METRICS,
-  DeltaGroupLeaderboardEntry,
-  GroupDetails,
+  GroupDetailsResponse,
   Metric,
+  MetricDelta,
   MetricProps,
   PERIODS,
   Period,
   PeriodProps,
+  PlayerResponse,
   SKILLS,
   isActivity,
   isBoss,
@@ -47,8 +48,13 @@ import ArrowUpIcon from "~/assets/arrow_up.svg";
 interface GroupGainedTableProps {
   metric: Metric;
   timeRange: TimeRangeFilter;
-  group: GroupDetails;
-  gains: DeltaGroupLeaderboardEntry[];
+  group: GroupDetailsResponse;
+  gains: Array<{
+    player: PlayerResponse;
+    startDate: Date;
+    endDate: Date;
+    data: MetricDelta;
+  }>;
 }
 
 export function GroupGainedTable(props: GroupGainedTableProps) {
@@ -148,7 +154,12 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
 }
 
 function getColumnDefinitions(page: number, metric: Metric) {
-  const columns: ColumnDef<DeltaGroupLeaderboardEntry>[] = [
+  const columns: ColumnDef<{
+    player: PlayerResponse;
+    startDate: Date;
+    endDate: Date;
+    data: MetricDelta;
+  }>[] = [
     {
       id: "rank",
       header: "Rank",

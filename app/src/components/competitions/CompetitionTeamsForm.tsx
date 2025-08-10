@@ -1,6 +1,6 @@
 "use client";
 
-import { Team } from "@wise-old-man/utils";
+import { CompetitionTeam } from "@wise-old-man/utils";
 import { useState } from "react";
 import { useToast } from "~/hooks/useToast";
 import { standardizeUsername } from "~/utils/strings";
@@ -13,8 +13,8 @@ import OverflowIcon from "~/assets/overflow.svg";
 import PlusIcon from "~/assets/plus.svg";
 
 interface CompetitionTeamsFormProps {
-  teams: Team[];
-  onTeamsChanged: (teams: Team[]) => void;
+  teams: CompetitionTeam[];
+  onTeamsChanged: (teams: CompetitionTeam[]) => void;
   formActions: (disabled: boolean) => JSX.Element;
 }
 
@@ -28,7 +28,7 @@ export function CompetitionTeamsForm(props: CompetitionTeamsFormProps) {
 
   const editingTeam = editingTeamName ? teams.find((t) => t.name === editingTeamName) ?? null : null;
 
-  function handleAddTeam(team: Team) {
+  function handleAddTeam(team: CompetitionTeam) {
     const hasRepeatedNames = teams
       .map((t) => standardizeUsername(t.name))
       .includes(standardizeUsername(team.name));
@@ -44,7 +44,7 @@ export function CompetitionTeamsForm(props: CompetitionTeamsFormProps) {
     setEditing(false);
   }
 
-  function handleEditTeam(team: Team) {
+  function handleEditTeam(team: CompetitionTeam) {
     if (!editingTeamName) return;
 
     const hasRepeatedNames = teams

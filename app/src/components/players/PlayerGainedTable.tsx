@@ -5,18 +5,19 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ACTIVITIES,
-  ActivityDelta,
-  BossDelta,
+  Activity,
+  Boss,
+  ComputedMetric,
   Metric,
   MetricProps,
   MetricType,
   PERIODS,
   Period,
   PeriodProps,
-  Player,
-  PlayerDeltasMap,
-  PlayerDetails,
-  SkillDelta,
+  PlayerDeltasMapResponse,
+  PlayerDetailsResponse,
+  PlayerResponse,
+  Skill,
   isPeriod,
 } from "@wise-old-man/utils";
 import { formatDatetime } from "~/utils/dates";
@@ -36,9 +37,14 @@ import { MetricIconSmall } from "../Icon";
 import { TableSortButton } from "../Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
+type SkillDelta = PlayerDeltasMapResponse["skills"][Skill];
+type BossDelta = PlayerDeltasMapResponse["bosses"][Boss];
+type ActivityDelta = PlayerDeltasMapResponse["activities"][Activity];
+type ComputedDelta = PlayerDeltasMapResponse["computed"][ComputedMetric];
+
 interface PlayerGainedTableProps {
-  player: PlayerDetails;
-  gains: PlayerDeltasMap;
+  player: PlayerDetailsResponse;
+  gains: PlayerDeltasMapResponse;
   metric: Metric;
   timeRange: TimeRangeFilter;
 }
@@ -149,8 +155,8 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
 }
 
 interface PlayerGainsTableProps {
-  player: Player;
-  gains: PlayerDeltasMap;
+  player: PlayerResponse;
+  gains: PlayerDeltasMapResponse;
   selectedMetric: Metric;
   onRowSelected: (metric: Metric) => void;
 }
