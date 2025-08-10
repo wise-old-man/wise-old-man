@@ -1,6 +1,6 @@
-import { formatNumber } from '../../../src/utils/format-number.util';
-import { padNumber } from '../../../src/utils/pad-number.util';
-import { roundNumber } from '../../../src/utils/round-number.util';
+import { formatNumber } from '../../../src/utils/shared/format-number.util';
+import { padNumber } from '../../../src/utils/shared/pad-number.util';
+import { roundNumber } from '../../../src/utils/shared/round-number.util';
 
 describe('Util - Strings', () => {
   test('formatNumber', () => {

@@ -1,7 +1,7 @@
 import prisma from '../../../../prisma';
 import { Metric, Period, Player, Snapshot } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
-import { parsePeriodExpression } from '../../../../utils/parse-period-expression.util';
+import { parsePeriodExpression } from '../../../../utils/shared/parse-period-expression.util';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';

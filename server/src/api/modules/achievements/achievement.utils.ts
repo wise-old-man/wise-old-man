@@ -1,7 +1,7 @@
 import { AchievementDefinition, Snapshot } from '../../../types';
-import { formatNumber } from '../../../utils/format-number.util';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
 import { getLevel, isMetric, MetricProps, REAL_SKILLS } from '../../../utils/shared';
+import { formatNumber } from '../../../utils/shared/format-number.util';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 
 function getAchievementName(name: string, threshold: number): string {

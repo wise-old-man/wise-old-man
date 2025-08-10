@@ -16,8 +16,8 @@ import { MetricDelta } from '../../../types/metric-delta.type';
 import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
 
-import { roundNumber } from '../../../utils/round-number.util';
 import { getLevel, getMinimumValue, isComputedMetric, isSkill } from '../../../utils/shared';
+import { roundNumber } from '../../../utils/shared/round-number.util';
 import {
   getPlayerEfficiencyMap,
   getPlayerEHB,
