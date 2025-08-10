@@ -103,7 +103,9 @@ export function GroupVerificationCodeCheckDialog(props: GroupVerificationCodeChe
               </>
             ) : (
               <>
-                <Label className="text-xs font-normal text-gray-200">Verification code</Label>
+                <Label className="text-xs font-normal text-gray-200" htmlFor="verificationCode">
+                  Verification code
+                </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span>
@@ -126,6 +128,7 @@ export function GroupVerificationCodeCheckDialog(props: GroupVerificationCodeChe
             )}
           </div>
           <Input
+            id="verificationCode"
             type="password"
             autoFocus
             name="verificationCode"

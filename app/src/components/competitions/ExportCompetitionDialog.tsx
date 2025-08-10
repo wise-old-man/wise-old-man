@@ -80,6 +80,7 @@ export function ExportCompetitionDialog(props: ExportCompetitionDialogProps) {
         <div>
           <div className="mb-7 flex items-center gap-x-2">
             <Input
+              aria-label="Import formula"
               ref={inputRef}
               readOnly
               autoFocus={false}
