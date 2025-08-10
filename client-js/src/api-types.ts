@@ -11,6 +11,7 @@ export {
   GroupStatisticsResponse,
   MemberActivityResponse,
   MembershipResponse,
+  NameChangeDetailsResponse,
   NameChangeResponse,
   ParticipantHistoryResponse,
   ParticipationResponse,

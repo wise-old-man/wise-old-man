@@ -1,7 +1,7 @@
 import prisma from '../../../../prisma';
 import { Achievement, AchievementDefinition, Metric, MetricMeasure } from '../../../../types';
 import { pick } from '../../../../utils/pick.util';
-import { roundNumber } from '../../../../utils/round-number.util';
+import { roundNumber } from '../../../../utils/shared/round-number.util';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 import { getAchievementDefinitions } from '../achievement.utils';

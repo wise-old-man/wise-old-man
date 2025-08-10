@@ -9,8 +9,8 @@ import {
   SkillMetaMethod,
   SKILLS
 } from '../../../types';
-import { roundNumber } from '../../../utils/round-number.util';
 import { MAX_SKILL_EXP, REAL_SKILLS, SKILL_EXP_AT_99 } from '../../../utils/shared';
+import { roundNumber } from '../../../utils/shared/round-number.util';
 
 enum BonusType {
   START,
