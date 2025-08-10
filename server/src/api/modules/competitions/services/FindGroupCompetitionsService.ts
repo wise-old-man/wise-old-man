@@ -3,12 +3,10 @@ import { Competition, Group } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 
 async function findGroupCompetitions(groupId: number): Promise<
-  Array<
-    Competition & {
-      participantCount: number;
-      group: Group & { memberCount: number };
-    }
-  >
+  Array<{
+    competition: Competition & { participantCount: number };
+    group: Group & { memberCount: number };
+  }>
 > {
   const group = await prisma.group.findFirst({
     where: { id: groupId },
@@ -44,26 +42,30 @@ async function findGroupCompetitions(groupId: number): Promise<
   return sortCompetitions(
     competitions.map(c => {
       return {
-        ...c,
+        competition: {
+          ...c,
+          participantCount: participantCountsMap.get(c.id) ?? 0
+        },
         group: {
           ...group,
           memberCount: group._count.memberships
-        },
-        participantCount: participantCountsMap.get(c.id) ?? 0
+        }
       };
     })
   );
 }
 
-function sortCompetitions<T extends Pick<Competition, 'startsAt' | 'endsAt'>>(competitions: T[]): T[] {
+function sortCompetitions<T extends { competition: Pick<Competition, 'startsAt' | 'endsAt'> }>(
+  competitions: T[]
+): T[] {
   const finished: T[] = [];
   const upcoming: T[] = [];
   const ongoing: T[] = [];
 
   competitions.forEach(c => {
-    if (c.endsAt.getTime() < Date.now()) {
+    if (c.competition.endsAt.getTime() < Date.now()) {
       finished.push(c);
-    } else if (c.startsAt.getTime() < Date.now()) {
+    } else if (c.competition.startsAt.getTime() < Date.now()) {
       ongoing.push(c);
     } else {
       upcoming.push(c);
@@ -72,13 +74,13 @@ function sortCompetitions<T extends Pick<Competition, 'startsAt' | 'endsAt'>>(co
 
   return [
     ...ongoing.sort((a, b) => {
-      return a.endsAt.getTime() - b.endsAt.getTime();
+      return a.competition.endsAt.getTime() - b.competition.endsAt.getTime();
     }),
     ...upcoming.sort((a, b) => {
-      return a.startsAt.getTime() - b.startsAt.getTime();
+      return a.competition.startsAt.getTime() - b.competition.startsAt.getTime();
     }),
     ...finished.sort((a, b) => {
-      return b.endsAt.getTime() - a.endsAt.getTime();
+      return b.competition.endsAt.getTime() - a.competition.endsAt.getTime();
     })
   ];
 }

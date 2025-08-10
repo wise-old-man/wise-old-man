@@ -14,8 +14,7 @@ export interface CompetitionResponse extends Omit<Competition, 'verificationHash
 }
 
 export function formatCompetitionResponse(
-  competition: Competition,
-  participantCount: number,
+  competition: Competition & { participantCount: number },
   group: (Group & { memberCount: number }) | null
 ): CompetitionResponse {
   return {
@@ -33,7 +32,7 @@ export function formatCompetitionResponse(
       'createdAt',
       'updatedAt'
     ),
-    participantCount,
+    participantCount: competition.participantCount,
     group: group === null ? undefined : formatGroupResponse(group, group.memberCount)
   };
 }

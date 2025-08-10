@@ -13,8 +13,7 @@ export type PlayerCompetitionStandingResponse = ParticipationResponse & {
 
 export function formatPlayerCompetitionStandingResponse(
   participation: Participation,
-  competition: Competition,
-  participantCount: number,
+  competition: Competition & { participantCount: number },
   group: (Group & { memberCount: number }) | null,
   progress: MetricDelta,
   levels: MetricDelta,
@@ -22,7 +21,7 @@ export function formatPlayerCompetitionStandingResponse(
 ) {
   return {
     ...formatParticipationResponse(participation),
-    competition: formatCompetitionResponse(competition, participantCount, group),
+    competition: formatCompetitionResponse(competition, group),
     progress: pick(progress, 'start', 'end', 'gained'),
     levels: pick(levels, 'start', 'end', 'gained'),
     rank

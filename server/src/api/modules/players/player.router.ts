@@ -121,8 +121,8 @@ router.post(
       }
     }
 
-    const { latestSnapshot, annotations, archive, ...player } = await fetchPlayerDetails(username);
-    const response = formatPlayerDetailsResponse(player, latestSnapshot, annotations, archive);
+    const details = await fetchPlayerDetails(username);
+    const response = formatPlayerDetailsResponse(details);
 
     res.status(updateResult.value.isNew ? 201 : 200).json(response);
   })
@@ -138,8 +138,8 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const { latestSnapshot, annotations, archive, ...player } = await fetchPlayerDetails(username);
-    const response = formatPlayerDetailsResponse(player, latestSnapshot, annotations, archive);
+    const details = await fetchPlayerDetails(username);
+    const response = formatPlayerDetailsResponse(details);
 
     res.status(200).json(response);
   })
@@ -165,8 +165,8 @@ router.get(
       throw new NotFoundError('Player not found.');
     }
 
-    const { latestSnapshot, annotations, archive, ...player } = await fetchPlayerDetails(query.username);
-    const response = formatPlayerDetailsResponse(player, latestSnapshot, annotations, archive);
+    const details = await fetchPlayerDetails(query.username);
+    const response = formatPlayerDetailsResponse(details);
 
     res.status(200).json(response);
   })
@@ -432,10 +432,10 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const archives = await findPlayerArchives(username);
+    const result = await findPlayerArchives(username);
 
-    const response = archives.map(a => ({
-      ...formatPlayerArchiveResponse(a),
+    const response = result.map(a => ({
+      ...formatPlayerArchiveResponse(a.archive),
       player: formatPlayerResponse(a.player)
     }));
 
@@ -458,7 +458,7 @@ router.get(
     const memberships = await findPlayerMemberships(username, { limit, offset });
 
     const response = memberships.map(m => ({
-      ...formatMembershipResponse(m),
+      ...formatMembershipResponse(m.membership),
       group: formatGroupResponse(m.group, m.group.memberCount)
     }));
 
@@ -483,12 +483,8 @@ router.get(
     const participations = await findPlayerParticipations(username, status);
 
     const response = participations.map(p => ({
-      ...formatParticipationResponse(p),
-      competition: formatCompetitionResponse(
-        p.competition,
-        p.competition.participantCount,
-        p.competition.group
-      )
+      ...formatParticipationResponse(p.participation),
+      competition: formatCompetitionResponse(p.competition, p.group)
     }));
 
     res.status(200).json(response);
@@ -513,10 +509,9 @@ router.get(
 
     const response = standings.map(s =>
       formatPlayerCompetitionStandingResponse(
-        s,
+        s.participation,
         s.competition,
-        s.competition.participantCount,
-        s.competition.group,
+        s.group,
         s.progress,
         s.levels,
         s.rank

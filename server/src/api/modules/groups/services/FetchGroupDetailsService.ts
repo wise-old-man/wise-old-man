@@ -3,14 +3,13 @@ import { Group, GroupRoleOrder, GroupSocialLinks, Membership, Player } from '../
 import { NotFoundError } from '../../../errors';
 import { sortMembers } from '../group.utils';
 
-async function fetchGroupDetails(id: number): Promise<
-  Group & {
-    socialLinks: GroupSocialLinks | null;
-    roleOrders: Array<GroupRoleOrder>;
-    memberCount: number;
-    memberships: Array<Membership & { player: Player }>;
-  }
-> {
+async function fetchGroupDetails(id: number): Promise<{
+  group: Group;
+  socialLinks: GroupSocialLinks | null;
+  roleOrders: Array<GroupRoleOrder>;
+  memberCount: number;
+  memberships: Array<{ membership: Membership; player: Player }>;
+}> {
   const group = await prisma.group.findFirst({
     where: { id },
     include: {
@@ -31,12 +30,15 @@ async function fetchGroupDetails(id: number): Promise<
   }
 
   return {
-    ...group,
+    group,
     memberCount: group.memberships.length,
     socialLinks: group.socialLinks[0] ?? buildDefaultSocialLinks(group.id),
     roleOrders: group.roleOrders,
     // Sort the members list by role
-    memberships: sortMembers(group.memberships, group.roleOrders)
+    memberships: sortMembers(
+      group.memberships.map(({ player, ...membership }) => ({ membership, player })),
+      group.roleOrders
+    )
   };
 }
 

@@ -6,7 +6,7 @@ import { PaginationOptions } from '../../../util/validation';
 async function findGroupAchievements(
   groupId: number,
   pagination: PaginationOptions
-): Promise<Array<Achievement & { player: Player }>> {
+): Promise<Array<{ achievement: Achievement; player: Player }>> {
   // Fetch this group and all of its memberships
   const groupAndMemberships = await prisma.group.findFirst({
     where: { id: groupId },
@@ -33,7 +33,7 @@ async function findGroupAchievements(
     skip: pagination.offset
   });
 
-  return achievements;
+  return achievements.map(({ player, ...achievement }) => ({ achievement, player }));
 }
 
 export { findGroupAchievements };

@@ -22,7 +22,7 @@ async function findRecordLeaderboards(
   period: Period,
   metric: Metric,
   filter: Filter
-): Promise<Array<Record & { player: Player }>> {
+): Promise<Array<{ record: Record; player: Player }>> {
   const { country, playerType, playerBuild } = filter;
 
   const playerQuery: PrismaTypes.PlayerWhereInput = {};
@@ -47,7 +47,7 @@ async function findRecordLeaderboards(
     take: MAX_RESULTS
   });
 
-  return records;
+  return records.map(({ player, ...record }) => ({ player, record }));
 }
 
 export { findRecordLeaderboards };

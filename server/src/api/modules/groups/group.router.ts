@@ -234,7 +234,7 @@ router.put(
     const result = await changeMemberRole(id, username, role);
 
     const response = {
-      ...formatMembershipResponse(result),
+      ...formatMembershipResponse(result.updatedMembership),
       player: formatPlayerResponse(result.player)
     };
 
@@ -292,10 +292,10 @@ router.get(
     const { id } = req.params;
     const { limit, offset } = req.query;
 
-    const activity = await fetchGroupActivity(id, { limit, offset });
+    const result = await fetchGroupActivity(id, { limit, offset });
 
-    const response = activity.map(a => ({
-      ...formatMemberActivityResponse(a),
+    const response = result.map(a => ({
+      ...formatMemberActivityResponse(a.activity),
       player: formatPlayerResponse(a.player)
     }));
 
@@ -328,11 +328,8 @@ router.get(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const competitions = await findGroupCompetitions(id);
-
-    const response = competitions.map(competition =>
-      formatCompetitionResponse(competition, competition.participantCount, competition.group)
-    );
+    const result = await findGroupCompetitions(id);
+    const response = result.map(c => formatCompetitionResponse(c.competition, c.group));
 
     res.status(200).json(response);
   })
@@ -387,10 +384,10 @@ router.get(
     const { id } = req.params;
     const { metric, period, limit, offset } = req.query;
 
-    const records = await findGroupRecords(id, metric, period, { limit, offset });
+    const result = await findGroupRecords(id, metric, period, { limit, offset });
 
-    const response = records.map(r => ({
-      ...formatRecordResponse(r),
+    const response = result.map(r => ({
+      ...formatRecordResponse(r.record),
       player: formatPlayerResponse(r.player)
     }));
 
@@ -410,10 +407,10 @@ router.get(
     const { id } = req.params;
     const { limit, offset } = req.query;
 
-    const achievements = await findGroupAchievements(id, { limit, offset });
+    const result = await findGroupAchievements(id, { limit, offset });
 
-    const response = achievements.map(a => ({
-      ...formatAchievementResponse(a),
+    const response = result.map(a => ({
+      ...formatAchievementResponse(a.achievement),
       player: formatPlayerResponse(a.player)
     }));
 
@@ -436,7 +433,7 @@ router.get(
     const nameChanges = await findGroupNameChanges(id, { limit, offset });
 
     const response = nameChanges.map(n => ({
-      ...formatNameChangeResponse(n),
+      ...formatNameChangeResponse(n.nameChange),
       player: formatPlayerResponse(n.player)
     }));
 

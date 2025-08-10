@@ -17,11 +17,10 @@ import { NotFoundError } from '../../../errors';
 import { calculateLevelDiff, calculateMetricDelta } from '../../deltas/delta.utils';
 import { standardize } from '../../players/player.utils';
 
-type ReturnType = Participation & {
-  competition: Competition & {
-    participantCount: number;
-    group: (Group & { memberCount: number }) | null;
-  };
+type ReturnType = {
+  participation: Participation;
+  competition: Competition & { participantCount: number };
+  group: (Group & { memberCount: number }) | null;
   progress: MetricDelta;
   levels: MetricDelta;
   rank: number;
@@ -263,18 +262,18 @@ async function findPlayerParticipationsStandings(
     }
 
     results.push({
-      ...playerParticipation,
+      participation: playerParticipation,
       competition: {
         ...playerParticipation.competition,
-        participantCount: participations.length,
-        group:
-          group === undefined
-            ? null
-            : {
-                ...group,
-                memberCount: group._count.memberships
-              }
+        participantCount: participations.length
       },
+      group:
+        group === undefined
+          ? null
+          : {
+              ...group,
+              memberCount: group._count.memberships
+            },
       rank,
       progress,
       levels

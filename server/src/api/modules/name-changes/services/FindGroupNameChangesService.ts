@@ -6,7 +6,7 @@ import { PaginationOptions } from '../../../util/validation';
 async function findGroupNameChanges(
   groupId: number,
   pagination: PaginationOptions
-): Promise<Array<NameChange & { player: Player }>> {
+): Promise<Array<{ nameChange: NameChange; player: Player }>> {
   // Fetch this group and all of its memberships
   const groupAndMemberships = await prisma.group.findFirst({
     where: { id: groupId },
@@ -36,7 +36,10 @@ async function findGroupNameChanges(
     skip: pagination.offset
   });
 
-  return nameChanges as Array<NameChange & { player: Player }>;
+  return nameChanges.map(({ player, ...nameChange }) => ({
+    nameChange: nameChange as NameChange,
+    player
+  }));
 }
 
 export { findGroupNameChanges };

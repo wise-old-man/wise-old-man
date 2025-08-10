@@ -17,16 +17,15 @@ export interface GroupDetailsResponse extends GroupResponse {
   memberships: Array<MembershipResponse & { player: PlayerResponse }>;
 }
 
-export function formatGroupDetailsResponse(
-  groupDetails: Group & {
-    memberCount: number;
-    socialLinks: GroupSocialLinks | null;
-    roleOrders: Array<GroupRoleOrder>;
-    memberships: Array<Membership & { player: Player }>;
-  }
-): GroupDetailsResponse {
+export function formatGroupDetailsResponse(groupDetails: {
+  group: Group;
+  memberCount: number;
+  socialLinks: GroupSocialLinks | null;
+  roleOrders: Array<GroupRoleOrder>;
+  memberships: Array<{ membership: Membership; player: Player }>;
+}): GroupDetailsResponse {
   return {
-    ...formatGroupResponse(groupDetails, groupDetails.memberCount),
+    ...formatGroupResponse(groupDetails.group, groupDetails.memberCount),
     socialLinks:
       groupDetails.socialLinks === null
         ? {
@@ -39,7 +38,7 @@ export function formatGroupDetailsResponse(
         : formatGroupSocialLinksResponse(groupDetails.socialLinks),
     roleOrders: groupDetails.roleOrders.map(r => formatGroupRoleOrderResponse(r)),
     memberships: groupDetails.memberships.map(m => ({
-      ...formatMembershipResponse(m),
+      ...formatMembershipResponse(m.membership),
       player: formatPlayerResponse(m.player)
     }))
   };

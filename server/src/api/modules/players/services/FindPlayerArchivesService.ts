@@ -3,7 +3,9 @@ import { Player, PlayerArchive } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../player.utils';
 
-async function findPlayerArchives(username: string): Promise<Array<PlayerArchive & { player: Player }>> {
+async function findPlayerArchives(
+  username: string
+): Promise<Array<{ archive: PlayerArchive; player: Player }>> {
   const archives = await prisma.playerArchive.findMany({
     where: {
       previousUsername: standardize(username),
@@ -27,7 +29,7 @@ async function findPlayerArchives(username: string): Promise<Array<PlayerArchive
     }
   }
 
-  return archives;
+  return archives.map(({ player, ...archive }) => ({ archive, player }));
 }
 
 export { findPlayerArchives };

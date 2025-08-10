@@ -9,7 +9,7 @@ async function changeMemberRole(
   groupId: number,
   username: string,
   newRole: GroupRole
-): Promise<Membership & { player: Player }> {
+): Promise<{ updatedMembership: Membership; player: Player }> {
   const membership = await prisma.membership.findFirst({
     where: {
       groupId,
@@ -33,7 +33,7 @@ async function changeMemberRole(
     throw new BadRequestError(`${username} is already a ${membership.role}.`);
   }
 
-  const result = await prisma
+  const { player, ...updatedMembership } = await prisma
     .$transaction(async transaction => {
       const updatedMembership = await transaction.membership.update({
         where: {
@@ -83,7 +83,7 @@ async function changeMemberRole(
       throw new ServerError('Failed to change member role.');
     });
 
-  return result;
+  return { updatedMembership, player };
 }
 
 export { changeMemberRole };

@@ -12,13 +12,12 @@ async function fetchCompetitionDetails(
 ): Promise<{
   competition: Competition;
   group: (Group & { memberCount: number }) | null;
-  participations: Array<
-    Participation & {
-      player: Player;
-      progress: MetricDelta;
-      levels: MetricDelta;
-    }
-  >;
+  participations: Array<{
+    participation: Participation;
+    player: Player;
+    progress: MetricDelta;
+    levels: MetricDelta;
+  }>;
 }> {
   const competition = await prisma.competition.findFirst({
     where: {
@@ -59,13 +58,12 @@ async function calculateParticipantsStandings(
   competitionId: number,
   metric: Metric
 ): Promise<
-  Array<
-    Participation & {
-      player: Player;
-      progress: MetricDelta;
-      levels: MetricDelta;
-    }
-  >
+  Array<{
+    participation: Participation;
+    player: Player;
+    progress: MetricDelta;
+    levels: MetricDelta;
+  }>
 > {
   const metricKey = getMetricValueKey(metric);
 
@@ -84,11 +82,12 @@ async function calculateParticipantsStandings(
 
   return participations
     .map(p => {
-      const { player, startSnapshot, endSnapshot } = p;
+      const { player, startSnapshot, endSnapshot, ...participation } = p;
 
       if (!startSnapshot || !endSnapshot) {
         return {
-          ...p,
+          participation,
+          player,
           progress: { gained: 0, start: -1, end: -1 },
           levels: { gained: 0, start: -1, end: -1 }
         };
@@ -101,7 +100,8 @@ async function calculateParticipantsStandings(
         : { gained: 0, start: -1, end: -1 };
 
       return {
-        ...p,
+        participation,
+        player,
         progress,
         levels
       };
@@ -110,7 +110,7 @@ async function calculateParticipantsStandings(
       (a, b) =>
         b.progress.gained - a.progress.gained ||
         b.progress.start - a.progress.start ||
-        a.playerId - b.playerId
+        a.player.id - b.player.id
     );
 }
 

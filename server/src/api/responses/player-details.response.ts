@@ -19,18 +19,23 @@ export interface PlayerDetailsResponse extends PlayerResponse {
   latestSnapshot: SnapshotResponse | null;
 }
 
-export function formatPlayerDetailsResponse(
-  player: Player,
-  snapshot: Snapshot | null,
-  annotations: Array<PlayerAnnotation>,
-  archive: PlayerArchive | null
-): PlayerDetailsResponse {
+export function formatPlayerDetailsResponse(playerDetails: {
+  player: Player;
+  latestSnapshot: Snapshot | null;
+  annotations: Array<PlayerAnnotation>;
+  archive: PlayerArchive | null;
+}): PlayerDetailsResponse {
   return {
-    ...formatPlayerResponse(player),
-    combatLevel: snapshot ? getCombatLevelFromSnapshot(snapshot) : 3,
-    archive: archive === null ? null : formatPlayerArchiveResponse(archive),
-    annotations: annotations.map(formatPlayerAnnotationResponse),
+    ...formatPlayerResponse(playerDetails.player),
+    combatLevel: playerDetails.latestSnapshot ? getCombatLevelFromSnapshot(playerDetails.latestSnapshot) : 3,
+    archive: playerDetails.archive === null ? null : formatPlayerArchiveResponse(playerDetails.archive),
+    annotations: playerDetails.annotations.map(formatPlayerAnnotationResponse),
     latestSnapshot:
-      snapshot === null ? null : formatSnapshotResponse(snapshot, getPlayerEfficiencyMap(snapshot, player))
+      playerDetails.latestSnapshot === null
+        ? null
+        : formatSnapshotResponse(
+            playerDetails.latestSnapshot,
+            getPlayerEfficiencyMap(playerDetails.latestSnapshot, playerDetails.player)
+          )
   };
 }

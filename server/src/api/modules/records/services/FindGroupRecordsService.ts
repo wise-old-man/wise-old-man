@@ -8,7 +8,7 @@ async function findGroupRecords(
   metric: Metric,
   period: Period,
   pagination: PaginationOptions
-): Promise<Array<Record & { player: Player }>> {
+): Promise<Array<{ record: Record; player: Player }>> {
   // Fetch this group and all of its memberships
   const groupAndMemberships = await prisma.group.findFirst({
     where: { id: groupId },
@@ -38,7 +38,7 @@ async function findGroupRecords(
     skip: pagination.offset
   });
 
-  return records;
+  return records.map(({ player, ...record }) => ({ player, record }));
 }
 
 export { findGroupRecords };

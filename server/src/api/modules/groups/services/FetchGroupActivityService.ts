@@ -6,7 +6,7 @@ import { PaginationOptions } from '../../../util/validation';
 async function fetchGroupActivity(
   groupId: number,
   pagination: PaginationOptions
-): Promise<Array<MemberActivity & { player: Player }>> {
+): Promise<Array<{ activity: MemberActivity; player: Player }>> {
   const activities = await prisma.memberActivity.findMany({
     where: { groupId },
     include: {
@@ -28,7 +28,7 @@ async function fetchGroupActivity(
     return [];
   }
 
-  return activities;
+  return activities.map(({ player, ...activity }) => ({ activity, player }));
 }
 
 export { fetchGroupActivity };

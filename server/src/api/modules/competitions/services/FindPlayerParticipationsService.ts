@@ -7,14 +7,11 @@ async function findPlayerParticipations(
   username: string,
   status?: CompetitionStatus
 ): Promise<
-  Array<
-    Participation & {
-      competition: Competition & {
-        participantCount: number;
-        group: (Group & { memberCount: number }) | null;
-      };
-    }
-  >
+  Array<{
+    participation: Participation;
+    competition: Competition & { participantCount: number };
+    group: (Group & { memberCount: number }) | null;
+  }>
 > {
   const competitionQuery: PrismaTypes.CompetitionWhereInput = {
     visible: true
@@ -96,17 +93,17 @@ async function findPlayerParticipations(
         }
 
         return {
-          ...participation,
+          participation,
           competition: {
             ...participation.competition,
-            group: group
-              ? {
-                  ...group,
-                  memberCount: group._count.memberships
-                }
-              : null,
             participantCount: participantCountsMap.get(participation.competitionId) ?? 0
-          }
+          },
+          group: group
+            ? {
+                ...group,
+                memberCount: group._count.memberships
+              }
+            : null
         };
       })
       .filter(Boolean)

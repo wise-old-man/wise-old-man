@@ -3,13 +3,12 @@ import { Player, PlayerAnnotation, PlayerArchive, PlayerStatus, Snapshot } from 
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../player.utils';
 
-async function fetchPlayerDetails(username: string): Promise<
-  Player & {
-    latestSnapshot: Snapshot | null;
-    archive: PlayerArchive | null;
-    annotations: Array<PlayerAnnotation>;
-  }
-> {
+async function fetchPlayerDetails(username: string): Promise<{
+  player: Player;
+  latestSnapshot: Snapshot | null;
+  archive: PlayerArchive | null;
+  annotations: Array<PlayerAnnotation>;
+}> {
   const player = await prisma.player.findFirst({
     where: { username: standardize(username) },
     include: { latestSnapshot: true, annotations: true }
@@ -31,8 +30,15 @@ async function fetchPlayerDetails(username: string): Promise<
     }
   }
 
+  const { annotations, latestSnapshot, ...playerProps } = player;
+
   if (player.status !== PlayerStatus.ARCHIVED) {
-    return { ...player, archive: null };
+    return {
+      player: playerProps,
+      annotations,
+      latestSnapshot,
+      archive: null
+    };
   }
 
   const currentArchive = await prisma.playerArchive.findFirst({
@@ -45,7 +51,12 @@ async function fetchPlayerDetails(username: string): Promise<
     }
   });
 
-  return { ...player, archive: currentArchive };
+  return {
+    player: playerProps,
+    annotations,
+    latestSnapshot,
+    archive: currentArchive
+  };
 }
 
 export { fetchPlayerDetails };

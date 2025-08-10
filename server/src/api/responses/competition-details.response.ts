@@ -24,18 +24,17 @@ export interface CompetitionDetailsResponse extends CompetitionResponse {
 export function formatCompetitionDetailsResponse(
   competition: Competition,
   group: (Group & { memberCount: number }) | null,
-  participations: Array<
-    Participation & {
-      player: Player;
-      progress: MetricDelta;
-      levels: MetricDelta;
-    }
-  >
+  participations: Array<{
+    participation: Participation;
+    player: Player;
+    progress: MetricDelta;
+    levels: MetricDelta;
+  }>
 ): CompetitionDetailsResponse {
   return {
-    ...formatCompetitionResponse(competition, participations.length, group),
+    ...formatCompetitionResponse({ ...competition, participantCount: participations.length }, group),
     participations: participations.map(p => ({
-      ...formatParticipationResponse(p),
+      ...formatParticipationResponse(p.participation),
       player: formatPlayerResponse(p.player),
       progress: pick(p.progress, 'start', 'end', 'gained'),
       levels: pick(p.levels, 'start', 'end', 'gained')

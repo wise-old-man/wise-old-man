@@ -8,13 +8,10 @@ async function findPlayerMemberships(
   username: string,
   pagination: PaginationOptions
 ): Promise<
-  Array<
-    Membership & {
-      group: Group & {
-        memberCount: number;
-      };
-    }
-  >
+  Array<{
+    membership: Membership;
+    group: Group & { memberCount: number };
+  }>
 > {
   const memberships = await prisma.membership.findMany({
     where: {
@@ -53,7 +50,7 @@ async function findPlayerMemberships(
 
   return memberships.map(membership => {
     return {
-      ...membership,
+      membership,
       group: {
         ...membership.group,
         memberCount: membership.group._count.memberships

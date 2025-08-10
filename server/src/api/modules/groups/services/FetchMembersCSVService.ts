@@ -30,12 +30,13 @@ async function fetchGroupMembersCSV(groupId: number): Promise<string> {
 
   const headers = ['Player', 'Role', 'Experience', 'Last progressed', 'Last updated'].join(',');
 
-  const rows = sortMembers(memberships, group.roleOrders).map(membership => {
-    const { role, player } = membership;
-
+  const rows = sortMembers(
+    memberships.map(({ player, ...membership }) => ({ membership, player })),
+    group.roleOrders
+  ).map(({ player, membership }) => {
     return [
       player.displayName,
-      role,
+      membership.role,
       player.exp,
       player.lastChangedAt ? dayjs(player.lastChangedAt).format('MM/DD/YYYY HH:mm:ss') : '',
       player.updatedAt ? dayjs(player.updatedAt).format('MM/DD/YYYY HH:mm:ss') : ''

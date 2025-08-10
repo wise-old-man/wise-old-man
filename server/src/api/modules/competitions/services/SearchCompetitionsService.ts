@@ -9,12 +9,10 @@ async function searchCompetitions(
   status: CompetitionStatus | undefined,
   pagination: PaginationOptions
 ): Promise<
-  Array<
-    Competition & {
-      participantCount: number;
-      group: (Group & { memberCount: number }) | null;
-    }
-  >
+  Array<{
+    competition: Competition & { participantCount: number };
+    group: (Group & { memberCount: number }) | null;
+  }>
 > {
   const query: PrismaTypes.CompetitionWhereInput = {};
 
@@ -68,16 +66,18 @@ async function searchCompetitions(
     participantCountsMap.set(competitionId, _count);
   }
 
-  return competitions.map(c => {
+  return competitions.map(({ group, ...competition }) => {
     return {
-      ...c,
-      group: c.group
+      competition: {
+        ...competition,
+        participantCount: participantCountsMap.get(competition.id) ?? 0
+      },
+      group: group
         ? {
-            ...c.group,
-            memberCount: c.group._count.memberships
+            ...group,
+            memberCount: group._count.memberships
           }
-        : null,
-      participantCount: participantCountsMap.get(c.id) ?? 0
+        : null
     };
   });
 }

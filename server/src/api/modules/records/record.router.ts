@@ -21,14 +21,14 @@ router.get(
   executeRequest(async (req, res) => {
     const { period, metric, country, playerType, playerBuild } = req.query;
 
-    const records = await findRecordLeaderboards(period, metric, {
+    const result = await findRecordLeaderboards(period, metric, {
       country,
       playerType,
       playerBuild
     });
 
-    const response = records.map(r => ({
-      ...formatRecordResponse(r),
+    const response = result.map(r => ({
+      ...formatRecordResponse(r.record),
       player: formatPlayerResponse(r.player)
     }));
 

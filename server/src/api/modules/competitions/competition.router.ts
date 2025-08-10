@@ -42,11 +42,8 @@ router.get(
   executeRequest(async (req, res) => {
     const { title, metric, type, status, limit, offset } = req.query;
 
-    const competitions = await searchCompetitions(title, metric, type, status, { limit, offset });
-
-    const response = competitions.map(competition =>
-      formatCompetitionResponse(competition, competition.participantCount, competition.group)
-    );
+    const result = await searchCompetitions(title, metric, type, status, { limit, offset });
+    const response = result.map(c => formatCompetitionResponse(c.competition, c.group));
 
     res.status(200).json(response);
   })
