@@ -1,5 +1,10 @@
-import { ComputedMetric, Metric, MetricProps, PlayerBuildProps } from "@wise-old-man/utils";
-import { formatNumber } from "~/utils/numbers";
+import {
+  formatNumber,
+  ComputedMetric,
+  Metric,
+  MetricProps,
+  PlayerBuildProps,
+} from "@wise-old-man/utils";
 import { getEfficiencyLeaderboards } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";

@@ -12,6 +12,7 @@ import {
   isBoss,
   isSkill,
   PlayerResponse,
+  formatNumber,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { getPlayerAchievementProgress, getPlayerDetails } from "~/services/wiseoldman";
@@ -22,7 +23,6 @@ import { MetricIcon } from "~/components/Icon";
 import { QueryLink } from "~/components/QueryLink";
 import { AchievementAccuracyTooltip, IncompleteAchievementTooltip } from "~/components/AchievementDate";
 import { getBuildHiddenMetrics } from "~/utils/metrics";
-import { formatNumber } from "~/utils/numbers";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

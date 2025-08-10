@@ -1,5 +1,4 @@
-import { AchievementResponse, AchievementProgressResponse } from "@wise-old-man/utils";
-import { formatNumber } from "~/utils/numbers";
+import { AchievementResponse, AchievementProgressResponse, formatNumber } from "@wise-old-man/utils";
 import { formatDatetime } from "~/utils/dates";
 import { cn } from "~/utils/styling";
 import { LocalDate } from "./LocalDate";

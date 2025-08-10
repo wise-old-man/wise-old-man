@@ -6,9 +6,9 @@ import {
   ParticipantHistoryResponse,
   isActivity,
   isBoss,
+  formatNumber,
 } from "@wise-old-man/utils";
 import dynamic from "next/dynamic";
-import { formatNumber } from "~/utils/numbers";
 
 const LineChartSSR = dynamic(() => import("../LineChart"), {
   ssr: false,

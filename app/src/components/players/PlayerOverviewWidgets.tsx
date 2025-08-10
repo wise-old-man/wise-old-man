@@ -1,8 +1,13 @@
-import { Metric, PlayerDetailsResponse, PlayerStatus, isMetric } from "@wise-old-man/utils";
+import {
+  Metric,
+  PlayerDetailsResponse,
+  PlayerStatus,
+  isMetric,
+  formatNumber,
+} from "@wise-old-man/utils";
 import { Label } from "../Label";
 import { MetricIconSmall } from "../Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
-import { formatNumber } from "~/utils/numbers";
 
 import CheckIcon from "~/assets/check.svg";
 

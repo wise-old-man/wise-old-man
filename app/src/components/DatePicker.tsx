@@ -21,12 +21,12 @@ import {
   useDatePickerState,
   useTimeFieldState,
 } from "react-stately";
-import { padNumber } from "~/utils/numbers";
 import { cn } from "~/utils/styling";
 import { Button } from "~/components/Button";
 import { Calendar } from "~/components/Calendar";
 
 import CalendarIcon from "~/assets/calendar.svg";
+import { padNumber } from "@wise-old-man/utils";
 
 const PopoverContent = forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,

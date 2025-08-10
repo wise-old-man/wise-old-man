@@ -1,6 +1,11 @@
-import { Metric, MetricProps, NameChangeResponse, NameChangeStatus } from "@wise-old-man/utils";
+import {
+  Metric,
+  MetricProps,
+  NameChangeResponse,
+  NameChangeStatus,
+  formatNumber,
+} from "@wise-old-man/utils";
 import { PropsWithChildren } from "react";
-import { formatNumber } from "~/utils/numbers";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 import { MetricIconSmall } from "../Icon";
 

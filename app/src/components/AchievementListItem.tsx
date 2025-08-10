@@ -1,5 +1,4 @@
-import { AchievementProgressResponse } from "@wise-old-man/utils";
-import { formatNumber } from "~/utils/numbers";
+import { AchievementProgressResponse, formatNumber } from "@wise-old-man/utils";
 import { AchievementDate } from "./AchievementDate";
 import { MetricIcon } from "./Icon";
 import { ProgressCircle } from "./ProgressCircle";

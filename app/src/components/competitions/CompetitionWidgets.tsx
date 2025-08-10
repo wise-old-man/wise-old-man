@@ -11,6 +11,8 @@ import {
   isSkill,
   ParticipationResponse,
   PlayerResponse,
+  padNumber,
+  formatNumber,
 } from "@wise-old-man/utils";
 import { useTicker } from "~/hooks/useTicker";
 import { convertToUTC, durationBetween } from "~/utils/dates";
@@ -32,7 +34,6 @@ import { LocalDate } from "../LocalDate";
 import ArrowUpIcon from "~/assets/arrow_up.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 import ImageWithFallback from "../ImageWithFallback";
-import { formatNumber, padNumber } from "~/utils/numbers";
 
 type TopParticipantSorting = "by_value" | "by_percent";
 type TopParticipant = CompetitionDetailsResponse["participations"][number];
