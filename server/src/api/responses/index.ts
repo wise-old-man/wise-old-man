@@ -1,7 +1,6 @@
 export * from './achievement-progress.response';
 export * from './achievement.response';
 export * from './competition-details.response';
-export * from './competition-top-5-progress.response';
 export * from './competition.response';
 export * from './flagged-player-review-context.response';
 export * from './group-details.response';
@@ -15,6 +14,7 @@ export * from './member-activity.response';
 export * from './membership.response';
 export * from './name-change-details.response';
 export * from './name-change.response';
+export * from './participant-history.response';
 export * from './participation.response';
 export * from './player-annotation.response';
 export * from './player-archive.response';

@@ -3,7 +3,7 @@ import { Metric, Player, Snapshot } from '../../../../types';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 
-async function fetchCompetitionTop5Progress(
+async function fetchCompetitionTopHistory(
   id: number,
   metric?: Metric
 ): Promise<
@@ -60,4 +60,4 @@ async function fetchCompetitionTop5Progress(
   });
 }
 
-export { fetchCompetitionTop5Progress };
+export { fetchCompetitionTopHistory };

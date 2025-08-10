@@ -5,7 +5,7 @@ import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric } f
 import {
   formatCompetitionDetailsResponse,
   formatCompetitionResponse,
-  formatCompetitionTop5ProgressResponse
+  formatParticipantHistoryResponse
 } from '../../responses';
 import { checkAdminPermission, checkCompetitionVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
@@ -18,7 +18,7 @@ import { deleteCompetition } from './services/DeleteCompetitionService';
 import { editCompetition } from './services/EditCompetitionService';
 import { fetchCompetitionCSV } from './services/FetchCompetitionCSVService';
 import { fetchCompetitionDetails } from './services/FetchCompetitionDetailsService';
-import { fetchCompetitionTop5Progress } from './services/FetchTop5ProgressService';
+import { fetchCompetitionTopHistory } from './services/FetchTopHistoryService';
 import { removeParticipants } from './services/RemoveParticipantsService';
 import { removeTeams } from './services/RemoveTeamsService';
 import { resetCompetitionCode } from './services/ResetCompetitionCodeService';
@@ -190,11 +190,8 @@ router.get(
     const { id } = req.params;
     const { metric } = req.query;
 
-    const results = await fetchCompetitionTop5Progress(id, metric);
-
-    const response = results.map(({ player, history }) =>
-      formatCompetitionTop5ProgressResponse(player, history)
-    );
+    const results = await fetchCompetitionTopHistory(id, metric);
+    const response = results.map(({ player, history }) => formatParticipantHistoryResponse(player, history));
 
     res.status(200).json(response);
   })

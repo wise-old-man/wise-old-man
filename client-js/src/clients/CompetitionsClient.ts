@@ -4,13 +4,13 @@ import {
   CompetitionResponse,
   CompetitionStatus,
   CompetitionTeam,
-  CompetitionTop5ProgressResponse,
   CompetitionType,
   CreateCompetitionPayload,
   EditCompetitionPayload,
   GenericCountMessageResponse,
   GenericMessageResponse,
-  Metric
+  Metric,
+  ParticipantHistoryResponse
 } from '../api-types';
 import { PaginationOptions } from '../utils';
 import BaseAPIClient from './BaseAPIClient';
@@ -61,7 +61,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns A list of competition progress objects, including the player and their value history over time.
    */
   getCompetitionTopHistory(id: number, previewMetric?: Metric) {
-    return this.getRequest<Array<CompetitionTop5ProgressResponse>>(`/competitions/${id}/top-history`, {
+    return this.getRequest<Array<ParticipantHistoryResponse>>(`/competitions/${id}/top-history`, {
       metric: previewMetric
     });
   }

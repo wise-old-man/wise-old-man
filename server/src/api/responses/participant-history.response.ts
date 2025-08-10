@@ -7,7 +7,7 @@
 import { Player } from '../../types';
 import { formatPlayerResponse, PlayerResponse } from './player.response';
 
-export interface CompetitionTop5ProgressResponse {
+export interface ParticipantHistoryResponse {
   player: PlayerResponse;
   history: Array<{
     value: number;
@@ -15,10 +15,10 @@ export interface CompetitionTop5ProgressResponse {
   }>;
 }
 
-export function formatCompetitionTop5ProgressResponse(
+export function formatParticipantHistoryResponse(
   player: Player,
   history: Array<{ value: number; date: Date }>
-): CompetitionTop5ProgressResponse {
+): ParticipantHistoryResponse {
   return {
     player: formatPlayerResponse(player),
     history: history.map(({ value, date }) => ({
