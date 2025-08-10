@@ -1,6 +1,6 @@
 "use client";
 
-import { GroupListItem } from "@wise-old-man/utils";
+import { GroupResponse } from "@wise-old-man/utils";
 import { Fragment, forwardRef, useRef, useState } from "react";
 import { Combobox as HeadlessCombobox, Transition } from "@headlessui/react";
 import { cn } from "~/utils/styling";
@@ -12,7 +12,7 @@ import LoadingIcon from "~/assets/loading.svg";
 import VerifiedIcon from "~/assets/verified.svg";
 
 interface GroupSearchProps {
-  onGroupSelected: (group: GroupListItem) => void;
+  onGroupSelected: (group: GroupResponse) => void;
 }
 
 export function GroupSearch(props: GroupSearchProps) {
@@ -100,7 +100,7 @@ function LoadingState() {
   );
 }
 
-function SearchResultItem(props: { group: GroupListItem }) {
+function SearchResultItem(props: { group: GroupResponse }) {
   const { group } = props;
 
   return (

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { CompetitionDetails, Metric, ParticipationWithPlayerAndProgress } from "@wise-old-man/utils";
+import { CompetitionDetailsResponse, Metric } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { Button } from "../Button";
 import { DataTable } from "../DataTable";
@@ -74,7 +74,7 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
       return row.participations[0];
     },
     cell: ({ row }) => {
-      const mvp = row.getValue("mvp") as ParticipationWithPlayerAndProgress;
+      const mvp = row.getValue("mvp") as CompetitionDetailsResponse["participations"][number];
 
       return (
         <span>
@@ -119,7 +119,7 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
 
 interface TeamsTableProps {
   metric: Metric;
-  competition: CompetitionDetails;
+  competition: CompetitionDetailsResponse;
 }
 
 export function TeamsTable(props: TeamsTableProps) {
@@ -155,7 +155,7 @@ export function TeamsTable(props: TeamsTableProps) {
 interface TeamDetailsProps {
   metric: Metric;
   teamName: string;
-  competition: CompetitionDetails;
+  competition: CompetitionDetailsResponse;
 }
 
 function TeamDetails(props: TeamDetailsProps) {
@@ -170,11 +170,11 @@ function TeamDetails(props: TeamDetailsProps) {
 
 interface Team {
   name: string;
-  participations: ParticipationWithPlayerAndProgress[];
+  participations: CompetitionDetailsResponse["participations"];
 }
 
-function getTeams(competition: CompetitionDetails): Team[] {
-  const teamMap = new Map<string, ParticipationWithPlayerAndProgress[]>();
+function getTeams(competition: CompetitionDetailsResponse): Team[] {
+  const teamMap = new Map<string, CompetitionDetailsResponse["participations"]>();
 
   competition.participations.forEach((participation) => {
     if (!participation.teamName) return;

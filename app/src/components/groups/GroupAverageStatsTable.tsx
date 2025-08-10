@@ -2,12 +2,13 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import {
-  ActivityValue,
-  BossValue,
-  ComputedMetricValue,
-  GroupStatistics,
+  Activity,
+  Boss,
+  ComputedMetric,
+  GroupStatisticsResponse,
   MetricProps,
-  SkillValue,
+  Skill,
+  SnapshotResponse,
   isActivity,
   isBoss,
   isSkill,
@@ -16,8 +17,13 @@ import { DataTable } from "../DataTable";
 import { MetricIconSmall } from "../Icon";
 import { FormattedNumber } from "../FormattedNumber";
 
+type SkillValue = SnapshotResponse["data"]["skills"][Skill];
+type BossValue = SnapshotResponse["data"]["bosses"][Boss];
+type ActivityValue = SnapshotResponse["data"]["activities"][Activity];
+type ComputedMetricValue = SnapshotResponse["data"]["computed"][ComputedMetric];
+
 interface GroupAverageStatsTableProps {
-  statistics: GroupStatistics;
+  statistics: GroupStatisticsResponse;
 }
 
 export function GroupAverageStatsTable(props: GroupAverageStatsTableProps) {

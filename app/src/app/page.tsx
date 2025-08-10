@@ -1,5 +1,4 @@
 import Image, { StaticImageData } from "next/image";
-import { formatNumber } from "@wise-old-man/utils";
 import { apiClient } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { HeroPlayerForm } from "~/components/home/HeroPlayerForm";
@@ -36,6 +35,7 @@ import PatreonIcon from "~/assets/patreon.svg";
 import DiscordIcon from "~/assets/discord.svg";
 import BullhornIcon from "~/assets/bullhorn.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
+import { formatNumber } from "@wise-old-man/utils";
 
 // Invalidate the cached version of this page every 24 hours
 export const revalidate = 86400;

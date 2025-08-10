@@ -1,4 +1,12 @@
-import { Metric, MetricProps, Period, PeriodProps, RecordLeaderboardFilter } from "@wise-old-man/utils";
+import {
+  Country,
+  Metric,
+  MetricProps,
+  Period,
+  PeriodProps,
+  PlayerBuild,
+  PlayerType,
+} from "@wise-old-man/utils";
 import { getRecordLeaderboard } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
@@ -54,7 +62,12 @@ export default async function RecordsLeaderboardsPage(props: PageProps) {
 
 interface RecordLeaderboardProps {
   period: Period;
-  filters: Omit<RecordLeaderboardFilter, "period">;
+  filters: {
+    country?: Country;
+    playerType?: PlayerType;
+    playerBuild?: PlayerBuild;
+    metric: Metric;
+  };
 }
 
 async function RecordLeaderboard(props: RecordLeaderboardProps) {

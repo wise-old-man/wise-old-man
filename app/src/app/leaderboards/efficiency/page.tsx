@@ -1,9 +1,9 @@
 import {
+  formatNumber,
   ComputedMetric,
   Metric,
   MetricProps,
   PlayerBuildProps,
-  formatNumber,
 } from "@wise-old-man/utils";
 import { getEfficiencyLeaderboards } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";

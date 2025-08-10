@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
 import { formatNumber } from "@wise-old-man/utils";
+import React, { useEffect, useRef, useState } from "react";
 import {
   BarChart as RechartsBarChart,
   Bar,

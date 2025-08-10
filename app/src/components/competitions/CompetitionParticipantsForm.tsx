@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { GroupListItem } from "@wise-old-man/utils";
+import { GroupResponse } from "@wise-old-man/utils";
 import { standardizeUsername } from "~/utils/strings";
 import { Button } from "../Button";
 import { DataTable } from "../DataTable";
@@ -12,7 +12,7 @@ import { PlayerSearch } from "../PlayerSearch";
 import { ImportFromFileDialog } from "../groups/ImportFromFileDialog";
 
 interface CompetitionParticipantsFormProps {
-  group?: GroupListItem;
+  group?: GroupResponse;
   participants: string[];
   onParticipantsChanged: (participants: string[]) => void;
   formActions: (disabled: boolean) => JSX.Element;

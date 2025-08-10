@@ -1,19 +1,17 @@
-import { cache } from "react";
 import {
-  CompetitionDetails,
+  CompetitionResponse,
   CompetitionStatus,
-  CompetitionListItem,
-  Period,
-  WOMClient,
-  Metric,
-  Country,
-  PlayerType,
-  PlayerBuild,
-  EfficiencyLeaderboardsFilter,
   CompetitionType,
+  Country,
+  Metric,
   NameChangeStatus,
+  Period,
+  PlayerBuild,
+  PlayerType,
+  WOMClient,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 
 /**
  * The WOM client used to make requests to the API from server components.
@@ -37,7 +35,9 @@ async function handleNotFound<T>(promise: Promise<T>): Promise<T> {
   });
 }
 
-export function getCompetitionStatus(competition: CompetitionDetails | CompetitionListItem) {
+export function getCompetitionStatus<T extends Pick<CompetitionResponse, "startsAt" | "endsAt">>(
+  competition: T
+) {
   const now = new Date();
 
   if (competition.endsAt.getTime() < now.getTime()) {
@@ -75,7 +75,7 @@ export const getDeltaLeaderboard = cache(
 
 export const getEfficiencyLeaderboards = cache(
   (
-    metric: EfficiencyLeaderboardsFilter["metric"],
+    metric: typeof Metric.EHP | typeof Metric.EHB | "ehp+ehb",
     country: Country | undefined,
     playerType: PlayerType | undefined,
     playerBuild: PlayerBuild | undefined,

@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ExtendedAchievementWithPlayer } from "@wise-old-man/utils";
+import { AchievementResponse, PlayerResponse } from "@wise-old-man/utils";
 import { timeago } from "~/utils/dates";
 import { TableTitle } from "../Table";
 import { DataTable } from "../DataTable";
@@ -10,7 +10,7 @@ import { AchievementDate } from "../AchievementDate";
 import { MetricIconSmall } from "../Icon";
 
 interface GroupAchievementsTableProps {
-  achievements: ExtendedAchievementWithPlayer[];
+  achievements: Array<AchievementResponse & { player: PlayerResponse }>;
 }
 
 export function GroupAchievementsTable(props: GroupAchievementsTableProps) {
@@ -30,7 +30,7 @@ export function GroupAchievementsTable(props: GroupAchievementsTableProps) {
   );
 }
 
-const COLUMN_DEFS: ColumnDef<ExtendedAchievementWithPlayer>[] = [
+const COLUMN_DEFS: ColumnDef<AchievementResponse & { player: PlayerResponse }>[] = [
   {
     accessorKey: "player",
     header: "Player",

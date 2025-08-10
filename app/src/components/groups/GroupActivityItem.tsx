@@ -1,4 +1,9 @@
-import { MemberActivityWithPlayer, ActivityType, GroupRoleProps } from "@wise-old-man/utils";
+import {
+  GroupRoleProps,
+  MemberActivityResponse,
+  MemberActivityType,
+  PlayerResponse,
+} from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
 import { GroupRoleIcon } from "../Icon";
 import { PlayerIdentity } from "../PlayerIdentity";
@@ -7,7 +12,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 import ArrowBottomRightIcon from "~/assets/arrow_bottom_right.svg";
 import React from "react";
 
-const MoreContextTooltip = ({ activity }: { activity: MemberActivityWithPlayer }) =>
+const MoreContextTooltip = ({
+  activity,
+}: {
+  activity: MemberActivityResponse & { player: PlayerResponse };
+}) =>
   activity.previousRole ? (
     <>
       <span className="mb-1 text-xs text-gray-200">Prev. Role</span>
@@ -19,21 +28,21 @@ const MoreContextTooltip = ({ activity }: { activity: MemberActivityWithPlayer }
   ) : null;
 
 interface GroupActivityItemProps {
-  activity: MemberActivityWithPlayer;
+  activity: MemberActivityResponse & { player: PlayerResponse };
 }
 
 export function GroupActivityItem(props: GroupActivityItemProps) {
   const { activity } = props;
 
   let typeElement: JSX.Element | undefined;
-  if (activity.type === ActivityType.LEFT) {
+  if (activity.type === MemberActivityType.LEFT) {
     typeElement = (
       <div className="flex items-center gap-x-0.5 text-xs text-red-400">
         <ArrowBottomRightIcon className="h-4 w-4 -scale-x-100 text-red-400" />
         Left
       </div>
     );
-  } else if (activity.type === ActivityType.JOINED) {
+  } else if (activity.type === MemberActivityType.JOINED) {
     typeElement = (
       <div className="flex items-center gap-x-0.5 text-xs text-green-400">
         <ArrowBottomRightIcon className="-ml-px h-4 w-4 text-green-400" />

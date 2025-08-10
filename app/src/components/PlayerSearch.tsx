@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Player } from "@wise-old-man/utils";
+import { PlayerResponse } from "@wise-old-man/utils";
 import { Fragment, forwardRef, useEffect, useRef, useState } from "react";
 import { Combobox as HeadlessCombobox, Transition } from "@headlessui/react";
 import { cn } from "~/utils/styling";
@@ -266,7 +265,7 @@ function RecentSearchItem(props: RecentSearchItemProps) {
   );
 }
 
-function SearchResultItem(props: { player: Player }) {
+function SearchResultItem(props: { player: PlayerResponse }) {
   const { player } = props;
 
   return (

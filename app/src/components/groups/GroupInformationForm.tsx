@@ -1,6 +1,6 @@
 "use client";
 
-import type { Group } from "@wise-old-man/utils";
+import { GroupResponse } from "@wise-old-man/utils";
 import { useState } from "react";
 import { Input } from "../Input";
 import { Label } from "../Label";
@@ -14,7 +14,7 @@ const MAX_DESCRIPTION_LENGTH = 100;
 
 interface GroupInformationFormProps {
   isEditing: boolean;
-  group: Pick<Group, "name" | "clanChat" | "homeworld" | "description">;
+  group: Pick<GroupResponse, "name" | "clanChat" | "homeworld" | "description">;
   onGroupChanged: (name: string, clanChat: string, homeworld: number, description: string) => void;
   formActions: (disabled: boolean, hasUnsavedChanges: boolean) => JSX.Element;
 }

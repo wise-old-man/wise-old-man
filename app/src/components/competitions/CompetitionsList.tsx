@@ -1,4 +1,4 @@
-import { CompetitionListItem, CompetitionTypeProps } from "@wise-old-man/utils";
+import { CompetitionResponse, CompetitionTypeProps } from "@wise-old-man/utils";
 import Link from "next/link";
 import { timeago } from "~/utils/dates";
 import { Badge } from "../Badge";
@@ -7,7 +7,7 @@ import { ListTable, ListTableCell, ListTableRow } from "../ListTable";
 
 interface CompetitionsListProps {
   showHost?: boolean;
-  data: CompetitionListItem[];
+  data: CompetitionResponse[];
 }
 
 export function CompetitionsList(props: CompetitionsListProps) {
@@ -33,7 +33,7 @@ export function CompetitionsList(props: CompetitionsListProps) {
   );
 }
 
-function CompetitionTime(props: Pick<CompetitionListItem, "startsAt" | "endsAt">) {
+function CompetitionTime(props: Pick<CompetitionResponse, "startsAt" | "endsAt">) {
   const { endsAt, startsAt } = props;
 
   const now = new Date();
@@ -64,7 +64,7 @@ function CompetitionTime(props: Pick<CompetitionListItem, "startsAt" | "endsAt">
   );
 }
 
-function CompetitionTableRow(props: { competition: CompetitionListItem; showHost?: boolean }) {
+function CompetitionTableRow(props: { competition: CompetitionResponse; showHost?: boolean }) {
   const { competition } = props;
 
   return (
@@ -94,7 +94,7 @@ function CompetitionTableRow(props: { competition: CompetitionListItem; showHost
   );
 }
 
-function CompetitionCard(props: { competition: CompetitionListItem; showHost?: boolean }) {
+function CompetitionCard(props: { competition: CompetitionResponse; showHost?: boolean }) {
   const { competition } = props;
 
   return (
@@ -121,7 +121,7 @@ function CompetitionCard(props: { competition: CompetitionListItem; showHost?: b
   );
 }
 
-function CompetitionAttributes(props: { competition: CompetitionListItem; showHost?: boolean }) {
+function CompetitionAttributes(props: { competition: CompetitionResponse; showHost?: boolean }) {
   const { competition, showHost } = props;
 
   const participantLabel = `${competition.participantCount} ${

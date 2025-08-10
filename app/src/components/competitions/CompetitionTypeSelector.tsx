@@ -4,7 +4,7 @@ import * as React from "react";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cn } from "~/utils/styling";
 import { Label } from "../Label";
-import { CompetitionType, isCompetitionType } from "@wise-old-man/utils";
+import { CompetitionType, CompetitionTypeProps } from "@wise-old-man/utils";
 
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
@@ -49,7 +49,7 @@ export function CompetitionTypeSelector(props: CompetitionTypeSelectorProps) {
       {...radioGroupProps}
       value={type}
       onValueChange={(e) => {
-        if (isCompetitionType(e)) onTypeChanged(e);
+        if (e in CompetitionTypeProps) onTypeChanged(e as CompetitionType);
       }}
       className="flex flex-col gap-x-4 sm:flex-row"
     >

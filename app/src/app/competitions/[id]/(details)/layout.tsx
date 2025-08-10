@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PropsWithChildren } from "react";
 import {
-  CompetitionDetails,
+  CompetitionDetailsResponse,
   CompetitionStatus,
   CompetitionStatusProps,
   CompetitionType,
@@ -86,7 +86,7 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
   );
 }
 
-function Header(props: CompetitionDetails) {
+function Header(props: CompetitionDetailsResponse) {
   const { id, metric, title, type, group } = props;
 
   const status = getCompetitionStatus(props);
@@ -154,13 +154,13 @@ function Header(props: CompetitionDetails) {
   );
 }
 
-function getParticipantsLabel(competition: CompetitionDetails) {
+function getParticipantsLabel(competition: CompetitionDetailsResponse) {
   return competition.participantCount === 1
     ? "1 participant"
     : `${competition.participantCount} participants`;
 }
 
-function getTeamsLabel(competition: CompetitionDetails) {
+function getTeamsLabel(competition: CompetitionDetailsResponse) {
   const teams = new Set<string>();
 
   competition.participations.forEach((p) => {

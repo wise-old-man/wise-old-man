@@ -3,7 +3,7 @@ import {
   CountryProps,
   PlayerBuild,
   PlayerBuildProps,
-  PlayerDetails,
+  PlayerDetailsResponse,
   PlayerStatus,
   PlayerType,
   PlayerTypeProps,
@@ -61,7 +61,9 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
           <PlayerStatusAlert player={player} />
         </div>
       )}
-      {player.annotations.length > 0 && <PlayerAnnotationsAlert player={player} />}
+      {player.annotations !== null && player.annotations.length > 0 && (
+        <PlayerAnnotationsAlert player={player} />
+      )}
       <Header {...player} />
       <div className="mt-7">
         <PlayerNavigation username={username} />
@@ -78,7 +80,7 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
   );
 }
 
-function Header(props: PlayerDetails) {
+function Header(props: PlayerDetailsResponse) {
   const { status, type, country, displayName } = props;
 
   let icon: React.ReactNode;
@@ -163,7 +165,7 @@ function Header(props: PlayerDetails) {
   );
 }
 
-function PlayerStatusAlert(props: { player: PlayerDetails }) {
+function PlayerStatusAlert(props: { player: PlayerDetailsResponse }) {
   const { status, archive } = props.player;
 
   if (status === PlayerStatus.ARCHIVED) {
@@ -275,7 +277,7 @@ function PlayerStatusAlert(props: { player: PlayerDetails }) {
   );
 }
 
-function PlayerAttributes(props: PlayerDetails) {
+function PlayerAttributes(props: PlayerDetailsResponse) {
   const { status, type, build, latestSnapshot, patron, archive } = props;
 
   const elements: React.ReactNode[] = [];
@@ -349,9 +351,9 @@ function getHiscoresURL(displayName: string, playerType: PlayerType) {
   }
 }
 
-function PlayerAnnotationsAlert(props: { player: PlayerDetails }) {
+function PlayerAnnotationsAlert(props: { player: PlayerDetailsResponse }) {
   const { annotations } = props.player;
-  const annotationTypes = annotations.map((a) => a.type);
+  const annotationTypes = annotations === null ? [] : annotations.map((a) => a.type);
 
   if (annotationTypes.includes(PlayerAnnotationType.OPT_OUT)) {
     return (

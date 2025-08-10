@@ -1,9 +1,15 @@
-import { Metric, MetricProps, NameChange, NameChangeStatus, formatNumber } from "@wise-old-man/utils";
+import {
+  Metric,
+  MetricProps,
+  NameChangeResponse,
+  NameChangeStatus,
+  formatNumber,
+} from "@wise-old-man/utils";
 import { PropsWithChildren } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 import { MetricIconSmall } from "../Icon";
 
-export function ReviewContextTooltip(props: PropsWithChildren<NameChange>) {
+export function ReviewContextTooltip(props: PropsWithChildren<NameChangeResponse>) {
   const { children, ...nameChange } = props;
 
   if (!nameChange.reviewContext) return null;
@@ -34,7 +40,7 @@ export function ReviewContextTooltip(props: PropsWithChildren<NameChange>) {
   );
 }
 
-function ReviewContextContent(props: NameChange) {
+function ReviewContextContent(props: NameChangeResponse) {
   if (!props.reviewContext) return null;
 
   const { reviewContext } = props;
@@ -63,9 +69,9 @@ function ReviewContextContent(props: NameChange) {
         the two names.
         <br />
         <br />
-        EHP: { ehpFloored > 0 ? `+${ehpFloored}` : ehpFloored }
+        EHP: {ehpFloored > 0 ? `+${ehpFloored}` : ehpFloored}
         <br />
-        EHB: { ehbFloored > 0 ? `+${ehbFloored}` : ehbFloored }
+        EHB: {ehbFloored > 0 ? `+${ehbFloored}` : ehbFloored}
         <br />
         Hours in between: {Math.floor(hoursDiff)}
       </>

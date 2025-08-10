@@ -1,9 +1,4 @@
-import {
-  EfficiencyAlgorithmType,
-  EfficiencyAlgorithmTypeUnion,
-  MetricProps,
-  Skill,
-} from "@wise-old-man/utils";
+import { EfficiencyAlgorithmType, MetricProps, Skill } from "@wise-old-man/utils";
 import { apiClient } from "~/services/wiseoldman";
 import { Label } from "~/components/Label";
 import { MetricIcon, MetricIconSmall } from "~/components/Icon";
@@ -15,7 +10,7 @@ export const revalidate = 3600;
 
 interface PageProps {
   params: {
-    type: EfficiencyAlgorithmTypeUnion;
+    type: EfficiencyAlgorithmType;
   };
 }
 

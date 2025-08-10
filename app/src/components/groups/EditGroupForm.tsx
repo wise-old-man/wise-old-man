@@ -4,11 +4,11 @@ import { useMutation } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   GROUP_ROLES,
-  GroupDetails,
-  GroupMemberFragment,
+  GroupDetailsResponse,
   GroupRole,
   GroupRoleProps,
-  MembershipWithPlayer,
+  MembershipResponse,
+  PlayerResponse,
 } from "@wise-old-man/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -53,8 +53,13 @@ import DiscordIcon from "~/assets/discord.svg";
 import YoutubeIcon from "~/assets/youtube.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 
+interface MemberFragment {
+  username: string;
+  role?: GroupRole;
+}
+
 interface EditGroupFormProps {
-  group: GroupDetails;
+  group: GroupDetailsResponse;
 }
 
 export function EditGroupForm(props: EditGroupFormProps) {
@@ -218,7 +223,7 @@ function ImagesSection(props: EditGroupFormProps & { verificationCode: string })
   );
 }
 
-type GroupSocialLinks = GroupDetails["socialLinks"];
+type GroupSocialLinks = GroupDetailsResponse["socialLinks"];
 
 function SocialLinksSection(props: EditGroupFormProps & { verificationCode: string }) {
   const { group, verificationCode } = props;
@@ -377,7 +382,7 @@ function SocialLinksSection(props: EditGroupFormProps & { verificationCode: stri
   );
 }
 
-type EditableMemberFragment = GroupMemberFragment & { isNew: boolean };
+type EditableMemberFragment = MemberFragment & { isNew: boolean };
 
 function MembersSection(props: EditGroupFormProps & { verificationCode: string }) {
   const { group, verificationCode } = props;
@@ -399,7 +404,7 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
   const hasUnsavedChanges = hasChangedMembers(group.memberships, members);
 
   const editMembersMutation = useMutation({
-    mutationFn: (members: GroupMemberFragment[]) => {
+    mutationFn: (members: MemberFragment[]) => {
       return client.groups.editGroup(group.id, { members }, verificationCode);
     },
     onSuccess: () => {
@@ -827,7 +832,7 @@ function getMembersColumnDefinitions(
 }
 
 function getRemovedMembersColumnDefinitions(onReaddClicked: (username: string) => void) {
-  const MEMBERS_COLUMN_DEFS: ColumnDef<GroupMemberFragment>[] = [
+  const MEMBERS_COLUMN_DEFS: ColumnDef<MemberFragment>[] = [
     {
       accessorKey: "username",
       header: "Player",
@@ -875,7 +880,10 @@ function getRemovedMembersColumnDefinitions(onReaddClicked: (username: string) =
   return MEMBERS_COLUMN_DEFS;
 }
 
-function hasChangedMembers(memberships: MembershipWithPlayer[], fragments: GroupMemberFragment[]) {
+function hasChangedMembers(
+  memberships: Array<MembershipResponse & { player: PlayerResponse }>,
+  fragments: MemberFragment[]
+) {
   const previousMap = new Map<string, GroupRole>();
   const nextMap = new Map<string, GroupRole>();
 

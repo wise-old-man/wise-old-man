@@ -1,7 +1,13 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { GroupDetails, GroupRoleProps, MembershipWithPlayer, PlayerStatus } from "@wise-old-man/utils";
+import {
+  GroupDetailsResponse,
+  GroupRoleProps,
+  MembershipResponse,
+  PlayerResponse,
+  PlayerStatus,
+} from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
 import { GroupRoleIcon } from "../Icon";
 import { DataTable } from "../DataTable";
@@ -16,7 +22,7 @@ import { Button } from "../Button";
 import ExportIcon from "~/assets/export.svg";
 
 interface MembersTableProps {
-  group: GroupDetails;
+  group: GroupDetailsResponse;
   filter?: string;
 }
 
@@ -67,7 +73,7 @@ export function MembersTable(props: MembersTableProps) {
   );
 }
 
-const COLUMN_DEFS: ColumnDef<MembershipWithPlayer>[] = [
+const COLUMN_DEFS: ColumnDef<MembershipResponse & { player: PlayerResponse }>[] = [
   {
     accessorKey: "player",
     header: ({ column }) => {
@@ -162,7 +168,7 @@ function getCaptionLabel(groupName: string, rowCount: number, filter?: string) {
   return `Showing all ${rowCount} members of ${groupName}`;
 }
 
-function filterMembers(members: MembershipWithPlayer[], filter: string) {
+function filterMembers(members: Array<MembershipResponse & { player: PlayerResponse }>, filter: string) {
   if (filter === "invalid_or_outdated") {
     return members.filter(
       (m) =>

@@ -1,18 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import {
-  CompetitionDetails,
-  MeasuredDeltaProgress,
+  CompetitionDetailsResponse,
+  MetricDelta,
   Metric,
   MetricProps,
-  ParticipationWithPlayerAndProgress,
-  formatNumber,
   isActivity,
   isBoss,
   isSkill,
+  ParticipationResponse,
+  PlayerResponse,
   padNumber,
+  formatNumber,
 } from "@wise-old-man/utils";
 import { useTicker } from "~/hooks/useTicker";
 import { convertToUTC, durationBetween } from "~/utils/dates";
@@ -36,10 +36,11 @@ import ChevronDownIcon from "~/assets/chevron_down.svg";
 import ImageWithFallback from "../ImageWithFallback";
 
 type TopParticipantSorting = "by_value" | "by_percent";
+type TopParticipant = CompetitionDetailsResponse["participations"][number];
 
 interface CompetitionWidgetsProps {
   metric: Metric;
-  competition: CompetitionDetails;
+  competition: CompetitionDetailsResponse;
 }
 
 export function CompetitionWidgets(props: CompetitionWidgetsProps) {
@@ -82,7 +83,7 @@ export function CompetitionWidgets(props: CompetitionWidgetsProps) {
 
 interface TopParticipantWidgetrops {
   metric: Metric;
-  topParticipant: ParticipationWithPlayerAndProgress | null;
+  topParticipant: TopParticipant | null;
 }
 
 function TopParticipantWidget(props: TopParticipantWidgetrops) {
@@ -124,7 +125,7 @@ function TopParticipantWidget(props: TopParticipantWidgetrops) {
 interface GainedWidgetProps {
   metric: Metric;
   showAverage: boolean;
-  participations: ParticipationWithPlayerAndProgress[];
+  participations: TopParticipant[];
 }
 
 function GainedWidget(props: GainedWidgetProps) {
@@ -352,7 +353,7 @@ function TimezoneSelector(props: TimezoneSelectorProps) {
 function getTopParticipant(
   sorting: TopParticipantSorting,
   metric: Metric,
-  participations: ParticipationWithPlayerAndProgress[]
+  participations: TopParticipant[]
 ) {
   if (participations.length === 0) return null;
   if (sorting === "by_value") return participations[0];
@@ -374,7 +375,7 @@ function formattedGained(value: number, metric: Metric) {
   return formatNumber(value);
 }
 
-function getPercentGained(metric: Metric, progress: MeasuredDeltaProgress) {
+function getPercentGained(metric: Metric, progress: MetricDelta) {
   if (progress.gained === 0) return 0;
 
   let minimum = 0;

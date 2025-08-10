@@ -1,13 +1,13 @@
 "use client";
 
-import { PeriodProps, Player } from "@wise-old-man/utils";
+import { PeriodProps, PlayerResponse } from "@wise-old-man/utils";
 import { useTicker } from "~/hooks/useTicker";
 import { durationBetween, formatDatetime, timeago } from "~/utils/dates";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 import { TimeRangeFilter } from "~/services/wiseoldman";
 
 interface PlayerGainedTimeCardsProps {
-  player: Player;
+  player: PlayerResponse;
   timeRange: TimeRangeFilter;
   earliestDataDate: Date | null;
 }

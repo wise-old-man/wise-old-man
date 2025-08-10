@@ -1,4 +1,4 @@
-import { MemberActivityWithPlayer } from "@wise-old-man/utils";
+import { MemberActivityResponse, PlayerResponse } from "@wise-old-man/utils";
 import { getGroupActivity, getGroupDetails } from "~/services/wiseoldman";
 import { QueryLink } from "~/components/QueryLink";
 import { GroupWidgets } from "~/components/groups/GroupWidgets";
@@ -57,7 +57,7 @@ export default async function GroupDetailsPage(props: PageProps) {
 
 interface GroupActivityListProps {
   groupId: number;
-  groupActivity: MemberActivityWithPlayer[];
+  groupActivity: Array<MemberActivityResponse & { player: PlayerResponse }>;
 }
 
 function GroupActivityList(props: GroupActivityListProps) {

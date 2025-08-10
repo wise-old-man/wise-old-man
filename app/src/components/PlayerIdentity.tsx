@@ -1,9 +1,9 @@
 import React from "react";
 import {
   CountryProps,
-  Player,
   PlayerBuild,
   PlayerBuildProps,
+  PlayerResponse,
   PlayerStatus,
   PlayerType,
   PlayerTypeProps,
@@ -18,7 +18,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 import WarningFilledIcon from "~/assets/warning_filled.svg";
 
 interface PlayerIdentityProps {
-  player: Player;
+  player: PlayerResponse;
   caption?: React.JSX.Element | string | undefined;
   renderTooltip?: boolean;
   href?: string;
@@ -82,7 +82,10 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
   );
 }
 
-export function PlayerIdentityTooltip(props: { player: Player; moreContextTooltip?: React.ReactNode }) {
+export function PlayerIdentityTooltip(props: {
+  player: PlayerResponse;
+  moreContextTooltip?: React.ReactNode;
+}) {
   const { player, moreContextTooltip } = props;
 
   const updatedTimeago = `Updated ${timeago.format(player.updatedAt || new Date())}`;

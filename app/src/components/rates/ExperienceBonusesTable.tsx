@@ -1,13 +1,13 @@
 "use client";
 
-import { Bonus, MAX_SKILL_EXP, MetricProps } from "@wise-old-man/utils";
+import { MAX_SKILL_EXP, MetricProps, SkillMetaBonus } from "@wise-old-man/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { TableTitle } from "../Table";
 import { DataTable } from "../DataTable";
 import { MetricIconSmall } from "../Icon";
 import { FormattedNumber } from "../FormattedNumber";
 
-const COLUMN_DEFINITIONS: ColumnDef<Bonus>[] = [
+const COLUMN_DEFINITIONS: ColumnDef<SkillMetaBonus>[] = [
   {
     id: "startExp",
     header: () => "Starting exp.",
@@ -55,7 +55,7 @@ const COLUMN_DEFINITIONS: ColumnDef<Bonus>[] = [
   },
 ];
 
-export function ExperienceBonusesTable(props: { bonuses: Bonus[] }) {
+export function ExperienceBonusesTable(props: { bonuses: SkillMetaBonus[] }) {
   const { bonuses } = props;
 
   return (

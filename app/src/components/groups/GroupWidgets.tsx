@@ -2,10 +2,10 @@ import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  CompetitionListItem,
+  CompetitionResponse,
   CompetitionStatus,
   CompetitionStatusProps,
-  GroupDetails,
+  GroupDetailsResponse,
   Metric,
   formatNumber,
 } from "@wise-old-man/utils";
@@ -18,7 +18,7 @@ import { Badge } from "../Badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 interface GroupWidgetsProps {
-  group: GroupDetails;
+  group: GroupDetailsResponse;
 }
 
 export function GroupWidgets(props: GroupWidgetsProps) {
@@ -101,7 +101,7 @@ export function GroupWidgets(props: GroupWidgetsProps) {
 async function FeaturedCompetitionWidget(props: { groupId: number }) {
   const competitions = await getGroupCompetitions(props.groupId);
 
-  let featured: CompetitionListItem | undefined;
+  let featured: CompetitionResponse | undefined;
 
   const ongoing = competitions.filter((c) => getCompetitionStatus(c) === CompetitionStatus.ONGOING);
 

@@ -1,9 +1,9 @@
-import { AchievementProgress, formatNumber } from "@wise-old-man/utils";
+import { AchievementProgressResponse, formatNumber } from "@wise-old-man/utils";
 import { AchievementDate } from "./AchievementDate";
 import { MetricIcon } from "./Icon";
 import { ProgressCircle } from "./ProgressCircle";
 
-export function AchievementListItem(props: AchievementProgress) {
+export function AchievementListItem(props: AchievementProgressResponse) {
   return (
     <div className="flex items-center gap-x-4 rounded-lg border border-gray-500 bg-gray-800 px-4 py-3 shadow-sm">
       <MetricIcon metric={props.metric} />
