@@ -1,12 +1,4 @@
-import { PlayerResponse } from '../../server/src/api/responses';
 import { CompetitionTeam, GroupRole, Metric, Period } from '../../server/src/types';
-
-export interface DeltaLeaderboardEntry {
-  player: PlayerResponse;
-  startDate: Date;
-  endDate: Date;
-  gained: number;
-}
 
 export {
   AchievementProgressResponse,

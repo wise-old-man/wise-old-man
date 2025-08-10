@@ -137,7 +137,7 @@ Returned in player-centric endpoints.
 
 <br />
 
-### `(Object)` Competition History Datapoint
+### `(Object)` Participant History Datapoint
 
 | Field | Type   | Description                                                                 |
 | :---- | :----- | :-------------------------------------------------------------------------- |
@@ -146,12 +146,12 @@ Returned in player-centric endpoints.
 
 <br />
 
-### `(Object)` Top 5 Progress Result
+### `(Object)` Participant History
 
 | Field   | Type                                                                                                               | Description                                           |
 | :------ | :----------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------- |
 | player  | [Player](/api/players/player-type-definitions#object-player)                                                       | The participant.                                      |
-| history | [CompetitionHistoryDataPoint](/api/competitions/competition-type-definitions#object-competition-history-datapoint) | The participant's history throughout the competition. |
+| history | [ParticipantHistoryDataPoint](/api/competitions/competition-type-definitions#object-participant-history-datapoint) | The participant's history throughout the competition. |
 
 <br />
 

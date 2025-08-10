@@ -2,7 +2,7 @@ import { findGroupCompetitions } from '../../api/modules/competitions/services/F
 import { fetchGroupDetails } from '../../api/modules/groups/services/FetchGroupDetailsService';
 import prisma from '../../prisma';
 import { Group, Membership, Player } from '../../types';
-import { PRIVELEGED_GROUP_ROLES } from '../../utils/shared';
+import { PRIVILEGED_GROUP_ROLES } from '../../utils/shared';
 import { Job } from '../job.class';
 
 interface Payload {
@@ -45,7 +45,7 @@ async function calculateScore(
   const averageOverallExp = memberships.reduce((acc, cur) => acc + cur.player.exp, 0) / memberships.length;
 
   // If has atleast one leader
-  if (memberships.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.membership.role)).length >= 1) {
+  if (memberships.filter(m => PRIVILEGED_GROUP_ROLES.includes(m.membership.role)).length >= 1) {
     score += 30;
   }
 

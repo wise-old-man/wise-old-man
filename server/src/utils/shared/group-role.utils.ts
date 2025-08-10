@@ -276,7 +276,7 @@ export function isGroupRole(roleString: string): roleString is GroupRole {
   return roleString in GroupRoleProps;
 }
 
-export const PRIVELEGED_GROUP_ROLES = [
+export const PRIVILEGED_GROUP_ROLES = [
   GroupRole.ADMINISTRATOR,
   GroupRole.OWNER,
   GroupRole.LEADER,

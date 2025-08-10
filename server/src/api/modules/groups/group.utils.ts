@@ -1,5 +1,5 @@
 import { GroupRoleOrder, Membership } from '../../../types';
-import { PRIVELEGED_GROUP_ROLES } from '../../../utils/shared';
+import { PRIVILEGED_GROUP_ROLES } from '../../../utils/shared';
 
 function sanitizeName(name: string): string {
   return name
@@ -22,7 +22,7 @@ function sortMembers<M extends { membership: Membership }>(
     );
   }
 
-  const priorities = [...PRIVELEGED_GROUP_ROLES].reverse();
+  const priorities = [...PRIVILEGED_GROUP_ROLES].reverse();
 
   // fallback to priority if there is no roleOrders Records
   return [...memberships].sort(

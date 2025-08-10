@@ -1,4 +1,4 @@
-import type { Country, DeltaLeaderboardEntry, Metric, Period, PlayerBuild, PlayerType } from '../api-types';
+import type { Country, Metric, Period, PlayerBuild, PlayerResponse, PlayerType } from '../api-types';
 import BaseAPIClient from './BaseAPIClient';
 
 export default class DeltasClient extends BaseAPIClient {
@@ -13,6 +13,13 @@ export default class DeltasClient extends BaseAPIClient {
     metric: Metric;
     period: Period | string;
   }) {
-    return this.getRequest<DeltaLeaderboardEntry[]>('/deltas/leaderboard', filter);
+    return this.getRequest<
+      Array<{
+        player: PlayerResponse;
+        startDate: Date;
+        endDate: Date;
+        gained: number;
+      }>
+    >('/deltas/leaderboard', filter);
   }
 }
