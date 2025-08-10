@@ -53,6 +53,7 @@ export interface Delta {
   dagannoth_rex: number;
   dagannoth_supreme: number;
   deranged_archaeologist: number;
+  doom_of_mokhaiotl: number;
   duke_sucellus: number;
   general_graardor: number;
   giant_mole: number;

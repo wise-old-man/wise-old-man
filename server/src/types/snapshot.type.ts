@@ -187,6 +187,9 @@ export interface Snapshot {
   deranged_archaeologistRank: number;
   deranged_archaeologistKills: number;
 
+  doom_of_mokhaiotlRank: number;
+  doom_of_mokhaiotlKills: number;
+
   duke_sucellusRank: number;
   duke_sucellusKills: number;
 

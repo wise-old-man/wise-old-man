@@ -66,6 +66,7 @@ export const Boss = {
   DAGANNOTH_REX: 'dagannoth_rex',
   DAGANNOTH_SUPREME: 'dagannoth_supreme',
   DERANGED_ARCHAEOLOGIST: 'deranged_archaeologist',
+  DOOM_OF_MOKHAIOTL: 'doom_of_mokhaiotl',
   DUKE_SUCELLUS: 'duke_sucellus',
   GENERAL_GRAARDOR: 'general_graardor',
   GIANT_MOLE: 'giant_mole',
