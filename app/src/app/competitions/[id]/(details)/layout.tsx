@@ -133,7 +133,7 @@ function Header(props: CompetitionDetails) {
         </QueryLink>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button iconButton>
+            <Button iconButton aria-label="Open competition actions menu">
               <OverflowIcon className="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>

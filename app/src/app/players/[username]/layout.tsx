@@ -101,7 +101,7 @@ function Header(props: PlayerDetails) {
             <UpdatePlayerForm player={props} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button iconButton>
+                <Button iconButton aria-label="Open player actions menu">
                   <OverflowIcon className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -232,7 +232,7 @@ function PlayerStatusAlert(props: { player: PlayerDetails }) {
             {` for more information.`}
 
             <p className="mt-5">
-              <span className="text-white">Note (November 13th):</span> There&apos;s currently an issue
+              <span className="text-white">Note (July 20th 2025):</span> There&apos;s currently an issue
               with the Jagex hiscores due to a recent rollback that is causing some players to get
               flagged. If you&apos;re affected, try to log out in-game (to update your hiscores) and then
               update your WOM profile.

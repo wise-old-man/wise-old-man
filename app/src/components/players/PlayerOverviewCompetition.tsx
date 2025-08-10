@@ -47,7 +47,7 @@ function CompetitionCard(props: CompetitionListItem) {
   if (status === CompetitionStatus.UPCOMING) {
     timeagoLabel = `Starts ${timeago.format(props.startsAt, { future: true, round: "floor" })}`;
   } else if (status === CompetitionStatus.ONGOING) {
-    timeagoLabel = `Ends in ${timeago.format(props.endsAt, { future: true, round: "floor" })}`;
+    timeagoLabel = `Ends ${timeago.format(props.endsAt, { future: true, round: "floor" })}`;
   }
 
   return (

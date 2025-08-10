@@ -130,7 +130,7 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
   if (status === CompetitionStatus.UPCOMING) {
     timeagoLabel = `Starts ${timeago.format(featured.startsAt, { future: true, round: "floor" })}`;
   } else if (status === CompetitionStatus.ONGOING) {
-    timeagoLabel = `Ends in ${timeago.format(featured.endsAt, { future: true, round: "floor" })}`;
+    timeagoLabel = `Ends ${timeago.format(featured.endsAt, { future: true, round: "floor" })}`;
   }
 
   return (

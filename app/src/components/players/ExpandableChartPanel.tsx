@@ -65,7 +65,7 @@ function ChartPanel(props: ExpandableChartPanelProps & { isExpanded: boolean }) 
           <QueryLink query={{ expand: props.id }} scroll={false}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" iconButton className="!h-8">
+                <Button variant="outline" iconButton aria-label="Expand chart" className="!h-8">
                   <ExpandIcon className="h-4 w-4 text-gray-200" />
                 </Button>
               </TooltipTrigger>

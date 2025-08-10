@@ -15,6 +15,7 @@ import { useMemo, useState } from "react";
 import { DateValue, TimeValue } from "react-aria";
 import { cn } from "~/utils/styling";
 import { useHasMounted } from "~/hooks/useHasMounted";
+import { LEAGUES } from "../../../config";
 import {
   Combobox,
   ComboboxButton,
@@ -289,7 +290,13 @@ function MetricSelect(props: MetricSelectProps) {
             </ComboboxItemGroup>
             <ComboboxSeparator />
             <ComboboxItemGroup label="Activities">
-              {ACTIVITIES.map((activity) => (
+              {ACTIVITIES.filter((a) => {
+                if (a === Metric.LEAGUE_POINTS && !LEAGUES.active) {
+                  return false;
+                }
+
+                return true;
+              }).map((activity) => (
                 <ComboboxItem key={activity} value={activity}>
                   <MetricIconSmall metric={activity} />
                   {MetricProps[activity].name}
@@ -307,16 +314,16 @@ function MetricSelect(props: MetricSelectProps) {
           </ComboboxItemsContainer>
         </ComboboxContent>
       </Combobox>
-      {metric === Metric.LEAGUE_POINTS && (
+      {LEAGUES.active && metric === Metric.LEAGUE_POINTS && (
         <Alert className="mt-6 pb-4" variant="error">
           <AlertTitle>League Points competitions are not supported on this version.</AlertTitle>
           <AlertDescription>
-            <p className="mb-3">{`You might want to use the "Raging Echoes" version of our website that does allow you to create League-specific competitions.`}</p>
+            <p className="mb-3">{`You might want to use the "${LEAGUES.editionName}" version of our website that does allow you to create League-specific competitions.`}</p>
             <a
               href="https://league.wiseoldman.net"
               className="font-medium text-blue-400 hover:text-blue-400"
             >
-              Go to Raging Echoes Website
+              Go to {LEAGUES.editionName} Website
             </a>
           </AlertDescription>
         </Alert>
