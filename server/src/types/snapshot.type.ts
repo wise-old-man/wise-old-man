@@ -6,6 +6,7 @@ export interface Snapshot {
 
   overallRank: number;
   overallExperience: number;
+  overallLevel: number;
 
   attackRank: number;
   attackExperience: number;

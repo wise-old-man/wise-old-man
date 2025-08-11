@@ -408,6 +408,7 @@ model Snapshot {
   createdAt                             DateTime  @default(now()) @db.Timestamptz(6)
   overallRank                           Int       @default(-1)
   overallExperience                     BigInt    @default(-1)
+  overallLevel                          Int       @default(-1)
   attackRank                            Int       @default(-1)
   attackExperience                      Int       @default(-1)
   defenceRank                           Int       @default(-1)

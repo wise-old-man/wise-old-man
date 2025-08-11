@@ -1,5 +1,5 @@
 import csv from 'csvtojson';
-import { ACTIVITIES, BOSSES, Metric, METRICS, SKILLS, Snapshot } from '../../../types';
+import { ACTIVITIES, BOSSES, Metric, METRICS, Skill, SKILLS, Snapshot } from '../../../types';
 import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey, MetricValueKey } from '../../../utils/get-metric-value-key.util';
 import {
@@ -48,7 +48,7 @@ async function parseHiscoresSnapshot(playerId: number, rawCSV: string, previous?
 
   // Populate the skills' values with the values from the csv
   SKILLS.forEach((s, i) => {
-    const [rank, , experience] = rows[i];
+    const [rank, level, experience] = rows[i];
     let expNum = parseInt(experience);
 
     if (s === Metric.OVERALL && expNum === 0) {
@@ -64,7 +64,11 @@ async function parseHiscoresSnapshot(playerId: number, rawCSV: string, previous?
     snapshotFields[getMetricRankKey(s)] = parseInt(rank);
     snapshotFields[getMetricValueKey(s)] = expNum;
 
-    if (s !== Metric.OVERALL) totalExp += Math.max(0, expNum);
+    if (s === Metric.OVERALL) {
+      snapshotFields.overallLevel = level === '0' ? -1 : parseInt(level);
+    } else {
+      totalExp += Math.max(0, expNum);
+    }
   });
 
   // If this player is unranked in overall exp, we should set their overall exp to the total exp of all skills
@@ -225,7 +229,16 @@ function getCappedExp(snapshot: Snapshot, max: number) {
 }
 
 function getTotalLevel(snapshot: Snapshot) {
-  return REAL_SKILLS.map(s => getLevel(snapshot[getMetricValueKey(s)])).reduce((acc, cur) => acc + cur);
+  let totalLevelSum = 0;
+
+  for (const skill of REAL_SKILLS) {
+    const level = getLevel(snapshot[getMetricValueKey(skill)]);
+    const minLevel = skill === Skill.HITPOINTS ? 10 : 1;
+
+    totalLevelSum += Math.max(level, minLevel);
+  }
+
+  return Math.max(snapshot.overallLevel ?? -1, totalLevelSum);
 }
 
 function isF2p(snapshot: Snapshot) {

@@ -336,5 +336,28 @@ describe('Util - Experience', () => {
         Object.fromEntries(SKILLS.map(s => [getMetricValueKey(s), SKILL_EXP_AT_99])) as unknown as Snapshot
       )
     ).toBe(2277);
+
+    expect(
+      getTotalLevel({
+        attackExperience: MAX_SKILL_EXP,
+        strengthExperience: MAX_SKILL_EXP
+      } as Snapshot)
+    ).toBe(228); // 99 attack + 99 strength + 10 hitpoints + 1 all other skills
+
+    expect(
+      getTotalLevel({
+        overallLevel: 200, // lower than the computed total level
+        attackExperience: MAX_SKILL_EXP,
+        strengthExperience: MAX_SKILL_EXP
+      } as Snapshot)
+    ).toBe(228);
+
+    expect(
+      getTotalLevel({
+        overallLevel: 277, // higher than the computed total level
+        attackExperience: MAX_SKILL_EXP,
+        strengthExperience: MAX_SKILL_EXP
+      } as Snapshot)
+    ).toBe(277);
   });
 });
