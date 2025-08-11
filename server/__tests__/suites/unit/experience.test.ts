@@ -346,7 +346,15 @@ describe('Util - Experience', () => {
 
     expect(
       getTotalLevel({
-        overallLevel: 277,
+        overallLevel: 200, // lower than the computed total level
+        attackExperience: MAX_SKILL_EXP,
+        strengthExperience: MAX_SKILL_EXP
+      } as Snapshot)
+    ).toBe(228);
+
+    expect(
+      getTotalLevel({
+        overallLevel: 277, // higher than the computed total level
         attackExperience: MAX_SKILL_EXP,
         strengthExperience: MAX_SKILL_EXP
       } as Snapshot)
