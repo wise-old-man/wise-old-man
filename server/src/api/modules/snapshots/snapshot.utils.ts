@@ -65,7 +65,7 @@ async function parseHiscoresSnapshot(playerId: number, rawCSV: string, previous?
     snapshotFields[getMetricValueKey(s)] = expNum;
 
     if (s === Metric.OVERALL) {
-      snapshotFields.overallLevel = parseInt(level);
+      snapshotFields.overallLevel = level === '0' ? -1 : parseInt(level);
     } else {
       totalExp += Math.max(0, expNum);
     }
