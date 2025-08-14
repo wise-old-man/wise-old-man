@@ -22,6 +22,7 @@ export default [
   { boss: Boss.DAGANNOTH_REX, rate: 100 },
   { boss: Boss.DAGANNOTH_SUPREME, rate: 100 },
   { boss: Boss.DERANGED_ARCHAEOLOGIST, rate: 80 },
+  { boss: Boss.DOOM_OF_MOKHAIOTL, rate: 18 },
   { boss: Boss.DUKE_SUCELLUS, rate: 25 },
   { boss: Boss.GENERAL_GRAARDOR, rate: 31 },
   { boss: Boss.GIANT_MOLE, rate: 97 },

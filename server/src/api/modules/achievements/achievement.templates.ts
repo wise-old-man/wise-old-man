@@ -255,6 +255,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
+    name: '{threshold} Doom of Mokhaiotl kills',
+    metric: Metric.DOOM_OF_MOKHAIOTL,
+    thresholds: [100, 500, 1_000, 5_000]
+  },
+  {
     name: '{threshold} Duke Sucellus kills',
     metric: Metric.DUKE_SUCELLUS,
     thresholds: [500, 1000, 5000, 10_000]
