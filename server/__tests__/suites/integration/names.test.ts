@@ -8,12 +8,13 @@ import * as NameChangeCreatedEvent from '../../../src/api/events/handlers/name-c
 import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
 import * as PlayerNameChangedEvent from '../../../src/api/events/handlers/player-name-changed.event';
 import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
+import { jobManager, JobType } from '../../../src/jobs';
 import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
-import { METRICS, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
+import { Metric, METRICS, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
 import { getMetricRankKey } from '../../../src/utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../src/utils/get-metric-value-key.util';
-import { readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
+import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -1244,6 +1245,135 @@ describe('Names API', () => {
       });
 
       expect(approvedNameChange!.reviewContext).toBe(null);
+    });
+
+    it('should recalculate competition participations on approval', async () => {
+      // Setup the "old player"
+      let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.FIREMAKING, value: 4_500_000 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const oldPlayerUpdateResponse = await api.post(`/players/superman`);
+      expect(oldPlayerUpdateResponse.status).toBe(201);
+      await sleep(100);
+
+      const playerSnapshot = await prisma.snapshot.findFirst({
+        where: {
+          playerId: oldPlayerUpdateResponse.body.id
+        }
+      });
+      expect(playerSnapshot).not.toBeNull();
+
+      await prisma.snapshot.update({
+        where: {
+          id: playerSnapshot!.id
+        },
+        data: {
+          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12) // 12 hours ago
+        }
+      });
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Test',
+        metric: 'firemaking',
+        startsAt: new Date(Date.now() + 1000),
+        endsAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+        participants: ['clark', 'lex']
+      });
+      expect(createCompetitionResponse.status).toBe(201);
+
+      const fakeStartDate = new Date(Date.now() - 1000 * 60 * 60 * 24);
+
+      // Force-update the competition start date to be in the past
+      await prisma.competition.update({
+        where: { id: createCompetitionResponse.body.competition.id },
+        data: {
+          startsAt: fakeStartDate
+        }
+      });
+
+      modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.FIREMAKING, value: 5_000_000 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const firstPlayerUpdateResponse = await api.post(`/players/clark`);
+      expect(firstPlayerUpdateResponse.status).toBe(200);
+      await sleep(100);
+
+      modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.FIREMAKING, value: 7_500_000 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const secondPlayerUpdateResponse = await api.post(`/players/clark`);
+      expect(secondPlayerUpdateResponse.status).toBe(200);
+      await sleep(100);
+
+      const firstDetailsResponse = await api.get(
+        `/competitions/${createCompetitionResponse.body.competition.id}`
+      );
+      expect(firstDetailsResponse.status).toBe(200);
+      expect(firstDetailsResponse.body.participations[0].progress).toMatchObject({
+        start: 5_000_000,
+        end: 7_500_000,
+        gained: 2_500_000
+      });
+
+      // Player "superman" has snapshots from 12 horus ago at 4.5m exp
+      // Player "clark" has snapshots from seconds ago at 5m exp
+      // Name change "superman" -> "clark" would merge these two players,
+      // so we need to recalculate the participations for the competition,
+      // as their real progress is 4.5m -> 7.5m = 3m gained
+
+      const submitNameChangeResponse = await api.post(`/names`).send({
+        oldName: 'superman',
+        newName: 'clark'
+      });
+      expect(submitNameChangeResponse.status).toBe(201);
+
+      const approveNameChangeResponse = await api
+        .post(`/names/${submitNameChangeResponse.body.id}/approve`)
+        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+
+      expect(approveNameChangeResponse.status).toBe(200);
+
+      expect(playerNameChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'clark',
+          previousDisplayName: 'superman'
+        })
+      );
+
+      // The "playerNameChangedEvent" mock prevents the actual event from being emitted,
+      // so let's manually dispatch the job to test the recalculation
+      await jobManager.runAsync(JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS, {
+        username: 'clark',
+        forceRecalculate: true
+      });
+
+      const secondDetailsResponse = await api.get(
+        `/competitions/${createCompetitionResponse.body.competition.id}`
+      );
+      expect(secondDetailsResponse.status).toBe(200);
+      expect(secondDetailsResponse.body.participations[0].progress).toMatchObject({
+        start: 4_500_000,
+        end: 7_500_000,
+        gained: 3_000_000
+      });
     });
   });
 

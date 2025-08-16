@@ -4,6 +4,7 @@ import { JobOptions } from '../types/job-options.type';
 
 interface Payload {
   username: string;
+  forceRecalculate?: boolean;
 }
 
 export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
@@ -53,11 +54,14 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
 
       // If this participation's starting snapshot has not been set,
       // find the first snapshot created since the start date and set it
-      if (!participation.startSnapshotId) {
+      if (!participation.startSnapshotId || payload.forceRecalculate === true) {
         const startSnapshot = await prisma.snapshot.findFirst({
           where: {
             playerId: player.id,
             createdAt: { gte: participation.competition.startsAt }
+          },
+          select: {
+            id: true
           },
           orderBy: {
             createdAt: 'asc'
@@ -66,6 +70,27 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
 
         if (startSnapshot) {
           updatePayload.startSnapshotId = startSnapshot.id;
+        }
+      }
+
+      if (payload.forceRecalculate === true) {
+        // If force recalculating, search for the latest snapshot as well,
+        // instead of relying on the player's latest snapshot
+        const endSnapshot = await prisma.snapshot.findFirst({
+          where: {
+            playerId: player.id,
+            createdAt: { lte: participation.competition.endsAt }
+          },
+          select: {
+            id: true
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        });
+
+        if (endSnapshot) {
+          updatePayload.endSnapshotId = endSnapshot.id;
         }
       }
 
