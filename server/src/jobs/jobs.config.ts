@@ -6,6 +6,7 @@ import { CheckInappropriateContentJob } from './handlers/check-inappropriate-con
 import { CheckMissingComputedRankTablesJob } from './handlers/check-missing-computed-rank-tables.job';
 import { CheckPlayerBannedJob } from './handlers/check-player-banned.job';
 import { CheckPlayerRankedJob } from './handlers/check-player-ranked.job';
+import { CheckProtectedPlayersSpamJob } from './handlers/check-protected-players-spam.job';
 import { DispatchCompetitionCreatedDiscordEventJob } from './handlers/dispatch-competition-created-discord-event.job';
 import { DispatchCompetitionEndedDiscordEventJob } from './handlers/dispatch-competition-ended-discord-event.job';
 import { DispatchCompetitionEndingDiscordEventJob } from './handlers/dispatch-competition-ending-discord-event.job';
@@ -55,6 +56,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.CHECK_MISSING_COMPUTED_RANK_TABLES]: CheckMissingComputedRankTablesJob,
   [JobType.CHECK_PLAYER_BANNED]: CheckPlayerBannedJob,
   [JobType.CHECK_PLAYER_RANKED]: CheckPlayerRankedJob,
+  [JobType.CHECK_PROTECED_PLAYERS_SPAM]: CheckProtectedPlayersSpamJob,
   [JobType.DISPATCH_COMPETITION_CREATED_DISCORD_EVENT]: DispatchCompetitionCreatedDiscordEventJob,
   [JobType.DISPATCH_COMPETITION_ENDED_DISCORD_EVENT]: DispatchCompetitionEndedDiscordEventJob,
   [JobType.DISPATCH_COMPETITION_ENDING_DISCORD_EVENT]: DispatchCompetitionEndingDiscordEventJob,
@@ -97,6 +99,7 @@ export const JOB_HANDLER_MAP = {
 export const CRON_CONFIG = [
   // every 1 min
   { interval: '* * * * *', type: JobType.CHECK_CREATION_SPAM },
+  { interval: '* * * * *', type: JobType.CHECK_PROTECED_PLAYERS_SPAM },
   { interval: '* * * * *', type: JobType.SCHEDULE_COMPETITION_EVENTS },
   { interval: '* * * * *', type: JobType.SYNC_API_KEYS },
   { interval: '* * * * *', type: JobType.SYNC_PATRONS },
