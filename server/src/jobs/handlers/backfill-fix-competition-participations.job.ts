@@ -29,6 +29,13 @@ export class BackfillFixCompetitionParticipationsJob extends Job<unknown> {
 
     const chunks = chunkArray(possiblyAffectedUsernames, 5000);
 
+    // This player first reported the bug, and I want their backfill to run first
+    await this.jobManager.add(
+      JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS,
+      { username: 'todisgott' },
+      { priority: JobPriority.HIGH }
+    );
+
     for (const chunk of chunks) {
       await this.jobManager.addBulk(
         JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS,
