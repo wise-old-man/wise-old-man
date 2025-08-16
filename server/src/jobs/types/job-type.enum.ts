@@ -1,6 +1,7 @@
 export enum JobType {
   ADD_PLAYERS_TO_GROUP_COMPETITIONS = 'add-players-to-group-competitions',
   ASSERT_PLAYER_TYPE = 'assert-player-type',
+  BACKFILL_FIX_COMPETITION_PARTICIPATIONS = 'backfill-fix-competition-participations',
   CALCULATE_COMPUTED_RANK_TABLES = 'calculate-computed-rank-tables',
   CHECK_CREATION_SPAM = 'check-creation-spam',
   CHECK_INAPPROPRIATE_CONTENT = 'check-inappropriate-content',

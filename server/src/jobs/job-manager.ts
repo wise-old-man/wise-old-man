@@ -85,6 +85,34 @@ class JobManager {
     logger.info(`[v2] Added job: ${type}`, opts.jobId, true);
   }
 
+  async addBulk<T extends Exclude<JobType, JobType.UPDATE_PLAYER>, TPayload extends JobPayloadMapper[T]>(
+    type: T,
+    payloads: Array<TPayload extends undefined ? Record<string, never> : TPayload>,
+    options?: JobOptions
+  ) {
+    if (process.env.NODE_ENV === 'test') {
+      throw new Error('Cannot add bulk jobs in test mode.');
+    }
+
+    // TODO: Add support for UPDATE_PLAYER bulk jobs (missing the cooldown checks)
+
+    const matchingQueue = this.queues.find(queue => queue.name === type);
+
+    if (matchingQueue === undefined) {
+      throw new Error(`No job implementation found for "${type}".`);
+    }
+
+    const opts: BullJobOptions = {
+      ...(options || {}),
+      attempts: options?.attempts ?? 3,
+      priority: options?.priority ?? JobPriority.MEDIUM
+    };
+
+    await matchingQueue.addBulk(payloads.map(payload => ({ name: type, data: payload, opts })));
+
+    logger.info(`[v2] Added ${payloads.length} ${type} bulk jobs`);
+  }
+
   getUniqueJobId(payload: unknown) {
     if (!payload) {
       return undefined;
