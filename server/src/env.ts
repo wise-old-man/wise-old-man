@@ -2,8 +2,8 @@
  * This file has been created as a way to force any usage
  * of process.env to go through a dotenv.config first.
  */
-import { z } from 'zod';
 import 'dotenv/config';
+import { z } from 'zod';
 
 /**
  * This ensures that an env var is required in prod but optional in dev/test.
@@ -46,7 +46,10 @@ const envVariablesSchema = z.object({
   PROXY_PORT: prodOnly(z.coerce.number().positive().int()),
   CPU_COUNT: prodOnly(z.coerce.number().positive().int()),
   // Openai API Key
-  OPENAI_API_KEY: prodOnly(z.string().trim().min(1).startsWith('sk-'))
+  OPENAI_API_KEY: prodOnly(z.string().trim().min(1).startsWith('sk-')),
+  // Abuse Protection Configs
+  API_ABUSE_PROTECTED_PLAYERS_URL: z.optional(z.string().trim().url()),
+  API_ABUSE_PROTECTED_PLAYERS_LIST: z.optional(z.string().trim())
 });
 
 // This will load env vars from a .env file, type check them,and throw an error
