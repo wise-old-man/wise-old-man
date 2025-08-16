@@ -12,5 +12,11 @@ export function handler({ username, previousDisplayName }: EventPayloadMap[Event
 
     // Reevaluate this player's achievements to try and find earlier completion dates as there might be new data
     jobManager.add(JobType.RECALCULATE_PLAYER_ACHIEVEMENTS, { username });
+
+    // Re-calculate this player's competition participations as there might be new data from the other profile
+    jobManager.add(JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS, {
+      username,
+      forceRecalculate: true
+    });
   }
 }

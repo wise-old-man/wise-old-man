@@ -16,6 +16,7 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
   if (createNewPlayer) {
     const latestSnapshot = await prisma.snapshot.findFirst({
       where: { playerId: player.id },
+      select: { createdAt: true },
       orderBy: { createdAt: 'desc' }
     });
 

@@ -107,6 +107,9 @@ async function approveNameChange(id: number): Promise<NameChange> {
       const snapshots = await prisma.snapshot.findMany({
         where: {
           playerId: archivedNewPlayer.id
+        },
+        select: {
+          playerId: true
         }
       });
 
