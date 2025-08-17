@@ -21,10 +21,13 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
         player: {
           username: payload.username
         },
-        competition: {
-          startsAt: { lt: now },
-          endsAt: { gt: now }
-        }
+        competition:
+          payload.forceRecalculate === true
+            ? undefined
+            : {
+                startsAt: { lt: now },
+                endsAt: { gt: now }
+              }
       },
       include: {
         competition: true

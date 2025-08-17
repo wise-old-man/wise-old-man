@@ -32,7 +32,7 @@ export class BackfillFixCompetitionParticipationsJob extends Job<unknown> {
     // This player first reported the bug, and I want their backfill to run first
     await this.jobManager.add(
       JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS,
-      { username: 'todisgott' },
+      { username: 'todisgott', forceRecalculate: true },
       { priority: JobPriority.HIGH }
     );
 
