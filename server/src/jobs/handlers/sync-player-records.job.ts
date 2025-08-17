@@ -2,7 +2,7 @@ import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snap
 import prisma, { PrismaTypes } from '../../prisma';
 import { Metric, METRICS, Period } from '../../types';
 import { getMetricValueKey } from '../../utils/get-metric-value-key.util';
-import { prepareRecordValue } from '../../utils/prepare-record-value.util';
+import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 
@@ -80,7 +80,7 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
           playerId,
           period,
           metric,
-          value: prepareRecordValue(metric, value)
+          value: prepareDecimalValue(metric, value)
         });
         continue;
       }
@@ -89,7 +89,7 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
       if (value > currentRecordMap[metric].value) {
         toUpdate.push({
           metric,
-          newValue: prepareRecordValue(metric, value)
+          newValue: prepareDecimalValue(metric, value)
         });
       }
     }

@@ -23,6 +23,14 @@ const extendedClient = prisma.$extends({
         }
       }
     },
+    cachedDelta: {
+      value: {
+        needs: { metric: true, value: true },
+        compute({ value, metric }) {
+          return isComputedMetric(metric) ? value / 10_000 : value;
+        }
+      }
+    },
     achievement: {
       threshold: {
         needs: { threshold: true },

@@ -67,8 +67,13 @@ describe('Deltas API', () => {
         where: { playerId: firstTrackResponse.body.id }
       });
 
+      const firstCachedDeltas = await prisma.cachedDelta.findMany({
+        where: { playerId: firstTrackResponse.body.id }
+      });
+
       // Player was only updated once, shouldn't have enough data to calculate deltas yet
       expect(firstDeltas.length).toBe(0);
+      expect(firstCachedDeltas.length).toBe(0);
 
       const secondTrackResponse = await api.post(`/players/jonxslays`);
       expect(secondTrackResponse.status).toBe(200);
@@ -81,9 +86,13 @@ describe('Deltas API', () => {
       const secondDeltas = await prisma.delta.findMany({
         where: { playerId: secondTrackResponse.body.id }
       });
+      const secondCachedDeltas = await prisma.cachedDelta.findMany({
+        where: { playerId: secondTrackResponse.body.id }
+      });
 
       // Player now has enough snapshots, but no gains in between them, so delta calcs get skipped
       expect(secondDeltas.length).toBe(0);
+      expect(secondCachedDeltas.length).toBe(0);
     });
 
     it('should sync player deltas', async () => {
@@ -108,9 +117,13 @@ describe('Deltas API', () => {
       const firstDeltas = await prisma.delta.findMany({
         where: { playerId: firstTrackResponse.body.id }
       });
+      const firstCachedDeltas = await prisma.cachedDelta.findMany({
+        where: { playerId: firstTrackResponse.body.id }
+      });
 
       // Player was only updated once, shouldn't have enough data to calculate deltas yet
       expect(firstDeltas.length).toBe(0);
+      expect(firstCachedDeltas.length).toBe(0);
 
       let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metric.LAST_MAN_STANDING, value: 500 },
@@ -156,8 +169,33 @@ describe('Deltas API', () => {
       const secondDeltas = await prisma.delta.findMany({
         where: { playerId: firstTrackResponse.body.id }
       });
+      const secondCachedDeltas = await prisma.cachedDelta.findMany({
+        where: { playerId: firstTrackResponse.body.id }
+      });
+
+      expect(secondCachedDeltas.length).toBe(15); // 5 periods * 3 metrics (ehp, ehb, nex, smithing, overall)
+      expect(secondCachedDeltas.filter(c => c.metric === Metric.EHP && c.value > 0.1).length).toBe(3);
+      expect(secondCachedDeltas.filter(c => c.metric === Metric.EHB && c.value > 0.1).length).toBe(3);
+      expect(secondCachedDeltas.filter(c => c.metric === Metric.NEX && c.value === 49).length).toBe(3); // 53 - 4 (min kc is 5) = 49
+
+      const smithingCachedDeltas = secondCachedDeltas.filter(c => c.metric === Metric.SMITHING);
+      expect(smithingCachedDeltas.length).toBe(3);
+      expect(smithingCachedDeltas.filter(c => c.value === 50_000).length).toBe(3);
+      expect(smithingCachedDeltas.map(c => c.period)).toContain('week');
+      expect(smithingCachedDeltas.map(c => c.period)).toContain('month');
+      expect(smithingCachedDeltas.map(c => c.period)).toContain('year');
+      const overallCachedDeltas = secondCachedDeltas.filter(c => c.metric === Metric.OVERALL);
+      expect(overallCachedDeltas.length).toBe(3);
+      expect(overallCachedDeltas.filter(c => c.value === 50_000).length).toBe(3);
+      expect(overallCachedDeltas.map(c => c.period)).toContain('week');
+      expect(overallCachedDeltas.map(c => c.period)).toContain('month');
+      expect(overallCachedDeltas.map(c => c.period)).toContain('year');
+
+      // All deltas' end snapshot is the latest one
+      expect(secondCachedDeltas.filter(d => Date.now() - d.endedAt.getTime() > 10_000).length).toBe(0);
 
       const monthDeltas = secondDeltas.find(f => f.period === 'month');
+      const monthCachedDeltas = secondCachedDeltas.filter(c => c.period === 'month');
 
       expect(secondDeltas.length).toBe(3);
       expect(secondDeltas.filter(d => d.ehp > 0.1).length).toBe(3);
@@ -220,6 +258,21 @@ describe('Deltas API', () => {
       const dayDeltas = (await prisma.delta.findFirst({
         where: { playerId: firstTrackResponse.body.id, period: 'day' }
       }))!;
+
+      const dayCachedDeltas = (await prisma.cachedDelta.findMany({
+        where: { playerId: firstTrackResponse.body.id, period: 'day' }
+      }))!;
+
+      expect(dayCachedDeltas.find(c => c.metric === Metric.NEX)?.value).toBe(1);
+      expect(dayCachedDeltas.find(c => c.metric === Metric.TZKAL_ZUK)?.value).toBe(1);
+      expect(dayCachedDeltas.find(c => c.metric === Metric.BOUNTY_HUNTER_HUNTER)?.value).toBe(4); //  bh went from -1 (unranked) to 5 (min=2), make sure it's 4 gained, not 6
+      expect(dayCachedDeltas.find(c => c.metric === Metric.SOUL_WARS_ZEAL)?.value).toBe(4); // soul wars went from -1 (unranked) to 203 (min=200), make sure it's 4 gained, not 204
+      expect(dayCachedDeltas.find(c => c.metric === Metric.LAST_MAN_STANDING)).toBe(undefined); // LMS went DOWN from 500 to 450, we shouldn't show negative gains
+
+      // gained less boss kc, expect ehb gains to be lesser
+      expect(dayCachedDeltas.find(c => c.metric === Metric.EHB)?.value).toBeLessThan(
+        monthCachedDeltas.find(c => c.metric === Metric.EHB)!.value
+      );
 
       expect(dayDeltas.nex).toBe(1);
       expect(dayDeltas.tzkal_zuk).toBe(1);

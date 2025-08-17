@@ -1,25 +1,45 @@
 import prisma from '../../prisma';
 import { Period, PERIODS } from '../../types';
-import { PeriodProps } from '../../utils/shared';
+import { assertNever } from '../../utils/assert-never.util';
 import { Job } from '../job.class';
 
 export class InvalidateDeltasJob extends Job<unknown> {
   async execute() {
-    for (const period of PERIODS) {
-      let thresholdMs = PeriodProps[period].milliseconds;
+    await prisma.$transaction(async transaction => {
+      for (const period of PERIODS) {
+        const maxAgeDate = new Date(Date.now() - getMaxAge(period));
 
-      // Usually deltas become invalid after existing for more than their period's duration
-      // Except for 5min deltas, which only become invalid after 1 hour.
-      if (period === Period.FIVE_MIN) {
-        thresholdMs *= 12;
+        await transaction.delta.deleteMany({
+          where: {
+            period,
+            updatedAt: { lt: maxAgeDate }
+          }
+        });
+
+        await transaction.cachedDelta.deleteMany({
+          where: {
+            period,
+            updatedAt: { lt: maxAgeDate }
+          }
+        });
       }
+    });
+  }
+}
 
-      await prisma.delta.deleteMany({
-        where: {
-          period,
-          updatedAt: { lt: new Date(Date.now() - thresholdMs) }
-        }
-      });
-    }
+function getMaxAge(period: Period) {
+  switch (period) {
+    case Period.FIVE_MIN:
+      return 1000 * 60 * 60; // 1 hour
+    case Period.DAY:
+      return 1000 * 60 * 60 * 12; // 12 hours
+    case Period.WEEK:
+      return 1000 * 60 * 60 * 24 * 3; // 3 days
+    case Period.MONTH:
+      return 1000 * 60 * 60 * 24 * 7; // 7 days
+    case Period.YEAR:
+      return 1000 * 60 * 60 * 24 * 30; // 30 days
+    default:
+      return assertNever(period);
   }
 }
