@@ -375,7 +375,7 @@ model Player {
   memberActivity MemberActivity[]
   patronages     Patron[]
   annotations    PlayerAnnotation[]
-  CachedDelta    CachedDelta[]
+  cachedDeltas   CachedDelta[]
 
   // Indices
   @@index([build], map: "players_build")
