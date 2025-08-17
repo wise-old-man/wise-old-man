@@ -12,7 +12,7 @@ import {
   PlayerStatus,
   Record
 } from '../../../../types';
-import { prepareRecordValue } from '../../../../utils/prepare-record-value.util';
+import { prepareDecimalValue } from '../../../../utils/prepare-decimal-value.util';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import * as playerUtils from '../../players/player.utils';
@@ -315,7 +315,7 @@ async function transferRecords(
       },
       data: {
         playerId: oldPlayerId,
-        value: prepareRecordValue(record.metric, record.value)
+        value: prepareDecimalValue(record.metric, record.value)
       }
     });
   }
@@ -330,7 +330,7 @@ async function transferRecords(
         }
       },
       data: {
-        value: prepareRecordValue(oldRecord.metric, newRecord.value)
+        value: prepareDecimalValue(oldRecord.metric, newRecord.value)
       }
     });
 
