@@ -119,9 +119,7 @@ export const CRON_CONFIG = [
   { interval: '0 8 * * *', type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_GROUP_SCORE_UPDATES },
-  { interval: '0 8 * * *', type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS },
-  // everyday at 12:00 UTC
-  { interval: '0 12 * * *', type: JobType.BACKFILL_FIX_COMPETITION_PARTICIPATIONS }
+  { interval: '0 8 * * *', type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS }
 ];
 
 // Jobs to run when the server starts
