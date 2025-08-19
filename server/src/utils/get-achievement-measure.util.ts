@@ -1,10 +1,13 @@
 import { Achievement, AchievementMeasure, Metric } from '../types';
-import { MetricProps, SKILL_EXP_AT_99 } from './shared';
+import { MetricProps } from './shared';
 
 export function getAchievementMeasure(
   achievement: Pick<Achievement, 'metric' | 'threshold'>
 ): AchievementMeasure {
-  if (achievement.metric === Metric.OVERALL && achievement.threshold <= SKILL_EXP_AT_99) {
+  if (
+    achievement.metric === Metric.OVERALL &&
+    [273_742, 737_627, 1_986_068, 5_346_332, 13_034_431].includes(achievement.threshold)
+  ) {
     return 'levels';
   }
 

@@ -1,15 +1,13 @@
 import { AchievementDefinition, Snapshot } from '../../../types';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
-import { getLevel, isMetric, MetricProps, REAL_SKILLS } from '../../../utils/shared';
+import { getLevel, isMetric, MetricProps } from '../../../utils/shared';
 import { formatNumber } from '../../../utils/shared/format-number.util';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 
 function getAchievementName(name: string, threshold: number): string {
-  const adjustedThreshold = name === 'Base {level} Stats' ? threshold / REAL_SKILLS.length : threshold;
-
   const newName = name
-    .replace('{threshold}', formatThreshold(adjustedThreshold))
-    .replace('{level}', formatThreshold(adjustedThreshold));
+    .replace('{threshold}', formatThreshold(threshold))
+    .replace('{level}', formatThreshold(threshold));
 
   if (newName === 'Base 99 Stats') {
     return 'Maxed Overall';

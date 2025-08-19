@@ -332,18 +332,12 @@ function formatThreshold(threshold: number) {
     return threshold;
   }
 
-  if (
-    [273742, 737627, 1986068, 5346332, 13034431].map((i) => i * REAL_SKILLS.length).includes(threshold)
-  ) {
-    return getLevel(threshold / REAL_SKILLS.length + 100).toString();
+  if ([273742, 737627, 1986068, 5346332, 13034431].includes(threshold)) {
+    return getLevel(threshold + 100).toString();
   }
 
   if (threshold <= 10000) {
     return `${threshold / 1000}k`;
-  }
-
-  if (threshold === 13034431) {
-    return "99";
   }
 
   return formatNumber(threshold, true);

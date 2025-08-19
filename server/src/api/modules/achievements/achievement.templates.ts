@@ -18,9 +18,9 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: 'Base {level} Stats',
     metric: Metric.OVERALL,
     measure: 'levels',
-    thresholds: [273_742, 737_627, 1_986_068, 5_346_332, 13_034_431].map(i => i * REAL_SKILLS.length),
+    thresholds: [273_742, 737_627, 1_986_068, 5_346_332, 13_034_431],
     getCurrentValue: (snapshot: Snapshot, threshold: number) => {
-      return getCappedExp(snapshot, threshold / REAL_SKILLS.length);
+      return Math.floor(getCappedExp(snapshot, threshold) / REAL_SKILLS.length);
     }
   },
   // ------------------
