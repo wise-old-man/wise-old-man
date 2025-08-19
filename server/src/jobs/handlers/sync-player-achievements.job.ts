@@ -24,11 +24,6 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
   };
 
   async execute(payload: Payload) {
-    // This can be deleted in the future
-    if (!('previousUpdatedAt' in payload)) {
-      return;
-    }
-
     const playerAndSnapshot = await prisma.player.findFirst({
       where: {
         username: payload.username
