@@ -1,3 +1,4 @@
+import { combine, isErrored } from '@attio/fetchable';
 import prisma, { PrismaPromise, PrismaTypes } from '../../../../prisma';
 import {
   Competition,
@@ -9,6 +10,7 @@ import {
   PlayerAnnotationType,
   Snapshot
 } from '../../../../types';
+import { assertNever } from '../../../../utils/assert-never.util';
 import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { standardize } from '../../players/player.utils';
@@ -354,10 +356,24 @@ function removeExcessParticipations(
 }
 
 async function getParticipations(id: number, participants: string[]) {
-  // throws an error if any participant is invalid
-  validateInvalidParticipants(participants);
-  // throws an error if any participant is duplicated
-  validateParticipantDuplicates(participants);
+  const participantValidationResult = combine([
+    validateInvalidParticipants(participants),
+    validateParticipantDuplicates(participants)
+  ]);
+
+  if (isErrored(participantValidationResult)) {
+    switch (participantValidationResult.error.code) {
+      case 'INVALID_USERNAMES_FOUND':
+        throw new BadRequestError(
+          `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
+          participantValidationResult.error.usernames
+        );
+      case 'DUPLICATE_USERNAMES_FOUND':
+        throw new BadRequestError(`Found repeated usernames.`, participantValidationResult.error.usernames);
+      default:
+        return assertNever(participantValidationResult.error);
+    }
+  }
 
   // Find or create all players with the given usernames
   const players = await findOrCreatePlayers(participants);
@@ -374,12 +390,27 @@ async function getTeamsParticipations(id: number, teams: CompetitionTeam[]) {
   // ensures every team name is sanitized, and every username is standardized
   const newTeams = sanitizeTeams(teams);
 
-  // throws an error if any team name is duplicated
-  validateTeamDuplicates(newTeams);
-  // throws an error if any team participant is invalid
-  validateInvalidParticipants(newTeams.map(t => t.participants).flat());
-  // throws an error if any team participant is duplicated
-  validateParticipantDuplicates(newTeams.map(t => t.participants).flat());
+  const teamValidationResult = combine([
+    validateTeamDuplicates(newTeams),
+    validateInvalidParticipants(newTeams.map(t => t.participants).flat()),
+    validateParticipantDuplicates(newTeams.map(t => t.participants).flat())
+  ]);
+
+  if (isErrored(teamValidationResult)) {
+    switch (teamValidationResult.error.code) {
+      case 'INVALID_USERNAMES_FOUND':
+        throw new BadRequestError(
+          `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
+          teamValidationResult.error.usernames
+        );
+      case 'DUPLICATE_USERNAMES_FOUND':
+        throw new BadRequestError(`Found repeated usernames.`, teamValidationResult.error.usernames);
+      case 'DUPLICATE_TEAM_NAMES_FOUND':
+        throw new BadRequestError(`Found repeated team names.`, teamValidationResult.error.teamNames);
+      default:
+        return assertNever(teamValidationResult.error);
+    }
+  }
 
   // Find or create all players with the given usernames
   const players = await findOrCreatePlayers(newTeams.map(t => t.participants).flat());

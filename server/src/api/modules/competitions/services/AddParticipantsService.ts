@@ -1,5 +1,7 @@
+import { combine, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { CompetitionType, PlayerAnnotationType } from '../../../../types';
+import { assertNever } from '../../../../utils/assert-never.util';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -18,10 +20,24 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
     throw new BadRequestError('Cannot add participants to a team competition.');
   }
 
-  // throws an error if any participant is invalid
-  validateInvalidParticipants(participants);
-  // throws an error if any participant is duplicated
-  validateParticipantDuplicates(participants);
+  const validationResult = combine([
+    validateInvalidParticipants(participants),
+    validateParticipantDuplicates(participants)
+  ]);
+
+  if (isErrored(validationResult)) {
+    switch (validationResult.error.code) {
+      case 'INVALID_USERNAMES_FOUND':
+        throw new BadRequestError(
+          `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
+          validationResult.error.usernames
+        );
+      case 'DUPLICATE_USERNAMES_FOUND':
+        throw new BadRequestError(`Found repeated usernames.`, validationResult.error.usernames);
+      default:
+        return assertNever(validationResult.error);
+    }
+  }
 
   // Find all existing participants' ids
   const existingIds = (

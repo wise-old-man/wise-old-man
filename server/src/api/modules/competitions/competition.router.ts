@@ -1,7 +1,10 @@
+import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric } from '../../../types';
+import { assertNever } from '../../../utils/assert-never.util';
+import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../../errors';
 import {
   formatCompetitionDetailsResponse,
   formatCompetitionResponse,
@@ -68,15 +71,81 @@ router.post(
 
     const createResult = await createCompetition(req.body, ipHash);
 
-    logger.moderation(`Created competition ${createResult.competition.id}`, {
+    if (isErrored(createResult)) {
+      switch (createResult.error.code) {
+        case 'COMPETITION_START_DATE_AFTER_END_DATE':
+          throw new BadRequestError('Start date must be before the end date.');
+        case 'COMPETITION_DATES_IN_THE_PAST':
+          throw new BadRequestError('Invalid dates: All start and end dates must be in the future.');
+        case 'PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE':
+          throw new BadRequestError(`Properties "participants" and "groupId" are mutually exclusive.`);
+        case 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE':
+          throw new BadRequestError(`Properties "participants" and "teams" are mutually exclusive.`);
+        case 'OPTED_OUT_PLAYERS_FOUND':
+          throw new ForbiddenError(
+            'One or more players have opted out of joining competitions, so they cannot be added as participants.',
+            createResult.error.displayNames
+          );
+        case 'FAILED_TO_GENERATE_VERIFICATION_CODE':
+          throw createResult.error;
+        case 'FAILED_TO_CREATE_COMPETITION':
+          throw new ServerError('Failed to create competition. Please try again later.');
+        case 'FAILED_TO_VALIDATE_PARTICIPANTS': {
+          switch (createResult.error.subError.code) {
+            case 'INVALID_USERNAMES_FOUND':
+              throw new BadRequestError(
+                `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
+                createResult.error.subError.usernames
+              );
+            case 'DUPLICATE_USERNAMES_FOUND':
+              throw new BadRequestError(`Found repeated usernames.`, createResult.error.subError.usernames);
+            default:
+              throw assertNever(createResult.error.subError);
+          }
+        }
+        case 'FAILED_TO_VALIDATE_TEAMS': {
+          switch (createResult.error.subError.code) {
+            case 'INVALID_USERNAMES_FOUND':
+              throw new BadRequestError(
+                `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
+                createResult.error.subError.usernames
+              );
+            case 'DUPLICATE_USERNAMES_FOUND':
+              throw new BadRequestError(`Found repeated usernames.`, createResult.error.subError.usernames);
+            case 'DUPLICATE_TEAM_NAMES_FOUND':
+              throw new BadRequestError(`Found repeated team names.`, createResult.error.subError.teamNames);
+            default:
+              throw assertNever(createResult.error.subError);
+          }
+        }
+        case 'FAILED_TO_VERIFY_GROUP_VERIFICATION_CODE': {
+          switch (createResult.error.subError.code) {
+            case 'GROUP_NOT_FOUND':
+              throw new NotFoundError('Group not found.');
+            case 'INVALID_GROUP_VERIFICATION_CODE':
+              throw new BadRequestError('Invalid group verification code.');
+            case 'INCORRECT_GROUP_VERIFICATION_CODE':
+              throw new ForbiddenError('Incorrect group verification code.');
+            default:
+              throw assertNever(createResult.error.subError);
+          }
+        }
+        default:
+          assertNever(createResult.error);
+      }
+    }
+
+    const { competition, verificationCode } = createResult.value;
+
+    logger.moderation(`Created competition ${competition.id}`, {
       timestamp: new Date().toISOString(),
       ipHash
     });
 
-    const details = await fetchCompetitionDetails(createResult.competition.id);
+    const details = await fetchCompetitionDetails(competition.id);
 
     const response = {
-      verificationCode: createResult.verificationCode,
+      verificationCode: verificationCode,
       competition: formatCompetitionDetailsResponse(
         details.competition,
         details.group,

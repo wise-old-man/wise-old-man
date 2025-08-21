@@ -218,7 +218,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found 1 invalid usernames:');
+      expect(response.body.message).toMatch('Found invalid usernames:');
       expect(response.body.data).toContain('areallylongusername');
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
@@ -233,9 +233,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Cannot include both "participants" and "teams", they are mutually exclusive.'
-      );
+      expect(response.body.message).toMatch('Properties "participants" and "teams" are mutually exclusive.');
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -363,7 +361,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names: [warriors]');
+      expect(response.body.message).toMatch('Found repeated team names.');
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -379,7 +377,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames: [zezima]');
+      expect(response.body.message).toMatch('Found repeated usernames');
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -447,7 +445,9 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot include both "participants" and "groupId"');
+      expect(response.body.message).toMatch(
+        'Properties "participants" and "groupId" are mutually exclusive.'
+      );
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -935,7 +935,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found 1 invalid usernames:');
+      expect(response.body.message).toMatch('Found invalid usernames:');
       expect(response.body.data).toContain('areallylongusername');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -1055,7 +1055,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names: [warriors]');
+      expect(response.body.message).toMatch('Found repeated team names');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1070,7 +1070,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames: [zezima]');
+      expect(response.body.message).toMatch('Found repeated usernames');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1786,7 +1786,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found 1 invalid usernames:');
+      expect(response.body.message).toMatch('Found invalid usernames:');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1800,7 +1800,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found 2 invalid usernames:');
+      expect(response.body.message).toMatch('Found invalid usernames:');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1814,7 +1814,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames: [zezima, rorro]');
+      expect(response.body.message).toMatch('Found repeated usernames');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2271,7 +2271,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found 1 invalid usernames:');
+      expect(response.body.message).toMatch('Found invalid usernames:');
       expect(response.body.data).toContain('reallylongusername');
     });
 
@@ -2329,7 +2329,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names: [warriors]');
+      expect(response.body.message).toMatch('Found repeated team names');
     });
 
     it('should not add teams (duplicate team names in database)', async () => {
@@ -2342,7 +2342,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names: [mods]');
+      expect(response.body.message).toMatch('Found repeated team names');
     });
 
     it('should not add teams (duplicate team players in response)', async () => {
@@ -2355,7 +2355,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames: [rorro]');
+      expect(response.body.message).toMatch('Found repeated usernames');
     });
 
     it('should not add teams (duplicate team players in database)', async () => {
@@ -2365,7 +2365,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames: [psikoi, hydrox6]');
+      expect(response.body.message).toMatch('Found repeated usernames');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
