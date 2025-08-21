@@ -216,15 +216,15 @@ async function recalculateParticipationsStart(competitionId: number, startDate: 
   // Map these snapshots for O(1) lookups
   const snapshotMap = new Map(playerSnapshots.map(s => [s.playerId, s]));
 
-  // Update participations with the new start snapshot IDs
-  for (const playerId of playerIds) {
-    const snapshot = snapshotMap.get(playerId);
-
-    await prisma.participation.update({
-      where: { playerId_competitionId: { competitionId, playerId } },
-      data: { startSnapshotId: snapshot ? snapshot.id : null }
-    });
-  }
+  await prisma.$transaction(async transaction => {
+    // Update participations with the new start snapshot IDs
+    for (const playerId of playerIds) {
+      await transaction.participation.update({
+        where: { playerId_competitionId: { competitionId, playerId } },
+        data: { startSnapshotId: snapshotMap.get(playerId)?.id ?? null }
+      });
+    }
+  });
 }
 
 async function recalculateParticipationsEnd(competitionId: number, endDate: Date) {
@@ -242,15 +242,15 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
   // Map these snapshots for O(1) lookups
   const snapshotMap = new Map(playerSnapshots.map(s => [s.playerId, s]));
 
-  // Update participations with the new end snapshot IDs
-  for (const playerId of playerIds) {
-    const snapshot = snapshotMap.get(playerId);
-
-    await prisma.participation.update({
-      where: { playerId_competitionId: { competitionId, playerId } },
-      data: { endSnapshotId: snapshot ? snapshot.id : null }
-    });
-  }
+  await prisma.$transaction(async transaction => {
+    // Update participations with the new end snapshot IDs
+    for (const playerId of playerIds) {
+      await transaction.participation.update({
+        where: { playerId_competitionId: { competitionId, playerId } },
+        data: { endSnapshotId: snapshotMap.get(playerId)?.id ?? null }
+      });
+    }
+  });
 }
 
 async function executeUpdate(
