@@ -1,5 +1,5 @@
 import prisma from '../../../../prisma';
-import { NameChange, NameChangeStatus, Player } from '../../../../types';
+import { NameChange, NameChangeStatus, Player, PlayerAnnotationType } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 
@@ -24,11 +24,18 @@ async function findGroupNameChanges(
     return [];
   }
 
-  // Fetch all achievements for these player IDs
+  // Fetch all name changes for these player IDs
   const nameChanges = await prisma.nameChange.findMany({
     where: {
       playerId: { in: playerIds },
-      status: NameChangeStatus.APPROVED
+      status: NameChangeStatus.APPROVED,
+      player: {
+        annotations: {
+          none: {
+            type: PlayerAnnotationType.OPT_OUT
+          }
+        }
+      }
     },
     include: { player: true },
     orderBy: { createdAt: 'desc' },
