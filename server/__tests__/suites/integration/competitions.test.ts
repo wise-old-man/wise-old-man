@@ -1105,7 +1105,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("The competition type cannot be changed to 'classic'.");
+      expect(response.body.message).toMatch('The competition type cannot be changed.');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1117,7 +1117,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("The competition type cannot be changed to 'team'.");
+      expect(response.body.message).toMatch('The competition type cannot be changed.');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });

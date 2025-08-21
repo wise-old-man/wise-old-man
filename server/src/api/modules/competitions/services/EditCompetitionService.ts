@@ -1,5 +1,6 @@
-import { combine, isErrored } from '@attio/fetchable';
+import { AsyncResult, combine, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import prisma, { PrismaPromise, PrismaTypes } from '../../../../prisma';
+import logger from '../../../../services/logging.service';
 import {
   Competition,
   CompetitionTeam,
@@ -10,8 +11,6 @@ import {
   PlayerAnnotationType,
   Snapshot
 } from '../../../../types';
-import { assertNever } from '../../../../utils/assert-never.util';
-import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -35,20 +34,44 @@ interface EditCompetitionPayload {
 
 interface PartialParticipation {
   playerId: number;
-  competitionId: number;
   username: string;
   teamName: string | null;
 }
 
-async function editCompetition(id: number, payload: EditCompetitionPayload): Promise<Competition> {
+export async function editCompetition(
+  id: number,
+  payload: EditCompetitionPayload
+): AsyncResult<
+  Competition,
+  | { code: 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE' }
+  | { code: 'NOTHING_TO_UPDATE' }
+  | { code: 'COMPETITION_NOT_FOUND' }
+  | { code: 'COMPETITION_START_DATE_AFTER_END_DATE' }
+  | { code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' }
+  | { code: 'OPTED_OUT_PLAYERS_FOUND'; displayNames: string[] }
+  | { code: 'FAILED_TO_UPDATE_COMPETITION' }
+  | {
+      code: 'FAILED_TO_VALIDATE_PARTICIPANTS';
+      subError:
+        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] };
+    }
+  | {
+      code: 'FAILED_TO_VALIDATE_TEAMS';
+      subError:
+        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] }
+        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] };
+    }
+> {
   const { title, metric, startsAt, endsAt, participants, teams } = payload;
 
   if (participants && participants.length > 0 && teams && teams.length > 0) {
-    throw new BadRequestError('Cannot include both "participants" and "teams", they are mutually exclusive.');
+    return errored({ code: 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE' });
   }
 
   if (!title && !metric && !startsAt && !endsAt && !participants && !teams) {
-    throw new BadRequestError('Nothing to update.');
+    return errored({ code: 'NOTHING_TO_UPDATE' });
   }
 
   const updatedCompetitionFields: PrismaTypes.CompetitionUpdateInput = {};
@@ -62,8 +85,8 @@ async function editCompetition(id: number, payload: EditCompetitionPayload): Pro
     where: { id }
   });
 
-  if (!competition) {
-    throw new NotFoundError('Competition not found.');
+  if (competition === null) {
+    return errored({ code: 'COMPETITION_NOT_FOUND' });
   }
 
   if (startsAt || endsAt) {
@@ -71,24 +94,63 @@ async function editCompetition(id: number, payload: EditCompetitionPayload): Pro
     const endDate = endsAt || competition.endsAt;
 
     if (endDate.getTime() < startDate.getTime()) {
-      throw new BadRequestError('Start date must be before the end date.');
+      return errored({ code: 'COMPETITION_START_DATE_AFTER_END_DATE' });
     }
   }
 
   if (competition.type === CompetitionType.CLASSIC && hasTeams) {
-    throw new BadRequestError("The competition type cannot be changed to 'team'.");
+    return errored({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
   }
 
   if (competition.type === CompetitionType.TEAM && hasParticipants) {
-    throw new BadRequestError("The competition type cannot be changed to 'classic'.");
+    return errored({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
   }
 
   let participations: PartialParticipation[] | null = null;
 
   if (participantsExist && competition.type === CompetitionType.CLASSIC) {
-    participations = await getParticipations(id, participants);
-  } else if (teamsExist && competition.type === CompetitionType.TEAM) {
-    participations = await getTeamsParticipations(id, teams);
+    const participantValidationResult = combine([
+      validateInvalidParticipants(participants),
+      validateParticipantDuplicates(participants)
+    ]);
+
+    if (isErrored(participantValidationResult)) {
+      return errored({
+        code: 'FAILED_TO_VALIDATE_PARTICIPANTS',
+        subError: participantValidationResult.error
+      });
+    }
+
+    const players = await findOrCreatePlayers(participants);
+    participations = players.map(p => ({ playerId: p.id, username: p.username, teamName: null }));
+  }
+
+  if (teamsExist && competition.type === CompetitionType.TEAM) {
+    // ensures every team name is sanitized, and every username is standardized
+    const newTeams = sanitizeTeams(teams);
+
+    const teamValidationResult = combine([
+      validateTeamDuplicates(newTeams),
+      validateInvalidParticipants(newTeams.map(t => t.participants).flat()),
+      validateParticipantDuplicates(newTeams.map(t => t.participants).flat())
+    ]);
+
+    if (isErrored(teamValidationResult)) {
+      return errored({
+        code: 'FAILED_TO_VALIDATE_TEAMS',
+        subError: teamValidationResult.error
+      });
+    }
+
+    // Find or create all players with the given usernames
+    const players = await findOrCreatePlayers(newTeams.map(t => t.participants).flat());
+
+    // Map player usernames into IDs, for O(1) checks below
+    const playerMap = new Map(players.map(p => [p.username, p.id]));
+
+    participations = newTeams
+      .map(t => t.participants.map(u => ({ playerId: playerMap.get(u)!, username: u, teamName: t.name })))
+      .flat();
   }
 
   if (title) {
@@ -99,15 +161,13 @@ async function editCompetition(id: number, payload: EditCompetitionPayload): Pro
   if (endsAt) updatedCompetitionFields.endsAt = endsAt;
   if (metric) updatedCompetitionFields.metric = metric;
 
-  const { updatedCompetition, addedParticipations } = await executeUpdate(
-    id,
-    participations,
-    updatedCompetitionFields
-  );
+  const updateResult = await executeUpdate(id, participations, updatedCompetitionFields);
 
-  if (!updatedCompetition) {
-    throw new ServerError('Failed to edit competition. (EditCompetitionService)');
+  if (isErrored(updateResult)) {
+    return updateResult;
   }
+
+  const { updatedCompetition, addedParticipations } = updateResult.value;
 
   if (addedParticipations.length > 0) {
     eventEmitter.emit(EventType.COMPETITION_PARTICIPANTS_JOINED, {
@@ -137,7 +197,7 @@ async function editCompetition(id: number, payload: EditCompetitionPayload): Pro
     await recalculateParticipationsEnd(competition.id, updatedCompetition.endsAt);
   }
 
-  return updatedCompetition;
+  return complete(updatedCompetition);
 }
 
 async function invalidateParticipations(competitionId: number) {
@@ -203,7 +263,13 @@ async function executeUpdate(
   id: number,
   nextParticipations: PartialParticipation[] | null,
   updatedCompetitionFields: PrismaTypes.CompetitionUpdateInput
-) {
+): AsyncResult<
+  {
+    updatedCompetition: Competition;
+    addedParticipations: PartialParticipation[];
+  },
+  { code: 'FAILED_TO_UPDATE_COMPETITION' } | { code: 'OPTED_OUT_PLAYERS_FOUND'; displayNames: string[] }
+> {
   // This action updates the competition's fields and returns all the new data + participations,
   // If ran inside a transaction, it should be the last thing to run, to ensure it returns updated data
   const competitionUpdatePromise = prisma.competition.update({
@@ -220,8 +286,15 @@ async function executeUpdate(
   });
 
   if (!nextParticipations) {
-    const updatedCompetition = await competitionUpdatePromise;
-    return { updatedCompetition, addedParticipations: [] };
+    const promiseResult = await fromPromise(competitionUpdatePromise);
+
+    if (isErrored(promiseResult)) {
+      logger.error(`Failed to update competition`, promiseResult.error);
+
+      return errored({ code: 'FAILED_TO_UPDATE_COMPETITION' });
+    }
+
+    return complete({ updatedCompetition: promiseResult.value, addedParticipations: [] });
   }
 
   // Only update the participations if the consumer supplied an array
@@ -263,27 +336,40 @@ async function executeUpdate(
     });
 
     if (optOuts.length > 0) {
-      throw new ForbiddenError(
-        'One or more players have opted out of joining competitions, so they cannot be added as participants.',
-        optOuts.map(o => o.player.displayName)
-      );
+      return errored({
+        code: 'OPTED_OUT_PLAYERS_FOUND',
+        displayNames: optOuts.map(o => o.player.displayName)
+      });
     }
   }
 
-  const results = await prisma.$transaction([
-    // Remove any players that are no longer participants
-    removeExcessParticipations(id, nextUsernames, currentParticipations),
-    // Add any missing participations
-    addMissingParticipations(id, missingParticipations),
-    // Update any team changes
-    ...updateExistingTeams(id, currentParticipations, keptParticipations),
-    // Update the competition
-    competitionUpdatePromise
-  ]);
+  const transactionResult = await fromPromise(
+    prisma.$transaction([
+      // Remove any players that are no longer participants
+      removeExcessParticipations(id, nextUsernames, currentParticipations),
+      // Add any missing participations
+      addMissingParticipations(id, missingParticipations),
+      // Update any team changes
+      ...updateExistingTeams(id, currentParticipations, keptParticipations),
+      // Update the competition
+      competitionUpdatePromise
+    ])
+  );
+
+  if (isErrored(transactionResult)) {
+    logger.error(`Failed to update competition`, transactionResult.error);
+
+    return errored({ code: 'FAILED_TO_UPDATE_COMPETITION' });
+  }
+
+  const results = transactionResult.value;
 
   const updatedCompetition = results[results.length - 1] as Awaited<typeof competitionUpdatePromise>;
 
-  return { updatedCompetition, addedParticipations: missingParticipations };
+  return complete({
+    updatedCompetition,
+    addedParticipations: missingParticipations
+  });
 }
 
 function updateExistingTeams(
@@ -354,80 +440,3 @@ function removeExcessParticipations(
     }
   });
 }
-
-async function getParticipations(id: number, participants: string[]) {
-  const participantValidationResult = combine([
-    validateInvalidParticipants(participants),
-    validateParticipantDuplicates(participants)
-  ]);
-
-  if (isErrored(participantValidationResult)) {
-    switch (participantValidationResult.error.code) {
-      case 'INVALID_USERNAMES_FOUND':
-        throw new BadRequestError(
-          `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
-          participantValidationResult.error.usernames
-        );
-      case 'DUPLICATE_USERNAMES_FOUND':
-        throw new BadRequestError(`Found repeated usernames.`, participantValidationResult.error.usernames);
-      default:
-        return assertNever(participantValidationResult.error);
-    }
-  }
-
-  // Find or create all players with the given usernames
-  const players = await findOrCreatePlayers(participants);
-
-  return players.map(p => ({
-    playerId: p.id,
-    competitionId: id,
-    username: p.username,
-    teamName: null
-  }));
-}
-
-async function getTeamsParticipations(id: number, teams: CompetitionTeam[]) {
-  // ensures every team name is sanitized, and every username is standardized
-  const newTeams = sanitizeTeams(teams);
-
-  const teamValidationResult = combine([
-    validateTeamDuplicates(newTeams),
-    validateInvalidParticipants(newTeams.map(t => t.participants).flat()),
-    validateParticipantDuplicates(newTeams.map(t => t.participants).flat())
-  ]);
-
-  if (isErrored(teamValidationResult)) {
-    switch (teamValidationResult.error.code) {
-      case 'INVALID_USERNAMES_FOUND':
-        throw new BadRequestError(
-          `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
-          teamValidationResult.error.usernames
-        );
-      case 'DUPLICATE_USERNAMES_FOUND':
-        throw new BadRequestError(`Found repeated usernames.`, teamValidationResult.error.usernames);
-      case 'DUPLICATE_TEAM_NAMES_FOUND':
-        throw new BadRequestError(`Found repeated team names.`, teamValidationResult.error.teamNames);
-      default:
-        return assertNever(teamValidationResult.error);
-    }
-  }
-
-  // Find or create all players with the given usernames
-  const players = await findOrCreatePlayers(newTeams.map(t => t.participants).flat());
-
-  // Map player usernames into IDs, for O(1) checks below
-  const playerMap = Object.fromEntries(players.map(p => [p.username, p.id]));
-
-  return newTeams
-    .map(t =>
-      t.participants.map(u => ({
-        playerId: playerMap[u],
-        competitionId: id,
-        username: u,
-        teamName: t.name
-      }))
-    )
-    .flat();
-}
-
-export { editCompetition };

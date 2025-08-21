@@ -261,7 +261,7 @@ async function validateGroupVerification(
     select: { verificationHash: true }
   });
 
-  if (!group) {
+  if (group === null) {
     return errored({ code: 'GROUP_NOT_FOUND' });
   }
 

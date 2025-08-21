@@ -89,7 +89,7 @@ router.post(
         case 'FAILED_TO_GENERATE_VERIFICATION_CODE':
           throw createResult.error;
         case 'FAILED_TO_CREATE_COMPETITION':
-          throw new ServerError('Failed to create competition. Please try again later.');
+          throw new ServerError('Failed to create the competition. Please try again later.');
         case 'FAILED_TO_VALIDATE_PARTICIPANTS': {
           switch (createResult.error.subError.code) {
             case 'INVALID_USERNAMES_FOUND':
@@ -176,14 +176,66 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const updatedCompetition = await editCompetition(id, req.body);
+    const updateResult = await editCompetition(id, req.body);
 
-    logger.moderation(`Edited competition ${updatedCompetition.id}`, {
+    if (isErrored(updateResult)) {
+      switch (updateResult.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundError('Competition not found.');
+        case 'COMPETITION_START_DATE_AFTER_END_DATE':
+          throw new BadRequestError('Start date must be before the end date.');
+        case 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE':
+          throw new BadRequestError(`Properties "participants" and "teams" are mutually exclusive.`);
+        case 'NOTHING_TO_UPDATE':
+          throw new BadRequestError('Nothing to update.');
+        case 'COMPETITION_TYPE_CANNOT_BE_CHANGED':
+          throw new BadRequestError('The competition type cannot be changed.');
+        case 'OPTED_OUT_PLAYERS_FOUND':
+          throw new ForbiddenError(
+            'One or more players have opted out of joining competitions, so they cannot be added as participants.',
+            updateResult.error.displayNames
+          );
+        case 'FAILED_TO_UPDATE_COMPETITION':
+          throw new ServerError('Failed to update the competition. Please try again later.');
+        case 'FAILED_TO_VALIDATE_PARTICIPANTS': {
+          switch (updateResult.error.subError.code) {
+            case 'INVALID_USERNAMES_FOUND':
+              throw new BadRequestError(
+                `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
+                updateResult.error.subError.usernames
+              );
+            case 'DUPLICATE_USERNAMES_FOUND':
+              throw new BadRequestError(`Found repeated usernames.`, updateResult.error.subError.usernames);
+            default:
+              throw assertNever(updateResult.error.subError);
+          }
+        }
+        case 'FAILED_TO_VALIDATE_TEAMS': {
+          switch (updateResult.error.subError.code) {
+            case 'INVALID_USERNAMES_FOUND':
+              throw new BadRequestError(
+                `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
+                updateResult.error.subError.usernames
+              );
+            case 'DUPLICATE_USERNAMES_FOUND':
+              throw new BadRequestError(`Found repeated usernames.`, updateResult.error.subError.usernames);
+            case 'DUPLICATE_TEAM_NAMES_FOUND':
+              throw new BadRequestError(`Found repeated team names.`, updateResult.error.subError.teamNames);
+            default:
+              throw assertNever(updateResult.error.subError);
+          }
+        }
+        default:
+          assertNever(updateResult.error);
+      }
+    }
+
+    logger.moderation(`Edited competition ${updateResult.value.id}`, {
       timestamp: new Date().toISOString(),
       ipHash: getRequestIpHash(req)
     });
 
-    const details = await fetchCompetitionDetails(updatedCompetition.id);
+    const details = await fetchCompetitionDetails(updateResult.value.id);
 
     const response = formatCompetitionDetailsResponse(
       details.competition,
