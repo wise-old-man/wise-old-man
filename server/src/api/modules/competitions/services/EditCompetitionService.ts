@@ -1,15 +1,12 @@
-import { AsyncResult, combine, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
-import prisma, { PrismaPromise, PrismaTypes } from '../../../../prisma';
+import { AsyncResult, combine, complete, Errored, errored, fromPromise, isErrored } from '@attio/fetchable';
+import prisma, { PrismaTypes } from '../../../../prisma';
 import logger from '../../../../services/logging.service';
 import {
   Competition,
   CompetitionTeam,
   CompetitionType,
   Metric,
-  Participation,
-  Player,
-  PlayerAnnotationType,
-  Snapshot
+  PlayerAnnotationType
 } from '../../../../types';
 import { eventEmitter, EventType } from '../../../events';
 import { standardize } from '../../players/player.utils';
@@ -74,7 +71,7 @@ export async function editCompetition(
     return errored({ code: 'NOTHING_TO_UPDATE' });
   }
 
-  const updatedCompetitionFields: PrismaTypes.CompetitionUpdateInput = {};
+  const competitionUpdatePayload: PrismaTypes.CompetitionUpdateInput = {};
 
   const teamsExist = teams !== undefined;
   const participantsExist = participants !== undefined;
@@ -153,15 +150,12 @@ export async function editCompetition(
       .flat();
   }
 
-  if (title) {
-    updatedCompetitionFields.title = sanitizeTitle(title);
-  }
+  if (title) competitionUpdatePayload.title = sanitizeTitle(title);
+  if (startsAt) competitionUpdatePayload.startsAt = startsAt;
+  if (endsAt) competitionUpdatePayload.endsAt = endsAt;
+  if (metric) competitionUpdatePayload.metric = metric;
 
-  if (startsAt) updatedCompetitionFields.startsAt = startsAt;
-  if (endsAt) updatedCompetitionFields.endsAt = endsAt;
-  if (metric) updatedCompetitionFields.metric = metric;
-
-  const updateResult = await executeUpdate(id, participations, updatedCompetitionFields);
+  const updateResult = await executeUpdate(id, competitionUpdatePayload, participations);
 
   if (isErrored(updateResult)) {
     return updateResult;
@@ -220,7 +214,7 @@ async function recalculateParticipationsStart(competitionId: number, startDate: 
   const playerSnapshots = await findGroupSnapshots(playerIds, { minDate: startDate });
 
   // Map these snapshots for O(1) lookups
-  const snapshotMap = new Map<number, Snapshot>(playerSnapshots.map(s => [s.playerId, s]));
+  const snapshotMap = new Map(playerSnapshots.map(s => [s.playerId, s]));
 
   // Update participations with the new start snapshot IDs
   for (const playerId of playerIds) {
@@ -246,7 +240,7 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
   const playerSnapshots = await findGroupSnapshots(playerIds, { maxDate: endDate });
 
   // Map these snapshots for O(1) lookups
-  const snapshotMap = new Map<number, Snapshot>(playerSnapshots.map(s => [s.playerId, s]));
+  const snapshotMap = new Map(playerSnapshots.map(s => [s.playerId, s]));
 
   // Update participations with the new end snapshot IDs
   for (const playerId of playerIds) {
@@ -260,9 +254,9 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
 }
 
 async function executeUpdate(
-  id: number,
-  nextParticipations: PartialParticipation[] | null,
-  updatedCompetitionFields: PrismaTypes.CompetitionUpdateInput
+  competitionId: number,
+  competitionUpdatePayload: PrismaTypes.CompetitionUpdateInput,
+  nextParticipations: PartialParticipation[] | null
 ): AsyncResult<
   {
     updatedCompetition: Competition;
@@ -270,173 +264,159 @@ async function executeUpdate(
   },
   { code: 'FAILED_TO_UPDATE_COMPETITION' } | { code: 'OPTED_OUT_PLAYERS_FOUND'; displayNames: string[] }
 > {
-  // This action updates the competition's fields and returns all the new data + participations,
-  // If ran inside a transaction, it should be the last thing to run, to ensure it returns updated data
-  const competitionUpdatePromise = prisma.competition.update({
-    where: {
-      id
-    },
-    data: {
-      ...updatedCompetitionFields,
-      updatedAt: new Date() // Force update the "updatedAt" field
-    },
-    include: {
-      participations: true
-    }
-  });
-
-  if (!nextParticipations) {
-    const promiseResult = await fromPromise(competitionUpdatePromise);
-
-    if (isErrored(promiseResult)) {
-      logger.error(`Failed to update competition`, promiseResult.error);
-
-      return errored({ code: 'FAILED_TO_UPDATE_COMPETITION' });
-    }
-
-    return complete({ updatedCompetition: promiseResult.value, addedParticipations: [] });
-  }
-
-  // Only update the participations if the consumer supplied an array
-  const currentParticipations = await prisma.participation.findMany({
-    where: { competitionId: id },
-    include: { player: true }
-  });
-
-  // The usernames of all current (pre-edit) participants
-  const currentUsernames = currentParticipations.map(m => m.player.username);
-
-  // The usernames of all future (post-edit) participants
-  const nextUsernames = nextParticipations.map(p => standardize(p.username));
-
-  // These players should be added to the competition
-  const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
-
-  // These players should remain in the group
-  const keptUsernames = nextUsernames.filter(u => currentUsernames.includes(u));
-
-  const missingParticipations = nextParticipations.filter(p => missingUsernames.includes(p.username));
-  const keptParticipations = nextParticipations.filter(p => keptUsernames.includes(p.username));
-
-  if (missingUsernames.length > 0) {
-    const optOuts = await prisma.playerAnnotation.findMany({
-      where: {
-        player: {
-          username: { in: missingUsernames }
+  const transactionResult = await fromPromise(
+    prisma.$transaction(async transaction => {
+      const updatedCompetition = await transaction.competition.update({
+        where: {
+          id: competitionId
         },
-        type: {
-          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS]
+        data: {
+          ...competitionUpdatePayload,
+          updatedAt: new Date() // Force update the "updatedAt" field
         }
-      },
-      include: {
-        player: {
-          select: { displayName: true }
+      });
+
+      if (nextParticipations === null) {
+        return {
+          updatedCompetition,
+          addedParticipations: []
+        };
+      }
+
+      // Only update the participations if the consumer supplied an array
+      const currentParticipations = await transaction.participation.findMany({
+        where: { competitionId },
+        include: { player: true }
+      });
+
+      // The usernames of all current (pre-edit) participants
+      const currentUsernames = currentParticipations.map(m => m.player.username);
+
+      // The usernames of all future (post-edit) participants
+      const nextUsernames = nextParticipations.map(p => standardize(p.username));
+
+      // These players should be added to the competition
+      const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
+
+      // These players should remain in the group
+      const keptUsernames = nextUsernames.filter(u => currentUsernames.includes(u));
+
+      const missingParticipations = nextParticipations.filter(p => missingUsernames.includes(p.username));
+      const keptParticipations = nextParticipations.filter(p => keptUsernames.includes(p.username));
+
+      const excessParticipants = currentParticipations.filter(
+        p => !nextUsernames.includes(p.player.username)
+      );
+
+      const currentTeamNameMap = new Map<string, number[]>();
+      const newTeamNameMap = new Map<string, number[]>();
+
+      currentParticipations.forEach(p => {
+        if (p.teamName === null) return;
+
+        const val = currentTeamNameMap.get(p.teamName);
+
+        if (val !== undefined) {
+          val.push(p.playerId);
+        } else {
+          currentTeamNameMap.set(p.teamName, [p.playerId]);
+        }
+      });
+
+      keptParticipations.forEach(p => {
+        if (p.teamName === null) return;
+
+        // Player team hasn't changed
+        if (currentTeamNameMap.get(p.teamName)?.includes(p.playerId)) {
+          return;
+        }
+
+        const val = newTeamNameMap.get(p.teamName);
+
+        if (val !== undefined) {
+          val.push(p.playerId);
+        } else {
+          newTeamNameMap.set(p.teamName, [p.playerId]);
+        }
+      });
+
+      if (missingUsernames.length > 0) {
+        const optOuts = await transaction.playerAnnotation.findMany({
+          where: {
+            player: {
+              username: { in: missingUsernames }
+            },
+            type: {
+              in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS]
+            }
+          },
+          include: {
+            player: {
+              select: { displayName: true }
+            }
+          }
+        });
+
+        if (optOuts.length > 0) {
+          // Throw here to rollback the transaction
+          throw {
+            code: 'OPTED_OUT_PLAYERS_FOUND',
+            displayNames: optOuts.map(o => o.player.displayName)
+          };
         }
       }
-    });
 
-    if (optOuts.length > 0) {
-      return errored({
-        code: 'OPTED_OUT_PLAYERS_FOUND',
-        displayNames: optOuts.map(o => o.player.displayName)
-      });
-    }
-  }
-
-  const transactionResult = await fromPromise(
-    prisma.$transaction([
       // Remove any players that are no longer participants
-      removeExcessParticipations(id, nextUsernames, currentParticipations),
+      await transaction.participation.deleteMany({
+        where: {
+          competitionId,
+          playerId: { in: excessParticipants.map(m => m.playerId) }
+        }
+      });
+
       // Add any missing participations
-      addMissingParticipations(id, missingParticipations),
-      // Update any team changes
-      ...updateExistingTeams(id, currentParticipations, keptParticipations),
-      // Update the competition
-      competitionUpdatePromise
-    ])
+      await transaction.participation.createMany({
+        data: missingParticipations.map(p => ({
+          competitionId,
+          playerId: p.playerId,
+          teamName: p.teamName
+        })),
+        skipDuplicates: true
+      });
+
+      // Apply any team changes
+      for (const teamName of newTeamNameMap.keys()) {
+        await transaction.participation.updateMany({
+          where: {
+            competitionId,
+            playerId: { in: newTeamNameMap.get(teamName) ?? [] }
+          },
+          data: {
+            teamName
+          }
+        });
+      }
+
+      return {
+        updatedCompetition,
+        addedParticipations: missingParticipations
+      };
+    })
   );
 
   if (isErrored(transactionResult)) {
-    logger.error(`Failed to update competition`, transactionResult.error);
+    // Prisma error
+    if (!('error' in transactionResult)) {
+      logger.error('Failed to update competition', transactionResult);
+      return errored({ code: 'FAILED_TO_UPDATE_COMPETITION' });
+    }
 
-    return errored({ code: 'FAILED_TO_UPDATE_COMPETITION' });
+    // A little type coercion never hurt nobody...right?
+    return transactionResult as Errored<{
+      code: 'OPTED_OUT_PLAYERS_FOUND';
+      displayNames: string[];
+    }>;
   }
 
-  const results = transactionResult.value;
-
-  const updatedCompetition = results[results.length - 1] as Awaited<typeof competitionUpdatePromise>;
-
-  return complete({
-    updatedCompetition,
-    addedParticipations: missingParticipations
-  });
-}
-
-function updateExistingTeams(
-  competitionId: number,
-  currentParticipations: Participation[],
-  keptParticipations: PartialParticipation[]
-): PrismaPromise<PrismaTypes.BatchPayload>[] {
-  const currentTeamNameMap: { [teamName: string]: number[] } = {};
-  const newTeamNameMap: { [teamName: string]: number[] } = {};
-
-  currentParticipations.forEach(p => {
-    if (!p.teamName) return;
-
-    if (p.teamName in currentTeamNameMap) {
-      currentTeamNameMap[p.teamName].push(p.playerId);
-    } else {
-      currentTeamNameMap[p.teamName] = [p.playerId];
-    }
-  });
-
-  keptParticipations.forEach(p => {
-    if (!p.teamName) return;
-
-    // Player team hasn't changed
-    if (currentTeamNameMap[p.teamName] && currentTeamNameMap[p.teamName].includes(p.playerId)) return;
-
-    if (p.teamName in newTeamNameMap) {
-      newTeamNameMap[p.teamName].push(p.playerId);
-    } else {
-      newTeamNameMap[p.teamName] = [p.playerId];
-    }
-  });
-
-  return Object.keys(newTeamNameMap).map(teamName => {
-    return prisma.participation.updateMany({
-      where: {
-        competitionId,
-        playerId: { in: newTeamNameMap[teamName] }
-      },
-      data: {
-        teamName
-      }
-    });
-  });
-}
-
-function addMissingParticipations(
-  competitionId: number,
-  missingParticipations: PartialParticipation[]
-): PrismaPromise<PrismaTypes.BatchPayload> {
-  return prisma.participation.createMany({
-    data: missingParticipations.map(p => ({ competitionId, playerId: p.playerId, teamName: p.teamName })),
-    skipDuplicates: true
-  });
-}
-
-function removeExcessParticipations(
-  competitionId: number,
-  nextUsernames: string[],
-  currentParticipations: (Participation & { player: Player })[]
-): PrismaPromise<PrismaTypes.BatchPayload> {
-  const excessParticipants = currentParticipations.filter(p => !nextUsernames.includes(p.player.username));
-
-  return prisma.participation.deleteMany({
-    where: {
-      competitionId,
-      playerId: { in: excessParticipants.map(m => m.playerId) }
-    }
-  });
+  return transactionResult;
 }
