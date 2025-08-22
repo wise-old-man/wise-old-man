@@ -164,19 +164,15 @@ class JobManager {
 
       this.queues.push(queue);
 
-      if (getThreadIndex() !== 2) {
-        // Currently disabling job workers on a given thread
-        // to monitor the impact it has on CPU and memory usage
-        const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
-          prefix: REDIS_PREFIX,
-          limiter: options?.rateLimiter,
-          connection: REDIS_CONFIG,
-          concurrency: options.maxConcurrent ?? 1,
-          autorun: true
-        });
+      const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
+        prefix: REDIS_PREFIX,
+        limiter: options?.rateLimiter,
+        connection: REDIS_CONFIG,
+        concurrency: options.maxConcurrent ?? 1,
+        autorun: true
+      });
 
-        this.workers.push(worker);
-      }
+      this.workers.push(worker);
     }
 
     // sleep for 5 seconds to allow the workers to start up
