@@ -6,6 +6,8 @@ import {
   CompetitionTeam,
   CompetitionType,
   Metric,
+  Participation,
+  Player,
   PlayerAnnotationType
 } from '../../../../types';
 import { eventEmitter, EventType } from '../../../events';
@@ -73,11 +75,6 @@ export async function editCompetition(
 
   const competitionUpdatePayload: PrismaTypes.CompetitionUpdateInput = {};
 
-  const teamsExist = teams !== undefined;
-  const participantsExist = participants !== undefined;
-  const hasTeams = teamsExist && teams.length > 0;
-  const hasParticipants = participantsExist && participants.length > 0;
-
   const competition = await prisma.competition.findFirst({
     where: { id }
   });
@@ -95,59 +92,18 @@ export async function editCompetition(
     }
   }
 
-  if (competition.type === CompetitionType.CLASSIC && hasTeams) {
+  if (competition.type === CompetitionType.CLASSIC && teams !== undefined && teams.length > 0) {
     return errored({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
   }
 
-  if (competition.type === CompetitionType.TEAM && hasParticipants) {
+  if (competition.type === CompetitionType.TEAM && participants !== undefined && participants.length > 0) {
     return errored({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
   }
 
-  let participations: PartialParticipation[] | null = null;
+  const participationsResult = await getValidatedParticipations(competition, payload);
 
-  if (participantsExist && competition.type === CompetitionType.CLASSIC) {
-    const participantValidationResult = combine([
-      validateInvalidParticipants(participants),
-      validateParticipantDuplicates(participants)
-    ]);
-
-    if (isErrored(participantValidationResult)) {
-      return errored({
-        code: 'FAILED_TO_VALIDATE_PARTICIPANTS',
-        subError: participantValidationResult.error
-      });
-    }
-
-    const players = await findOrCreatePlayers(participants);
-    participations = players.map(p => ({ playerId: p.id, username: p.username, teamName: null }));
-  }
-
-  if (teamsExist && competition.type === CompetitionType.TEAM) {
-    // ensures every team name is sanitized, and every username is standardized
-    const newTeams = sanitizeTeams(teams);
-
-    const teamValidationResult = combine([
-      validateTeamDuplicates(newTeams),
-      validateInvalidParticipants(newTeams.map(t => t.participants).flat()),
-      validateParticipantDuplicates(newTeams.map(t => t.participants).flat())
-    ]);
-
-    if (isErrored(teamValidationResult)) {
-      return errored({
-        code: 'FAILED_TO_VALIDATE_TEAMS',
-        subError: teamValidationResult.error
-      });
-    }
-
-    // Find or create all players with the given usernames
-    const players = await findOrCreatePlayers(newTeams.map(t => t.participants).flat());
-
-    // Map player usernames into IDs, for O(1) checks below
-    const playerMap = new Map(players.map(p => [p.username, p.id]));
-
-    participations = newTeams
-      .map(t => t.participants.map(u => ({ playerId: playerMap.get(u)!, username: u, teamName: t.name })))
-      .flat();
+  if (isErrored(participationsResult)) {
+    return participationsResult;
   }
 
   if (title) competitionUpdatePayload.title = sanitizeTitle(title);
@@ -155,7 +111,7 @@ export async function editCompetition(
   if (endsAt) competitionUpdatePayload.endsAt = endsAt;
   if (metric) competitionUpdatePayload.metric = metric;
 
-  const updateResult = await executeUpdate(id, competitionUpdatePayload, participations);
+  const updateResult = await executeUpdate(id, competitionUpdatePayload, participationsResult.value);
 
   if (isErrored(updateResult)) {
     return updateResult;
@@ -289,62 +245,16 @@ async function executeUpdate(
         include: { player: true }
       });
 
-      // The usernames of all current (pre-edit) participants
-      const currentUsernames = currentParticipations.map(m => m.player.username);
-
-      // The usernames of all future (post-edit) participants
-      const nextUsernames = nextParticipations.map(p => standardize(p.username));
-
-      // These players should be added to the competition
-      const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
-
-      // These players should remain in the group
-      const keptUsernames = nextUsernames.filter(u => currentUsernames.includes(u));
-
-      const missingParticipations = nextParticipations.filter(p => missingUsernames.includes(p.username));
-      const keptParticipations = nextParticipations.filter(p => keptUsernames.includes(p.username));
-
-      const excessParticipants = currentParticipations.filter(
-        p => !nextUsernames.includes(p.player.username)
+      const { missingParticipations, excessParticipants, teamChanges } = getParticipationDiffs(
+        currentParticipations,
+        nextParticipations
       );
 
-      const currentTeamNameMap = new Map<string, number[]>();
-      const newTeamNameMap = new Map<string, number[]>();
-
-      currentParticipations.forEach(p => {
-        if (p.teamName === null) return;
-
-        const val = currentTeamNameMap.get(p.teamName);
-
-        if (val !== undefined) {
-          val.push(p.playerId);
-        } else {
-          currentTeamNameMap.set(p.teamName, [p.playerId]);
-        }
-      });
-
-      keptParticipations.forEach(p => {
-        if (p.teamName === null) return;
-
-        // Player team hasn't changed
-        if (currentTeamNameMap.get(p.teamName)?.includes(p.playerId)) {
-          return;
-        }
-
-        const val = newTeamNameMap.get(p.teamName);
-
-        if (val !== undefined) {
-          val.push(p.playerId);
-        } else {
-          newTeamNameMap.set(p.teamName, [p.playerId]);
-        }
-      });
-
-      if (missingUsernames.length > 0) {
+      if (missingParticipations.length > 0) {
         const optOuts = await transaction.playerAnnotation.findMany({
           where: {
             player: {
-              username: { in: missingUsernames }
+              username: { in: missingParticipations.map(m => m.username) }
             },
             type: {
               in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS]
@@ -385,11 +295,11 @@ async function executeUpdate(
       });
 
       // Apply any team changes
-      for (const teamName of newTeamNameMap.keys()) {
+      for (const teamName of teamChanges.keys()) {
         await transaction.participation.updateMany({
           where: {
             competitionId,
-            playerId: { in: newTeamNameMap.get(teamName) ?? [] }
+            playerId: { in: teamChanges.get(teamName) ?? [] }
           },
           data: {
             teamName
@@ -419,4 +329,133 @@ async function executeUpdate(
   }
 
   return transactionResult;
+}
+
+function getParticipationDiffs(
+  currentParticipations: Array<Participation & { player: Player }>,
+  nextParticipations: PartialParticipation[]
+) {
+  // The usernames of all current (pre-edit) participants
+  const currentUsernames = currentParticipations.map(m => m.player.username);
+
+  // The usernames of all future (post-edit) participants
+  const nextUsernames = nextParticipations.map(p => standardize(p.username));
+
+  // These players should be added to the competition
+  const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
+
+  // These players should remain in the group
+  const keptUsernames = nextUsernames.filter(u => currentUsernames.includes(u));
+
+  const missingParticipations = nextParticipations.filter(p => missingUsernames.includes(p.username));
+  const keptParticipations = nextParticipations.filter(p => keptUsernames.includes(p.username));
+
+  const excessParticipants = currentParticipations.filter(p => !nextUsernames.includes(p.player.username));
+
+  const currentTeamNameMap = new Map<string, number[]>();
+  const newTeamNameMap = new Map<string, number[]>();
+
+  currentParticipations.forEach(p => {
+    if (p.teamName === null) return;
+
+    const val = currentTeamNameMap.get(p.teamName);
+
+    if (val !== undefined) {
+      val.push(p.playerId);
+    } else {
+      currentTeamNameMap.set(p.teamName, [p.playerId]);
+    }
+  });
+
+  keptParticipations.forEach(p => {
+    if (p.teamName === null) return;
+
+    // Player team hasn't changed
+    if (currentTeamNameMap.get(p.teamName)?.includes(p.playerId)) {
+      return;
+    }
+
+    const val = newTeamNameMap.get(p.teamName);
+
+    if (val !== undefined) {
+      val.push(p.playerId);
+    } else {
+      newTeamNameMap.set(p.teamName, [p.playerId]);
+    }
+  });
+
+  return {
+    excessParticipants,
+    missingParticipations,
+    teamChanges: newTeamNameMap
+  };
+}
+
+async function getValidatedParticipations(
+  competition: Competition,
+  { participants, teams }: EditCompetitionPayload
+): AsyncResult<
+  Array<PartialParticipation> | null,
+  | {
+      code: 'FAILED_TO_VALIDATE_PARTICIPANTS';
+      subError:
+        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] };
+    }
+  | {
+      code: 'FAILED_TO_VALIDATE_TEAMS';
+      subError:
+        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] }
+        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] };
+    }
+> {
+  let participations: PartialParticipation[] | null = null;
+
+  if (participants !== undefined && competition.type === CompetitionType.CLASSIC) {
+    const participantValidationResult = combine([
+      validateInvalidParticipants(participants),
+      validateParticipantDuplicates(participants)
+    ]);
+
+    if (isErrored(participantValidationResult)) {
+      return errored({
+        code: 'FAILED_TO_VALIDATE_PARTICIPANTS',
+        subError: participantValidationResult.error
+      });
+    }
+
+    const players = await findOrCreatePlayers(participants);
+    participations = players.map(p => ({ playerId: p.id, username: p.username, teamName: null }));
+  }
+
+  if (teams !== undefined && competition.type === CompetitionType.TEAM) {
+    // ensures every team name is sanitized, and every username is standardized
+    const newTeams = sanitizeTeams(teams);
+
+    const teamValidationResult = combine([
+      validateTeamDuplicates(newTeams),
+      validateInvalidParticipants(newTeams.map(t => t.participants).flat()),
+      validateParticipantDuplicates(newTeams.map(t => t.participants).flat())
+    ]);
+
+    if (isErrored(teamValidationResult)) {
+      return errored({
+        code: 'FAILED_TO_VALIDATE_TEAMS',
+        subError: teamValidationResult.error
+      });
+    }
+
+    // Find or create all players with the given usernames
+    const players = await findOrCreatePlayers(newTeams.map(t => t.participants).flat());
+
+    // Map player usernames into IDs, for O(1) checks below
+    const playerMap = new Map(players.map(p => [p.username, p.id]));
+
+    participations = newTeams
+      .map(t => t.participants.map(u => ({ playerId: playerMap.get(u)!, username: u, teamName: t.name })))
+      .flat();
+  }
+
+  return complete(participations);
 }

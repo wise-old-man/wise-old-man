@@ -67,7 +67,7 @@ export async function createCompetition(
         | { code: 'INCORRECT_GROUP_VERIFICATION_CODE' };
     }
 > {
-  const { title, metric, startsAt, endsAt, participants, teams, groupId, groupVerificationCode } = payload;
+  const { title, metric, startsAt, endsAt, groupId } = payload;
 
   if (startsAt.getTime() > endsAt.getTime()) {
     return errored({ code: 'COMPETITION_START_DATE_AFTER_END_DATE' });
@@ -77,6 +77,142 @@ export async function createCompetition(
     return errored({ code: 'COMPETITION_DATES_IN_THE_PAST' });
   }
 
+  const participationsResult = await getValidatedParticipations(payload);
+
+  if (isErrored(participationsResult)) {
+    return participationsResult;
+  }
+
+  const generateVerificationResult = await cryptService.generateVerification();
+
+  if (isErrored(generateVerificationResult)) {
+    logger.error('Failed to generate competition verification code', {
+      error: generateVerificationResult.error
+    });
+
+    return errored({ code: 'FAILED_TO_GENERATE_VERIFICATION_CODE' });
+  }
+
+  const { code, hash } = generateVerificationResult.value;
+
+  const createResult = await fromPromise(
+    prisma.competition.create({
+      data: {
+        title: sanitizeTitle(title),
+        metric,
+        type: participationsResult.value.competitionType,
+        startsAt,
+        endsAt,
+        groupId,
+        verificationHash: hash,
+        creatorIpHash,
+
+        participations: {
+          createMany: {
+            data: participationsResult.value.participations
+          }
+        }
+      },
+      include: {
+        participations: true
+      }
+    })
+  );
+
+  if (isErrored(createResult)) {
+    logger.error('Failed to create competition', {
+      error: createResult.error
+    });
+
+    return errored({ code: 'FAILED_TO_CREATE_COMPETITION' });
+  }
+
+  const createdCompetition = createResult.value;
+
+  eventEmitter.emit(EventType.COMPETITION_CREATED, {
+    competitionId: createdCompetition.id
+  });
+
+  if (createdCompetition.participations.length > 0) {
+    eventEmitter.emit(EventType.COMPETITION_PARTICIPANTS_JOINED, {
+      competitionId: createdCompetition.id,
+      participants: createdCompetition.participations.map(p => ({
+        playerId: p.playerId
+      }))
+    });
+  }
+
+  return complete({
+    competition: createdCompetition,
+    verificationCode: code
+  });
+}
+
+async function validateGroupVerification(
+  groupId: number,
+  groupVerificationCode: string | undefined
+): AsyncResult<
+  true,
+  | { code: 'INVALID_GROUP_VERIFICATION_CODE' }
+  | { code: 'GROUP_NOT_FOUND' }
+  | { code: 'INCORRECT_GROUP_VERIFICATION_CODE' }
+> {
+  if (groupVerificationCode === undefined) {
+    return errored({ code: 'INVALID_GROUP_VERIFICATION_CODE' });
+  }
+
+  const group = await prisma.group.findFirst({
+    where: { id: groupId },
+    select: { verificationHash: true }
+  });
+
+  if (group === null) {
+    return errored({ code: 'GROUP_NOT_FOUND' });
+  }
+
+  const verificationResult = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
+
+  if (isErrored(verificationResult)) {
+    return errored({ code: 'INCORRECT_GROUP_VERIFICATION_CODE' });
+  }
+
+  return complete(true);
+}
+
+async function getValidatedParticipations({
+  participants,
+  teams,
+  groupId,
+  groupVerificationCode
+}: CreateCompetitionPayload): AsyncResult<
+  {
+    participations: Array<Pick<Participation, 'playerId' | 'teamName'>>;
+    competitionType: CompetitionType;
+  },
+  | { code: 'PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE' }
+  | { code: 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE' }
+  | { code: 'OPTED_OUT_PLAYERS_FOUND'; displayNames: string[] }
+  | {
+      code: 'FAILED_TO_VALIDATE_PARTICIPANTS';
+      subError:
+        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] };
+    }
+  | {
+      code: 'FAILED_TO_VALIDATE_TEAMS';
+      subError:
+        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] }
+        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] };
+    }
+  | {
+      code: 'FAILED_TO_VERIFY_GROUP_VERIFICATION_CODE';
+      subError:
+        | { code: 'GROUP_NOT_FOUND' }
+        | { code: 'INVALID_GROUP_VERIFICATION_CODE' }
+        | { code: 'INCORRECT_GROUP_VERIFICATION_CODE' };
+    }
+> {
   if (participants && participants.length > 0 && groupId !== undefined) {
     return errored({ code: 'PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE' });
   }
@@ -105,10 +241,9 @@ export async function createCompetition(
     }
 
     const players = await findOrCreatePlayers(participants);
-    participations = players.map(p => ({ playerId: p.id, teamName: null }));
-  }
 
-  if (isTeamCompetition) {
+    participations = players.map(p => ({ playerId: p.id, teamName: null }));
+  } else if (isTeamCompetition) {
     // ensures every team name is sanitized, and every username is standardized
     const sanitizedTeams = sanitizeTeams(teams);
 
@@ -178,98 +313,8 @@ export async function createCompetition(
     }
   }
 
-  const generateVerificationResult = await cryptService.generateVerification();
-
-  if (isErrored(generateVerificationResult)) {
-    logger.error('Failed to generate competition verification code', {
-      error: generateVerificationResult.error
-    });
-
-    return errored({ code: 'FAILED_TO_GENERATE_VERIFICATION_CODE' });
-  }
-
-  const { code, hash } = generateVerificationResult.value;
-
-  const createResult = await fromPromise(
-    prisma.competition.create({
-      data: {
-        title: sanitizeTitle(title),
-        metric,
-        type: isTeamCompetition ? CompetitionType.TEAM : CompetitionType.CLASSIC,
-        startsAt,
-        endsAt,
-        groupId,
-        verificationHash: hash,
-        creatorIpHash,
-
-        participations: {
-          createMany: {
-            data: participations
-          }
-        }
-      },
-      include: {
-        participations: true
-      }
-    })
-  );
-
-  if (isErrored(createResult)) {
-    logger.error('Failed to create competition', {
-      error: createResult.error
-    });
-
-    return errored({ code: 'FAILED_TO_CREATE_COMPETITION' });
-  }
-
-  const createdCompetition = createResult.value;
-
-  eventEmitter.emit(EventType.COMPETITION_CREATED, {
-    competitionId: createdCompetition.id
-  });
-
-  if (createdCompetition.participations.length > 0) {
-    eventEmitter.emit(EventType.COMPETITION_PARTICIPANTS_JOINED, {
-      competitionId: createdCompetition.id,
-      participants: createdCompetition.participations.map(p => ({
-        playerId: p.playerId
-      }))
-    });
-  }
-
   return complete({
-    competition: createdCompetition,
-    verificationCode: code
+    participations,
+    competitionType: isTeamCompetition ? CompetitionType.TEAM : CompetitionType.CLASSIC
   });
-}
-
-async function validateGroupVerification(
-  groupId: number,
-  groupVerificationCode: string | undefined
-): AsyncResult<
-  true,
-  | { code: 'INVALID_GROUP_VERIFICATION_CODE' }
-  | { code: 'GROUP_NOT_FOUND' }
-  | { code: 'INCORRECT_GROUP_VERIFICATION_CODE' }
-> {
-  if (groupVerificationCode === undefined) {
-    return errored({ code: 'INVALID_GROUP_VERIFICATION_CODE' });
-  }
-
-  const group = await prisma.group.findFirst({
-    where: { id: groupId },
-    select: { verificationHash: true }
-  });
-
-  if (group === null) {
-    return errored({ code: 'GROUP_NOT_FOUND' });
-  }
-
-  const verificationResult = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
-
-  if (isErrored(verificationResult)) {
-    return errored({ code: 'INCORRECT_GROUP_VERIFICATION_CODE' });
-  }
-
-  return complete(true);
 }
