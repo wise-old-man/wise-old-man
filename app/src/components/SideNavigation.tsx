@@ -8,6 +8,7 @@ import { cn } from "~/utils/styling";
 import useChangelog from "~/hooks/useChangelog";
 import { LEAGUES } from "../../config";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
+import { BirdHouseLink } from "./BirdHouseLink";
 
 import Logo from "~/assets/logo.svg";
 import TagIcon from "~/assets/tag.svg";
@@ -143,6 +144,7 @@ function SideBar(props: SideBarProps) {
       >
         <Logo alt="Wise Old Man Logo" className="my-7 ml-7 w-32 shrink-0" />
       </Link>
+      <BirdHouseLink />
       <ul className="mt-0 flex flex-col">
         {ROUTES.map((link) => (
           <li key={link.href}>
@@ -213,7 +215,6 @@ function SideBar(props: SideBarProps) {
           </li>
         )}
       </ul>
-
       <div className="mt-auto block lg:hidden">
         <SocialLinks />
       </div>
