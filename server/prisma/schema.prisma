@@ -49,8 +49,9 @@ model Competition {
   creatorIpHash    String?         @db.VarChar(255)
 
   // Relations
-  group          Group?          @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  group          Group?              @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   participations Participation[]
+  metrics        CompetitionMetric[]
 
   // Indices
   @@index([endsAt], map: "competitions_ends_at")
@@ -60,6 +61,23 @@ model Competition {
   @@index([creatorIpHash], map: "competitions_creator_ip_hash")
   // Map
   @@map("competitions")
+}
+
+model CompetitionMetric {
+  competitionId Int
+  metric        Metric
+  createdAt     DateTime  @default(now()) @db.Timestamptz(6)
+  deletedAt     DateTime? @db.Timestamptz(6)
+
+  // Relations
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  // Constraints
+  @@id([competitionId, metric])
+  // Indices
+  @@index([metric], map: "competition_metrics_by_metric")
+  // Map
+  @@map("competitionMetrics")
 }
 
 model CachedDelta {

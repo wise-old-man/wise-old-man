@@ -4,6 +4,7 @@ export * from './achievement.type';
 export * from './boss-meta-config.type';
 export * from './cached-delta.type';
 export * from './competition-csv-table-type.enum';
+export * from './competition-metric.type';
 export * from './competition-status.enum';
 export * from './competition-team.type';
 export * from './competition-type.enum';

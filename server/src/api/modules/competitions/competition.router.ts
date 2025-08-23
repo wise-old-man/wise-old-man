@@ -148,6 +148,7 @@ router.post(
       verificationCode: verificationCode,
       competition: formatCompetitionDetailsResponse(
         details.competition,
+        details.metrics,
         details.group,
         details.participations
       )
@@ -239,6 +240,7 @@ router.put(
 
     const response = formatCompetitionDetailsResponse(
       details.competition,
+      details.metrics,
       details.group,
       details.participations
     );
@@ -265,6 +267,7 @@ router.get(
 
     const response = formatCompetitionDetailsResponse(
       details.competition,
+      details.metrics,
       details.group,
       details.participations
     );
