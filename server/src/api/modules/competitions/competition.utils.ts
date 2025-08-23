@@ -1,5 +1,5 @@
+import { complete, errored, Result } from '@attio/fetchable';
 import { CompetitionTeam } from '../../../types';
-import { BadRequestError } from '../../errors';
 import * as playerUtils from '../players/player.utils';
 
 export function sanitizeTitle(title: string): string {
@@ -18,34 +18,51 @@ export function sanitizeTeams(teamInputs: CompetitionTeam[]): CompetitionTeam[] 
   }));
 }
 
-export function validateTeamDuplicates(teams: CompetitionTeam[]) {
+export function validateTeamDuplicates(
+  teams: CompetitionTeam[]
+): Result<true, { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] }> {
   // Check for duplicate team names
   const teamNames = teams.map(t => t.name.toLowerCase());
   const duplicateTeamNames = [...new Set(teamNames.filter(t => teamNames.filter(it => it === t).length > 1))];
 
   if (duplicateTeamNames.length > 0) {
-    throw new BadRequestError(`Found repeated team names: [${duplicateTeamNames.join(', ')}]`);
+    return errored({
+      code: 'DUPLICATE_TEAM_NAMES_FOUND',
+      teamNames: duplicateTeamNames
+    });
   }
+
+  return complete(true);
 }
 
-export function validateInvalidParticipants(participants: string[]) {
+export function validateInvalidParticipants(
+  participants: string[]
+): Result<true, { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }> {
   const invalidUsernames = participants.filter(u => !playerUtils.isValidUsername(u));
 
-  if (invalidUsernames && invalidUsernames.length > 0) {
-    throw new BadRequestError(
-      `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
-       contain no special characters, and/or contain no space at the beginning or end of the name.`,
-      invalidUsernames
-    );
+  if (invalidUsernames.length > 0) {
+    return errored({
+      code: 'INVALID_USERNAMES_FOUND',
+      usernames: invalidUsernames
+    });
   }
+
+  return complete(true);
 }
 
-export function validateParticipantDuplicates(participants: string[]) {
+export function validateParticipantDuplicates(
+  participants: string[]
+): Result<true, { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] }> {
   const usernames = participants.map(playerUtils.standardize);
   // adding dupes to a set, otherwise both copies of each dupe would get reported
   const duplicateUsernames = [...new Set(usernames.filter(u => usernames.filter(iu => iu === u).length > 1))];
 
-  if (duplicateUsernames && duplicateUsernames.length > 0) {
-    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
+  if (duplicateUsernames.length > 0) {
+    return errored({
+      code: 'DUPLICATE_USERNAMES_FOUND',
+      usernames: duplicateUsernames
+    });
   }
+
+  return complete(true);
 }

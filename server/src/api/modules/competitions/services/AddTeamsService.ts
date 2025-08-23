@@ -1,5 +1,7 @@
+import { combine, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { CompetitionTeam, CompetitionType, PlayerAnnotationType } from '../../../../types';
+import { assertNever } from '../../../../utils/assert-never.util';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -28,18 +30,33 @@ async function addTeams(id: number, teams: CompetitionTeam[]): Promise<{ count: 
   // fetch this competition's current teams
   const currentTeams = await fetchCurrentTeams(id);
 
-  // throws an error if any team name is duplicated
-  validateTeamDuplicates([...newTeams, ...currentTeams]);
-  // throws an error if any team participant is invalid
-  validateInvalidParticipants([
-    ...newTeams.map(t => t.participants).flat(),
-    ...currentTeams.map(t => t.participants).flat()
+  const teamValidationResult = combine([
+    validateTeamDuplicates([...newTeams, ...currentTeams]),
+    validateInvalidParticipants([
+      ...newTeams.map(t => t.participants).flat(),
+      ...currentTeams.map(t => t.participants).flat()
+    ]),
+    validateParticipantDuplicates([
+      ...newTeams.map(t => t.participants).flat(),
+      ...currentTeams.map(t => t.participants).flat()
+    ])
   ]);
-  // throws an error if any team participant is duplicated
-  validateParticipantDuplicates([
-    ...newTeams.map(t => t.participants).flat(),
-    ...currentTeams.map(t => t.participants).flat()
-  ]);
+
+  if (isErrored(teamValidationResult)) {
+    switch (teamValidationResult.error.code) {
+      case 'INVALID_USERNAMES_FOUND':
+        throw new BadRequestError(
+          `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
+          teamValidationResult.error.usernames
+        );
+      case 'DUPLICATE_USERNAMES_FOUND':
+        throw new BadRequestError(`Found repeated usernames.`, teamValidationResult.error.usernames);
+      case 'DUPLICATE_TEAM_NAMES_FOUND':
+        throw new BadRequestError(`Found repeated team names.`, teamValidationResult.error.teamNames);
+      default:
+        return assertNever(teamValidationResult.error);
+    }
+  }
 
   const newPlayers = await findOrCreatePlayers(newTeams.map(t => t.participants).flat());
 
