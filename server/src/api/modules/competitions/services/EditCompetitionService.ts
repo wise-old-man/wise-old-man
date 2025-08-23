@@ -232,6 +232,33 @@ async function executeUpdate(
         }
       });
 
+      if (competitionUpdatePayload.metric !== undefined) {
+        // Only update the participations if the consumer supplied an array
+        const currentMetrics = await transaction.competitionMetric.findMany({
+          where: { competitionId }
+        });
+
+        const { excessMetrics, missingMetrics } = getMetricDiffs(
+          currentMetrics.map(m => m.metric),
+          [competitionUpdatePayload.metric as Metric]
+        );
+
+        await transaction.competitionMetric.updateMany({
+          where: {
+            competitionId,
+            metric: { in: excessMetrics }
+          },
+          data: {
+            deletedAt: new Date()
+          }
+        });
+
+        await transaction.competitionMetric.createMany({
+          data: missingMetrics.map(metric => ({ competitionId, metric })),
+          skipDuplicates: true
+        });
+      }
+
       if (nextParticipations === null) {
         return {
           updatedCompetition,
@@ -388,6 +415,13 @@ function getParticipationDiffs(
     excessParticipants,
     missingParticipations,
     teamChanges: newTeamNameMap
+  };
+}
+
+function getMetricDiffs(currentMetrics: Metric[], nextMetrics: Metric[]) {
+  return {
+    excessMetrics: currentMetrics.filter(m => !nextMetrics.includes(m)),
+    missingMetrics: nextMetrics.filter(m => !currentMetrics.includes(m))
   };
 }
 

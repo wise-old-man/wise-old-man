@@ -1,5 +1,13 @@
 import prisma from '../../../../prisma';
-import { Competition, Group, Metric, Participation, Player, Skill } from '../../../../types';
+import {
+  Competition,
+  CompetitionMetric,
+  Group,
+  Metric,
+  Participation,
+  Player,
+  Skill
+} from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { isComputedMetric, isSkill } from '../../../../utils/shared';
@@ -11,6 +19,7 @@ async function fetchCompetitionDetails(
   metric?: Metric
 ): Promise<{
   competition: Competition;
+  metrics: CompetitionMetric[];
   group: (Group & { memberCount: number }) | null;
   participations: Array<{
     participation: Participation;
@@ -32,6 +41,11 @@ async function fetchCompetitionDetails(
             }
           }
         }
+      },
+      metrics: {
+        where: {
+          deletedAt: null
+        }
       }
     }
   });
@@ -44,6 +58,7 @@ async function fetchCompetitionDetails(
 
   return {
     competition,
+    metrics: competition.metrics,
     group: competition.group
       ? {
           ...competition.group,

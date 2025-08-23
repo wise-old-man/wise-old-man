@@ -1,10 +1,10 @@
 import prisma from '../../../../prisma';
-import { Competition, Group } from '../../../../types';
+import { Competition, CompetitionMetric, Group } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 
 async function findGroupCompetitions(groupId: number): Promise<
   Array<{
-    competition: Competition & { participantCount: number };
+    competition: Competition & { metrics: CompetitionMetric[]; participantCount: number };
     group: Group & { memberCount: number };
   }>
 > {
@@ -24,7 +24,16 @@ async function findGroupCompetitions(groupId: number): Promise<
   }
 
   const competitions = await prisma.competition.findMany({
-    where: { groupId }
+    where: {
+      groupId
+    },
+    include: {
+      metrics: {
+        where: {
+          deletedAt: null
+        }
+      }
+    }
   });
 
   const participantCounts = await prisma.participation.groupBy({

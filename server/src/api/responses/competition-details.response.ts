@@ -4,7 +4,7 @@
  * Although sometimes very similar to our database models,
  * they often include transformations, additional properties or sensitive field omissions.
  */
-import { Competition, Group, Participation, Player } from '../../types';
+import { Competition, CompetitionMetric, Group, Participation, Player } from '../../types';
 import { MetricDelta } from '../../types/metric-delta.type';
 import { pick } from '../../utils/pick.util';
 import { CompetitionResponse, formatCompetitionResponse } from './competition.response';
@@ -23,6 +23,7 @@ export interface CompetitionDetailsResponse extends CompetitionResponse {
 
 export function formatCompetitionDetailsResponse(
   competition: Competition,
+  metrics: CompetitionMetric[],
   group: (Group & { memberCount: number }) | null,
   participations: Array<{
     participation: Participation;
@@ -32,7 +33,14 @@ export function formatCompetitionDetailsResponse(
   }>
 ): CompetitionDetailsResponse {
   return {
-    ...formatCompetitionResponse({ ...competition, participantCount: participations.length }, group),
+    ...formatCompetitionResponse(
+      {
+        ...competition,
+        metrics,
+        participantCount: participations.length
+      },
+      group
+    ),
     participations: participations.map(p => ({
       ...formatParticipationResponse(p.participation),
       player: formatPlayerResponse(p.player),

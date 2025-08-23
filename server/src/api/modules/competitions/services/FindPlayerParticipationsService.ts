@@ -1,5 +1,5 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { Competition, CompetitionStatus, Group, Participation } from '../../../../types';
+import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 
@@ -9,7 +9,7 @@ async function findPlayerParticipations(
 ): Promise<
   Array<{
     participation: Participation;
-    competition: Competition & { participantCount: number };
+    competition: Competition & { metrics: CompetitionMetric[]; participantCount: number };
     group: (Group & { memberCount: number }) | null;
   }>
 > {
@@ -45,7 +45,15 @@ async function findPlayerParticipations(
       competition: competitionQuery
     },
     include: {
-      competition: true
+      competition: {
+        include: {
+          metrics: {
+            where: {
+              deletedAt: null
+            }
+          }
+        }
+      }
     },
     orderBy: [{ competition: { score: 'desc' } }, { createdAt: 'desc' }]
   });

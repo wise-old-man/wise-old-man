@@ -501,6 +501,7 @@ describe('Competition API', () => {
       expect(response.body.competition).toMatchObject({
         title: 'Wise Old Man',
         metric: 'smithing',
+        metrics: ['smithing'],
         startsAt: VALID_START_DATE.toISOString(),
         endsAt: VALID_END_DATE.toISOString()
       });
@@ -544,6 +545,7 @@ describe('Competition API', () => {
       expect(response.body.competition).toMatchObject({
         title: 'BOTW Zulrah #3',
         metric: 'zulrah',
+        metrics: ['zulrah'],
         startsAt: startDate.toISOString(),
         endsAt: endDate.toISOString(),
         participantCount: 4
@@ -615,6 +617,7 @@ describe('Competition API', () => {
       expect(response.body.competition).toMatchObject({
         title: 'SOTW Thieving 💰 #5', // test emoji support
         metric: 'thieving',
+        metrics: ['thieving'],
         startsAt: startDate.toISOString(),
         endsAt: endDate.toISOString(),
         participantCount: 4
@@ -674,6 +677,7 @@ describe('Competition API', () => {
       expect(response.body.competition).toMatchObject({
         title: 'Soul Wars Competition',
         metric: 'soul_wars_zeal',
+        metrics: ['soul_wars_zeal'],
         startsAt: startDate.toISOString(),
         endsAt: endDate.toISOString(),
         participantCount: 4
@@ -751,6 +755,7 @@ describe('Competition API', () => {
       expect(response.body.competition).toMatchObject({
         title: 'OVERALL Competition',
         metric: 'overall',
+        metrics: ['overall'],
         startsAt: startDate.toISOString(),
         endsAt: endDate.toISOString(),
         participantCount: 2
@@ -808,6 +813,7 @@ describe('Competition API', () => {
       expect(response.body.competition).toMatchObject({
         title: 'Fishing Competition',
         metric: 'fishing',
+        metrics: ['fishing'],
         startsAt: startDate.toISOString(),
         endsAt: endDate.toISOString(),
         groupId: globalData.testGroup.id,
@@ -1454,6 +1460,72 @@ describe('Competition API', () => {
           participants: expect.objectContaining({ length: 5 })
         })
       );
+    });
+
+    it('should edit metrics', async () => {
+      const createResponse = await api.post('/competitions').send({
+        title: 'Test Metrics',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        metric: 'agility'
+      });
+
+      expect(createResponse.status).toBe(201);
+      expect(createResponse.body.competition.metric).toBe('agility');
+      expect(createResponse.body.competition.metrics).toMatchObject(['agility']);
+
+      const firstUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
+        verificationCode: createResponse.body.verificationCode,
+        metric: 'hunter'
+      });
+
+      expect(firstUpdateResponse.status).toBe(200);
+      expect(firstUpdateResponse.body.metric).toBe('hunter');
+      expect(firstUpdateResponse.body.metrics).toMatchObject(['hunter']);
+
+      const secondUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
+        verificationCode: createResponse.body.verificationCode,
+        metric: 'zulrah'
+      });
+
+      expect(secondUpdateResponse.status).toBe(200);
+      expect(secondUpdateResponse.body.metric).toBe('zulrah');
+      expect(secondUpdateResponse.body.metrics).toMatchObject(['zulrah']);
+
+      const metrics = await prisma.competitionMetric.findMany({
+        where: {
+          competitionId: createResponse.body.competition.id
+        },
+        orderBy: {
+          createdAt: 'asc'
+        }
+      });
+
+      expect(metrics.length).toBe(3);
+
+      expect(metrics[0]).toMatchObject({
+        competitionId: createResponse.body.competition.id,
+        metric: 'agility',
+        deletedAt: expect.any(Date)
+      });
+
+      expect(metrics[1]).toMatchObject({
+        competitionId: createResponse.body.competition.id,
+        metric: 'hunter',
+        deletedAt: expect.any(Date)
+      });
+
+      expect(metrics[2]).toMatchObject({
+        competitionId: createResponse.body.competition.id,
+        metric: 'zulrah',
+        deletedAt: null
+      });
+
+      const deleteResponse = await api
+        .delete(`/competitions/${createResponse.body.competition.id}`)
+        .send({ verificationCode: createResponse.body.verificationCode });
+
+      expect(deleteResponse.status).toBe(200);
     });
   });
 

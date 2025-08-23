@@ -1,4 +1,4 @@
-import { Competition, Group, Participation } from '../../types';
+import { Competition, CompetitionMetric, Group, Participation } from '../../types';
 import { MetricDelta } from '../../types/metric-delta.type';
 import { pick } from '../../utils/pick.util';
 import { CompetitionResponse, formatCompetitionResponse } from './competition.response';
@@ -13,7 +13,7 @@ export type PlayerCompetitionStandingResponse = ParticipationResponse & {
 
 export function formatPlayerCompetitionStandingResponse(
   participation: Participation,
-  competition: Competition & { participantCount: number },
+  competition: Competition & { metrics: CompetitionMetric[]; participantCount: number },
   group: (Group & { memberCount: number }) | null,
   progress: MetricDelta,
   levels: MetricDelta,

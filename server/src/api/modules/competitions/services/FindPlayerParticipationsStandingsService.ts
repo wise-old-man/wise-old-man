@@ -3,6 +3,7 @@ import logger from '../../../../services/logging.service';
 import {
   BOSSES,
   Competition,
+  CompetitionMetric,
   CompetitionStatus,
   Group,
   Metric,
@@ -19,7 +20,7 @@ import { standardize } from '../../players/player.utils';
 
 type ReturnType = {
   participation: Participation;
-  competition: Competition & { participantCount: number };
+  competition: Competition & { metrics: CompetitionMetric[]; participantCount: number };
   group: (Group & { memberCount: number }) | null;
   progress: MetricDelta;
   levels: MetricDelta;
@@ -59,7 +60,15 @@ async function findPlayerParticipationsStandings(
       }
     },
     include: {
-      competition: true
+      competition: {
+        include: {
+          metrics: {
+            where: {
+              deletedAt: null
+            }
+          }
+        }
+      }
     },
     orderBy: [{ competition: { score: 'desc' } }, { createdAt: 'desc' }]
   });

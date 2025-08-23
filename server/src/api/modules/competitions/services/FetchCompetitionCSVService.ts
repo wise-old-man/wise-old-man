@@ -16,6 +16,7 @@ async function fetchCompetitionCSV(
 
   const competitionDetailsResponse = formatCompetitionDetailsResponse(
     competitionDetails.competition,
+    competitionDetails.metrics,
     competitionDetails.group,
     competitionDetails.participations
   );

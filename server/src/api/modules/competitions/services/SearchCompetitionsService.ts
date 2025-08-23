@@ -1,5 +1,12 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { Competition, CompetitionStatus, CompetitionType, Group, Metric } from '../../../../types';
+import {
+  Competition,
+  CompetitionMetric,
+  CompetitionStatus,
+  CompetitionType,
+  Group,
+  Metric
+} from '../../../../types';
 import { PaginationOptions } from '../../../util/validation';
 
 async function searchCompetitions(
@@ -10,7 +17,7 @@ async function searchCompetitions(
   pagination: PaginationOptions
 ): Promise<
   Array<{
-    competition: Competition & { participantCount: number };
+    competition: Competition & { metrics: CompetitionMetric[]; participantCount: number };
     group: (Group & { memberCount: number }) | null;
   }>
 > {
@@ -43,6 +50,11 @@ async function searchCompetitions(
               memberships: true
             }
           }
+        }
+      },
+      metrics: {
+        where: {
+          deletedAt: null
         }
       }
     },

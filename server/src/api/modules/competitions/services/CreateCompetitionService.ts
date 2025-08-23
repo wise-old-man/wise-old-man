@@ -106,7 +106,11 @@ export async function createCompetition(
         groupId,
         verificationHash: hash,
         creatorIpHash,
-
+        metrics: {
+          createMany: {
+            data: [{ metric }]
+          }
+        },
         participations: {
           createMany: {
             data: participationsResult.value.participations
