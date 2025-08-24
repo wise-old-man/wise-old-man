@@ -1,5 +1,5 @@
 import { isErrored } from '@attio/fetchable';
-import { Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric } from '../../../types';
@@ -54,10 +54,30 @@ router.get(
 
 router.post(
   '/competitions',
+  (req: Request, _res: Response, next: NextFunction) => {
+    // Temporary middleware to support both `metric` and `metrics` properties in the request body.
+    if (req.body.metrics !== undefined) {
+      return next();
+    }
+
+    if (req.body.metric === undefined) {
+      return next(new BadRequestError("Parameter 'metric' is undefined."));
+    }
+
+    const parsed = z.nativeEnum(Metric).safeParse(req.body.metric);
+
+    if (!parsed.success) {
+      return next(new BadRequestError("Invalid enum value for 'metric'."));
+    }
+
+    req.body.metrics = [parsed.data];
+
+    next();
+  },
   validateRequest({
     body: z.object({
       title: z.string().min(1).max(50),
-      metric: z.nativeEnum(Metric),
+      metrics: z.array(z.nativeEnum(Metric)).min(1),
       startsAt: getDateSchema('startsAt'),
       endsAt: getDateSchema('endsAt'),
       groupId: z.optional(z.number().int().positive()),
@@ -69,6 +89,10 @@ router.post(
   executeRequest(async (req, res) => {
     const ipHash = getRequestIpHash(req);
 
+    if (process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS !== 'true' && req.body.metrics.length > 1) {
+      throw new BadRequestError('Creating multi-metric competitions is not enabled yet.');
+    }
+
     const createResult = await createCompetition(req.body, ipHash);
 
     if (isErrored(createResult)) {
@@ -77,6 +101,8 @@ router.post(
           throw new BadRequestError('Start date must be before the end date.');
         case 'COMPETITION_DATES_IN_THE_PAST':
           throw new BadRequestError('Invalid dates: All start and end dates must be in the future.');
+        case 'METRICS_MUST_BE_OF_SAME_TYPE':
+          throw new BadRequestError('All metrics must be of the same type.');
         case 'PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE':
           throw new BadRequestError(`Properties "participants" and "groupId" are mutually exclusive.`);
         case 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE':
@@ -161,13 +187,29 @@ router.post(
 router.put(
   '/competitions/:id',
   checkCompetitionVerificationCode,
+  (req: unknown, _res: Response, next: NextFunction) => {
+    // Temporary middleware to support both `metric` and `metrics` properties in the request body.
+    if ((req as Request).body.metric === undefined) {
+      return next();
+    }
+
+    const parsed = z.nativeEnum(Metric).safeParse((req as Request).body.metric);
+
+    if (!parsed.success) {
+      return next(new BadRequestError("Invalid enum value for 'metric'."));
+    }
+
+    (req as Request).body.metrics = [parsed.data];
+
+    next();
+  },
   validateRequest({
     params: z.object({
       id: z.coerce.number().int().positive()
     }),
     body: z.object({
       title: z.optional(z.string().min(1).max(50)),
-      metric: z.optional(z.nativeEnum(Metric)),
+      metrics: z.optional(z.array(z.nativeEnum(Metric)).min(1)),
       startsAt: z.optional(getDateSchema('startsAt')),
       endsAt: z.optional(getDateSchema('endsAt')),
       participants: z.optional(z.array(z.string())),
@@ -177,6 +219,14 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
+    if (
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS !== 'true' &&
+      req.body.metrics !== undefined &&
+      req.body.metrics.length > 1
+    ) {
+      throw new BadRequestError('Creating multi-metric competitions is not enabled yet.');
+    }
+
     const updateResult = await editCompetition(id, req.body);
 
     if (isErrored(updateResult)) {
@@ -185,6 +235,8 @@ router.put(
           throw new NotFoundError('Competition not found.');
         case 'COMPETITION_START_DATE_AFTER_END_DATE':
           throw new BadRequestError('Start date must be before the end date.');
+        case 'METRICS_MUST_BE_OF_SAME_TYPE':
+          throw new BadRequestError('All metrics must be of the same type.');
         case 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE':
           throw new BadRequestError(`Properties "participants" and "teams" are mutually exclusive.`);
         case 'NOTHING_TO_UPDATE':

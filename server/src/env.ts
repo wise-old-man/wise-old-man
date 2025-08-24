@@ -49,7 +49,9 @@ const envVariablesSchema = z.object({
   OPENAI_API_KEY: prodOnly(z.string().trim().min(1).startsWith('sk-')),
   // Abuse Protection Configs
   API_ABUSE_PROTECTED_PLAYERS_URL: z.optional(z.string().trim().url()),
-  API_ABUSE_PROTECTED_PLAYERS_LIST: z.optional(z.string().trim())
+  API_ABUSE_PROTECTED_PLAYERS_LIST: z.optional(z.string().trim()),
+  // Feature Flags
+  API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS: z.optional(z.string())
 });
 
 // This will load env vars from a .env file, type check them,and throw an error

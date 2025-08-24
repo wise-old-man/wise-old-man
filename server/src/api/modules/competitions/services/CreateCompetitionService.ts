@@ -10,6 +10,7 @@ import {
   Participation,
   PlayerAnnotationType
 } from '../../../../types';
+import { MetricProps } from '../../../../utils/shared';
 import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import {
@@ -22,7 +23,7 @@ import {
 
 interface CreateCompetitionPayload {
   title: string;
-  metric: Metric;
+  metrics: Metric[];
   startsAt: Date;
   endsAt: Date;
   groupId?: number;
@@ -41,6 +42,7 @@ export async function createCompetition(
   },
   | { code: 'COMPETITION_START_DATE_AFTER_END_DATE' }
   | { code: 'COMPETITION_DATES_IN_THE_PAST' }
+  | { code: 'METRICS_MUST_BE_OF_SAME_TYPE' }
   | { code: 'PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE' }
   | { code: 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE' }
   | { code: 'OPTED_OUT_PLAYERS_FOUND'; displayNames: string[] }
@@ -67,7 +69,7 @@ export async function createCompetition(
         | { code: 'INCORRECT_GROUP_VERIFICATION_CODE' };
     }
 > {
-  const { title, metric, startsAt, endsAt, groupId } = payload;
+  const { title, metrics, startsAt, endsAt, groupId } = payload;
 
   if (startsAt.getTime() > endsAt.getTime()) {
     return errored({ code: 'COMPETITION_START_DATE_AFTER_END_DATE' });
@@ -75,6 +77,10 @@ export async function createCompetition(
 
   if (startsAt.getTime() < Date.now() || endsAt.getTime() < Date.now()) {
     return errored({ code: 'COMPETITION_DATES_IN_THE_PAST' });
+  }
+
+  if (new Set(metrics.map(m => MetricProps[m].type)).size > 1) {
+    return errored({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
   }
 
   const participationsResult = await getValidatedParticipations(payload);
@@ -99,7 +105,7 @@ export async function createCompetition(
     prisma.competition.create({
       data: {
         title: sanitizeTitle(title),
-        metric,
+        metric: metrics[0],
         type: participationsResult.value.competitionType,
         startsAt,
         endsAt,
@@ -108,7 +114,7 @@ export async function createCompetition(
         creatorIpHash,
         metrics: {
           createMany: {
-            data: [{ metric }]
+            data: metrics.map(metric => ({ metric }))
           }
         },
         participations: {
