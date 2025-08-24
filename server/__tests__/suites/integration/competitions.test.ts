@@ -1492,6 +1492,15 @@ describe('Competition API', () => {
       expect(secondUpdateResponse.body.metric).toBe('zulrah');
       expect(secondUpdateResponse.body.metrics).toMatchObject(['zulrah']);
 
+      const thirdUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
+        verificationCode: createResponse.body.verificationCode,
+        metric: 'agility'
+      });
+
+      expect(thirdUpdateResponse.status).toBe(200);
+      expect(thirdUpdateResponse.body.metric).toBe('agility');
+      expect(thirdUpdateResponse.body.metrics).toMatchObject(['agility']);
+
       const metrics = await prisma.competitionMetric.findMany({
         where: {
           competitionId: createResponse.body.competition.id
@@ -1506,7 +1515,7 @@ describe('Competition API', () => {
       expect(metrics[0]).toMatchObject({
         competitionId: createResponse.body.competition.id,
         metric: 'agility',
-        deletedAt: expect.any(Date)
+        deletedAt: null
       });
 
       expect(metrics[1]).toMatchObject({
@@ -1518,7 +1527,7 @@ describe('Competition API', () => {
       expect(metrics[2]).toMatchObject({
         competitionId: createResponse.body.competition.id,
         metric: 'zulrah',
-        deletedAt: null
+        deletedAt: expect.any(Date)
       });
 
       const deleteResponse = await api

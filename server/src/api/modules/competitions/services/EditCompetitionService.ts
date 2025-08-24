@@ -235,7 +235,10 @@ async function executeUpdate(
       if (competitionUpdatePayload.metric !== undefined) {
         // Only update the participations if the consumer supplied an array
         const currentMetrics = await transaction.competitionMetric.findMany({
-          where: { competitionId }
+          where: {
+            competitionId,
+            deletedAt: null
+          }
         });
 
         const { excessMetrics, missingMetrics } = getMetricDiffs(
@@ -253,10 +256,23 @@ async function executeUpdate(
           }
         });
 
-        await transaction.competitionMetric.createMany({
-          data: missingMetrics.map(metric => ({ competitionId, metric })),
-          skipDuplicates: true
-        });
+        for (const metric of missingMetrics) {
+          await transaction.competitionMetric.upsert({
+            where: {
+              competitionId_metric: {
+                competitionId,
+                metric
+              }
+            },
+            create: {
+              competitionId,
+              metric
+            },
+            update: {
+              deletedAt: null
+            }
+          });
+        }
       }
 
       if (nextParticipations === null) {
