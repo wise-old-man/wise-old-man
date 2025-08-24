@@ -2,18 +2,51 @@ import Image from "next/image";
 import { cn } from "~/utils/styling";
 import { Country, CountryProps, GroupRole, Metric, PlayerType } from "@wise-old-man/utils";
 import ImageWithFallback from "./ImageWithFallback";
+import metricSpriteData from "../../public/spritesheet.json";
+
+// export function MetricIcon(props: { metric: Metric | "ttm" | "tt200m" | "combat" }) {
+//   const { metric } = props;
+
+//   return (
+//     <ImageWithFallback
+//       height={24}
+//       width={24}
+//       alt={metric}
+//       src={`/img/metrics/${metric}.png`}
+//       fallbackSrc={`/img/fallback-icon.png`}
+//       className="shrink-0"
+//     />
+//   );
+// }
 
 export function MetricIcon(props: { metric: Metric | "ttm" | "tt200m" | "combat" }) {
   const { metric } = props;
+  // return <div></div>
+
+  const coords = metricSpriteData[`${metric}.png`];
+  if (!coords) {
+    return (
+      <img
+        src="/img/fallback-icon.png"
+        alt={metric}
+        width={24}
+        height={24}
+        className="shrink-0"
+      />
+    );
+  }
 
   return (
-    <ImageWithFallback
-      height={24}
-      width={24}
-      alt={metric}
-      src={`/img/metrics/${metric}.png`}
-      fallbackSrc={`/img/fallback-icon.png`}
+    <div
+      aria-label={metric}
       className="shrink-0"
+      style={{
+        backgroundImage: "url(/spritesheet.png)",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: `-${coords.x}px -${coords.y}px`,
+        width: 24,
+        height: 24,
+      }}
     />
   );
 }
