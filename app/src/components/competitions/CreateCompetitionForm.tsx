@@ -23,8 +23,8 @@ import { CompetitionTeamsForm } from "./CompetitionTeamsForm";
 import { CompetitionParticipantsForm } from "./CompetitionParticipantsForm";
 import { SaveCompetitionVerificationCodeDialog } from "./SaveCompetitionVerificationCodeDialog";
 
+import LoadingIcon from "~/assets/loading.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
-import { Alert, AlertDescription, AlertTitle } from "../Alert";
 
 type FormStep = "info" | "group" | "participants";
 type TimezoneOption = "local" | "utc";
@@ -197,11 +197,15 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
                     </Button>
                     <Button
                       variant="blue"
-                      disabled={disabled}
+                      disabled={disabled || createMutation.isPending}
                       onClick={() => createMutation.mutate(competition)}
                     >
                       Next
-                      <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
+                      {createMutation.isPending ? (
+                        <LoadingIcon className="-mr-1.5 h-4 w-4 animate-spin" />
+                      ) : (
+                        <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 )}
@@ -220,11 +224,15 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
                     </Button>
                     <Button
                       variant="blue"
-                      disabled={disabled}
+                      disabled={disabled || createMutation.isPending}
                       onClick={() => createMutation.mutate(competition)}
                     >
                       Next
-                      <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
+                      {createMutation.isPending ? (
+                        <LoadingIcon className="-mr-1.5 h-4 w-4 animate-spin" />
+                      ) : (
+                        <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 )}

@@ -18,7 +18,7 @@ import { cn } from "~/utils/styling";
 import { Button } from "../Button";
 import { Container } from "../Container";
 import { QueryLink } from "../QueryLink";
-import { Alert, AlertDescription, AlertTitle } from "../Alert";
+import { Alert, AlertDescription } from "../Alert";
 import { Tabs, TabsList, TabsTrigger } from "../Tabs";
 import { CompetitionInfoForm } from "./CompetitionInfoForm";
 import { CompetitionTeamsForm } from "./CompetitionTeamsForm";
@@ -276,7 +276,7 @@ function ParticipantsSection(props: EditCompetitionFormProps & { verificationCod
   });
 
   return (
-    <div>
+    <div className="w-full">
       {competition.group && (
         <Alert className="mb-10">
           <AlertDescription>
