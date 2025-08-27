@@ -45,6 +45,9 @@ async function fetchCompetitionDetails(
       metrics: {
         where: {
           deletedAt: null
+        },
+        orderBy: {
+          createdAt: 'asc'
         }
       }
     }
@@ -54,7 +57,10 @@ async function fetchCompetitionDetails(
     throw new NotFoundError('Competition not found.');
   }
 
-  const participants = await calculateParticipantsStandings(id, metric || competition.metric);
+  // TODO: default to "total" if no preview metric is provided (and has multiple metrics)
+  const selectedMetric = metric || competition.metrics[0].metric;
+
+  const participants = await calculateParticipantsStandings(id, selectedMetric);
 
   return {
     competition,

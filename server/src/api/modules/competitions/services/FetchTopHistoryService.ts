@@ -15,8 +15,12 @@ async function fetchCompetitionTopHistory(
     }>;
   }>
 > {
-  const { competition, participations } = await fetchCompetitionDetails(id, metric);
-  const metricValueKey = getMetricValueKey(metric || competition.metric);
+  const { competition, metrics, participations } = await fetchCompetitionDetails(id, metric);
+
+  // TODO: default to "total" if no preview metric is provided (and has multiple metrics)
+  const selectedMetric = metric || metrics[0].metric!;
+
+  const metricValueKey = getMetricValueKey(selectedMetric);
 
   // Select the top 5 players
   const top5Players = participations.slice(0, 5).map(p => p.player);

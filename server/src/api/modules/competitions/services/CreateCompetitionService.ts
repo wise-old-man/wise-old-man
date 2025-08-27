@@ -105,7 +105,6 @@ export async function createCompetition(
     prisma.competition.create({
       data: {
         title: sanitizeTitle(title),
-        metric: metrics[0],
         type: participationsResult.value.competitionType,
         startsAt,
         endsAt,

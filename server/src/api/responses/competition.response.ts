@@ -9,6 +9,7 @@ import { pick } from '../../utils/pick.util';
 import { formatGroupResponse, GroupResponse } from './group.response';
 
 export interface CompetitionResponse extends Omit<Competition, 'verificationHash' | 'creatorIpHash'> {
+  metric: Metric;
   metrics: Metric[];
   participantCount: number;
   group?: GroupResponse;
@@ -18,14 +19,15 @@ export function formatCompetitionResponse(
   competition: Competition & { metrics: CompetitionMetric[]; participantCount: number },
   group: (Group & { memberCount: number }) | null
 ): CompetitionResponse {
-  const sortedMetrics = competition.metrics.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  const sortedMetrics = competition.metrics
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+    .map(m => m.metric);
 
   return {
     ...pick(
       competition,
       'id',
       'title',
-      'metric',
       'type',
       'startsAt',
       'endsAt',
@@ -35,8 +37,10 @@ export function formatCompetitionResponse(
       'createdAt',
       'updatedAt'
     ),
+    // Include both for backward compatibility, eventually we will remove `metric` field.
+    metric: sortedMetrics[0],
+    metrics: sortedMetrics,
     participantCount: competition.participantCount,
-    metrics: sortedMetrics.length === 0 ? [competition.metric] : sortedMetrics.map(m => m.metric),
     group: group === null ? undefined : formatGroupResponse(group, group.memberCount)
   };
 }

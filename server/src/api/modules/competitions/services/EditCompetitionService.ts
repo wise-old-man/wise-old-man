@@ -122,7 +122,6 @@ export async function editCompetition(
   if (title) competitionUpdatePayload.title = sanitizeTitle(title);
   if (startsAt) competitionUpdatePayload.startsAt = startsAt;
   if (endsAt) competitionUpdatePayload.endsAt = endsAt;
-  if (metrics) competitionUpdatePayload.metric = metrics[0];
 
   const updateResult = await executeUpdate(id, competitionUpdatePayload, metrics, participationsResult.value);
 
