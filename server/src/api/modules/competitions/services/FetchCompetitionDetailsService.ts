@@ -49,10 +49,8 @@ async function fetchCompetitionDetails(
     throw new NotFoundError('Competition not found.');
   }
 
-  const participants = await calculateParticipantsStandings(
-    id,
-    metric !== undefined ? [metric] : competition.metrics.map(m => m.metric)
-  );
+  const selectedMetrics = metric !== undefined ? [metric] : competition.metrics.map(m => m.metric);
+  const participants = await calculateParticipantsStandings(id, selectedMetrics);
 
   return {
     competition,

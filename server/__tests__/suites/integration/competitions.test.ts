@@ -3499,6 +3499,210 @@ describe('Competition API', () => {
       expect(response.body[4].player.username).toBe('zulu');
       expect(response.body[4].history.length).toBe(0);
     });
+
+    it('should view top 5 snapshots for multiple metrics', async () => {
+      /**
+       * toblink starts at 100k hunter, 2.4m fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 100_000 },
+            { metric: 'fishing', value: 2_400_000 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/toblink`);
+
+      /**
+       * tobilical starts at 14.5m hunter, 12.2m fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 14_500_000 },
+            { metric: 'fishing', value: 12_200_000 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/tobilical`);
+
+      /**
+       * tobicula starts at -1 hunter, -1 fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: -1 },
+            { metric: 'fishing', value: -1 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/tobicula`);
+
+      /**
+       * tobinky starts at -1 hunter, -1 fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: -1 },
+            { metric: 'fishing', value: -1 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/tobinky`);
+
+      // Fake the current date to be 20 minutes ago
+      jest.useFakeTimers().setSystemTime(new Date(Date.now() - 1_200_000));
+
+      const startDate = new Date(Date.now() + 10_000);
+      const endDate = new Date(Date.now() + 10_000 + 604_800_000);
+
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      const createResponse = await api.post('/competitions').send({
+        title: 'Test',
+        metrics: ['hunter', 'fishing'],
+        startsAt: startDate,
+        endsAt: endDate,
+        participants: ['toblink', 'tobilical', 'tobicula', 'tobinky']
+      });
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+
+      expect(createResponse.status).toBe(201);
+      expect(createResponse.body.competition).toMatchObject({
+        metric: 'hunter',
+        metrics: ['hunter', 'fishing']
+      });
+
+      // Reset the timers to the current (REAL) time
+      jest.useRealTimers();
+
+      /**
+       * toblink ends at 900k hunter, 3.1m fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 900_000 },
+            { metric: 'fishing', value: 3_100_000 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/toblink`);
+
+      /**
+       * tobilical ends at 14.7m hunter, 13.2m fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 14_700_000 },
+            { metric: 'fishing', value: 13_200_000 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/tobilical`);
+
+      /**
+       * tobicula ends at 50k hunter, -1 fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 50_000 },
+            { metric: 'fishing', value: -1 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/tobicula`);
+
+      /**
+       * tobinky ends at -1 hunter, -1 fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: -1 },
+            { metric: 'fishing', value: -1 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/tobinky`);
+
+      const totalHistoryResponse = await api.get(
+        `/competitions/${createResponse.body.competition.id}/top-history`
+      );
+      expect(totalHistoryResponse.status).toBe(200);
+      expect(totalHistoryResponse.body.length).toBe(4);
+
+      expect(totalHistoryResponse.body[0].player.username).toBe('toblink');
+      expect(totalHistoryResponse.body[0].history.length).toBe(2);
+      expect(totalHistoryResponse.body[0].history[0].value).toBe(4_000_000);
+      expect(totalHistoryResponse.body[0].history[1].value).toBe(2_500_000);
+
+      expect(totalHistoryResponse.body[1].player.username).toBe('tobilical');
+      expect(totalHistoryResponse.body[1].history.length).toBe(2);
+      expect(totalHistoryResponse.body[1].history[0].value).toBe(27_900_000);
+      expect(totalHistoryResponse.body[1].history[1].value).toBe(26_700_000);
+
+      expect(totalHistoryResponse.body[2].player.username).toBe('tobicula');
+      expect(totalHistoryResponse.body[2].history.length).toBe(2);
+      expect(totalHistoryResponse.body[2].history[0].value).toBe(50_000);
+      expect(totalHistoryResponse.body[2].history[1].value).toBe(-1);
+
+      expect(totalHistoryResponse.body[3].player.username).toBe('tobinky');
+      expect(totalHistoryResponse.body[3].history.length).toBe(2);
+      expect(totalHistoryResponse.body[3].history[0].value).toBe(-1);
+      expect(totalHistoryResponse.body[3].history[1].value).toBe(-1);
+
+      const fishingHistoryResponse = await api
+        .get(`/competitions/${createResponse.body.competition.id}/top-history`)
+        .query({ metric: 'fishing' });
+
+      expect(fishingHistoryResponse.status).toBe(200);
+      expect(fishingHistoryResponse.body.length).toBe(4);
+
+      expect(fishingHistoryResponse.body[0].player.username).toBe('tobilical');
+      expect(fishingHistoryResponse.body[0].history.length).toBe(2);
+      expect(fishingHistoryResponse.body[0].history[0].value).toBe(13_200_000);
+      expect(fishingHistoryResponse.body[0].history[1].value).toBe(12_200_000);
+
+      expect(fishingHistoryResponse.body[1].player.username).toBe('toblink');
+      expect(fishingHistoryResponse.body[1].history.length).toBe(2);
+      expect(fishingHistoryResponse.body[1].history[0].value).toBe(3_100_000);
+      expect(fishingHistoryResponse.body[1].history[1].value).toBe(2_400_000);
+
+      expect(fishingHistoryResponse.body[2].player.username).toBe('tobicula');
+      expect(fishingHistoryResponse.body[2].history.length).toBe(2);
+      expect(fishingHistoryResponse.body[2].history[0].value).toBe(-1);
+      expect(fishingHistoryResponse.body[2].history[1].value).toBe(-1);
+
+      expect(fishingHistoryResponse.body[3].player.username).toBe('tobinky');
+      expect(fishingHistoryResponse.body[3].history.length).toBe(2);
+      expect(fishingHistoryResponse.body[3].history[0].value).toBe(-1);
+      expect(fishingHistoryResponse.body[3].history[1].value).toBe(-1);
+
+      await prisma.competition.delete({
+        where: { id: createResponse.body.competition.id }
+      });
+    });
   });
 
   describe('10 - View CSV Export', () => {
