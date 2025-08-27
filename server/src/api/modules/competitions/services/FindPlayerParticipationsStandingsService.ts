@@ -1,11 +1,9 @@
 import prisma from '../../../../prisma';
-import logger from '../../../../services/logging.service';
 import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
+import { calculateCompetitionDelta } from '../../../../utils/calculate-competition-delta.util';
 import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
-import { isSkill } from '../../../../utils/shared';
 import { NotFoundError } from '../../../errors';
-import { calculateLevelDiff, calculateMetricDelta } from '../../deltas/delta.utils';
 import { standardize } from '../../players/player.utils';
 
 type ReturnType = {
@@ -137,19 +135,6 @@ async function findPlayerParticipationsStandings(
     }
   });
 
-  logger.debug(
-    'standings2',
-    {
-      playerParticipations: playerParticipations.length,
-      allParticipations: allParticipations.length,
-      allStartSnapshots: allStartSnapshots.length,
-      allEndSnapshots: allEndSnapshots.length,
-      allPlayers: allPlayers.length,
-      allGroups: allGroups.length
-    },
-    true
-  );
-
   const startSnapshotMap = new Map(allStartSnapshots.map(s => [s.id, s]));
   const endSnapshotMap = new Map(allEndSnapshots.map(s => [s.id, s]));
   const playerMap = new Map(allPlayers.map(p => [p.id, p]));
@@ -185,11 +170,11 @@ async function findPlayerParticipationsStandings(
     const emptyEntry = {
       startSnapshot: null,
       endSnapshot: null,
-      progress: { gained: 0, start: -1, end: -1 }
+      progress: { gained: 0, start: -1, end: -1 },
+      levels: { gained: 0, start: -1, end: -1 }
     };
 
-    // TODO: default to "total" if no preview metric is provided (and has multiple metrics)
-    const metric = playerParticipation.competition.metrics[0].metric!;
+    const metrics = playerParticipation.competition.metrics.map(m => m.metric);
 
     /**
      * Calculate each player's progress in the competition.
@@ -215,13 +200,17 @@ async function findPlayerParticipationsStandings(
           };
         }
 
-        const progress = calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
+        const { valuesDiff, levelsDiff } = calculateCompetitionDelta(
+          metrics,
+          player,
+          startSnapshot,
+          endSnapshot
+        );
 
         return {
           playerId: p.playerId,
-          startSnapshot,
-          endSnapshot,
-          progress
+          progress: valuesDiff,
+          levels: levelsDiff
         };
       })
       .sort(
@@ -245,19 +234,13 @@ async function findPlayerParticipationsStandings(
     }
 
     const rank = targetPlayerIndex + 1;
-    const { progress, startSnapshot, endSnapshot } = targetPlayerParticipation;
+    const { progress, levels } = targetPlayerParticipation;
 
     if (rank <= 0) {
       continue;
     }
 
     const groupId = playerParticipation.competition.groupId;
-
-    const levels =
-      isSkill(metric) && startSnapshot !== null && endSnapshot !== null
-        ? calculateLevelDiff(metric, startSnapshot, endSnapshot, progress)
-        : { gained: 0, start: -1, end: -1 };
-
     const group = groupId === null ? undefined : groupMap.get(groupId);
 
     // If it's a group competition and the group is not found, then it probably

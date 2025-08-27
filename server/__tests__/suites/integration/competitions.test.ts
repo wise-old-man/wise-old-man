@@ -4215,6 +4215,241 @@ describe('Competition API', () => {
         progress: { end: -1, gained: 0, start: -1 }
       });
     });
+
+    it('should list player competition standings (multiple metrics)', async () => {
+      /**
+       * morticia starts at 100k hunter, 2.4m fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 100_000 },
+            { metric: 'fishing', value: 2_400_000 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/morticia`);
+
+      /**
+       * gomez starts at 14.5m hunter, 12.2m fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 14_500_000 },
+            { metric: 'fishing', value: 12_200_000 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/gomez`);
+
+      /**
+       * thing starts at -1 hunter, -1 fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: -1 },
+            { metric: 'fishing', value: -1 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/thing`);
+
+      /**
+       * fester starts at -1 hunter, -1 fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: -1 },
+            { metric: 'fishing', value: -1 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/fester`);
+
+      // Fake the current date to be 20 minutes ago
+      jest.useFakeTimers().setSystemTime(new Date(Date.now() - 1_200_000));
+
+      const startDate = new Date(Date.now() + 10_000);
+      const endDate = new Date(Date.now() + 10_000 + 604_800_000);
+
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      const createResponse = await api.post('/competitions').send({
+        title: 'Test',
+        metrics: ['hunter', 'fishing'],
+        startsAt: startDate,
+        endsAt: endDate,
+        participants: ['morticia', 'gomez', 'thing', 'fester']
+      });
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+
+      expect(createResponse.status).toBe(201);
+      expect(createResponse.body.competition).toMatchObject({
+        metric: 'hunter',
+        metrics: ['hunter', 'fishing']
+      });
+
+      // Reset the timers to the current (REAL) time
+      jest.useRealTimers();
+
+      /**
+       * morticia ends at 900k hunter, 3.1m fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 900_000 },
+            { metric: 'fishing', value: 3_100_000 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/morticia`);
+
+      /**
+       * gomez ends at 14.7m hunter, 13.2m fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 14_700_000 },
+            { metric: 'fishing', value: 13_200_000 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/gomez`);
+
+      /**
+       * thing ends at 50k hunter, -1 fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 50_000 },
+            { metric: 'fishing', value: -1 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/thing`);
+
+      /**
+       * fester ends at -1 hunter, -1 fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: -1 },
+            { metric: 'fishing', value: -1 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/fester`);
+
+      const morticiaStandingsResponse = await api
+        .get(`/players/morticia/competitions/standings`)
+        .query({ status: 'ongoing' });
+
+      expect(morticiaStandingsResponse.status).toBe(200);
+      expect(morticiaStandingsResponse.body).toMatchObject([
+        {
+          levels: {
+            start: 130,
+            end: 156,
+            gained: 26
+          },
+          progress: {
+            start: 2_500_000,
+            end: 4_000_000,
+            gained: 1_500_000
+          },
+          rank: 1
+        }
+      ]);
+
+      const gomezStandingsResponse = await api
+        .get(`/players/gomez/competitions/standings`)
+        .query({ status: 'ongoing' });
+
+      expect(gomezStandingsResponse.status).toBe(200);
+      expect(gomezStandingsResponse.body).toMatchObject([
+        {
+          levels: {
+            start: 197,
+            end: 198,
+            gained: 1
+          },
+          progress: {
+            start: 26_700_000,
+            end: 27_900_000,
+            gained: 1_200_000
+          },
+          rank: 2
+        }
+      ]);
+
+      const thingStandingsResponse = await api
+        .get(`/players/thing/competitions/standings`)
+        .query({ status: 'ongoing' });
+
+      expect(thingStandingsResponse.status).toBe(200);
+      expect(thingStandingsResponse.body).toMatchObject([
+        {
+          levels: {
+            start: 2,
+            end: 43,
+            gained: 41
+          },
+          progress: {
+            start: -1,
+            end: 50_000,
+            gained: 50_000
+          },
+          rank: 3
+        }
+      ]);
+
+      const festerStandingsResponse = await api
+        .get(`/players/fester/competitions/standings`)
+        .query({ status: 'ongoing' });
+
+      expect(festerStandingsResponse.status).toBe(200);
+      expect(festerStandingsResponse.body).toMatchObject([
+        {
+          levels: {
+            start: 2,
+            end: 2,
+            gained: 0
+          },
+          progress: {
+            start: -1,
+            end: -1,
+            gained: 0
+          },
+          rank: 4
+        }
+      ]);
+
+      await prisma.competition.delete({
+        where: { id: createResponse.body.competition.id }
+      });
+    });
   });
 
   describe('13 - List Group Competitions', () => {
