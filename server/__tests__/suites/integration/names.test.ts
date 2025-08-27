@@ -1656,7 +1656,6 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
   await prisma.competition.create({
     data: {
       title: 'Test Comp (Pre)',
-      metric: 'herblore',
       verificationHash: '',
       startsAt: new Date(Date.now() + 100_000),
       endsAt: new Date(Date.now() + 400_000),
@@ -1665,6 +1664,11 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
           { playerId: newPlayerId, createdAt: mockDate },
           { playerId: oldPlayerId, createdAt: mockDate }
         ]
+      },
+      metrics: {
+        create: {
+          metric: 'herblore'
+        }
       }
     }
   });
@@ -1768,7 +1772,6 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
   await prisma.competition.create({
     data: {
       title: 'Test Comp',
-      metric: 'thieving',
       verificationHash: '',
       startsAt: new Date(Date.now() + 100_000),
       endsAt: new Date(Date.now() + 400_000),
@@ -1777,6 +1780,11 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
           { playerId: newPlayerId }, // this should not be transfered as oldPlayer is already on this comp
           { playerId: oldPlayerId }
         ]
+      },
+      metrics: {
+        create: {
+          metric: 'thieving'
+        }
       }
     }
   });

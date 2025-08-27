@@ -36,7 +36,6 @@ model Achievement {
 model Competition {
   id               Int             @id @default(autoincrement())
   title            String          @db.VarChar(50)
-  metric           Metric
   type             CompetitionType @default(classic)
   startsAt         DateTime        @db.Timestamptz(6)
   endsAt           DateTime        @db.Timestamptz(6)
@@ -56,7 +55,6 @@ model Competition {
   // Indices
   @@index([endsAt], map: "competitions_ends_at")
   @@index([startsAt], map: "competitions_starts_at")
-  @@index([metric], map: "competitions_metric")
   @@index([groupId], map: "competitions_group_id")
   @@index([creatorIpHash], map: "competitions_creator_ip_hash")
   // Map

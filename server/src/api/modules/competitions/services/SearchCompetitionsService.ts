@@ -23,9 +23,24 @@ async function searchCompetitions(
 > {
   const query: PrismaTypes.CompetitionWhereInput = {};
 
-  if (type) query.type = type;
-  if (metric) query.metric = metric;
-  if (title) query.title = { contains: title.trim(), mode: 'insensitive' };
+  if (type) {
+    query.type = type;
+  }
+
+  if (metric) {
+    query.metrics = {
+      some: {
+        metric
+      }
+    };
+  }
+
+  if (title) {
+    query.title = {
+      contains: title.trim(),
+      mode: 'insensitive'
+    };
+  }
 
   if (status) {
     const now = new Date();
@@ -55,6 +70,9 @@ async function searchCompetitions(
       metrics: {
         where: {
           deletedAt: null
+        },
+        orderBy: {
+          createdAt: 'asc'
         }
       }
     },

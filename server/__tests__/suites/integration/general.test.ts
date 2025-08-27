@@ -1,10 +1,10 @@
 import { isCuid } from '@paralleldrive/cuid2';
 import supertest from 'supertest';
 import apiServer from '../../../src/api';
+import { eventEmitter } from '../../../src/api/events';
 import prisma from '../../../src/prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
 import { resetDatabase, sleep } from '../../utils';
-import { eventEmitter } from '../../../src/api/events';
 
 const api = supertest(apiServer.express);
 
@@ -58,7 +58,6 @@ describe('General API', () => {
         data: Array.from(Array(30).keys()).map(i => ({
           title: String(i),
           verificationHash: String(i),
-          metric: 'magic',
           startsAt: new Date(),
           endsAt: new Date()
         }))

@@ -31,6 +31,9 @@ async function findGroupCompetitions(groupId: number): Promise<
       metrics: {
         where: {
           deletedAt: null
+        },
+        orderBy: {
+          createdAt: 'asc'
         }
       }
     }

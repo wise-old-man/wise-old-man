@@ -50,6 +50,9 @@ async function findPlayerParticipations(
           metrics: {
             where: {
               deletedAt: null
+            },
+            orderBy: {
+              createdAt: 'asc'
             }
           }
         }
