@@ -17,13 +17,10 @@ async function fetchCompetitionTopHistory(
 > {
   const { competition, metrics, participations } = await fetchCompetitionDetails(id, metric);
 
-  // TODO: default to "total" if no preview metric is provided (and has multiple metrics)
-  const selectedMetric = metric || metrics[0].metric!;
-
-  const metricValueKey = getMetricValueKey(selectedMetric);
-
-  // Select the top 5 players
   const top5Players = participations.slice(0, 5).map(p => p.player);
+
+  const selectedMetrics = metric !== undefined ? [metric] : metrics.map(m => m.metric);
+  const metricValueKeys = selectedMetrics.map(m => getMetricValueKey(m));
 
   const snapshots = (await prisma.snapshot.findMany({
     where: {
@@ -36,9 +33,9 @@ async function fetchCompetitionTopHistory(
       }
     },
     select: {
-      [metricValueKey]: true,
       playerId: true,
-      createdAt: true
+      createdAt: true,
+      ...Object.fromEntries(metricValueKeys.map(key => [key, true]))
     }
   })) as unknown as Snapshot[];
 
@@ -57,7 +54,29 @@ async function fetchCompetitionTopHistory(
     const snapshots = playerSnapshotMap.get(player.id) || [];
 
     const history = snapshots
-      .map(s => ({ value: s[metricValueKey], date: s.createdAt }))
+      .map(s => {
+        let value = 0;
+
+        for (const valueKey of metricValueKeys) {
+          const metricValue = s[valueKey] ?? 0;
+
+          if (metricValue === -1) {
+            continue;
+          }
+
+          value += metricValue;
+        }
+
+        // If unranked in all metrics, show as -1 (unranked)
+        if (value === 0) {
+          value = -1;
+        }
+
+        return {
+          value,
+          date: s.createdAt
+        };
+      })
       .sort((a, b) => b.date.getTime() - a.date.getTime());
 
     return { player, history };

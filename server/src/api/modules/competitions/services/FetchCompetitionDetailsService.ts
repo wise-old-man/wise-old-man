@@ -1,18 +1,9 @@
 import prisma from '../../../../prisma';
-import {
-  Competition,
-  CompetitionMetric,
-  Group,
-  Metric,
-  Participation,
-  Player,
-  Skill
-} from '../../../../types';
+import { Competition, CompetitionMetric, Group, Metric, Participation, Player } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
-import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
-import { isComputedMetric, isSkill } from '../../../../utils/shared';
+import { calculateCompetitionDelta } from '../../../../utils/calculate-competition-delta.util';
+import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
 import { NotFoundError } from '../../../errors';
-import * as deltaUtils from '../../deltas/delta.utils';
 
 async function fetchCompetitionDetails(
   id: number,
@@ -57,10 +48,8 @@ async function fetchCompetitionDetails(
     throw new NotFoundError('Competition not found.');
   }
 
-  // TODO: default to "total" if no preview metric is provided (and has multiple metrics)
-  const selectedMetric = metric || competition.metrics[0].metric;
-
-  const participants = await calculateParticipantsStandings(id, selectedMetric);
+  const selectedMetrics = metric !== undefined ? [metric] : competition.metrics.map(m => m.metric);
+  const participants = await calculateParticipantsStandings(id, selectedMetrics);
 
   return {
     competition,
@@ -77,7 +66,7 @@ async function fetchCompetitionDetails(
 
 async function calculateParticipantsStandings(
   competitionId: number,
-  metric: Metric
+  metrics: Metric[]
 ): Promise<
   Array<{
     participation: Participation;
@@ -86,18 +75,18 @@ async function calculateParticipantsStandings(
     levels: MetricDelta;
   }>
 > {
-  const metricKey = getMetricValueKey(metric);
-
-  // Overall (levels) and EHP/EHB require other stats to be fetched from the database to be computed
-  const requiredSnapshotFields =
-    isComputedMetric(metric) || metric === Skill.OVERALL ? true : { select: { [metricKey]: true } };
+  const requiredSnapshotFields = getRequiredSnapshotFields(metrics);
 
   const participations = await prisma.participation.findMany({
     where: { competitionId },
     include: {
       player: true,
-      startSnapshot: requiredSnapshotFields,
-      endSnapshot: requiredSnapshotFields
+      startSnapshot: {
+        select: requiredSnapshotFields
+      },
+      endSnapshot: {
+        select: requiredSnapshotFields
+      }
     }
   });
 
@@ -114,17 +103,18 @@ async function calculateParticipantsStandings(
         };
       }
 
-      const progress = deltaUtils.calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
-
-      const levels = isSkill(metric)
-        ? deltaUtils.calculateLevelDiff(metric, startSnapshot, endSnapshot, progress)
-        : { gained: 0, start: -1, end: -1 };
+      const { valuesDiff, levelsDiff } = calculateCompetitionDelta(
+        metrics,
+        player,
+        startSnapshot,
+        endSnapshot
+      );
 
       return {
         participation,
         player,
-        progress,
-        levels
+        progress: valuesDiff,
+        levels: levelsDiff
       };
     })
     .sort(

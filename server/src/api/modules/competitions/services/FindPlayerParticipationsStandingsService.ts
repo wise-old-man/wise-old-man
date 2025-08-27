@@ -1,21 +1,9 @@
 import prisma from '../../../../prisma';
-import logger from '../../../../services/logging.service';
-import {
-  BOSSES,
-  Competition,
-  CompetitionMetric,
-  CompetitionStatus,
-  Group,
-  Metric,
-  Participation,
-  SKILLS,
-  Snapshot
-} from '../../../../types';
+import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
-import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
-import { isSkill } from '../../../../utils/shared';
+import { calculateCompetitionDelta } from '../../../../utils/calculate-competition-delta.util';
+import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
 import { NotFoundError } from '../../../errors';
-import { calculateLevelDiff, calculateMetricDelta } from '../../deltas/delta.utils';
 import { standardize } from '../../players/player.utils';
 
 type ReturnType = {
@@ -111,14 +99,20 @@ async function findPlayerParticipationsStandings(
     where: {
       id: { in: Array.from(dedupedStartSnapshotIds) }
     },
-    select: requiredSnapshotFields
+    select: {
+      id: true,
+      ...requiredSnapshotFields
+    }
   });
 
   const allEndSnapshots = await prisma.snapshot.findMany({
     where: {
       id: { in: Array.from(dedupedEndSnapshotIds) }
     },
-    select: requiredSnapshotFields
+    select: {
+      id: true,
+      ...requiredSnapshotFields
+    }
   });
 
   const allPlayers = await prisma.player.findMany({
@@ -140,19 +134,6 @@ async function findPlayerParticipationsStandings(
       }
     }
   });
-
-  logger.debug(
-    'standings2',
-    {
-      playerParticipations: playerParticipations.length,
-      allParticipations: allParticipations.length,
-      allStartSnapshots: allStartSnapshots.length,
-      allEndSnapshots: allEndSnapshots.length,
-      allPlayers: allPlayers.length,
-      allGroups: allGroups.length
-    },
-    true
-  );
 
   const startSnapshotMap = new Map(allStartSnapshots.map(s => [s.id, s]));
   const endSnapshotMap = new Map(allEndSnapshots.map(s => [s.id, s]));
@@ -189,11 +170,11 @@ async function findPlayerParticipationsStandings(
     const emptyEntry = {
       startSnapshot: null,
       endSnapshot: null,
-      progress: { gained: 0, start: -1, end: -1 }
+      progress: { gained: 0, start: -1, end: -1 },
+      levels: { gained: 0, start: -1, end: -1 }
     };
 
-    // TODO: default to "total" if no preview metric is provided (and has multiple metrics)
-    const metric = playerParticipation.competition.metrics[0].metric!;
+    const metrics = playerParticipation.competition.metrics.map(m => m.metric);
 
     /**
      * Calculate each player's progress in the competition.
@@ -219,13 +200,17 @@ async function findPlayerParticipationsStandings(
           };
         }
 
-        const progress = calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
+        const { valuesDiff, levelsDiff } = calculateCompetitionDelta(
+          metrics,
+          player,
+          startSnapshot,
+          endSnapshot
+        );
 
         return {
           playerId: p.playerId,
-          startSnapshot,
-          endSnapshot,
-          progress
+          progress: valuesDiff,
+          levels: levelsDiff
         };
       })
       .sort(
@@ -249,19 +234,13 @@ async function findPlayerParticipationsStandings(
     }
 
     const rank = targetPlayerIndex + 1;
-    const { progress, startSnapshot, endSnapshot } = targetPlayerParticipation;
+    const { progress, levels } = targetPlayerParticipation;
 
     if (rank <= 0) {
       continue;
     }
 
     const groupId = playerParticipation.competition.groupId;
-
-    const levels =
-      isSkill(metric) && startSnapshot !== null && endSnapshot !== null
-        ? calculateLevelDiff(metric, startSnapshot, endSnapshot, progress)
-        : { gained: 0, start: -1, end: -1 };
-
     const group = groupId === null ? undefined : groupMap.get(groupId);
 
     // If it's a group competition and the group is not found, then it probably
@@ -296,35 +275,6 @@ async function findPlayerParticipationsStandings(
       return a.competition.endsAt.getTime() - b.competition.endsAt.getTime();
     }
   });
-}
-
-/**
- * To reduce number of columns returned from our snapshot queries,
- * we can calculate which fields are required based on the metric.
- *
- * Most metrics only require their own value, but some metrics require
- * other metrics to be calculated. For example, Overall and EHP requires all skills.
- */
-function getRequiredSnapshotFields(metrics: Metric[]): Partial<Record<keyof Snapshot, true>> {
-  const requiredSnapshotFields: Partial<Record<keyof Snapshot, true>> = {
-    id: true
-  };
-
-  for (const metric of metrics) {
-    if (metric === Metric.OVERALL || metric === Metric.EHP) {
-      SKILLS.forEach(skill => {
-        requiredSnapshotFields[getMetricValueKey(skill)] = true;
-      });
-    } else if (metric === Metric.EHB) {
-      BOSSES.forEach(boss => {
-        requiredSnapshotFields[getMetricValueKey(boss)] = true;
-      });
-    } else {
-      requiredSnapshotFields[getMetricValueKey(metric)] = true;
-    }
-  }
-
-  return requiredSnapshotFields;
 }
 
 export { findPlayerParticipationsStandings };
