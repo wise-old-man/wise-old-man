@@ -1,10 +1,8 @@
 import { CompetitionType } from './competition-type.enum';
-import { Metric } from './metric.enum';
 
 export interface Competition {
   id: number;
   title: string;
-  metric: Metric;
   type: CompetitionType;
   startsAt: Date;
   endsAt: Date;

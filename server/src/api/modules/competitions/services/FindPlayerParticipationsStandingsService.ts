@@ -65,6 +65,9 @@ async function findPlayerParticipationsStandings(
           metrics: {
             where: {
               deletedAt: null
+            },
+            orderBy: {
+              createdAt: 'asc'
             }
           }
         }
@@ -101,7 +104,7 @@ async function findPlayerParticipationsStandings(
   const dedupedGroupIds = new Set(playerParticipations.map(p => p.competition.groupId).filter(Boolean));
 
   const requiredSnapshotFields = getRequiredSnapshotFields(
-    playerParticipations.map(p => p.competition.metric)
+    playerParticipations.map(p => p.competition.metrics.map(m => m.metric)).flat()
   );
 
   const allStartSnapshots = await prisma.snapshot.findMany({
@@ -189,6 +192,9 @@ async function findPlayerParticipationsStandings(
       progress: { gained: 0, start: -1, end: -1 }
     };
 
+    // TODO: default to "total" if no preview metric is provided (and has multiple metrics)
+    const metric = playerParticipation.competition.metrics[0].metric!;
+
     /**
      * Calculate each player's progress in the competition.
      * Sort them based on their "gained" value, their rank then becomes index + 1.
@@ -213,12 +219,7 @@ async function findPlayerParticipationsStandings(
           };
         }
 
-        const progress = calculateMetricDelta(
-          player,
-          playerParticipation.competition.metric,
-          startSnapshot,
-          endSnapshot
-        );
+        const progress = calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
 
         return {
           playerId: p.playerId,
@@ -254,7 +255,6 @@ async function findPlayerParticipationsStandings(
       continue;
     }
 
-    const metric = playerParticipation.competition.metric;
     const groupId = playerParticipation.competition.groupId;
 
     const levels =

@@ -1647,7 +1647,7 @@ describe('Competition API', () => {
       });
 
       expect(thirdUpdateResponse.status).toBe(200);
-      expect(thirdUpdateResponse.body.metric).toBe('cooking');
+      expect(thirdUpdateResponse.body.metric).toBe('agility');
       expect(thirdUpdateResponse.body.metrics).toMatchObject(['agility', 'cooking']);
 
       const metrics = await prisma.competitionMetric.findMany({
