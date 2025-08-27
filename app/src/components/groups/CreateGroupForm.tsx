@@ -31,6 +31,7 @@ import { EmptyGroupDialog } from "~/components/groups/EmptyGroupDialog";
 import { SaveGroupVerificationCodeDialog } from "~/components/groups/SaveGroupVerificationCodeDialog";
 import { standardizeUsername } from "~/utils/strings";
 
+import LoadingIcon from "~/assets/loading.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 
@@ -181,6 +182,7 @@ export function CreateGroupForm() {
               </div>
               <GroupMembersForm
                 payload={payload}
+                isPending={createMutation.isPending}
                 onSubmit={handleSubmitMembers}
                 onSave={(members: MemberFragment[]) => {
                   setPayload({ ...payload, members });
@@ -269,12 +271,13 @@ function GroupImportOptions() {
 
 interface GroupMembersFormProps {
   payload: CreateGroupPayload;
+  isPending: boolean;
   onSave: (members: MemberFragment[]) => void;
   onSubmit: (members: MemberFragment[]) => void;
 }
 
 function GroupMembersForm(props: GroupMembersFormProps) {
-  const { payload, onSubmit, onSave } = props;
+  const { payload, isPending, onSubmit, onSave } = props;
 
   const { importSource, showingImportDialog, setShowingImportDialog, setStep, setImportSource } =
     useContext(CreateGroupContext);
@@ -345,9 +348,13 @@ function GroupMembersForm(props: GroupMembersFormProps) {
             <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
             Previous
           </Button>
-          <Button variant="blue" onClick={() => onSubmit(members)}>
+          <Button variant="blue" disabled={isPending} onClick={() => onSubmit(members)}>
             Next
-            <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
+            {isPending ? (
+              <LoadingIcon className="-mr-1.5 h-4 w-4 animate-spin" />
+            ) : (
+              <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>
