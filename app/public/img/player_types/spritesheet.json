@@ -1,0 +1,32 @@
+{
+  "hardcore.png": {
+    "x": 0,
+    "y": 0,
+    "width": 10,
+    "height": 13
+  },
+  "ironman.png": {
+    "x": 10,
+    "y": 0,
+    "width": 10,
+    "height": 13
+  },
+  "regular.png": {
+    "x": 20,
+    "y": 0,
+    "width": 10,
+    "height": 13
+  },
+  "ultimate.png": {
+    "x": 0,
+    "y": 13,
+    "width": 10,
+    "height": 13
+  },
+  "unknown.png": {
+    "x": 10,
+    "y": 13,
+    "width": 9,
+    "height": 13
+  }
+}

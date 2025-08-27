@@ -1,26 +1,51 @@
 const { readdirSync, writeFileSync } = require("fs");
-const { join } = require("path");
 const { run } = require("spritesmith");
-const { path } = require("path");
+const path = require("path");
 
-const metricsDir = path.join(__dirname, "public/img/metrics");
-const outputImg = path.join(__dirname, "public/spritesheet.png");
-const outputJson = path.join(__dirname, "public/spritesheet.json");
+const config = {
+  backgrounds: {
+    dir: path.join(__dirname, "public/img/backgrounds"),
+    output: path.join(__dirname, "public/img/backgrounds/spritesheet.png"),
+    outputJson: path.join(__dirname, "public/img/backgrounds/spritesheet.json"),
+  },
+  group_roles: {
+    dir: path.join(__dirname, "public/img/group_roles"),
+    output: path.join(__dirname, "public/img/group_roles/spritesheet.png"),
+    outputJson: path.join(__dirname, "public/img/group_roles/spritesheet.json"),
+  },
+  metrics: {
+    dir: path.join(__dirname, "public/img/metrics"),
+    output: path.join(__dirname, "public/img/metrics/spritesheet.png"),
+    outputJson: path.join(__dirname, "public/img/metrics/spritesheet.json"),
+  },
+  metricsSmall: {
+    dir: path.join(__dirname, "public/img/metrics_small"),
+    output: path.join(__dirname, "public/img/metrics_small/spritesheet.png"),
+    outputJson: path.join(__dirname, "public/img/metrics_small/spritesheet.json"),
+  },
+  playerTypes: {
+    dir: path.join(__dirname, "public/img/player_types"),
+    output: path.join(__dirname, "public/img/player_types/spritesheet.png"),
+    outputJson: path.join(__dirname, "public/img/player_types/spritesheet.json"),
+  },
+};
 
-const files = readdirSync(metricsDir).filter((f) => f.endsWith(".png"));
+for (const [key, value] of Object.entries(config)) {
+  const { dir, output, outputJson } = value;
 
-run({ src: files.map((f) => join(metricsDir, f)) }, (err, result) => {
-  if (err) throw err;
+  const files = readdirSync(dir).filter((f) => f.endsWith(".png"));
 
-  writeFileSync(outputImg, result.image, "binary");
+  run({ src: files.map((f) => path.join(dir, f)) }, (err, result) => {
+    if (err) throw err;
 
-  const metricCoordMap = {};
-  for (const [fullPath, coords] of Object.entries(result.coordinates)) {
-    const fileName = path.basename(fullPath);
-    metricCoordMap[fileName] = coords;
-  }
+    writeFileSync(output, result.image, "binary");
 
-  writeFileSync(outputJson, JSON.stringify(metricCoordMap, null, 2));
+    const coordMap = {};
+    for (const [fullPath, coords] of Object.entries(result.coordinates)) {
+      const fileName = path.basename(fullPath);
+      coordMap[fileName] = coords;
+    }
 
-  console.log("✅ Sprite sheet generated");
-});
+    writeFileSync(outputJson, JSON.stringify(coordMap, null, 2));
+  });
+}
