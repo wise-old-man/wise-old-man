@@ -1,10 +1,11 @@
-import Link from "next/link";
-import Image from "next/image";
 import { CompetitionResponse, CompetitionStatus, CompetitionStatusProps } from "@wise-old-man/utils";
-import { cn } from "~/utils/styling";
-import { timeago } from "~/utils/dates";
+import Image from "next/image";
+import Link from "next/link";
 import { getCompetitionStatus, getPlayerCompetitions } from "~/services/wiseoldman";
+import { timeago } from "~/utils/dates";
+import { cn } from "~/utils/styling";
 import { Label } from "../Label";
+import { MetricAvatarGroup } from "../MetricAvatarGroup";
 import { MetricIcon } from "../Icon";
 
 interface PlayerOverviewCompetitionProps {
@@ -52,15 +53,24 @@ function CompetitionCard(props: CompetitionResponse) {
 
   return (
     <Link prefetch={false} href={`/competitions/${props.id}`}>
-      <div className="group relative flex h-[5rem] w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-600 px-6 hover:border-gray-400">
+      <div
+        className={cn(
+          "group relative flex h-[5rem] w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-600 px-6 hover:border-gray-400",
+          props.metrics.length > 1 && "gap-x-3 px-3"
+        )}
+      >
         <Image
-          alt={props.metric}
+          alt={props.metrics[0]}
           fill
           className="pointer-events-none z-0 object-cover transition-all duration-100 group-hover:brightness-110"
-          src={`/img/backgrounds/${props.metric}.png`}
+          src={`/img/backgrounds/${props.metrics[0]}.png`}
         />
         <div className="z-1 relative mr-1 shrink-0">
-          <MetricIcon metric={props.metric} />
+          {props.metrics.length === 1 ? (
+            <MetricIcon metric={props.metrics[0]} />
+          ) : (
+            <MetricAvatarGroup metrics={props.metrics} maxCount={2} />
+          )}
         </div>
         <div className="z-1 relative flex flex-col gap-y-1">
           <span className="line-clamp-1 text-base font-medium">{props.title}</span>
