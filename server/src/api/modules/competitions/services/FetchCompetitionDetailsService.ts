@@ -1,16 +1,8 @@
 import prisma from '../../../../prisma';
-import {
-  Competition,
-  CompetitionMetric,
-  Group,
-  Metric,
-  Participation,
-  Player,
-  Skill
-} from '../../../../types';
+import { Competition, CompetitionMetric, Group, Metric, Participation, Player } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
-import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
-import { isComputedMetric, isSkill } from '../../../../utils/shared';
+import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
+import { isSkill } from '../../../../utils/shared';
 import { NotFoundError } from '../../../errors';
 import * as deltaUtils from '../../deltas/delta.utils';
 
@@ -57,10 +49,10 @@ async function fetchCompetitionDetails(
     throw new NotFoundError('Competition not found.');
   }
 
-  // TODO: default to "total" if no preview metric is provided (and has multiple metrics)
-  const selectedMetric = metric || competition.metrics[0].metric;
-
-  const participants = await calculateParticipantsStandings(id, selectedMetric);
+  const participants = await calculateParticipantsStandings(
+    id,
+    metric !== undefined ? [metric] : competition.metrics.map(m => m.metric)
+  );
 
   return {
     competition,
@@ -77,7 +69,7 @@ async function fetchCompetitionDetails(
 
 async function calculateParticipantsStandings(
   competitionId: number,
-  metric: Metric
+  metrics: Metric[]
 ): Promise<
   Array<{
     participation: Participation;
@@ -86,18 +78,18 @@ async function calculateParticipantsStandings(
     levels: MetricDelta;
   }>
 > {
-  const metricKey = getMetricValueKey(metric);
-
-  // Overall (levels) and EHP/EHB require other stats to be fetched from the database to be computed
-  const requiredSnapshotFields =
-    isComputedMetric(metric) || metric === Skill.OVERALL ? true : { select: { [metricKey]: true } };
+  const requiredSnapshotFields = getRequiredSnapshotFields(metrics);
 
   const participations = await prisma.participation.findMany({
     where: { competitionId },
     include: {
       player: true,
-      startSnapshot: requiredSnapshotFields,
-      endSnapshot: requiredSnapshotFields
+      startSnapshot: {
+        select: requiredSnapshotFields
+      },
+      endSnapshot: {
+        select: requiredSnapshotFields
+      }
     }
   });
 
@@ -114,17 +106,36 @@ async function calculateParticipantsStandings(
         };
       }
 
-      const progress = deltaUtils.calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
+      const valuesSum: MetricDelta = { gained: 0, start: 0, end: 0 };
+      const levelsSum: MetricDelta = { gained: 0, start: 0, end: 0 };
 
-      const levels = isSkill(metric)
-        ? deltaUtils.calculateLevelDiff(metric, startSnapshot, endSnapshot, progress)
-        : { gained: 0, start: -1, end: -1 };
+      for (const metric of metrics) {
+        const valuesDiff = deltaUtils.calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
+
+        valuesSum.end += Math.max(0, valuesDiff.end);
+        valuesSum.start += Math.max(0, valuesDiff.start);
+        valuesSum.gained += Math.max(0, valuesDiff.gained);
+
+        if (isSkill(metric)) {
+          const levelsDiff = deltaUtils.calculateLevelDiff(metric, startSnapshot, endSnapshot, valuesDiff);
+
+          levelsSum.end += Math.max(0, levelsDiff.end);
+          levelsSum.start += Math.max(0, levelsDiff.start);
+          levelsSum.gained += Math.max(0, levelsDiff.gained);
+        }
+      }
+
+      // If was unranked in all metrics, set the total to -1
+      if (valuesSum.start === 0) valuesSum.start = -1;
+      if (valuesSum.end === 0) valuesSum.end = -1;
+      if (levelsSum.start === 0) levelsSum.start = -1;
+      if (levelsSum.end === 0) levelsSum.end = -1;
 
       return {
         participation,
         player,
-        progress,
-        levels
+        progress: valuesSum,
+        levels: levelsSum
       };
     })
     .sort(

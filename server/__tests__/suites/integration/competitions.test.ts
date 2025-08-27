@@ -3131,6 +3131,296 @@ describe('Competition API', () => {
         progress: { start: -1, end: -1, gained: 0 }
       });
     });
+
+    it('should view details for multiple metrics', async () => {
+      /**
+       * sue starts at 100k hunter, 2.4m fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 100_000 },
+            { metric: 'fishing', value: 2_400_000 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/sue`);
+
+      /**
+       * reed starts at 14.5m hunter, 12.2m fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 14_500_000 },
+            { metric: 'fishing', value: 12_200_000 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/reed`);
+
+      /**
+       * johnny starts at -1 hunter, -1 fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: -1 },
+            { metric: 'fishing', value: -1 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/johnny`);
+
+      /**
+       * ben starts at -1 hunter, -1 fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: -1 },
+            { metric: 'fishing', value: -1 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/ben`);
+
+      // Fake the current date to be 20 minutes ago
+      jest.useFakeTimers().setSystemTime(new Date(Date.now() - 1_200_000));
+
+      const startDate = new Date(Date.now() + 10_000);
+      const endDate = new Date(Date.now() + 10_000 + 604_800_000);
+
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      const createResponse = await api.post('/competitions').send({
+        title: 'Test',
+        metrics: ['hunter', 'fishing'],
+        startsAt: startDate,
+        endsAt: endDate,
+        participants: ['sue', 'reed', 'johnny', 'ben']
+      });
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+
+      expect(createResponse.status).toBe(201);
+      expect(createResponse.body.competition).toMatchObject({
+        metric: 'hunter',
+        metrics: ['hunter', 'fishing']
+      });
+
+      // Reset the timers to the current (REAL) time
+      jest.useRealTimers();
+
+      /**
+       * sue ends at 900k hunter, 3.1m fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 900_000 },
+            { metric: 'fishing', value: 3_100_000 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/sue`);
+
+      /**
+       * reed ends at 14.7m hunter, 13.2m fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 14_700_000 },
+            { metric: 'fishing', value: 13_200_000 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/reed`);
+
+      /**
+       * johnny ends at 50k hunter, -1 fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: 50_000 },
+            { metric: 'fishing', value: -1 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/johnny`);
+
+      /**
+       * ben ends at -1 hunter, -1 fishing
+       */
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: {
+          statusCode: 200,
+          rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
+            { metric: 'hunter', value: -1 },
+            { metric: 'fishing', value: -1 }
+          ])
+        },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+      await api.post(`/players/ben`);
+
+      const totalDetailsResponse = await api.get(`/competitions/${createResponse.body.competition.id}`);
+      expect(totalDetailsResponse.status).toBe(200);
+      expect(totalDetailsResponse.body.participations.length).toBe(4);
+
+      expect(totalDetailsResponse.body.participations[0]).toMatchObject({
+        player: {
+          username: 'sue'
+        },
+        progress: {
+          start: 2_500_000, // 100k hunter, 2.4m fishing
+          end: 4_000_000, // 900k hunter, 3.1m fishing
+          gained: 1_500_000
+        },
+        levels: {
+          start: 130,
+          end: 156,
+          gained: 26
+        }
+      });
+
+      expect(totalDetailsResponse.body.participations[1]).toMatchObject({
+        player: {
+          username: 'reed'
+        },
+        progress: {
+          start: 26_700_000, // 14.5m hunter, 12.2m fishing
+          end: 27_900_000, // 14.7m hunter, 13.2m fishing
+          gained: 1_200_000
+        },
+        levels: {
+          start: 197,
+          end: 198,
+          gained: 1
+        }
+      });
+
+      expect(totalDetailsResponse.body.participations[2]).toMatchObject({
+        player: {
+          username: 'johnny'
+        },
+        progress: {
+          start: -1, // unranked hunter, unranked fishing
+          end: 50_000, // 50k hunter, -1 fishing
+          gained: 50_000
+        },
+        levels: {
+          start: 2,
+          end: 43,
+          gained: 41
+        }
+      });
+
+      expect(totalDetailsResponse.body.participations[3]).toMatchObject({
+        player: {
+          username: 'ben'
+        },
+        progress: {
+          start: -1, // unranked hunter, unranked fishing
+          end: -1, // unranked hunter, unranked fishing
+          gained: 0
+        },
+        levels: {
+          start: 2,
+          end: 2,
+          gained: 0
+        }
+      });
+
+      const fishingDetailsResponse = await api
+        .get(`/competitions/${createResponse.body.competition.id}`)
+        .query({ metric: 'fishing' });
+
+      expect(fishingDetailsResponse.status).toBe(200);
+      expect(fishingDetailsResponse.body.participations.length).toBe(4);
+
+      expect(fishingDetailsResponse.body.participations[0]).toMatchObject({
+        player: {
+          username: 'reed'
+        },
+        progress: {
+          end: 13_200_000,
+          gained: 1_000_000,
+          start: 12_200_000
+        },
+        levels: {
+          start: 98,
+          end: 99,
+          gained: 1
+        }
+      });
+
+      expect(fishingDetailsResponse.body.participations[1]).toMatchObject({
+        player: {
+          username: 'sue'
+        },
+        progress: {
+          start: 2_400_000, // 2.4m fishing
+          end: 3_100_000, // 3.1m fishing
+          gained: 700_000
+        },
+        levels: {
+          start: 81,
+          end: 84,
+          gained: 3
+        }
+      });
+
+      expect(fishingDetailsResponse.body.participations[2]).toMatchObject({
+        player: {
+          username: 'johnny'
+        },
+        progress: {
+          start: -1, //  unranked fishing
+          end: -1, // unranked fishing
+          gained: 0
+        },
+        levels: {
+          start: 1,
+          end: 1,
+          gained: 0
+        }
+      });
+
+      expect(fishingDetailsResponse.body.participations[3]).toMatchObject({
+        player: {
+          username: 'ben'
+        },
+        progress: {
+          start: -1, //  unranked fishing
+          end: -1, // unranked fishing
+          gained: 0
+        },
+        levels: {
+          start: 1,
+          end: 1,
+          gained: 0
+        }
+      });
+
+      await prisma.competition.delete({
+        where: { id: createResponse.body.competition.id }
+      });
+    });
   });
 
   describe('9 - View Top 5 Snapshots', () => {

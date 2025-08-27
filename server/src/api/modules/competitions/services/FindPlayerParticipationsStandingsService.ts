@@ -1,18 +1,8 @@
 import prisma from '../../../../prisma';
 import logger from '../../../../services/logging.service';
-import {
-  BOSSES,
-  Competition,
-  CompetitionMetric,
-  CompetitionStatus,
-  Group,
-  Metric,
-  Participation,
-  SKILLS,
-  Snapshot
-} from '../../../../types';
+import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
-import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
+import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
 import { isSkill } from '../../../../utils/shared';
 import { NotFoundError } from '../../../errors';
 import { calculateLevelDiff, calculateMetricDelta } from '../../deltas/delta.utils';
@@ -111,14 +101,20 @@ async function findPlayerParticipationsStandings(
     where: {
       id: { in: Array.from(dedupedStartSnapshotIds) }
     },
-    select: requiredSnapshotFields
+    select: {
+      id: true,
+      ...requiredSnapshotFields
+    }
   });
 
   const allEndSnapshots = await prisma.snapshot.findMany({
     where: {
       id: { in: Array.from(dedupedEndSnapshotIds) }
     },
-    select: requiredSnapshotFields
+    select: {
+      id: true,
+      ...requiredSnapshotFields
+    }
   });
 
   const allPlayers = await prisma.player.findMany({
@@ -296,35 +292,6 @@ async function findPlayerParticipationsStandings(
       return a.competition.endsAt.getTime() - b.competition.endsAt.getTime();
     }
   });
-}
-
-/**
- * To reduce number of columns returned from our snapshot queries,
- * we can calculate which fields are required based on the metric.
- *
- * Most metrics only require their own value, but some metrics require
- * other metrics to be calculated. For example, Overall and EHP requires all skills.
- */
-function getRequiredSnapshotFields(metrics: Metric[]): Partial<Record<keyof Snapshot, true>> {
-  const requiredSnapshotFields: Partial<Record<keyof Snapshot, true>> = {
-    id: true
-  };
-
-  for (const metric of metrics) {
-    if (metric === Metric.OVERALL || metric === Metric.EHP) {
-      SKILLS.forEach(skill => {
-        requiredSnapshotFields[getMetricValueKey(skill)] = true;
-      });
-    } else if (metric === Metric.EHB) {
-      BOSSES.forEach(boss => {
-        requiredSnapshotFields[getMetricValueKey(boss)] = true;
-      });
-    } else {
-      requiredSnapshotFields[getMetricValueKey(metric)] = true;
-    }
-  }
-
-  return requiredSnapshotFields;
 }
 
 export { findPlayerParticipationsStandings };
