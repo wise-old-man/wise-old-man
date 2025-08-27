@@ -72,7 +72,9 @@ describe('Competition API', () => {
     };
 
     it('should not create (invalid title)', async () => {
-      const response = await api.post('/competitions').send({});
+      const response = await api.post('/competitions').send({
+        metric: 'zulrah'
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'title' is undefined.");
@@ -82,7 +84,7 @@ describe('Competition API', () => {
     });
 
     it('should not create (empty title)', async () => {
-      const response = await api.post('/competitions').send({ title: '' });
+      const response = await api.post('/competitions').send({ title: '', metric: 'obor' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'title' must have a minimum of 1 character(s).");
@@ -92,7 +94,11 @@ describe('Competition API', () => {
     });
 
     it('should not create (undefined metric)', async () => {
-      const response = await api.post('/competitions').send({ title: 'hello' });
+      const response = await api.post('/competitions').send({
+        title: 'hello',
+        startsAt: VALID_START_DATE,
+        endsAt: VALID_END_DATE
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'metric' is undefined.");
@@ -176,7 +182,10 @@ describe('Competition API', () => {
     });
 
     it('should not create (invalid metric)', async () => {
-      const response = await api.post('/competitions').send({ ...VALID_CREATE_BASE, metric: 'sailing' });
+      const response = await api.post('/competitions').send({
+        ...VALID_CREATE_BASE,
+        metric: 'sailing'
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
@@ -847,6 +856,69 @@ describe('Competition API', () => {
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
     });
+
+    it('should NOT create with empty metrics array', async () => {
+      const response = await api.post('/competitions').send({
+        title: 'Test',
+        metrics: [],
+        startsAt: VALID_START_DATE,
+        endsAt: VALID_END_DATE
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'metrics' must have a minimum of 1 element(s).");
+    });
+
+    it('should NOT create with multiple metrics (temporary)', async () => {
+      const response = await api.post('/competitions').send({
+        title: 'Test',
+        metrics: ['hunter', 'fishing'],
+        startsAt: VALID_START_DATE,
+        endsAt: VALID_END_DATE
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Creating multi-metric competitions is not enabled yet.');
+    });
+
+    it('should NOT create with mixed metric types', async () => {
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+
+      const response = await api.post('/competitions').send({
+        title: 'Test',
+        metrics: ['hunter', 'zulrah'],
+        startsAt: VALID_START_DATE,
+        endsAt: VALID_END_DATE
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('All metrics must be of the same type.');
+
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+    });
+
+    it('should create with multiple metrics', async () => {
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+
+      const response = await api.post('/competitions').send({
+        title: 'Test',
+        metrics: ['hunter', 'fishing'],
+        startsAt: VALID_START_DATE,
+        endsAt: VALID_END_DATE
+      });
+
+      expect(response.status).toBe(201);
+      expect(response.body.competition).toMatchObject({
+        metric: 'hunter',
+        metrics: ['hunter', 'fishing']
+      });
+
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+
+      await prisma.competition.delete({
+        where: { id: response.body.competition.id }
+      });
+    });
   });
 
   describe('2 - Edit', () => {
@@ -1462,7 +1534,7 @@ describe('Competition API', () => {
       );
     });
 
-    it('should edit metrics', async () => {
+    it('should edit a single metric', async () => {
       const createResponse = await api.post('/competitions').send({
         title: 'Test Metrics',
         startsAt: new Date(Date.now() + 1_200_000),
@@ -1529,6 +1601,179 @@ describe('Competition API', () => {
         metric: 'zulrah',
         deletedAt: expect.any(Date)
       });
+
+      const deleteResponse = await api
+        .delete(`/competitions/${createResponse.body.competition.id}`)
+        .send({ verificationCode: createResponse.body.verificationCode });
+
+      expect(deleteResponse.status).toBe(200);
+    });
+
+    it('should edit multiple metrics', async () => {
+      const createResponse = await api.post('/competitions').send({
+        title: 'Test Metrics',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        metric: 'agility'
+      });
+
+      expect(createResponse.status).toBe(201);
+      expect(createResponse.body.competition.metric).toBe('agility');
+      expect(createResponse.body.competition.metrics).toMatchObject(['agility']);
+
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+
+      const firstUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
+        verificationCode: createResponse.body.verificationCode,
+        metrics: ['hunter', 'firemaking']
+      });
+
+      expect(firstUpdateResponse.status).toBe(200);
+      expect(firstUpdateResponse.body.metric).toBe('hunter');
+      expect(firstUpdateResponse.body.metrics).toMatchObject(['hunter', 'firemaking']);
+
+      const secondUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
+        verificationCode: createResponse.body.verificationCode,
+        metrics: ['zulrah', 'wintertodt']
+      });
+
+      expect(secondUpdateResponse.status).toBe(200);
+      expect(secondUpdateResponse.body.metric).toBe('zulrah');
+      expect(secondUpdateResponse.body.metrics).toMatchObject(['zulrah', 'wintertodt']);
+
+      const thirdUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
+        verificationCode: createResponse.body.verificationCode,
+        metrics: ['cooking', 'agility']
+      });
+
+      expect(thirdUpdateResponse.status).toBe(200);
+      expect(thirdUpdateResponse.body.metric).toBe('cooking');
+      expect(thirdUpdateResponse.body.metrics).toMatchObject(['agility', 'cooking']);
+
+      const metrics = await prisma.competitionMetric.findMany({
+        where: {
+          competitionId: createResponse.body.competition.id
+        },
+        orderBy: {
+          createdAt: 'asc'
+        }
+      });
+
+      expect(metrics.length).toBe(6);
+
+      expect(metrics[0]).toMatchObject({
+        competitionId: createResponse.body.competition.id,
+        metric: 'agility',
+        deletedAt: null
+      });
+
+      expect(metrics[1]).toMatchObject({
+        competitionId: createResponse.body.competition.id,
+        metric: 'hunter',
+        deletedAt: expect.any(Date)
+      });
+
+      expect(metrics[2]).toMatchObject({
+        competitionId: createResponse.body.competition.id,
+        metric: 'firemaking',
+        deletedAt: expect.any(Date)
+      });
+
+      expect(metrics[3]).toMatchObject({
+        competitionId: createResponse.body.competition.id,
+        metric: 'zulrah',
+        deletedAt: expect.any(Date)
+      });
+
+      expect(metrics[4]).toMatchObject({
+        competitionId: createResponse.body.competition.id,
+        metric: 'wintertodt',
+        deletedAt: expect.any(Date)
+      });
+
+      expect(metrics[5]).toMatchObject({
+        competitionId: createResponse.body.competition.id,
+        metric: 'cooking',
+        deletedAt: null
+      });
+
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+
+      const deleteResponse = await api
+        .delete(`/competitions/${createResponse.body.competition.id}`)
+        .send({ verificationCode: createResponse.body.verificationCode });
+
+      expect(deleteResponse.status).toBe(200);
+    });
+
+    it('should NOT edit an empty metrics array', async () => {
+      const createResponse = await api.post('/competitions').send({
+        title: 'Test Metrics',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        metrics: ['agility']
+      });
+      expect(createResponse.status).toBe(201);
+      expect(createResponse.body.competition.metric).toBe('agility');
+
+      const editResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
+        verificationCode: createResponse.body.verificationCode,
+        metrics: []
+      });
+      expect(editResponse.status).toBe(400);
+      expect(editResponse.body.message).toBe("Parameter 'metrics' must have a minimum of 1 element(s).");
+
+      const deleteResponse = await api
+        .delete(`/competitions/${createResponse.body.competition.id}`)
+        .send({ verificationCode: createResponse.body.verificationCode });
+
+      expect(deleteResponse.status).toBe(200);
+    });
+
+    it('should NOT edit with multiple metrics', async () => {
+      const createResponse = await api.post('/competitions').send({
+        title: 'Test Metrics',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        metrics: ['agility']
+      });
+      expect(createResponse.status).toBe(201);
+      expect(createResponse.body.competition.metric).toBe('agility');
+
+      const editResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
+        verificationCode: createResponse.body.verificationCode,
+        metrics: ['agility', 'hunter']
+      });
+      expect(editResponse.status).toBe(400);
+      expect(editResponse.body.message).toBe('Creating multi-metric competitions is not enabled yet.');
+
+      const deleteResponse = await api
+        .delete(`/competitions/${createResponse.body.competition.id}`)
+        .send({ verificationCode: createResponse.body.verificationCode });
+
+      expect(deleteResponse.status).toBe(200);
+    });
+
+    it('should NOT edit with mixed metric types', async () => {
+      const createResponse = await api.post('/competitions').send({
+        title: 'Test Metrics',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        metrics: ['agility']
+      });
+      expect(createResponse.status).toBe(201);
+      expect(createResponse.body.competition.metric).toBe('agility');
+
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+
+      const editResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
+        verificationCode: createResponse.body.verificationCode,
+        metrics: ['agility', 'zulrah']
+      });
+      expect(editResponse.status).toBe(400);
+      expect(editResponse.body.message).toBe('All metrics must be of the same type.');
+
+      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       const deleteResponse = await api
         .delete(`/competitions/${createResponse.body.competition.id}`)

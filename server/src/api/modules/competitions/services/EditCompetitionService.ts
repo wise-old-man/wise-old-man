@@ -10,6 +10,7 @@ import {
   Player,
   PlayerAnnotationType
 } from '../../../../types';
+import { MetricProps } from '../../../../utils/shared';
 import { eventEmitter, EventType } from '../../../events';
 import { standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -24,7 +25,7 @@ import {
 
 interface EditCompetitionPayload {
   title?: string;
-  metric?: Metric;
+  metrics?: Metric[];
   startsAt?: Date;
   endsAt?: Date;
   participants?: string[];
@@ -47,6 +48,7 @@ export async function editCompetition(
   | { code: 'COMPETITION_NOT_FOUND' }
   | { code: 'COMPETITION_START_DATE_AFTER_END_DATE' }
   | { code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' }
+  | { code: 'METRICS_MUST_BE_OF_SAME_TYPE' }
   | { code: 'OPTED_OUT_PLAYERS_FOUND'; displayNames: string[] }
   | { code: 'FAILED_TO_UPDATE_COMPETITION' }
   | {
@@ -63,13 +65,20 @@ export async function editCompetition(
         | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] };
     }
 > {
-  const { title, metric, startsAt, endsAt, participants, teams } = payload;
+  const { title, metrics, startsAt, endsAt, participants, teams } = payload;
 
   if (participants && participants.length > 0 && teams && teams.length > 0) {
     return errored({ code: 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE' });
   }
 
-  if (!title && !metric && !startsAt && !endsAt && !participants && !teams) {
+  if (
+    title === undefined &&
+    metrics === undefined &&
+    startsAt === undefined &&
+    endsAt === undefined &&
+    teams === undefined &&
+    participants === undefined
+  ) {
     return errored({ code: 'NOTHING_TO_UPDATE' });
   }
 
@@ -100,6 +109,10 @@ export async function editCompetition(
     return errored({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
   }
 
+  if (metrics !== undefined && new Set(metrics.map(m => MetricProps[m].type)).size > 1) {
+    return errored({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
+  }
+
   const participationsResult = await getValidatedParticipations(competition, payload);
 
   if (isErrored(participationsResult)) {
@@ -109,9 +122,9 @@ export async function editCompetition(
   if (title) competitionUpdatePayload.title = sanitizeTitle(title);
   if (startsAt) competitionUpdatePayload.startsAt = startsAt;
   if (endsAt) competitionUpdatePayload.endsAt = endsAt;
-  if (metric) competitionUpdatePayload.metric = metric;
+  if (metrics) competitionUpdatePayload.metric = metrics[0];
 
-  const updateResult = await executeUpdate(id, competitionUpdatePayload, participationsResult.value);
+  const updateResult = await executeUpdate(id, competitionUpdatePayload, metrics, participationsResult.value);
 
   if (isErrored(updateResult)) {
     return updateResult;
@@ -212,7 +225,8 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
 async function executeUpdate(
   competitionId: number,
   competitionUpdatePayload: PrismaTypes.CompetitionUpdateInput,
-  nextParticipations: PartialParticipation[] | null
+  nextMetrics: Metric[] | undefined,
+  nextParticipations: PartialParticipation[] | undefined
 ): AsyncResult<
   {
     updatedCompetition: Competition;
@@ -232,7 +246,7 @@ async function executeUpdate(
         }
       });
 
-      if (competitionUpdatePayload.metric !== undefined) {
+      if (nextMetrics !== undefined) {
         // Only update the participations if the consumer supplied an array
         const currentMetrics = await transaction.competitionMetric.findMany({
           where: {
@@ -243,7 +257,7 @@ async function executeUpdate(
 
         const { excessMetrics, missingMetrics } = getMetricDiffs(
           currentMetrics.map(m => m.metric),
-          [competitionUpdatePayload.metric as Metric]
+          nextMetrics
         );
 
         await transaction.competitionMetric.updateMany({
@@ -275,7 +289,7 @@ async function executeUpdate(
         }
       }
 
-      if (nextParticipations === null) {
+      if (nextParticipations === undefined) {
         return {
           updatedCompetition,
           addedParticipations: []
@@ -445,7 +459,7 @@ async function getValidatedParticipations(
   competition: Competition,
   { participants, teams }: EditCompetitionPayload
 ): AsyncResult<
-  Array<PartialParticipation> | null,
+  Array<PartialParticipation> | undefined,
   | {
       code: 'FAILED_TO_VALIDATE_PARTICIPANTS';
       subError:
@@ -460,7 +474,7 @@ async function getValidatedParticipations(
         | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] };
     }
 > {
-  let participations: PartialParticipation[] | null = null;
+  let participations: PartialParticipation[] | undefined = undefined;
 
   if (participants !== undefined && competition.type === CompetitionType.CLASSIC) {
     const participantValidationResult = combine([
