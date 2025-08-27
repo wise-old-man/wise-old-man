@@ -119,8 +119,8 @@ async function calculateScore(competition: Competition): Promise<number> {
   }
 
   // Discourage "overall" competitions, they are often tests
-  if (metrics[0].metric !== Metric.OVERALL) {
-    score += 30;
+  if (metrics.length === 1 && metrics[0].metric === Metric.OVERALL) {
+    score -= 30;
   }
 
   // Discourage "over 2 weeks long" competitions
@@ -133,5 +133,5 @@ async function calculateScore(competition: Competition): Promise<number> {
     score += 30;
   }
 
-  return score;
+  return Math.max(0, score);
 }
