@@ -1,0 +1,1610 @@
+{
+  "achiever.png": {
+    "x": 0,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "adamant.png": {
+    "x": 13,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "adept.png": {
+    "x": 0,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "administrator.png": {
+    "x": 13,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "admiral.png": {
+    "x": 26,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "adventurer.png": {
+    "x": 26,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "air.png": {
+    "x": 0,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "anchor.png": {
+    "x": 13,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "apothecary.png": {
+    "x": 26,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "archer.png": {
+    "x": 39,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "armadylean.png": {
+    "x": 39,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "artillery.png": {
+    "x": 39,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "artisan.png": {
+    "x": 0,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "asgarnian.png": {
+    "x": 13,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "assassin.png": {
+    "x": 26,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "assistant.png": {
+    "x": 39,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "astral.png": {
+    "x": 52,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "athlete.png": {
+    "x": 52,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "attacker.png": {
+    "x": 52,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "bandit.png": {
+    "x": 52,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "bandosian.png": {
+    "x": 0,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "barbarian.png": {
+    "x": 13,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "battlemage.png": {
+    "x": 26,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "beast.png": {
+    "x": 39,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "berserker.png": {
+    "x": 52,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "blisterwood.png": {
+    "x": 65,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "blood.png": {
+    "x": 65,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "blue.png": {
+    "x": 65,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "bob.png": {
+    "x": 65,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "body.png": {
+    "x": 65,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "brassican.png": {
+    "x": 0,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "brawler.png": {
+    "x": 13,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "brigadier.png": {
+    "x": 26,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "brigand.png": {
+    "x": 39,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "bronze.png": {
+    "x": 52,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "bruiser.png": {
+    "x": 65,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "bulwark.png": {
+    "x": 78,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "burglar.png": {
+    "x": 78,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "burnt.png": {
+    "x": 78,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "cadet.png": {
+    "x": 78,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "captain.png": {
+    "x": 78,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "carry.png": {
+    "x": 78,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "champion.png": {
+    "x": 0,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "chaos.png": {
+    "x": 13,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "cleric.png": {
+    "x": 26,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "collector.png": {
+    "x": 39,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "colonel.png": {
+    "x": 52,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "commander.png": {
+    "x": 65,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "competitor.png": {
+    "x": 78,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "completionist.png": {
+    "x": 91,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "constructor.png": {
+    "x": 91,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "cook.png": {
+    "x": 91,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "coordinator.png": {
+    "x": 91,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "corporal.png": {
+    "x": 91,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "cosmic.png": {
+    "x": 91,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "councillor.png": {
+    "x": 91,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "crafter.png": {
+    "x": 0,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "crew.png": {
+    "x": 13,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "crusader.png": {
+    "x": 26,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "cutpurse.png": {
+    "x": 39,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "death.png": {
+    "x": 52,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "defender.png": {
+    "x": 65,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "defiler.png": {
+    "x": 78,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "deputy_owner.png": {
+    "x": 91,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "destroyer.png": {
+    "x": 104,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "diamond.png": {
+    "x": 104,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "diseased.png": {
+    "x": 104,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "doctor.png": {
+    "x": 104,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "dogsbody.png": {
+    "x": 104,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "dragon.png": {
+    "x": 104,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "dragonstone.png": {
+    "x": 104,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "druid.png": {
+    "x": 104,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "duellist.png": {
+    "x": 0,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "earth.png": {
+    "x": 13,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "elite.png": {
+    "x": 26,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "emerald.png": {
+    "x": 39,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "enforcer.png": {
+    "x": 52,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "epic.png": {
+    "x": 65,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "executive.png": {
+    "x": 78,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "expert.png": {
+    "x": 91,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "explorer.png": {
+    "x": 104,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "farmer.png": {
+    "x": 117,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "feeder.png": {
+    "x": 117,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "fighter.png": {
+    "x": 117,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "fire.png": {
+    "x": 117,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "firemaker.png": {
+    "x": 117,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "firestarter.png": {
+    "x": 117,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "fisher.png": {
+    "x": 117,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "fletcher.png": {
+    "x": 117,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "forager.png": {
+    "x": 117,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "fremennik.png": {
+    "x": 0,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "gamer.png": {
+    "x": 13,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "gatherer.png": {
+    "x": 26,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "general.png": {
+    "x": 39,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "gnome_child.png": {
+    "x": 52,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "gnome_elder.png": {
+    "x": 65,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "goblin.png": {
+    "x": 78,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "gold.png": {
+    "x": 91,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "goon.png": {
+    "x": 104,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "green.png": {
+    "x": 117,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "grey.png": {
+    "x": 130,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "guardian.png": {
+    "x": 130,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "guthixian.png": {
+    "x": 130,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "harpoon.png": {
+    "x": 130,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "healer.png": {
+    "x": 130,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "hellcat.png": {
+    "x": 130,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "helper.png": {
+    "x": 130,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "herbologist.png": {
+    "x": 130,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "hero.png": {
+    "x": 130,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "hoarder.png": {
+    "x": 130,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "holy.png": {
+    "x": 0,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "hunter.png": {
+    "x": 13,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "ignitor.png": {
+    "x": 26,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "illusionist.png": {
+    "x": 39,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "imp.png": {
+    "x": 52,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "infantry.png": {
+    "x": 65,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "inquisitor.png": {
+    "x": 78,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "iron.png": {
+    "x": 91,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "jade.png": {
+    "x": 104,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "justiciar.png": {
+    "x": 117,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "kandarin.png": {
+    "x": 130,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "karamjan.png": {
+    "x": 143,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "kharidian.png": {
+    "x": 143,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "kitten.png": {
+    "x": 143,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "knight.png": {
+    "x": 143,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "labourer.png": {
+    "x": 143,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "law.png": {
+    "x": 143,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "leader.png": {
+    "x": 143,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "learner.png": {
+    "x": 143,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "legacy.png": {
+    "x": 143,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "legend.png": {
+    "x": 143,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "legionnaire.png": {
+    "x": 143,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "lieutenant.png": {
+    "x": 0,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "looter.png": {
+    "x": 13,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "lumberjack.png": {
+    "x": 26,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "magic.png": {
+    "x": 39,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "magician.png": {
+    "x": 52,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "major.png": {
+    "x": 65,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "maple.png": {
+    "x": 78,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "marshal.png": {
+    "x": 91,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "master.png": {
+    "x": 104,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "maxed.png": {
+    "x": 117,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "mediator.png": {
+    "x": 130,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "medic.png": {
+    "x": 143,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "mentor.png": {
+    "x": 156,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "merchant.png": {
+    "x": 156,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "mind.png": {
+    "x": 156,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "miner.png": {
+    "x": 156,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "minion.png": {
+    "x": 156,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "misthalinian.png": {
+    "x": 156,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "mithril.png": {
+    "x": 156,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "moderator.png": {
+    "x": 156,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "monarch.png": {
+    "x": 156,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "morytanian.png": {
+    "x": 156,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "mystic.png": {
+    "x": 156,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "myth.png": {
+    "x": 156,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "natural.png": {
+    "x": 0,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "nature.png": {
+    "x": 13,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "necromancer.png": {
+    "x": 26,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "ninja.png": {
+    "x": 39,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "noble.png": {
+    "x": 52,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "novice.png": {
+    "x": 65,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "nurse.png": {
+    "x": 78,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "oak.png": {
+    "x": 91,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "officer.png": {
+    "x": 104,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "onyx.png": {
+    "x": 117,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "opal.png": {
+    "x": 130,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "oracle.png": {
+    "x": 143,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "orange.png": {
+    "x": 156,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "owner.png": {
+    "x": 169,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "page.png": {
+    "x": 169,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "paladin.png": {
+    "x": 169,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "pawn.png": {
+    "x": 169,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "pilgrim.png": {
+    "x": 169,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "pine.png": {
+    "x": 169,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "pink.png": {
+    "x": 169,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "prefect.png": {
+    "x": 169,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "priest.png": {
+    "x": 169,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "private.png": {
+    "x": 169,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "prodigy.png": {
+    "x": 169,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "proselyte.png": {
+    "x": 169,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "prospector.png": {
+    "x": 169,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "protector.png": {
+    "x": 0,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "pure.png": {
+    "x": 13,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "purple.png": {
+    "x": 26,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "pyromancer.png": {
+    "x": 39,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "quester.png": {
+    "x": 52,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "racer.png": {
+    "x": 65,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "raider.png": {
+    "x": 78,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "ranger.png": {
+    "x": 91,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "record_chaser.png": {
+    "x": 104,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "recruit.png": {
+    "x": 117,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "recruiter.png": {
+    "x": 130,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "red.png": {
+    "x": 143,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "red_topaz.png": {
+    "x": 156,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "rogue.png": {
+    "x": 169,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "ruby.png": {
+    "x": 182,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "rune.png": {
+    "x": 182,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "runecrafter.png": {
+    "x": 182,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "sage.png": {
+    "x": 182,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "sapphire.png": {
+    "x": 182,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "saradominist.png": {
+    "x": 182,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "saviour.png": {
+    "x": 182,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "scavenger.png": {
+    "x": 182,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "scholar.png": {
+    "x": 182,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "scourge.png": {
+    "x": 182,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "scout.png": {
+    "x": 182,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "scribe.png": {
+    "x": 182,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "seer.png": {
+    "x": 182,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "senator.png": {
+    "x": 182,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "sentry.png": {
+    "x": 0,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "serenist.png": {
+    "x": 13,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "sergeant.png": {
+    "x": 26,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "shaman.png": {
+    "x": 39,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "sheriff.png": {
+    "x": 52,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "short_green_guy.png": {
+    "x": 65,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "skiller.png": {
+    "x": 78,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "skulled.png": {
+    "x": 91,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "slayer.png": {
+    "x": 104,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "smiter.png": {
+    "x": 117,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "smith.png": {
+    "x": 130,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "smuggler.png": {
+    "x": 143,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "sniper.png": {
+    "x": 156,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "soul.png": {
+    "x": 169,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "specialist.png": {
+    "x": 182,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "speed_runner.png": {
+    "x": 195,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "spellcaster.png": {
+    "x": 195,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "squire.png": {
+    "x": 195,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "staff.png": {
+    "x": 195,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "steel.png": {
+    "x": 195,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "strider.png": {
+    "x": 195,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "striker.png": {
+    "x": 195,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "summoner.png": {
+    "x": 195,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "superior.png": {
+    "x": 195,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "supervisor.png": {
+    "x": 195,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "teacher.png": {
+    "x": 195,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "templar.png": {
+    "x": 195,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  },
+  "therapist.png": {
+    "x": 195,
+    "y": 156,
+    "width": 13,
+    "height": 13
+  },
+  "thief.png": {
+    "x": 195,
+    "y": 169,
+    "width": 13,
+    "height": 13
+  },
+  "tirannian.png": {
+    "x": 195,
+    "y": 182,
+    "width": 13,
+    "height": 13
+  },
+  "trialist.png": {
+    "x": 0,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "trickster.png": {
+    "x": 13,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "tzkal.png": {
+    "x": 26,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "tztok.png": {
+    "x": 39,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "unholy.png": {
+    "x": 52,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "vagrant.png": {
+    "x": 65,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "vanguard.png": {
+    "x": 78,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "walker.png": {
+    "x": 91,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "wanderer.png": {
+    "x": 104,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "warden.png": {
+    "x": 117,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "warlock.png": {
+    "x": 130,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "warrior.png": {
+    "x": 143,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "water.png": {
+    "x": 156,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "wild.png": {
+    "x": 169,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "willow.png": {
+    "x": 182,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "wily.png": {
+    "x": 195,
+    "y": 195,
+    "width": 13,
+    "height": 13
+  },
+  "wintumber.png": {
+    "x": 208,
+    "y": 0,
+    "width": 13,
+    "height": 13
+  },
+  "witch.png": {
+    "x": 208,
+    "y": 13,
+    "width": 13,
+    "height": 13
+  },
+  "wizard.png": {
+    "x": 208,
+    "y": 26,
+    "width": 13,
+    "height": 13
+  },
+  "worker.png": {
+    "x": 208,
+    "y": 39,
+    "width": 13,
+    "height": 13
+  },
+  "wrath.png": {
+    "x": 208,
+    "y": 52,
+    "width": 13,
+    "height": 13
+  },
+  "xerician.png": {
+    "x": 208,
+    "y": 65,
+    "width": 13,
+    "height": 13
+  },
+  "yellow.png": {
+    "x": 208,
+    "y": 78,
+    "width": 13,
+    "height": 13
+  },
+  "yew.png": {
+    "x": 208,
+    "y": 91,
+    "width": 13,
+    "height": 13
+  },
+  "zamorakian.png": {
+    "x": 208,
+    "y": 104,
+    "width": 13,
+    "height": 13
+  },
+  "zarosian.png": {
+    "x": 208,
+    "y": 117,
+    "width": 13,
+    "height": 13
+  },
+  "zealot.png": {
+    "x": 208,
+    "y": 130,
+    "width": 13,
+    "height": 13
+  },
+  "zenyte.png": {
+    "x": 208,
+    "y": 143,
+    "width": 13,
+    "height": 13
+  }
+}

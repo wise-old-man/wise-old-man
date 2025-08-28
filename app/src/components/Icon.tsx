@@ -1,63 +1,95 @@
 import Image from "next/image";
 import { cn } from "~/utils/styling";
 import { Country, CountryProps, GroupRole, Metric, PlayerType } from "@wise-old-man/utils";
-import ImageWithFallback from "./ImageWithFallback";
+import metricsSprite from "../../public/img/metrics/spritesheet.json";
+import metricsSmallSprite from "../../public/img/metrics_small/spritesheet.json";
+import playerTypeIconsSprite from "../../public/img/player_types/spritesheet.json";
+import groupRolesSprite from "../../public/img/group_roles/spritesheet.json";
 
-export function MetricIcon(props: { metric: Metric | "ttm" | "tt200m" | "combat" }) {
-  const { metric } = props;
+type SpriteMap = Record<string, { x: number; y: number }>;
 
-  return (
-    <ImageWithFallback
-      height={24}
-      width={24}
-      alt={metric}
-      src={`/img/metrics/${metric}.png`}
-      fallbackSrc={`/img/fallback-icon.png`}
-      className="shrink-0"
-    />
-  );
+interface SpriteIconProps {
+  name: string;
+  spriteMap: SpriteMap;
+  spriteUrl: string;
+  width: number;
+  height: number;
+  className?: string;
+  fallbackSrc?: string;
+  fallbackAlt?: string;
 }
 
-export function MetricIconSmall(props: { metric: Metric | "ehp+ehb" | "combat" }) {
-  const { metric } = props;
-  return (
-    <ImageWithFallback
-      height={16}
-      width={16}
-      alt={metric}
-      src={`/img/metrics_small/${metric}.png`}
-      fallbackSrc={`/img/fallback-icon.png`}
-      className="shrink-0"
-    />
-  );
-}
+function SpriteIcon({
+  name,
+  spriteMap,
+  spriteUrl,
+  width,
+  height,
+  className,
+  fallbackSrc = "/img/fallback-icon.png",
+  fallbackAlt = name,
+}: SpriteIconProps) {
+  const coords = spriteMap[`${name}.png`];
 
-export function PlayerTypeIcon(props: { playerType: PlayerType; className?: string }) {
-  const { playerType, className } = props;
+  if (!coords) {
+    return <img src={fallbackSrc} alt={fallbackAlt} width={width} height={height} className={cn("shrink-0", className)} />;
+  }
+
   return (
-    <Image
-      width={10}
-      height={13}
-      alt=""
-      src={`/img/player_types/${playerType}.png`}
+    <div
+      aria-label={name}
       className={cn("shrink-0", className)}
-      style={{ imageRendering: "pixelated" }}
+      style={{
+        backgroundImage: `url(${spriteUrl})`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: `-${coords.x}px -${coords.y}px`,
+        width,
+        height,
+      }}
     />
   );
 }
 
-export function GroupRoleIcon(props: { role: GroupRole }) {
-  const { role } = props;
-  return (
-    <Image
-      width={13}
-      height={13}
-      alt={role}
-      src={`/img/group_roles/${role === GroupRole.MEMBER ? "minion" : role}.png`}
-      className="shrink-0"
-    />
-  );
-}
+export const MetricIcon = (props: { metric: Metric | "ttm" | "tt200m" | "combat" }) => (
+  <SpriteIcon
+    name={props.metric}
+    spriteMap={metricsSprite}
+    spriteUrl="/img/metrics/spritesheet.png"
+    width={24}
+    height={24}
+  />
+);
+
+export const MetricIconSmall = (props: { metric: Metric | "ehp+ehb" | "combat" }) => (
+  <SpriteIcon
+    name={props.metric}
+    spriteMap={metricsSmallSprite}
+    spriteUrl="/img/metrics_small/spritesheet.png"
+    width={16}
+    height={16}
+  />
+);
+
+export const PlayerTypeIcon = (props: { playerType: PlayerType; className?: string }) => (
+  <SpriteIcon
+    name={props.playerType}
+    spriteMap={playerTypeIconsSprite}
+    spriteUrl="/img/player_types/spritesheet.png"
+    width={10}
+    height={13}
+    className={props.className}
+  />
+);
+
+export const GroupRoleIcon = (props: { role: GroupRole }) => (
+  <SpriteIcon
+    name={props.role === GroupRole.MEMBER ? "minion" : props.role}
+    spriteMap={groupRolesSprite}
+    spriteUrl="/img/group_roles/spritesheet.png"
+    width={13}
+    height={13}
+  />
+);
 
 export function Flag(props: { country: Country; className?: string; size: "sm" | "lg" }) {
   const { code, name } = CountryProps[props.country];

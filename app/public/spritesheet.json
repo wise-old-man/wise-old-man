@@ -1,0 +1,674 @@
+{
+  "abyssal_sire.png": {
+    "x": 26,
+    "y": 188,
+    "width": 25,
+    "height": 25
+  },
+  "agility.png": {
+    "x": 272,
+    "y": 20,
+    "width": 18,
+    "height": 23
+  },
+  "alchemical_hydra.png": {
+    "x": 157,
+    "y": 162,
+    "width": 26,
+    "height": 25
+  },
+  "amoxliatl.png": {
+    "x": 170,
+    "y": 104,
+    "width": 26,
+    "height": 26
+  },
+  "araxxor.png": {
+    "x": 0,
+    "y": 81,
+    "width": 27,
+    "height": 27
+  },
+  "artio.png": {
+    "x": 26,
+    "y": 213,
+    "width": 26,
+    "height": 23
+  },
+  "attack.png": {
+    "x": 51,
+    "y": 188,
+    "width": 25,
+    "height": 25
+  },
+  "barrows_chests.png": {
+    "x": 170,
+    "y": 130,
+    "width": 26,
+    "height": 26
+  },
+  "bounty_hunter_hunter.png": {
+    "x": 0,
+    "y": 0,
+    "width": 29,
+    "height": 27
+  },
+  "bounty_hunter_rogue.png": {
+    "x": 29,
+    "y": 0,
+    "width": 29,
+    "height": 27
+  },
+  "bryophyta.png": {
+    "x": 0,
+    "y": 162,
+    "width": 26,
+    "height": 26
+  },
+  "callisto.png": {
+    "x": 52,
+    "y": 213,
+    "width": 26,
+    "height": 23
+  },
+  "calvarion.png": {
+    "x": 27,
+    "y": 81,
+    "width": 27,
+    "height": 27
+  },
+  "cerberus.png": {
+    "x": 26,
+    "y": 162,
+    "width": 26,
+    "height": 26
+  },
+  "chambers_of_xeric.png": {
+    "x": 52,
+    "y": 162,
+    "width": 26,
+    "height": 26
+  },
+  "chambers_of_xeric_challenge_mode.png": {
+    "x": 78,
+    "y": 162,
+    "width": 26,
+    "height": 26
+  },
+  "chaos_elemental.png": {
+    "x": 201,
+    "y": 188,
+    "width": 22,
+    "height": 25
+  },
+  "chaos_fanatic.png": {
+    "x": 223,
+    "y": 175,
+    "width": 25,
+    "height": 24
+  },
+  "clue_scrolls_all.png": {
+    "x": 0,
+    "y": 27,
+    "width": 29,
+    "height": 27
+  },
+  "clue_scrolls_beginner.png": {
+    "x": 29,
+    "y": 27,
+    "width": 29,
+    "height": 27
+  },
+  "clue_scrolls_easy.png": {
+    "x": 58,
+    "y": 0,
+    "width": 29,
+    "height": 27
+  },
+  "clue_scrolls_elite.png": {
+    "x": 58,
+    "y": 27,
+    "width": 29,
+    "height": 27
+  },
+  "clue_scrolls_hard.png": {
+    "x": 0,
+    "y": 54,
+    "width": 29,
+    "height": 27
+  },
+  "clue_scrolls_master.png": {
+    "x": 29,
+    "y": 54,
+    "width": 29,
+    "height": 27
+  },
+  "clue_scrolls_medium.png": {
+    "x": 58,
+    "y": 54,
+    "width": 29,
+    "height": 27
+  },
+  "collections_logged.png": {
+    "x": 248,
+    "y": 121,
+    "width": 24,
+    "height": 23
+  },
+  "colosseum_glory.png": {
+    "x": 78,
+    "y": 213,
+    "width": 26,
+    "height": 23
+  },
+  "combat.png": {
+    "x": 236,
+    "y": 237,
+    "width": 22,
+    "height": 22
+  },
+  "commander_zilyana.png": {
+    "x": 197,
+    "y": 0,
+    "width": 26,
+    "height": 25
+  },
+  "construction.png": {
+    "x": 76,
+    "y": 188,
+    "width": 25,
+    "height": 25
+  },
+  "cooking.png": {
+    "x": 272,
+    "y": 43,
+    "width": 19,
+    "height": 21
+  },
+  "corporeal_beast.png": {
+    "x": 197,
+    "y": 25,
+    "width": 26,
+    "height": 25
+  },
+  "crafting.png": {
+    "x": 183,
+    "y": 213,
+    "width": 24,
+    "height": 22
+  },
+  "crazy_archaeologist.png": {
+    "x": 197,
+    "y": 50,
+    "width": 26,
+    "height": 25
+  },
+  "dagannoth_prime.png": {
+    "x": 197,
+    "y": 75,
+    "width": 26,
+    "height": 25
+  },
+  "dagannoth_rex.png": {
+    "x": 0,
+    "y": 213,
+    "width": 26,
+    "height": 24
+  },
+  "dagannoth_supreme.png": {
+    "x": 197,
+    "y": 100,
+    "width": 26,
+    "height": 25
+  },
+  "defence.png": {
+    "x": 272,
+    "y": 105,
+    "width": 17,
+    "height": 19
+  },
+  "deranged_archaeologist.png": {
+    "x": 101,
+    "y": 188,
+    "width": 25,
+    "height": 25
+  },
+  "doom_of_mokhaiotl.png": {
+    "x": 248,
+    "y": 144,
+    "width": 24,
+    "height": 23
+  },
+  "duke_sucellus.png": {
+    "x": 248,
+    "y": 25,
+    "width": 24,
+    "height": 24
+  },
+  "ehb.png": {
+    "x": 126,
+    "y": 188,
+    "width": 25,
+    "height": 25
+  },
+  "ehp.png": {
+    "x": 151,
+    "y": 188,
+    "width": 25,
+    "height": 25
+  },
+  "farming.png": {
+    "x": 0,
+    "y": 237,
+    "width": 25,
+    "height": 23
+  },
+  "firemaking.png": {
+    "x": 99,
+    "y": 237,
+    "width": 23,
+    "height": 23
+  },
+  "fishing.png": {
+    "x": 248,
+    "y": 167,
+    "width": 24,
+    "height": 23
+  },
+  "fletching.png": {
+    "x": 176,
+    "y": 188,
+    "width": 25,
+    "height": 25
+  },
+  "general_graardor.png": {
+    "x": 197,
+    "y": 125,
+    "width": 26,
+    "height": 25
+  },
+  "giant_mole.png": {
+    "x": 27,
+    "y": 135,
+    "width": 27,
+    "height": 26
+  },
+  "grotesque_guardians.png": {
+    "x": 54,
+    "y": 135,
+    "width": 27,
+    "height": 26
+  },
+  "guardians_of_the_rift.png": {
+    "x": 223,
+    "y": 0,
+    "width": 25,
+    "height": 25
+  },
+  "herblore.png": {
+    "x": 0,
+    "y": 260,
+    "width": 25,
+    "height": 17
+  },
+  "hespori.png": {
+    "x": 81,
+    "y": 135,
+    "width": 27,
+    "height": 26
+  },
+  "hitpoints.png": {
+    "x": 272,
+    "y": 0,
+    "width": 23,
+    "height": 20
+  },
+  "hunter.png": {
+    "x": 214,
+    "y": 237,
+    "width": 22,
+    "height": 23
+  },
+  "kalphite_queen.png": {
+    "x": 108,
+    "y": 135,
+    "width": 27,
+    "height": 26
+  },
+  "king_black_dragon.png": {
+    "x": 135,
+    "y": 135,
+    "width": 27,
+    "height": 26
+  },
+  "kraken.png": {
+    "x": 170,
+    "y": 0,
+    "width": 27,
+    "height": 26
+  },
+  "kreearra.png": {
+    "x": 170,
+    "y": 26,
+    "width": 27,
+    "height": 26
+  },
+  "kril_tsutsaroth.png": {
+    "x": 104,
+    "y": 213,
+    "width": 27,
+    "height": 22
+  },
+  "last_man_standing.png": {
+    "x": 87,
+    "y": 0,
+    "width": 29,
+    "height": 27
+  },
+  "league_points.png": {
+    "x": 87,
+    "y": 27,
+    "width": 29,
+    "height": 27
+  },
+  "lunar_chests.png": {
+    "x": 131,
+    "y": 213,
+    "width": 26,
+    "height": 22
+  },
+  "magic.png": {
+    "x": 25,
+    "y": 237,
+    "width": 25,
+    "height": 23
+  },
+  "mimic.png": {
+    "x": 130,
+    "y": 162,
+    "width": 27,
+    "height": 25
+  },
+  "mining.png": {
+    "x": 122,
+    "y": 237,
+    "width": 23,
+    "height": 23
+  },
+  "nex.png": {
+    "x": 248,
+    "y": 0,
+    "width": 24,
+    "height": 25
+  },
+  "nightmare.png": {
+    "x": 54,
+    "y": 81,
+    "width": 27,
+    "height": 27
+  },
+  "obor.png": {
+    "x": 81,
+    "y": 81,
+    "width": 27,
+    "height": 27
+  },
+  "overall.png": {
+    "x": 207,
+    "y": 213,
+    "width": 23,
+    "height": 22
+  },
+  "phantom_muspah.png": {
+    "x": 223,
+    "y": 25,
+    "width": 25,
+    "height": 25
+  },
+  "phosanis_nightmare.png": {
+    "x": 116,
+    "y": 0,
+    "width": 27,
+    "height": 27
+  },
+  "prayer.png": {
+    "x": 145,
+    "y": 237,
+    "width": 23,
+    "height": 23
+  },
+  "pvp_arena.png": {
+    "x": 223,
+    "y": 50,
+    "width": 25,
+    "height": 25
+  },
+  "ranged.png": {
+    "x": 168,
+    "y": 237,
+    "width": 23,
+    "height": 23
+  },
+  "runecrafting.png": {
+    "x": 223,
+    "y": 75,
+    "width": 25,
+    "height": 25
+  },
+  "sarachnis.png": {
+    "x": 116,
+    "y": 27,
+    "width": 27,
+    "height": 27
+  },
+  "scorpia.png": {
+    "x": 116,
+    "y": 54,
+    "width": 27,
+    "height": 27
+  },
+  "scurrius.png": {
+    "x": 197,
+    "y": 150,
+    "width": 26,
+    "height": 25
+  },
+  "skotizo.png": {
+    "x": 248,
+    "y": 49,
+    "width": 24,
+    "height": 24
+  },
+  "slayer.png": {
+    "x": 248,
+    "y": 190,
+    "width": 23,
+    "height": 24
+  },
+  "smithing.png": {
+    "x": 272,
+    "y": 86,
+    "width": 19,
+    "height": 19
+  },
+  "sol_heredit.png": {
+    "x": 157,
+    "y": 213,
+    "width": 26,
+    "height": 22
+  },
+  "soul_wars_zeal.png": {
+    "x": 87,
+    "y": 54,
+    "width": 29,
+    "height": 27
+  },
+  "spindel.png": {
+    "x": 116,
+    "y": 81,
+    "width": 27,
+    "height": 27
+  },
+  "strength.png": {
+    "x": 272,
+    "y": 124,
+    "width": 16,
+    "height": 20
+  },
+  "tempoross.png": {
+    "x": 223,
+    "y": 100,
+    "width": 25,
+    "height": 25
+  },
+  "the_corrupted_gauntlet.png": {
+    "x": 170,
+    "y": 52,
+    "width": 27,
+    "height": 26
+  },
+  "the_gauntlet.png": {
+    "x": 170,
+    "y": 78,
+    "width": 27,
+    "height": 26
+  },
+  "the_hueycoatl.png": {
+    "x": 104,
+    "y": 162,
+    "width": 26,
+    "height": 26
+  },
+  "the_leviathan.png": {
+    "x": 248,
+    "y": 73,
+    "width": 24,
+    "height": 24
+  },
+  "the_royal_titans.png": {
+    "x": 248,
+    "y": 214,
+    "width": 24,
+    "height": 23
+  },
+  "the_whisperer.png": {
+    "x": 191,
+    "y": 237,
+    "width": 23,
+    "height": 23
+  },
+  "theatre_of_blood.png": {
+    "x": 0,
+    "y": 108,
+    "width": 27,
+    "height": 27
+  },
+  "theatre_of_blood_hard_mode.png": {
+    "x": 27,
+    "y": 108,
+    "width": 27,
+    "height": 27
+  },
+  "thermonuclear_smoke_devil.png": {
+    "x": 54,
+    "y": 108,
+    "width": 27,
+    "height": 27
+  },
+  "thieving.png": {
+    "x": 223,
+    "y": 199,
+    "width": 25,
+    "height": 13
+  },
+  "tombs_of_amascut.png": {
+    "x": 75,
+    "y": 237,
+    "width": 24,
+    "height": 23
+  },
+  "tombs_of_amascut_expert.png": {
+    "x": 50,
+    "y": 237,
+    "width": 25,
+    "height": 23
+  },
+  "tt200m.png": {
+    "x": 223,
+    "y": 125,
+    "width": 25,
+    "height": 25
+  },
+  "ttm.png": {
+    "x": 223,
+    "y": 150,
+    "width": 25,
+    "height": 25
+  },
+  "tzkal_zuk.png": {
+    "x": 81,
+    "y": 108,
+    "width": 27,
+    "height": 27
+  },
+  "tztok_jad.png": {
+    "x": 108,
+    "y": 108,
+    "width": 27,
+    "height": 27
+  },
+  "vardorvis.png": {
+    "x": 248,
+    "y": 97,
+    "width": 24,
+    "height": 24
+  },
+  "venenatis.png": {
+    "x": 143,
+    "y": 0,
+    "width": 27,
+    "height": 27
+  },
+  "vetion.png": {
+    "x": 143,
+    "y": 27,
+    "width": 27,
+    "height": 27
+  },
+  "vorkath.png": {
+    "x": 143,
+    "y": 54,
+    "width": 27,
+    "height": 27
+  },
+  "wintertodt.png": {
+    "x": 143,
+    "y": 81,
+    "width": 27,
+    "height": 27
+  },
+  "woodcutting.png": {
+    "x": 272,
+    "y": 64,
+    "width": 18,
+    "height": 22
+  },
+  "yama.png": {
+    "x": 0,
+    "y": 188,
+    "width": 26,
+    "height": 25
+  },
+  "zalcano.png": {
+    "x": 143,
+    "y": 108,
+    "width": 27,
+    "height": 27
+  },
+  "zulrah.png": {
+    "x": 0,
+    "y": 135,
+    "width": 27,
+    "height": 27
+  }
+}
