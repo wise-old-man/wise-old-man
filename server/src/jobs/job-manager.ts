@@ -159,7 +159,15 @@ class JobManager {
       const queue = new Queue(jobType, {
         prefix: REDIS_PREFIX,
         connection: REDIS_CONFIG,
-        defaultJobOptions: { removeOnComplete: true, removeOnFail: true, ...(options || {}) }
+        defaultJobOptions: {
+          removeOnComplete: {
+            age: 60
+          },
+          removeOnFail: {
+            age: 60
+          },
+          ...(options || {})
+        }
       });
 
       this.queues.push(queue);
