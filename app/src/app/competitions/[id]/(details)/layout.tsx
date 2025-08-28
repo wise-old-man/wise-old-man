@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { PropsWithChildren } from "react";
 import {
   CompetitionDetailsResponse,
   CompetitionStatus,
@@ -7,9 +5,16 @@ import {
   CompetitionType,
   MetricProps,
 } from "@wise-old-man/utils";
-import { cn } from "~/utils/styling";
-import { getCompetitionDetails, getCompetitionStatus } from "~/services/wiseoldman";
+import Link from "next/link";
+import { PropsWithChildren } from "react";
+import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import { Button } from "~/components/Button";
+import { CompetitionDetailsNavigation } from "~/components/competitions/CompetitionDetailsNavigation";
+import { CompetitionPreviewWarning } from "~/components/competitions/CompetitionPreviewWarning";
+import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
+import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
+import { PreviewMetricDialog } from "~/components/competitions/PreviewMetricDialog";
+import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAllParticipantsDialog";
 import { Container } from "~/components/Container";
 import {
   DropdownMenu,
@@ -17,15 +22,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/Dropdown";
-import { MetricIcon } from "~/components/Icon";
+import { MetricAvatarGroup } from "~/components/MetricAvatarGroup";
 import { QueryLink } from "~/components/QueryLink";
-import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
-import { CompetitionPreviewWarning } from "~/components/competitions/CompetitionPreviewWarning";
-import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
-import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
-import { PreviewMetricDialog } from "~/components/competitions/PreviewMetricDialog";
-import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAllParticipantsDialog";
-import { CompetitionDetailsNavigation } from "~/components/competitions/CompetitionDetailsNavigation";
+import { getCompetitionDetails, getCompetitionStatus } from "~/services/wiseoldman";
+import { cn } from "~/utils/styling";
 
 import OverflowIcon from "~/assets/overflow.svg";
 
@@ -74,29 +74,29 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
       <div className="mt-7">
         <CompetitionDetailsNavigation competition={competition} />
       </div>
-      <CompetitionPreviewWarning trueMetric={competition.metric} />
+      {/* TODO: Fix this */}
+      <CompetitionPreviewWarning trueMetric={competition.metrics[0]} />
       {children}
 
       {/* Dialogs */}
       <DeleteCompetitionDialog competitionId={id} />
       <ExportCompetitionDialog competitionId={id} />
       <UpdateAllParticipantsDialog competitionId={id} />
-      <PreviewMetricDialog trueMetric={competition.metric} />
+      {/* TODO: Fix this */}
+      <PreviewMetricDialog trueMetric={competition.metrics[0]} />
     </Container>
   );
 }
 
 function Header(props: CompetitionDetailsResponse) {
-  const { id, metric, title, type, group } = props;
+  const { id, metrics, title, type, group } = props;
 
   const status = getCompetitionStatus(props);
 
   return (
     <div className="flex flex-col-reverse items-start justify-between gap-x-5 gap-y-7 md:flex-row">
       <div className="flex w-full grow items-center gap-x-3">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-gray-500 bg-gray-800">
-          <MetricIcon metric={metric} />
-        </div>
+        <MetricAvatarGroup metrics={metrics} maxCount={2} size="lg" avatarClassname="bg-gray-800" />
         <div>
           <h1 className="text-lg font-bold sm:text-2xl">{title}</h1>
           <div className="mt-1 text-xs text-gray-200 sm:mt-0 sm:text-body">
@@ -108,8 +108,12 @@ function Header(props: CompetitionDetailsResponse) {
               })}
             />
             {CompetitionStatusProps[status].name}
-            {" · "}
-            {MetricProps[metric].name}
+            {metrics.length === 1 && (
+              <>
+                {" · "}
+                {MetricProps[metrics[0]].name}
+              </>
+            )}
             {" · "}
             {type === CompetitionType.CLASSIC ? getParticipantsLabel(props) : getTeamsLabel(props)}
             {group && (

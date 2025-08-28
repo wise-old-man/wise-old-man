@@ -1,6 +1,3 @@
-import { Suspense } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import {
   CompetitionResponse,
   CompetitionStatus,
@@ -9,12 +6,15 @@ import {
   Metric,
   formatNumber,
 } from "@wise-old-man/utils";
-import { cn } from "~/utils/styling";
-import { timeago } from "~/utils/dates";
-import { getCompetitionStatus, getGroupCompetitions } from "~/services/wiseoldman";
+import Image from "next/image";
+import Link from "next/link";
+import { Suspense } from "react";
 import { MetricIcon, MetricIconSmall } from "~/components/Icon";
+import { getCompetitionStatus, getGroupCompetitions } from "~/services/wiseoldman";
+import { timeago } from "~/utils/dates";
+import { cn } from "~/utils/styling";
 import { Label } from "../Label";
-import { Badge } from "../Badge";
+import { MetricAvatarGroup } from "../MetricAvatarGroup";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 interface GroupWidgetsProps {
@@ -135,15 +135,24 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
 
   return (
     <Link prefetch={false} href={`/competitions/${featured.id}`}>
-      <div className="group relative flex h-[5rem] w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-600 px-6 hover:border-gray-400">
+      <div
+        className={cn(
+          "group relative flex h-[5rem] w-full items-center gap-x-5 overflow-hidden rounded-lg border border-gray-600 pl-6 pr-8 hover:border-gray-400",
+          featured.metrics.length > 1 && "gap-x-4 pl-4"
+        )}
+      >
         <Image
-          alt={featured.metric}
+          alt={featured.metrics[0]}
           fill
           className="pointer-events-none z-0 object-cover transition-all duration-100 group-hover:brightness-110"
-          src={`/img/backgrounds/${featured.metric}.png`}
+          src={`/img/backgrounds/${featured.metrics[0]}.png`}
         />
-        <div className="z-1 relative mr-1">
-          <MetricIcon metric={featured.metric} />
+        <div className="z-1 relative">
+          {featured.metrics.length === 1 ? (
+            <MetricIcon metric={featured.metrics[0]} />
+          ) : (
+            <MetricAvatarGroup metrics={featured.metrics} maxCount={2} />
+          )}
         </div>
         <div className="z-1 relative flex flex-col gap-y-1">
           <span className="line-clamp-1 text-base font-medium">{featured.title}</span>
@@ -155,10 +164,9 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
                 "bg-yellow-500": status === CompetitionStatus.UPCOMING,
               })}
             />
-            {CompetitionStatusProps[status].name} · {timeagoLabel}
+            {CompetitionStatusProps[status].name} · Featured · {timeagoLabel}
           </span>
         </div>
-        <Badge className="absolute bottom-3 right-3 border border-gray-400 bg-black/20">Featured</Badge>
       </div>
     </Link>
   );
