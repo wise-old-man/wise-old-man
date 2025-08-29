@@ -172,7 +172,9 @@ class JobManager {
 
       this.queues.push(queue);
 
-      if (initWorkers) {
+      const temporaryCheck = getThreadIndex() === 3 && jobType === JobType.UPDATE_PLAYER;
+
+      if (initWorkers && !temporaryCheck) {
         const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
           prefix: REDIS_PREFIX,
           limiter: options?.rateLimiter,
