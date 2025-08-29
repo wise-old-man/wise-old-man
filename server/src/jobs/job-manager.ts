@@ -237,6 +237,36 @@ class JobManager {
     for (const queue of this.queues) {
       const queueMetrics = await queue.getJobCounts();
       prometheus.updateQueueMetrics(queue.name, queueMetrics);
+
+      if (queue.name !== JobType.UPDATE_PLAYER) {
+        continue;
+      }
+
+      const keys = await redisClient.keys(`${REDIS_PREFIX}:${queue.name}:*`);
+
+      for (const key of keys) {
+        const jobId = key.slice(`${REDIS_PREFIX}:${queue.name}:`.length);
+
+        if (!jobId.startsWith('{')) {
+          continue;
+        }
+
+        const job = await queue.getJob(jobId);
+
+        if (job === undefined) {
+          continue;
+        }
+
+        const jobState = await job.getState();
+
+        if (jobState === 'unknown') {
+          logger.debug(`Found potential orphaned job in ${queue.name} queue: ${key}`);
+        }
+
+        if (jobId.includes('flowstreem') && queue.name === JobType.UPDATE_PLAYER) {
+          logger.debug(`Found flowstreem corrupted job: state=${jobState}`);
+        }
+      }
     }
   }
 }
