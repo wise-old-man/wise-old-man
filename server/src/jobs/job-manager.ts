@@ -148,7 +148,7 @@ class JobManager {
     }
   }
 
-  async init() {
+  async init({ initWorkers }: { initWorkers: boolean }) {
     if (process.env.NODE_ENV === 'test') return;
 
     const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
@@ -172,15 +172,17 @@ class JobManager {
 
       this.queues.push(queue);
 
-      const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
-        prefix: REDIS_PREFIX,
-        limiter: options?.rateLimiter,
-        connection: REDIS_CONFIG,
-        concurrency: options.maxConcurrent ?? 1,
-        autorun: true
-      });
+      if (initWorkers) {
+        const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
+          prefix: REDIS_PREFIX,
+          limiter: options?.rateLimiter,
+          connection: REDIS_CONFIG,
+          concurrency: options.maxConcurrent ?? 1,
+          autorun: true
+        });
 
-      this.workers.push(worker);
+        this.workers.push(worker);
+      }
     }
 
     // sleep for 5 seconds to allow the workers to start up
