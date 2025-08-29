@@ -21,6 +21,7 @@ import { DispatchMembersLeftDiscordEventJob } from './handlers/dispatch-members-
 import { DispatchMembersRolesChangedDiscordEventJob } from './handlers/dispatch-members-roles-changed-discord-event.job';
 import { DispatchPlayerFlaggedDiscordEventJob } from './handlers/dispatch-player-flagged-discord-event.job';
 import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
+import { PurgeDanglingJobsJob } from './handlers/purge-dangling-jobs.job';
 import { RecalculatePlayerAchievementsJob } from './handlers/recalculate-player-achievements.job';
 import { RemovePlayersFromGroupCompetitionsJob } from './handlers/remove-players-from-group-competitions.job';
 import { ReviewNameChangeJob } from './handlers/review-name-change.job';
@@ -72,6 +73,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.DISPATCH_MEMBERS_ROLES_CHANGED_DISCORD_EVENT]: DispatchMembersRolesChangedDiscordEventJob,
   [JobType.DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT]: DispatchPlayerFlaggedDiscordEventJob,
   [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
+  [JobType.PURGE_DANGLING_JOBS]: PurgeDanglingJobsJob,
   [JobType.RECALCULATE_PLAYER_ACHIEVEMENTS]: RecalculatePlayerAchievementsJob,
   [JobType.REMOVE_PLAYERS_FROM_GROUP_COMPETITIONS]: RemovePlayersFromGroupCompetitionsJob,
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangeJob,
@@ -112,6 +114,7 @@ export const CRON_CONFIG = [
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
   // every hour
   { interval: '0 * * * *', type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW },
+  { interval: '0 * * * *', type: JobType.PURGE_DANGLING_JOBS },
   // Every 6 hours
   { interval: '0 */6 * * *', type: JobType.INVALIDATE_DELTAS },
   // everyday at 8:00 UTC

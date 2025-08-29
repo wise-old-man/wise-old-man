@@ -22,6 +22,7 @@ export enum JobType {
   DISPATCH_MEMBERS_ROLES_CHANGED_DISCORD_EVENT = 'dispatch-members-roles-changed-discord-event',
   DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT = 'dispatch-player-flagged-discord-event',
   INVALIDATE_DELTAS = 'invalidate-deltas',
+  PURGE_DANGLING_JOBS = 'purge-dangling-jobs',
   RECALCULATE_PLAYER_ACHIEVEMENTS = 'recalculate-player-achievements',
   REMOVE_PLAYERS_FROM_GROUP_COMPETITIONS = 'remove-players-from-group-competitions',
   REVIEW_NAME_CHANGE = 'review-name-change',
