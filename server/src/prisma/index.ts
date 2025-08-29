@@ -11,18 +11,7 @@ function parseBigInt(bigint: bigint): number {
   return parseInt(bigint.toString());
 }
 
-const prisma = new PrismaClient({
-  log: [
-    { level: 'query', emit: 'event' },
-    { level: 'error', emit: 'event' },
-    { level: 'warn', emit: 'event' },
-    { level: 'info', emit: 'event' }
-  ]
-});
-
-prisma.$on('query', e => {
-  console.log(`Query (${e.duration}ms) query=${e.query} params=${e.params}`);
-});
+const prisma = new PrismaClient();
 
 const extendedClient = prisma.$extends({
   result: {
