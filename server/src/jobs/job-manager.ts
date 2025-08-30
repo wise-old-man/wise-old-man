@@ -172,9 +172,17 @@ class JobManager {
 
       this.queues.push(queue);
 
-      const temporaryCheck = getThreadIndex() === 3 && jobType === JobType.UPDATE_PLAYER;
+      const threadIndex = getThreadIndex();
 
-      if (initWorkers && !temporaryCheck) {
+      // For now threadIndex=3 will only execute UPDATE_PLAYER jobs
+      const threadTestMap = new Map<number, JobType[]>([[3, [JobType.UPDATE_PLAYER]]]);
+
+      const isAllowed =
+        threadIndex === null ||
+        !threadTestMap.has(threadIndex) ||
+        threadTestMap.get(threadIndex)!.includes(jobType as JobType);
+
+      if (initWorkers && isAllowed) {
         const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
           prefix: REDIS_PREFIX,
           limiter: options?.rateLimiter,
