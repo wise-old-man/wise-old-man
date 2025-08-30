@@ -175,7 +175,16 @@ class JobManager {
       const threadIndex = getThreadIndex();
 
       // For now threadIndex=3 will only execute UPDATE_PLAYER jobs
-      const threadTestMap = new Map<number, JobType[]>([[3, [JobType.UPDATE_PLAYER]]]);
+      const threadTestMap = new Map<number, JobType[]>([
+        [
+          3,
+          [
+            JobType.UPDATE_PLAYER,
+            JobType.SYNC_PLAYER_ACHIEVEMENTS,
+            JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS
+          ]
+        ]
+      ]);
 
       const isAllowed =
         threadIndex === null ||
