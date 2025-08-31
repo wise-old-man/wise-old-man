@@ -8,8 +8,12 @@ import { redisClient } from './services/redis.service';
 
 (async () => {
   const shutdownHandler = await initServer({
-    initAPI: getThreadIndex() !== 3, // Experimental for temporary monitoring: Only run API on thread 0, 1, and 2
-    initJobWorkers: getThreadIndex() !== 1 // Experimental for temporary monitoring: Only run job workers on thread 0, 2, and 3
+    // Experimental for temporary monitoring
+    initAPI: getThreadIndex() !== 3,
+    initJobWorkers: getThreadIndex() !== 3,
+    initJobQueues: getThreadIndex() !== 3,
+    initPrometheus: getThreadIndex() !== 3,
+    initEventEmitter: getThreadIndex() !== 3
   });
 
   process.on('SIGTERM', () => shutdownHandler());
@@ -30,8 +34,26 @@ import { redisClient } from './services/redis.service';
   });
 })();
 
-async function initServer({ initAPI, initJobWorkers }: { initAPI: boolean; initJobWorkers: boolean }) {
-  eventEmitter.init();
+async function initServer({
+  initAPI,
+  initJobWorkers,
+  initJobQueues,
+  initEventEmitter,
+  initPrometheus
+}: {
+  initAPI: boolean;
+  initJobWorkers: boolean;
+  initJobQueues: boolean;
+  initEventEmitter: boolean;
+  initPrometheus: boolean;
+}) {
+  setInterval(() => {
+    console.log('Heart beat');
+  }, 180_000);
+
+  if (initEventEmitter) {
+    eventEmitter.init();
+  }
 
   const port = process.env.API_PORT || 5000;
 
@@ -42,11 +64,15 @@ async function initServer({ initAPI, initJobWorkers }: { initAPI: boolean; initJ
       })
     : null;
 
-  prometheusService.init();
+  if (initPrometheus) {
+    prometheusService.init();
+  }
 
-  await jobManager.init({
-    initWorkers: initJobWorkers
-  });
+  if (initJobQueues) {
+    await jobManager.init({
+      initWorkers: initJobWorkers
+    });
+  }
 
   let isShuttingDown = false;
 
@@ -59,13 +85,18 @@ async function initServer({ initAPI, initJobWorkers }: { initAPI: boolean; initJ
     logger.info('Shutting down gracefully...');
 
     try {
-      prometheusService.shutdown();
+      if (initPrometheus) {
+        prometheusService.shutdown();
+      }
 
       if (apiServer !== null) {
         await new Promise(res => apiServer.close(res));
       }
 
-      await jobManager.shutdown();
+      if (initJobQueues) {
+        await jobManager.shutdown();
+      }
+
       await redisClient.quit();
 
       logger.info('Shutdown complete.');
