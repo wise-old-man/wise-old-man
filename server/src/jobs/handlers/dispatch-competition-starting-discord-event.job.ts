@@ -1,4 +1,5 @@
 import { isErrored } from '@attio/fetchable';
+import { formatCompetitionResponse } from '../../api/responses';
 import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import { Job } from '../job.class';
@@ -26,6 +27,30 @@ export class DispatchCompetitionStartingDiscordEventJob extends Job<Payload> {
     const competition = await prisma.competition.findFirst({
       where: {
         id: payload.competitionId
+      },
+      include: {
+        _count: {
+          select: {
+            participations: true
+          }
+        },
+        group: {
+          include: {
+            _count: {
+              select: {
+                memberships: true
+              }
+            }
+          }
+        },
+        metrics: {
+          where: {
+            deletedAt: null
+          },
+          orderBy: {
+            createdAt: 'asc'
+          }
+        }
       }
     });
 
@@ -33,9 +58,22 @@ export class DispatchCompetitionStartingDiscordEventJob extends Job<Payload> {
       return;
     }
 
+    const competitionResponse = formatCompetitionResponse(
+      {
+        ...competition,
+        participantCount: competition._count.participations
+      },
+      competition.group === null
+        ? null
+        : {
+            ...competition.group,
+            memberCount: competition.group?._count.memberships
+          }
+    );
+
     const dispatchResult = await dispatchDiscordBotEvent(DiscordBotEventType.COMPETITION_STARTING, {
       groupId: competition.groupId,
-      competition,
+      competition: competitionResponse,
       minutesLeft: payload.minutesLeft
     });
 

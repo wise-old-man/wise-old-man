@@ -175,7 +175,7 @@ class JobManager {
       const threadIndex = getThreadIndex();
 
       // For now threadIndex=3 will only execute UPDATE_PLAYER jobs
-      const threadTestMap = new Map<number, JobType[]>([[3, []]]);
+      const threadTestMap = new Map<number, JobType[]>([]);
 
       const isAllowed =
         threadIndex === null ||

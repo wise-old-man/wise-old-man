@@ -9,10 +9,10 @@ import { redisClient } from './services/redis.service';
 (async () => {
   const shutdownHandler = await initServer({
     // Experimental for temporary monitoring
-    initAPI: getThreadIndex() !== 3,
-    initJobWorkers: getThreadIndex() !== 3,
-    initJobQueues: getThreadIndex() !== 3,
-    initPrometheus: getThreadIndex() !== 3,
+    initAPI: true,
+    initJobWorkers: true,
+    initJobQueues: true,
+    initPrometheus: true,
     initEventEmitter: true
   });
 

@@ -1,5 +1,6 @@
 import { isErrored } from '@attio/fetchable';
 import { fetchCompetitionDetails } from '../../api/modules/competitions/services/FetchCompetitionDetailsService';
+import { formatCompetitionResponse } from '../../api/responses';
 import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import { Job } from '../job.class';
@@ -44,9 +45,18 @@ export class DispatchCompetitionEndedDiscordEventJob extends Job<Payload> {
         gained: p.progress.gained
       }));
 
+    const competitionResponse = formatCompetitionResponse(
+      {
+        ...competitionDetails.competition,
+        metrics: competitionDetails.metrics,
+        participantCount: competitionDetails.participations.length
+      },
+      competitionDetails.group
+    );
+
     const dispatchResult = await dispatchDiscordBotEvent(DiscordBotEventType.COMPETITION_ENDED, {
       groupId: competition.groupId,
-      competition,
+      competition: competitionResponse,
       standings
     });
 
