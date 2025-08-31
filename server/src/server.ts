@@ -13,7 +13,7 @@ import { redisClient } from './services/redis.service';
     initJobWorkers: getThreadIndex() !== 3,
     initJobQueues: getThreadIndex() !== 3,
     initPrometheus: getThreadIndex() !== 3,
-    initEventEmitter: getThreadIndex() !== 3
+    initEventEmitter: true
   });
 
   process.on('SIGTERM', () => shutdownHandler());
