@@ -16,9 +16,13 @@ class JobManager {
   private queues: Queue[];
   private workers: Worker[];
 
+  // <jobRedisKey, firstSeenDate>
+  private danglingJobsMap: Map<string, Date>;
+
   constructor() {
     this.queues = [];
     this.workers = [];
+    this.danglingJobsMap = new Map<string, Date>();
   }
 
   /**
@@ -249,11 +253,21 @@ class JobManager {
     for (const queue of this.queues) {
       const queueMetrics = await queue.getJobCounts();
       prometheus.updateQueueMetrics(queue.name, queueMetrics);
+    }
+  }
 
-      if (queue.name !== JobType.UPDATE_PLAYER) {
-        continue;
-      }
+  /**
+   * Some jobs fail to be removed from Redis when they are completed/failed,
+   * resulting in a lot of "unknown" jobs clogging up the queues, and most importantly,
+   * preventing the same job from being re-enqueued in the future (if it has a unique job ID).
+   *
+   * This function scans all queues for these "dangling" jobs, and if they have been in this state
+   * for over 1 hour, it removes them from Redis.
+   */
+  async purgeDanglingJobs() {
+    const unfilteredKeys: string[] = [];
 
+    for (const queue of this.queues) {
       const keys = await redisClient.keys(`${REDIS_PREFIX}:${queue.name}:*`);
 
       for (const key of keys) {
@@ -272,14 +286,33 @@ class JobManager {
         const jobState = await job.getState();
 
         if (jobState === 'unknown') {
-          logger.debug(`Found potential orphaned job in ${queue.name} queue: ${key}`);
-        }
-
-        if (jobId.includes('flowstreem') && queue.name === JobType.UPDATE_PLAYER) {
-          logger.debug(`Found flowstreem corrupted job: state=${jobState}`);
+          unfilteredKeys.push(key);
         }
       }
     }
+
+    const keysToRemove: string[] = [];
+    const nextMap = new Map<string, Date>();
+
+    for (const key of unfilteredKeys) {
+      const value = this.danglingJobsMap.get(key);
+
+      // If this job has been DANGLING for over an hour, set it for deletion from Redis
+      if (value !== undefined && value.getTime() < Date.now() - 3_600_000) {
+        keysToRemove.push(key);
+      }
+
+      nextMap.set(key, value ?? new Date());
+    }
+
+    for (const key of keysToRemove) {
+      logger.debug(`[v2] Purging dangling job from Redis: ${key}`);
+      await redisClient.del(key);
+    }
+
+    this.danglingJobsMap = nextMap;
+
+    return keysToRemove;
   }
 }
 
