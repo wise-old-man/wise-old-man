@@ -1,5 +1,6 @@
 import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
+import { performance } from 'perf_hooks';
 import { z } from 'zod';
 import { JobType, jobManager } from '../../../jobs';
 import prisma from '../../../prisma';
@@ -138,8 +139,12 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
+    let currentTime = performance.now();
     const details = await fetchPlayerDetails(username);
+    console.log(`Fetched player details in ${performance.now() - currentTime}ms`);
+    currentTime = performance.now();
     const response = formatPlayerDetailsResponse(details);
+    console.log(`Formatted response in ${performance.now() - currentTime}ms`);
 
     res.status(200).json(response);
   })
