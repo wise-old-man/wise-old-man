@@ -139,7 +139,7 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
       }
 
       // Delete any deltas that have not progressed during the period
-      await prisma.cachedDelta.deleteMany({
+      await transaction.cachedDelta.deleteMany({
         where: {
           playerId: playerAndSnapshot.id,
           period,
