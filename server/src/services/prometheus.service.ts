@@ -1,7 +1,8 @@
-import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
+import { AsyncResult, combineAsync, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import axios from 'axios';
 import prometheus, { Counter, Gauge, Histogram, Registry } from 'prom-client';
 import { getThreadIndex } from '../env';
+import { getPrismaPrometheusMetrics } from '../prisma';
 
 class PrometheusService {
   private registry: Registry;
@@ -99,7 +100,10 @@ class PrometheusService {
       return errored({ code: 'MISSING_METRICS_URL' });
     }
 
-    const metricsResult = await fromPromise(this.registry.metrics());
+    const metricsResult = await combineAsync([
+      fromPromise(this.registry.metrics()),
+      fromPromise(getPrismaPrometheusMetrics())
+    ]);
 
     if (isErrored(metricsResult)) {
       return errored({
@@ -108,10 +112,12 @@ class PrometheusService {
       });
     }
 
+    const mergedMetrics = metricsResult.value.join('\n');
+
     const requestResult = await fromPromise(
       axios.post(process.env.PROMETHEUS_METRICS_SERVICE_URL, {
         source: 'api',
-        data: metricsResult.value,
+        data: mergedMetrics,
         thread_index: getThreadIndex()
       })
     );
