@@ -1,6 +1,5 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { Country, Metric, Period, Player, PlayerBuild, PlayerStatus, PlayerType } from '../../../../types';
-import { parseNum } from '../delta.utils';
 
 const MAX_RESULTS = 20;
 
@@ -36,19 +35,24 @@ async function findDeltaLeaderboards(
   }
 
   // Fetch the top 20 deltas for this period & metric
-  const deltas = await prisma.delta.findMany({
+  const deltas = await prisma.cachedDelta.findMany({
     where: {
       period,
-      player: { ...playerQuery, status: PlayerStatus.ACTIVE }
+      metric,
+      player: {
+        ...playerQuery,
+        status: PlayerStatus.ACTIVE
+      }
     },
     select: {
-      [metric]: true,
       playerId: true,
+      metric: true,
+      value: true,
       startedAt: true,
       endedAt: true,
       player: true
     },
-    orderBy: [{ [metric]: 'desc' }],
+    orderBy: [{ value: 'desc' }, { updatedAt: 'asc' }],
     take: MAX_RESULTS
   });
 
@@ -58,7 +62,7 @@ async function findDeltaLeaderboards(
     playerId: d.playerId,
     startDate: d.startedAt,
     endDate: d.endedAt,
-    gained: Math.max(0, parseNum(metric, String(d[metric])))
+    gained: Math.max(0, d.value)
   }));
 
   return results;

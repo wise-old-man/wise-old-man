@@ -18,7 +18,7 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
   };
 
   async execute({ username, period, periodStartDate }: Payload) {
-    const currentDelta = await prisma.delta.findFirst({
+    const currentDeltas = await prisma.cachedDelta.findMany({
       where: {
         player: {
           username
@@ -27,11 +27,11 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
       }
     });
 
-    if (currentDelta === null) {
+    if (currentDeltas.length === 0) {
       return;
     }
 
-    const playerId = currentDelta.playerId;
+    const playerId = currentDeltas[0].playerId;
 
     const [currentRecords, previousSnapshot] = await Promise.all([
       prisma.record.findMany({
@@ -52,17 +52,20 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
       return;
     }
 
-    const currentRecordMap = Object.fromEntries(currentRecords.map(r => [r.metric, r]));
+    const currentDeltasMap = new Map(currentDeltas.map(d => [d.metric, d]));
+    const currentRecordsMap = new Map(currentRecords.map(r => [r.metric, r]));
 
     const toCreate: PrismaTypes.RecordCreateManyInput[] = [];
     const toUpdate: { metric: Metric; newValue: number }[] = [];
 
     for (const metric of METRICS) {
-      const value = currentDelta[metric];
+      const metricDelta = currentDeltasMap.get(metric);
 
-      if (value <= 0) {
+      if (metricDelta === undefined || metricDelta.value <= 0) {
         continue;
       }
+
+      const value = metricDelta.value;
 
       // Some metrics (such as collection logs, and some wildy bosses) were added to the hiscores after their in-game release.
       // Which meant a lot of players jumped from unranked (-1) to their current kc at the time, this generated a lot of records.
@@ -74,8 +77,10 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
         continue;
       }
 
+      const metricRecord = currentRecordsMap.get(metric);
+
       // No record exists for this period and metric, create a new one.
-      if (!currentRecordMap[metric]) {
+      if (metricRecord === undefined) {
         toCreate.push({
           playerId,
           period,
@@ -86,7 +91,7 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
       }
 
       // A record existed before, and should be updated with a new and greater value
-      if (value > currentRecordMap[metric].value) {
+      if (value > metricRecord.value) {
         toUpdate.push({
           metric,
           newValue: prepareDecimalValue(metric, value)
