@@ -72,6 +72,10 @@ const extendedClient = prisma.$extends({
   }
 });
 
-export { PrismaPromise, Prisma as PrismaTypes };
+function getPrismaPrometheusMetrics() {
+  return prisma.$metrics.prometheus();
+}
+
+export { getPrismaPrometheusMetrics, PrismaPromise, Prisma as PrismaTypes };
 
 export default extendedClient;
