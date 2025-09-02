@@ -297,13 +297,23 @@ class JobManager {
     for (const key of unfilteredKeys) {
       const value = this.danglingJobsMap.get(key);
 
-      // If this job has been DANGLING for over an hour, set it for deletion from Redis
-      if (value !== undefined && value.getTime() < Date.now() - 3_600_000) {
+      // If this job has been DANGLING for over 10 mins, set it for deletion from Redis
+      if (value !== undefined && value.getTime() < Date.now() - 600_000) {
         keysToRemove.push(key);
       }
 
       nextMap.set(key, value ?? new Date());
     }
+
+    logger.debug(
+      'Dangling jobs',
+      {
+        unfilteredKeys,
+        keysToRemove,
+        nextMap: Array.from(nextMap.entries())
+      },
+      true
+    );
 
     for (const key of keysToRemove) {
       logger.debug(`[v2] Purging dangling job from Redis: ${key}`);
