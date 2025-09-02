@@ -112,9 +112,10 @@ export const CRON_CONFIG = [
   { interval: '*/5 * * * *', type: JobType.CHECK_INAPPROPRIATE_CONTENT },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
+  // every 20 mins
+  { interval: '*/20 * * * *', type: JobType.PURGE_DANGLING_JOBS }, // after debugging, this can be every hour
   // every hour
   { interval: '0 * * * *', type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW },
-  { interval: '0 * * * *', type: JobType.PURGE_DANGLING_JOBS },
   // Every 6 hours
   { interval: '0 */6 * * *', type: JobType.INVALIDATE_DELTAS },
   // everyday at 8:00 UTC
