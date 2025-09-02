@@ -99,7 +99,7 @@ class PrometheusService {
       return errored({ code: 'MISSING_METRICS_URL' });
     }
 
-    const metricsResult = await fromPromise(this.registry.getMetricsAsJSON());
+    const metricsResult = await fromPromise(this.registry.metrics());
 
     if (isErrored(metricsResult)) {
       return errored({
