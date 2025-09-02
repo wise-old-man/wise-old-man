@@ -112,7 +112,7 @@ class PrometheusService {
       axios.post(process.env.PROMETHEUS_METRICS_SERVICE_URL, {
         source: 'api',
         data: metricsResult.value,
-        threadIndex: getThreadIndex()
+        thread_index: getThreadIndex()
       })
     );
 
