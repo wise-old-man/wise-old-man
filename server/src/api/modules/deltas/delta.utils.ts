@@ -16,7 +16,7 @@ import { MetricDelta } from '../../../types/metric-delta.type';
 import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
 
-import { getLevel, getMinimumValue, isComputedMetric, isSkill } from '../../../utils/shared';
+import { getLevel, getMinimumValue, isSkill } from '../../../utils/shared';
 import { roundNumber } from '../../../utils/shared/round-number.util';
 import {
   getPlayerEfficiencyMap,
@@ -27,10 +27,6 @@ import { PlayerDeltasMapResponse } from '../../responses';
 import { getTotalLevel } from '../snapshots/snapshot.utils';
 
 const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 }) satisfies MetricDelta;
-
-export function parseNum(metric: Metric, val: string) {
-  return isComputedMetric(metric) ? parseFloat(val) : parseInt(val);
-}
 
 /**
  * Calculates the rank difference between two snapshots, for a given metric.

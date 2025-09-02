@@ -63,16 +63,11 @@ describe('Deltas API', () => {
 
       expect(playerDeltaUpdatedEvent).not.toHaveBeenCalled();
 
-      const firstDeltas = await prisma.delta.findMany({
-        where: { playerId: firstTrackResponse.body.id }
-      });
-
       const firstCachedDeltas = await prisma.cachedDelta.findMany({
         where: { playerId: firstTrackResponse.body.id }
       });
 
       // Player was only updated once, shouldn't have enough data to calculate deltas yet
-      expect(firstDeltas.length).toBe(0);
       expect(firstCachedDeltas.length).toBe(0);
 
       const secondTrackResponse = await api.post(`/players/jonxslays`);
@@ -83,15 +78,11 @@ describe('Deltas API', () => {
 
       expect(playerDeltaUpdatedEvent).not.toHaveBeenCalled();
 
-      const secondDeltas = await prisma.delta.findMany({
-        where: { playerId: secondTrackResponse.body.id }
-      });
       const secondCachedDeltas = await prisma.cachedDelta.findMany({
         where: { playerId: secondTrackResponse.body.id }
       });
 
       // Player now has enough snapshots, but no gains in between them, so delta calcs get skipped
-      expect(secondDeltas.length).toBe(0);
       expect(secondCachedDeltas.length).toBe(0);
     });
 
@@ -114,15 +105,11 @@ describe('Deltas API', () => {
 
       expect(playerDeltaUpdatedEvent).not.toHaveBeenCalled();
 
-      const firstDeltas = await prisma.delta.findMany({
-        where: { playerId: firstTrackResponse.body.id }
-      });
       const firstCachedDeltas = await prisma.cachedDelta.findMany({
         where: { playerId: firstTrackResponse.body.id }
       });
 
       // Player was only updated once, shouldn't have enough data to calculate deltas yet
-      expect(firstDeltas.length).toBe(0);
       expect(firstCachedDeltas.length).toBe(0);
 
       let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
@@ -166,9 +153,6 @@ describe('Deltas API', () => {
 
       playerDeltaUpdatedEvent.mockClear();
 
-      const secondDeltas = await prisma.delta.findMany({
-        where: { playerId: firstTrackResponse.body.id }
-      });
       const secondCachedDeltas = await prisma.cachedDelta.findMany({
         where: { playerId: firstTrackResponse.body.id }
       });
@@ -194,24 +178,7 @@ describe('Deltas API', () => {
       // All deltas' end snapshot is the latest one
       expect(secondCachedDeltas.filter(d => Date.now() - d.endedAt.getTime() > 10_000).length).toBe(0);
 
-      const monthDeltas = secondDeltas.find(f => f.period === 'month');
       const monthCachedDeltas = secondCachedDeltas.filter(c => c.period === 'month');
-
-      expect(secondDeltas.length).toBe(3);
-      expect(secondDeltas.filter(d => d.ehp > 0.1).length).toBe(3);
-      expect(secondDeltas.filter(d => d.ehb > 0.1).length).toBe(3);
-      expect(secondDeltas.filter(d => d.nex === 49).length).toBe(3); // 53 - 4 (min kc is 5) = 49
-      expect(secondDeltas.filter(d => d.smithing === 50_000).length).toBe(3);
-      expect(secondDeltas.filter(d => d.smithing === 50_000).map(d => d.period)).toContain('week');
-      expect(secondDeltas.filter(d => d.smithing === 50_000).map(d => d.period)).toContain('month');
-      expect(secondDeltas.filter(d => d.smithing === 50_000).map(d => d.period)).toContain('year');
-      expect(secondDeltas.filter(d => d.overall === 50_000).length).toBe(3);
-      expect(secondDeltas.filter(d => d.overall === 50_000).map(d => d.period)).toContain('week');
-      expect(secondDeltas.filter(d => d.overall === 50_000).map(d => d.period)).toContain('month');
-      expect(secondDeltas.filter(d => d.overall === 50_000).map(d => d.period)).toContain('year');
-
-      // All deltas' end snapshot is the latest one
-      expect(secondDeltas.filter(d => Date.now() - d.endedAt.getTime() > 10_000).length).toBe(0);
 
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metric.OVERALL, value: 300_192_115 + 50_000 },
@@ -255,10 +222,6 @@ describe('Deltas API', () => {
 
       playerDeltaUpdatedEvent.mockClear();
 
-      const dayDeltas = (await prisma.delta.findFirst({
-        where: { playerId: firstTrackResponse.body.id, period: 'day' }
-      }))!;
-
       const dayCachedDeltas = (await prisma.cachedDelta.findMany({
         where: { playerId: firstTrackResponse.body.id, period: 'day' }
       }))!;
@@ -273,13 +236,6 @@ describe('Deltas API', () => {
       expect(dayCachedDeltas.find(c => c.metric === Metric.EHB)?.value).toBeLessThan(
         monthCachedDeltas.find(c => c.metric === Metric.EHB)!.value
       );
-
-      expect(dayDeltas.nex).toBe(1);
-      expect(dayDeltas.tzkal_zuk).toBe(1);
-      expect(dayDeltas.bounty_hunter_hunter).toBe(4); //  bh went from -1 (unranked) to 5 (min=2), make sure it's 4 gained, not 6
-      expect(dayDeltas.soul_wars_zeal).toBe(4); // soul wars went from -1 (unranked) to 203 (min=200), make sure it's 4 gained, not 204
-      expect(dayDeltas.last_man_standing).toBe(0); // LMS went DOWN from 500 to 450, don't show negative gains
-      expect(dayDeltas.ehb).toBeLessThan(monthDeltas!.ehb); // gained less boss kc, expect ehb gains to be lesser
 
       // Setup mocks for HCIM for the second test player later on (hydrox6)
       registerHiscoresMock(axiosMock, {

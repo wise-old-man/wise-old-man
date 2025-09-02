@@ -7,19 +7,12 @@ export class InvalidateDeltasJob extends Job<unknown> {
   async execute() {
     await prisma.$transaction(async transaction => {
       for (const period of PERIODS) {
-        const maxAgeDate = new Date(Date.now() - getMaxAge(period));
-
-        await transaction.delta.deleteMany({
-          where: {
-            period,
-            updatedAt: { lt: maxAgeDate }
-          }
-        });
-
         await transaction.cachedDelta.deleteMany({
           where: {
             period,
-            updatedAt: { lt: maxAgeDate }
+            updatedAt: {
+              lt: new Date(Date.now() - getMaxAge(period))
+            }
           }
         });
       }

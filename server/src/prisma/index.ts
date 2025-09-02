@@ -53,14 +53,6 @@ const extendedClient = prisma.$extends({
         }
       }
     },
-    delta: {
-      overall: {
-        needs: { overall: true },
-        compute({ overall }) {
-          return parseBigInt(overall);
-        }
-      }
-    },
     player: {
       exp: {
         needs: { exp: true },

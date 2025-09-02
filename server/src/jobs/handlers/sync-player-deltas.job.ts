@@ -1,16 +1,7 @@
 import { eventEmitter, EventType } from '../../api/events';
 import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
-import prisma, { PrismaTypes } from '../../prisma';
-import {
-  ACTIVITIES,
-  BOSSES,
-  CachedDelta,
-  COMPUTED_METRICS,
-  Delta,
-  METRICS,
-  Period,
-  SKILLS
-} from '../../types';
+import prisma from '../../prisma';
+import { CachedDelta, Metric, METRICS, Period } from '../../types';
 import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
 import { isActivity, isBoss, isComputedMetric, isSkill, PeriodProps } from '../../utils/shared';
 import { Job } from '../job.class';
@@ -42,8 +33,8 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
 
     const latestSnapshot = playerAndSnapshot.latestSnapshot;
 
-    const [currentDeltas, startSnapshot] = await Promise.all([
-      prisma.delta.findFirst({
+    const [previousDeltas, startSnapshot] = await Promise.all([
+      prisma.cachedDelta.findMany({
         where: {
           playerId: playerAndSnapshot.id,
           period
@@ -65,20 +56,13 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
       return;
     }
 
+    const previousCachedDeltasMap = new Map<Metric, CachedDelta>(
+      previousDeltas.map(cachedDelta => [cachedDelta.metric, cachedDelta])
+    );
+
+    const newCachedDeltasMap = new Map<Metric, CachedDelta>();
+
     const periodDiffs = calculatePlayerDeltas(startSnapshot, latestSnapshot, playerAndSnapshot);
-
-    const newDelta = {
-      period,
-      playerId: playerAndSnapshot.id,
-      startedAt: startSnapshot.createdAt,
-      endedAt: latestSnapshot.createdAt,
-      ...Object.fromEntries(SKILLS.map(s => [s, periodDiffs.skills[s].experience.gained])),
-      ...Object.fromEntries(BOSSES.map(b => [b, periodDiffs.bosses[b].kills.gained])),
-      ...Object.fromEntries(ACTIVITIES.map(a => [a, periodDiffs.activities[a].score.gained])),
-      ...Object.fromEntries(COMPUTED_METRICS.map(c => [c, periodDiffs.computed[c].value.gained]))
-    } as Delta;
-
-    const newCachedDeltas: CachedDelta[] = [];
 
     const commonProps = {
       playerId: playerAndSnapshot.id,
@@ -102,7 +86,7 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
       }
 
       if (value > 0) {
-        newCachedDeltas.push({
+        newCachedDeltasMap.set(metric, {
           ...commonProps,
           metric,
           value: prepareDecimalValue(metric, Math.min(value, 2147483647))
@@ -110,43 +94,36 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
       }
     }
 
-    // If has no gains in any metric, delete this delta from the database,
-    // as it will never be used in leaderboards
-    if (!METRICS.some(metric => newDelta[metric]! > 0)) {
-      await prisma.delta
-        .delete({
-          where: { playerId_period: { playerId: playerAndSnapshot.id, period } }
-        })
-        .catch(e => {
-          // If the update failed because delta does not exist, ignore the error
-          if (e instanceof PrismaTypes.PrismaClientKnownRequestError && e.code === 'P2025') return;
-          throw e;
-        });
+    // If has no gains in any metric, clear all deltas for this period and return early
+    if (newCachedDeltasMap.size === 0) {
+      await prisma.cachedDelta.deleteMany({
+        where: {
+          playerId: playerAndSnapshot.id,
+          period
+        }
+      });
+
       return;
     }
 
     // if any metric has improved since the last delta sync, it is a potential record
     // and we should also check for new records in this period
-    let hasImprovements = false;
+    const hasImprovements =
+      previousDeltas.length !== 0 &&
+      METRICS.some(metric => {
+        const previousValue = previousCachedDeltasMap.get(metric)?.value;
+        const newValue = newCachedDeltasMap.get(metric)?.value;
 
-    METRICS.forEach(metric => {
-      if (currentDeltas !== null && newDelta[metric]! > currentDeltas[metric]) {
-        hasImprovements = true;
-      }
-    });
+        if (newValue === undefined) {
+          return false;
+        }
 
-    await prisma.$transaction(async transaction => {
-      await transaction.delta.upsert({
-        where: {
-          playerId_period: {
-            playerId: playerAndSnapshot.id,
-            period
-          }
-        },
-        update: newDelta,
-        create: newDelta
+        return previousValue === undefined || newValue > previousValue;
       });
 
+    const newCachedDeltas = Array.from(newCachedDeltasMap.values());
+
+    await prisma.$transaction(async transaction => {
       for (const cachedDelta of newCachedDeltas) {
         await transaction.cachedDelta.upsert({
           where: {
@@ -160,13 +137,24 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
           create: cachedDelta
         });
       }
+
+      // Delete any deltas that have not progressed during the period
+      await transaction.cachedDelta.deleteMany({
+        where: {
+          playerId: playerAndSnapshot.id,
+          period,
+          metric: {
+            notIn: Array.from(newCachedDeltasMap.keys())
+          }
+        }
+      });
     });
 
     eventEmitter.emit(EventType.PLAYER_DELTA_UPDATED, {
       username,
       period,
       periodStartDate: startSnapshot.createdAt,
-      isPotentialRecord: currentDeltas === null || hasImprovements
+      isPotentialRecord: previousDeltas.length === 0 || hasImprovements
     });
   }
 }
