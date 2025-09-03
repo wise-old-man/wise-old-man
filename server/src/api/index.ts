@@ -22,18 +22,22 @@ const rateLimiter = new RateLimiterRedis({
   storeClient: redisClient
 });
 
-class API {
+class APIInstance {
   express: Express;
 
   constructor() {
     this.express = express();
+  }
 
+  init() {
     if (process.env.NODE_ENV !== 'test') {
       this.setupServices();
     }
 
     this.setupMiddlewares();
     this.setupRouting();
+
+    return this;
   }
 
   private setupMiddlewares() {
@@ -160,4 +164,4 @@ class API {
   }
 }
 
-export default new API();
+export default APIInstance;

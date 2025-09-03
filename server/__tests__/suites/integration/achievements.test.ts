@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import supertest from 'supertest';
-import apiServer from '../../../src/api';
+import APIInstance from '../../../src/api';
 import { eventEmitter } from '../../../src/api/events';
 import * as PlayerAchievementsCreatedEvent from '../../../src/api/events/handlers/player-achievements-created.event';
 import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
@@ -10,7 +10,7 @@ import { Achievement, Metric, PlayerType } from '../../../src/types';
 import { SKILL_EXP_AT_99 } from '../../../src/utils/shared';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
-const api = supertest(apiServer.express);
+const api = supertest(new APIInstance().init().express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const playerAchievementsCreatedEvent = jest.spyOn(PlayerAchievementsCreatedEvent, 'handler');

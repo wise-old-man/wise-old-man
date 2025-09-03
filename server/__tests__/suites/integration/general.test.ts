@@ -1,12 +1,12 @@
 import { isCuid } from '@paralleldrive/cuid2';
 import supertest from 'supertest';
-import apiServer from '../../../src/api';
+import APIInstance from '../../../src/api';
 import { eventEmitter } from '../../../src/api/events';
 import prisma from '../../../src/prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
 import { resetDatabase, sleep } from '../../utils';
 
-const api = supertest(apiServer.express);
+const api = supertest(new APIInstance().init().express);
 
 beforeAll(async () => {
   eventEmitter.init();

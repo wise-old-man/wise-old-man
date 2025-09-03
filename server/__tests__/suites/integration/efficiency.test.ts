@@ -1,5 +1,5 @@
 import supertest from 'supertest';
-import apiServer from '../../../src/api';
+import APIInstance from '../../../src/api';
 import { eventEmitter } from '../../../src/api/events';
 import { ALGORITHMS, getAlgorithm } from '../../../src/api/modules/efficiency/efficiency.utils';
 import EfficiencyAlgorithm from '../../../src/api/modules/efficiency/EfficiencyAlgorithm';
@@ -12,7 +12,7 @@ import testBossingMetas from '../../data/efficiency/configs/test.ehb';
 import testSkillingMetas from '../../data/efficiency/configs/test.ehp';
 import { resetDatabase } from '../../utils';
 
-const api = supertest(apiServer.express);
+const api = supertest(new APIInstance().init().express);
 
 beforeAll(async () => {
   eventEmitter.init();
