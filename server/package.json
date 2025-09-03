@@ -15,6 +15,7 @@
     "prisma:generate": "prisma generate",
     "dev": "cross-env ./scripts/run-dev.sh",
     "prod": "cross-env ./scripts/run-prod.sh",
+    "prod:bull-board": "cross-env ./scripts/run-bull-board-prod.sh",
     "test": "cross-env ./scripts/run-tests.sh"
   },
   "dependencies": {
