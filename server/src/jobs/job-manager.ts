@@ -155,6 +155,10 @@ class JobManager {
   async init({ initWorkers }: { initWorkers: boolean }) {
     if (process.env.NODE_ENV === 'test') return;
 
+    const cronJobTypes = CRON_CONFIG.map(c => c.type);
+
+    // If running through pm2 (production), only run cronjobs on the "main" thread (index 0).
+    // Otherwise, on a 4 core server, every cronjob would run 4x as often.
     const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
 
     for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {
@@ -176,37 +180,31 @@ class JobManager {
 
       this.queues.push(queue);
 
-      const threadIndex = getThreadIndex();
-
-      // For now threadIndex=3 will only execute UPDATE_PLAYER jobs
-      const threadTestMap = new Map<number, JobType[]>([]);
-
-      const isAllowed =
-        threadIndex === null ||
-        !threadTestMap.has(threadIndex) ||
-        threadTestMap.get(threadIndex)!.includes(jobType as JobType);
-
-      if (initWorkers && isAllowed) {
-        const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
-          prefix: REDIS_PREFIX,
-          limiter: options?.rateLimiter,
-          connection: REDIS_CONFIG,
-          concurrency: options.maxConcurrent ?? 1,
-          autorun: true
-        });
-
-        this.workers.push(worker);
+      if (!initWorkers) {
+        continue;
       }
+
+      if (cronJobTypes.includes(jobType) && !isMainThread) {
+        continue;
+      }
+
+      const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
+        prefix: REDIS_PREFIX,
+        limiter: options?.rateLimiter,
+        connection: REDIS_CONFIG,
+        concurrency: options.maxConcurrent ?? 1,
+        autorun: true
+      });
+
+      this.workers.push(worker);
+    }
+
+    if (!isMainThread) {
+      return;
     }
 
     // sleep for 5 seconds to allow the workers to start up
     await new Promise(resolve => setTimeout(resolve, 5_000));
-
-    // If running through pm2 (production), only run cronjobs on the "main" thread (index 0).
-    // Otherwise, on a 4 core server, every cronjob would run 4x as often.
-    if (!isMainThread) {
-      return;
-    }
 
     for (const queue of this.queues) {
       const activeJobs = await queue.getRepeatableJobs();
