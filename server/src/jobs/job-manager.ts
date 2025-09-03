@@ -152,7 +152,7 @@ class JobManager {
     }
   }
 
-  async initQueues() {
+  initQueues() {
     if (process.env.NODE_ENV === 'test') return;
 
     for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {

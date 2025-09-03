@@ -4,8 +4,6 @@ import cors from 'cors';
 import express, { Express } from 'express';
 import userAgent from 'express-useragent';
 import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
-import { jobManager } from '../jobs';
-import bullBoardService from '../services/bull-board.service';
 import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 import prometheus from './../services/prometheus.service';
 import router from './routing';
@@ -163,8 +161,6 @@ class APIInstance {
         new Tracing.Integrations.Express({ app: this.express })
       ]
     });
-
-    bullBoardService.init(this.express, jobManager.getQueues());
   }
 }
 
