@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import supertest from 'supertest';
-import apiServer from '../../../src/api';
+import APIInstance from '../../../src/api';
 import { eventEmitter } from '../../../src/api/events';
 import * as GroupMembersJoinedEvent from '../../../src/api/events/handlers/group-members-joined.event';
 import * as GroupMembersLeftEvent from '../../../src/api/events/handlers/group-members-left.event';
@@ -21,7 +21,7 @@ import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.
 import { BOSSES, Metric, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
-const api = supertest(apiServer.express);
+const api = supertest(new APIInstance().init().express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;

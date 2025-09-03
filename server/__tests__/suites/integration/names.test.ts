@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import supertest from 'supertest';
-import apiServer from '../../../src/api';
+import APIInstance from '../../../src/api';
 import { eventEmitter } from '../../../src/api/events';
 import * as GroupMembersJoinedEvent from '../../../src/api/events/handlers/group-members-joined.event';
 import * as NameChangeCreatedEvent from '../../../src/api/events/handlers/name-change-created.event';
@@ -16,7 +16,7 @@ import { getMetricRankKey } from '../../../src/utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../src/utils/get-metric-value-key.util';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
-const api = supertest(apiServer.express);
+const api = supertest(new APIInstance().init().express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const groupMembersJoinedEvent = jest.spyOn(GroupMembersJoinedEvent, 'handler');

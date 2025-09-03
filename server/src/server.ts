@@ -1,4 +1,4 @@
-import api from './api';
+import APIInstance from './api';
 import { eventEmitter } from './api/events';
 import { getThreadIndex } from './env';
 import { jobManager } from './jobs';
@@ -7,14 +7,7 @@ import prometheusService from './services/prometheus.service';
 import { redisClient } from './services/redis.service';
 
 (async () => {
-  const shutdownHandler = await initServer({
-    // Experimental for temporary monitoring
-    initAPI: true,
-    initJobWorkers: true,
-    initJobQueues: true,
-    initPrometheus: true,
-    initEventEmitter: true
-  });
+  const shutdownHandler = await initServer();
 
   process.on('SIGTERM', () => shutdownHandler());
   process.on('SIGINT', () => shutdownHandler());
@@ -34,45 +27,20 @@ import { redisClient } from './services/redis.service';
   });
 })();
 
-async function initServer({
-  initAPI,
-  initJobWorkers,
-  initJobQueues,
-  initEventEmitter,
-  initPrometheus
-}: {
-  initAPI: boolean;
-  initJobWorkers: boolean;
-  initJobQueues: boolean;
-  initEventEmitter: boolean;
-  initPrometheus: boolean;
-}) {
-  setInterval(() => {
-    console.log('Heart beat');
-  }, 180_000);
-
-  if (initEventEmitter) {
-    eventEmitter.init();
-  }
-
+async function initServer() {
   const port = process.env.API_PORT || 5000;
 
-  const apiServer = initAPI
-    ? api.express.listen(port, () => {
-        const version = process.env.npm_package_version;
-        logger.info(`v${version}: API running on port ${port}. Thread Index: ${getThreadIndex()}`);
-      })
-    : null;
+  await jobManager.initQueues();
 
-  if (initPrometheus) {
-    prometheusService.init();
-  }
+  const apiServer = new APIInstance().init().express.listen(port, () => {
+    const version = process.env.npm_package_version;
+    logger.info(`v${version}: API running on port ${port}. Thread Index: ${getThreadIndex()}`);
+  });
 
-  if (initJobQueues) {
-    await jobManager.init({
-      initWorkers: initJobWorkers
-    });
-  }
+  prometheusService.init();
+  eventEmitter.init();
+
+  await jobManager.initWorkers();
 
   let isShuttingDown = false;
 
@@ -85,18 +53,13 @@ async function initServer({
     logger.info('Shutting down gracefully...');
 
     try {
-      if (initPrometheus) {
-        prometheusService.shutdown();
-      }
+      prometheusService.shutdown();
 
       if (apiServer !== null) {
         await new Promise(res => apiServer.close(res));
       }
 
-      if (initJobQueues) {
-        await jobManager.shutdown();
-      }
-
+      await jobManager.shutdown();
       await redisClient.quit();
 
       logger.info('Shutdown complete.');

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import supertest from 'supertest';
-import apiServer from '../../../src/api';
+import APIInstance from '../../../src/api';
 import { eventEmitter } from '../../../src/api/events';
 import * as CompetitionCreatedEvent from '../../../src/api/events/handlers/competition-created.event';
 import * as ParticipantsJoinedEvent from '../../../src/api/events/handlers/competition-participants-joined.event';
@@ -10,7 +10,7 @@ import { redisClient } from '../../../src/services/redis.service';
 import { PlayerAnnotationType, PlayerType } from '../../../src/types';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
 
-const api = supertest(apiServer.express);
+const api = supertest(new APIInstance().init().express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const participantsJoinedEvent = jest.spyOn(ParticipantsJoinedEvent, 'handler');

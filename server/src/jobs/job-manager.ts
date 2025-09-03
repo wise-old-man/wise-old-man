@@ -152,14 +152,8 @@ class JobManager {
     }
   }
 
-  async init({ initWorkers }: { initWorkers: boolean }) {
+  async initQueues() {
     if (process.env.NODE_ENV === 'test') return;
-
-    const cronJobTypes = CRON_CONFIG.map(c => c.type);
-
-    // If running through pm2 (production), only run cronjobs on the "main" thread (index 0).
-    // Otherwise, on a 4 core server, every cronjob would run 4x as often.
-    const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
 
     for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {
       const { options } = jobClass;
@@ -181,10 +175,20 @@ class JobManager {
       });
 
       this.queues.push(queue);
+    }
+  }
 
-      if (!initWorkers) {
-        continue;
-      }
+  async initWorkers() {
+    if (process.env.NODE_ENV === 'test') return;
+
+    const cronJobTypes = CRON_CONFIG.map(c => c.type);
+
+    // If running through pm2 (production), only run cronjobs on the "main" thread (index 0).
+    // Otherwise, on a 4 core server, every cronjob would run 4x as often.
+    const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
+
+    for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {
+      const { options } = jobClass;
 
       if (cronJobTypes.includes(jobType) && !isMainThread) {
         continue;
@@ -254,6 +258,10 @@ class JobManager {
       const queueMetrics = await queue.getJobCounts();
       prometheus.updateQueueMetrics(queue.name, queueMetrics);
     }
+  }
+
+  getQueues() {
+    return this.queues;
   }
 
   /**

@@ -4,6 +4,8 @@ import cors from 'cors';
 import express, { Express } from 'express';
 import userAgent from 'express-useragent';
 import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
+import { jobManager } from '../jobs';
+import bullBoardService from '../services/bull-board.service';
 import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 import prometheus from './../services/prometheus.service';
 import router from './routing';
@@ -22,18 +24,22 @@ const rateLimiter = new RateLimiterRedis({
   storeClient: redisClient
 });
 
-class API {
+class APIInstance {
   express: Express;
 
   constructor() {
     this.express = express();
+  }
 
+  init() {
     if (process.env.NODE_ENV !== 'test') {
       this.setupServices();
     }
 
     this.setupMiddlewares();
     this.setupRouting();
+
+    return this;
   }
 
   private setupMiddlewares() {
@@ -157,7 +163,9 @@ class API {
         new Tracing.Integrations.Express({ app: this.express })
       ]
     });
+
+    bullBoardService.init(this.express, jobManager.getQueues());
   }
 }
 
-export default new API();
+export default APIInstance;
