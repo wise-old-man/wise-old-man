@@ -1,5 +1,6 @@
 import { getThreadIndex } from '../../env';
 import { sendDiscordWebhook } from '../../services/discord.service';
+import logger from '../../services/logging.service';
 import { Job } from '../job.class';
 
 export class PurgeDanglingJobsJob extends Job<unknown> {
@@ -11,7 +12,11 @@ export class PurgeDanglingJobsJob extends Job<unknown> {
       return;
     }
 
+    logger.debug('[PurgeDanglingJobsJob] Starting purge of dangling jobs...');
+
     const purgedKeys = await this.jobManager.purgeDanglingJobs();
+
+    logger.debug(`[PurgeDanglingJobsJob] Purged ${purgedKeys.length} dangling jobs.`);
 
     if (purgedKeys.length === 0 || process.env.DISCORD_MONITORING_WEBHOOK_URL === undefined) {
       return;
