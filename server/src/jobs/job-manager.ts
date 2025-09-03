@@ -169,10 +169,12 @@ class JobManager {
         connection: REDIS_CONFIG,
         defaultJobOptions: {
           removeOnComplete: {
-            age: 60
+            age: 60,
+            count: 100
           },
           removeOnFail: {
-            age: 60
+            age: 60,
+            count: 100
           },
           ...(options || {})
         }
