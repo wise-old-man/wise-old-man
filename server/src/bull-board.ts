@@ -9,7 +9,6 @@ import { redisClient } from './services/redis.service';
 import { handleServerInit } from './utils/handle-server-init.util';
 
 const BULL_BOARD_PORT = 5100;
-const BULL_BOARD_BASE_PATH = '/admin/queues';
 
 handleServerInit(async () => {
   if (process.env.ADMIN_PASSWORD === undefined) {
@@ -21,7 +20,7 @@ handleServerInit(async () => {
   const expressApp = express();
 
   const serverAdapter = new ExpressAdapter();
-  serverAdapter.setBasePath(BULL_BOARD_BASE_PATH);
+  serverAdapter.setBasePath("/");
 
   createBullBoard({
     queues: jobManager.getQueues().map(q => new BullMQAdapter(q)),
@@ -33,7 +32,7 @@ handleServerInit(async () => {
     challenge: true
   });
 
-  expressApp.use(BULL_BOARD_BASE_PATH, authMiddleware, serverAdapter.getRouter());
+  expressApp.use("/", authMiddleware, serverAdapter.getRouter());
 
   const server = expressApp.listen(BULL_BOARD_PORT, () => {
     const version = process.env.npm_package_version;
