@@ -14,7 +14,7 @@ interface Payload {
 
 export class SyncPlayerDeltasJob extends Job<Payload> {
   static options: JobOptions = {
-    maxConcurrent: 20
+    maxConcurrent: 10
   };
 
   async execute({ username, period }: Payload) {
