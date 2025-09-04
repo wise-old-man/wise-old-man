@@ -5,18 +5,16 @@ import { Job } from '../job.class';
 
 export class InvalidateDeltasJob extends Job<unknown> {
   async execute() {
-    await prisma.$transaction(async transaction => {
-      for (const period of PERIODS) {
-        await transaction.cachedDelta.deleteMany({
-          where: {
-            period,
-            updatedAt: {
-              lt: new Date(Date.now() - getMaxAge(period))
-            }
+    for (const period of PERIODS) {
+      await prisma.cachedDelta.deleteMany({
+        where: {
+          period,
+          updatedAt: {
+            lt: new Date(Date.now() - getMaxAge(period))
           }
-        });
-      }
-    });
+        }
+      });
+    }
   }
 }
 
