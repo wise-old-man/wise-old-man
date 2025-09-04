@@ -3,9 +3,9 @@ import { NotFoundError } from '../../api/errors';
 import { standardize } from '../../api/modules/players/player.utils';
 import { assertPlayerType } from '../../api/modules/players/services/AssertPlayerTypeService';
 import prisma from '../../prisma';
+import { assertNever } from '../../utils/assert-never.util';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
-import { assertNever } from '../../utils/assert-never.util';
 
 interface Payload {
   username: string;
@@ -16,6 +16,10 @@ export class AssertPlayerTypeJob extends Job<Payload> {
     backoff: 30_000,
     rateLimiter: { max: 1, duration: 5000 }
   };
+
+  static getUniqueJobId(payload: Payload) {
+    return payload.username;
+  }
 
   async execute(payload: Payload): Promise<void> {
     if (process.env.NODE_ENV === 'test') {

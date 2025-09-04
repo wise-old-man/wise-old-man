@@ -17,6 +17,10 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
     maxConcurrent: 20
   };
 
+  static getUniqueJobId(payload: Payload) {
+    return [payload.username, payload.period, payload.periodStartDate.getTime()].join('_');
+  }
+
   async execute({ username, period, periodStartDate }: Payload) {
     const currentDeltas = await prisma.cachedDelta.findMany({
       where: {

@@ -16,6 +16,10 @@ export class CheckPlayerBannedJob extends Job<Payload> {
     rateLimiter: { max: 1, duration: 5000 }
   };
 
+  static getUniqueJobId(payload: Payload) {
+    return payload.username;
+  }
+
   async execute(payload: Payload) {
     if (process.env.NODE_ENV === 'test') {
       return;

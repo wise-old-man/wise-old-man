@@ -1,7 +1,6 @@
 export enum JobType {
   ADD_PLAYERS_TO_GROUP_COMPETITIONS = 'add-players-to-group-competitions',
   ASSERT_PLAYER_TYPE = 'assert-player-type',
-  BACKFILL_FIX_COMPETITION_PARTICIPATIONS = 'backfill-fix-competition-participations',
   CALCULATE_COMPUTED_RANK_TABLES = 'calculate-computed-rank-tables',
   CHECK_CREATION_SPAM = 'check-creation-spam',
   CHECK_INAPPROPRIATE_CONTENT = 'check-inappropriate-content',
@@ -22,7 +21,6 @@ export enum JobType {
   DISPATCH_MEMBERS_ROLES_CHANGED_DISCORD_EVENT = 'dispatch-members-roles-changed-discord-event',
   DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT = 'dispatch-player-flagged-discord-event',
   INVALIDATE_DELTAS = 'invalidate-deltas',
-  PURGE_DANGLING_JOBS = 'purge-dangling-jobs',
   RECALCULATE_PLAYER_ACHIEVEMENTS = 'recalculate-player-achievements',
   REMOVE_PLAYERS_FROM_GROUP_COMPETITIONS = 'remove-players-from-group-competitions',
   REVIEW_NAME_CHANGE = 'review-name-change',

@@ -23,6 +23,10 @@ export class CheckPlayerRankedJob extends Job<Payload> {
     }
   };
 
+  static getUniqueJobId(payload: Payload) {
+    return payload.username;
+  }
+
   async execute(payload: Payload) {
     if (process.env.NODE_ENV === 'test') {
       return;

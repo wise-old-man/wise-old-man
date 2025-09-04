@@ -10,6 +10,10 @@ interface Payload {
 }
 
 export class UpdateCompetitionParticipantsJob extends Job<Payload> {
+  static getUniqueJobId(payload: Payload) {
+    return [payload.competitionId, payload.trigger].join('_');
+  }
+
   async execute(payload: Payload) {
     if (process.env.NODE_ENV === 'test') {
       return;

@@ -12,6 +12,10 @@ interface Payload {
 }
 
 export class RecalculatePlayerAchievementsJob extends Job<Payload> {
+  static getUniqueJobId(payload: Payload) {
+    return payload.username;
+  }
+
   async execute(payload: Payload) {
     const ALL_DEFINITIONS = getAchievementDefinitions();
     const UNKNOWN_DATE = new Date(0);
