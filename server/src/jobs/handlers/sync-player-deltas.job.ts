@@ -146,34 +146,20 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
     const newCachedDeltas = Array.from(newCachedDeltasMap.values());
 
     await prisma.$transaction(async transaction => {
-      console.time(`delta-upsertion-${username}-${period}`);
-      for (const cachedDelta of newCachedDeltas) {
-        await transaction.cachedDelta.upsert({
-          where: {
-            playerId_period_metric: {
-              playerId: cachedDelta.playerId,
-              period: cachedDelta.period,
-              metric: cachedDelta.metric
-            }
-          },
-          update: cachedDelta,
-          create: cachedDelta
-        });
-      }
-      console.timeEnd(`delta-upsertion-${username}-${period}`);
-
-      // Delete any deltas that have not progressed during the period
-      console.time(`delta-deletion-unused-${username}-${period}`);
+      console.time(`delta-upsert-delete-${username}-${period}`);
       await transaction.cachedDelta.deleteMany({
         where: {
           playerId: playerAndSnapshot.id,
-          period,
-          metric: {
-            notIn: Array.from(newCachedDeltasMap.keys())
-          }
+          period
         }
       });
-      console.timeEnd(`delta-deletion-unused-${username}-${period}`);
+      console.timeEnd(`delta-upsert-delete-${username}-${period}`);
+
+      console.time(`delta-upsert-insert-${username}-${period}`);
+      await transaction.cachedDelta.createMany({
+        data: newCachedDeltas
+      });
+      console.timeEnd(`delta-upsert-insert-${username}-${period}`);
     });
 
     eventEmitter.emit(EventType.PLAYER_DELTA_UPDATED, {
