@@ -23,6 +23,10 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
     maxConcurrent: 5
   };
 
+  static getUniqueJobId(payload: Payload) {
+    return [payload.username, payload.previousUpdatedAt?.getTime()].join('_');
+  }
+
   async execute(payload: Payload) {
     const playerAndSnapshot = await prisma.player.findFirst({
       where: {

@@ -16,6 +16,10 @@ export class UpdatePlayerJob extends Job<Payload> {
     rateLimiter: { max: 1, duration: 250 }
   };
 
+  static getUniqueJobId(payload: Payload) {
+    return payload.username;
+  }
+
   async execute(payload: Payload): Promise<void> {
     if (process.env.NODE_ENV === 'test') {
       return;

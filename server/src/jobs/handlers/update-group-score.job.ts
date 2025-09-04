@@ -10,6 +10,10 @@ interface Payload {
 }
 
 export class UpdateGroupScoreJob extends Job<Payload> {
+  static getUniqueJobId(payload: Payload) {
+    return payload.groupId.toString();
+  }
+
   async execute(payload: Payload) {
     if (process.env.NODE_ENV === 'test') {
       return;

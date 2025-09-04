@@ -12,6 +12,10 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
     maxConcurrent: 10
   };
 
+  static getUniqueJobId(payload: Payload) {
+    return [payload.username, String(payload.forceRecalculate)].join('_');
+  }
+
   async execute(payload: Payload) {
     const now = new Date();
 

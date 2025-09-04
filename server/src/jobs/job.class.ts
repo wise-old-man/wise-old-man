@@ -15,4 +15,8 @@ export class Job<T> {
   async onSuccess(payload: T): Promise<void> {}
   async onFailure(payload: T, error: unknown): Promise<void> {}
   async onFailedAllAttempts(payload: T, error: unknown): Promise<void> {}
+
+  static getUniqueJobId(payload: unknown): string | undefined {
+    return undefined;
+  }
 }

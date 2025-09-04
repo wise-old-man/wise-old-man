@@ -16,13 +16,13 @@ class JobManager {
   private queues: Queue[];
   private workers: Worker[];
 
-  // <jobRedisKey, firstSeenDate>
-  private danglingJobsMap: Map<string, Date>;
-
   constructor() {
     this.queues = [];
     this.workers = [];
-    this.danglingJobsMap = new Map<string, Date>();
+  }
+
+  getQueues() {
+    return this.queues;
   }
 
   /**
@@ -81,49 +81,13 @@ class JobManager {
     };
 
     if (payload !== undefined) {
-      opts.jobId = this.getUniqueJobId(payload);
+      // @ts-expect-error -- 🤷‍♂️
+      opts.jobId = JOB_HANDLER_MAP[type].getUniqueJobId(payload);
     }
 
     await matchingQueue.add(type, payload, opts);
 
     logger.info(`[v2] Added job: ${type}`, opts.jobId, true);
-  }
-
-  async addBulk<T extends Exclude<JobType, JobType.UPDATE_PLAYER>, TPayload extends JobPayloadMapper[T]>(
-    type: T,
-    payloads: Array<TPayload extends undefined ? Record<string, never> : TPayload>,
-    options?: JobOptions
-  ) {
-    if (process.env.NODE_ENV === 'test') {
-      throw new Error('Cannot add bulk jobs in test mode.');
-    }
-
-    // TODO: Add support for UPDATE_PLAYER bulk jobs (missing the cooldown checks)
-
-    const matchingQueue = this.queues.find(queue => queue.name === type);
-
-    if (matchingQueue === undefined) {
-      throw new Error(`No job implementation found for "${type}".`);
-    }
-
-    const opts: BullJobOptions = {
-      ...(options || {}),
-      attempts: options?.attempts ?? 3,
-      priority: options?.priority ?? JobPriority.MEDIUM
-    };
-
-    await matchingQueue.addBulk(payloads.map(payload => ({ name: type, data: payload, opts })));
-
-    logger.info(`[v2] Added ${payloads.length} ${type} bulk jobs`);
-  }
-
-  getUniqueJobId(payload: unknown) {
-    if (!payload) {
-      return undefined;
-    }
-
-    // Temporary, this should be fixed so that every job defines its own unique ID based on the payload shape
-    return JSON.stringify(payload);
   }
 
   async handleJob(bullJob: BullJob, jobHandler: Job<unknown>) {
@@ -258,79 +222,6 @@ class JobManager {
       const queueMetrics = await queue.getJobCounts();
       prometheus.updateQueueMetrics(queue.name, queueMetrics);
     }
-  }
-
-  getQueues() {
-    return this.queues;
-  }
-
-  /**
-   * Some jobs fail to be removed from Redis when they are completed/failed,
-   * resulting in a lot of "unknown" jobs clogging up the queues, and most importantly,
-   * preventing the same job from being re-enqueued in the future (if it has a unique job ID).
-   *
-   * This function scans all queues for these "dangling" jobs, and if they have been in this state
-   * for over 1 hour, it removes them from Redis.
-   */
-  async purgeDanglingJobs() {
-    const unfilteredKeys: string[] = [];
-
-    for (const queue of this.queues) {
-      const keys = await redisClient.keys(`${REDIS_PREFIX}:${queue.name}:*`);
-
-      for (const key of keys) {
-        const jobId = key.slice(`${REDIS_PREFIX}:${queue.name}:`.length);
-
-        if (!jobId.startsWith('{')) {
-          continue;
-        }
-
-        const job = await queue.getJob(jobId);
-
-        if (job === undefined) {
-          continue;
-        }
-
-        const jobState = await job.getState();
-
-        if (jobState === 'unknown') {
-          unfilteredKeys.push(key);
-        }
-      }
-    }
-
-    const keysToRemove: string[] = [];
-    const nextMap = new Map<string, Date>();
-
-    for (const key of unfilteredKeys) {
-      const value = this.danglingJobsMap.get(key);
-
-      // If this job has been DANGLING for over 10 mins, set it for deletion from Redis
-      if (value !== undefined && value.getTime() < Date.now() - 600_000) {
-        keysToRemove.push(key);
-      }
-
-      nextMap.set(key, value ?? new Date());
-    }
-
-    logger.debug(
-      'Dangling jobs',
-      {
-        unfilteredKeys,
-        keysToRemove,
-        nextMap: Array.from(nextMap.entries())
-      },
-      true
-    );
-
-    for (const key of keysToRemove) {
-      logger.debug(`[v2] Purging dangling job from Redis: ${key}`);
-      await redisClient.del(key);
-    }
-
-    this.danglingJobsMap = nextMap;
-
-    return keysToRemove;
   }
 }
 

@@ -9,6 +9,10 @@ interface Payload {
 }
 
 export class UpdateCompetitionScoreJob extends Job<Payload> {
+  static getUniqueJobId(payload: Payload) {
+    return payload.competitionId.toString();
+  }
+
   async execute(payload: Payload) {
     if (process.env.NODE_ENV === 'test') {
       return;
