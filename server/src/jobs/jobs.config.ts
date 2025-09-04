@@ -1,6 +1,5 @@
 import { AddPlayersToGroupCompetitionsJob } from './handlers/add-players-to-group-competitions.job';
 import { AssertPlayerTypeJob } from './handlers/assert-player-type.job';
-import { BackfillFixCompetitionParticipationsJob } from './handlers/backfill-fix-competition-participations.job';
 import { CalculateComputedRankTablesJob } from './handlers/calculate-computed-rank-tables.job';
 import { CheckCreationSpamJob } from './handlers/check-creation-spam.job';
 import { CheckInappropriateContentJob } from './handlers/check-inappropriate-content.job';
@@ -21,7 +20,6 @@ import { DispatchMembersLeftDiscordEventJob } from './handlers/dispatch-members-
 import { DispatchMembersRolesChangedDiscordEventJob } from './handlers/dispatch-members-roles-changed-discord-event.job';
 import { DispatchPlayerFlaggedDiscordEventJob } from './handlers/dispatch-player-flagged-discord-event.job';
 import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
-import { PurgeDanglingJobsJob } from './handlers/purge-dangling-jobs.job';
 import { RecalculatePlayerAchievementsJob } from './handlers/recalculate-player-achievements.job';
 import { RemovePlayersFromGroupCompetitionsJob } from './handlers/remove-players-from-group-competitions.job';
 import { ReviewNameChangeJob } from './handlers/review-name-change.job';
@@ -52,7 +50,6 @@ import { JobType } from './types/job-type.enum';
 export const JOB_HANDLER_MAP = {
   [JobType.ADD_PLAYERS_TO_GROUP_COMPETITIONS]: AddPlayersToGroupCompetitionsJob,
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJob,
-  [JobType.BACKFILL_FIX_COMPETITION_PARTICIPATIONS]: BackfillFixCompetitionParticipationsJob,
   [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJob,
   [JobType.CHECK_CREATION_SPAM]: CheckCreationSpamJob,
   [JobType.CHECK_INAPPROPRIATE_CONTENT]: CheckInappropriateContentJob,
@@ -73,7 +70,6 @@ export const JOB_HANDLER_MAP = {
   [JobType.DISPATCH_MEMBERS_ROLES_CHANGED_DISCORD_EVENT]: DispatchMembersRolesChangedDiscordEventJob,
   [JobType.DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT]: DispatchPlayerFlaggedDiscordEventJob,
   [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
-  [JobType.PURGE_DANGLING_JOBS]: PurgeDanglingJobsJob,
   [JobType.RECALCULATE_PLAYER_ACHIEVEMENTS]: RecalculatePlayerAchievementsJob,
   [JobType.REMOVE_PLAYERS_FROM_GROUP_COMPETITIONS]: RemovePlayersFromGroupCompetitionsJob,
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangeJob,
@@ -112,8 +108,6 @@ export const CRON_CONFIG = [
   { interval: '*/5 * * * *', type: JobType.CHECK_INAPPROPRIATE_CONTENT },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
-  // every 20 mins
-  { interval: '*/20 * * * *', type: JobType.PURGE_DANGLING_JOBS }, // after debugging, this can be every hour
   // every hour
   { interval: '0 * * * *', type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW },
   // Every 6 hours
