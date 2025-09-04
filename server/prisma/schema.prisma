@@ -95,6 +95,7 @@ model CachedDelta {
   @@id([playerId, period, metric])
   // Indices
   @@index([period, metric, value(sort: Desc)], map: "cached_deltas_period_metric_value")
+  @@index([period, updatedAt], map: "cached_deltas_period_updated_at")
   // Map
   @@map("cachedDeltas")
 }

@@ -110,8 +110,7 @@ export const CRON_CONFIG = [
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
   // every hour
   { interval: '0 * * * *', type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW },
-  // Every 6 hours
-  { interval: '0 */6 * * *', type: JobType.INVALIDATE_DELTAS },
+  { interval: '0 * * * *', type: JobType.INVALIDATE_DELTAS }, // change back to every 6 hours once it's running well
   // everyday at 8:00 UTC
   { interval: '0 8 * * *', type: JobType.CALCULATE_COMPUTED_RANK_TABLES },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS },

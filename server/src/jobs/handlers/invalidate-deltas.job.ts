@@ -5,18 +5,16 @@ import { Job } from '../job.class';
 
 export class InvalidateDeltasJob extends Job<unknown> {
   async execute() {
-    await prisma.$transaction(async transaction => {
-      for (const period of PERIODS) {
-        await transaction.cachedDelta.deleteMany({
-          where: {
-            period,
-            updatedAt: {
-              lt: new Date(Date.now() - getMaxAge(period))
-            }
+    for (const period of PERIODS) {
+      await prisma.cachedDelta.deleteMany({
+        where: {
+          period,
+          updatedAt: {
+            lt: new Date(Date.now() - getMaxAge(period))
           }
-        });
-      }
-    });
+        }
+      });
+    }
   }
 }
 
@@ -31,7 +29,7 @@ function getMaxAge(period: Period) {
     case Period.MONTH:
       return 1000 * 60 * 60 * 24 * 7; // 7 days
     case Period.YEAR:
-      return 1000 * 60 * 60 * 24 * 30; // 30 days
+      return 1000 * 60 * 60 * 24 * 14; // 14 days
     default:
       return assertNever(period);
   }
