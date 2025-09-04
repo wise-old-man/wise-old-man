@@ -29,7 +29,7 @@ function getMaxAge(period: Period) {
     case Period.MONTH:
       return 1000 * 60 * 60 * 24 * 7; // 7 days
     case Period.YEAR:
-      return 1000 * 60 * 60 * 24 * 30; // 30 days
+      return 1000 * 60 * 60 * 24 * 14; // 14 days
     default:
       return assertNever(period);
   }
