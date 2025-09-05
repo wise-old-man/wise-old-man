@@ -145,6 +145,7 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
 
     const newCachedDeltas = Array.from(newCachedDeltasMap.values());
 
+    console.time(`delta-upsert-transaction-${username}-${period}`);
     await prisma.$transaction(async transaction => {
       console.time(`delta-upsert-delete-${username}-${period}`);
       await transaction.cachedDelta.deleteMany({
@@ -161,6 +162,7 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
       });
       console.timeEnd(`delta-upsert-insert-${username}-${period}`);
     });
+    console.timeEnd(`delta-upsert-transaction-${username}-${period}`);
 
     eventEmitter.emit(EventType.PLAYER_DELTA_UPDATED, {
       username,
