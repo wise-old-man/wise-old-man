@@ -7,12 +7,14 @@ import {
   NameChange,
   NameChangeStatus,
   Participation,
+  Period,
   Player,
   PlayerAnnotation,
   PlayerStatus,
   Record
 } from '../../../../types';
 import { prepareDecimalValue } from '../../../../utils/prepare-decimal-value.util';
+import { PeriodProps } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import * as playerUtils from '../../players/player.utils';
@@ -183,6 +185,37 @@ async function transferPlayerData(
         playerId: oldPlayer.id
       }
     });
+  }
+
+  if (newPlayerExists) {
+    const snapshotsToTransfer = await prisma.snapshot.findMany({
+      where: {
+        playerId: newPlayer.id,
+        createdAt: { gte: transitionDate }
+      }
+    });
+
+    if (snapshotsToTransfer.length > 0) {
+      logger.info(`snapshotsToTransfer | count:${snapshotsToTransfer.length}`);
+
+      const normalizeDate = (date: Date) => {
+        const copy = new Date(date.getTime());
+        copy.setHours(0, 0, 0, 0);
+        return copy;
+      };
+
+      const distinctDays = new Set(snapshotsToTransfer.map(s => normalizeDate(s.createdAt).getTime()));
+      logger.info(`snapshotsToTransfer | distinctDays:${distinctDays.size}`);
+
+      const oldestSnapshotDate = snapshotsToTransfer.sort(
+        (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+      )[0].createdAt;
+
+      const overYearOld =
+        oldestSnapshotDate.getTime() < new Date().getTime() - PeriodProps[Period.YEAR].milliseconds;
+
+      logger.info(`snapshotsToTransfer | oldest:${oldestSnapshotDate.toISOString()} | year:${overYearOld}`);
+    }
   }
 
   const result = await prisma
