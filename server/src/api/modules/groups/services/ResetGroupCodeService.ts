@@ -20,7 +20,7 @@ async function resetGroupCode(groupId: number): Promise<{ newCode: string }> {
     });
 
     return { newCode: code };
-  } catch (error) {
+  } catch (_error) {
     // Failed to find group with that id
     throw new NotFoundError('Group not found.');
   }

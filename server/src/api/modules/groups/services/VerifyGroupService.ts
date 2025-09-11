@@ -26,7 +26,7 @@ async function verifyGroup(groupId: number): Promise<{
       group: updatedGroup,
       memberCount: updatedGroup._count.memberships
     };
-  } catch (error) {
+  } catch (_error) {
     // Failed to find group with that id
     throw new NotFoundError('Group not found.');
   }
