@@ -1,5 +1,7 @@
 import { AddPlayersToGroupCompetitionsJob } from './handlers/add-players-to-group-competitions.job';
 import { AssertPlayerTypeJob } from './handlers/assert-player-type.job';
+import { BackfillParticipationSnapshotDatesJob } from './handlers/backfill-participation-snapshot-dates.job';
+import { BackfillPlayerSnapshotDatesJob } from './handlers/backfill-player-snapshot-dates.job';
 import { CalculateComputedRankTablesJob } from './handlers/calculate-computed-rank-tables.job';
 import { CheckCreationSpamJob } from './handlers/check-creation-spam.job';
 import { CheckInappropriateContentJob } from './handlers/check-inappropriate-content.job';
@@ -50,6 +52,8 @@ import { JobType } from './types/job-type.enum';
 export const JOB_HANDLER_MAP = {
   [JobType.ADD_PLAYERS_TO_GROUP_COMPETITIONS]: AddPlayersToGroupCompetitionsJob,
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJob,
+  [JobType.BACKFILL_PARTICIPATION_SNAPSHOT_DATES]: BackfillParticipationSnapshotDatesJob,
+  [JobType.BACKFILL_PLAYER_SNAPSHOT_DATES]: BackfillPlayerSnapshotDatesJob,
   [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJob,
   [JobType.CHECK_CREATION_SPAM]: CheckCreationSpamJob,
   [JobType.CHECK_INAPPROPRIATE_CONTENT]: CheckInappropriateContentJob,
@@ -116,7 +120,9 @@ export const CRON_CONFIG = [
   { interval: '0 8 * * *', type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_GROUP_SCORE_UPDATES },
-  { interval: '0 8 * * *', type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS }
+  { interval: '0 8 * * *', type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS },
+  { interval: '0 8 * * *', type: JobType.BACKFILL_PLAYER_SNAPSHOT_DATES },
+  { interval: '0 8 * * *', type: JobType.BACKFILL_PARTICIPATION_SNAPSHOT_DATES }
 ];
 
 // Jobs to run when the server starts
