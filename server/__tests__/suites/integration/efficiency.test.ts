@@ -51,7 +51,10 @@ beforeAll(async () => {
 
     await prisma.player.update({
       where: { id: player.id },
-      data: { latestSnapshotId: snapshot.id }
+      data: {
+        latestSnapshotId: snapshot.id,
+        latestSnapshotDate: snapshot.createdAt
+      }
     });
   }
 
