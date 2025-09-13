@@ -338,7 +338,7 @@ router.post(
 
     try {
       await updatePlayer(username);
-    } catch (e) {
+    } catch (_e) {
       throw new ServerError('Failed to update new player post-archive.');
     }
 

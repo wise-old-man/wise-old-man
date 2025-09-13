@@ -748,8 +748,6 @@ describe('Names API', () => {
         })
       );
 
-      playerArchivedEvent;
-
       const archive = (await prisma.playerArchive.findFirst({
         where: {
           playerId: newPlayerId,

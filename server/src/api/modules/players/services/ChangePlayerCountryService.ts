@@ -26,7 +26,7 @@ async function changePlayerCountry(username: string, country: string | null): Pr
     });
 
     return updatedPlayer;
-  } catch (error) {
+  } catch (_error) {
     // Failed to find player with that username or id
     throw new NotFoundError('Player not found.');
   }
