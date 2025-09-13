@@ -472,7 +472,9 @@ function transferParticipations(
     data: {
       playerId: oldPlayerId,
       startSnapshotId: null,
-      endSnapshotId: null
+      endSnapshotId: null,
+      startSnapshotDate: null,
+      endSnapshotDate: null
     }
   });
 }

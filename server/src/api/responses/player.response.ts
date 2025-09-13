@@ -7,7 +7,7 @@
 import { Player } from '../../types';
 import { pick } from '../../utils/pick.util';
 
-export type PlayerResponse = Omit<Player, 'latestSnapshotId'>;
+export type PlayerResponse = Omit<Player, 'latestSnapshotId' | 'latestSnapshotDate'>;
 
 export function formatPlayerResponse(player: Player): PlayerResponse {
   return pick(

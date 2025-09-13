@@ -165,7 +165,12 @@ export async function editCompetition(
 async function invalidateParticipations(competitionId: number) {
   await prisma.participation.updateMany({
     where: { competitionId },
-    data: { startSnapshotId: null, endSnapshotId: null }
+    data: {
+      startSnapshotId: null,
+      endSnapshotId: null,
+      startSnapshotDate: null,
+      endSnapshotDate: null
+    }
   });
 }
 
@@ -189,7 +194,10 @@ async function recalculateParticipationsStart(competitionId: number, startDate: 
     for (const playerId of playerIds) {
       await transaction.participation.update({
         where: { playerId_competitionId: { competitionId, playerId } },
-        data: { startSnapshotId: snapshotMap.get(playerId)?.id ?? null }
+        data: {
+          startSnapshotId: snapshotMap.get(playerId)?.id ?? null,
+          startSnapshotDate: snapshotMap.get(playerId)?.createdAt ?? null
+        }
       });
     }
   });
@@ -215,7 +223,10 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
     for (const playerId of playerIds) {
       await transaction.participation.update({
         where: { playerId_competitionId: { competitionId, playerId } },
-        data: { endSnapshotId: snapshotMap.get(playerId)?.id ?? null }
+        data: {
+          endSnapshotId: snapshotMap.get(playerId)?.id ?? null,
+          endSnapshotDate: snapshotMap.get(playerId)?.createdAt ?? null
+        }
       });
     }
   });
