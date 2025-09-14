@@ -6,7 +6,7 @@ import { JobType } from '../types/job-type.enum';
 export class BackfillParticipationSnapshotDatesJob extends Job<unknown> {
   static options: JobOptions = {
     backoff: 30_000,
-    rateLimiter: { max: 1, duration: 10_000 }
+    rateLimiter: { max: 1, duration: 5_000 }
   };
 
   async execute() {
