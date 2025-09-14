@@ -1,14 +1,6 @@
 import { GroupRoleOrder, Membership } from '../../../types';
 import { PRIVILEGED_GROUP_ROLES } from '../../../utils/shared';
 
-function sanitizeName(name: string): string {
-  return name
-    .replace(/_/g, ' ')
-    .replace(/-/g, ' ')
-    .replace(/ +(?= )/g, '')
-    .trim();
-}
-
 function sortMembers<M extends { membership: Membership }>(
   memberships: Array<M>,
   roleOrders?: Array<GroupRoleOrder>
@@ -31,4 +23,4 @@ function sortMembers<M extends { membership: Membership }>(
       a.membership.role.localeCompare(b.membership.role)
   );
 }
-export { sanitizeName, sortMembers };
+export { sortMembers };

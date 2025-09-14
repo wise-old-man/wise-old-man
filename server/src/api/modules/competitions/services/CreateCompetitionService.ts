@@ -10,12 +10,12 @@ import {
   Participation,
   PlayerAnnotationType
 } from '../../../../types';
+import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 import { MetricProps } from '../../../../utils/shared';
 import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import {
   sanitizeTeams,
-  sanitizeTitle,
   validateInvalidParticipants,
   validateParticipantDuplicates,
   validateTeamDuplicates
@@ -104,7 +104,7 @@ export async function createCompetition(
   const createResult = await fromPromise(
     prisma.competition.create({
       data: {
-        title: sanitizeTitle(title),
+        title: sanitizeWhitespace(title),
         type: participationsResult.value.competitionType,
         startsAt,
         endsAt,

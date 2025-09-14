@@ -9,12 +9,12 @@ import {
   Player,
   PlayerAnnotationType
 } from '../../../../types';
+import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 
 import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { sanitizeName } from '../group.utils';
 
 // Only allow images from our Cloudflare R2 CDN, to make sure people don't
 // upload unresize, or uncompressed images. They musgt edit images on the website.
@@ -130,7 +130,7 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
   }
 
   if (name) {
-    const sanitizedName = sanitizeName(name);
+    const sanitizedName = sanitizeWhitespace(name);
 
     // Check for duplicate names
     const duplicateGroup = await prisma.group.findFirst({
@@ -145,7 +145,7 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
   }
 
   if (description) {
-    updatedGroupFields.description = description ? sanitizeName(description) : null;
+    updatedGroupFields.description = description ? sanitizeWhitespace(description) : null;
   }
 
   if (clanChat) {

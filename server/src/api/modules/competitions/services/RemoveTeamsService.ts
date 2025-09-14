@@ -1,7 +1,7 @@
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../types';
+import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import { sanitizeTitle } from '../competition.utils';
 
 async function removeTeams(id: number, teamNames: string[]): Promise<{ count: number }> {
   const competition = await prisma.competition.findFirst({
@@ -19,7 +19,7 @@ async function removeTeams(id: number, teamNames: string[]): Promise<{ count: nu
   const { count } = await prisma.participation.deleteMany({
     where: {
       competitionId: id,
-      teamName: { in: teamNames.map(sanitizeTitle) }
+      teamName: { in: teamNames.map(sanitizeWhitespace) }
     }
   });
 

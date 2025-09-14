@@ -243,7 +243,7 @@ describe('Group API', () => {
 
     it('should create (no members)', async () => {
       const response = await api.post('/groups').send({
-        name: ' Some Group_',
+        name: ' Some   Group',
         description: 'Test123',
         clanChat: ' Test ',
         homeworld: 492,
@@ -273,7 +273,7 @@ describe('Group API', () => {
 
     it('should create (members w/ default roles)', async () => {
       const response = await api.post('/groups').send({
-        name: ' heyy_',
+        name: ' heyy    ',
         members: [
           { username: '  Test_Player' },
           { username: '  ALT PLAYER' },
@@ -478,7 +478,7 @@ describe('Group API', () => {
     it('should not edit (name already taken)', async () => {
       const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
         verificationCode: globalData.testGroupNoMembers.verificationCode,
-        name: ` ${globalData.testGroupNoLeaders.name}__`
+        name: ` ${globalData.testGroupNoLeaders.name}  `
       });
 
       expect(response.status).toBe(400);
@@ -935,7 +935,7 @@ describe('Group API', () => {
     it('should edit name', async () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
-        name: '__New name! '
+        name: '  New name! '
       });
 
       expect(response.status).toBe(200);
@@ -974,7 +974,7 @@ describe('Group API', () => {
 
     it('should edit name (capitalization)', async () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
-        name: ` ${globalData.testGroupOneLeader.name.toUpperCase()}__`,
+        name: ` ${globalData.testGroupOneLeader.name.toUpperCase()}  `,
         verificationCode: globalData.testGroupOneLeader.verificationCode
       });
 
