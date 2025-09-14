@@ -365,7 +365,7 @@ describe('Competition API', () => {
         ...VALID_CREATE_BASE,
         teams: [
           { name: 'WARRIORS ', participants: ['zezima', 'psikoi'] },
-          { name: '_warriors', participants: ['hydrox6', 'jakesterwars'] }
+          { name: ' warriors', participants: ['hydrox6', 'jakesterwars'] }
         ]
       });
 
@@ -500,7 +500,7 @@ describe('Competition API', () => {
     it('should create (no participants)', async () => {
       // Starting in 20mins, ending in a week (upcoming)
       const response = await api.post('/competitions').send({
-        title: ' Wise Old-Man___ ',
+        title: ' Wise Old-Man    ',
         metric: 'smithing',
         startsAt: VALID_START_DATE,
         endsAt: VALID_END_DATE
@@ -508,7 +508,7 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(201);
       expect(response.body.competition).toMatchObject({
-        title: 'Wise Old Man',
+        title: 'Wise Old-Man',
         metric: 'smithing',
         metrics: ['smithing'],
         startsAt: VALID_START_DATE.toISOString(),
@@ -677,14 +677,14 @@ describe('Competition API', () => {
         startsAt: startDate,
         endsAt: endDate,
         teams: [
-          { name: '_Warriors ', participants: [' PSIKOI', '__Zezima '] },
+          { name: ' Warriors ', participants: [' PSIKOI', '__Zezima '] },
           { name: 'Scouts ', participants: ['hydrox6', 'usbc'] }
         ]
       });
 
       expect(response.status).toBe(201);
       expect(response.body.competition).toMatchObject({
-        title: 'Soul Wars Competition',
+        title: '_Soul Wars Competition',
         metric: 'soul_wars_zeal',
         metrics: ['soul_wars_zeal'],
         startsAt: startDate.toISOString(),
@@ -1127,7 +1127,7 @@ describe('Competition API', () => {
       const response = await api.put(`/competitions/${globalData.testCompetitionEnding.id}`).send({
         verificationCode: globalData.testCompetitionEnding.verificationCode,
         teams: [
-          { name: 'warriors_', participants: ['zezima', 'psikoi'] },
+          { name: 'warriors ', participants: ['zezima', 'psikoi'] },
           { name: ' WARRIORS', participants: ['hydrox6', 'jakesterwars'] }
         ]
       });
@@ -1332,7 +1332,7 @@ describe('Competition API', () => {
     it('should edit (own fields)', async () => {
       const response = await api.put(`/competitions/${globalData.testCompetitionStarting.id}`).send({
         verificationCode: globalData.testCompetitionStarting.verificationCode,
-        title: '_Worked! 👍 ',
+        title: ' Worked! 👍 ',
         metric: 'agility'
       });
 
@@ -1431,7 +1431,7 @@ describe('Competition API', () => {
           { name: 'Team A', participants: ['emanuel', 'gerard'] },
           { name: ' Team B', participants: ['ruben_', ' seth   _'] },
           { name: 'Team C ', participants: ['jake0011011', ' ALICE '] },
-          { name: 'Team_D', participants: ['MARIA   ', 'alexcantfly'] },
+          { name: 'Team D', participants: ['MARIA   ', 'alexcantfly'] },
           { name: 'Team_E', participants: ['alanturing', 'luigi'] }
         ],
         participants: undefined // make sure this doesn't override the new teams
@@ -1478,8 +1478,8 @@ describe('Competition API', () => {
       expect(usernameTeamMap['maria']).toBe('Team D');
 
       // brand new team was added
-      expect(usernameTeamMap['alanturing']).toBe('Team E');
-      expect(usernameTeamMap['luigi']).toBe('Team E');
+      expect(usernameTeamMap['alanturing']).toBe('Team_E');
+      expect(usernameTeamMap['luigi']).toBe('Team_E');
 
       const detailsResponse = await api.get(`/competitions/${createResponse.body.competition.id}`);
       expect(detailsResponse.status).toBe(200);
@@ -1511,7 +1511,7 @@ describe('Competition API', () => {
     it('should edit teams (and own fields)', async () => {
       const response = await api.put(`/competitions/${globalData.testCompetitionEnding.id}`).send({
         verificationCode: globalData.testCompetitionEnding.verificationCode,
-        title: '_SoulWars Competition',
+        title: ' SoulWars Competition',
         teams: [
           { name: 'Mods', participants: [' SETHMARE', 'boom__'] },
           { name: 'Contributors', participants: [' psikoi', 'RORRO', 'JAKEsterwars', '__USBC'] },
@@ -2650,7 +2650,7 @@ describe('Competition API', () => {
         verificationCode: globalData.testCompetitionEnding.verificationCode,
         teams: [
           { name: 'WARRIORS', participants: ['psikoi'] },
-          { name: '_warriors', participants: ['zezima'] }
+          { name: ' warriors', participants: ['zezima'] }
         ]
       });
 
@@ -2662,7 +2662,7 @@ describe('Competition API', () => {
       const response = await api.post(`/competitions/${globalData.testCompetitionEnding.id}/teams`).send({
         verificationCode: globalData.testCompetitionEnding.verificationCode,
         teams: [
-          { name: '__MODS', participants: ['zezima'] },
+          { name: '  MODS', participants: ['zezima'] },
           { name: 'Soldiers', participants: ['boom', 'usbc'] }
         ]
       });
@@ -3882,7 +3882,7 @@ describe('Competition API', () => {
       });
 
       expect(response.body[1]).toMatchObject({
-        teamName: 'Warriors',
+        teamName: '_Warriors',
         competitionId: globalData.testCompetitionWithGroup.id,
         competition: {
           id: globalData.testCompetitionWithGroup.id,
@@ -3950,7 +3950,7 @@ describe('Competition API', () => {
       });
 
       expect(response.body[1]).toMatchObject({
-        teamName: 'Warriors',
+        teamName: '_Warriors',
         competitionId: globalData.testCompetitionWithGroup.id,
         competition: {
           id: globalData.testCompetitionWithGroup.id,
@@ -4107,7 +4107,7 @@ describe('Competition API', () => {
       });
 
       expect(response.body[1]).toMatchObject({
-        teamName: 'Warriors',
+        teamName: '_Warriors',
         competitionId: globalData.testCompetitionWithGroup.id,
         competition: {
           id: globalData.testCompetitionWithGroup.id,

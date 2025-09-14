@@ -1,19 +1,12 @@
 import { complete, errored, Result } from '@attio/fetchable';
 import { CompetitionTeam } from '../../../types';
+import { sanitizeWhitespace } from '../../../utils/sanitize-whitespace.util';
 import * as playerUtils from '../players/player.utils';
-
-export function sanitizeTitle(title: string): string {
-  return title
-    .replace(/_/g, ' ')
-    .replace(/-/g, ' ')
-    .replace(/ +(?= )/g, '')
-    .trim();
-}
 
 export function sanitizeTeams(teamInputs: CompetitionTeam[]): CompetitionTeam[] {
   // Sanitize the team inputs
   return teamInputs.map(t => ({
-    name: sanitizeTitle(t.name),
+    name: sanitizeWhitespace(t.name),
     participants: t.participants.map(playerUtils.standardize)
   }));
 }

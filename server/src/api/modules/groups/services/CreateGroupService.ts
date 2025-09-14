@@ -2,11 +2,11 @@ import { isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
 import { Group, GroupRole, PlayerAnnotationType } from '../../../../types';
+import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 import { BadRequestError, ForbiddenError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { sanitizeName } from '../group.utils';
 
 interface CreateGroupPayload {
   name: string;
@@ -23,8 +23,8 @@ async function createGroup(
   group: Group;
   verificationCode: string;
 }> {
-  const name = sanitizeName(payload.name);
-  const description = payload.description ? sanitizeName(payload.description) : null;
+  const name = sanitizeWhitespace(payload.name);
+  const description = payload.description ? sanitizeWhitespace(payload.description) : null;
   const clanChat = payload.clanChat ? sanitize(payload.clanChat) : null;
 
   if (clanChat && !isValidUsername(clanChat)) {

@@ -10,6 +10,7 @@ import {
   Player,
   PlayerAnnotationType
 } from '../../../../types';
+import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 import { MetricProps } from '../../../../utils/shared';
 import { eventEmitter, EventType } from '../../../events';
 import { standardize } from '../../players/player.utils';
@@ -17,7 +18,6 @@ import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersS
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 import {
   sanitizeTeams,
-  sanitizeTitle,
   validateInvalidParticipants,
   validateParticipantDuplicates,
   validateTeamDuplicates
@@ -119,7 +119,7 @@ export async function editCompetition(
     return participationsResult;
   }
 
-  if (title) competitionUpdatePayload.title = sanitizeTitle(title);
+  if (title) competitionUpdatePayload.title = sanitizeWhitespace(title);
   if (startsAt) competitionUpdatePayload.startsAt = startsAt;
   if (endsAt) competitionUpdatePayload.endsAt = endsAt;
 
