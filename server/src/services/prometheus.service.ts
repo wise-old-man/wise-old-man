@@ -10,8 +10,8 @@ class PrometheusService {
   private jobQueueGauge: Gauge<'queueName' | 'state'>;
   private httpHistogram: Histogram<'method' | 'route' | 'status' | 'userAgent'>;
   private eventCounter: Counter<'eventType'>;
-  private hiscoresHistogram: Histogram<'status'>;
-  private runeMetricsHistogram: Histogram<'status'>;
+  private jagexServiceHistogram: Histogram<'service' | 'status'>;
+  private genericCounter: Counter<'metric'>;
 
   private pushInterval: NodeJS.Timeout | null = null;
 
@@ -51,26 +51,25 @@ class PrometheusService {
       labelNames: ['eventType']
     });
 
-    this.runeMetricsHistogram = new prometheus.Histogram({
-      name: 'runemetrics_duration_seconds',
-      help: 'Duration of RuneMetrics requests in microseconds',
-      labelNames: ['status'],
+    this.jagexServiceHistogram = new prometheus.Histogram({
+      name: 'jagex_service_duration_seconds',
+      help: 'Duration of Jagex service requests in microseconds',
+      labelNames: ['service', 'status'],
       buckets: [0.1, 0.3, 0.5, 1, 5, 10, 30]
     });
 
-    this.hiscoresHistogram = new prometheus.Histogram({
-      name: 'hiscores_duration_seconds',
-      help: 'Duration of hiscores requests in microseconds',
-      labelNames: ['status'],
-      buckets: [0.1, 0.3, 0.5, 1, 5, 10, 30]
+    this.genericCounter = new prometheus.Counter({
+      name: 'generic_counter',
+      help: 'A generic counter for various metrics',
+      labelNames: ['metric']
     });
 
     this.registry.registerMetric(this.jobHistogram);
     this.registry.registerMetric(this.jobQueueGauge);
     this.registry.registerMetric(this.httpHistogram);
     this.registry.registerMetric(this.eventCounter);
-    this.registry.registerMetric(this.runeMetricsHistogram);
-    this.registry.registerMetric(this.hiscoresHistogram);
+    this.registry.registerMetric(this.jagexServiceHistogram);
+    this.registry.registerMetric(this.genericCounter);
   }
 
   init() {
@@ -136,12 +135,8 @@ class PrometheusService {
     return this.httpHistogram.startTimer();
   }
 
-  trackRuneMetricsRequest() {
-    return this.runeMetricsHistogram.startTimer();
-  }
-
-  trackHiscoresRequest() {
-    return this.hiscoresHistogram.startTimer();
+  trackJagexServiceRequest() {
+    return this.jagexServiceHistogram.startTimer();
   }
 
   trackJob() {
@@ -150,6 +145,10 @@ class PrometheusService {
 
   trackEventEmitted(eventType: string) {
     this.eventCounter.inc({ eventType });
+  }
+
+  trackGenericMetric(metric: string, incrementBy = 1) {
+    this.genericCounter.inc({ metric }, incrementBy);
   }
 
   updateQueueMetrics(queueName: string, counts: Record<string, number>) {
