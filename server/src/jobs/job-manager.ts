@@ -75,8 +75,7 @@ class JobManager {
     }
 
     const opts: BullJobOptions = {
-      ...(options || {}),
-      attempts: options?.attempts ?? 3,
+      ...(options ?? {}),
       priority: options?.priority ?? JobPriority.MEDIUM
     };
 
@@ -135,6 +134,7 @@ class JobManager {
         prefix: REDIS_PREFIX,
         connection: REDIS_CONFIG,
         defaultJobOptions: {
+          attempts: 3,
           removeOnComplete: {
             age: 60,
             count: 100
@@ -143,7 +143,7 @@ class JobManager {
             age: 60,
             count: 100
           },
-          ...(options || {})
+          ...(options ?? {})
         }
       });
 
