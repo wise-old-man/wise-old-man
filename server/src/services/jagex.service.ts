@@ -31,10 +31,14 @@ export async function getRuneMetricsBannedStatus(username: string): AsyncResult<
 
     logger.debug(`Attempt ${attemptIndex + 1} to fetch RuneMetrics for player: ${username}`);
 
-    const stopTrackingTimer = prometheus.trackRuneMetricsRequest();
+    const stopTrackingTimer = prometheus.trackJagexServiceRequest();
 
     const fetchResult = await fetchWithProxy(url);
-    stopTrackingTimer();
+
+    stopTrackingTimer({
+      service: 'RuneMetrics',
+      status: isErrored(fetchResult) ? 0 : 1
+    });
 
     if (isErrored(fetchResult)) {
       // If it's a proxy error, we throw it so that it can be retried with other proxies
@@ -85,10 +89,14 @@ export async function fetchHiscoresData(
 
     logger.debug(`Attempt ${attemptIndex + 1} to fetch Hiscores for player: ${username}`);
 
-    const stopTrackingTimer = prometheus.trackHiscoresRequest();
+    const stopTrackingTimer = prometheus.trackJagexServiceRequest();
 
     const fetchResult = await fetchWithProxy(url);
-    stopTrackingTimer();
+
+    stopTrackingTimer({
+      service: 'OSRS Hiscores',
+      status: isErrored(fetchResult) ? 0 : 1
+    });
 
     if (isErrored(fetchResult)) {
       // If it's a proxy error, we throw it so that it can be retried with other proxies
