@@ -45,7 +45,7 @@ export class DispatchMemberAchievementsDiscordEventJob extends Job<Payload> {
       }
     });
 
-    const recentAchievements = achievements.filter(a => Date.now() - a.createdAt.getTime() < 30_000);
+    const recentAchievements = achievements.filter(a => Date.now() - a.createdAt.getTime() < 3_600_000);
 
     if (recentAchievements.length === 0) {
       prometheus.trackGenericMetric('test-dispatching-failed-30s');
