@@ -121,7 +121,6 @@ export const CRON_CONFIG = [
   { interval: '0 8 * * *', type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_GROUP_SCORE_UPDATES },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS },
-  { interval: '0 8 * * *', type: JobType.BACKFILL_PLAYER_SNAPSHOT_DATES },
   { interval: '0 8 * * *', type: JobType.BACKFILL_PARTICIPATION_SNAPSHOT_DATES }
 ];
 
