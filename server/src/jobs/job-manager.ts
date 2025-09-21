@@ -138,6 +138,10 @@ class JobManager {
         connection: REDIS_CONFIG,
         defaultJobOptions: {
           attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 1000
+          },
           removeOnComplete: {
             age: 60,
             count: 100
