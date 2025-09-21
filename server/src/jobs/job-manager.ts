@@ -103,7 +103,6 @@ class JobManager {
 
     const endTimer = prometheus.trackJob();
 
-    console.log(bullJob.data);
     try {
       logger.info(`[v2] Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
 
@@ -118,6 +117,10 @@ class JobManager {
 
       if (bullJob.attemptsMade >= maxAttempts) {
         await jobHandler.onFailedAllAttempts(bullJob.data, error);
+      }
+
+      if (!(error instanceof Error)) {
+        throw new Error(JSON.stringify(error));
       }
 
       throw error;
