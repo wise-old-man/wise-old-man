@@ -13,7 +13,14 @@ interface Payload {
 
 export class CheckPlayerBannedJob extends Job<Payload> {
   static options: JobOptions = {
-    rateLimiter: { max: 1, duration: 5000 }
+    rateLimiter: {
+      max: 1,
+      duration: 5000
+    },
+    backoff: {
+      type: 'exponential',
+      delay: 600_000
+    }
   };
 
   static getUniqueJobId(payload: Payload) {

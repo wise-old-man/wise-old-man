@@ -17,7 +17,14 @@ interface Payload {
 
 export class ReviewNameChangeJob extends Job<Payload> {
   static options: JobOptions = {
-    rateLimiter: { max: 1, duration: 5000 }
+    rateLimiter: {
+      max: 1,
+      duration: 5000
+    },
+    backoff: {
+      type: 'exponential',
+      delay: 30_000
+    }
   };
 
   static getUniqueJobId(payload: Payload) {

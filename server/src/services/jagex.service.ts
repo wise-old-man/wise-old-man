@@ -70,7 +70,7 @@ export async function getRuneMetricsBannedStatus(username: string): AsyncResult<
   } as const);
 }
 
-export const HiscoresErrorSchema = z.union([
+const HiscoresErrorSchema = z.union([
   z.object({ code: z.literal('HISCORES_USERNAME_NOT_FOUND') }),
   z.object({ code: z.literal('HISCORES_SERVICE_UNAVAILABLE') }),
   z.object({ code: z.literal('HISCORES_UNEXPECTED_ERROR'), subError: z.unknown() })
