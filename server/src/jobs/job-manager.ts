@@ -119,6 +119,10 @@ class JobManager {
         await jobHandler.onFailedAllAttempts(bullJob.data, error);
       }
 
+      /**
+       * Bull-board only shows errors if they're instances of the Error class.
+       * If we throw a plain object, it won't show up in the UI.
+       */
       if (!(error instanceof Error)) {
         throw new Error(JSON.stringify(error));
       }
