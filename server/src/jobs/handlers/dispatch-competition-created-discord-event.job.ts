@@ -11,7 +11,6 @@ interface Payload {
 
 export class DispatchCompetitionCreatedDiscordEventJob extends Job<Payload> {
   static options: JobOptions = {
-    attempts: 3,
     backoff: {
       type: 'exponential',
       delay: 30_000

@@ -1,7 +1,7 @@
-import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
-import prisma from '../../prisma';
-import { Job } from '../job.class';
 import { isErrored } from '@attio/fetchable';
+import prisma from '../../prisma';
+import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
+import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
 
 interface Payload {
@@ -10,7 +10,6 @@ interface Payload {
 
 export class DispatchMemberHcimDiedDiscordEventJob extends Job<Payload> {
   static options: JobOptions = {
-    attempts: 3,
     backoff: {
       type: 'exponential',
       delay: 30_000
