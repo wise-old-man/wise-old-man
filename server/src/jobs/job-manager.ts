@@ -102,22 +102,16 @@ class JobManager {
     const attemptTag = maxAttempts > 1 ? `(#${bullJob.attemptsMade})` : '';
 
     const endTimer = prometheus.trackJob();
+    logger.info(`[v2] Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
 
     try {
-      logger.info(`[v2] Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
-
       await jobHandler.execute(bullJob.data);
+
       endTimer({ jobName: bullJob.name, status: 1 });
-      await jobHandler.onSuccess(bullJob.data);
+      logger.error(`[v2] Completed job: ${bullJob.name}`, { ...bullJob.data }, true);
     } catch (error) {
       endTimer({ jobName: bullJob.name, status: 0 });
       logger.error(`[v2] Failed job: ${bullJob.name}`, { ...bullJob.data, error }, true);
-
-      await jobHandler.onFailure(bullJob.data, error);
-
-      if (bullJob.attemptsMade >= maxAttempts) {
-        await jobHandler.onFailedAllAttempts(bullJob.data, error);
-      }
 
       /**
        * Bull-board only shows errors if they're instances of the Error class.
