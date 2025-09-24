@@ -1,5 +1,5 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { NameChange, NameChangeStatus } from '../../../../types';
+import { NameChange, NameChangeStatus, PlayerAnnotationType } from '../../../../types';
 import { PaginationOptions } from '../../../util/validation';
 
 async function searchNameChanges(
@@ -23,7 +23,16 @@ async function searchNameChanges(
   }
 
   const nameChanges = await prisma.nameChange.findMany({
-    where: { ...query },
+    where: {
+      ...query,
+      player: {
+        annotations: {
+          none: {
+            type: PlayerAnnotationType.OPT_OUT
+          }
+        }
+      }
+    },
     orderBy: { createdAt: 'desc' },
     take: pagination.limit,
     skip: pagination.offset

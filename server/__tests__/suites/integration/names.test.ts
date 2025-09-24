@@ -921,6 +921,21 @@ describe('Names API', () => {
       });
 
       // Check if none of the pre-transition name changes have been transfered
+      const filteredMainNameChanges = await api.get(`/players/USBC/names`);
+
+      expect(filteredMainNameChanges.status).toBe(200);
+      // Should be 0 because name changes for opted out players are filtered out
+      expect(filteredMainNameChanges.body.length).toBe(0);
+
+      await prisma.playerAnnotation.delete({
+        where: {
+          playerId_type: {
+            playerId: oldPlayerId,
+            type: PlayerAnnotationType.OPT_OUT
+          }
+        }
+      });
+
       const mainNameChangesResponse = await api.get(`/players/USBC/names`);
 
       expect(mainNameChangesResponse.status).toBe(200);
