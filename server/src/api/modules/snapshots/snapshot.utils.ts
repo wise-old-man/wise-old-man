@@ -179,7 +179,6 @@ function average(snapshots: Snapshot[]): Snapshot {
   }
 
   const base: Partial<Snapshot> = {
-    id: -1,
     playerId: -1,
     importedAt: null,
     createdAt: new Date()

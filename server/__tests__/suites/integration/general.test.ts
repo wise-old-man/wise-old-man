@@ -43,7 +43,11 @@ describe('General API', () => {
       });
 
       await prisma.snapshot.createMany({
-        data: Array.from(Array(100).keys()).map(i => ({ playerId: player.id, overallExperience: i }))
+        data: Array.from(Array(100).keys()).map(i => ({
+          playerId: player.id,
+          createdAt: new Date(Date.now() - i * 1000 * 60),
+          overallExperience: i
+        }))
       });
 
       await prisma.player.createMany({

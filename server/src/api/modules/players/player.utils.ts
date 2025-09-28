@@ -120,7 +120,7 @@ async function splitArchivalData(playerId: number, lastSnapshotDate: Date) {
       // in this competition, and therefor it isn't important enough to keep them from being archived
       if (
         p.competition.endsAt.getTime() < Date.now() &&
-        (p.startSnapshotId === -1 || p.endSnapshotId === -1)
+        (p.startSnapshotDate === null || p.endSnapshotDate === null)
       ) {
         return;
       }

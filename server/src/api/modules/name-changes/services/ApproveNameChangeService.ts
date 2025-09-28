@@ -480,8 +480,6 @@ function transferParticipations(
     },
     data: {
       playerId: oldPlayerId,
-      startSnapshotId: null,
-      endSnapshotId: null,
       startSnapshotDate: null,
       endSnapshotDate: null
     }

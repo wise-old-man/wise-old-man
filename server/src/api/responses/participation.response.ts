@@ -7,10 +7,7 @@
 import { Participation } from '../../types';
 import { pick } from '../../utils/pick.util';
 
-export type ParticipationResponse = Omit<
-  Participation,
-  'startSnapshotId' | 'endSnapshotId' | 'startSnapshotDate' | 'endSnapshotDate'
->;
+export type ParticipationResponse = Omit<Participation, 'startSnapshotDate' | 'endSnapshotDate'>;
 
 export function formatParticipationResponse(participation: Participation): ParticipationResponse {
   return pick(participation, 'playerId', 'competitionId', 'teamName', 'createdAt', 'updatedAt');

@@ -49,27 +49,25 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
       }
     });
 
-    if (player === null || player.latestSnapshotId === null) {
+    if (player === null || player.latestSnapshotDate === null) {
       return;
     }
 
     for (const participation of participations) {
       // Update this participation's latest (end) snapshot
       const updatePayload: PrismaTypes.ParticipationUncheckedUpdateInput = {
-        endSnapshotId: player.latestSnapshotId,
         endSnapshotDate: player.latestSnapshotDate
       };
 
       // If this participation's starting snapshot has not been set,
       // find the first snapshot created since the start date and set it
-      if (!participation.startSnapshotId || payload.forceRecalculate === true) {
+      if (!participation.startSnapshotDate || payload.forceRecalculate === true) {
         const startSnapshot = await prisma.snapshot.findFirst({
           where: {
             playerId: player.id,
             createdAt: { gte: participation.competition.startsAt }
           },
           select: {
-            id: true,
             createdAt: true
           },
           orderBy: {
@@ -78,7 +76,6 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
         });
 
         if (startSnapshot) {
-          updatePayload.startSnapshotId = startSnapshot.id;
           updatePayload.startSnapshotDate = startSnapshot.createdAt;
         }
       }
@@ -92,7 +89,6 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
             createdAt: { lte: participation.competition.endsAt }
           },
           select: {
-            id: true,
             createdAt: true
           },
           orderBy: {
@@ -101,7 +97,6 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
         });
 
         if (endSnapshot) {
-          updatePayload.endSnapshotId = endSnapshot.id;
           updatePayload.endSnapshotDate = endSnapshot.createdAt;
         }
       }
