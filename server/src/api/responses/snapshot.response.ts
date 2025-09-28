@@ -50,6 +50,7 @@ interface ComputeMetricData {
 }
 
 export interface SnapshotResponse {
+  id: number;
   playerId: number;
   createdAt: Date;
   importedAt: Date | null;
@@ -66,6 +67,7 @@ export function formatSnapshotResponse(
   efficiencyMap: Map<Skill | Boss, number>
 ): SnapshotResponse {
   return {
+    id: snapshot.createdAt.getTime(), // Use timestamp as a snapshot ID (for backwards compatibility)
     ...pick(snapshot, 'playerId', 'createdAt', 'importedAt'),
     data: {
       skills: Object.fromEntries(
