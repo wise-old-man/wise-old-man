@@ -252,10 +252,21 @@ router.post(
       throw new NotFoundError('Player not found.');
     }
 
-    await rollbackSnapshots(
+    const rollbackResult = await rollbackSnapshots(
       player.id,
-      untilLastChange && player.lastChangedAt ? player.lastChangedAt : undefined
+      untilLastChange && player.lastChangedAt ? new Date(player.lastChangedAt.getTime() + 1000) : undefined
     );
+
+    if (isErrored(rollbackResult)) {
+      switch (rollbackResult.error.code) {
+        case 'FAILED_TO_ROLLBACK_SNAPSHOTS':
+          throw new ServerError('Failed to rollback player snapshots.');
+        case 'NO_SNAPSHOTS_DELETED':
+          throw new BadRequestError('No snapshots were deleted, rollback not performed.');
+        default:
+          assertNever(rollbackResult.error);
+      }
+    }
 
     const updateResult = await updatePlayer(username);
 
