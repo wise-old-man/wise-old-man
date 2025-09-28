@@ -182,7 +182,6 @@ async function updatePlayer(
   });
 
   updatedPlayerFields.updatedAt = newSnapshot.createdAt;
-  updatedPlayerFields.latestSnapshotId = newSnapshot.id;
   updatedPlayerFields.latestSnapshotDate = newSnapshot.createdAt;
 
   if (hasChanged) updatedPlayerFields.lastChangedAt = newSnapshot.createdAt;
@@ -308,7 +307,7 @@ async function findOrCreate(username: string): AsyncResult<
   });
 
   if (player) {
-    // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
+    // If this player's "latestSnapshot" isn't populated, fetch the latest snapshot from the DB
     if (!player.latestSnapshot) {
       const latestSnapshot = await prisma.snapshot.findFirst({
         where: { playerId: player.id },

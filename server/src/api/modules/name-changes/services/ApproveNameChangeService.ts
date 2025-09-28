@@ -224,17 +224,26 @@ async function transferPlayerData(
       const tx = transaction as unknown as PrismaTypes.TransactionClient;
 
       if (newPlayerExists) {
-        // Transfer all snapshots from the newPlayer (post transition date) to the old player
-        await transferSnapshots(tx, oldPlayer.id, newPlayer.id, transitionDate);
+        await transaction.player.update({
+          where: {
+            id: newPlayer.id
+          },
+          data: {
+            latestSnapshotDate: null
+          }
+        });
 
         // Deduplicate joined/left member activity created before the name change
         await deduplicateGroupActivity(tx, memberActivity);
 
+        // Transfer all participations from the newPlayer (post transition date) to the old player
+        await transferParticipations(tx, oldPlayer.id, newPlayer.id, transitionDate, oldParticipations);
+
         // Transfer all memberships from the newPlayer (post transition date) to the old player
         await transferMemberships(tx, oldPlayer.id, newPlayer.id, transitionDate, oldMemberships);
 
-        // Transfer all participations from the newPlayer (post transition date) to the old player
-        await transferParticipations(tx, oldPlayer.id, newPlayer.id, transitionDate, oldParticipations);
+        // Transfer all snapshots from the newPlayer (post transition date) to the old player
+        await transferSnapshots(tx, oldPlayer.id, newPlayer.id, transitionDate);
 
         // Transfer all approved name changes from the newPlayer (post transition date) to the old player
         await transferNameChanges(tx, oldPlayer.id, newPlayer.id, transitionDate);
@@ -471,8 +480,6 @@ function transferParticipations(
     },
     data: {
       playerId: oldPlayerId,
-      startSnapshotId: null,
-      endSnapshotId: null,
       startSnapshotDate: null,
       endSnapshotDate: null
     }

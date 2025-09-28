@@ -166,8 +166,6 @@ async function invalidateParticipations(competitionId: number) {
   await prisma.participation.updateMany({
     where: { competitionId },
     data: {
-      startSnapshotId: null,
-      endSnapshotId: null,
       startSnapshotDate: null,
       endSnapshotDate: null
     }
@@ -195,7 +193,6 @@ async function recalculateParticipationsStart(competitionId: number, startDate: 
       await transaction.participation.update({
         where: { playerId_competitionId: { competitionId, playerId } },
         data: {
-          startSnapshotId: snapshotMap.get(playerId)?.id ?? null,
           startSnapshotDate: snapshotMap.get(playerId)?.createdAt ?? null
         }
       });
@@ -224,7 +221,6 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
       await transaction.participation.update({
         where: { playerId_competitionId: { competitionId, playerId } },
         data: {
-          endSnapshotId: snapshotMap.get(playerId)?.id ?? null,
           endSnapshotDate: snapshotMap.get(playerId)?.createdAt ?? null
         }
       });

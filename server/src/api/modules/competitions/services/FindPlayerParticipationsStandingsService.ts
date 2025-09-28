@@ -3,6 +3,7 @@ import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation
 import { MetricDelta } from '../../../../types/metric-delta.type';
 import { calculateCompetitionDelta } from '../../../../utils/calculate-competition-delta.util';
 import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
+import { uniqueBy } from '../../../../utils/unique-by.util';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
 
@@ -86,8 +87,16 @@ async function findPlayerParticipationsStandings(
    * By deduplicating those IDs, we can probably reduce that to 200 player objects, 200 start snapshots, and 200 end snapshots.
    */
 
-  const dedupedStartSnapshotIds = new Set(allParticipations.map(p => p.startSnapshotId).filter(Boolean));
-  const dedupedEndSnapshotIds = new Set(allParticipations.map(p => p.endSnapshotId).filter(Boolean));
+  const dedupedStartSnapshots = uniqueBy(
+    allParticipations.filter(p => p.startSnapshotDate !== null),
+    p => getSnapshotUniqueKey(p.playerId, p.startSnapshotDate!)
+  );
+
+  const dedupedEndSnapshots = uniqueBy(
+    allParticipations.filter(p => p.endSnapshotDate !== null),
+    p => getSnapshotUniqueKey(p.playerId, p.endSnapshotDate!)
+  );
+
   const dedupedPlayerIds = new Set(allParticipations.map(p => p.playerId).filter(Boolean));
   const dedupedGroupIds = new Set(playerParticipations.map(p => p.competition.groupId).filter(Boolean));
 
@@ -97,20 +106,28 @@ async function findPlayerParticipationsStandings(
 
   const allStartSnapshots = await prisma.snapshot.findMany({
     where: {
-      id: { in: Array.from(dedupedStartSnapshotIds) }
+      OR: dedupedStartSnapshots.map(p => ({
+        playerId: p.playerId,
+        createdAt: p.startSnapshotDate!
+      }))
     },
     select: {
-      id: true,
+      playerId: true,
+      createdAt: true,
       ...requiredSnapshotFields
     }
   });
 
   const allEndSnapshots = await prisma.snapshot.findMany({
     where: {
-      id: { in: Array.from(dedupedEndSnapshotIds) }
+      OR: dedupedEndSnapshots.map(p => ({
+        playerId: p.playerId,
+        createdAt: p.endSnapshotDate!
+      }))
     },
     select: {
-      id: true,
+      playerId: true,
+      createdAt: true,
       ...requiredSnapshotFields
     }
   });
@@ -135,8 +152,13 @@ async function findPlayerParticipationsStandings(
     }
   });
 
-  const startSnapshotMap = new Map(allStartSnapshots.map(s => [s.id, s]));
-  const endSnapshotMap = new Map(allEndSnapshots.map(s => [s.id, s]));
+  const startSnapshotMap = new Map(
+    allStartSnapshots.map(s => [getSnapshotUniqueKey(s.playerId, s.createdAt), s])
+  );
+  const endSnapshotMap = new Map(
+    allEndSnapshots.map(s => [getSnapshotUniqueKey(s.playerId, s.createdAt), s])
+  );
+
   const playerMap = new Map(allPlayers.map(p => [p.id, p]));
   const groupMap = new Map(allGroups.map(g => [g.id, g]));
 
@@ -182,7 +204,7 @@ async function findPlayerParticipationsStandings(
      */
     const sortedParticipants = participations
       .map(p => {
-        if (p.startSnapshotId === null || p.endSnapshotId === null) {
+        if (p.startSnapshotDate === null || p.endSnapshotDate === null) {
           return {
             playerId: p.playerId,
             ...emptyEntry
@@ -190,8 +212,8 @@ async function findPlayerParticipationsStandings(
         }
 
         const player = playerMap.get(p.playerId);
-        const startSnapshot = startSnapshotMap.get(p.startSnapshotId);
-        const endSnapshot = endSnapshotMap.get(p.endSnapshotId);
+        const startSnapshot = startSnapshotMap.get(getSnapshotUniqueKey(p.playerId, p.startSnapshotDate));
+        const endSnapshot = endSnapshotMap.get(getSnapshotUniqueKey(p.playerId, p.endSnapshotDate));
 
         if (!player || !startSnapshot || !endSnapshot) {
           return {
@@ -275,6 +297,10 @@ async function findPlayerParticipationsStandings(
       return a.competition.endsAt.getTime() - b.competition.endsAt.getTime();
     }
   });
+}
+
+function getSnapshotUniqueKey(playerId: number, createdAt: Date) {
+  return `${playerId}_${createdAt.getTime()}`;
 }
 
 export { findPlayerParticipationsStandings };

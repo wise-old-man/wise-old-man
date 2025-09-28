@@ -1253,15 +1253,15 @@ describe('Player API', () => {
         .post(`/players/rollmeback/rollback`)
         .send({ adminPassword: process.env.ADMIN_PASSWORD });
 
-      expect(firstResponse.status).toBe(500);
-      expect(firstResponse.body.message).toBe("Failed to delete a player's last snapshots.");
+      expect(firstResponse.status).toBe(400);
+      expect(firstResponse.body.message).toBe('No snapshots were deleted, rollback not performed.');
 
       const secondResponse = await api
         .post(`/players/rollmeback/rollback`)
         .send({ adminPassword: process.env.ADMIN_PASSWORD, untilLastChange: true });
 
-      expect(secondResponse.status).toBe(500);
-      expect(secondResponse.body.message).toBe("Failed to delete a player's last snapshots.");
+      expect(secondResponse.status).toBe(400);
+      expect(secondResponse.body.message).toBe('No snapshots were deleted, rollback not performed.');
     });
 
     it('should rollback player (last snapshot)', async () => {
@@ -1318,14 +1318,22 @@ describe('Player API', () => {
       expect(playerSnapshotsAfter.length).toBe(4);
 
       // The last snapshot (sorted desc) should be different
-      expect(playerSnapshotsAfter.at(0)!.id).not.toBe(playerSnapshotsBefore.at(0)!.id);
+      expect(playerSnapshotsAfter.at(0)!.createdAt.getTime()).not.toBe(
+        playerSnapshotsBefore.at(0)!.createdAt.getTime()
+      );
 
       // The second to last snapshot (sorted desc) should be the same
-      expect(playerSnapshotsAfter.at(1)!.id).toBe(playerSnapshotsBefore.at(1)!.id);
+      expect(playerSnapshotsAfter.at(1)!.createdAt.getTime()).toBe(
+        playerSnapshotsBefore.at(1)!.createdAt.getTime()
+      );
 
       // The previous last snapshot shouldn't be on the new snapshots list anymore
-      const previousLastSnapshotId = playerSnapshotsBefore.at(0)!.id;
-      expect(playerSnapshotsAfter.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
+
+      expect(
+        playerSnapshotsAfter.find(
+          s => s.createdAt.getTime() === playerSnapshotsBefore.at(0)!.createdAt.getTime()
+        )
+      ).not.toBeDefined();
     });
 
     it('should rollback player (until last changed)', async () => {
@@ -1384,11 +1392,16 @@ describe('Player API', () => {
       expect(playerSnapshotsAfter.length).toBe(4 - recentSnapshotsCount + 1);
 
       // The last snapshot (sorted desc) should be different
-      expect(playerSnapshotsAfter.at(0)!.id).not.toBe(playerSnapshotsBefore.at(0)!.id);
+      expect(playerSnapshotsAfter.at(0)!.createdAt.getTime()).not.toBe(
+        playerSnapshotsBefore.at(0)!.createdAt.getTime()
+      );
 
       // The previous last snapshot shouldn't be on the new snapshots list anymore
-      const previousLastSnapshotId = playerSnapshotsBefore.at(0)!.id;
-      expect(playerSnapshotsAfter.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
+      expect(
+        playerSnapshotsAfter.find(
+          s => s.createdAt.getTime() === playerSnapshotsBefore.at(0)!.createdAt.getTime()
+        )
+      ).not.toBeDefined();
     });
 
     it("shouldn't rollback col log (player has no snapshots)", async () => {

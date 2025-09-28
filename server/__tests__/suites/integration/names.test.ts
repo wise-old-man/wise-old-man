@@ -1282,13 +1282,38 @@ describe('Names API', () => {
       });
       expect(playerSnapshot).not.toBeNull();
 
-      await prisma.snapshot.update({
-        where: {
-          id: playerSnapshot!.id
-        },
-        data: {
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12) // 12 hours ago
-        }
+      const nextDate = new Date(Date.now() - 1000 * 60 * 60 * 12); // 12 hours ago
+
+      await prisma.$transaction(async transaction => {
+        await transaction.player.update({
+          where: {
+            id: playerSnapshot!.playerId
+          },
+          data: {
+            latestSnapshotDate: null
+          }
+        });
+
+        await transaction.snapshot.update({
+          where: {
+            playerId_createdAt: {
+              playerId: playerSnapshot!.playerId,
+              createdAt: playerSnapshot!.createdAt
+            }
+          },
+          data: {
+            createdAt: nextDate
+          }
+        });
+
+        await transaction.player.update({
+          where: {
+            id: playerSnapshot!.playerId
+          },
+          data: {
+            latestSnapshotDate: nextDate
+          }
+        });
       });
 
       const createCompetitionResponse = await api.post('/competitions').send({
@@ -1662,7 +1687,12 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
     data: { ...filteredSnapshotData, playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
   });
   await prisma.snapshot.create({
-    data: { ...filteredSnapshotData, playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
+    data: {
+      ...filteredSnapshotData,
+      playerId: newPlayerId,
+      oborKills: 30,
+      createdAt: new Date(mockDate.getTime() - 1000)
+    }
   });
 
   // Create a pre-transition-date test competition and add this player to it
