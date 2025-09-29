@@ -45,7 +45,8 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
           ehp: 0,
           ehb: 0,
           ttm: 0,
-          tt200m: 0
+          tt200m: 0,
+          latestSnapshotDate: null
         }
       });
 
@@ -80,16 +81,32 @@ async function archivePlayer(player: Player, createNewPlayer = true): Promise<Ar
         // Transfer all post-last-snapshot memberships to the new player
         for (const groupId of splitData.newPlayerGroupIds) {
           await transaction.membership.update({
-            where: { playerId_groupId: { playerId: player.id, groupId } },
-            data: { playerId: newPlayer.id }
+            where: {
+              playerId_groupId: {
+                playerId: player.id,
+                groupId
+              }
+            },
+            data: {
+              playerId: newPlayer.id
+            }
           });
         }
 
         // Transfer all post-last-snapshot participations to the new player
         for (const competitionId of splitData.newPlayerCompetitionIds) {
           await transaction.participation.update({
-            where: { playerId_competitionId: { playerId: player.id, competitionId } },
-            data: { playerId: newPlayer.id }
+            where: {
+              playerId_competitionId: {
+                playerId: player.id,
+                competitionId
+              }
+            },
+            data: {
+              playerId: newPlayer.id,
+              startSnapshotDate: null,
+              endSnapshotDate: null
+            }
           });
         }
       }
