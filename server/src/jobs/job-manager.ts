@@ -135,7 +135,7 @@ class JobManager {
         prefix: REDIS_PREFIX,
         connection: REDIS_CONFIG,
         defaultJobOptions: {
-          attempts: 3,
+          attempts: 5,
           backoff: {
             type: 'exponential',
             delay: 1000
