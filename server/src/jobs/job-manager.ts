@@ -108,7 +108,7 @@ class JobManager {
       await jobHandler.execute(bullJob.data);
 
       endTimer({ jobName: bullJob.name, status: 1 });
-      logger.error(`[v2] Completed job: ${bullJob.name}`, { ...bullJob.data }, true);
+      logger.info(`[v2] Completed job: ${bullJob.name}`, { ...bullJob.data }, true);
     } catch (error) {
       endTimer({ jobName: bullJob.name, status: 0 });
       logger.error(`[v2] Failed job: ${bullJob.name}`, { ...bullJob.data, error }, true);

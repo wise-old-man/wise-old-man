@@ -1,5 +1,7 @@
 import { AddPlayersToGroupCompetitionsJob } from './handlers/add-players-to-group-competitions.job';
 import { AssertPlayerTypeJob } from './handlers/assert-player-type.job';
+import { BackfillDeleteDuplicateSnapshotsFanoutJob } from './handlers/backfill-delete-duplicate-snapshots-fanout.job';
+import { BackfillDeleteDuplicateSnapshotsJob } from './handlers/backfill-delete-duplicate-snapshots.job';
 import { BackfillParticipationSnapshotDatesJob } from './handlers/backfill-participation-snapshot-dates.job';
 import { BackfillPlayerSnapshotDatesJob } from './handlers/backfill-player-snapshot-dates.job';
 import { CalculateComputedRankTablesJob } from './handlers/calculate-computed-rank-tables.job';
@@ -52,6 +54,8 @@ import { JobType } from './types/job-type.enum';
 export const JOB_HANDLER_MAP = {
   [JobType.ADD_PLAYERS_TO_GROUP_COMPETITIONS]: AddPlayersToGroupCompetitionsJob,
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJob,
+  [JobType.BACKFILL_DELETE_DUPLICATE_SNAPSHOTS]: BackfillDeleteDuplicateSnapshotsJob,
+  [JobType.BACKFILL_DELETE_DUPLICATE_SNAPSHOTS_FANOUT]: BackfillDeleteDuplicateSnapshotsFanoutJob,
   [JobType.BACKFILL_PARTICIPATION_SNAPSHOT_DATES]: BackfillParticipationSnapshotDatesJob,
   [JobType.BACKFILL_PLAYER_SNAPSHOT_DATES]: BackfillPlayerSnapshotDatesJob,
   [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJob,
@@ -127,5 +131,6 @@ export const CRON_CONFIG = [
 export const STARTUP_JOBS = [
   JobType.CHECK_MISSING_COMPUTED_RANK_TABLES,
   JobType.SYNC_API_KEYS,
-  JobType.UPDATE_QUEUE_METRICS
+  JobType.UPDATE_QUEUE_METRICS,
+  JobType.BACKFILL_DELETE_DUPLICATE_SNAPSHOTS_FANOUT
 ] as const;
