@@ -12,7 +12,7 @@ interface Payload {
 export class BackfillDeleteDuplicateSnapshotsJob extends Job<Payload> {
   static options: JobOptions = {
     backoff: 30_000,
-    rateLimiter: { max: 1, duration: 5_000 }
+    rateLimiter: { max: 1, duration: 200 }
   };
 
   static getUniqueJobId(payload: Payload) {
