@@ -6,12 +6,15 @@ import type { JobOptions } from './types/job-options.type';
 export class Job<T> {
   public static options: JobOptions = {};
 
-  public bullJob: BullJob;
   public jobManager: JobManager;
+  public bullJob: BullJob | undefined;
 
-  constructor(jobManager: JobManager, bulljob: BullJob) {
+  constructor(jobManager: JobManager, bulljob?: BullJob) {
     this.jobManager = jobManager;
-    this.bullJob = bulljob;
+
+    if (bulljob) {
+      this.bullJob = bulljob;
+    }
   }
 
   async execute(payload: T): Promise<void> {}

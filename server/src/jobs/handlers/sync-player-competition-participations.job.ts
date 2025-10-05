@@ -18,7 +18,7 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
   }
 
   async execute(payload: Payload) {
-    if (this.bullJob.opts.priority === JobPriority.HIGH && payload.forceRecalculate === true) {
+    if (this.bullJob?.opts.priority === JobPriority.HIGH && payload.forceRecalculate === true) {
       // Temporary, to drain out all the high priority (slow) jobs first
       return;
     }
