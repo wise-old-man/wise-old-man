@@ -4,9 +4,9 @@ const MAINTENANCE_MODE = {
 };
 
 const ANNOUNCEMENT_BANNER = {
-  enabled: false,
-  color: undefined, // "blue" / "yellow" / undefined
-  message: undefined,
+  enabled: true,
+  color: "yellow", // "blue" / "yellow" / undefined
+  message: "Heads up: The site is slow as we roll out server upgrades. Faster performance is on its way.",
 };
 
 const LEAGUES = {
