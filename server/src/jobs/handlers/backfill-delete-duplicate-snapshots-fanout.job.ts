@@ -29,7 +29,7 @@ export class BackfillDeleteDuplicateSnapshotsFanoutJob extends Job<unknown> {
           forceRecalculate: true
         },
         {
-          priority: JobPriority.HIGH,
+          priority: JobPriority.LOW,
           attempts: 20
         }
       );

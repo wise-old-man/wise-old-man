@@ -1,6 +1,7 @@
 import prisma, { PrismaTypes } from '../../prisma';
 import { Job } from '../job.class';
 import { JobOptions } from '../types/job-options.type';
+import { JobPriority } from '../types/job-priority.enum';
 
 interface Payload {
   username: string;
@@ -17,6 +18,11 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
   }
 
   async execute(payload: Payload) {
+    if (this.bullJob.opts.priority === JobPriority.HIGH && payload.forceRecalculate === true) {
+      // Temporary, to drain out all the high priority (slow) jobs first
+      return;
+    }
+
     const now = new Date();
 
     // Get all on-going competitions (and participations)

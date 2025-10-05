@@ -172,7 +172,7 @@ class JobManager {
         continue;
       }
 
-      const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this)), {
+      const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this, bullJob)), {
         prefix: REDIS_PREFIX,
         limiter: options?.rateLimiter,
         connection: REDIS_CONFIG,
