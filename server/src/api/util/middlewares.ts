@@ -17,7 +17,11 @@ export async function detectRuneLiteNameChange(req: unknown, res: Response, next
   const { accountHash } = (req as Request).body;
   const { username } = (req as Request).params;
 
-  if ((userAgent !== 'RuneLite' && userAgent !== 'WiseOldMan RuneLite Plugin') || !accountHash) {
+  if (
+    (userAgent !== 'RuneLite' &&
+      !new RegExp(/^WiseOldManRuneLitePlugin\/([\d.]+) RuneLite\/([\d.]+)(?:-SNAPSHOT)?/).test(userAgent)) ||
+    !accountHash
+  ) {
     return next();
   }
 
