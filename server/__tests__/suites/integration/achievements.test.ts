@@ -188,29 +188,29 @@ describe('Achievements API', () => {
 
       expect(progressMap['Base 60 Stats']).toMatchObject({
         measure: 'levels',
-        currentValue: 273_742,
+        currentValue: 6_296_066, // 273_742 * 23 skills
         absoluteProgress: 1,
         relativeProgress: 1
       });
 
       expect(progressMap['Base 70 Stats']).toMatchObject({
         measure: 'levels',
-        currentValue: 737_627,
+        currentValue: 16_965_421, // 737_627 * 23 skills
         absoluteProgress: 1,
         relativeProgress: 1
       });
 
       expect(progressMap['Base 80 Stats']).toMatchObject({
         measure: 'levels',
-        currentValue: 1_986_068,
-        absoluteProgress: 1, // 100% done with this achievement - (1_986_068 / 1_986_068) = 1
-        relativeProgress: 1 // 100% done between Base 70 and Base 80 - ((1_986_068 - 737_627) / (1_986_068 - 737_627)) >= 1
+        currentValue: 45_679_564, // 1_986_068 * 23 skills
+        absoluteProgress: 1, // 100% done with this achievement - (45_679_564 / 45_679_564) = 1
+        relativeProgress: 1 // 100% done between Base 70 and Base 80 - ((45_679_564 - 16_965_421) / (45_679_564 - 16_965_421)) >= 1
       });
 
       expect(progressMap['Base 90 Stats']).toMatchObject({
         measure: 'levels',
         // there's 2 skills under 90, agility and construction
-        currentValue: 5_271_847, // ((5_346_332 * 21 skills) + 4_537_106 (construction) + 4_442_420 (agility)) / 23 skills
+        currentValue: 121_252_498, // (5_346_332 * 21 skills) + 4_537_106 (construction) + 4_442_420 (agility)
         absoluteProgress: 0.9861, // 100% done with this achievement - (121_252_498 / 122_965_636) = 0.9861
         relativeProgress: 0.9778 // 19.3% done between Base 80 and Base 90 - ((121_252_498 - 1_986_068) / (122_965_636 - 1_986_068)) = 0.9778
       });

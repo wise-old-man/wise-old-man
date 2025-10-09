@@ -1,6 +1,6 @@
 import { AchievementDefinition, Snapshot } from '../../../types';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
-import { getLevel, isMetric, MetricProps } from '../../../utils/shared';
+import { getExpForLevel, getLevel, isMetric, MetricProps, REAL_SKILLS } from '../../../utils/shared';
 import { formatNumber } from '../../../utils/shared/format-number.util';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 
@@ -20,8 +20,20 @@ function formatThreshold(threshold: number): string {
   if (threshold < 1000) return String(threshold);
   if (threshold <= 10_000) return `${threshold / 1000}k`;
 
-  if ([273_742, 737_627, 1_986_068, 5_346_332, 13_034_431].includes(threshold)) {
-    return getLevel(threshold).toString();
+  if (threshold === getExpForLevel(99)) {
+    return '99';
+  }
+
+  if (
+    [
+      getExpForLevel(60) * REAL_SKILLS.length,
+      getExpForLevel(70) * REAL_SKILLS.length,
+      getExpForLevel(80) * REAL_SKILLS.length,
+      getExpForLevel(90) * REAL_SKILLS.length,
+      getExpForLevel(99) * REAL_SKILLS.length
+    ].includes(threshold)
+  ) {
+    return getLevel(threshold / REAL_SKILLS.length).toString();
   }
 
   return formatNumber(threshold, true).toString();
