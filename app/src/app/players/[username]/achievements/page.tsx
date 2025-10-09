@@ -13,6 +13,7 @@ import {
   isSkill,
   PlayerResponse,
   formatNumber,
+  getExpForLevel,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { getPlayerAchievementProgress, getPlayerDetails } from "~/services/wiseoldman";
@@ -332,8 +333,20 @@ function formatThreshold(threshold: number) {
     return threshold;
   }
 
-  if ([273742, 737627, 1986068, 5346332, 13034431].includes(threshold)) {
-    return getLevel(threshold + 100).toString();
+  if (threshold === getExpForLevel(99)) {
+    return "99";
+  }
+
+  if (
+    [
+      getExpForLevel(60) * REAL_SKILLS.length,
+      getExpForLevel(70) * REAL_SKILLS.length,
+      getExpForLevel(80) * REAL_SKILLS.length,
+      getExpForLevel(90) * REAL_SKILLS.length,
+      getExpForLevel(99) * REAL_SKILLS.length,
+    ].includes(threshold)
+  ) {
+    return getLevel(threshold / REAL_SKILLS.length + 100).toString();
   }
 
   if (threshold <= 10000) {

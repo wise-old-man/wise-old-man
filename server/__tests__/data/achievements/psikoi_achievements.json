@@ -210,21 +210,21 @@
     "measure": "experience"
   },
   {
-    "threshold": 273742,
+    "threshold": 6296066,
     "name": "Base 60 Stats",
     "metric": "overall",
     "createdAt": "2015-05-03T01:29:04.000Z",
     "measure": "levels"
   },
   {
-    "threshold": 737627,
+    "threshold": 16965421,
     "name": "Base 70 Stats",
     "metric": "overall",
     "createdAt": "2016-09-17T10:00:24.000Z",
     "measure": "levels"
   },
   {
-    "threshold": 1986068,
+    "threshold": 45679564,
     "name": "Base 80 Stats",
     "metric": "overall",
     "createdAt": "2018-09-14T04:33:00.000Z",
