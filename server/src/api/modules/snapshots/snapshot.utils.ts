@@ -13,8 +13,8 @@ import {
 import { ServerError } from '../../errors';
 import { getPlayerEHB, getPlayerEHP } from '../../modules/efficiency/efficiency.utils';
 
-// Skip Deadman Points and Legacy Bounty Hunter (hunter/rogue)
-export const SKIPPED_ACTIVITY_INDICES = [1, 4, 5];
+// Skip Grid Points, Deadman Points and Legacy Bounty Hunter (hunter/rogue)
+export const SKIPPED_ACTIVITY_INDICES = [0, 2, 4, 5];
 
 // These metrics were added to the hiscores long after their in-game release,
 // causing players to go from unranked to very high values in a single update.
