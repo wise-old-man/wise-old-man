@@ -5,7 +5,7 @@ sidebar_position: 5
 ---
 
 ### Overview
-Groups help organize players This guide shows how to create a group on Wise Old Man.
+Groups help organize players from the same clan or friends chat and allows them to compete and contribute in various group activities. This guide shows how to create a group on Wise Old Man.
 
 ### Prerequisites
 - Recommended: Having an in-game clan with the same name as the group you are creating on the website will help players find your group.
