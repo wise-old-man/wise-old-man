@@ -11,35 +11,42 @@ Competitions can be hosted by users or groups. Participating in these competitio
 - Your player profile exists on Wise Old Man (opted into tracking). See: [`/guides/how-to-start-tracking`](/guides/how-to-start-tracking)
 
 ### Competition Types
+> *Note: Only the creator of a competition can add participants - it is not possible to view who this is.*
 
-#### User-created competitions
+#### User-created Competitions
 - Typically created for a group of friends who don't necessarily belong to the same group (clan) on the website.
-- Only the host can add participants - it is not possible to view who the host is.
-- There is not an on-site Join or Request to Join feature.
 
-#### Group-created competitions
-- Created by a group’s leaders/admins.
-- Typically restricted to group members.
-- Only group leaders can add participants (usually from their group roster).
-- You may need to contact a group leader to be added.
+#### Group-created Competitions
+- Typically created by a group's leaders/admins and restricted to group members.
 
-### How to participate
+### How To Join
 
 1. Ensure your profile exists and is up to date
-   1. If you’ve never been tracked, follow the Start Tracking guide to create your profile.
+   1. If you’ve never been tracked, see: [`/guides/how-to-start-tracking`](/guides/how-to-start-tracking)
    2. Consider requesting a fresh update so the host can validate your stats.
    
 2. Find an active competition
-   1. Browse `https://wiseoldman.net/competitions` and filter by metric, status, and/or type.
+   1. Browse [`https://wiseoldman.net/competitions`](https://wiseoldman.net/competitions) and filter by metric, status, and/or type.
    2. Open the competition page and read its description/rules for any listed contact info.
 
 3. Contact the right person
-   1. User-created competitions: The host isn’t identifiable on-site. Reach out where you discovered the competition (Discord, clan chat, forum post) and provide your RuneScape name and a link to your Wise Old Man profile.
+   1. User-created competitions: Reach out where you discovered the competition (Discord, clan chat, forum post), provide your RuneScape name, and request to join.
    2. Group-created competitions: Contact a leader/admin of the hosting group (check the group’s page or posted socials) and ask to be added.
 
-4. Get added by the host/leader
-   1. The host/leader will add you manually. You’ll appear in the participant list when added.
+4. Get added by the host
+   1. The host will add you manually. You’ll appear in the participant list when added.
    2. If team-based, specify which team you should join (if applicable).
+
+### Ensuring Accurate Gains
+> *In order for gains to be accurate, you must be ranked in the corresponding competiton metric.*
+
+> *Using the Wise Old Man RuneLite plugin will help make sure you have the required **two** snapshots during the competition but you should always verify that the website has your expected competition values.*
+
+1. Log out **AFTER** the competition has started.
+2. Go to your player profile and click the `Update` button.
+3. Log back in to the game
+4. Log out **BEFORE** the competition has ended.
+5. Go to your player profile and click the `Update` button.
 
 ### Tips
 - Join early so organizers have time to add you before the start time.
@@ -50,8 +57,3 @@ Competitions can be hosted by users or groups. Participating in these competitio
 - Can’t find who to contact: For non-group competitions, the host is not listed on-site; look for contact info where the competition was announced.
 - Not appearing on the page: You haven’t been added yet; confirm with the host/leader.
 - Profile not found: Create your profile first by starting tracking.
-
-### Reference
-- Wise Old Man website: [`https://wiseoldman.net/`](https://wiseoldman.net/)
-- How to Start Tracking: [`/guides/how-to-start-tracking`](/guides/how-to-start-tracking)
-- How to Join a Group: [`/guides/how-to-join-a-group`](/guides/how-to-join-a-group)

@@ -9,11 +9,11 @@ Groups help organize players from the same clan or friends chat and allows them 
 
 ### Prerequisites
 - Recommended: Having an in-game clan with the same name as the group you are creating on the website will help players find your group.
-- Recommended: Verify all player profiles exist (opted into tracking) so organizers/players can view your stats. See: [`/guides/how-to-start-tracking`](/guides/how-to-start-tracking)
+- Recommended: Verify all player profiles exist (opted into tracking) so players can view their stats. See: [`/guides/how-to-start-tracking`](/guides/how-to-start-tracking)
 
 ### Steps
 1. Navigate to the create page
-   1. Go to Groups and select `+ Create group`, or open [`https://wiseoldman.net/groups/create`](https://wiseoldman.net/groups/create)
+   1. Go to Groups and select `+ Create new`, or open [`https://wiseoldman.net/groups/create`](https://wiseoldman.net/groups/create)
 
 2. Enter information
    1. Name: Your group’s display name, preferably matching an in-game clan or friends chat.
@@ -45,7 +45,3 @@ Groups help organize players from the same clan or friends chat and allows them 
 
 ### Troubleshooting
 - If an error appears when creating the group, read the message and correct the input (for example, invalid usernames) and try again.
-
-### Reference
-- Wise Old Man website: [`https://wiseoldman.net/`](https://wiseoldman.net/)
-- How to Start Tracking: [`/guides/how-to-start-tracking`](/guides/how-to-start-tracking)

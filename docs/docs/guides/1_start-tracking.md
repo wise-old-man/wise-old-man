@@ -9,19 +9,18 @@ Players are not tracked by default on Wise Old Man. Tracking begins when you, or
 
 ### Tracking Options
 You can start tracking your account using any of the following:
-- Website: Request an update from your player page
+- Website: Request an update from your player profile
 - RuneLite Plugin: Auto-updates on logout once installed
 - Discord Bot: Use the update command in a server where the bot is installed
 
 #### Website
-1. Open your player page
+1. Open your player profile
    1. Go to `https://wiseoldman.net/players/<your_username>`.
       1. Example: https://wiseoldman.net/players/psikoi
-   2. If the player doesn’t exist yet, selecting the `Track` button will create it.
+   2. If the player's profile doesn’t exist yet, clicking the `Track` button will create it.
 
 2. Click Update
-   1. Press `Update` on the page to request a fresh hiscores check and create a snapshot.
-   2. You may see a short cooldown between updates to avoid spam.
+   1. Click the `Update` button on the page to request a fresh hiscores check and create a snapshot.
 
 3. Come back later for gains
    1. After your first snapshot, subsequent updates will calculate gains and achievements.
@@ -39,7 +38,7 @@ You can start tracking your account using any of the following:
 
 2. (Optional) Use the `/setrsn` command to link your discord profile with a username to make future commands easier.
 
-3. Use the `/update` command for your username (server-specific prefix/commands apply).
+3. Use the `/update` command for your username
    1. If you did not use the `/setrsn` command, you will need to provide a username in the command options.
 
 ### What is a snapshot?
@@ -58,8 +57,5 @@ You can start tracking your account using any of the following:
 
 ### Troubleshooting
 - Can't be found / empty profile with no stats: Ensure you show up on the official OSRS hiscores website.
-- Can’t update yet: Wait a short while and try again (cooldown applies).
-- No gains after update: You need at least two snapshots at different times before gains appear.
-
-### Reference
-- Wise Old Man website: [`https://wiseoldman.net/`](https://wiseoldman.net/)
+- Can’t update yet: Wait a short while and try again. If issues persist, join the Discord and let us know.
+- No gains after update: You need at least two snapshots within the time period you are fetching gains for.

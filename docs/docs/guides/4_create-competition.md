@@ -12,7 +12,7 @@ Competitions allow players to compare their gains against other participants for
 
 ### Steps
 1. Navigate to the create page
-   1. Go to Competitions and select Create competition, or open `https://wiseoldman.net/competitions/create`.
+   1. Go to `Competitions` and click `+ Create new`, or open [`https://wiseoldman.net/competitions/create`](https://wiseoldman.net/competitions/create).
 
 2. Enter information
    1. Title: A clear name for your competition 
@@ -25,7 +25,7 @@ Competitions allow players to compare their gains against other participants for
    1. Toggle the group competition switch
    2. Search for and select the group that you have the verification code for. 
    3. Enter the verification code and click the `Next` button to proceed. 
-   4. Otherwise, click Next to continue without a host group.
+   4. Otherwise, click `Next` to continue without a host group.
 
 4. Choose competition type and add participants
    1. Select a type
@@ -34,18 +34,16 @@ Competitions allow players to compare their gains against other participants for
    2. Click Next to create the competition.
 
 5. Save your verification code if you did not create a group competition
+> *The verification code provided when making a non-group competition can be used to edit the competition in the future.
+> For group competitions, you can use the group verification code to edit group competitions after they are created.*
+
    1. After creation of a non-group competition, a verification code is shown. 
-   2. Save this code securely for future verification and management.
+   2. Save this code securely for future management.
    3. You’ll be redirected to the competition page.
 
 ### Tips
 - You can preview a competition under a different metric - removing the need to create multiple competitions for things like godwars.
-- Ensure your start time is before your end time and that your selected metric matches the competition goal.
 - Hosting under a group allows group visibility/association.
 
 ### Troubleshooting
 - If an error appears on creation, read the message, adjust inputs (e.g., missing verification code for hosting group), and try again.
-
-### Reference
-- Wise Old Man website: [`https://wiseoldman.net/`](https://wiseoldman.net/)
-- How to Start Tracking: [`/guides/how-to-start-tracking`](/guides/how-to-start-tracking)

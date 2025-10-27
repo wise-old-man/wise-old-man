@@ -16,8 +16,8 @@ Players have profiles created by opting into tracking. These profiles can be add
 
 ### Steps to get added to a group
 1. Ensure your profile exists and is up to date
-   1. If you’ve never been tracked, follow the Start Tracking guide to create your profile.
-   2. Consider requesting a fresh update so leaders can validate your stats since some groups have level and killcount requirements in order to join.
+   1. If you’ve never been tracked, see: [`/guides/how-to-start-tracking`](/guides/how-to-start-tracking)
+   2. Consider requesting a fresh update so leaders can validate your stats against potential level and killcount join requirements.
 
 2. Find the group
    1. Browse [`https://wiseoldman.net/groups`](https://wiseoldman.net/groups) or navigate directly if you have the link.
@@ -43,8 +43,3 @@ Players have profiles created by opting into tracking. These profiles can be add
 ### Troubleshooting
 - Can’t find contact info: Most clans will add their socials to the group page. If they have not, you may need to reach out directly and ask how to join.
 - I've joined an in-game clan but am not in the WOM group: Contact the group leader and ask if they can add you the group.
-
-### Reference
-- Wise Old Man website: [`https://wiseoldman.net/`](https://wiseoldman.net/)
-- How to Start Tracking: [`/guides/how-to-start-tracking`](/guides/how-to-start-tracking)
-- How to Create a Group: [`/guides/how-to-create-a-group`](/guides/how-to-create-a-group)
