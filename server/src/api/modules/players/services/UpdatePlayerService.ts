@@ -1,7 +1,7 @@
 import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import { jobManager, JobType } from '../../../../jobs';
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
+import { fetchHiscoresCSV, HiscoresError } from '../../../../services/jagex.service';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 import {
   Player,
@@ -328,7 +328,7 @@ async function fetchStats(
   previousStats?: Snapshot
 ): AsyncResult<Snapshot, HiscoresError> {
   // Load data from OSRS hiscors
-  const hiscoresCSVResult = await fetchHiscoresData(player.username, type || player.type);
+  const hiscoresCSVResult = await fetchHiscoresCSV(player.username, type || player.type);
 
   if (isErrored(hiscoresCSVResult)) {
     return hiscoresCSVResult;

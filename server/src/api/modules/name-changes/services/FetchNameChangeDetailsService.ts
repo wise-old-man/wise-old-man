@@ -1,6 +1,6 @@
 import { AsyncResult, bindError, complete, errored, isComplete, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
+import { fetchHiscoresCSV, HiscoresError } from '../../../../services/jagex.service';
 import { NameChange, NameChangeStatus, PlayerBuild, PlayerType } from '../../../../types';
 import { assertNever } from '../../../../utils/assert-never.util';
 import {
@@ -65,7 +65,7 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
     return newHiscoresResult;
   }
 
-  const oldHiscoresResult = await fetchHiscoresData(nameChange.oldName).then(result =>
+  const oldHiscoresResult = await fetchHiscoresCSV(nameChange.oldName).then(result =>
     bindError(result, error => {
       switch (error.code) {
         case 'HISCORES_USERNAME_NOT_FOUND':
@@ -193,7 +193,7 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
 }
 
 async function fetchHiscoresWithFallback(username: string): AsyncResult<string, HiscoresError> {
-  const regularHiscoresDataResult = await fetchHiscoresData(username);
+  const regularHiscoresDataResult = await fetchHiscoresCSV(username);
 
   if (isComplete(regularHiscoresDataResult)) {
     return regularHiscoresDataResult;
@@ -202,7 +202,7 @@ async function fetchHiscoresWithFallback(username: string): AsyncResult<string, 
   switch (regularHiscoresDataResult.error.code) {
     case 'HISCORES_USERNAME_NOT_FOUND':
       // If not found on the regular hiscores, fallback to trying the ironman hiscores instead
-      return fetchHiscoresData(username, PlayerType.IRONMAN);
+      return fetchHiscoresCSV(username, PlayerType.IRONMAN);
     case 'HISCORES_UNEXPECTED_ERROR':
     case 'HISCORES_SERVICE_UNAVAILABLE':
       return regularHiscoresDataResult;

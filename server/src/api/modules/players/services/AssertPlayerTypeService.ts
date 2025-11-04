@@ -1,6 +1,6 @@
 import { AsyncResult, complete, errored, isComplete, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
+import { fetchHiscoresCSV, HiscoresError } from '../../../../services/jagex.service';
 import { Player, PlayerType } from '../../../../types';
 import { eventEmitter, EventType } from '../../../events';
 import { parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
@@ -154,7 +154,7 @@ async function getOverallExperience(
     subError: Exclude<HiscoresError, { code: 'HISCORES_USERNAME_NOT_FOUND' }>;
   }
 > {
-  const hiscoresCSVResult = await fetchHiscoresData(username, type);
+  const hiscoresCSVResult = await fetchHiscoresCSV(username, type);
 
   if (isComplete(hiscoresCSVResult)) {
     const parsedSnapshot = await parseHiscoresSnapshot(1, hiscoresCSVResult.value);

@@ -1,6 +1,6 @@
 import { isComplete } from '@attio/fetchable';
 import prisma from '../../prisma';
-import { fetchHiscoresData } from '../../services/jagex.service';
+import { fetchHiscoresCSV } from '../../services/jagex.service';
 import { PlayerStatus } from '../../types';
 import { assertNever } from '../../utils/assert-never.util';
 import { Job } from '../job.class';
@@ -39,7 +39,7 @@ export class CheckPlayerRankedJob extends Job<Payload> {
     // with a exponential backoff strategy, meaning that it will retry a few times,
     // with a longer delay between each attempt.
 
-    const fetchResult = await fetchHiscoresData(payload.username);
+    const fetchResult = await fetchHiscoresCSV(payload.username);
 
     if (isComplete(fetchResult)) {
       return;

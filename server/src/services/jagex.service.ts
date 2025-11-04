@@ -78,7 +78,7 @@ const HiscoresErrorSchema = z.union([
 
 export type HiscoresError = z.infer<typeof HiscoresErrorSchema>;
 
-export async function fetchHiscoresData(
+export async function fetchHiscoresCSV(
   username: string,
   type: PlayerType = PlayerType.REGULAR
 ): AsyncResult<string, HiscoresError> {

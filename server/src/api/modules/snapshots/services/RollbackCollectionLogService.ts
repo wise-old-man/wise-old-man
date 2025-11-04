@@ -1,6 +1,6 @@
 import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
+import { fetchHiscoresCSV, HiscoresError } from '../../../../services/jagex.service';
 import { parseHiscoresSnapshot } from '../snapshot.utils';
 
 export async function rollbackCollectionLog(
@@ -12,7 +12,7 @@ export async function rollbackCollectionLog(
   | { code: 'FAILED_TO_ROLLBACK_COLLECTION_LOG' }
   | { code: 'FAILED_TO_LOAD_HISCORES'; subError: HiscoresError }
 > {
-  const rawHiscoresResult = await fetchHiscoresData(username);
+  const rawHiscoresResult = await fetchHiscoresCSV(username);
 
   if (isErrored(rawHiscoresResult)) {
     return errored({
