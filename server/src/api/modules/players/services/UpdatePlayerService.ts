@@ -1,7 +1,7 @@
 import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import { jobManager, JobType } from '../../../../jobs';
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { fetchHiscoresCSV, HiscoresError } from '../../../../services/jagex.service';
+import { fetchHiscoresJSON, HiscoresError } from '../../../../services/jagex.service';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 import {
   Player,
@@ -14,6 +14,7 @@ import {
 } from '../../../../types';
 import { eventEmitter, EventType } from '../../../events';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
+import { buildHiscoresSnapshot } from '../../snapshots/services/BuildHiscoresSnapshot';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import {
   getBuild,
@@ -327,18 +328,13 @@ async function fetchStats(
   type?: PlayerType,
   previousStats?: Snapshot
 ): AsyncResult<Snapshot, HiscoresError> {
-  // Load data from OSRS hiscors
-  const hiscoresCSVResult = await fetchHiscoresCSV(player.username, type || player.type);
+  const hiscoresResult = await fetchHiscoresJSON(player.username, type || player.type);
 
-  if (isErrored(hiscoresCSVResult)) {
-    return hiscoresCSVResult;
+  if (isErrored(hiscoresResult)) {
+    return hiscoresResult;
   }
 
-  const newSnapshot = await snapshotUtils.parseHiscoresSnapshot(
-    player.id,
-    hiscoresCSVResult.value,
-    previousStats
-  );
+  const newSnapshot = buildHiscoresSnapshot(player.id, hiscoresResult.value, previousStats);
 
   return complete(newSnapshot);
 }

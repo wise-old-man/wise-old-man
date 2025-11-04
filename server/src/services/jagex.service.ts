@@ -8,13 +8,6 @@ import logger from './logging.service';
 
 const RUNEMETRICS_URL = 'https://apps.runescape.com/runemetrics/profile/profile';
 
-export const OSRS_HISCORES_CSV_URLS = {
-  [PlayerType.REGULAR]: 'https://services.runescape.com/m=hiscore_oldschool/index_lite.ws',
-  [PlayerType.IRONMAN]: 'https://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws',
-  [PlayerType.HARDCORE]: 'https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
-  [PlayerType.ULTIMATE]: 'https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws'
-};
-
 export const OSRS_HISCORES_SEGMENT = {
   [PlayerType.UNKNOWN]: 'hiscore_oldschool',
   [PlayerType.REGULAR]: 'hiscore_oldschool',
@@ -82,82 +75,32 @@ const HiscoresErrorSchema = z.union([
   z.object({ code: z.literal('HISCORES_UNEXPECTED_ERROR'), subError: z.unknown() })
 ]);
 
+const HiscoresDataSchema = z.object({
+  skills: z.array(
+    z.object({
+      name: z.string(),
+      xp: z.number(),
+      level: z.number(),
+      rank: z.number()
+    })
+  ),
+  activities: z.array(
+    z.object({
+      name: z.string(),
+      score: z.number(),
+      rank: z.number()
+    })
+  )
+});
+
+export type HiscoresData = z.infer<typeof HiscoresDataSchema>;
 export type HiscoresError = z.infer<typeof HiscoresErrorSchema>;
-
-export async function fetchHiscoresCSV(
-  username: string,
-  type: PlayerType = PlayerType.REGULAR
-): AsyncResult<string, HiscoresError> {
-  async function retriedFunction(): AsyncResult<string, HiscoresError> {
-    const hiscoresType = type === PlayerType.UNKNOWN ? PlayerType.REGULAR : type;
-
-    const url = `${OSRS_HISCORES_CSV_URLS[hiscoresType]}?player=${username}`;
-
-    const stopTrackingTimer = prometheus.trackJagexServiceRequest();
-
-    const fetchResult = await fetchWithProxy(url);
-
-    stopTrackingTimer({
-      service: 'OSRS Hiscores',
-      status: isErrored(fetchResult) ? 0 : 1
-    });
-
-    if (isErrored(fetchResult)) {
-      // If it's a proxy error, we throw it so that it can be retried with other proxies
-      if (fetchResult.error.code === 'PROXY_ERROR') {
-        throw fetchResult.error;
-      }
-
-      const axiosError = fetchResult.error.subError;
-
-      if ('response' in axiosError && axiosError.response?.status === 404) {
-        return errored({
-          code: 'HISCORES_USERNAME_NOT_FOUND'
-        } as const);
-      }
-
-      logger.error('Unexpected hiscores error', fetchResult.error);
-
-      return errored({
-        code: 'HISCORES_UNEXPECTED_ERROR',
-        subError: fetchResult.error.subError
-      } as const);
-    }
-
-    const data = fetchResult.value;
-
-    if (typeof data !== 'string' || data.length === 0 || data.includes('Unavailable') || data.includes('<')) {
-      return errored({
-        code: 'HISCORES_SERVICE_UNAVAILABLE'
-      } as const);
-    }
-
-    return complete(data);
-  }
-
-  const result = await retry(retriedFunction);
-
-  if (isComplete(result)) {
-    return result;
-  }
-
-  const parsedError = HiscoresErrorSchema.safeParse(result.error);
-
-  if (parsedError.success) {
-    return errored(parsedError.data);
-  }
-
-  return errored({
-    code: 'HISCORES_UNEXPECTED_ERROR',
-    subError: result.error
-  } as const);
-}
 
 export async function fetchHiscoresJSON(
   username: string,
   type: PlayerType = PlayerType.REGULAR
-): AsyncResult<string, HiscoresError> {
-  async function retriedFunction(): AsyncResult<string, HiscoresError> {
+): AsyncResult<HiscoresData, HiscoresError> {
+  async function retriedFunction(): AsyncResult<HiscoresData, HiscoresError> {
     const stopTrackingTimer = prometheus.trackJagexServiceRequest();
 
     const fetchResult = await fetchWithProxy(
@@ -191,13 +134,13 @@ export async function fetchHiscoresJSON(
       } as const);
     }
 
-    const data = fetchResult.value;
+    const parsedHiscores = HiscoresDataSchema.safeParse(fetchResult.value);
 
-    if (typeof data !== 'object' || data === null || !('skills' in data)) {
+    if (!parsedHiscores.success) {
       return errored({ code: 'HISCORES_SERVICE_UNAVAILABLE' } as const);
     }
 
-    return complete(JSON.stringify(data));
+    return complete(parsedHiscores.data);
   }
 
   const result = await retry(retriedFunction);
