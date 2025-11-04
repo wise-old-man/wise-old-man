@@ -8,11 +8,19 @@ import logger from './logging.service';
 
 const RUNEMETRICS_URL = 'https://apps.runescape.com/runemetrics/profile/profile';
 
-export const OSRS_HISCORES_URLS = {
+export const OSRS_HISCORES_CSV_URLS = {
   [PlayerType.REGULAR]: 'https://services.runescape.com/m=hiscore_oldschool/index_lite.ws',
   [PlayerType.IRONMAN]: 'https://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws',
   [PlayerType.HARDCORE]: 'https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
   [PlayerType.ULTIMATE]: 'https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws'
+};
+
+export const OSRS_HISCORES_SEGMENT = {
+  [PlayerType.UNKNOWN]: 'hiscore_oldschool',
+  [PlayerType.REGULAR]: 'hiscore_oldschool',
+  [PlayerType.IRONMAN]: 'hiscore_oldschool_ironman',
+  [PlayerType.HARDCORE]: 'hiscore_oldschool_hardcore_ironman',
+  [PlayerType.ULTIMATE]: 'hiscore_oldschool_ultimate'
 };
 
 const RUNEMETRICS_ERROR_RESPONSE_SCHEMA = z.object({
@@ -26,10 +34,8 @@ export async function getRuneMetricsBannedStatus(username: string): AsyncResult<
     subError: unknown;
   }
 > {
-  async function retriedFunction(attemptIndex: number) {
+  async function retriedFunction() {
     const url = `${RUNEMETRICS_URL}?user=${username}`;
-
-    logger.debug(`Attempt ${attemptIndex + 1} to fetch RuneMetrics for player: ${username}`);
 
     const stopTrackingTimer = prometheus.trackJagexServiceRequest();
 
@@ -82,12 +88,10 @@ export async function fetchHiscoresCSV(
   username: string,
   type: PlayerType = PlayerType.REGULAR
 ): AsyncResult<string, HiscoresError> {
-  async function retriedFunction(attemptIndex: number): AsyncResult<string, HiscoresError> {
+  async function retriedFunction(): AsyncResult<string, HiscoresError> {
     const hiscoresType = type === PlayerType.UNKNOWN ? PlayerType.REGULAR : type;
 
-    const url = `${OSRS_HISCORES_URLS[hiscoresType]}?player=${username}`;
-
-    logger.debug(`Attempt ${attemptIndex + 1} to fetch Hiscores for player: ${username}`);
+    const url = `${OSRS_HISCORES_CSV_URLS[hiscoresType]}?player=${username}`;
 
     const stopTrackingTimer = prometheus.trackJagexServiceRequest();
 
@@ -129,6 +133,71 @@ export async function fetchHiscoresCSV(
     }
 
     return complete(data);
+  }
+
+  const result = await retry(retriedFunction);
+
+  if (isComplete(result)) {
+    return result;
+  }
+
+  const parsedError = HiscoresErrorSchema.safeParse(result.error);
+
+  if (parsedError.success) {
+    return errored(parsedError.data);
+  }
+
+  return errored({
+    code: 'HISCORES_UNEXPECTED_ERROR',
+    subError: result.error
+  } as const);
+}
+
+export async function fetchHiscoresJSON(
+  username: string,
+  type: PlayerType = PlayerType.REGULAR
+): AsyncResult<string, HiscoresError> {
+  async function retriedFunction(): AsyncResult<string, HiscoresError> {
+    const stopTrackingTimer = prometheus.trackJagexServiceRequest();
+
+    const fetchResult = await fetchWithProxy(
+      `https://services.runescape.com/m=${OSRS_HISCORES_SEGMENT[type]}/index_lite.json?player=${username}`
+    );
+
+    stopTrackingTimer({
+      service: 'OSRS Hiscores (JSON)',
+      status: isErrored(fetchResult) ? 0 : 1
+    });
+
+    if (isErrored(fetchResult)) {
+      // If it's a proxy error, we throw it so that it can be retried with other proxies
+      if (fetchResult.error.code === 'PROXY_ERROR') {
+        throw fetchResult.error;
+      }
+
+      const axiosError = fetchResult.error.subError;
+
+      if ('response' in axiosError && axiosError.response?.status === 404) {
+        return errored({
+          code: 'HISCORES_USERNAME_NOT_FOUND'
+        } as const);
+      }
+
+      logger.error('Unexpected hiscores error', fetchResult.error);
+
+      return errored({
+        code: 'HISCORES_UNEXPECTED_ERROR',
+        subError: fetchResult.error.subError
+      } as const);
+    }
+
+    const data = fetchResult.value;
+
+    if (typeof data !== 'object' || data === null || !('skills' in data)) {
+      return errored({ code: 'HISCORES_SERVICE_UNAVAILABLE' } as const);
+    }
+
+    return complete(JSON.stringify(data));
   }
 
   const result = await retry(retriedFunction);

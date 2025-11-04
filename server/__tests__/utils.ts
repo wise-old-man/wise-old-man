@@ -2,7 +2,7 @@ import MockAdapter from 'axios-mock-adapter/types';
 import fs from 'fs';
 import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/snapshot.utils';
 import prisma from '../src/prisma';
-import { OSRS_HISCORES_URLS } from '../src/services/jagex.service';
+import { OSRS_HISCORES_CSV_URLS } from '../src/services/jagex.service';
 import { METRICS, Metric, PlayerType, SKILLS } from '../src/types';
 
 type HiscoresMockConfig = {
@@ -33,7 +33,7 @@ function registerHiscoresMock(adapter: MockAdapter, config: HiscoresMockConfig) 
 
   for (const [key, value] of Object.entries(config)) {
     localAdapter = localAdapter
-      .onGet(new RegExp(OSRS_HISCORES_URLS[key]))
+      .onGet(new RegExp(OSRS_HISCORES_CSV_URLS[key]))
       .reply(value.statusCode, value.rawData || '');
   }
 
