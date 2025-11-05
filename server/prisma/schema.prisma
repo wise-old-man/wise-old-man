@@ -476,6 +476,8 @@ model Snapshot {
   scorpiaKills                          Int       @default(-1)
   scurriusRank                          Int       @default(-1)
   scurriusKills                         Int       @default(-1)
+  shellbane_gryphonRank                 Int       @default(-1)
+  shellbane_gryphonKills                Int       @default(-1)
   skotizoRank                           Int       @default(-1)
   skotizoKills                          Int       @default(-1)
   sol_hereditRank                       Int       @default(-1)
@@ -1297,6 +1299,7 @@ enum Metric {
   sarachnis
   scorpia
   scurrius
+  shellbane_gryphon
   skotizo
   sol_heredit
   spindel

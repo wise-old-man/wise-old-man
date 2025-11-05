@@ -251,6 +251,9 @@ export interface Snapshot {
   scurriusRank: number;
   scurriusKills: number;
 
+  shellbane_gryphonRank: number;
+  shellbane_gryphonKills: number;
+
   skotizoRank: number;
   skotizoKills: number;
 

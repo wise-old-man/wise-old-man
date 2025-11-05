@@ -87,6 +87,7 @@ export const Boss = {
   SARACHNIS: 'sarachnis',
   SCORPIA: 'scorpia',
   SCURRIUS: 'scurrius',
+  SHELLBANE_GRYPHON: 'shellbane_gryphon',
   SKOTIZO: 'skotizo',
   SOL_HEREDIT: 'sol_heredit',
   SPINDEL: 'spindel',

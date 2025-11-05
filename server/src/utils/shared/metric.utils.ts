@@ -111,6 +111,7 @@ export const BossProps: Record<
     [Boss.SARACHNIS]: { name: 'Sarachnis' },
     [Boss.SCORPIA]: { name: 'Scorpia' },
     [Boss.SCURRIUS]: { name: 'Scurrius' },
+    [Boss.SHELLBANE_GRYPHON]: { name: 'Shellbane Gryphon' },
     [Boss.SKOTIZO]: { name: 'Skotizo' },
     [Boss.SOL_HEREDIT]: { name: 'Sol Heredit' },
     [Boss.SPINDEL]: { name: 'Spindel' },

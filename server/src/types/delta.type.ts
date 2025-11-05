@@ -74,6 +74,7 @@ export interface Delta {
   sarachnis: number;
   scorpia: number;
   scurrius: number;
+  shellbane_gryphon: number;
   skotizo: number;
   sol_heredit: number;
   spindel: number;
