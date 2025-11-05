@@ -2,19 +2,12 @@ import { AsyncResult, complete, errored, isComplete, isErrored } from '@attio/fe
 import { z } from 'zod';
 import prometheus from '../services/prometheus.service';
 import { PlayerType } from '../types';
+import { assertNever } from '../utils/assert-never.util';
 import { fetchWithProxy } from '../utils/fetch-with-proxy.util';
 import { retry } from '../utils/retry.util';
 import logger from './logging.service';
 
 const RUNEMETRICS_URL = 'https://apps.runescape.com/runemetrics/profile/profile';
-
-export const OSRS_HISCORES_SEGMENT = {
-  [PlayerType.UNKNOWN]: 'hiscore_oldschool',
-  [PlayerType.REGULAR]: 'hiscore_oldschool',
-  [PlayerType.IRONMAN]: 'hiscore_oldschool_ironman',
-  [PlayerType.HARDCORE]: 'hiscore_oldschool_hardcore_ironman',
-  [PlayerType.ULTIMATE]: 'hiscore_oldschool_ultimate'
-};
 
 const RUNEMETRICS_ERROR_RESPONSE_SCHEMA = z.object({
   error: z.string()
@@ -69,13 +62,29 @@ export async function getRuneMetricsBannedStatus(username: string): AsyncResult<
   } as const);
 }
 
+export function getBaseHiscoresUrl(type: PlayerType = PlayerType.REGULAR) {
+  switch (type) {
+    case PlayerType.UNKNOWN:
+    case PlayerType.REGULAR:
+      return `https://services.runescape.com/m=hiscore_oldschool/index_lite.json`;
+    case PlayerType.IRONMAN:
+      return `https://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.json`;
+    case PlayerType.ULTIMATE:
+      return `https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.json`;
+    case PlayerType.HARDCORE:
+      return `https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.json`;
+    default:
+      assertNever(type);
+  }
+}
+
 const HiscoresErrorSchema = z.union([
   z.object({ code: z.literal('HISCORES_USERNAME_NOT_FOUND') }),
   z.object({ code: z.literal('HISCORES_SERVICE_UNAVAILABLE') }),
   z.object({ code: z.literal('HISCORES_UNEXPECTED_ERROR'), subError: z.unknown() })
 ]);
 
-const HiscoresDataSchema = z.object({
+export const HiscoresDataSchema = z.object({
   skills: z.array(
     z.object({
       name: z.string(),
@@ -103,9 +112,7 @@ export async function fetchHiscoresJSON(
   async function retriedFunction(): AsyncResult<HiscoresData, HiscoresError> {
     const stopTrackingTimer = prometheus.trackJagexServiceRequest();
 
-    const fetchResult = await fetchWithProxy(
-      `https://services.runescape.com/m=${OSRS_HISCORES_SEGMENT[type]}/index_lite.json?player=${username}`
-    );
+    const fetchResult = await fetchWithProxy(`${getBaseHiscoresUrl(type)}player=${username}`);
 
     stopTrackingTimer({
       service: 'OSRS Hiscores (JSON)',

@@ -65,8 +65,8 @@ export function buildHiscoresSnapshot(playerId: number, hiscoresData: HiscoresDa
       exp = previous[metricValueKey];
     }
 
-    snapshotFields[metricValueKey] = rank;
-    snapshotFields[getMetricValueKey(skill)] = exp;
+    snapshotFields[getMetricRankKey(skill)] = rank;
+    snapshotFields[metricValueKey] = exp;
 
     if (skill === Metric.OVERALL) {
       snapshotFields.overallLevel = level === 0 ? -1 : level;

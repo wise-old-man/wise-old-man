@@ -1,9 +1,8 @@
 import MockAdapter from 'axios-mock-adapter/types';
 import fs from 'fs';
-import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/snapshot.utils';
 import prisma from '../src/prisma';
-import { OSRS_HISCORES_CSV_URLS } from '../src/services/jagex.service';
-import { METRICS, Metric, PlayerType, SKILLS } from '../src/types';
+import { getBaseHiscoresUrl, HiscoresDataSchema } from '../src/services/jagex.service';
+import { PlayerType, SKILLS } from '../src/types';
 
 type HiscoresMockConfig = {
   [playerType in PlayerType]?: {
@@ -33,41 +32,56 @@ function registerHiscoresMock(adapter: MockAdapter, config: HiscoresMockConfig) 
 
   for (const [key, value] of Object.entries(config)) {
     localAdapter = localAdapter
-      .onGet(new RegExp(OSRS_HISCORES_CSV_URLS[key]))
+      .onGet(new RegExp(getBaseHiscoresUrl(key as PlayerType)))
       .reply(value.statusCode, value.rawData || '');
   }
 
   return localAdapter;
 }
 
-function modifyRawHiscoresData(rawData: string, modifications: { metric: Metric; value: number }[]): string {
-  return rawData
-    .split('\n')
-    .map((row, index) => {
-      let modifiedRow;
+export function emptyHiscoresData(rawData: string) {
+  const parsed = HiscoresDataSchema.parse(JSON.parse(rawData));
 
-      modifications.forEach(m => {
-        let metricIndex = METRICS.indexOf(m.metric);
+  for (const skill of parsed.skills) {
+    skill.xp = 0;
+    skill.level = 1;
+    skill.rank = -1;
+  }
 
-        // Account for skipped metrics
-        if (metricIndex >= SKILLS.length + SKIPPED_ACTIVITY_INDICES.length) {
-          // after the last skipped index, just add the total number of skips
-          metricIndex += SKIPPED_ACTIVITY_INDICES.length;
-        } else {
-          // within the skipped indices range, add the number of skips before the current index
-          metricIndex += SKIPPED_ACTIVITY_INDICES.filter(i => i + SKILLS.length < index).length;
-        }
+  for (const activity of parsed.activities) {
+    activity.score = 0;
+    activity.rank = -1;
+  }
 
-        if (metricIndex === index) {
-          const bits = row.split(',');
-          bits[bits.length - 1] = m.value.toString();
-          modifiedRow = bits.join(',');
-        }
-      });
-
-      return modifiedRow || row;
-    })
-    .join('\n');
+  return JSON.stringify(parsed);
 }
 
-export { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep };
+export function modifyRawHiscoresData(
+  rawData: string,
+  modifications: Array<{ hiscoresMetricName: string; value: number }>
+) {
+  const parsed = HiscoresDataSchema.parse(JSON.parse(rawData));
+
+  for (const modification of modifications) {
+    if (
+      modification.hiscoresMetricName === 'Runecraft' ||
+      SKILLS.includes(modification.hiscoresMetricName.toLowerCase())
+    ) {
+      for (const skill of parsed.skills) {
+        if (skill.name === modification.hiscoresMetricName) {
+          skill.xp = modification.value;
+        }
+      }
+    } else {
+      for (const activity of parsed.activities) {
+        if (activity.name === modification.hiscoresMetricName) {
+          activity.score = modification.value;
+        }
+      }
+    }
+  }
+
+  return JSON.stringify(parsed);
+}
+
+export { readFile, registerHiscoresMock, resetDatabase, sleep };
