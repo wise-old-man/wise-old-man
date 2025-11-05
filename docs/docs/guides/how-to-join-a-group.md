@@ -36,10 +36,9 @@ Players have profiles created by opting into tracking. These profiles can be add
 - You’ll be able to participate in the group’s competitions and appear in group stats and leaderboards.
 
 ### Tips
-- Keep your profile updated so leaders can verify your identity and stats quickly.
-- If you don’t know who the leaders are, check the group’s socials or ask in their clan chat/Discord.
+- Keep your profile updated so leaders can verify your stats quickly.
 - Be patient - leaders add members manually and may be in a different timezone.
 
 ### Troubleshooting
 - Can’t find contact info: Most clans will add their socials to the group page. If they have not, you may need to reach out directly and ask how to join.
-- I've joined an in-game clan but am not in the WOM group: Contact the group leader and ask if they can add you the group.
+- I've applied and been accepted into an in-game clan but am not in the WOM group: Contact the group leader and ask if they can add you the group.

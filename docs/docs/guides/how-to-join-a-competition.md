@@ -27,7 +27,6 @@ Competitions can be hosted by users or groups. Participating in these competitio
    
 2. Find an active competition
    1. Browse [`https://wiseoldman.net/competitions`](https://wiseoldman.net/competitions) and filter by metric, status, and/or type.
-   2. Open the competition page and read its description/rules for any listed contact info.
 
 3. Contact the right person
    1. User-created competitions: Reach out where you discovered the competition (Discord, clan chat, forum post), provide your RuneScape name, and request to join.
@@ -54,6 +53,6 @@ Competitions can be hosted by users or groups. Participating in these competitio
 - For group competitions, joining the group may be required before being added to the competition.
 
 ### Troubleshooting
-- Can’t find who to contact: For non-group competitions, the host is not listed on-site; look for contact info where the competition was announced.
+- Can’t find who to contact: For non-group competitions, the host is not listed on the website; look for contact info where the competition was announced.
 - Not appearing on the page: You haven’t been added yet; confirm with the host/leader.
 - Profile not found: Create your profile first by starting tracking.
