@@ -143,6 +143,12 @@
       "rank": 4,
       "level": 99,
       "xp": 200000000
+    },
+    {
+      "name": "Sailing",
+      "rank": 1,
+      "level": 99,
+      "xp": 200000000
     }
   ],
   "activities": [

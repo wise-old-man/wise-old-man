@@ -91,7 +91,7 @@ describe('Deltas API', () => {
       const firstTrackResponse = await api.post(`/players/psikoi`);
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(6_177_978);
-      expect(firstTrackResponse.body.latestSnapshot.data.skills.overall.experience).toBe(300_192_115);
+      expect(firstTrackResponse.body.latestSnapshot.data.skills.overall.experience).toBe(304_439_328);
 
       globalData.testPlayerId = firstTrackResponse.body.id;
 
@@ -130,7 +130,7 @@ describe('Deltas API', () => {
       );
 
       expect(secondTrackResponse.body.latestSnapshot.data.skills.overall.experience).toBe(
-        300_192_115 + 50_000
+        304_439_328 + 50_000
       ); // mocked as -1 overall, had to sum all skills' exp to use as the fallback
 
       // Wait for the deltas to update
@@ -179,7 +179,7 @@ describe('Deltas API', () => {
       const monthCachedDeltas = secondCachedDeltas.filter(c => c.period === 'month');
 
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { hiscoresMetricName: 'Overall', value: 300_192_115 + 50_000 },
+        { hiscoresMetricName: 'Overall', value: 304_439_328 + 50_000 },
         { hiscoresMetricName: 'Smithing', value: 6_177_978 + 50_000 },
         { hiscoresMetricName: 'LMS - Rank', value: 450 },
         { hiscoresMetricName: 'Nex', value: 54 },
@@ -309,7 +309,11 @@ describe('Deltas API', () => {
 
       const dayOverallGains = dayResponse.body.data.skills.overall;
 
-      expect(dayOverallGains.experience).toMatchObject({ start: 300242115, end: 300242115, gained: 0 });
+      expect(dayOverallGains.experience).toMatchObject({
+        start: 304_489_328,
+        end: 304_489_328,
+        gained: 0
+      });
     });
 
     it('should not fetch deltas between (min date greater than max date)', async () => {

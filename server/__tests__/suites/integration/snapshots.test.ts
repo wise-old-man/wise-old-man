@@ -85,7 +85,7 @@ describe('Snapshots API', () => {
       SKILLS.forEach(skill => {
         if (skill === Metric.OVERALL) {
           expect(snapshot.overallRank).toBe(51181);
-          expect(snapshot.overallExperience).toBe(300_192_115);
+          expect(snapshot.overallExperience).toBe(304_439_328);
         } else {
           expect(snapshot[getMetricRankKey(skill)]).toBeLessThan(260_000);
           expect(snapshot[getMetricValueKey(skill)]).toBeGreaterThan(4_000_000);
