@@ -152,6 +152,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     metric: Metric.CONSTRUCTION,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
+  {
+    name: '{threshold} Sailing',
+    metric: Metric.SAILING,
+    thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
+  },
   // -----------------
   // BOSS ACHIEVEMENTS
   // -----------------
