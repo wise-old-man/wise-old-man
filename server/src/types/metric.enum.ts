@@ -22,7 +22,8 @@ export const Skill = {
   FARMING: 'farming',
   RUNECRAFTING: 'runecrafting',
   HUNTER: 'hunter',
-  CONSTRUCTION: 'construction'
+  CONSTRUCTION: 'construction',
+  SAILING: 'sailing'
 } as const;
 
 export const Activity = {

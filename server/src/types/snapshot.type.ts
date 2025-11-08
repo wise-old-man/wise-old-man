@@ -77,6 +77,9 @@ export interface Snapshot {
   constructionRank: number;
   constructionExperience: number;
 
+  sailingRank: number;
+  sailingExperience: number;
+
   league_pointsRank: number;
   league_pointsScore: number;
 
