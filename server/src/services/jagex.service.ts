@@ -112,7 +112,7 @@ export async function fetchHiscoresJSON(
   async function retriedFunction(): AsyncResult<HiscoresData, HiscoresError> {
     const stopTrackingTimer = prometheus.trackJagexServiceRequest();
 
-    const fetchResult = await fetchWithProxy(`${getBaseHiscoresUrl(type)}player=${username}`);
+    const fetchResult = await fetchWithProxy(`${getBaseHiscoresUrl(type)}?player=${username}`);
 
     stopTrackingTimer({
       service: 'OSRS Hiscores (JSON)',
