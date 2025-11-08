@@ -16,8 +16,6 @@ const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const playerDeltaUpdatedEvent = jest.spyOn(PlayerDeltaUpdatedEvent, 'handler');
 
-const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
-
 const globalData = {
   hiscoresRawData: '',
   testGroupId: -1,
@@ -37,7 +35,7 @@ beforeAll(async () => {
   await resetDatabase();
   await redisClient.flushall();
 
-  globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
+  globalData.hiscoresRawData = await readFile(`${__dirname}/../../data/hiscores/psikoi_hiscores.json`);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
@@ -113,10 +111,10 @@ describe('Deltas API', () => {
       expect(firstCachedDeltas.length).toBe(0);
 
       let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.LAST_MAN_STANDING, value: 500 },
-        { metric: Metric.SMITHING, value: 6_177_978 + 50_000 },
-        { metric: Metric.OVERALL, value: -1 },
-        { metric: Metric.NEX, value: 53 }
+        { hiscoresMetricName: 'LMS - Rank', value: 500 },
+        { hiscoresMetricName: 'Smithing', value: 6_177_978 + 50_000 },
+        { hiscoresMetricName: 'Overall', value: -1 },
+        { hiscoresMetricName: 'Nex', value: 53 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -181,13 +179,13 @@ describe('Deltas API', () => {
       const monthCachedDeltas = secondCachedDeltas.filter(c => c.period === 'month');
 
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.OVERALL, value: 300_192_115 + 50_000 },
-        { metric: Metric.SMITHING, value: 6_177_978 + 50_000 },
-        { metric: Metric.LAST_MAN_STANDING, value: 450 },
-        { metric: Metric.NEX, value: 54 },
-        { metric: Metric.TZKAL_ZUK, value: 1 },
-        { metric: Metric.SOUL_WARS_ZEAL, value: 203 },
-        { metric: Metric.BOUNTY_HUNTER_HUNTER, value: 5 }
+        { hiscoresMetricName: 'Overall', value: 300_192_115 + 50_000 },
+        { hiscoresMetricName: 'Smithing', value: 6_177_978 + 50_000 },
+        { hiscoresMetricName: 'LMS - Rank', value: 450 },
+        { hiscoresMetricName: 'Nex', value: 54 },
+        { hiscoresMetricName: 'TzKal-Zuk', value: 1 },
+        { hiscoresMetricName: 'Soul Wars Zeal', value: 203 },
+        { hiscoresMetricName: 'Bounty Hunter - Hunter', value: 5 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -556,13 +554,13 @@ describe('Deltas API', () => {
 
     it('should fetch leaderboards (no player filters)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.OVERALL, value: 500_000_000 },
-        { metric: Metric.SMITHING, value: 7_000_000 },
-        { metric: Metric.LAST_MAN_STANDING, value: 450 },
-        { metric: Metric.NEX, value: 54 },
-        { metric: Metric.TZKAL_ZUK, value: 1 },
-        { metric: Metric.SOUL_WARS_ZEAL, value: 203 },
-        { metric: Metric.BOUNTY_HUNTER_HUNTER, value: 5 }
+        { hiscoresMetricName: 'Overall', value: 500_000_000 },
+        { hiscoresMetricName: 'Smithing', value: 7_000_000 },
+        { hiscoresMetricName: 'LMS - Rank', value: 450 },
+        { hiscoresMetricName: 'Nex', value: 54 },
+        { hiscoresMetricName: 'TzKal-Zuk', value: 1 },
+        { hiscoresMetricName: 'Soul Wars Zeal', value: 203 },
+        { hiscoresMetricName: 'Bounty Hunter - Hunter', value: 5 }
       ]);
 
       // Setup mocks for HCIM for the second test player later on (hydrox6)

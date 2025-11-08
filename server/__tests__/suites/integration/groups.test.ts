@@ -18,9 +18,6 @@ const groupMembersLeftEvent = jest.spyOn(GroupMembersLeftEvent, 'handler');
 const groupMembersJoinedEvent = jest.spyOn(GroupMembersJoinedEvent, 'handler');
 const groupMembersRolesChangedEvent = jest.spyOn(GroupMembersRolesChangedEvent, 'handler');
 
-const P_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
-const LT_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/lynx_titan_hiscores.txt`;
-
 const globalData = {
   pHiscoresRawData: '',
   ltHiscoresRawData: '',
@@ -58,8 +55,8 @@ beforeAll(async () => {
   await resetDatabase();
   await redisClient.flushall();
 
-  globalData.pHiscoresRawData = await readFile(P_HISCORES_FILE_PATH);
-  globalData.ltHiscoresRawData = await readFile(LT_HISCORES_FILE_PATH);
+  globalData.pHiscoresRawData = await readFile(`${__dirname}/../../data/hiscores/psikoi_hiscores.json`);
+  globalData.ltHiscoresRawData = await readFile(`${__dirname}/../../data/hiscores/lynx_titan_hiscores.json`);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
@@ -2498,8 +2495,8 @@ describe('Group API', () => {
       expect(trackResponse.status).toBe(200);
 
       const modifiedRawData = modifyRawHiscoresData(globalData.pHiscoresRawData, [
-        { metric: 'zulrah', value: 100 },
-        { metric: 'magic', value: 5_500_000 }
+        { hiscoresMetricName: 'Zulrah', value: 100 },
+        { hiscoresMetricName: 'Magic', value: 5_500_000 }
       ]);
 
       // Change the mock hiscores data to return 100 zulrah kc

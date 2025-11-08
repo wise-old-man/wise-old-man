@@ -16,8 +16,6 @@ const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 const participantsJoinedEvent = jest.spyOn(ParticipantsJoinedEvent, 'handler');
 const competitionCreatedEvent = jest.spyOn(CompetitionCreatedEvent, 'handler');
 
-const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
-
 const EMPTY_DATA = { id: -1, verificationCode: '' };
 
 const globalData = {
@@ -44,7 +42,7 @@ beforeAll(async () => {
   await resetDatabase();
   await redisClient.flushall();
 
-  globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
+  globalData.hiscoresRawData = await readFile(`${__dirname}/../../data/hiscores/psikoi_hiscores.json`);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
@@ -2940,8 +2938,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'zulrah', value: -1 },
-            { metric: 'hunter', value: 50_000 }
+            { hiscoresMetricName: 'Zulrah', value: -1 },
+            { hiscoresMetricName: 'Hunter', value: 50_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -2956,8 +2954,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'zulrah', value: 500 },
-            { metric: 'hunter', value: 100_000 }
+            { hiscoresMetricName: 'Zulrah', value: 500 },
+            { hiscoresMetricName: 'Hunter', value: 100_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -2972,8 +2970,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'zulrah', value: 1000 },
-            { metric: 'hunter', value: 500_000 }
+            { hiscoresMetricName: 'Zulrah', value: 1000 },
+            { hiscoresMetricName: 'Hunter', value: 500_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -2994,8 +2992,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'zulrah', value: 60 },
-            { metric: 'hunter', value: 50_000 }
+            { hiscoresMetricName: 'Zulrah', value: 60 },
+            { hiscoresMetricName: 'Hunter', value: 50_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3010,8 +3008,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'zulrah', value: 557 },
-            { metric: 'hunter', value: 110_000 }
+            { hiscoresMetricName: 'Zulrah', value: 557 },
+            { hiscoresMetricName: 'Hunter', value: 110_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3026,8 +3024,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'zulrah', value: 1000 },
-            { metric: 'hunter', value: 750_000 }
+            { hiscoresMetricName: 'Zulrah', value: 1000 },
+            { hiscoresMetricName: 'Hunter', value: 750_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3140,8 +3138,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 100_000 },
-            { metric: 'fishing', value: 2_400_000 }
+            { hiscoresMetricName: 'Hunter', value: 100_000 },
+            { hiscoresMetricName: 'Fishing', value: 2_400_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3155,8 +3153,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 14_500_000 },
-            { metric: 'fishing', value: 12_200_000 }
+            { hiscoresMetricName: 'Hunter', value: 14_500_000 },
+            { hiscoresMetricName: 'Fishing', value: 12_200_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3170,8 +3168,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3185,8 +3183,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3225,8 +3223,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 900_000 },
-            { metric: 'fishing', value: 3_100_000 }
+            { hiscoresMetricName: 'Hunter', value: 900_000 },
+            { hiscoresMetricName: 'Fishing', value: 3_100_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3240,8 +3238,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 14_700_000 },
-            { metric: 'fishing', value: 13_200_000 }
+            { hiscoresMetricName: 'Hunter', value: 14_700_000 },
+            { hiscoresMetricName: 'Fishing', value: 13_200_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3255,8 +3253,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 50_000 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: 50_000 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3270,8 +3268,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3508,8 +3506,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 100_000 },
-            { metric: 'fishing', value: 2_400_000 }
+            { hiscoresMetricName: 'Hunter', value: 100_000 },
+            { hiscoresMetricName: 'Fishing', value: 2_400_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3523,8 +3521,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 14_500_000 },
-            { metric: 'fishing', value: 12_200_000 }
+            { hiscoresMetricName: 'Hunter', value: 14_500_000 },
+            { hiscoresMetricName: 'Fishing', value: 12_200_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3538,8 +3536,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3553,8 +3551,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3593,8 +3591,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 900_000 },
-            { metric: 'fishing', value: 3_100_000 }
+            { hiscoresMetricName: 'Hunter', value: 900_000 },
+            { hiscoresMetricName: 'Fishing', value: 3_100_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3608,8 +3606,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 14_700_000 },
-            { metric: 'fishing', value: 13_200_000 }
+            { hiscoresMetricName: 'Hunter', value: 14_700_000 },
+            { hiscoresMetricName: 'Fishing', value: 13_200_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3623,8 +3621,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 50_000 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: 50_000 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3638,8 +3636,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4224,8 +4222,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 100_000 },
-            { metric: 'fishing', value: 2_400_000 }
+            { hiscoresMetricName: 'Hunter', value: 100_000 },
+            { hiscoresMetricName: 'Fishing', value: 2_400_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4239,8 +4237,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 14_500_000 },
-            { metric: 'fishing', value: 12_200_000 }
+            { hiscoresMetricName: 'Hunter', value: 14_500_000 },
+            { hiscoresMetricName: 'Fishing', value: 12_200_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4254,8 +4252,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4269,8 +4267,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4309,8 +4307,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 900_000 },
-            { metric: 'fishing', value: 3_100_000 }
+            { hiscoresMetricName: 'Hunter', value: 900_000 },
+            { hiscoresMetricName: 'Fishing', value: 3_100_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4324,8 +4322,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 14_700_000 },
-            { metric: 'fishing', value: 13_200_000 }
+            { hiscoresMetricName: 'Hunter', value: 14_700_000 },
+            { hiscoresMetricName: 'Fishing', value: 13_200_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4339,8 +4337,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 50_000 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: 50_000 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4354,8 +4352,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }

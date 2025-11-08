@@ -7,11 +7,12 @@ import * as GroupMembersJoinedEvent from '../../../src/api/events/handlers/group
 import * as NameChangeCreatedEvent from '../../../src/api/events/handlers/name-change-created.event';
 import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
 import * as PlayerNameChangedEvent from '../../../src/api/events/handlers/player-name-changed.event';
-import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
+import { buildHiscoresSnapshot } from '../../../src/api/modules/snapshots/services/BuildHiscoresSnapshot';
 import { jobManager, JobType } from '../../../src/jobs';
 import prisma from '../../../src/prisma';
+import { HiscoresDataSchema } from '../../../src/services/jagex.service';
 import { redisClient } from '../../../src/services/redis.service';
-import { Metric, METRICS, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
+import { METRICS, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
 import { getMetricRankKey } from '../../../src/utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../src/utils/get-metric-value-key.util';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
@@ -23,8 +24,6 @@ const groupMembersJoinedEvent = jest.spyOn(GroupMembersJoinedEvent, 'handler');
 const playerArchivedEvent = jest.spyOn(PlayerArchivedEvent, 'handler');
 const playerNameChangedEvent = jest.spyOn(PlayerNameChangedEvent, 'handler');
 const nameChangeCreatedEvent = jest.spyOn(NameChangeCreatedEvent, 'handler');
-
-const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
 const globalData = {
   hiscoresRawData: '',
@@ -45,7 +44,7 @@ beforeAll(async () => {
   await resetDatabase();
   await redisClient.flushall();
 
-  globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
+  globalData.hiscoresRawData = await readFile(`${__dirname}/../../data/hiscores/psikoi_hiscores.json`);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
@@ -1263,7 +1262,7 @@ describe('Names API', () => {
     it('should recalculate competition participations on approval', async () => {
       // Setup the "old player"
       let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.FIREMAKING, value: 4_500_000 }
+        { hiscoresMetricName: 'Firemaking', value: 4_500_000 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1311,7 +1310,7 @@ describe('Names API', () => {
       });
 
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.FIREMAKING, value: 5_000_000 }
+        { hiscoresMetricName: 'Firemaking', value: 5_000_000 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1324,7 +1323,7 @@ describe('Names API', () => {
       await sleep(100);
 
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.FIREMAKING, value: 7_500_000 }
+        { hiscoresMetricName: 'Firemaking', value: 7_500_000 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1650,7 +1649,10 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await parseHiscoresSnapshot(oldPlayerId, globalData.hiscoresRawData);
+  const snapshotData = buildHiscoresSnapshot(
+    oldPlayerId,
+    HiscoresDataSchema.parse(JSON.parse(globalData.hiscoresRawData))
+  );
 
   METRICS.forEach(m => {
     filteredSnapshotData[getMetricValueKey(m)] = snapshotData[getMetricValueKey(m)];
@@ -1769,7 +1771,10 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await parseHiscoresSnapshot(oldPlayerId, globalData.hiscoresRawData);
+  const snapshotData = buildHiscoresSnapshot(
+    oldPlayerId,
+    HiscoresDataSchema.parse(JSON.parse(globalData.hiscoresRawData))
+  );
 
   METRICS.forEach(m => {
     filteredSnapshotData[getMetricValueKey(m)] = snapshotData[getMetricValueKey(m)];

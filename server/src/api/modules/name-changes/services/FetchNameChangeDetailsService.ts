@@ -1,6 +1,6 @@
 import { AsyncResult, bindError, complete, errored, isComplete, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
+import { fetchHiscoresJSON, HiscoresData, HiscoresError } from '../../../../services/jagex.service';
 import { NameChange, NameChangeStatus, PlayerBuild, PlayerType } from '../../../../types';
 import { assertNever } from '../../../../utils/assert-never.util';
 import {
@@ -11,7 +11,8 @@ import {
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
 import { standardize } from '../../players/player.utils';
-import { getNegativeGains, parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
+import { buildHiscoresSnapshot } from '../../snapshots/services/BuildHiscoresSnapshot';
+import { getNegativeGains } from '../../snapshots/snapshot.utils';
 
 async function fetchNameChangeDetails(id: number): AsyncResult<
   NameChangeDetailsResponse,
@@ -65,7 +66,7 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
     return newHiscoresResult;
   }
 
-  const oldHiscoresResult = await fetchHiscoresData(nameChange.oldName).then(result =>
+  const oldHiscoresResult = await fetchHiscoresJSON(nameChange.oldName).then(result =>
     bindError(result, error => {
       switch (error.code) {
         case 'HISCORES_USERNAME_NOT_FOUND':
@@ -97,8 +98,7 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
 
   // Fetch either the first snapshot of the new name, or the current hiscores stats
   // Note: this playerId isn't needed, and won't be used or exposed to the user
-  let newStats =
-    newHiscoresResult.value === null ? null : await parseHiscoresSnapshot(1, newHiscoresResult.value);
+  let newStats = newHiscoresResult.value === null ? null : buildHiscoresSnapshot(1, newHiscoresResult.value);
 
   if (newPlayer) {
     // If the new name is already a tracked player and was tracked
@@ -192,8 +192,8 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
   });
 }
 
-async function fetchHiscoresWithFallback(username: string): AsyncResult<string, HiscoresError> {
-  const regularHiscoresDataResult = await fetchHiscoresData(username);
+async function fetchHiscoresWithFallback(username: string): AsyncResult<HiscoresData, HiscoresError> {
+  const regularHiscoresDataResult = await fetchHiscoresJSON(username);
 
   if (isComplete(regularHiscoresDataResult)) {
     return regularHiscoresDataResult;
@@ -202,7 +202,7 @@ async function fetchHiscoresWithFallback(username: string): AsyncResult<string, 
   switch (regularHiscoresDataResult.error.code) {
     case 'HISCORES_USERNAME_NOT_FOUND':
       // If not found on the regular hiscores, fallback to trying the ironman hiscores instead
-      return fetchHiscoresData(username, PlayerType.IRONMAN);
+      return fetchHiscoresJSON(username, PlayerType.IRONMAN);
     case 'HISCORES_UNEXPECTED_ERROR':
     case 'HISCORES_SERVICE_UNAVAILABLE':
       return regularHiscoresDataResult;

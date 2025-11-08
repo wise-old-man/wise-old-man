@@ -11,14 +11,12 @@ import { readFile, registerHiscoresMock, resetDatabase } from '../../utils';
 const api = supertest(new APIInstance().init().express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
-
 beforeAll(async () => {
   eventEmitter.init();
   await redisClient.flushall();
   await resetDatabase();
 
-  const hiscoresRawData = await readFile(HISCORES_FILE_PATH);
+  const hiscoresRawData = await readFile(`${__dirname}/../../data/hiscores/psikoi_hiscores.json`);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {

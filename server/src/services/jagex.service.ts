@@ -2,18 +2,12 @@ import { AsyncResult, complete, errored, isComplete, isErrored } from '@attio/fe
 import { z } from 'zod';
 import prometheus from '../services/prometheus.service';
 import { PlayerType } from '../types';
+import { assertNever } from '../utils/assert-never.util';
 import { fetchWithProxy } from '../utils/fetch-with-proxy.util';
 import { retry } from '../utils/retry.util';
 import logger from './logging.service';
 
 const RUNEMETRICS_URL = 'https://apps.runescape.com/runemetrics/profile/profile';
-
-export const OSRS_HISCORES_URLS = {
-  [PlayerType.REGULAR]: 'https://services.runescape.com/m=hiscore_oldschool/index_lite.ws',
-  [PlayerType.IRONMAN]: 'https://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws',
-  [PlayerType.HARDCORE]: 'https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
-  [PlayerType.ULTIMATE]: 'https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws'
-};
 
 const RUNEMETRICS_ERROR_RESPONSE_SCHEMA = z.object({
   error: z.string()
@@ -26,10 +20,8 @@ export async function getRuneMetricsBannedStatus(username: string): AsyncResult<
     subError: unknown;
   }
 > {
-  async function retriedFunction(attemptIndex: number) {
+  async function retriedFunction() {
     const url = `${RUNEMETRICS_URL}?user=${username}`;
-
-    logger.debug(`Attempt ${attemptIndex + 1} to fetch RuneMetrics for player: ${username}`);
 
     const stopTrackingTimer = prometheus.trackJagexServiceRequest();
 
@@ -70,31 +62,60 @@ export async function getRuneMetricsBannedStatus(username: string): AsyncResult<
   } as const);
 }
 
+export function getBaseHiscoresUrl(type: PlayerType = PlayerType.REGULAR) {
+  switch (type) {
+    case PlayerType.UNKNOWN:
+    case PlayerType.REGULAR:
+      return `https://services.runescape.com/m=hiscore_oldschool/index_lite.json`;
+    case PlayerType.IRONMAN:
+      return `https://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.json`;
+    case PlayerType.ULTIMATE:
+      return `https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.json`;
+    case PlayerType.HARDCORE:
+      return `https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.json`;
+    default:
+      assertNever(type);
+  }
+}
+
 const HiscoresErrorSchema = z.union([
   z.object({ code: z.literal('HISCORES_USERNAME_NOT_FOUND') }),
   z.object({ code: z.literal('HISCORES_SERVICE_UNAVAILABLE') }),
   z.object({ code: z.literal('HISCORES_UNEXPECTED_ERROR'), subError: z.unknown() })
 ]);
 
+export const HiscoresDataSchema = z.object({
+  skills: z.array(
+    z.object({
+      name: z.string(),
+      xp: z.number(),
+      level: z.number(),
+      rank: z.number()
+    })
+  ),
+  activities: z.array(
+    z.object({
+      name: z.string(),
+      score: z.number(),
+      rank: z.number()
+    })
+  )
+});
+
+export type HiscoresData = z.infer<typeof HiscoresDataSchema>;
 export type HiscoresError = z.infer<typeof HiscoresErrorSchema>;
 
-export async function fetchHiscoresData(
+export async function fetchHiscoresJSON(
   username: string,
   type: PlayerType = PlayerType.REGULAR
-): AsyncResult<string, HiscoresError> {
-  async function retriedFunction(attemptIndex: number): AsyncResult<string, HiscoresError> {
-    const hiscoresType = type === PlayerType.UNKNOWN ? PlayerType.REGULAR : type;
-
-    const url = `${OSRS_HISCORES_URLS[hiscoresType]}?player=${username}`;
-
-    logger.debug(`Attempt ${attemptIndex + 1} to fetch Hiscores for player: ${username}`);
-
+): AsyncResult<HiscoresData, HiscoresError> {
+  async function retriedFunction(): AsyncResult<HiscoresData, HiscoresError> {
     const stopTrackingTimer = prometheus.trackJagexServiceRequest();
 
-    const fetchResult = await fetchWithProxy(url);
+    const fetchResult = await fetchWithProxy(`${getBaseHiscoresUrl(type)}?player=${username}`);
 
     stopTrackingTimer({
-      service: 'OSRS Hiscores',
+      service: 'OSRS Hiscores (JSON)',
       status: isErrored(fetchResult) ? 0 : 1
     });
 
@@ -120,15 +141,13 @@ export async function fetchHiscoresData(
       } as const);
     }
 
-    const data = fetchResult.value;
+    const parsedHiscores = HiscoresDataSchema.safeParse(fetchResult.value);
 
-    if (typeof data !== 'string' || data.length === 0 || data.includes('Unavailable') || data.includes('<')) {
-      return errored({
-        code: 'HISCORES_SERVICE_UNAVAILABLE'
-      } as const);
+    if (!parsedHiscores.success) {
+      return errored({ code: 'HISCORES_SERVICE_UNAVAILABLE' } as const);
     }
 
-    return complete(data);
+    return complete(parsedHiscores.data);
   }
 
   const result = await retry(retriedFunction);

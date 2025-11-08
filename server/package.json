@@ -1,6 +1,6 @@
 {
   "name": "wise-old-man-server",
-  "version": "2.8.23",
+  "version": "2.8.24",
   "description": "",
   "author": "Psikoi",
   "license": "ISC",
@@ -32,7 +32,6 @@
     "chalk": "^4.1.2",
     "cors": "^2.8.5",
     "cross-env": "^7.0.2",
-    "csvtojson": "^2.0.10",
     "dayjs": "^1.11.3",
     "discord.js": "^14.9.0",
     "dotenv": "^8.2.0",
