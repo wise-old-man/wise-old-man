@@ -5,6 +5,7 @@ import { pick } from '../../../../utils/pick.util';
 import { roundNumber } from '../../../../utils/shared/round-number.util';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
+import { LEGACY_TEMPLATE_NAMES } from '../achievement.templates';
 import { getAchievementDefinitions } from '../achievement.utils';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
@@ -56,7 +57,7 @@ async function findPlayerAchievementProgress(username: string): Promise<
   const definitions = clusterDefinitions(ALL_DEFINITIONS);
 
   // Achievements that were once given, but are no longer valid (such as Base X stats Pre-Sailing)
-  const legacyAchievements = achievements.filter(d => d.name.includes('Pre-Sailing'));
+  const legacyAchievements = achievements.filter(d => LEGACY_TEMPLATE_NAMES.includes(d.name));
 
   return [
     ...definitions.map((d, i) => {
