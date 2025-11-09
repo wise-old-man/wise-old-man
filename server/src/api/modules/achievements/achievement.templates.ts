@@ -1,5 +1,5 @@
 import { Metric, Snapshot } from '../../../types';
-import { getExpForLevel, REAL_SKILLS } from '../../../utils/shared';
+import { getExpForLevel } from '../../../utils/shared';
 import { getCappedExp } from '../snapshots/snapshot.utils';
 
 interface AchievementTemplate {
@@ -15,18 +15,18 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // CUSTOM ACHIEVEMENTS
   // ------------------
   {
-    name: 'Base {level} Stats',
+    name: 'Base {level} Stats (Pre-Sailing)',
     metric: Metric.OVERALL,
     measure: 'levels',
     thresholds: [
-      getExpForLevel(60) * REAL_SKILLS.length,
-      getExpForLevel(70) * REAL_SKILLS.length,
-      getExpForLevel(80) * REAL_SKILLS.length,
-      getExpForLevel(90) * REAL_SKILLS.length,
-      getExpForLevel(99) * REAL_SKILLS.length
+      getExpForLevel(60) * 23,
+      getExpForLevel(70) * 23,
+      getExpForLevel(80) * 23,
+      getExpForLevel(90) * 23,
+      getExpForLevel(99) * 23
     ],
     getCurrentValue: (snapshot: Snapshot, threshold: number) => {
-      return Math.floor(getCappedExp(snapshot, threshold / REAL_SKILLS.length));
+      return Math.floor(getCappedExp(snapshot, threshold / 23));
     }
   },
   // ------------------

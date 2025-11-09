@@ -1,22 +1,10 @@
 import { AchievementDefinition, Snapshot } from '../../../types';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
-import { getExpForLevel, getLevel, isMetric, MetricProps, REAL_SKILLS } from '../../../utils/shared';
+import { getExpForLevel, getLevel, isMetric, MetricProps } from '../../../utils/shared';
 import { formatNumber } from '../../../utils/shared/format-number.util';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 
-function getAchievementName(name: string, threshold: number): string {
-  const newName = name
-    .replace('{threshold}', formatThreshold(threshold))
-    .replace('{level}', formatThreshold(threshold));
-
-  if (newName === 'Base 99 Stats') {
-    return 'Maxed Overall';
-  }
-
-  return newName;
-}
-
-function formatThreshold(threshold: number): string {
+function formatAchievementThreshold(templateName: string, threshold: number): string {
   if (threshold < 1000) return String(threshold);
   if (threshold <= 10_000) return `${threshold / 1000}k`;
 
@@ -24,19 +12,23 @@ function formatThreshold(threshold: number): string {
     return '99';
   }
 
-  if (
-    [
-      getExpForLevel(60) * REAL_SKILLS.length,
-      getExpForLevel(70) * REAL_SKILLS.length,
-      getExpForLevel(80) * REAL_SKILLS.length,
-      getExpForLevel(90) * REAL_SKILLS.length,
-      getExpForLevel(99) * REAL_SKILLS.length
-    ].includes(threshold)
-  ) {
-    return getLevel(threshold / REAL_SKILLS.length).toString();
+  if (templateName.startsWith('Base {level} Stats')) {
+    return getLevel(threshold / 23).toString();
   }
 
   return formatNumber(threshold, true).toString();
+}
+
+function getHydratedAchievementName(templateName: string, threshold: number): string {
+  const newName = templateName
+    .replace('{threshold}', formatAchievementThreshold(templateName, threshold))
+    .replace('{level}', formatAchievementThreshold(templateName, threshold));
+
+  if (newName.startsWith('Base 99 Stats')) {
+    return newName.replace('Base 99 Stats', 'Maxed Overall');
+  }
+
+  return newName;
 }
 
 export function getAchievementDefinitions(): AchievementDefinition[] {
@@ -46,7 +38,7 @@ export function getAchievementDefinitions(): AchievementDefinition[] {
     const metricValueKey = getMetricValueKey(metric);
 
     thresholds.forEach(threshold => {
-      const newName = getAchievementName(name, threshold);
+      const newName = getHydratedAchievementName(name, threshold);
 
       const getCurrentValueFn = (snapshot: Snapshot) => {
         return getCurrentValue ? getCurrentValue(snapshot, threshold) : snapshot[metricValueKey];

@@ -148,7 +148,9 @@ function getMinimumExp(snapshot: Snapshot) {
 }
 
 function getCappedExp(snapshot: Snapshot, max: number) {
-  return REAL_SKILLS.map(s => Math.min(snapshot[getMetricValueKey(s)], max)).reduce((acc, cur) => acc + cur);
+  return REAL_SKILLS.map(s => Math.min(snapshot[getMetricValueKey(s)], max)).reduce(
+    (acc, cur) => acc + Math.max(cur, 0)
+  );
 }
 
 function getTotalLevel(snapshot: Snapshot) {
