@@ -187,31 +187,31 @@ describe('Achievements API', () => {
 
       expect(progressMap['Base 60 Stats (Pre-Sailing)']).toMatchObject({
         measure: 'levels',
-        currentValue: 6_569_808, // 273_742 * 24 skills
+        currentValue: 6_296_066, // 273_742 * 23 skills
         absoluteProgress: 1,
         relativeProgress: 1
       });
 
       expect(progressMap['Base 70 Stats (Pre-Sailing)']).toMatchObject({
         measure: 'levels',
-        currentValue: 17_703_048, // 737_627 * 24 skills
+        currentValue: 16_965_421, // 737_627 * 23 skills
         absoluteProgress: 1,
         relativeProgress: 1
       });
 
       expect(progressMap['Base 80 Stats (Pre-Sailing)']).toMatchObject({
         measure: 'levels',
-        currentValue: 47_665_632, // 1_986_068 * 24 skills
+        currentValue: 45_679_564, // 1_986_068 * 23 skills
         absoluteProgress: 1, // 100% done with this achievement - (45_679_564 / 45_679_564) = 1
         relativeProgress: 1 // 100% done between Base 70 and Base 80 - ((45_679_564 - 16_965_421) / (45_679_564 - 16_965_421)) >= 1
       });
 
       expect(progressMap['Base 90 Stats (Pre-Sailing)']).toMatchObject({
         measure: 'levels',
-        // there's 3 skills under 90, agility, construction and sailing
-        currentValue: 125_499_711, // (5_346_332 * 21 skills) + 4_537_106 (construction) + 4_442_420 (agility) + 4_247_213 (sailing)
-        absoluteProgress: 0.9781, // 97% done with this achievement - (125_499_711 / 128_311_968) = 0.9781
-        relativeProgress: 0.9651 // 96% done between Base 80 and Base 90 - ((125_499_711 - 1_986_068) / (128_311_968 - 1_986_068)) = 0.9778
+        // there's 2 skills under 90, agility and construction
+        currentValue: 121_252_498, // (5_346_332 * 21 skills) + 4_537_106 (construction) + 4_442_420 (agility)
+        absoluteProgress: 0.9861, // 100% done with this achievement - (121_252_498 / 122_965_636) = 0.9861
+        relativeProgress: 0.9778 // 19.3% done between Base 80 and Base 90 - ((121_252_498 - 1_986_068) / (122_965_636 - 1_986_068)) = 0.9778
       });
     });
 
