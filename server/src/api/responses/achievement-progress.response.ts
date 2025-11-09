@@ -31,8 +31,8 @@ export function formatAchievementProgressResponse({
 }): AchievementProgressResponse {
   return {
     ...achievement,
-    legacy: LEGACY_TEMPLATE_NAMES.includes(achievement.name),
     measure: getAchievementMeasure(achievement),
+    legacy: LEGACY_TEMPLATE_NAMES.includes(achievement.name),
     createdAt,
     currentValue,
     absoluteProgress,
