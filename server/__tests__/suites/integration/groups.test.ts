@@ -2475,7 +2475,7 @@ describe('Group API', () => {
     it('should not view hiscores (invalid metric)', async () => {
       const response = await api
         .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
-        .query({ metric: 'sailing' });
+        .query({ metric: 'dungeoneering' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
@@ -2732,7 +2732,7 @@ describe('Group API', () => {
       expect(response.body).toMatchObject({
         maxedCombatCount: 1,
         maxedTotalCount: 1,
-        maxed200msCount: 23,
+        maxed200msCount: 24,
         averageStats: {
           data: {
             bosses: {

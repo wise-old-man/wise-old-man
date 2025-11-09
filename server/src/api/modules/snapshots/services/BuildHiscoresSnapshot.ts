@@ -29,6 +29,19 @@ const METRIC_NAME_OVERRIDES = {
 };
 
 export function buildHiscoresSnapshot(playerId: number, hiscoresData: HiscoresData, previous?: Snapshot) {
+  if (hiscoresData.skills.length < 25) {
+    /**
+     * Temporary until Sailing is added to the OSRS Hiscores.
+     * TODO: Remove this ASAP after Sailing launch.
+     */
+    hiscoresData.skills.push({
+      name: 'Sailing',
+      rank: -1,
+      level: 1,
+      xp: -1
+    });
+  }
+
   if (
     hiscoresData.skills.length + hiscoresData.activities.length <
     METRICS.length - COMPUTED_METRICS.length + SKIPPED_METRICS.length

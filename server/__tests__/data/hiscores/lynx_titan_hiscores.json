@@ -4,7 +4,7 @@
       "name": "Overall",
       "rank": 1,
       "level": 2277,
-      "xp": 4600000000
+      "xp": 4800000000
     },
     {
       "name": "Attack",
@@ -141,6 +141,12 @@
     {
       "name": "Construction",
       "rank": 4,
+      "level": 99,
+      "xp": 200000000
+    },
+    {
+      "name": "Sailing",
+      "rank": 1,
       "level": 99,
       "xp": 200000000
     }

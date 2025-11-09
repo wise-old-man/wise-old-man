@@ -1,6 +1,6 @@
-import { Metric, Snapshot } from '../../../types';
-import { getExpForLevel } from '../../../utils/shared';
-import { getCappedExp } from '../snapshots/snapshot.utils';
+import { Metric, Skill, Snapshot } from '../../../types';
+import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
+import { getExpForLevel, REAL_SKILLS } from '../../../utils/shared';
 
 interface AchievementTemplate {
   name: string;
@@ -26,7 +26,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
       getExpForLevel(99) * 23
     ],
     getCurrentValue: (snapshot: Snapshot, threshold: number) => {
-      return Math.floor(getCappedExp(snapshot, threshold / 23));
+      const cappedExpWithoutSailing = REAL_SKILLS.filter(r => r !== Skill.SAILING)
+        .map(s => Math.min(snapshot[getMetricValueKey(s)], threshold / 23))
+        .reduce((acc, cur) => acc + Math.max(cur, 0));
+
+      return Math.floor(cappedExpWithoutSailing);
     }
   },
   // ------------------
@@ -150,6 +154,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   {
     name: '{threshold} Construction',
     metric: Metric.CONSTRUCTION,
+    thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
+  },
+  {
+    name: '{threshold} Sailing',
+    metric: Metric.SAILING,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   // -----------------

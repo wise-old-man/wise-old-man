@@ -301,7 +301,7 @@ describe('Achievements API', () => {
       const totalCount =
         firstFetchResponse.body.length + secondFetchResponse.body.length + thirdFetchResponse.body.length;
 
-      expect(totalCount).toBe(140); // 37 achievements from Psikoi, 103 from Lynx Titan
+      expect(totalCount).toBe(144); // 37 achievements from Psikoi, 107 from Lynx Titan
     });
 
     test('Track player again, test new achievements', async () => {

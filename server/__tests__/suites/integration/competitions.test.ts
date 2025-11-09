@@ -182,7 +182,7 @@ describe('Competition API', () => {
     it('should not create (invalid metric)', async () => {
       const response = await api.post('/competitions').send({
         ...VALID_CREATE_BASE,
-        metric: 'sailing'
+        metric: 'dungeoneering'
       });
 
       expect(response.status).toBe(400);
@@ -969,7 +969,7 @@ describe('Competition API', () => {
 
     it('should not edit (invalid metric)', async () => {
       const response = await api.put(`/competitions/${globalData.testCompetitionStarting.id}`).send({
-        metric: 'sailing',
+        metric: 'dungeoneering',
         verificationCode: globalData.testCompetitionStarting.verificationCode
       });
 
@@ -1792,7 +1792,9 @@ describe('Competition API', () => {
     });
 
     it('should not search competitions (invalid metric)', async () => {
-      const response = await api.get('/competitions').query({ metric: 'sailing' });
+      const response = await api.get('/competitions').query({
+        metric: 'dungeoneering'
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
@@ -2906,7 +2908,7 @@ describe('Competition API', () => {
 
     it('should not view details (invalid metric)', async () => {
       const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
-        metric: 'sailing'
+        metric: 'dungeoneering'
       });
 
       expect(response.status).toBe(400);
@@ -3432,7 +3434,7 @@ describe('Competition API', () => {
     it('should not view top 5 snapshots (invalid metric)', async () => {
       const response = await api
         .get(`/competitions/${globalData.testCompetitionStarted.id}/top-history`)
-        .query({ metric: 'sailing' });
+        .query({ metric: 'dungeoneering' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
@@ -3714,7 +3716,7 @@ describe('Competition API', () => {
     it('should not view CSV export (invalid metric)', async () => {
       const response = await api
         .get(`/competitions/${globalData.testCompetitionStarted.id}/csv`)
-        .query({ metric: 'sailing' });
+        .query({ metric: 'dungeoneering' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'metric'.");

@@ -134,12 +134,12 @@ describe('Efficiency API', () => {
 
       expect(
         ALGORITHMS.get(EfficiencyAlgorithmType.MAIN)!.calculateEHPMap(maxedStats).get('overall')
-      ).toBeCloseTo(962.9246338539108, 4);
+      ).toBeCloseTo(962.98981, 4);
 
       const maximumStats = new Map(SKILLS.map(s => [s, MAX_SKILL_EXP]));
       expect(
         ALGORITHMS.get(EfficiencyAlgorithmType.MAIN)!.calculateEHPMap(maximumStats).get('overall')
-      ).toBeCloseTo(12813.80829, 4);
+      ).toBeCloseTo(12814.80829, 4);
     });
   });
 

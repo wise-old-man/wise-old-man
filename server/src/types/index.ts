@@ -10,7 +10,6 @@ export * from './competition-team.type';
 export * from './competition-type.enum';
 export * from './competition.type';
 export * from './country.enum';
-export * from './delta.type';
 export * from './efficiency-algorithm-type.enum';
 export * from './group-role-order.type';
 export * from './group-role.enum';

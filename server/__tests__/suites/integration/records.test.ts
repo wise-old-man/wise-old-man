@@ -213,7 +213,9 @@ describe('Records API', () => {
     });
 
     it('should not fetch records (invalid metric)', async () => {
-      const response = await api.get(`/players/psikoi/records`).query({ metric: 'sailing' });
+      const response = await api.get(`/players/psikoi/records`).query({
+        metric: 'dungeoneering'
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");

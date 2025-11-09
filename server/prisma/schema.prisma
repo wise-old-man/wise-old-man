@@ -372,6 +372,8 @@ model Snapshot {
   hunterExperience                      Int       @default(-1)
   constructionRank                      Int       @default(-1)
   constructionExperience                Int       @default(-1)
+  sailingRank                           Int       @default(-1)
+  sailingExperience                     Int       @default(-1)
   league_pointsRank                     Int       @default(-1)
   league_pointsScore                    Int       @default(-1)
   bounty_hunter_hunterRank              Int       @default(-1)
@@ -1246,6 +1248,7 @@ enum Metric {
   runecrafting
   hunter
   construction
+  sailing
   league_points
   bounty_hunter_hunter
   bounty_hunter_rogue

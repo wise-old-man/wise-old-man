@@ -46,7 +46,8 @@ export const SkillProps: Record<
     [Skill.FARMING]: { name: 'Farming', isMembers: true },
     [Skill.RUNECRAFTING]: { name: 'Runecrafting' },
     [Skill.HUNTER]: { name: 'Hunter', isMembers: true },
-    [Skill.CONSTRUCTION]: { name: 'Construction', isMembers: true }
+    [Skill.CONSTRUCTION]: { name: 'Construction', isMembers: true },
+    [Skill.SAILING]: { name: 'Sailing', isMembers: true }
   },
   props => ({
     ...props,
