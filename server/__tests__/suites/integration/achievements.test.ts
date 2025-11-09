@@ -185,28 +185,28 @@ describe('Achievements API', () => {
         relativeProgress: 0 // 0% done between 5k and 10k kc - ((1773 - 1000) / (5000 - 1000)) <= 0
       });
 
-      expect(progressMap['Base 60 Stats']).toMatchObject({
+      expect(progressMap['Base 60 Stats (Pre-Sailing)']).toMatchObject({
         measure: 'levels',
         currentValue: 6_296_066, // 273_742 * 23 skills
         absoluteProgress: 1,
         relativeProgress: 1
       });
 
-      expect(progressMap['Base 70 Stats']).toMatchObject({
+      expect(progressMap['Base 70 Stats (Pre-Sailing)']).toMatchObject({
         measure: 'levels',
         currentValue: 16_965_421, // 737_627 * 23 skills
         absoluteProgress: 1,
         relativeProgress: 1
       });
 
-      expect(progressMap['Base 80 Stats']).toMatchObject({
+      expect(progressMap['Base 80 Stats (Pre-Sailing)']).toMatchObject({
         measure: 'levels',
         currentValue: 45_679_564, // 1_986_068 * 23 skills
         absoluteProgress: 1, // 100% done with this achievement - (45_679_564 / 45_679_564) = 1
         relativeProgress: 1 // 100% done between Base 70 and Base 80 - ((45_679_564 - 16_965_421) / (45_679_564 - 16_965_421)) >= 1
       });
 
-      expect(progressMap['Base 90 Stats']).toMatchObject({
+      expect(progressMap['Base 90 Stats (Pre-Sailing)']).toMatchObject({
         measure: 'levels',
         // there's 2 skills under 90, agility and construction
         currentValue: 121_252_498, // (5_346_332 * 21 skills) + 4_537_106 (construction) + 4_442_420 (agility)
