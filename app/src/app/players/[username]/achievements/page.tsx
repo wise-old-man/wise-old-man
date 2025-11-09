@@ -339,14 +339,14 @@ function formatThreshold(threshold: number) {
 
   if (
     [
-      getExpForLevel(60) * REAL_SKILLS.length,
-      getExpForLevel(70) * REAL_SKILLS.length,
-      getExpForLevel(80) * REAL_SKILLS.length,
-      getExpForLevel(90) * REAL_SKILLS.length,
-      getExpForLevel(99) * REAL_SKILLS.length,
+      getExpForLevel(60) * 23,
+      getExpForLevel(70) * 23,
+      getExpForLevel(80) * 23,
+      getExpForLevel(90) * 23,
+      getExpForLevel(99) * 23,
     ].includes(threshold)
   ) {
-    return getLevel(threshold / REAL_SKILLS.length + 100).toString();
+    return getLevel(threshold / 23 + 100).toString();
   }
 
   if (threshold <= 10000) {
