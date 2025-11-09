@@ -1,6 +1,6 @@
-import { Metric, Skill, Snapshot } from '../../../types';
-import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
+import { Metric, Snapshot } from '../../../types';
 import { getExpForLevel, REAL_SKILLS } from '../../../utils/shared';
+import { getCappedExp } from '../snapshots/snapshot.utils';
 
 interface AchievementTemplate {
   name: string;
@@ -15,22 +15,18 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // CUSTOM ACHIEVEMENTS
   // ------------------
   {
-    name: 'Base {level} Stats (Pre-Sailing)',
+    name: 'Base {level} Stats',
     metric: Metric.OVERALL,
     measure: 'levels',
     thresholds: [
-      getExpForLevel(60) * 23,
-      getExpForLevel(70) * 23,
-      getExpForLevel(80) * 23,
-      getExpForLevel(90) * 23,
-      getExpForLevel(99) * 23
+      getExpForLevel(60) * REAL_SKILLS.length,
+      getExpForLevel(70) * REAL_SKILLS.length,
+      getExpForLevel(80) * REAL_SKILLS.length,
+      getExpForLevel(90) * REAL_SKILLS.length,
+      getExpForLevel(99) * REAL_SKILLS.length
     ],
     getCurrentValue: (snapshot: Snapshot, threshold: number) => {
-      const cappedExpWithoutSailing = REAL_SKILLS.filter(r => r !== Skill.SAILING)
-        .map(s => Math.min(snapshot[getMetricValueKey(s)], threshold / 23))
-        .reduce((acc, cur) => acc + Math.max(cur, 0));
-
-      return Math.floor(cappedExpWithoutSailing);
+      return Math.floor(getCappedExp(snapshot, threshold / REAL_SKILLS.length));
     }
   },
   // ------------------
