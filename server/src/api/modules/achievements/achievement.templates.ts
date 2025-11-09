@@ -10,6 +10,14 @@ interface AchievementTemplate {
   getCurrentValue?: (snapshot: Snapshot, threshold: number) => number;
 }
 
+export const LEGACY_TEMPLATE_NAMES = [
+  'Base 60 Stats (Pre-Sailing)',
+  'Base 70 Stats (Pre-Sailing)',
+  'Base 80 Stats (Pre-Sailing)',
+  'Base 90 Stats (Pre-Sailing)',
+  'Maxed Overall (Pre-Sailing)'
+];
+
 export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ------------------
   // CUSTOM ACHIEVEMENTS
