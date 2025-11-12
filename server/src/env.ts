@@ -40,10 +40,10 @@ const envVariablesSchema = z.object({
   DISCORD_PATREON_WEBHOOK_URL: prodOnly(z.string().trim().min(1).url()),
   DISCORD_MONITORING_WEBHOOK_URL: prodOnly(z.string().trim().min(1).url()),
   // Proxy Configs
-  PROXY_LIST: z.string().trim().min(1),
-  PROXY_USER: z.string().trim().min(1),
-  PROXY_PASSWORD: z.string().trim().min(1),
-  PROXY_PORT: z.coerce.number().positive().int(),
+  PROXY_LIST: z.optional(z.string().trim().min(1)),
+  PROXY_USER: z.optional(z.string().trim().min(1)),
+  PROXY_PASSWORD: z.optional(z.string().trim().min(1)),
+  PROXY_PORT: z.optional(z.coerce.number().positive().int()),
   CPU_COUNT: prodOnly(z.coerce.number().positive().int()),
   // Openai API Key
   OPENAI_API_KEY: prodOnly(z.string().trim().min(1).startsWith('sk-')),
