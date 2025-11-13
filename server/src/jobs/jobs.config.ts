@@ -5,6 +5,7 @@ import { BackfillDeleteDuplicateSnapshotsJob } from './handlers/backfill-delete-
 import { BackfillParticipationSnapshotDatesJob } from './handlers/backfill-participation-snapshot-dates.job';
 import { BackfillPlayerSnapshotDatesJob } from './handlers/backfill-player-snapshot-dates.job';
 import { CalculateComputedRankTablesJob } from './handlers/calculate-computed-rank-tables.job';
+import { CalculateSailingExpTrendJob } from './handlers/calculate-sailing-exp-trend.job';
 import { CheckCreationSpamJob } from './handlers/check-creation-spam.job';
 import { CheckInappropriateContentJob } from './handlers/check-inappropriate-content.job';
 import { CheckMissingComputedRankTablesJob } from './handlers/check-missing-computed-rank-tables.job';
@@ -59,6 +60,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.BACKFILL_PARTICIPATION_SNAPSHOT_DATES]: BackfillParticipationSnapshotDatesJob,
   [JobType.BACKFILL_PLAYER_SNAPSHOT_DATES]: BackfillPlayerSnapshotDatesJob,
   [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJob,
+  [JobType.CALCULATE_SAILING_EXP_TREND]: CalculateSailingExpTrendJob,
   [JobType.CHECK_CREATION_SPAM]: CheckCreationSpamJob,
   [JobType.CHECK_INAPPROPRIATE_CONTENT]: CheckInappropriateContentJob,
   [JobType.CHECK_MISSING_COMPUTED_RANK_TABLES]: CheckMissingComputedRankTablesJob,

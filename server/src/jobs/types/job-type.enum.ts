@@ -6,6 +6,7 @@ export enum JobType {
   BACKFILL_PARTICIPATION_SNAPSHOT_DATES = 'backfill-participation-snapshot-dates',
   BACKFILL_PLAYER_SNAPSHOT_DATES = 'backfill-player-snapshot-dates',
   CALCULATE_COMPUTED_RANK_TABLES = 'calculate-computed-rank-tables',
+  CALCULATE_SAILING_EXP_TREND = 'calculate-sailing-exp-trend',
   CHECK_CREATION_SPAM = 'check-creation-spam',
   CHECK_INAPPROPRIATE_CONTENT = 'check-inappropriate-content',
   CHECK_MISSING_COMPUTED_RANK_TABLES = 'check-missing-computed-rank-tables',
