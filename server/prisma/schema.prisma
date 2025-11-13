@@ -258,6 +258,10 @@ model Player {
   latestSnapshotId   Int?
   latestSnapshotDate DateTime?    @db.Timestamptz(6)
 
+  // Temporary
+  sailing     Int @default(-1)
+  sailingRank Int @default(-1)
+
   // Relations
   latestSnapshot Snapshot?          @relation("player_latest_snapshot", fields: [latestSnapshotId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   achievements   Achievement[]
@@ -279,6 +283,7 @@ model Player {
   @@index([latestSnapshotDate], map: "players_latest_snapshot_date")
   @@index([type, ehp(sort: Desc)], map: "players_type_ehp")
   @@index([type, ehb(sort: Desc)], map: "players_type_ehb")
+  @@index([updatedAt, sailing, sailingRank], map: "players_updated_at_sailing_sailing_rank")
   // Map
   @@map("players")
 }

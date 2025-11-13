@@ -118,9 +118,11 @@ export const CRON_CONFIG = [
   { interval: '*/5 * * * *', type: JobType.CHECK_INAPPROPRIATE_CONTENT },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
+  { interval: '*/5 * * * *', type: JobType.CALCULATE_SAILING_EXP_TREND }, // Change to every hour after the first 24-48h of Sailing
   // every hour
   { interval: '0 * * * *', type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW },
-  { interval: '0 * * * *', type: JobType.INVALIDATE_DELTAS }, // change back to every 6 hours once it's running well
+  // every 6 hours
+  { interval: '0 */6 * * *', type: JobType.INVALIDATE_DELTAS },
   // everyday at 8:00 UTC
   { interval: '0 8 * * *', type: JobType.CALCULATE_COMPUTED_RANK_TABLES },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS },

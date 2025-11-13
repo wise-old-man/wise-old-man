@@ -16,12 +16,10 @@ export class CalculateSailingExpTrendJob extends Job<unknown> {
         rank: number;
       }>
     >` 
-        SELECT s."woodcuttingExperience" as "value", s."woodcuttingRank" as "rank" FROM public.players p
-        INNER JOIN public.snapshots s
-        ON s."playerId" = p."id" AND s."createdAt" = p."latestSnapshotDate"
-        WHERE p."updatedAt" > ${updateCuttofDate}
-        AND s."woodcuttingExperience" > -1
-        AND s."woodcuttingRank" > -1
+        SELECT "sailing" as "value", "sailingRank" as "rank" FROM public.players
+        WHERE "updatedAt" > ${updateCuttofDate}
+        AND "sailing" > -1
+        AND "sailingRank" > -1
     `;
 
     if (data.length === 0) {
