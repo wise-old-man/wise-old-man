@@ -40,3 +40,4 @@ export * from './skill-meta-bonus.type';
 export * from './skill-meta-config.type';
 export * from './skill-meta-method.type';
 export * from './snapshot.type';
+export * from './trend-datapoint.type';
