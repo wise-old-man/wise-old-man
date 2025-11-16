@@ -13,7 +13,7 @@ export class ScheduleTrendDatapointCalculationsJob extends Job<unknown> {
     const countries = await prisma.$queryRaw<Array<{ country: Country }>>`
         SELECT "country" FROM public.players
         GROUP BY "country"
-        HAVING COUNT(*) > 20;
+        HAVING COUNT(*) > 30;
       `;
 
     // Global trend calculation
