@@ -88,7 +88,7 @@ function calculateSegmentSum(
     size: data.length,
     first: data[0],
     last: data[data.length - 1],
-    sum: data.reduce((acc, curr) => (acc *= curr.value), 0)
+    sum: data.reduce((acc, curr) => (acc += curr.value), 0)
   };
 }
 
