@@ -66,6 +66,10 @@ export class CalculateSailingExpTrendJob extends Job<Payload> {
 
     logger.info('Filtered Sailing EXP data points', { filteredCount, payload }, true);
 
+    if (filteredCount < 30) {
+      return;
+    }
+
     await prisma.trendDatapoint.create({
       data: {
         metric: Metric.SAILING,
