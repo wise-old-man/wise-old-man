@@ -36,6 +36,7 @@ import { ScheduleGroupScoreUpdatesJob } from './handlers/schedule-group-score-up
 import { ScheduleNameChangeReviewsJob } from './handlers/schedule-name-change-reviews.job';
 import { SchedulePatronGroupUpdatesJob } from './handlers/schedule-patron-group-updates.job';
 import { SchedulePatronPlayerUpdatesJob } from './handlers/schedule-patron-player-updates.job';
+import { ScheduleTrendDatapointCalculationsJob } from './handlers/schedule-trend-datapoint-calculations.job';
 import { SyncApiKeysJob } from './handlers/sync-api-keys.job';
 import { SyncPatronsJob } from './handlers/sync-patrons.job';
 import { SyncPlayerAchievementsJob } from './handlers/sync-player-achievements.job';
@@ -91,6 +92,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.SCHEDULE_NAME_CHANGE_REVIEWS]: ScheduleNameChangeReviewsJob,
   [JobType.SCHEDULE_PATRON_GROUP_UPDATES]: SchedulePatronGroupUpdatesJob,
   [JobType.SCHEDULE_PATRON_PLAYER_UPDATES]: SchedulePatronPlayerUpdatesJob,
+  [JobType.SCHEDULE_TREND_DATAPOINT_CALCULATIONS]: ScheduleTrendDatapointCalculationsJob,
   [JobType.SYNC_API_KEYS]: SyncApiKeysJob,
   [JobType.SYNC_PATRONS]: SyncPatronsJob,
   [JobType.SYNC_PLAYER_ACHIEVEMENTS]: SyncPlayerAchievementsJob,
@@ -118,7 +120,8 @@ export const CRON_CONFIG = [
   { interval: '*/5 * * * *', type: JobType.CHECK_INAPPROPRIATE_CONTENT },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
-  { interval: '*/5 * * * *', type: JobType.CALCULATE_SAILING_EXP_TREND }, // Change to every hour after the first 24-48h of Sailing
+  // every 15 mins
+  { interval: '*/15 * * * *', type: JobType.SCHEDULE_TREND_DATAPOINT_CALCULATIONS }, // Change to every hour after the first 24-48h of Sailing
   // every hour
   { interval: '0 * * * *', type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW },
   // every 6 hours
