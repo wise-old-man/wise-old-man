@@ -6,52 +6,71 @@ import { Job } from '../job.class';
 // const SAILING_RELEASE_DATE = new Date('2025-11-19T09:00:00Z');
 // Math.max(SAILING_RELEASE_DATE.getTime(), Date.now() - 1000 * 60 * 60 * 24)
 
-export class CalculateSailingExpTrendJob extends Job<unknown> {
-  async execute() {
+interface Payload {
+  segmentType?: 'country' | 'player-type' | 'player-build';
+  segmentValue?: string;
+}
+
+export class CalculateSailingExpTrendJob extends Job<Payload> {
+  static getUniqueJobId(payload: Payload) {
+    if (payload.segmentType === undefined || payload.segmentValue === undefined) {
+      return 'global';
+    }
+
+    return [payload.segmentType, payload.segmentValue].join('_');
+  }
+
+  async execute(payload: Payload) {
     const updateCuttofDate = new Date(Date.now() - 1000 * 60 * 60 * 24);
 
-    const data = await prisma.$queryRaw<
-      Array<{
-        value: number;
-        rank: number;
-      }>
-    >` 
-        SELECT "sailing" as "value", "sailingRank" as "rank" FROM public.players
-        WHERE "updatedAt" > ${updateCuttofDate}
+    const query = ` 
+        SELECT "sailing" AS "value", "sailingRank" AS "rank"
+        FROM public.players
+        WHERE "updatedAt" > '${updateCuttofDate.toISOString()}'::timestamp
         AND "sailing" > -1
         AND "sailingRank" > -1
+        ${getSegmentFilter(payload.segmentType, payload.segmentValue)}
+        ORDER BY "rank" ASC
     `;
+
+    const data = await prisma.$queryRawUnsafe<Array<{ value: number; rank: number }>>(query);
 
     if (data.length === 0) {
       return;
     }
 
-    logger.info(`Calculating Sailing EXP sum for ${data.length} players`);
+    logger.info(`Calculating Sailing EXP sum for ${data.length} players`, payload, true);
 
     const previousTrendDatapoint = await prisma.trendDatapoint.findFirst({
       where: {
-        metric: Metric.SAILING
+        metric: Metric.SAILING,
+        segmentType: payload.segmentType ?? null,
+        segmentValue: payload.segmentValue ?? null
       },
       orderBy: {
         date: 'desc'
       }
     });
 
-    logger.info(`Previous Sailing Trend datapoint`, previousTrendDatapoint, true);
+    logger.info(`Previous Sailing Trend datapoint`, { payload, previousTrendDatapoint }, true);
 
     const result = calculateSum(data, previousTrendDatapoint === null ? undefined : previousTrendDatapoint);
 
-    logger.info(`Sailing EXP Trend result`, result, true);
+    logger.info(`Sailing EXP Trend result`, { payload, result }, true);
 
     if (result === null) {
       return;
     }
 
-    const { sum, first, last } = result;
+    const { sum, first, last, filteredCount } = result;
+
+    logger.info('Filtered Sailing EXP data points', { filteredCount, payload }, true);
 
     await prisma.trendDatapoint.create({
       data: {
         metric: Metric.SAILING,
+        segmentType: payload.segmentType ?? null,
+        segmentValue: payload.segmentValue ?? null,
         date: new Date(),
         sum,
         maxRank: last.rank,
@@ -73,20 +92,11 @@ function calculateSum(
     minValue: number;
   }
 ) {
-  // Sort them by rank (asc), also remove -1 ranks and values
-  const processedData = data
-    .sort((a, b) => {
-      return a.rank - b.rank;
-    })
-    .filter(d => {
-      return d.rank > 0 && d.value > 0;
-    });
-
   let maxVal = 0;
-  const filteredData: typeof processedData = [];
+  const filteredData: typeof data = [];
 
   // Iterate through them, from highest rank to lowest (desc)
-  [...processedData.reverse()].forEach(object => {
+  [...data.reverse()].forEach(object => {
     if (object.value >= maxVal) {
       maxVal = object.value;
       filteredData.push(object);
@@ -132,8 +142,25 @@ function calculateSum(
   areaSum += filteredData[filteredData.length - 1].value;
 
   return {
+    filteredCount: filteredData.length,
     sum: Math.round(areaSum),
     first: filteredData[0],
     last: filteredData[filteredData.length - 1]
   };
+}
+
+function getSegmentFilter(
+  segmentType: 'country' | 'player-type' | 'player-build' | undefined,
+  segmentValue: string | undefined
+) {
+  switch (segmentType) {
+    case 'country':
+      return `AND "country" = '${segmentValue}'`;
+    case 'player-type':
+      return `AND "type" = '${segmentValue}'`;
+    case 'player-build':
+      return `AND "build" = '${segmentValue}'`;
+    default:
+      return 'AND 1=1';
+  }
 }

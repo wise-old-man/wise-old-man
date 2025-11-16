@@ -603,15 +603,19 @@ model Patron {
 }
 
 model TrendDatapoint {
-  date     DateTime
-  metric   Metric
-  sum      BigInt
-  maxValue BigInt
-  minValue Int
-  maxRank  Int
+  metric       Metric
+  segmentType  String?
+  segmentValue String?
+  date         DateTime
+  sum          BigInt
+  maxValue     BigInt
+  minValue     Int
+  maxRank      Int
 
   // Constraints
   @@id([metric, date])
+  // Indices
+  @@index([metric, segmentType, segmentValue, date(sort: Desc)], map: "trend_datapoints_metric_segment_type_segment_value_date")
   // Map
   @@map("trendDatapoints")
 }
