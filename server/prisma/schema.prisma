@@ -606,6 +606,7 @@ model TrendDatapoint {
   metric       Metric
   segmentType  String?
   segmentValue String?
+  segmentSize  Int?
   date         DateTime
   sum          BigInt
   maxValue     BigInt

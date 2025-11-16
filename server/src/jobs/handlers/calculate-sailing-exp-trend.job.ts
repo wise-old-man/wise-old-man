@@ -12,14 +12,6 @@ interface Payload {
 }
 
 export class CalculateSailingExpTrendJob extends Job<Payload> {
-  static getUniqueJobId(payload: Payload) {
-    if (payload.segmentType === undefined || payload.segmentValue === undefined) {
-      return 'global';
-    }
-
-    return [payload.segmentType, payload.segmentValue].join('_');
-  }
-
   async execute(payload: Payload) {
     const updateCuttofDate = new Date(Date.now() - 1000 * 60 * 60 * 24);
 
@@ -33,13 +25,13 @@ export class CalculateSailingExpTrendJob extends Job<Payload> {
         ORDER BY "rank" ASC
     `;
 
-    const data = await prisma.$queryRawUnsafe<Array<{ value: number; rank: number }>>(query);
+    const rawData = await prisma.$queryRawUnsafe<Array<{ value: number; rank: number }>>(query);
 
-    if (data.length === 0) {
+    if (rawData.length === 0) {
       return;
     }
 
-    logger.info(`Calculating Sailing EXP sum for ${data.length} players`, payload, true);
+    logger.info(`Calculating Sailing EXP sum for ${rawData.length} players`, payload, true);
 
     const previousTrendDatapoint = await prisma.trendDatapoint.findFirst({
       where: {
@@ -54,19 +46,19 @@ export class CalculateSailingExpTrendJob extends Job<Payload> {
 
     logger.info(`Previous Sailing Trend datapoint`, { payload, previousTrendDatapoint }, true);
 
-    const result = calculateSum(data, previousTrendDatapoint === null ? undefined : previousTrendDatapoint);
-
-    logger.info(`Sailing EXP Trend result`, { payload, result }, true);
-
-    if (result === null) {
+    if (rawData.length < 30) {
       return;
     }
 
-    const { sum, first, last, filteredCount } = result;
+    const result =
+      payload.segmentType === null
+        ? calculateGlobalSum(rawData, previousTrendDatapoint ?? undefined)
+        : calculateSegmentSum(rawData);
 
-    logger.info('Filtered Sailing EXP data points', { filteredCount, payload }, true);
+    const { sum, first, last, size } = result;
+    logger.info(`Sailing EXP Trend result`, { payload, result }, true);
 
-    if (filteredCount < 30) {
+    if (size < 30) {
       return;
     }
 
@@ -75,6 +67,7 @@ export class CalculateSailingExpTrendJob extends Job<Payload> {
         metric: Metric.SAILING,
         segmentType: payload.segmentType ?? null,
         segmentValue: payload.segmentValue ?? null,
+        segmentSize: size,
         date: new Date(),
         sum,
         maxRank: last.rank,
@@ -85,8 +78,22 @@ export class CalculateSailingExpTrendJob extends Job<Payload> {
   }
 }
 
-function calculateSum(
+function calculateSegmentSum(
   data: Array<{
+    rank: number;
+    value: number;
+  }>
+) {
+  return {
+    size: data.length,
+    first: data[0],
+    last: data[data.length - 1],
+    sum: data.reduce((acc, curr) => (acc *= curr.value), 0)
+  };
+}
+
+function calculateGlobalSum(
+  rawData: Array<{
     rank: number;
     value: number;
   }>,
@@ -97,59 +104,55 @@ function calculateSum(
   }
 ) {
   let maxVal = 0;
-  const filteredData: typeof data = [];
+  const data: typeof rawData = [];
 
   // Iterate through them, from highest rank to lowest (desc)
-  [...data.reverse()].forEach(object => {
+  [...rawData.reverse()].forEach(object => {
     if (object.value >= maxVal) {
       maxVal = object.value;
-      filteredData.push(object);
+      data.push(object);
     }
   });
 
   // Reverse them back to sorted by rank (asc)
-  filteredData.reverse();
-
-  if (filteredData.length === 0) {
-    return null;
-  }
+  data.reverse();
 
   // Artificially add the first and last ranked players, if needed
-  const firstRanked = filteredData[0];
-  const lastRanked = filteredData[filteredData.length - 1];
+  const firstRanked = data[0];
+  const lastRanked = data[data.length - 1];
 
   if (prevBounds) {
     if (firstRanked.rank !== 1) {
-      filteredData.unshift({ rank: 1, value: Math.max(prevBounds.maxValue, firstRanked.value) });
+      data.unshift({ rank: 1, value: Math.max(prevBounds.maxValue, firstRanked.value) });
     } else if (firstRanked.value < prevBounds.maxValue) {
-      filteredData[0].value = prevBounds.maxValue;
+      data[0].value = prevBounds.maxValue;
     }
 
     if (lastRanked.rank < prevBounds.maxRank) {
-      filteredData.push({ rank: prevBounds.maxRank, value: Math.min(prevBounds.minValue, lastRanked.value) });
+      data.push({ rank: prevBounds.maxRank, value: Math.min(prevBounds.minValue, lastRanked.value) });
     } else if (lastRanked.value > prevBounds.minValue) {
-      filteredData[filteredData.length - 1].value = prevBounds.minValue;
+      data[data.length - 1].value = prevBounds.minValue;
     }
   }
 
   let areaSum = 0;
 
   // Calculate the total area
-  for (let i = 0; i < filteredData.length - 1; i++) {
-    const { rank: x1, value: y1 } = filteredData[i];
-    const { rank: x2, value: y2 } = filteredData[i + 1];
+  for (let i = 0; i < data.length - 1; i++) {
+    const { rank: x1, value: y1 } = data[i];
+    const { rank: x2, value: y2 } = data[i + 1];
 
     areaSum += y1 * (x2 - x1) - ((x2 - x1) * (y1 - y2)) / 2;
   }
 
   // Add the last item to the sum, as its area has not been iterated over
-  areaSum += filteredData[filteredData.length - 1].value;
+  areaSum += data[data.length - 1].value;
 
   return {
-    filteredCount: filteredData.length,
     sum: Math.round(areaSum),
-    first: filteredData[0],
-    last: filteredData[filteredData.length - 1]
+    size: data.length,
+    first: data[0],
+    last: data[data.length - 1]
   };
 }
 
