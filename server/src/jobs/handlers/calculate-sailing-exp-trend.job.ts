@@ -58,7 +58,7 @@ export class CalculateSailingExpTrendJob extends Job<Payload> {
     const { sum, first, last, size } = result;
     logger.info(`Sailing EXP Trend result`, { payload, result }, true);
 
-    if (filteredCount < 30) {
+    if (size < 30) {
       return;
     }
 
