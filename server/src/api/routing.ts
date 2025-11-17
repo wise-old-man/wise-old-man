@@ -12,6 +12,7 @@ import nameRouter from './modules/name-changes/name-change.router';
 import patronRouter from './modules/patrons/patron.router';
 import playerRouter from './modules/players/player.router';
 import recordRouter from './modules/records/record.router';
+import sailingRouter from './modules/sailing.router';
 
 class RoutingHandler {
   router: express.Router;
@@ -43,6 +44,7 @@ class RoutingHandler {
     this.router.use(patronRouter);
     this.router.use(playerRouter);
     this.router.use(recordRouter);
+    this.router.use(sailingRouter);
   }
 
   setupFallbacks() {
