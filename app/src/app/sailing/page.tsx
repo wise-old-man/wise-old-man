@@ -10,6 +10,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import VerifiedIcon from "~/assets/verified.svg";
 import { cn } from "~/utils/styling";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export function generateMetadata() {
   return {
     title: `Sailing`,
