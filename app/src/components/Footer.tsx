@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Container } from "./Container";
-import { BirdHouseLink } from "./BirdHouseLink";
 
 import GitHubIcon from "~/assets/github.svg";
 import TwitterIcon from "~/assets/twitter.svg";
@@ -53,7 +52,6 @@ export function Footer() {
               </a>
               .
             </p>
-            <BirdHouseLink />
             <div className="flex space-x-6">
               {SOCIAL_LINKS.map((item) => (
                 <a

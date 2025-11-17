@@ -3,14 +3,11 @@ Disallow: /
 
 User-agent: Googlebot
 Allow: /
-Disallow: /bird-house
 
 User-agent: Discordbot
 Allow: /
-Disallow: /bird-house
 
 User-agent: *
 Disallow: /
-Disallow: /bird-house
 
 Crawl-delay: 1
