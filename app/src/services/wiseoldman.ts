@@ -3,6 +3,7 @@ import {
   CompetitionStatus,
   CompetitionType,
   Country,
+  GroupResponse,
   Metric,
   NameChangeStatus,
   Period,
@@ -36,7 +37,7 @@ async function handleNotFound<T>(promise: Promise<T>): Promise<T> {
 }
 
 export function getCompetitionStatus<T extends Pick<CompetitionResponse, "startsAt" | "endsAt">>(
-  competition: T
+  competition: T,
 ) {
   const now = new Date();
 
@@ -67,10 +68,10 @@ export const getDeltaLeaderboard = cache(
     period: Period,
     country?: Country,
     playerType?: PlayerType,
-    playerBuild?: PlayerBuild
+    playerBuild?: PlayerBuild,
   ) => {
     return apiClient.deltas.getDeltaLeaderboard({ metric, period, country, playerType, playerBuild });
-  }
+  },
 );
 
 export const getEfficiencyLeaderboards = cache(
@@ -80,13 +81,13 @@ export const getEfficiencyLeaderboards = cache(
     playerType: PlayerType | undefined,
     playerBuild: PlayerBuild | undefined,
     limit: number,
-    offset: number
+    offset: number,
   ) => {
     return apiClient.efficiency.getEfficiencyLeaderboards(
       { metric, country, playerType, playerBuild },
-      { limit, offset }
+      { limit, offset },
     );
-  }
+  },
 );
 
 export const getGroupAchievements = cache((id: number, limit: number, offset: number) => {
@@ -104,15 +105,15 @@ export const getGroupDetails = cache((id: number) => {
 export const getGroupGainsByPeriod = cache(
   (id: number, metric: Metric, period: Period, limit: number, offset: number) => {
     return handleNotFound(apiClient.groups.getGroupGains(id, { period, metric }, { limit, offset }));
-  }
+  },
 );
 
 export const getGroupGainsByDates = cache(
   (id: number, metric: Metric, startDate: Date, endDate: Date, limit: number, offset: number) => {
     return handleNotFound(
-      apiClient.groups.getGroupGains(id, { startDate, endDate, metric }, { limit, offset })
+      apiClient.groups.getGroupGains(id, { startDate, endDate, metric }, { limit, offset }),
     );
-  }
+  },
 );
 
 export const getGroupHiscores = cache((id: number, metric: Metric, limit: number, offset: number) => {
@@ -126,7 +127,7 @@ export const getGroupNameChanges = cache((id: number, limit: number, offset: num
 export const getGroupRecords = cache(
   (id: number, metric: Metric, period: Period, limit: number, offset: number) => {
     return handleNotFound(apiClient.groups.getGroupRecords(id, { metric, period }, { limit, offset }));
-  }
+  },
 );
 
 export const getGroupActivity = cache((id: number, limit?: number, offset?: number) => {
@@ -180,9 +181,27 @@ export const getSnapshotTimelineByPeriod = cache((username: string, metric: Metr
 export const getSnapshotTimelineByDate = cache(
   (username: string, metric: Metric, startDate: Date, endDate: Date) => {
     return handleNotFound(
-      apiClient.players.getPlayerSnapshotTimeline(username, metric, { startDate, endDate })
+      apiClient.players.getPlayerSnapshotTimeline(username, metric, { startDate, endDate }),
     );
-  }
+  },
+);
+
+export const getSailingData = cache(() =>
+  apiClient.getRequest<{
+    count99: number;
+    top10Groups: Array<{
+      group: GroupResponse;
+      count: number;
+      avg: number;
+      sum: number;
+    }>;
+    timeseries: Array<{
+      date: Date;
+      sum: number;
+      count: number;
+      sampleSize: number;
+    }>;
+  }>("/sailing", {}),
 );
 
 export const getRecordLeaderboard = cache(
@@ -191,10 +210,10 @@ export const getRecordLeaderboard = cache(
     period: Period,
     country?: Country,
     playerType?: PlayerType,
-    playerBuild?: PlayerBuild
+    playerBuild?: PlayerBuild,
   ) => {
     return apiClient.records.getRecordLeaderboard({ metric, period, country, playerType, playerBuild });
-  }
+  },
 );
 
 export const searchCompetitions = cache(
@@ -204,10 +223,10 @@ export const searchCompetitions = cache(
     type: CompetitionType | undefined,
     status: CompetitionStatus | undefined,
     limit: number,
-    offset: number
+    offset: number,
   ) => {
     return apiClient.competitions.searchCompetitions({ title, metric, type, status }, { limit, offset });
-  }
+  },
 );
 
 export const searchGroups = cache((name: string, limit: number, offset: number) => {
@@ -217,5 +236,5 @@ export const searchGroups = cache((name: string, limit: number, offset: number) 
 export const searchNameChanges = cache(
   (username: string, status: NameChangeStatus | undefined, limit: number, offset: number) => {
     return apiClient.nameChanges.searchNameChanges({ username, status }, { limit, offset });
-  }
+  },
 );
