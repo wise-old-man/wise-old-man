@@ -19,8 +19,8 @@ import WomCharacterImage from "../../../public/img/sailing_wom_pirate.png";
 import BackgroundImage from "../../../public/img/sailing_port_sarim.webp";
 import SailingTitle from "../../../public/img/sailing_title.svg";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Invalidate the cached version of this page every 5 minutes
+export const revalidate = 300;
 
 export function generateMetadata() {
   return {
