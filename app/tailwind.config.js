@@ -39,6 +39,9 @@ module.exports = {
       backgroundImage: {
         "hero-gradient":
           "radial-gradient(ellipse 100% 100% at bottom, rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0) 50%)",
+        "sailing-hero-gradient": "radial-gradient(ellipse 100% 100% at center, #6FACE2, #2873B5 50%)",
+        "sailing-hero-overlay-gradient":
+          "radial-gradient(ellipse 100% 100% at bottom, #0F2538, rgba(15,37,56,0))",
         "feature-gradient":
           "radial-gradient(ellipse 100% 100% at 50% 75%, rgba(37, 99, 235, 0.07), rgba(37, 99, 235, 0) 60%)",
         "howto-gradient":
