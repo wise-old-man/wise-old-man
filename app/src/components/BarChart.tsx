@@ -151,7 +151,7 @@ export default function BarChart(props: BarChartProps) {
               );
             }}
           />
-          <Bar dataKey="value" isAnimationActive={false}>
+          <Bar dataKey="value" isAnimationActive={false} maxBarSize={100}>
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
