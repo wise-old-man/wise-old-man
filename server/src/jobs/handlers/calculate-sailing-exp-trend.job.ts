@@ -50,7 +50,7 @@ export class CalculateSailingExpTrendJob extends Job<Payload> {
       return;
     }
 
-   const result =
+    const result =
       payload.segmentType === undefined
         ? calculateGlobalSum(rawData, previousTrendDatapoint ?? undefined)
         : calculateSegmentSum(rawData);
