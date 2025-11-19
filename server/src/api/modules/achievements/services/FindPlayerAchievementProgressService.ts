@@ -1,9 +1,11 @@
 import prisma from '../../../../prisma';
 import { Achievement, AchievementDefinition, Metric, MetricMeasure } from '../../../../types';
+import { omit } from '../../../../utils/omit.util';
 import { pick } from '../../../../utils/pick.util';
 import { roundNumber } from '../../../../utils/shared/round-number.util';
 import { NotFoundError } from '../../../errors';
 import { standardize } from '../../players/player.utils';
+import { LEGACY_TEMPLATE_NAMES } from '../achievement.templates';
 import { getAchievementDefinitions } from '../achievement.utils';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
@@ -54,36 +56,48 @@ async function findPlayerAchievementProgress(username: string): Promise<
   // Get all definitions and sort them so that related definitions are clustered
   const definitions = clusterDefinitions(ALL_DEFINITIONS);
 
-  return definitions.map((d, i) => {
-    const prevDef = definitions[i - 1];
-    const isFirstInCluster = i === 0 || prevDef.metric !== d.metric || prevDef.measure !== d.measure;
+  // Achievements that were once given, but are no longer valid (such as Base X stats Pre-Sailing)
+  const legacyAchievements = achievements.filter(d => LEGACY_TEMPLATE_NAMES.includes(d.name));
 
-    const startValue = getAchievementStartValue(d);
-    const currentValue = latestSnapshot ? d.getCurrentValue(latestSnapshot) : 0;
-    const prevThreshold = isFirstInCluster ? startValue : prevDef.threshold;
+  return [
+    ...definitions.map((d, i) => {
+      const prevDef = definitions[i - 1];
+      const isFirstInCluster = i === 0 || prevDef.metric !== d.metric || prevDef.measure !== d.measure;
 
-    const existingAchievement = currentAchievementMap.get(d.name);
+      const startValue = getAchievementStartValue(d);
+      const currentValue = latestSnapshot ? d.getCurrentValue(latestSnapshot) : 0;
+      const prevThreshold = isFirstInCluster ? startValue : prevDef.threshold;
 
-    let absoluteProgress = clamp((currentValue - startValue) / (d.threshold - startValue));
-    let relativeProgress = clamp((currentValue - prevThreshold) / (d.threshold - prevThreshold));
+      const existingAchievement = currentAchievementMap.get(d.name);
 
-    // Prevent rounding progress to 1.0 if the player has not yet reached the threshold
-    if (absoluteProgress === 1 && currentValue < d.threshold) absoluteProgress = 0.9999;
-    if (relativeProgress === 1 && currentValue < d.threshold) relativeProgress = 0.9999;
+      let absoluteProgress = clamp((currentValue - startValue) / (d.threshold - startValue));
+      let relativeProgress = clamp((currentValue - prevThreshold) / (d.threshold - prevThreshold));
 
-    return {
-      achievement: {
-        ...pick(d, 'name', 'metric', 'threshold'),
-        playerId: player.id,
-        accuracy: existingAchievement ? existingAchievement.accuracy : null
-      },
-      createdAt: existingAchievement ? existingAchievement.createdAt : null,
-      accuracy: existingAchievement ? existingAchievement.accuracy : null,
-      currentValue,
-      absoluteProgress,
-      relativeProgress
-    };
-  });
+      // Prevent rounding progress to 1.0 if the player has not yet reached the threshold
+      if (absoluteProgress === 1 && currentValue < d.threshold) absoluteProgress = 0.9999;
+      if (relativeProgress === 1 && currentValue < d.threshold) relativeProgress = 0.9999;
+
+      return {
+        achievement: {
+          ...pick(d, 'name', 'metric', 'threshold'),
+          playerId: player.id,
+          accuracy: existingAchievement ? existingAchievement.accuracy : null
+        },
+        createdAt: existingAchievement ? existingAchievement.createdAt : null,
+        accuracy: existingAchievement ? existingAchievement.accuracy : null,
+        currentValue,
+        absoluteProgress,
+        relativeProgress
+      };
+    }),
+    ...legacyAchievements.map(a => ({
+      achievement: omit(a, 'createdAt'),
+      createdAt: a.createdAt,
+      currentValue: a.threshold,
+      absoluteProgress: 1,
+      relativeProgress: 1
+    }))
+  ];
 }
 
 function getAchievementStartValue(definition: AchievementDefinition) {
