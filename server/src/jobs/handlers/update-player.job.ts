@@ -13,7 +13,7 @@ export class UpdatePlayerJob extends Job<Payload> {
   static options: JobOptions = {
     backoff: 30_000,
     maxConcurrent: 16,
-    rateLimiter: { max: 3, duration: 150 }
+    rateLimiter: { max: 1, duration: 250 }
   };
 
   static getUniqueJobId(payload: Payload) {
