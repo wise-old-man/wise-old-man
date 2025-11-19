@@ -2731,7 +2731,7 @@ describe('Group API', () => {
 
       expect(response.body).toMatchObject({
         maxedCombatCount: 1,
-        maxedTotalCount: 0,
+        maxedTotalCount: 1,
         maxed200msCount: 24,
         averageStats: {
           data: {

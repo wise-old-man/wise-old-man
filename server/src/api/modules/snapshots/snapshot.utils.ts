@@ -157,8 +157,6 @@ function getTotalLevel(snapshot: Snapshot) {
   let totalLevelSum = 0;
 
   for (const skill of REAL_SKILLS) {
-    if (skill === Skill.SAILING) continue;
-
     const level = getLevel(snapshot[getMetricValueKey(skill)]);
     const minLevel = skill === Skill.HITPOINTS ? 10 : 1;
 
