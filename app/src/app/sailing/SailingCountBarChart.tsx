@@ -35,7 +35,7 @@ export function SailingCountBarChart(props: Props) {
 
   return (
     <div className="flex flex-col gap-y-5 rounded-lg border border-gray-500 px-5 py-4">
-      <h4 className="text-h4 font-medium text-white">Daily Sailing Exp. Gain</h4>
+      <h4 className="text-h4 font-medium text-white">Daily Sailors Gain</h4>
       <div className="pl-1">
         <BartChartSSR
           data={bucketedData.map((bucket) => ({
