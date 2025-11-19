@@ -32,7 +32,7 @@ router.get(
         JOIN public.groups g ON m."groupId" = g."id"
         JOIN public.players p ON m."playerId" = p."id"
         WHERE g."verified" = true
-        AND p."updatedAt" > '2024-11-15 21:21:09.097617+00' -- Fix this
+        AND p."updatedAt" > '2025-11-19 00:00:00.000000+00'
         AND p."sailing" > -1
         GROUP BY g."id", g."name"
         HAVING COUNT(p."sailing") > 100
@@ -47,6 +47,13 @@ router.get(
       count: d.maxRank,
       sampleSize: d.segmentSize
     }));
+
+    timeseries.unshift({
+      date: new Date('2025-11-19T10:00:00.000Z'),
+      sum: 0,
+      count: 0,
+      sampleSize: 0
+    });
 
     const groups = top10Groups.map(({ count, avg, sum, ...group }) => ({
       group: formatGroupResponse(group, -1),
