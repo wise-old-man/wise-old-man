@@ -32,7 +32,7 @@ export default async function SailingPage() {
   const [sailingData, dayDeltas] = await Promise.all([
     getSailingData(),
     apiClient.deltas.getDeltaLeaderboard({
-      metric: Metric.WOODCUTTING, // change back to Sailing
+      metric: Metric.SAILING,
       period: Period.DAY,
     }),
   ]);

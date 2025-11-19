@@ -225,10 +225,8 @@ async function updatePlayer(
   updatedPlayerFields.ttm = computedMetrics.ttm;
   updatedPlayerFields.tt200m = computedMetrics.tt200m;
 
-  // As an experiment, populate these with woodcutting data
-  // Before Sailing is released, we need to wipe this data and switch this back to Sailing
-  updatedPlayerFields.sailing = currentStats.woodcuttingExperience;
-  updatedPlayerFields.sailingRank = currentStats.woodcuttingRank;
+  updatedPlayerFields.sailing = currentStats.sailingExperience;
+  updatedPlayerFields.sailingRank = currentStats.sailingRank;
 
   // Add the computed metrics to the snapshot
   currentStats.ehpValue = computedMetrics.ehpValue;
