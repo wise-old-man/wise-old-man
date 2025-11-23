@@ -88,6 +88,7 @@ export default async function PlayerAchievements(props: PageProps) {
         <div className="col-span-12 grid grid-cols-1 flex-col gap-x-4 gap-y-7 sm:grid-cols-2 xl:col-span-4 xl:flex">
           <RecentAchievements achievements={completedAchievements} metricType={metricType} />
           <NearestAchievements achievements={achievements} metricType={metricType} />
+          <LegacyAchievements achievements={completedAchievements} metricType={metricType} />
         </div>
         <div className="col-span-12 xl:col-span-8">
           <ProgressTable player={player} achievements={achievements} metricType={metricType} />
@@ -107,7 +108,7 @@ function ProgressTable(props: ProgressTableProps) {
   const { player, metricType, achievements } = props;
 
   const hiddenMetrics = getBuildHiddenMetrics(player.build);
-  const filteredAchievements = achievements.filter((a) => !hiddenMetrics.includes(a.metric));
+  const filteredAchievements = achievements.filter((a) => !hiddenMetrics.includes(a.metric) && !a.legacy);
 
   const groups = groupAchievementsByType(filteredAchievements).filter(
     (g) => g.metric in MetricProps && (!metricType || MetricProps[g.metric].type === metricType)
@@ -277,6 +278,40 @@ function NearestAchievements(props: NearestAchievementsProps) {
   );
 }
 
+interface LegacyAchievementsProps {
+  metricType?: MetricType;
+  achievements: AchievementProgressResponse[];
+}
+
+function LegacyAchievements(props: LegacyAchievementsProps) {
+  const {  metricType, achievements } = props;
+  
+  const legacyAchievements = achievements
+    .filter(
+      (a) =>
+        a.metric in MetricProps &&
+        a.createdAt &&
+        a.legacy && 
+        (!metricType || MetricProps[a.metric].type === metricType)
+    )
+    .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime())
+
+  if (legacyAchievements.length === 0) return null;
+
+  return (
+    <div>
+      <Label className="text-xs text-gray-200">
+        Legacy {metricType ? `${metricType} ` : ""} achievements
+      </Label>
+      <div className="mt-2 flex flex-col gap-y-3">
+        {legacyAchievements.map((a) => (
+          <AchievementListItem {...a} key={a.name} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 interface TabProps {
   label: string;
   count: number;
@@ -339,14 +374,14 @@ function formatThreshold(threshold: number) {
 
   if (
     [
-      getExpForLevel(60) * 23,
-      getExpForLevel(70) * 23,
-      getExpForLevel(80) * 23,
-      getExpForLevel(90) * 23,
-      getExpForLevel(99) * 23,
+      getExpForLevel(60) * REAL_SKILLS.length,
+      getExpForLevel(70) * REAL_SKILLS.length,
+      getExpForLevel(80) * REAL_SKILLS.length,
+      getExpForLevel(90) * REAL_SKILLS.length,
+      getExpForLevel(99) * REAL_SKILLS.length,
     ].includes(threshold)
   ) {
-    return getLevel(threshold / 23 + 100).toString();
+    return getLevel(threshold / REAL_SKILLS.length + 100).toString();
   }
 
   if (threshold <= 10000) {

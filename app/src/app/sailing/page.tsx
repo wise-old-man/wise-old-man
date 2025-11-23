@@ -91,7 +91,7 @@ export default async function SailingPage() {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             <div>
               <h3 className="mt-3 text-h3 font-semibold text-white">Top groups</h3>
-              <p className="mb-2 mt-0.5 text-body text-gray-300">Sorted by total Sailing exp.</p>
+              <p className="mb-2 mt-0.5 text-body text-gray-200">Sorted by total Sailing exp.</p>
               <ListTable>
                 {sailingData.top10Groups.slice(0, 5).map((row, index) => (
                   <ListTableRow key={row.group.id}>
@@ -142,7 +142,7 @@ export default async function SailingPage() {
             </div>
             <div>
               <h3 className="mt-3 text-h3 font-semibold text-white">Top players today</h3>
-              <p className="mb-2 mt-0.5 text-body text-gray-300">
+              <p className="mb-2 mt-0.5 text-body text-gray-200">
                 Sorted by gained Sailing exp. in the past 24h
               </p>
               <ListTable>
