@@ -355,41 +355,11 @@ function PeriodSelect(props: PeriodSelectProps) {
 function MetricValueCell(props: { metric: Metric; value: number }) {
   const { metric, value } = props;
 
-  if (isBoss(metric) && MetricProps[metric].minimumValue > value) {
-    const { name, minimumValue } = MetricProps[metric];
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>&lt; {minimumValue}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          The Hiscores only start showing {name} kills at {minimumValue} kc.
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (isActivity(metric) && MetricProps[metric].minimumValue > value) {
-    const { name, minimumValue } = MetricProps[metric];
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>&lt; {minimumValue}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          The Hiscores only start showing {name} after {minimumValue} score.
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
   if (value === -1) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <span>---</span>
+          <span className="text-gray-300">---</span>
         </TooltipTrigger>
         <TooltipContent>This player is unranked in {MetricProps[metric].name}.</TooltipContent>
       </Tooltip>
@@ -407,9 +377,13 @@ function getPercentGained(metric: Metric, start: number, end: number, gained: nu
   if (gained === 0) return 0;
 
   let minimum = 0;
-  if (isBoss(metric) || isActivity(metric)) minimum = MetricProps[metric].minimumValue - 1;
+  
+  if (isBoss(metric) || isActivity(metric)) {
+    minimum = MetricProps[metric].minimumValue - 1;
+  }
 
-  const startVal = Math.max(minimum, start);
+  const startVal = start === -1 ? Math.max(minimum, start) : start
+
   if (startVal === 0) return 1;
 
   return (end - startVal) / startVal;

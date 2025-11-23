@@ -411,11 +411,10 @@ function getBossColumnDefinitions(player: PlayerResponse): ColumnDef<BossValue>[
           return (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span>&lt; {minimum}</span>
+                <span className="text-gray-300">---</span>
               </TooltipTrigger>
               <TooltipContent>
-                This player is unranked in {MetricProps[row.original.metric].name}. The Hiscores only
-                start tracking kills at {minimum} kc.
+                This player is unranked in {MetricProps[row.original.metric].name}.
               </TooltipContent>
             </Tooltip>
           );
@@ -434,7 +433,7 @@ function getBossColumnDefinitions(player: PlayerResponse): ColumnDef<BossValue>[
           return (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span>---</span>
+                <span className="text-gray-300">---</span>
               </TooltipTrigger>
               <TooltipContent>
                 This player is unranked in {MetricProps[row.original.metric].name}.
@@ -459,7 +458,7 @@ function getBossColumnDefinitions(player: PlayerResponse): ColumnDef<BossValue>[
           return (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span>---</span>
+                <span className="text-gray-300">---</span>
               </TooltipTrigger>
               <TooltipContent>
                 This player is unranked in {MetricProps[row.original.metric].name}.

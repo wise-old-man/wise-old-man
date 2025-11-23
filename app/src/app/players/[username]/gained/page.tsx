@@ -388,10 +388,11 @@ function getPercentGained(metric: Metric, progress: MetricDelta, includeMinimums
 
   let minimum = 0;
 
-  if (includeMinimums && (isBoss(metric) || isActivity(metric)))
+  if (includeMinimums && (isBoss(metric) || isActivity(metric))) {
     minimum = MetricProps[metric].minimumValue - 1;
+  }
 
-  const start = Math.max(minimum, progress.start);
+  const start = progress.start === -1 ? Math.max(minimum, progress.start) : progress.start;
 
   if (start === 0) return 1;
 
