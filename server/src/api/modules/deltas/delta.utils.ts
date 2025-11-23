@@ -73,19 +73,24 @@ function calculateRankDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot:
  * - Ending Snapshot: OverallExp: 5,566,255
  * - Output: { start: -1, end:  5566255, gained: 0 }
  */
-function calculateValueDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot: Snapshot) {
+export function calculateValueDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot: Snapshot) {
   const minimumValue = getMinimumValue(metric);
   const valueKey = getMetricValueKey(metric);
 
   const startValue = startSnapshot && startSnapshot[valueKey] ? startSnapshot[valueKey] : -1;
   const endValue = endSnapshot && endSnapshot[valueKey] ? endSnapshot[valueKey] : -1;
 
-  let gainedValue = roundNumber(Math.max(0, endValue - Math.max(0, minimumValue - 1, startValue)), 5);
+  let gainedValue = roundNumber(
+    Math.max(0, endValue - (startValue === -1 ? Math.max(0, minimumValue - 1) : startValue)),
+    5
+  );
 
   // Some players with low total level (but high exp) can sometimes fall off the hiscores
   // causing their starting exp to be -1, this would then cause the diff to think
   // that their entire ranked exp has just been gained (by jumping from -1 to 40m, for example)
-  if (metric === Metric.OVERALL && startValue === -1) gainedValue = 0;
+  if (metric === Metric.OVERALL && startValue === -1) {
+    gainedValue = 0;
+  }
 
   return {
     gained: gainedValue,
