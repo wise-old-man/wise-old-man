@@ -14,7 +14,7 @@ interface Payload {
 
 export class SyncPlayerRecordsJob extends Job<Payload> {
   static options: JobOptions = {
-    maxConcurrent: 20
+    maxConcurrent: 8
   };
 
   static getUniqueJobId(payload: Payload) {

@@ -11,8 +11,6 @@ import {
   MetricProps,
   PlayerResponse,
   PlayerStatus,
-  isActivity,
-  isBoss,
   isSkill,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
@@ -246,36 +244,6 @@ function ParticipantStartCell(props: {
     );
   }
 
-  if (isBoss(metric) && MetricProps[metric].minimumValue > progress.start) {
-    const { name, minimumValue } = MetricProps[metric];
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>&lt; {minimumValue}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          The Hiscores only start showing {name} kills at {minimumValue} kc.
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (isActivity(metric) && MetricProps[metric].minimumValue > progress.start) {
-    const { name, minimumValue } = MetricProps[metric];
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>&lt; {minimumValue}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          The Hiscores only start showing {name} after {minimumValue}+ score.
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
   if (progress.start === -1) {
     return (
       <Tooltip>
@@ -320,36 +288,6 @@ function ParticipantEndCell(props: {
         </TooltipTrigger>
         <TooltipContent>
           This player hasn&apos;t yet been updated since the competition started.
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (isBoss(metric) && MetricProps[metric].minimumValue > progress.end) {
-    const { name, minimumValue } = MetricProps[metric];
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>&lt; {minimumValue}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          The Hiscores only start showing {name} kills at {minimumValue} kc.
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (isActivity(metric) && MetricProps[metric].minimumValue > progress.end) {
-    const { name, minimumValue } = MetricProps[metric];
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>&lt; {minimumValue}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          The Hiscores only start showing {name} after {minimumValue}+ score.
         </TooltipContent>
       </Tooltip>
     );

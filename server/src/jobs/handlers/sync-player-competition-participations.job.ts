@@ -10,7 +10,7 @@ interface Payload {
 
 export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
   static options: JobOptions = {
-    maxConcurrent: 10
+    maxConcurrent: 4
   };
 
   static getUniqueJobId(payload: Payload) {
