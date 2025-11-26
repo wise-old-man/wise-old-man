@@ -29,7 +29,7 @@ export function PlayerNavigation(props: PlayerNavigationProps) {
       <Tabs defaultValue={selectedTab.route}>
         <TabsList aria-label="Player Navigation">
           {TABS.map((tab) => (
-            <Link prefetch={false} href={`/players/${username}${tab.route}`} key={tab.route}>
+            <Link prefetch={false} href={`/players/${username}${tab.route}`} rel="nofollow" key={tab.route}>
               <TabsTrigger value={tab.route}>{tab.label}</TabsTrigger>
             </Link>
           ))}

@@ -150,6 +150,7 @@ function MetricRecords(props: MetricRecordsProps) {
               prefetch={false}
               key={`${metric}_${period}`}
               href={`/players/${username}/gained?${params.toString()}`}
+              rel="nofollow"
               className="group flex items-center justify-between rounded-lg border border-gray-500 bg-gray-800 px-5 py-3 shadow-sm"
             >
               <span className="text-sm font-medium text-white group-hover:underline">

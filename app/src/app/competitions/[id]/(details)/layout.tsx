@@ -142,7 +142,7 @@ function Header(props: CompetitionDetailsResponse) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <Link prefetch={false} href={`/competitions/${id}/edit`}>
+            <Link prefetch={false} href={`/competitions/${id}/edit`} rel="nofollow">
               <DropdownMenuItem>Edit</DropdownMenuItem>
             </Link>
             <QueryLink query={{ dialog: "delete" }}>
