@@ -48,6 +48,7 @@ export function Pagination(props: PaginationProps) {
           prefetch={false}
           aria-disabled={!hasPrevious}
           href={getPaginatedHref(currentPage - 1)}
+          rel="nofollow"
           className={cn(
             "relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-200 ring-1 ring-inset ring-gray-500 hover:bg-gray-700 hover:text-white focus:z-20 focus:outline-offset-0",
             "aria-disabled:pointer-events-none aria-disabled:opacity-30"
@@ -61,6 +62,7 @@ export function Pagination(props: PaginationProps) {
             <Link
               prefetch={false}
               href={getPaginatedHref(1)}
+              rel="nofollow"
               className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-200 ring-1 ring-inset ring-gray-500 hover:bg-gray-700 hover:text-white focus:z-20 focus:outline-offset-0 sm:inline-flex"
             >
               1
@@ -75,6 +77,7 @@ export function Pagination(props: PaginationProps) {
             prefetch={false}
             key={`page_${number}`}
             href={getPaginatedHref(number)}
+            rel="nofollow"
             aria-current={currentPage === number ? "page" : undefined}
             className={cn(
               "relative inline-flex w-12 items-center justify-center px-4 py-2 text-sm font-semibold tabular-nums text-gray-200 ring-1 ring-inset ring-gray-500 focus:z-20 focus:outline-offset-0",
@@ -88,6 +91,7 @@ export function Pagination(props: PaginationProps) {
           prefetch={false}
           aria-disabled={!hasMorePages}
           href={getPaginatedHref(currentPage + 1)}
+          rel="nofollow"
           className={cn(
             "relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-200 ring-1 ring-inset ring-gray-500 hover:bg-gray-700 hover:text-white focus:z-20 focus:outline-offset-0",
             "aria-disabled:pointer-events-none aria-disabled:opacity-30"

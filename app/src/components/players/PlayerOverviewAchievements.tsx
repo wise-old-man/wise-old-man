@@ -49,6 +49,7 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
             <Link
               prefetch={false}
               href={`/players/${player.username}/achievements`}
+              rel="nofollow"
               className="text-xs font-medium text-gray-200 hover:underline"
             >
               View all
@@ -68,6 +69,7 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
             <Link
               prefetch={false}
               href={`/players/${player.username}/achievements`}
+              rel="nofollow"
               className="text-xs font-medium text-gray-200 hover:underline"
             >
               View all

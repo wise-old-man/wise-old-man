@@ -168,13 +168,13 @@ function Header(props: GroupDetailsResponse) {
               <QueryLink query={{ dialog: "update-all" }} className="block md:hidden">
                 <DropdownMenuItem>Update all</DropdownMenuItem>
               </QueryLink>
-              <Link prefetch={false} href={`/groups/${id}/edit`}>
+              <Link prefetch={false} href={`/groups/${id}/edit`} rel="nofollow">
                 <DropdownMenuItem>Edit</DropdownMenuItem>
               </Link>
               <QueryLink query={{ dialog: "delete" }}>
                 <DropdownMenuItem>Delete</DropdownMenuItem>
               </QueryLink>
-              <Link prefetch={false} href={`/competitions/create?groupId=${id}`}>
+              <Link prefetch={false} href={`/competitions/create?groupId=${id}`} rel="nofollow">
                 <DropdownMenuItem>Create group competition</DropdownMenuItem>
               </Link>
             </DropdownMenuContent>

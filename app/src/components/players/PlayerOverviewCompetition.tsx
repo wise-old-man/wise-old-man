@@ -31,6 +31,7 @@ export async function PlayerOverviewCompetition(props: PlayerOverviewCompetition
         <Link
           prefetch={false}
           href={`/players/${username}/competitions`}
+          rel="nofollow"
           className="text-xs font-medium text-gray-200 hover:underline"
         >
           View all
@@ -52,7 +53,7 @@ function CompetitionCard(props: CompetitionResponse) {
   }
 
   return (
-    <Link prefetch={false} href={`/competitions/${props.id}`}>
+    <Link prefetch={false} href={`/competitions/${props.id}`} rel="nofollow">
       <div
         className={cn(
           "group relative flex h-[5rem] w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-600 px-6 hover:border-gray-400",
