@@ -1,8 +1,19 @@
 import logger from '../services/logging.service';
 
-export async function handleServerInit(initServerFn: () => Promise<() => Promise<void>>) {
-  const handleShutdown = await initServerFn().then(fn => {
+export async function handleServerInit(serverName: string, initFn: () => Promise<() => Promise<void>>) {
+  let isShuttingDown = false;
+
+  logger.info(`Starting ${serverName}...`);
+
+  const handleShutdown = await initFn().then(fn => {
     return async () => {
+      if (isShuttingDown) {
+        return;
+      }
+
+      isShuttingDown = true;
+      logger.info('Shutting down gracefully...');
+
       try {
         await fn();
         logger.info('Shutdown complete.');

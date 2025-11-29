@@ -2,14 +2,14 @@ import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import express from 'express';
-import { jobManager } from './jobs';
-import logger from './services/logging.service';
-import { redisClient } from './services/redis.service';
-import { handleServerInit } from './utils/handle-server-init.util';
+import { jobManager } from '../jobs';
+import logger from '../services/logging.service';
+import { redisClient } from '../services/redis.service';
+import { handleServerInit } from '../utils/handle-server-init.util';
 
 const BULL_BOARD_PORT = 5100;
 
-handleServerInit(async () => {
+handleServerInit('Bull Board Server', async () => {
   if (process.env.ADMIN_PASSWORD === undefined) {
     throw new Error('ADMIN_PASSWORD is not set');
   }
@@ -33,16 +33,7 @@ handleServerInit(async () => {
     logger.info(`v${version}: Bull Board running on port ${BULL_BOARD_PORT}.`);
   });
 
-  let isShuttingDown = false;
-
   return async () => {
-    if (isShuttingDown) {
-      return;
-    }
-
-    isShuttingDown = true;
-    logger.info('Shutting down gracefully...');
-
     if (server !== null) {
       await new Promise(res => server.close(res));
     }
