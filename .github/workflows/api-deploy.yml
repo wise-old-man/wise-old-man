@@ -42,8 +42,19 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd wise-old-man
+
+            # Remove the old image before pulling the new one
             docker image rm wiseoldman/api
+
+            # Pull the latest api image
             docker compose pull api
+
+            # Migrate the database to the latest Prisma schema
+            docker run --rm \
+              --env-file .env \
+              --network wise-old-man_generic-network \
+              wiseoldman/api:latest npx prisma migrate deploy
+
+            # Restart the server containers
             docker compose up -d --no-deps --build api
             docker compose up -d --no-deps --build bull-board
-            docker image prune
