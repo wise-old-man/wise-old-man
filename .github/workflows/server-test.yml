@@ -1,4 +1,4 @@
-name: (API) Continuous Integration
+name: (Server) Continuous Integration
 
 on:
   pull_request:
