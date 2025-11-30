@@ -1,7 +1,28 @@
-# Migrate the production database.
-# This will check for, and apply any missing migrations
-prisma migrate deploy
+#!/bin/bash
+set -e
 
-# Run pm2 (on 4 CPU cores) on dist/src/server.ts and keep the process alive, restarting if it crashes
+if [ -z "$SERVER_TYPE" ]; then
+  echo "ERROR: SERVER_TYPE is not set (must be 'api' or 'job-runner')"
+  exit 1
+fi
+
+if [ -z "$PM2_INSTANCES" ]; then
+  echo "ERROR: PM2_INSTANCES is not set (must be a positive integer)"
+  exit 1
+fi
+
+# Pick the correct entrypoint based on SERVER_TYPE
+if [ "$SERVER_TYPE" = "api" ]; then
+  ENTRYPOINT="dist/src/entrypoints/api.server.js"
+elif [ "$SERVER_TYPE" = "job-runner" ]; then
+  ENTRYPOINT="dist/src/entrypoints/job-runner.server.js"
+else
+  echo "ERROR: Unknown SERVER_TYPE: $SERVER_TYPE"
+  exit 1
+fi
+
+echo "Starting server | SERVER_TYPE=$SERVER_TYPE | PM2_INSTANCES=$PM2_INSTANCES"
+
+# Start the server with PM2 using the specified number of instances
 export NODE_ENV=production
-pm2-runtime dist/src/server.js -i 4
+pm2-runtime "$ENTRYPOINT" -i "$PM2_INSTANCES"

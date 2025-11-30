@@ -34,7 +34,7 @@ jobs:
     needs: [build-server-image]
     runs-on: ubuntu-latest
     steps:
-      - name: Restart docker
+      - name: Migrate DB & Restart Server Containers
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DO_HOST }}
@@ -56,6 +56,4 @@ jobs:
               wiseoldman/server:latest npx prisma migrate deploy
 
             # Restart the server containers
-            docker compose up -d --no-deps --build bull-board
-            docker compose up -d --no-deps --build server-api
-            docker compose up -d --no-deps --build server-job-runner
+            docker compose up -d --no-deps --build bull-board server-api server-job-runner
