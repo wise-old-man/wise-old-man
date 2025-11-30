@@ -732,5 +732,16 @@ export default [
       }
     ],
     bonuses: []
+  },
+  {
+    skill: Skill.SAILING,
+    methods: [
+      { startExp: 0, rate: 5_000, description: 'Port tasks & Quests' },
+      { startExp: 13_363, rate: 25_000, description: 'Barracuda trials (The Tempor Tantrum)' },
+      { startExp: 101_333, rate: 35_000, description: 'Large shipwrecks with boost' },
+      { startExp: 166_636, rate: 80_000, description: 'Barracuda Trials (The Jubbly Jive)' },
+      { startExp: 922_895, rate: 130_000, description: 'Barracuda shipwrecks' }
+    ],
+    bonuses: []
   }
 ];
