@@ -19,7 +19,7 @@ class PrometheusService {
     this.registry = new prometheus.Registry();
 
     this.registry.setDefaultLabels({
-      app: 'wise-old-man',
+      app: process.env.SERVER_TYPE ?? 'dev',
       threadIndex: getThreadIndex()
     });
 
@@ -115,7 +115,7 @@ class PrometheusService {
 
     const requestResult = await fromPromise(
       axios.post(process.env.PROMETHEUS_METRICS_SERVICE_URL, {
-        source: 'api',
+        source: process.env.SERVER_TYPE ?? 'dev',
         data: mergedMetrics,
         thread_index: getThreadIndex()
       })

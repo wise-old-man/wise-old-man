@@ -16,6 +16,11 @@ function prodOnly<T extends z.ZodTypeAny>(varSchema: T) {
   return z.optional(varSchema);
 }
 
+export enum ServerType {
+  API = 'server-api',
+  JOB_RUNNER = 'server-job-runner'
+}
+
 const envVariablesSchema = z.object({
   // Prisma Database URL
   CORE_DATABASE_URL: z.string().trim().min(1),
@@ -24,6 +29,8 @@ const envVariablesSchema = z.object({
   REDIS_PORT: z.coerce.number().positive().int(),
   // Node Environment
   NODE_ENV: z.enum(['development', 'production', 'test']),
+  // Service Name (which runtime service is running)
+  SERVER_TYPE: prodOnly(z.nativeEnum(ServerType)),
   // Port for the API to run on
   API_PORT: z.optional(z.coerce.number().positive().int()),
   // Admin Password (For mod+ operations)
