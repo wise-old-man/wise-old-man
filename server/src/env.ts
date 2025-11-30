@@ -17,8 +17,9 @@ function prodOnly<T extends z.ZodTypeAny>(varSchema: T) {
 }
 
 export enum ServerType {
-  API = 'server-api',
-  JOB_RUNNER = 'server-job-runner'
+  API = 'api',
+  JOB_RUNNER = 'job-runner',
+  BULL_BOARD = 'bull-board'
 }
 
 const envVariablesSchema = z.object({
