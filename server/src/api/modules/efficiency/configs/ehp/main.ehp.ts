@@ -2,26 +2,6 @@ import { Skill } from '../../../../../types';
 
 export default [
   {
-    skill: Skill.SAILING,
-    methods: [
-      { startExp: 0, rate: 5_000, description: 'Port tasks & Quests' },
-      { startExp: 13_363, rate: 25_000, description: 'Barracuda trials (The Tempor Tantrum)' },
-      { startExp: 101_333, rate: 35_000, description: 'Large shipwrecks with boost' },
-      { startExp: 166_636, rate: 80_000, description: 'Barracuda Trials (The Jubbly Jive)' },
-      {
-        startExp: 899_257,
-        rate: 195_000,
-        description: 'Barracuda Trials (The Gwenith Glide) - Camphor hull'
-      },
-      {
-        startExp: 5_346_332,
-        rate: 225_000,
-        description: 'Barracuda Trials (The Gwenith Glide) - Rosewood hull'
-      }
-    ],
-    bonuses: []
-  },
-  {
     skill: Skill.ATTACK,
     methods: [
       {
@@ -1000,6 +980,26 @@ export default [
         startExp: 1_475_581,
         rate: 1_050_000,
         description: 'Mahogany benches'
+      }
+    ],
+    bonuses: []
+  },
+  {
+    skill: Skill.SAILING,
+    methods: [
+      { startExp: 0, rate: 5_000, description: 'Port tasks & Quests' },
+      { startExp: 13_363, rate: 25_000, description: 'Barracuda trials (The Tempor Tantrum)' },
+      { startExp: 101_333, rate: 35_000, description: 'Large shipwrecks with boost' },
+      { startExp: 166_636, rate: 80_000, description: 'Barracuda Trials (The Jubbly Jive)' },
+      {
+        startExp: 899_257,
+        rate: 195_000,
+        description: 'Barracuda Trials (The Gwenith Glide) - Camphor hull'
+      },
+      {
+        startExp: 5_346_332,
+        rate: 225_000,
+        description: 'Barracuda Trials (The Gwenith Glide) - Rosewood hull'
       }
     ],
     bonuses: []
