@@ -2,7 +2,7 @@
 set -e
 
 if [ -z "$SERVER_TYPE" ]; then
-  echo "ERROR: SERVER_TYPE is not set (must be 'api' or 'job-runner')"
+  echo "ERROR: SERVER_TYPE is not set (must be 'api', 'job-runner' or 'bull-board')"
   exit 1
 fi
 
@@ -16,6 +16,8 @@ if [ "$SERVER_TYPE" = "api" ]; then
   ENTRYPOINT="dist/src/entrypoints/api.server.js"
 elif [ "$SERVER_TYPE" = "job-runner" ]; then
   ENTRYPOINT="dist/src/entrypoints/job-runner.server.js"
+elif [ "$SERVER_TYPE" = "bull-board" ]; then
+  ENTRYPOINT="dist/src/entrypoints/bull-board.server.js"
 else
   echo "ERROR: Unknown SERVER_TYPE: $SERVER_TYPE"
   exit 1
