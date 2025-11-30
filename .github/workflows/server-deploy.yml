@@ -47,7 +47,7 @@ jobs:
             docker image rm wiseoldman/server
 
             # Pull the latest server image
-            docker compose pull server
+            docker pull wiseoldman/server:latest
 
             # Migrate the database to the latest Prisma schema
             docker run --rm \
