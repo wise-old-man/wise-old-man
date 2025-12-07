@@ -164,12 +164,29 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     .$transaction(async tx => {
       const transaction = tx as unknown as PrismaTypes.TransactionClient;
 
-      if (socialLinks) {
-        await updateSocialLinks(groupId, socialLinks, transaction);
+      if (socialLinks !== undefined) {
+        await transaction.groupSocialLinks.upsert({
+          where: {
+            groupId
+          },
+          create: {
+            groupId,
+            ...socialLinks
+          },
+          update: {
+            ...socialLinks
+          }
+        });
       }
 
-      if (roleOrders) {
-        await updateGroupRoleOrder(groupId, roleOrders, transaction);
+      if (roleOrders !== undefined) {
+        await transaction.groupRoleOrder.deleteMany({
+          where: { groupId }
+        });
+
+        await transaction.groupRoleOrder.createMany({
+          data: roleOrders.map(r => ({ ...r, groupId }))
+        });
       }
 
       await transaction.group.update({
@@ -420,31 +437,6 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
   }
 }
 
-async function updateSocialLinks(
-  groupId: number,
-  socialLinks: NonNullable<EditGroupPayload['socialLinks']>,
-  transaction: PrismaTypes.TransactionClient
-) {
-  const existingId = await prisma.$queryRaw<{ id: number }[]>`
-    SELECT "id" FROM public."groupSocialLinks" WHERE "groupId" = ${groupId} LIMIT 1
-  `.then(rows => {
-    return rows && Array.isArray(rows) && rows.length > 0 ? rows[0].id : null;
-  });
-
-  if (!existingId) {
-    await transaction.groupSocialLinks.create({
-      data: { ...socialLinks, groupId }
-    });
-
-    return;
-  }
-
-  await transaction.groupSocialLinks.update({
-    where: { id: existingId },
-    data: socialLinks
-  });
-}
-
 async function removeExcessMemberships(
   transaction: PrismaTypes.TransactionClient,
   groupId: number,
@@ -544,17 +536,3 @@ function calculateRoleChangeMaps(
 }
 
 export { editGroup };
-
-async function updateGroupRoleOrder(
-  groupId: number,
-  roleOrders: Array<{ role: GroupRole; index: number }>,
-  transaction: PrismaTypes.TransactionClient
-) {
-  await transaction.groupRoleOrder.deleteMany({
-    where: { groupId }
-  });
-
-  await transaction.groupRoleOrder.createMany({
-    data: roleOrders.map(x => ({ ...x, groupId: groupId }))
-  });
-}

@@ -1,5 +1,4 @@
 export interface GroupSocialLinks {
-  id: number;
   groupId: number;
   website: string | null;
   discord: string | null;
