@@ -44,7 +44,6 @@ async function fetchGroupDetails(id: number): Promise<{
 
 function buildDefaultSocialLinks(groupId: number): GroupSocialLinks {
   return {
-    id: -1,
     groupId: groupId,
     website: null,
     discord: null,
