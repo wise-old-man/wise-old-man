@@ -479,9 +479,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        `Group name '${globalData.testGroupNoLeaders.name}' is already taken.`
-      );
+      expect(response.body.message).toMatch(`Group name is already taken.`);
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -598,9 +596,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Banner or profile images can only be uploaded by patron groups.'
-      );
+      expect(response.body.message).toMatch('Cannot add links or images to non-patron groups.');
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -613,9 +609,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Banner or profile images can only be uploaded by patron groups.'
-      );
+      expect(response.body.message).toMatch('Cannot add links or images to non-patron groups.');
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -645,7 +639,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Social links can only be added to patron groups.');
+      expect(response.body.message).toMatch('Cannot add links or images to non-patron groups.');
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();

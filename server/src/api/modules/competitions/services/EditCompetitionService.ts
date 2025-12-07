@@ -65,19 +65,22 @@ export async function editCompetition(
         | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] };
     }
 > {
-  const { title, metrics, startsAt, endsAt, participants, teams } = payload;
-
-  if (participants && participants.length > 0 && teams && teams.length > 0) {
+  if (
+    payload.participants !== undefined &&
+    payload.participants.length > 0 &&
+    payload.teams &&
+    payload.teams.length > 0
+  ) {
     return errored({ code: 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE' });
   }
 
   if (
-    title === undefined &&
-    metrics === undefined &&
-    startsAt === undefined &&
-    endsAt === undefined &&
-    teams === undefined &&
-    participants === undefined
+    payload.title === undefined &&
+    payload.metrics === undefined &&
+    payload.startsAt === undefined &&
+    payload.endsAt === undefined &&
+    payload.teams === undefined &&
+    payload.participants === undefined
   ) {
     return errored({ code: 'NOTHING_TO_UPDATE' });
   }
@@ -92,24 +95,32 @@ export async function editCompetition(
     return errored({ code: 'COMPETITION_NOT_FOUND' });
   }
 
-  if (startsAt || endsAt) {
-    const startDate = startsAt || competition.startsAt;
-    const endDate = endsAt || competition.endsAt;
+  if (payload.startsAt !== undefined || payload.endsAt !== undefined) {
+    const startDate = payload.startsAt ?? competition.startsAt;
+    const endDate = payload.endsAt ?? competition.endsAt;
 
     if (endDate.getTime() < startDate.getTime()) {
       return errored({ code: 'COMPETITION_START_DATE_AFTER_END_DATE' });
     }
   }
 
-  if (competition.type === CompetitionType.CLASSIC && teams !== undefined && teams.length > 0) {
+  if (
+    competition.type === CompetitionType.CLASSIC &&
+    payload.teams !== undefined &&
+    payload.teams.length > 0
+  ) {
     return errored({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
   }
 
-  if (competition.type === CompetitionType.TEAM && participants !== undefined && participants.length > 0) {
+  if (
+    competition.type === CompetitionType.TEAM &&
+    payload.participants !== undefined &&
+    payload.participants.length > 0
+  ) {
     return errored({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
   }
 
-  if (metrics !== undefined && new Set(metrics.map(m => MetricProps[m].type)).size > 1) {
+  if (payload.metrics !== undefined && new Set(payload.metrics.map(m => MetricProps[m].type)).size > 1) {
     return errored({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
   }
 
@@ -119,11 +130,16 @@ export async function editCompetition(
     return participationsResult;
   }
 
-  if (title) competitionUpdatePayload.title = sanitizeWhitespace(title);
-  if (startsAt) competitionUpdatePayload.startsAt = startsAt;
-  if (endsAt) competitionUpdatePayload.endsAt = endsAt;
+  if (payload.title) competitionUpdatePayload.title = sanitizeWhitespace(payload.title);
+  if (payload.startsAt) competitionUpdatePayload.startsAt = payload.startsAt;
+  if (payload.endsAt) competitionUpdatePayload.endsAt = payload.endsAt;
 
-  const updateResult = await executeUpdate(id, competitionUpdatePayload, metrics, participationsResult.value);
+  const updateResult = await executeUpdate(
+    id,
+    competitionUpdatePayload,
+    payload.metrics,
+    participationsResult.value
+  );
 
   if (isErrored(updateResult)) {
     return updateResult;

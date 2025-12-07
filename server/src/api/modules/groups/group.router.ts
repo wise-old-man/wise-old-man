@@ -1,7 +1,10 @@
+import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { GroupRole, Metric, Period } from '../../../types';
+import { assertNever } from '../../../utils/assert-never.util';
+import { BadRequestError, ServerError } from '../../errors';
 import {
   formatAchievementResponse,
   formatCompetitionResponse,
@@ -120,14 +123,47 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const editResult = await editGroup(id, req.body);
+    const updateResult = await editGroup(id, req.body);
 
-    logger.moderation(`Edited group ${editResult.id}`, {
+    if (isErrored(updateResult)) {
+      switch (updateResult.error.code) {
+        case 'CLAN_CHAT_HAS_INVALID_CHARACTERS':
+          throw new BadRequestError("Invalid 'clanChat'. Cannot contain special characters.");
+        case 'NOTHING_TO_UPDATE':
+          throw new BadRequestError('Nothing to update.');
+        case 'GROUP_NOT_FOUND':
+          throw new BadRequestError('Group not found.');
+        case 'GROUP_NOT_PATRON':
+          throw new BadRequestError('Cannot add links or images to non-patron groups.');
+        case 'IMAGES_MUST_BE_INTERNALLY_HOSTED':
+          throw new BadRequestError(
+            'Cannot upload images from external sources. Please upload an image via the website.'
+          );
+        case 'ROLE_ORDER_MUST_HAVE_UNIQUE_INDEXES':
+          throw new BadRequestError('Role Order must contain unique indexes for each role');
+        case 'ROLE_ORDER_MUST_HAVE_UNIQUE_ROLES':
+          throw new BadRequestError('Role Order must contain unique roles');
+        case 'INVALID_MEMBER_USERNAMES_FOUND':
+          throw new BadRequestError(
+            `Found ${updateResult.error.usernames.length} invalid usernames: Names must be 1-12 characters long,
+            contain no special characters, and/or contain no space at the beginning or end of the name.`,
+            updateResult.error.usernames
+          );
+        case 'DUPLICATE_GROUP_NAME':
+          throw new BadRequestError(`Group name is already taken.`);
+        case 'FAILED_TO_UPDATE_GROUP':
+          throw new ServerError(`Failed to update group. Please try again later.`);
+        default:
+          assertNever(updateResult.error);
+      }
+    }
+
+    logger.moderation(`Edited group ${updateResult.value.id}`, {
       timestamp: new Date().toISOString(),
       ipHash: getRequestIpHash(req)
     });
 
-    const details = await fetchGroupDetails(editResult.id);
+    const details = await fetchGroupDetails(updateResult.value.id);
     const response = formatGroupDetailsResponse(details);
 
     res.status(200).json(response);
