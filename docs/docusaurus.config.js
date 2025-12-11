@@ -58,6 +58,18 @@ const config = {
             position: 'left',
             sidebarId: 'api',
             label: 'API Docs'
+          },          
+          {
+            type: 'docSidebar',
+            position: 'left',
+            sidebarId: 'guides',
+            label: 'Guides'
+          },
+          {
+            type: 'docSidebar',
+            position: 'left',
+            sidebarId: 'faq',
+            label: 'FAQ'
           },
           {
             href: 'https://github.com/wise-old-man/wise-old-man',
