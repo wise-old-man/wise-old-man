@@ -1,7 +1,10 @@
+import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { GroupRole, Metric, Period } from '../../../types';
+import { assertNever } from '../../../utils/assert-never.util';
+import { BadRequestErrorZ, ForbiddenErrorZ, NotFoundErrorZ } from '../../errors';
 import {
   formatAchievementResponse,
   formatCompetitionResponse,
@@ -120,14 +123,36 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const editResult = await editGroup(id, req.body);
+    const updateResult = await editGroup(id, req.body);
 
-    logger.moderation(`Edited group ${editResult.id}`, {
+    if (isErrored(updateResult)) {
+      switch (updateResult.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(updateResult.error);
+        case 'NOTHING_TO_UPDATE':
+        case 'GROUP_NOT_PATRON':
+        case 'INVALID_USERNAMES_FOUND':
+        case 'GROUP_NAME_ALREADY_EXISTS':
+        case 'CLAN_CHAT_HAS_INVALID_CHARACTERS':
+        case 'IMAGES_MUST_BE_INTERNALLY_HOSTED':
+        case 'ROLE_ORDER_MUST_HAVE_UNIQUE_ROLES':
+        case 'ROLE_ORDER_MUST_HAVE_UNIQUE_INDEXES':
+          throw new BadRequestErrorZ(updateResult.error);
+        case 'OPTED_OUT_MEMBERS_FOUND':
+          throw new ForbiddenErrorZ(updateResult.error);
+        case 'FAILED_TO_UPDATE_GROUP':
+          throw updateResult.error;
+        default:
+          assertNever(updateResult.error);
+      }
+    }
+
+    logger.moderation(`Edited group ${updateResult.value.id}`, {
       timestamp: new Date().toISOString(),
       ipHash: getRequestIpHash(req)
     });
 
-    const details = await fetchGroupDetails(editResult.id);
+    const details = await fetchGroupDetails(updateResult.value.id);
     const response = formatGroupDetailsResponse(details);
 
     res.status(200).json(response);

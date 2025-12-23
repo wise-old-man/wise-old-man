@@ -5,7 +5,15 @@ import { JobType, jobManager } from '../../../jobs';
 import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../../types';
 import { assertNever } from '../../../utils/assert-never.util';
-import { BadRequestError, ForbiddenError, NotFoundError, RateLimitError, ServerError } from '../../errors';
+import {
+  BadRequestErrorZ,
+  ForbiddenErrorZ,
+  NotFoundError,
+  NotFoundErrorZ,
+  RateLimitErrorZ,
+  ServerError,
+  ServiceUnavailableError
+} from '../../errors';
 import {
   formatAchievementProgressResponse,
   formatAchievementResponse,
@@ -95,34 +103,36 @@ router.post(
     if (isErrored(updateResult)) {
       switch (updateResult.error.code) {
         case 'HISCORES_USERNAME_NOT_FOUND':
-          throw new BadRequestError('Failed to load hiscores: Player not found.');
-        case 'HISCORES_SERVICE_UNAVAILABLE':
-          throw new ServerError('Failed to load hiscores: Jagex service is unavailable');
-        case 'HISCORES_UNEXPECTED_ERROR':
-          throw new ServerError('Failed to load hiscores: Connection refused.');
-        case 'PLAYER_IS_ARCHIVED':
-          throw new BadRequestError('Failed to update: Player is archived.');
+        case 'INVALID_USERNAME':
+          throw new BadRequestErrorZ(updateResult.error);
         case 'PLAYER_IS_RATE_LIMITED':
-          throw new RateLimitError(`Error: ${username} has been updated recently.`);
+          throw new RateLimitErrorZ(updateResult.error);
+        case 'HISCORES_SERVICE_UNAVAILABLE':
+        case 'HISCORES_UNEXPECTED_ERROR':
+          throw new ServiceUnavailableError(updateResult.error);
         case 'PLAYER_IS_BLOCKED':
-          throw new ForbiddenError(
-            'Failed to update: This player has been blocked, please contact us on Discord for more information.'
-          );
         case 'PLAYER_OPTED_OUT':
-          throw new ForbiddenError(
-            'Failed to update: Player has opted out of tracking. If this is your account and you want to opt back in, contact us on Discord.'
-          );
+        case 'PLAYER_IS_ARCHIVED':
         case 'PLAYER_IS_FLAGGED':
-          throw new ServerError('Failed to update: Player is flagged.');
-        case 'USERNAME_VALIDATION_ERROR':
-          throw new BadRequestError(`Validation error: ${updateResult.error.subError.code}`);
+          throw new ForbiddenErrorZ(updateResult.error);
+
         default:
           assertNever(updateResult.error);
       }
     }
 
-    const details = await fetchPlayerDetails(username);
-    const response = formatPlayerDetailsResponse(details);
+    const playerDetailsResult = await fetchPlayerDetails(username);
+
+    if (isErrored(playerDetailsResult)) {
+      switch (playerDetailsResult.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(playerDetailsResult.error);
+        default:
+          assertNever(playerDetailsResult.error.code);
+      }
+    }
+
+    const response = formatPlayerDetailsResponse(playerDetailsResult.value);
 
     res.status(updateResult.value.isNew ? 201 : 200).json(response);
   })
@@ -138,8 +148,18 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const details = await fetchPlayerDetails(username);
-    const response = formatPlayerDetailsResponse(details);
+    const playerDetailsResult = await fetchPlayerDetails(username);
+
+    if (isErrored(playerDetailsResult)) {
+      switch (playerDetailsResult.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(playerDetailsResult.error);
+        default:
+          assertNever(playerDetailsResult.error.code);
+      }
+    }
+
+    const response = formatPlayerDetailsResponse(playerDetailsResult.value);
 
     res.status(200).json(response);
   })
@@ -156,17 +176,27 @@ router.get(
     const { id } = req.params;
 
     // Find the username for this player ID.
-    const query = await prisma.player.findFirst({
+    const player = await prisma.player.findFirst({
       where: { id },
       select: { username: true }
     });
 
-    if (!query) {
-      throw new NotFoundError('Player not found.');
+    if (!player) {
+      throw new NotFoundErrorZ({ code: 'PLAYER_NOT_FOUND' });
     }
 
-    const details = await fetchPlayerDetails(query.username);
-    const response = formatPlayerDetailsResponse(details);
+    const playerDetailsResult = await fetchPlayerDetails(player.username);
+
+    if (isErrored(playerDetailsResult)) {
+      switch (playerDetailsResult.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(playerDetailsResult.error);
+        default:
+          assertNever(playerDetailsResult.error.code);
+      }
+    }
+
+    const response = formatPlayerDetailsResponse(playerDetailsResult.value);
 
     res.status(200).json(response);
   })
@@ -259,10 +289,10 @@ router.post(
 
     if (isErrored(rollbackResult)) {
       switch (rollbackResult.error.code) {
+        case 'NO_SNAPSHOTS_TO_DELETE':
+          throw new BadRequestErrorZ(rollbackResult.error);
         case 'FAILED_TO_ROLLBACK_SNAPSHOTS':
-          throw new ServerError('Failed to rollback player snapshots.');
-        case 'NO_SNAPSHOTS_DELETED':
-          throw new BadRequestError('No snapshots were deleted, rollback not performed.');
+          throw rollbackResult.error;
         default:
           assertNever(rollbackResult.error);
       }

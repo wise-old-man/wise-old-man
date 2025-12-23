@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { NameChangeStatus } from '../../../types';
-import { NotFoundError, ServerError } from '../../errors';
+import { NotFoundErrorZ, ServiceUnavailableError } from '../../errors';
 import { formatNameChangeResponse } from '../../responses';
 import { checkAdminPermission } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
@@ -99,11 +99,10 @@ router.get(
     if (isErrored(result)) {
       switch (result.error.code) {
         case 'FAILED_TO_LOAD_HISCORES':
-          throw new ServerError('Failed to load the hiscores.');
+          throw new ServiceUnavailableError(result.error);
         case 'OLD_STATS_NOT_FOUND':
-          throw new ServerError('Old stats for this name change could not be found.');
         case 'NAME_CHANGE_NOT_FOUND':
-          throw new NotFoundError('Name change id was not found.');
+          throw new NotFoundErrorZ(result.error);
       }
     }
 

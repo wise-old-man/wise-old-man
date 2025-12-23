@@ -4,7 +4,7 @@ import prisma from '../../prisma';
 import * as cryptService from '../../services/crypt.service';
 import logger from '../../services/logging.service';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
-import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../errors';
+import { BadRequestErrorZ, ForbiddenErrorZ, NotFoundErrorZ } from '../errors';
 import { submitNameChange } from '../modules/name-changes/services/SubmitNameChangeService';
 
 export async function detectRuneLiteNameChange(req: unknown, res: Response, next: NextFunction) {
@@ -17,11 +17,9 @@ export async function detectRuneLiteNameChange(req: unknown, res: Response, next
   const { accountHash } = (req as Request).body;
   const { username } = (req as Request).params;
 
-  if (
-    (userAgent !== 'RuneLite' &&
-      !new RegExp(/^WiseOldManRuneLitePlugin\/([\d.]+) RuneLite\/([\d.]+)(?:-SNAPSHOT)?/).test(userAgent)) ||
-    !accountHash
-  ) {
+  const runeliteUARegex = /^WiseOldManRuneLitePlugin\/([\d.]+) RuneLite\/([\d.]+)(?:-SNAPSHOT)?/;
+
+  if ((userAgent !== 'RuneLite' && !new RegExp(runeliteUARegex).test(userAgent)) || !accountHash) {
     return next();
   }
 
@@ -43,7 +41,7 @@ export async function detectRuneLiteNameChange(req: unknown, res: Response, next
 
       // Interrupt the player update by forwarding an error.
       // This prevent a race condition where the player is updated during a name change's data transfer.
-      return next(new ServerError('Failed to update: Name change detected.'));
+      return next(new ForbiddenErrorZ({ code: 'RUNELITE_NAME_CHANGE_DETECTED' }));
     } catch (error) {
       logger.error('Failed to auto-submit name changed from account hash.', error);
     }
@@ -56,11 +54,11 @@ export function checkAdminPermission(req: unknown, _res: Response, next: NextFun
   const { adminPassword } = (req as Request).body;
 
   if (!adminPassword) {
-    return next(new BadRequestError("Required parameter 'adminPassword' is undefined."));
+    return next(new BadRequestErrorZ({ code: 'MISSING_ADMIN_PASSWORD' }));
   }
 
   if (String(adminPassword) !== process.env.ADMIN_PASSWORD) {
-    return next(new ForbiddenError('Incorrect admin password.'));
+    return next(new ForbiddenErrorZ({ code: 'INCORRECT_ADMIN_PASSWORD' }));
   }
 
   next();
@@ -76,11 +74,11 @@ export async function checkCompetitionVerificationCode(req: unknown, _res: Respo
   }
 
   if (!id) {
-    return next(new BadRequestError("Parameter 'id' is required."));
+    throw new Error('Missing id parameter.');
   }
 
   if (!verificationCode) {
-    return next(new BadRequestError("Parameter 'verificationCode' is required."));
+    return next(new BadRequestErrorZ({ code: 'MISSING_VERIFICATION_CODE' }));
   }
 
   const competition = await prisma.competition.findFirst({
@@ -88,8 +86,8 @@ export async function checkCompetitionVerificationCode(req: unknown, _res: Respo
     select: { verificationHash: true, group: { select: { verificationHash: true } } }
   });
 
-  if (!competition) {
-    return next(new NotFoundError('Competition not found.'));
+  if (competition === null) {
+    return next(new NotFoundErrorZ({ code: 'COMPETITION_NOT_FOUND' }));
   }
 
   // If it is a group competition, use the group's code to verify instead
@@ -98,7 +96,7 @@ export async function checkCompetitionVerificationCode(req: unknown, _res: Respo
   const verificationResult = await cryptService.verifyCode(hash, verificationCode);
 
   if (isErrored(verificationResult)) {
-    return next(new ForbiddenError('Incorrect verification code.'));
+    return next(new ForbiddenErrorZ({ code: 'INCORRECT_VERIFICATION_CODE' }));
   }
 
   next();
@@ -114,11 +112,11 @@ export async function checkGroupVerificationCode(req: unknown, _res: Response, n
   }
 
   if (!id) {
-    return next(new BadRequestError("Parameter 'id' is required."));
+    throw new Error('Missing id parameter.');
   }
 
   if (!verificationCode) {
-    return next(new BadRequestError("Parameter 'verificationCode' is required."));
+    return next(new BadRequestErrorZ({ code: 'MISSING_VERIFICATION_CODE' }));
   }
 
   const group = await prisma.group.findFirst({
@@ -126,14 +124,14 @@ export async function checkGroupVerificationCode(req: unknown, _res: Response, n
     select: { verificationHash: true }
   });
 
-  if (!group) {
-    return next(new NotFoundError('Group not found.'));
+  if (group === null) {
+    return next(new NotFoundErrorZ({ code: 'GROUP_NOT_FOUND' }));
   }
 
   const verificationResult = await cryptService.verifyCode(group.verificationHash, String(verificationCode));
 
   if (isErrored(verificationResult)) {
-    return next(new ForbiddenError('Incorrect verification code.'));
+    return next(new ForbiddenErrorZ({ code: 'INCORRECT_VERIFICATION_CODE' }));
   }
 
   next();

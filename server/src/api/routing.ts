@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/node';
 import express from 'express';
 import { ZodError } from 'zod';
 import logger from '../services/logging.service';
-import { BadRequestError, NotFoundError } from './errors';
+import { BadRequestErrorZ, NotFoundErrorZ } from './errors';
 import competitionRouter from './modules/competitions/competition.router';
 import deltaRouter from './modules/deltas/delta.router';
 import efficiencyRouter from './modules/efficiency/efficiency.router';
@@ -53,7 +53,7 @@ class RoutingHandler {
 
     // Handle endpoint not found
     this.router.use((_req, _res, next) => {
-      next(new NotFoundError('Endpoint was not found'));
+      next(new NotFoundErrorZ({ code: 'ENDPOINT_NOT_FOUND' }));
     });
 
     // Catch and convert Zod errors to (400) BadRequest errors
@@ -67,7 +67,12 @@ class RoutingHandler {
       const zodError = (error[0] as any).errors as ZodError;
 
       if (zodError instanceof ZodError) {
-        next(new BadRequestError(zodError?.issues?.[0]?.message));
+        next(
+          new BadRequestErrorZ({
+            code: 'VALIDATION_ERROR',
+            message: zodError?.issues?.[0]?.message
+          })
+        );
         return;
       }
 
@@ -78,19 +83,33 @@ class RoutingHandler {
     this.router.use((error, req, res, _) => {
       const { method, query, params, body, originalUrl } = req;
 
-      const message = error.statusCode ? error.message : 'Unknown server error.';
-      const statusCode = error.statusCode || 500;
+      const statusCode = error.statusCode ?? 500;
+
+      const errorResponse = {
+        code: error.code ?? 'UNEXPECTED_ERROR',
+        subError: statusCode >= 500 ? undefined : error.subError,
+        message: error.message ?? 'Unknown server error.',
+        data: error.data
+      };
 
       const requestDuration = Date.now() - res.locals.requestStartTime;
 
-      logger.error(`${statusCode} ${method} ${originalUrl} (${requestDuration} ms) - (${error.message})`, {
-        error: error.data,
-        query,
-        params,
-        body
-      });
+      logger.error(
+        `${statusCode} ${method} ${originalUrl} (${requestDuration} ms) - (${errorResponse.code})`,
+        {
+          request: {
+            query,
+            params,
+            body
+          },
+          error: {
+            ...errorResponse,
+            subError: error.subError
+          }
+        }
+      );
 
-      res.status(statusCode).json({ message, data: error.data });
+      res.status(statusCode).json(errorResponse);
     });
   }
 }
