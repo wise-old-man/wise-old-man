@@ -796,7 +796,7 @@ describe('Group API', () => {
       });
 
       expect(editResponse.status).toBe(403);
-      expect(editResponse.body.message).toMatch('One or more players have opted out');
+      expect(editResponse.body).toMatchObject({ code: 'OPTED_OUT_MEMBERS_FOUND' });
       expect(editResponse.body.data).toEqual(['Noah', 'Claudia']);
 
       const deleteGroupResponse = await api.delete(`/groups/${createGroupResponse.body.group.id}`).send({

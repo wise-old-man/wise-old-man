@@ -4,7 +4,7 @@ import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { GroupRole, Metric, Period } from '../../../types';
 import { assertNever } from '../../../utils/assert-never.util';
-import { BadRequestErrorZ, NotFoundErrorZ } from '../../errors';
+import { BadRequestErrorZ, ForbiddenErrorZ, NotFoundErrorZ } from '../../errors';
 import {
   formatAchievementResponse,
   formatCompetitionResponse,
@@ -138,6 +138,8 @@ router.put(
         case 'ROLE_ORDER_MUST_HAVE_UNIQUE_ROLES':
         case 'ROLE_ORDER_MUST_HAVE_UNIQUE_INDEXES':
           throw new BadRequestErrorZ(updateResult.error);
+        case 'OPTED_OUT_MEMBERS_FOUND':
+          throw new ForbiddenErrorZ(updateResult.error);
         case 'FAILED_TO_UPDATE_GROUP':
           throw updateResult.error;
         default:

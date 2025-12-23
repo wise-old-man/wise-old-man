@@ -29,6 +29,7 @@ const ErrorMessageMap = {
   NOTHING_TO_UPDATE: `Nothing to update`,
   OLD_STATS_NOT_FOUND: `Old stats for this name change could not be found`,
   OPTED_OUT_PARTICIPANTS_FOUND: `One or more participants have opted out of joining competitions`,
+  OPTED_OUT_MEMBERS_FOUND: `One or more members have opted out of joining groups`,
   PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE: `Properties "participants" and "groupId" are mutually exclusive`,
   PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE: `Properties "participants" and "teams" are mutually exclusive`,
   PLAYER_IS_ARCHIVED: `Player is archived`,

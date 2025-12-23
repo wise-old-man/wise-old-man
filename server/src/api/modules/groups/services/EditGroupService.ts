@@ -12,7 +12,8 @@ import {
 } from '../../../../types';
 import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 
-import { ForbiddenError, ServerError } from '../../../errors';
+import { assertNever } from '../../../../utils/assert-never.util';
+import { ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -53,6 +54,7 @@ export async function editGroup(
   | { code: 'ROLE_ORDER_MUST_HAVE_UNIQUE_ROLES' }
   | { code: 'GROUP_NAME_ALREADY_EXISTS' }
   | { code: 'FAILED_TO_UPDATE_GROUP' }
+  | { code: 'OPTED_OUT_MEMBERS_FOUND'; data: string[] }
   | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
 > {
   if (payload.clanChat !== undefined && !isValidUsername(payload.clanChat)) {
@@ -158,7 +160,16 @@ export async function editGroup(
   }
 
   if (payload.members) {
-    await updateMembers(groupId, payload.members);
+    const updateResult = await updateMembers(groupId, payload.members);
+
+    if (isErrored(updateResult)) {
+      switch (updateResult.error.code) {
+        case 'OPTED_OUT_MEMBERS_FOUND':
+          return updateResult;
+        default:
+          assertNever(updateResult.error.code);
+      }
+    }
   }
 
   const transactionResult = await fromPromise(
@@ -268,10 +279,10 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
     });
 
     if (optOuts.length > 0) {
-      throw new ForbiddenError(
-        'One or more players have opted out of joining groups, so they cannot be added as members.',
-        optOuts.map(o => o.player.displayName)
-      );
+      return errored({
+        code: 'OPTED_OUT_MEMBERS_FOUND',
+        data: optOuts.map(o => o.player.displayName)
+      } as const);
     }
   }
 
@@ -433,6 +444,8 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
       }))
     });
   }
+
+  return complete(true);
 }
 
 async function removeExcessMemberships(
