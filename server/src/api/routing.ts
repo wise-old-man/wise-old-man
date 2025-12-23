@@ -86,7 +86,7 @@ class RoutingHandler {
       const statusCode = error.statusCode ?? 500;
 
       const errorResponse = {
-        code: error.code,
+        code: error.code ?? 'UNEXPECTED_ERROR',
         subError: statusCode >= 500 ? undefined : error.subError,
         message: error.message ?? 'Unknown server error.',
         data: error.data
