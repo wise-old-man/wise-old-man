@@ -6,7 +6,7 @@ export async function rollbackSnapshots(
   deleteAllSince?: Date
 ): AsyncResult<
   true,
-  { code: 'FAILED_TO_ROLLBACK_SNAPSHOTS'; subError: unknown } | { code: 'NO_SNAPSHOTS_DELETED' }
+  { code: 'FAILED_TO_ROLLBACK_SNAPSHOTS'; subError: unknown } | { code: 'NO_SNAPSHOTS_TO_DELETE' }
 > {
   const transactionResult = await fromPromise(
     prisma.$transaction(async transaction => {
@@ -91,7 +91,7 @@ export async function rollbackSnapshots(
   }
 
   if (transactionResult.value === 0) {
-    return errored({ code: 'NO_SNAPSHOTS_DELETED' });
+    return errored({ code: 'NO_SNAPSHOTS_TO_DELETE' });
   }
 
   return complete(true);

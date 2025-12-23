@@ -35,7 +35,7 @@ describe('Patrons API', () => {
       const response = await api.put(`/patrons/claim/abc`).send({});
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not claim patreon benefits (incorrect admin password)', async () => {
@@ -44,7 +44,7 @@ describe('Patrons API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not claim patreon benefits (no username or groupId provided)', async () => {

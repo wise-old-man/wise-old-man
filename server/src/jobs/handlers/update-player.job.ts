@@ -38,7 +38,7 @@ export class UpdatePlayerJob extends Job<Payload> {
       case 'PLAYER_IS_FLAGGED':
       case 'PLAYER_IS_BLOCKED':
       case 'PLAYER_IS_ARCHIVED':
-      case 'USERNAME_VALIDATION_ERROR':
+      case 'INVALID_USERNAME':
       case 'HISCORES_USERNAME_NOT_FOUND': {
         // This player doesn't need to be auto-updated anytime soon
         const cooldownKey = buildCompoundRedisKey('player-update-cooldown', payload.username);

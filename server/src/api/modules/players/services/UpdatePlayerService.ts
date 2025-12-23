@@ -63,7 +63,7 @@ async function updatePlayer(
   | { code: 'PLAYER_IS_BLOCKED' }
   | { code: 'PLAYER_IS_ARCHIVED' }
   | { code: 'PLAYER_IS_RATE_LIMITED' }
-  | { code: 'USERNAME_VALIDATION_ERROR'; subError: PlayerUsernameValidationError }
+  | { code: 'INVALID_USERNAME'; subError: PlayerUsernameValidationError }
 > {
   const lockResult = await acquireLock(username);
 
@@ -348,7 +348,7 @@ async function findOrCreate(username: string): AsyncResult<
     isNew: boolean;
   },
   {
-    code: 'USERNAME_VALIDATION_ERROR';
+    code: 'INVALID_USERNAME';
     subError: PlayerUsernameValidationError;
   }
 > {
@@ -390,7 +390,7 @@ async function findOrCreate(username: string): AsyncResult<
 
   if (isErrored(validationResult)) {
     return errored({
-      code: 'USERNAME_VALIDATION_ERROR',
+      code: 'INVALID_USERNAME',
       subError: validationResult.error
     });
   }

@@ -4,7 +4,7 @@ import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric } from '../../../types';
 import { assertNever } from '../../../utils/assert-never.util';
-import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../../errors';
+import { BadRequestError, BadRequestErrorZ, ForbiddenErrorZ, NotFoundErrorZ } from '../../errors';
 import {
   formatCompetitionDetailsResponse,
   formatCompetitionResponse,
@@ -61,13 +61,23 @@ router.post(
     }
 
     if (req.body.metric === undefined) {
-      return next(new BadRequestError("Parameter 'metric' is undefined."));
+      return next(
+        new BadRequestErrorZ({
+          code: 'VALIDATION_ERROR',
+          message: "Parameter 'metric' is undefined."
+        })
+      );
     }
 
     const parsed = z.nativeEnum(Metric).safeParse(req.body.metric);
 
     if (!parsed.success) {
-      return next(new BadRequestError("Invalid enum value for 'metric'."));
+      return next(
+        new BadRequestErrorZ({
+          code: 'VALIDATION_ERROR',
+          message: "Invalid enum value for 'metric'."
+        })
+      );
     }
 
     req.body.metrics = [parsed.data];
@@ -98,33 +108,18 @@ router.post(
     if (isErrored(createResult)) {
       switch (createResult.error.code) {
         case 'COMPETITION_START_DATE_AFTER_END_DATE':
-          throw new BadRequestError('Start date must be before the end date.');
         case 'COMPETITION_DATES_IN_THE_PAST':
-          throw new BadRequestError('Invalid dates: All start and end dates must be in the future.');
         case 'METRICS_MUST_BE_OF_SAME_TYPE':
-          throw new BadRequestError('All metrics must be of the same type.');
         case 'PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE':
-          throw new BadRequestError(`Properties "participants" and "groupId" are mutually exclusive.`);
         case 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE':
-          throw new BadRequestError(`Properties "participants" and "teams" are mutually exclusive.`);
-        case 'OPTED_OUT_PLAYERS_FOUND':
-          throw new ForbiddenError(
-            'One or more players have opted out of joining competitions, so they cannot be added as participants.',
-            createResult.error.displayNames
-          );
-        case 'FAILED_TO_GENERATE_VERIFICATION_CODE':
-          throw createResult.error;
-        case 'FAILED_TO_CREATE_COMPETITION':
-          throw new ServerError('Failed to create the competition. Please try again later.');
+          throw new BadRequestErrorZ(createResult.error);
+        case 'OPTED_OUT_PARTICIPANTS_FOUND':
+          throw new ForbiddenErrorZ(createResult.error);
         case 'FAILED_TO_VALIDATE_PARTICIPANTS': {
           switch (createResult.error.subError.code) {
             case 'INVALID_USERNAMES_FOUND':
-              throw new BadRequestError(
-                `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
-                createResult.error.subError.usernames
-              );
             case 'DUPLICATE_USERNAMES_FOUND':
-              throw new BadRequestError(`Found repeated usernames.`, createResult.error.subError.usernames);
+              throw new BadRequestErrorZ(createResult.error.subError);
             default:
               throw assertNever(createResult.error.subError);
           }
@@ -132,14 +127,9 @@ router.post(
         case 'FAILED_TO_VALIDATE_TEAMS': {
           switch (createResult.error.subError.code) {
             case 'INVALID_USERNAMES_FOUND':
-              throw new BadRequestError(
-                `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
-                createResult.error.subError.usernames
-              );
             case 'DUPLICATE_USERNAMES_FOUND':
-              throw new BadRequestError(`Found repeated usernames.`, createResult.error.subError.usernames);
             case 'DUPLICATE_TEAM_NAMES_FOUND':
-              throw new BadRequestError(`Found repeated team names.`, createResult.error.subError.teamNames);
+              throw new BadRequestErrorZ(createResult.error.subError);
             default:
               throw assertNever(createResult.error.subError);
           }
@@ -147,15 +137,18 @@ router.post(
         case 'FAILED_TO_VERIFY_GROUP_VERIFICATION_CODE': {
           switch (createResult.error.subError.code) {
             case 'GROUP_NOT_FOUND':
-              throw new NotFoundError('Group not found.');
-            case 'INVALID_GROUP_VERIFICATION_CODE':
-              throw new BadRequestError('Invalid group verification code.');
+              throw new NotFoundErrorZ(createResult.error.subError);
+            case 'MISSING_GROUP_VERIFICATION_CODE':
+              throw new BadRequestErrorZ(createResult.error.subError);
             case 'INCORRECT_GROUP_VERIFICATION_CODE':
-              throw new ForbiddenError('Incorrect group verification code.');
+              throw new ForbiddenErrorZ(createResult.error.subError);
             default:
               throw assertNever(createResult.error.subError);
           }
         }
+        case 'FAILED_TO_CREATE_COMPETITION':
+        case 'FAILED_TO_GENERATE_VERIFICATION_CODE':
+          throw createResult.error;
         default:
           assertNever(createResult.error);
       }
@@ -196,7 +189,12 @@ router.put(
     const parsed = z.nativeEnum(Metric).safeParse((req as Request).body.metric);
 
     if (!parsed.success) {
-      return next(new BadRequestError("Invalid enum value for 'metric'."));
+      return next(
+        new BadRequestErrorZ({
+          code: 'VALIDATION_ERROR',
+          message: "Invalid enum value for 'metric'."
+        })
+      );
     }
 
     (req as Request).body.metrics = [parsed.data];
@@ -232,33 +230,20 @@ router.put(
     if (isErrored(updateResult)) {
       switch (updateResult.error.code) {
         case 'COMPETITION_NOT_FOUND':
-          throw new NotFoundError('Competition not found.');
-        case 'COMPETITION_START_DATE_AFTER_END_DATE':
-          throw new BadRequestError('Start date must be before the end date.');
-        case 'METRICS_MUST_BE_OF_SAME_TYPE':
-          throw new BadRequestError('All metrics must be of the same type.');
-        case 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE':
-          throw new BadRequestError(`Properties "participants" and "teams" are mutually exclusive.`);
+          throw new NotFoundErrorZ(updateResult.error);
         case 'NOTHING_TO_UPDATE':
-          throw new BadRequestError('Nothing to update.');
+        case 'METRICS_MUST_BE_OF_SAME_TYPE':
         case 'COMPETITION_TYPE_CANNOT_BE_CHANGED':
-          throw new BadRequestError('The competition type cannot be changed.');
-        case 'OPTED_OUT_PLAYERS_FOUND':
-          throw new ForbiddenError(
-            'One or more players have opted out of joining competitions, so they cannot be added as participants.',
-            updateResult.error.displayNames
-          );
-        case 'FAILED_TO_UPDATE_COMPETITION':
-          throw new ServerError('Failed to update the competition. Please try again later.');
+        case 'COMPETITION_START_DATE_AFTER_END_DATE':
+        case 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE':
+          throw new BadRequestErrorZ(updateResult.error);
+        case 'OPTED_OUT_PARTICIPANTS_FOUND':
+          throw new ForbiddenErrorZ(updateResult.error);
         case 'FAILED_TO_VALIDATE_PARTICIPANTS': {
           switch (updateResult.error.subError.code) {
             case 'INVALID_USERNAMES_FOUND':
-              throw new BadRequestError(
-                `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
-                updateResult.error.subError.usernames
-              );
             case 'DUPLICATE_USERNAMES_FOUND':
-              throw new BadRequestError(`Found repeated usernames.`, updateResult.error.subError.usernames);
+              throw new BadRequestErrorZ(updateResult.error.subError);
             default:
               throw assertNever(updateResult.error.subError);
           }
@@ -266,18 +251,15 @@ router.put(
         case 'FAILED_TO_VALIDATE_TEAMS': {
           switch (updateResult.error.subError.code) {
             case 'INVALID_USERNAMES_FOUND':
-              throw new BadRequestError(
-                `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
-                updateResult.error.subError.usernames
-              );
             case 'DUPLICATE_USERNAMES_FOUND':
-              throw new BadRequestError(`Found repeated usernames.`, updateResult.error.subError.usernames);
             case 'DUPLICATE_TEAM_NAMES_FOUND':
-              throw new BadRequestError(`Found repeated team names.`, updateResult.error.subError.teamNames);
+              throw new BadRequestErrorZ(updateResult.error.subError);
             default:
               throw assertNever(updateResult.error.subError);
           }
         }
+        case 'FAILED_TO_UPDATE_COMPETITION':
+          throw updateResult.error;
         default:
           assertNever(updateResult.error);
       }

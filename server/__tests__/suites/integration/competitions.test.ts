@@ -159,7 +159,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Start date must be before the end date.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_START_DATE_AFTER_END_DATE' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -173,7 +173,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid dates: All start and end dates must be in the future.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_DATES_IN_THE_PAST' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -186,7 +186,11 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Invalid enum value for 'metric'."
+      });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -199,7 +203,11 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'title' must have a maximum of 50 character(s).");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'title' must have a maximum of 50 character(s)."
+      });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -212,7 +220,11 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'participants' is not a valid array.");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'participants' is not a valid array."
+      });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -225,8 +237,11 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
-      expect(response.body.data).toContain('areallylongusername');
+
+      expect(response.body).toMatchObject({
+        code: 'INVALID_USERNAMES_FOUND',
+        data: ['areallylongusername']
+      });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -240,7 +255,6 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Properties "participants" and "teams" are mutually exclusive.');
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -368,7 +382,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names.');
+      expect(response.body).toMatchObject({ code: 'DUPLICATE_TEAM_NAMES_FOUND' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -384,7 +398,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body).toMatchObject({ code: 'DUPLICATE_USERNAMES_FOUND' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -398,7 +412,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Group not found.');
+      expect(response.body).toMatchObject({ code: 'GROUP_NOT_FOUND' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -411,7 +425,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid group verification code.');
+      expect(response.body).toMatchObject({ code: 'MISSING_GROUP_VERIFICATION_CODE' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -437,7 +451,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toMatch('Incorrect group verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_GROUP_VERIFICATION_CODE' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -452,9 +466,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Properties "participants" and "groupId" are mutually exclusive.'
-      );
+      expect(response.body).toMatchObject({ code: 'PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -490,7 +502,7 @@ describe('Competition API', () => {
       });
 
       expect(createCompetitionResponse.status).toBe(403);
-      expect(createCompetitionResponse.body.message).toMatch('One or more players have opted out');
+      expect(createCompetitionResponse.body).toMatchObject({ code: 'OPTED_OUT_PARTICIPANTS_FOUND' });
       expect(createCompetitionResponse.body.data.includes('Carmen')).toBe(true);
       expect(createCompetitionResponse.body.data.includes('Richie')).toBe(true);
     });
@@ -890,7 +902,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All metrics must be of the same type.');
+      expect(response.body).toMatchObject({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
 
       process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
     });
@@ -927,7 +939,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -962,7 +974,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Nothing to update.');
+      expect(response.body).toMatchObject({ code: 'NOTHING_TO_UPDATE' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -987,7 +999,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Start date must be before the end date.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_START_DATE_AFTER_END_DATE' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1011,8 +1023,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
-      expect(response.body.data).toContain('areallylongusername');
+      expect(response.body).toMatchObject({ code: 'INVALID_USERNAMES_FOUND', data: ['areallylongusername'] });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1131,7 +1142,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names');
+      expect(response.body).toMatchObject({ code: 'DUPLICATE_TEAM_NAMES_FOUND', data: ['warriors'] });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1146,7 +1157,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body).toMatchObject({ code: 'DUPLICATE_USERNAMES_FOUND', data: ['zezima'] });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1157,7 +1168,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1169,7 +1180,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toMatch('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1181,7 +1192,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('The competition type cannot be changed.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1193,7 +1204,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('The competition type cannot be changed.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1315,7 +1326,7 @@ describe('Competition API', () => {
         });
 
       expect(editResponse.status).toBe(403);
-      expect(editResponse.body.message).toMatch('One or more players have opted out');
+      expect(editResponse.body).toMatchObject({ code: 'OPTED_OUT_PARTICIPANTS_FOUND' });
       expect(editResponse.body.data).toEqual(['Noah', 'Adam']);
 
       const deleteResponse = await api
@@ -1769,7 +1780,7 @@ describe('Competition API', () => {
         metrics: ['agility', 'zulrah']
       });
       expect(editResponse.status).toBe(400);
-      expect(editResponse.body.message).toBe('All metrics must be of the same type.');
+      expect(editResponse.body).toMatchObject({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
 
       process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
@@ -2031,7 +2042,7 @@ describe('Competition API', () => {
       const response = await api.post('/competitions/1000/participants').send({ participants: ['psikoi'] });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2043,7 +2054,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2057,7 +2068,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toMatch('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2263,7 +2274,7 @@ describe('Competition API', () => {
       const response = await api.delete('/competitions/1000/participants').send({ participants: ['psikoi'] });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not remove participants (competition not found)', async () => {
@@ -2273,7 +2284,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
     });
 
     it('should not remove participants (incorrect verification code)', async () => {
@@ -2285,7 +2296,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toMatch('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not remove participants, incorrect admin override (invalid verification code)', async () => {
@@ -2294,7 +2305,7 @@ describe('Competition API', () => {
         .send({ adminPassword: 'xxx-xxx-xxx', participants: ['psikoi'] });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not remove participants, incorrect admin override (incorrect verification code)', async () => {
@@ -2303,7 +2314,7 @@ describe('Competition API', () => {
         .send({ adminPassword: 'xxx-xxx-xxx', verificationCode: 'xxx-xxx-xxx', members: ['psikoi'] });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not remove participants (undefined participant list)', async () => {
@@ -2496,14 +2507,14 @@ describe('Competition API', () => {
       const response = await api.post(`/competitions/100000/teams`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not add teams (competition not found)', async () => {
       const response = await api.post(`/competitions/100000/teams`).send({ verificationCode: 'xxx-xxx-xxx' });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
     });
 
     it('should not add teams (incorrect verification code)', async () => {
@@ -2512,7 +2523,7 @@ describe('Competition API', () => {
         .send({ verificationCode: 'xxx-xxx-xxx' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not add teams (undefined teams list)', async () => {
@@ -2804,7 +2815,7 @@ describe('Competition API', () => {
       const response = await api.delete(`/competitions/100000/teams`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not remove teams (competition not found)', async () => {
@@ -2813,7 +2824,7 @@ describe('Competition API', () => {
         .send({ verificationCode: 'xxx-xxx-xxx', teamNames: [] });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
     });
 
     it('should not remove teams (incorrect verification code)', async () => {
@@ -2822,7 +2833,7 @@ describe('Competition API', () => {
         .send({ verificationCode: 'xxx-xxx-xxx', teamNames: [] });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not remove teams (undefined teams list)', async () => {
@@ -4515,7 +4526,7 @@ describe('Competition API', () => {
       const response = await api.post(`/competitions/123456789/update-all`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not update all (competition not found)', async () => {
@@ -4524,7 +4535,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
     });
 
     it('should not update all (incorrect verification code)', async () => {
@@ -4533,7 +4544,7 @@ describe('Competition API', () => {
         .send({ verificationCode: 'xxx-xxx-xxx' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not update all (no outdated participants)', async () => {
@@ -4695,7 +4706,7 @@ describe('Competition API', () => {
       const response = await api.put(`/competitions/100000/reset-code`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not reset code (incorrect admin password)', async () => {
@@ -4704,7 +4715,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not reset code (competition not found)', async () => {
@@ -4742,7 +4753,7 @@ describe('Competition API', () => {
       });
 
       expect(failEditAttempt.status).toBe(403);
-      expect(failEditAttempt.body.message).toBe('Incorrect verification code.');
+      expect(failEditAttempt.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
 
       // try to edit the competition with the new code
       const editAttempt = await api.put(`/competitions/${globalData.testCompetitionOngoing.id}`).send({
@@ -4764,7 +4775,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
     });
 
     it('should not delete (group not found with admin perms)', async () => {
@@ -4780,7 +4791,7 @@ describe('Competition API', () => {
       const response = await api.delete(`/competitions/123456789`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not delete (incorrect verification code)', async () => {
@@ -4789,7 +4800,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not delete, incorrect admin override (invalid verification code)', async () => {
@@ -4798,7 +4809,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not delete, incorrect admin override (incorrect verification code)', async () => {
@@ -4808,7 +4819,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should delete', async () => {

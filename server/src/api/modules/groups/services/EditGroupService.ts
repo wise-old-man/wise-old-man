@@ -51,9 +51,9 @@ export async function editGroup(
   | { code: 'IMAGES_MUST_BE_INTERNALLY_HOSTED' }
   | { code: 'ROLE_ORDER_MUST_HAVE_UNIQUE_INDEXES' }
   | { code: 'ROLE_ORDER_MUST_HAVE_UNIQUE_ROLES' }
-  | { code: 'DUPLICATE_GROUP_NAME' }
+  | { code: 'GROUP_NAME_ALREADY_EXISTS' }
   | { code: 'FAILED_TO_UPDATE_GROUP' }
-  | { code: 'INVALID_MEMBER_USERNAMES_FOUND'; usernames: string[] }
+  | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
 > {
   if (payload.clanChat !== undefined && !isValidUsername(payload.clanChat)) {
     return errored({ code: 'CLAN_CHAT_HAS_INVALID_CHARACTERS' });
@@ -124,8 +124,8 @@ export async function editGroup(
 
     if (invalidUsernames.length > 0) {
       return errored({
-        code: 'INVALID_MEMBER_USERNAMES_FOUND',
-        usernames: invalidUsernames
+        code: 'INVALID_USERNAMES_FOUND',
+        data: invalidUsernames
       });
     }
   }
@@ -139,7 +139,7 @@ export async function editGroup(
     });
 
     if (duplicateGroup && duplicateGroup.id !== groupId) {
-      return errored({ code: 'DUPLICATE_GROUP_NAME' });
+      return errored({ code: 'GROUP_NAME_ALREADY_EXISTS' });
     }
 
     updatedGroupFields.name = sanitizedName;

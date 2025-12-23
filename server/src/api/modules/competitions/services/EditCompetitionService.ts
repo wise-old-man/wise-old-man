@@ -49,20 +49,20 @@ export async function editCompetition(
   | { code: 'COMPETITION_START_DATE_AFTER_END_DATE' }
   | { code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' }
   | { code: 'METRICS_MUST_BE_OF_SAME_TYPE' }
-  | { code: 'OPTED_OUT_PLAYERS_FOUND'; displayNames: string[] }
+  | { code: 'OPTED_OUT_PARTICIPANTS_FOUND'; data: string[] }
   | { code: 'FAILED_TO_UPDATE_COMPETITION' }
   | {
       code: 'FAILED_TO_VALIDATE_PARTICIPANTS';
       subError:
-        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] };
+        | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] };
     }
   | {
       code: 'FAILED_TO_VALIDATE_TEAMS';
       subError:
-        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] };
+        | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; data: string[] };
     }
 > {
   if (
@@ -258,7 +258,7 @@ async function executeUpdate(
     updatedCompetition: Competition;
     addedParticipations: PartialParticipation[];
   },
-  { code: 'FAILED_TO_UPDATE_COMPETITION' } | { code: 'OPTED_OUT_PLAYERS_FOUND'; displayNames: string[] }
+  { code: 'FAILED_TO_UPDATE_COMPETITION' } | { code: 'OPTED_OUT_PARTICIPANTS_FOUND'; data: string[] }
 > {
   const transactionResult = await fromPromise(
     prisma.$transaction(async transaction => {
@@ -353,8 +353,8 @@ async function executeUpdate(
         if (optOuts.length > 0) {
           // Throw here to rollback the transaction
           throw {
-            code: 'OPTED_OUT_PLAYERS_FOUND',
-            displayNames: optOuts.map(o => o.player.displayName)
+            code: 'OPTED_OUT_PARTICIPANTS_FOUND',
+            data: optOuts.map(o => o.player.displayName)
           };
         }
       }
@@ -406,8 +406,8 @@ async function executeUpdate(
 
     // A little type coercion never hurt nobody...right?
     return transactionResult as Errored<{
-      code: 'OPTED_OUT_PLAYERS_FOUND';
-      displayNames: string[];
+      code: 'OPTED_OUT_PARTICIPANTS_FOUND';
+      data: string[];
     }>;
   }
 
@@ -489,15 +489,15 @@ async function getValidatedParticipations(
   | {
       code: 'FAILED_TO_VALIDATE_PARTICIPANTS';
       subError:
-        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] };
+        | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] };
     }
   | {
       code: 'FAILED_TO_VALIDATE_TEAMS';
       subError:
-        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] };
+        | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; data: string[] };
     }
 > {
   let participations: PartialParticipation[] | undefined = undefined;

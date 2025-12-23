@@ -77,7 +77,13 @@ describe('Player API', () => {
       const response = await api.post(`/players/wow$~#`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Validation error: USERNAME_HAS_SPECIAL_CHARACTERS');
+
+      expect(response.body).toMatchObject({
+        code: 'INVALID_USERNAME',
+        subError: {
+          code: 'USERNAME_HAS_SPECIAL_CHARACTERS'
+        }
+      });
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
@@ -86,7 +92,13 @@ describe('Player API', () => {
       const response = await api.post(`/players/ALongUsername`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Validation error: USERNAME_TOO_LONG');
+
+      expect(response.body).toMatchObject({
+        code: 'INVALID_USERNAME',
+        subError: {
+          code: 'USERNAME_TOO_LONG'
+        }
+      });
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
@@ -94,13 +106,13 @@ describe('Player API', () => {
     it('should not track player (hiscores failed)', async () => {
       // Mock the hiscores to fail
       registerHiscoresMock(axiosMock, {
-        [PlayerType.REGULAR]: { statusCode: 404, rawData: '' }
+        [PlayerType.REGULAR]: { statusCode: 500, rawData: '' }
       });
 
       const response = await api.post(`/players/enrique`);
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(response.status).toBe(503);
+      expect(response.body).toMatchObject({ code: 'HISCORES_UNEXPECTED_ERROR' });
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
 
@@ -119,7 +131,7 @@ describe('Player API', () => {
 
       const firstResponse = await api.post(`/players/toby`);
       expect(firstResponse.status).toBe(400);
-      expect(firstResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(firstResponse.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
 
@@ -127,7 +139,7 @@ describe('Player API', () => {
       // therefor, we should allow them to be tracked again without waiting 60s
       const secondResponse = await api.post(`/players/toby`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(secondResponse.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
 
@@ -158,7 +170,7 @@ describe('Player API', () => {
 
       const response = await api.post(`/players/alanec`);
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(response.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       // this player has "unknown" type, shouldn't be reviewed on 400 (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'alanec'))).toBeNull();
@@ -195,7 +207,7 @@ describe('Player API', () => {
 
       const secondResponse = await api.post(`/players/aluminoti`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(secondResponse.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
       // this player has "regular" type, shouldn't be reviewed on 400 (null cooldown = no review)
@@ -246,7 +258,7 @@ describe('Player API', () => {
 
       const secondResponse = await api.post(`/players/tony_stark`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(secondResponse.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       // this player has "ironman" type, but has been reviewed recently, so they shouldn't be reviewed on 400
       // if the cooldown timestamp is the same as the previous one, then it didn't get reviewed again
@@ -291,7 +303,7 @@ describe('Player API', () => {
 
       const secondResponse = await api.post(`/players/ash`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(secondResponse.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       // failed to review (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
@@ -693,7 +705,7 @@ describe('Player API', () => {
       const response = await api.post(`/players/enriath`);
 
       expect(response.status).toBe(429);
-      expect(response.body.message).toMatch('Error: enriath has been updated recently.');
+      expect(response.body).toMatchObject({ code: 'PLAYER_IS_RATE_LIMITED' });
 
       setUpdateCooldown(0);
     });
@@ -710,8 +722,8 @@ describe('Player API', () => {
 
       const response = await api.post(`/players/psikoi`);
 
-      expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Failed to update: Player is flagged.');
+      expect(response.status).toBe(403);
+      expect(response.body).toMatchObject({ code: 'PLAYER_IS_FLAGGED' });
 
       expect(playerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -748,8 +760,8 @@ describe('Player API', () => {
 
       const response = await api.post(`/players/psikoi`);
 
-      expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Failed to update: Player is flagged.');
+      expect(response.status).toBe(403);
+      expect(response.body).toMatchObject({ code: 'PLAYER_IS_FLAGGED' });
 
       // The player is already flagged, so this event shouldn't be triggeted
       expect(playerFlaggedEvent).not.toHaveBeenCalled();
@@ -788,8 +800,8 @@ describe('Player API', () => {
         .send({ accountHash: '123456' })
         .set('User-Agent', 'RuneLite');
 
-      expect(secondResponse.status).toBe(500); // Player update gets interrupted if a name change is detected
-      expect(secondResponse.body.message).toBe('Failed to update: Name change detected.');
+      expect(secondResponse.status).toBe(403); // Player update gets interrupted if a name change is detected
+      expect(secondResponse.body).toMatchObject({ code: 'RUNELITE_NAME_CHANGE_DETECTED' });
 
       const fetchNameChangesResponse = await api.get('/names').query({ username: 'ruben' });
 
@@ -852,19 +864,19 @@ describe('Player API', () => {
       });
 
       const secondResponse = await api.post(`/players/jonxslays`);
-      expect(secondResponse.status).toBe(500);
-      expect(secondResponse.body.message).toMatch('Failed to update: Player is flagged.');
+      expect(secondResponse.status).toBe(403);
+      expect(secondResponse.body).toMatchObject({ code: 'PLAYER_IS_FLAGGED' });
 
       expect(playerFlaggedEvent).toHaveBeenCalled();
 
       const thirdResponse = await api.post(`/players/jonxslays`).send({ force: true });
       expect(thirdResponse.status).toBe(400);
-      expect(thirdResponse.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(thirdResponse.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
 
       const fourthResponse = await api.post(`/players/jonxslays`).send({ force: true, adminPassword: 'idk' });
 
       expect(fourthResponse.status).toBe(403);
-      expect(fourthResponse.body.message).toBe('Incorrect admin password.');
+      expect(fourthResponse.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
 
       const fifthResponse = await api
         .post(`/players/jonxslays`)
@@ -879,28 +891,41 @@ describe('Player API', () => {
       const response = await api.get('/players/search').query({});
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'username' is undefined."
+      });
     });
 
     it('should not search players (empty username)', async () => {
       const response = await api.get('/players/search').query({ username: '' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' must have a minimum of 1 character(s).");
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'username' must have a minimum of 1 character(s)."
+      });
     });
 
     it('should not search players (negative pagination limit)', async () => {
       const response = await api.get(`/players/search`).query({ username: 'enr', limit: -5 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'limit' must be > 0."
+      });
     });
 
     it('should not search players (negative pagination offset)', async () => {
       const response = await api.get(`/players/search`).query({ username: 'enr', offset: -5 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'offset' must be >= 0."
+      });
     });
 
     it('should search players (partial username w/ offset)', async () => {
@@ -960,12 +985,12 @@ describe('Player API', () => {
       const byUsernameResponse = await api.get('/players/zezima');
 
       expect(byUsernameResponse.status).toBe(404);
-      expect(byUsernameResponse.body.message).toMatch('Player not found.');
+      expect(byUsernameResponse.body).toMatchObject({ code: 'PLAYER_NOT_FOUND' });
 
       const byIdResponse = await api.get('/players/id/48478474');
 
       expect(byIdResponse.status).toBe(404);
-      expect(byIdResponse.body.message).toMatch('Player not found.');
+      expect(byIdResponse.body).toMatchObject({ code: 'PLAYER_NOT_FOUND' });
     });
 
     it('should view player details', async () => {
@@ -1088,14 +1113,14 @@ describe('Player API', () => {
       const response = await api.put(`/players/psikoi/country`).send({ country: 'PT' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not update player country (incorrect admin password)', async () => {
       const response = await api.put(`/players/psikoi/country`).send({ country: 'PT', adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not update player country (undefined country)', async () => {
@@ -1104,7 +1129,11 @@ describe('Player API', () => {
         .send({ adminPassword: process.env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'country' is undefined.");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'country' is undefined."
+      });
     });
 
     it('should not update player country (empty country)', async () => {
@@ -1113,7 +1142,11 @@ describe('Player API', () => {
         .send({ country: '', adminPassword: process.env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'country' must have a minimum of 2 character(s).");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'country' must have a minimum of 2 character(s)."
+      });
     });
 
     it('should not update player country (player not found)', async () => {
@@ -1206,14 +1239,14 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi/rollback`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it("shouldn't rollback player (incorrect admin password)", async () => {
       const response = await api.post(`/players/psikoi/rollback`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it("shouldn't rollback player (player not found)", async () => {
@@ -1238,14 +1271,14 @@ describe('Player API', () => {
         .send({ adminPassword: process.env.ADMIN_PASSWORD });
 
       expect(firstResponse.status).toBe(400);
-      expect(firstResponse.body.message).toBe('No snapshots were deleted, rollback not performed.');
+      expect(firstResponse.body).toMatchObject({ code: 'NO_SNAPSHOTS_TO_DELETE' });
 
       const secondResponse = await api
         .post(`/players/rollmeback/rollback`)
         .send({ adminPassword: process.env.ADMIN_PASSWORD, untilLastChange: true });
 
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toBe('No snapshots were deleted, rollback not performed.');
+      expect(secondResponse.body).toMatchObject({ code: 'NO_SNAPSHOTS_TO_DELETE' });
     });
 
     it('should rollback player (last snapshot)', async () => {
@@ -1482,14 +1515,14 @@ describe('Player API', () => {
       const response = await api.delete(`/players/psikoi`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not delete player (incorrect admin password)', async () => {
       const response = await api.delete(`/players/psikoi`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not delete player (player not found)', async () => {
@@ -1512,7 +1545,7 @@ describe('Player API', () => {
       const detailsResponse = await api.get('/players/PsiKOI');
 
       expect(detailsResponse.status).toBe(404);
-      expect(detailsResponse.body.message).toBe('Player not found.');
+      expect(detailsResponse.body).toMatchObject({ code: 'PLAYER_NOT_FOUND' });
     });
   });
 
@@ -1662,8 +1695,8 @@ describe('Player API', () => {
       });
 
       const trackResponse = await api.post(`/players/Kendall`);
-      expect(trackResponse.status).toBe(500);
-      expect(trackResponse.body.message).toBe('Failed to update: Player is flagged.');
+      expect(trackResponse.status).toBe(403);
+      expect(trackResponse.body).toMatchObject({ code: 'PLAYER_IS_FLAGGED' });
 
       expect(playerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1755,8 +1788,8 @@ describe('Player API', () => {
       });
 
       const trackResponse = await api.post(`/players/Roman`);
-      expect(trackResponse.status).toBe(500);
-      expect(trackResponse.body.message).toBe('Failed to update: Player is flagged.');
+      expect(trackResponse.status).toBe(403);
+      expect(trackResponse.body).toMatchObject({ code: 'PLAYER_IS_FLAGGED' });
 
       expect(playerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1999,8 +2032,8 @@ describe('Player API', () => {
       expect(archivedPlayer.username.startsWith('archive')).toBeTruthy();
 
       const trackArchivedPlayerResponse = await api.post(`/players/${archivedPlayer.username}`);
-      expect(trackArchivedPlayerResponse.status).toBe(400);
-      expect(trackArchivedPlayerResponse.body.message).toBe('Failed to update: Player is archived.');
+      expect(trackArchivedPlayerResponse.status).toBe(403);
+      expect(trackArchivedPlayerResponse.body).toMatchObject({ code: 'PLAYER_IS_ARCHIVED' });
 
       const archivals = await prisma.playerArchive.findMany({
         where: { playerId: player.id }
@@ -2062,14 +2095,14 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi/archive`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it("shouldn't archive player (incorrect admin password)", async () => {
       const response = await api.post(`/players/psikoi/archive`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it("shouldn't archive player (player not found)", async () => {
@@ -2183,8 +2216,8 @@ describe('Player API', () => {
       expect(archivedPlayer.username.startsWith('archive')).toBeTruthy();
 
       const trackArchivedPlayerResponse = await api.post(`/players/${archivedPlayer.username}`);
-      expect(trackArchivedPlayerResponse.status).toBe(400);
-      expect(trackArchivedPlayerResponse.body.message).toBe('Failed to update: Player is archived.');
+      expect(trackArchivedPlayerResponse.status).toBe(403);
+      expect(trackArchivedPlayerResponse.body).toMatchObject({ code: 'PLAYER_IS_ARCHIVED' });
 
       const archivals = await prisma.playerArchive.findMany({
         where: { playerId: player.id }
@@ -2306,10 +2339,19 @@ describe('Player API', () => {
 
   describe('11. Annotations', () => {
     it('should not fetch annotations (player not found)', async () => {
-      const response = await api.get(`/players/gringoloko`);
+      const response = await api.get(`/players/rodzao`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Player not found.');
+      expect(response.body).toMatchObject({ code: 'PLAYER_NOT_FOUND' });
+    });
+
+    it('should return 400 when admin password is missing (admin validation)', async () => {
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        annotationType: PlayerAnnotationType.OPT_OUT
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should return 403 when admin password is incorrect (admin validation)', async () => {
@@ -2319,16 +2361,7 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
-    });
-
-    it('should return 400 when admin password is missing (admin validation)', async () => {
-      const response = await api.post(`/players/psikoi/annotation`).send({
-        annotationType: PlayerAnnotationType.OPT_OUT
-      });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should return 400 when annotation is invalid', async () => {
@@ -2338,7 +2371,10 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Invalid enum value for 'annotationType'.");
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Invalid enum value for 'annotationType'."
+      });
     });
 
     it('shoould return 400 when annotation is missing', async () => {
@@ -2347,7 +2383,11 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'annotationType' is undefined.");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'annotationType' is undefined."
+      });
     });
 
     it('should create a valid annotation', async () => {

@@ -4,7 +4,7 @@ import { z } from 'zod';
 import logger from '../../../services/logging.service';
 import { GroupRole, Metric, Period } from '../../../types';
 import { assertNever } from '../../../utils/assert-never.util';
-import { BadRequestError, ServerError } from '../../errors';
+import { BadRequestErrorZ, NotFoundErrorZ } from '../../errors';
 import {
   formatAchievementResponse,
   formatCompetitionResponse,
@@ -127,32 +127,19 @@ router.put(
 
     if (isErrored(updateResult)) {
       switch (updateResult.error.code) {
-        case 'CLAN_CHAT_HAS_INVALID_CHARACTERS':
-          throw new BadRequestError("Invalid 'clanChat'. Cannot contain special characters.");
-        case 'NOTHING_TO_UPDATE':
-          throw new BadRequestError('Nothing to update.');
         case 'GROUP_NOT_FOUND':
-          throw new BadRequestError('Group not found.');
+          throw new NotFoundErrorZ(updateResult.error);
+        case 'NOTHING_TO_UPDATE':
         case 'GROUP_NOT_PATRON':
-          throw new BadRequestError('Cannot add links or images to non-patron groups.');
+        case 'INVALID_USERNAMES_FOUND':
+        case 'GROUP_NAME_ALREADY_EXISTS':
+        case 'CLAN_CHAT_HAS_INVALID_CHARACTERS':
         case 'IMAGES_MUST_BE_INTERNALLY_HOSTED':
-          throw new BadRequestError(
-            'Cannot upload images from external sources. Please upload an image via the website.'
-          );
-        case 'ROLE_ORDER_MUST_HAVE_UNIQUE_INDEXES':
-          throw new BadRequestError('Role Order must contain unique indexes for each role');
         case 'ROLE_ORDER_MUST_HAVE_UNIQUE_ROLES':
-          throw new BadRequestError('Role Order must contain unique roles');
-        case 'INVALID_MEMBER_USERNAMES_FOUND':
-          throw new BadRequestError(
-            `Found ${updateResult.error.usernames.length} invalid usernames: Names must be 1-12 characters long,
-            contain no special characters, and/or contain no space at the beginning or end of the name.`,
-            updateResult.error.usernames
-          );
-        case 'DUPLICATE_GROUP_NAME':
-          throw new BadRequestError(`Group name is already taken.`);
+        case 'ROLE_ORDER_MUST_HAVE_UNIQUE_INDEXES':
+          throw new BadRequestErrorZ(updateResult.error);
         case 'FAILED_TO_UPDATE_GROUP':
-          throw new ServerError(`Failed to update group. Please try again later.`);
+          throw updateResult.error;
         default:
           assertNever(updateResult.error);
       }

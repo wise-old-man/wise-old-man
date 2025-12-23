@@ -418,7 +418,7 @@ describe('Deltas API', () => {
         'smithing',
         undefined,
         new Date('2021-12-14T04:15:36.000Z'),
-        new Date('2025-12-14T04:15:36.000Z')
+        new Date('2030-12-14T04:15:36.000Z')
       );
 
       expect(recentGains[0]).toMatchObject({
@@ -435,12 +435,12 @@ describe('Deltas API', () => {
         new Date('2021-12-14T04:15:36.000Z').getTime()
       );
 
-      expect(recentGains[0].endDate.getTime()).toBeLessThan(new Date('2025-12-14T04:15:36.000Z').getTime());
+      expect(recentGains[0].endDate.getTime()).toBeLessThan(new Date('2030-12-14T04:15:36.000Z').getTime());
 
       const apiResponse = await api.get(`/groups/${globalData.testGroupId}/gained`).query({
         metric: 'smithing',
         startDate: '2021-12-14T04:15:36.000Z',
-        endDate: '2025-12-14T04:15:36.000Z'
+        endDate: '2030-12-14T04:15:36.000Z'
       });
 
       for (const gain of recentGains) {
@@ -488,7 +488,7 @@ describe('Deltas API', () => {
         'smithing',
         undefined,
         new Date('2021-12-14T04:15:36.000Z'),
-        new Date('2025-12-14T04:15:36.000Z'),
+        new Date('2030-12-14T04:15:36.000Z'),
         { limit: 1, offset: 1 }
       );
 

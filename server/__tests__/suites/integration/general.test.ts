@@ -83,14 +83,14 @@ describe('General API', () => {
       const response = await api.post(`/api-key`).send({});
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not create API key (incorrect admin password)', async () => {
       const response = await api.post(`/api-key`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not create API key (undefined application name)', async () => {
