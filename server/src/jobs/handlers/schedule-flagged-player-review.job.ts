@@ -1,19 +1,23 @@
 import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerService';
 import prisma from '../../prisma';
-import { PlayerStatus } from '../../types';
+import { Player, PlayerStatus } from '../../types';
 import { Job } from '../job.class';
 
 export class ScheduleFlaggedPlayerReviewJob extends Job<unknown> {
   async execute() {
     // Find a flagged player
-    const flaggedPlayer = await prisma.player.findFirst({
-      where: { status: PlayerStatus.FLAGGED },
-      orderBy: { updatedAt: 'desc' }
-    });
+    const results = await prisma.$queryRaw<Array<Pick<Player, 'id' | 'username'>>>`
+      SELECT "id", "username" FROM public.players
+      WHERE "status" = ${PlayerStatus.FLAGGED}
+      ORDER BY RANDOM()
+      LIMIT 1
+    `;
 
-    if (flaggedPlayer === null) {
+    if (results.length === 0) {
       return;
     }
+
+    const [flaggedPlayer] = results;
 
     // Force-unflag them
     await prisma.player.update({
