@@ -25,6 +25,19 @@ jobs:
           node-version: 18.18.0
           registry-url: https://registry.npmjs.org
 
+      - name: Inspect npm auth state
+        run: |
+          echo "NODE_AUTH_TOKEN=${NODE_AUTH_TOKEN:-<empty>}"
+          echo "NPM_TOKEN=${NPM_TOKEN:-<empty>}"
+          env | grep -i token || true
+          npm config list
+
+      - name: Force clean npm auth
+        run: |
+          unset NODE_AUTH_TOKEN
+          unset NPM_TOKEN
+          npm config delete //registry.npmjs.org/:_authToken || true
+
       - name: Install server dependencies
         run: cd server && npm ci
 
