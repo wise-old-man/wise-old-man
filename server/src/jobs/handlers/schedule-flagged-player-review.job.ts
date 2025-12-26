@@ -8,7 +8,7 @@ export class ScheduleFlaggedPlayerReviewJob extends Job<unknown> {
     // Find a flagged player
     const results = await prisma.$queryRaw<Array<Pick<Player, 'id' | 'username'>>>`
       SELECT "id", "username" FROM public.players
-      WHERE "status" = '${PlayerStatus.FLAGGED}'
+      WHERE "status" = ${PlayerStatus.FLAGGED}::player_status
       ORDER BY RANDOM()
       LIMIT 1
     `;
