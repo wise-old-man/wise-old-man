@@ -1669,10 +1669,10 @@ describe('Player API', () => {
       const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
 
       expect(flagContext).toMatchObject({
-        negativeGains: false,
-        excessiveGains: true,
-        excessiveGainsReversed: false,
-        possibleRollback: false,
+        hasNegativeGains: false,
+        hasExcessiveGains: true,
+        hasExcessiveGainsReversed: false,
+        isPossibleRollback: false,
         data: {
           stackableGainedRatio: 0.37663758607790426
         },
@@ -1760,10 +1760,10 @@ describe('Player API', () => {
       const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
 
       expect(flagContext).toMatchObject({
-        possibleRollback: true,
-        excessiveGains: false,
-        negativeGains: true,
-        excessiveGainsReversed: false,
+        isPossibleRollback: true,
+        hasExcessiveGains: false,
+        hasNegativeGains: true,
+        hasExcessiveGainsReversed: false,
         data: {
           stackableGainedRatio: 0
         },
