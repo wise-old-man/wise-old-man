@@ -128,7 +128,7 @@ async function updatePlayer(
   const previousSnapshot = player.latestSnapshot;
 
   // Fetch the new player stats from the hiscores API
-  const currentStatsResult = await fetchStats(player, updatedPlayerFields.type, previousSnapshot);
+  const currentStatsResult = await fetchStats(player, updatedPlayerFields.type);
 
   if (isErrored(currentStatsResult)) {
     // If failed to load this player's stats from the hiscores, and they're not "regular" or "unknown"
@@ -326,18 +326,14 @@ async function reviewType(player: Player): AsyncResult<{ changed: boolean }, His
   });
 }
 
-async function fetchStats(
-  player: Player,
-  type?: PlayerType,
-  previousStats?: Snapshot
-): AsyncResult<Snapshot, HiscoresError> {
+async function fetchStats(player: Player, type?: PlayerType): AsyncResult<Snapshot, HiscoresError> {
   const hiscoresResult = await fetchHiscoresJSON(player.username, type || player.type);
 
   if (isErrored(hiscoresResult)) {
     return hiscoresResult;
   }
 
-  const newSnapshot = buildHiscoresSnapshot(player.id, hiscoresResult.value, previousStats);
+  const newSnapshot = buildHiscoresSnapshot(player.id, hiscoresResult.value);
 
   return complete(newSnapshot);
 }

@@ -28,20 +28,7 @@ const METRIC_NAME_OVERRIDES = {
   [Metric.TOMBS_OF_AMASCUT_EXPERT]: 'Tombs of Amascut: Expert Mode'
 };
 
-export function buildHiscoresSnapshot(playerId: number, hiscoresData: HiscoresData, previous?: Snapshot) {
-  if (hiscoresData.skills.length < 25) {
-    /**
-     * Temporary until Sailing is added to the OSRS Hiscores.
-     * TODO: Remove this ASAP after Sailing launch.
-     */
-    hiscoresData.skills.push({
-      name: 'Sailing',
-      rank: -1,
-      level: 1,
-      xp: -1
-    });
-  }
-
+export function buildHiscoresSnapshot(playerId: number, hiscoresData: HiscoresData) {
   if (
     hiscoresData.skills.length + hiscoresData.activities.length <
     METRICS.length - COMPUTED_METRICS.length + SKIPPED_METRICS.length
@@ -71,15 +58,8 @@ export function buildHiscoresSnapshot(playerId: number, hiscoresData: HiscoresDa
       exp = -1;
     }
 
-    const metricValueKey = getMetricValueKey(skill);
-
-    if (exp === -1 && previous && previous[metricValueKey] > -1) {
-      // If the player was previously ranked in this skill, and then somehow became unranked, just fallback to the previous value
-      exp = previous[metricValueKey];
-    }
-
     snapshotFields[getMetricRankKey(skill)] = rank;
-    snapshotFields[metricValueKey] = exp;
+    snapshotFields[getMetricValueKey(skill)] = exp;
 
     if (skill === Metric.OVERALL) {
       snapshotFields.overallLevel = level === 0 ? -1 : level;
