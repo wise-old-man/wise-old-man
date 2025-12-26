@@ -45,8 +45,6 @@ export function buildHiscoresSnapshot(playerId: number, hiscoresData: HiscoresDa
     createdAt: new Date()
   };
 
-  let totalExp = 0;
-
   for (const skill of SKILLS) {
     const jagexMetricName = METRIC_NAME_OVERRIDES[skill] ?? MetricProps[skill].name;
     const { xp, level, rank } = skillsMap[jagexMetricName.toLowerCase()];
@@ -63,15 +61,7 @@ export function buildHiscoresSnapshot(playerId: number, hiscoresData: HiscoresDa
 
     if (skill === Metric.OVERALL) {
       snapshotFields.overallLevel = level === 0 ? -1 : level;
-    } else {
-      totalExp += Math.max(0, exp);
     }
-  }
-
-  // If this player is unranked in overall exp, we should set their overall exp to the total exp of all skills
-  // since that's at least closer to the real number than -1
-  if (snapshotFields.overallExperience! < totalExp && totalExp > 0) {
-    snapshotFields.overallExperience = totalExp;
   }
 
   for (const metric of [...BOSSES, ...ACTIVITIES]) {
