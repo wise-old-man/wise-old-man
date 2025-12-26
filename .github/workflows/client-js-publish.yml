@@ -7,16 +7,14 @@ on:
     paths:
       - "client-js/**"
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    id_tokens:
-      NPM_ID_TOKEN:
-        aud: "npm:registry.npmjs.org"
-      SIGSTORE_ID_TOKEN:
-        aud: sigstore
+
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
@@ -25,11 +23,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18.18.0
+          registry-url: https://registry.npmjs.org
 
       - name: Install server dependencies
         run: cd server && npm ci
 
-      - name: Install client-js dependencies & build JavaScript bundle
+      - name: Install client-js dependencies
         run: cd client-js && npm ci
 
       - name: Publish package
