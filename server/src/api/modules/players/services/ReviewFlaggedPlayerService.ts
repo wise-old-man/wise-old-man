@@ -1,4 +1,6 @@
+import prisma, { PrismaTypes } from '../../../../prisma';
 import { BOSSES, Metric, Player, Snapshot } from '../../../../types';
+import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { REAL_SKILLS } from '../../../../utils/shared';
 import {
   FlaggedPlayerReviewContextResponse,
@@ -16,14 +18,14 @@ const STACKABLE_EXP_SKILLS = [
   Metric.THIEVING
 ];
 
-function reviewFlaggedPlayer(
+async function reviewFlaggedPlayer(
   player: Player,
   previousStats: Snapshot,
   rejectedStats: Snapshot
-): FlaggedPlayerReviewContextResponse | null {
+): Promise<FlaggedPlayerReviewContextResponse | null> {
   if (!player || !previousStats || !rejectedStats) return null;
 
-  const negativeGains = !!getNegativeGains(previousStats, rejectedStats);
+  const negativeGains = getNegativeGains(previousStats, rejectedStats);
 
   const excessiveGains = !!getExcessiveGains(previousStats, rejectedStats);
   const excessiveGainsReversed = !!getExcessiveGains(rejectedStats, previousStats);
@@ -31,7 +33,7 @@ function reviewFlaggedPlayer(
   const previous = formatSnapshotResponse(previousStats, getPlayerEfficiencyMap(previousStats, player));
   const rejected = formatSnapshotResponse(rejectedStats, getPlayerEfficiencyMap(rejectedStats, player));
 
-  if (negativeGains) {
+  if (negativeGains !== null) {
     const possibleRollback =
       !excessiveGains && !excessiveGainsReversed && !hasLostTooMuch(previous, rejected);
 
@@ -40,10 +42,13 @@ function reviewFlaggedPlayer(
       return null;
     }
 
+    const rollbackContext = await getRollbackContext(player, rejectedStats, negativeGains);
+
     return {
       previous,
       rejected,
-      negativeGains,
+      rollbackContext: rollbackContext,
+      negativeGains: !!negativeGains,
       excessiveGains,
       possibleRollback,
       excessiveGainsReversed,
@@ -54,11 +59,59 @@ function reviewFlaggedPlayer(
   return {
     previous,
     rejected,
-    negativeGains,
+    rollbackContext: null,
+    negativeGains: !!negativeGains,
     excessiveGains,
     possibleRollback: false,
     excessiveGainsReversed,
     data: buildExcessiveGainsReport(previous, rejected)
+  };
+}
+
+async function getRollbackContext(
+  player: Player,
+  rejectedStats: Snapshot,
+  negativeGains: Record<Metric, number>
+) {
+  const query: PrismaTypes.SnapshotWhereInput = {};
+
+  for (const metric of Object.keys(negativeGains) as Metric[]) {
+    const metricKey = getMetricValueKey(metric);
+    const rejectedVal = rejectedStats[metricKey];
+
+    query[metricKey] = {
+      lte: rejectedVal
+    };
+  }
+
+  /**
+   * Find all snapshots where this player's WOM stats matched the current rejected hiscores stats
+   */
+  const matches = await prisma.snapshot.findMany({
+    select: {
+      createdAt: true
+    },
+    where: {
+      playerId: player.id,
+      ...query
+    },
+    orderBy: {
+      createdAt: 'asc'
+    }
+  });
+
+  if (matches.length === 0) {
+    return null;
+  }
+
+  const earliestMatchDate = matches.at(0)!.createdAt;
+  const latestMatchDate = matches.at(-1)!.createdAt;
+  const totalMatches = matches.length;
+
+  return {
+    earliestMatchDate,
+    latestMatchDate,
+    totalMatches
   };
 }
 

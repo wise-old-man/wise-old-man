@@ -13,6 +13,11 @@ export interface FlaggedPlayerReviewContextResponse {
   excessiveGains: boolean;
   possibleRollback: boolean;
   excessiveGainsReversed: boolean;
+  rollbackContext: {
+    earliestMatchDate: Date;
+    latestMatchDate: Date;
+    totalMatches: number;
+  } | null;
   data: {
     stackableGainedRatio: number;
     previousEHP: number;
