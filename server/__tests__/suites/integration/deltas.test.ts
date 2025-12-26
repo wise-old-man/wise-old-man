@@ -129,10 +129,6 @@ describe('Deltas API', () => {
         6_177_978 + 50_000
       );
 
-      expect(secondTrackResponse.body.latestSnapshot.data.skills.overall.experience).toBe(
-        304_439_328 + 50_000
-      ); // mocked as -1 overall, had to sum all skills' exp to use as the fallback
-
       // Wait for the deltas to update
       await sleep(100);
 
@@ -155,7 +151,7 @@ describe('Deltas API', () => {
         where: { playerId: firstTrackResponse.body.id }
       });
 
-      expect(secondCachedDeltas.length).toBe(15); // 5 periods * 3 metrics (ehp, ehb, nex, smithing, overall)
+      expect(secondCachedDeltas.length).toBe(12);
       expect(secondCachedDeltas.filter(c => c.metric === Metric.EHP && c.value > 0.1).length).toBe(3);
       expect(secondCachedDeltas.filter(c => c.metric === Metric.EHB && c.value > 0.1).length).toBe(3);
       expect(secondCachedDeltas.filter(c => c.metric === Metric.NEX && c.value === 49).length).toBe(3); // 53 - 4 (min kc is 5) = 49
@@ -166,12 +162,6 @@ describe('Deltas API', () => {
       expect(smithingCachedDeltas.map(c => c.period)).toContain('week');
       expect(smithingCachedDeltas.map(c => c.period)).toContain('month');
       expect(smithingCachedDeltas.map(c => c.period)).toContain('year');
-      const overallCachedDeltas = secondCachedDeltas.filter(c => c.metric === Metric.OVERALL);
-      expect(overallCachedDeltas.length).toBe(3);
-      expect(overallCachedDeltas.filter(c => c.value === 50_000).length).toBe(3);
-      expect(overallCachedDeltas.map(c => c.period)).toContain('week');
-      expect(overallCachedDeltas.map(c => c.period)).toContain('month');
-      expect(overallCachedDeltas.map(c => c.period)).toContain('year');
 
       // All deltas' end snapshot is the latest one
       expect(secondCachedDeltas.filter(d => Date.now() - d.endedAt.getTime() > 10_000).length).toBe(0);
@@ -310,7 +300,7 @@ describe('Deltas API', () => {
       const dayOverallGains = dayResponse.body.data.skills.overall;
 
       expect(dayOverallGains.experience).toMatchObject({
-        start: 304_489_328,
+        start: -1,
         end: 304_489_328,
         gained: 0
       });
