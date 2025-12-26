@@ -543,6 +543,7 @@ describe('Player API', () => {
 
     it('should track player (f2p)', async () => {
       const dataF2P = modifyRawHiscoresData(emptyHiscoresData(globalData.hiscoresRawData), [
+        { hiscoresMetricName: 'Overall', value: 5000 },
         { hiscoresMetricName: 'Attack', value: 1000 },
         { hiscoresMetricName: 'Magic', value: 1000 },
         { hiscoresMetricName: 'Cooking', value: 1000 },
@@ -573,6 +574,7 @@ describe('Player API', () => {
 
     it('should track player (f2p & lvl3)', async () => {
       const dataF2P = modifyRawHiscoresData(emptyHiscoresData(globalData.hiscoresRawData), [
+        { hiscoresMetricName: 'Overall', value: 3000 },
         { hiscoresMetricName: 'Cooking', value: 1000 },
         { hiscoresMetricName: 'Woodcutting', value: 2000 },
         { hiscoresMetricName: 'Bryophyta', value: 10 },
