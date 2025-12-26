@@ -1664,7 +1664,7 @@ describe('Player API', () => {
       expect(rankIncrease).toBe(5); // Increased by 500% (10k -> 60k)
       expect(expIncrease).toBeCloseTo(0.1929868502403211, 8); // Increased by 20.98% (304_439_328 -> 363_192_115)
 
-      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
 
       expect(flagContext).toMatchObject({
         negativeGains: false,
@@ -1755,7 +1755,7 @@ describe('Player API', () => {
         HiscoresDataSchema.parse(JSON.parse(modifiedRejectedRawData))
       );
 
-      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
 
       expect(flagContext).toMatchObject({
         possibleRollback: true,
@@ -1854,7 +1854,7 @@ describe('Player API', () => {
         HiscoresDataSchema.parse(JSON.parse(modifiedRejectedRawData))
       );
 
-      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
 
       const trackResponse = await api.post(`/players/Siobhan`);
@@ -1906,7 +1906,7 @@ describe('Player API', () => {
         HiscoresDataSchema.parse(JSON.parse(globalData.hiscoresRawData))
       );
 
-      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
 
       const trackResponse = await api.post(`/players/Connor`);
@@ -1994,7 +1994,7 @@ describe('Player API', () => {
       expect(Array.from(newPlayerGroupIds)).toEqual([1002, 1003, 1004]);
       expect(Array.from(newPlayerCompetitionIds)).toEqual([1004, 1006, 1008]);
 
-      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
 
       const trackResponse = await api.post(`/players/Greg Hirsch`);
@@ -2184,7 +2184,7 @@ describe('Player API', () => {
       expect(Array.from(newPlayerGroupIds)).toEqual([2002, 2003, 2004]);
       expect(Array.from(newPlayerCompetitionIds)).toEqual([2004, 2006, 2008]);
 
-      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
 
       const archiveResponse = await api

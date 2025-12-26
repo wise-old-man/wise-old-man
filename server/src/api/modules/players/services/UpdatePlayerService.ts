@@ -280,7 +280,7 @@ async function handlePlayerFlagged(player: Player, previousStats: Snapshot, reje
     where: { id: player.id }
   });
 
-  const flaggedContext = reviewFlaggedPlayer(player, previousStats, rejectedStats);
+  const flaggedContext = await reviewFlaggedPlayer(player, previousStats, rejectedStats);
 
   if (flaggedContext) {
     eventEmitter.emit(EventType.PLAYER_FLAGGED, {
