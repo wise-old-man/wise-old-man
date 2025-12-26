@@ -55,7 +55,7 @@ class JobManager {
       return this.runAsync(type, payload);
     }
 
-    if (type === JobType.UPDATE_PLAYER && 'username' in payload) {
+    if (type === JobType.UPDATE_PLAYER && 'username' in payload && payload.username !== undefined) {
       // Some players are put into the queue too often (patron group updates),
       // and result in no valid updates due to a "banned" or "unranked" status.
       // This clogs up the queue for valid players, so we need to put them on a 24h cooldown.
