@@ -26,18 +26,17 @@ async function reviewFlaggedPlayer(
   if (!player || !previousStats || !rejectedStats) return null;
 
   const negativeGains = getNegativeGains(previousStats, rejectedStats);
-
-  const excessiveGains = !!getExcessiveGains(previousStats, rejectedStats);
-  const excessiveGainsReversed = !!getExcessiveGains(rejectedStats, previousStats);
+  const excessiveGains = getExcessiveGains(previousStats, rejectedStats);
+  const excessiveGainsReversed = getExcessiveGains(rejectedStats, previousStats);
 
   const previous = formatSnapshotResponse(previousStats, getPlayerEfficiencyMap(previousStats, player));
   const rejected = formatSnapshotResponse(rejectedStats, getPlayerEfficiencyMap(rejectedStats, player));
 
   if (negativeGains !== null) {
-    const possibleRollback =
-      !excessiveGains && !excessiveGainsReversed && !hasLostTooMuch(previous, rejected);
+    const isPossibleRollback =
+      excessiveGains === null && excessiveGainsReversed === null && !hasLostTooMuch(previous, rejected);
 
-    if (!possibleRollback) {
+    if (!isPossibleRollback) {
       // If it isn't a rollback, then it's definitely a name transfer, and should be archived (null context)
       return null;
     }
@@ -48,10 +47,10 @@ async function reviewFlaggedPlayer(
       previous,
       rejected,
       rollbackContext: rollbackContext,
-      negativeGains: !!negativeGains,
-      excessiveGains,
-      possibleRollback,
-      excessiveGainsReversed,
+      hasNegativeGains: !!negativeGains,
+      hasExcessiveGains: !!excessiveGains,
+      hasExcessiveGainsReversed: !!excessiveGainsReversed,
+      isPossibleRollback: isPossibleRollback,
       data: buildNegativeGainsReport(previous, rejected)
     };
   }
@@ -60,10 +59,10 @@ async function reviewFlaggedPlayer(
     previous,
     rejected,
     rollbackContext: null,
-    negativeGains: !!negativeGains,
-    excessiveGains,
-    possibleRollback: false,
-    excessiveGainsReversed,
+    hasNegativeGains: !!negativeGains,
+    hasExcessiveGains: !!excessiveGains,
+    hasExcessiveGainsReversed: !!excessiveGainsReversed,
+    isPossibleRollback: false,
     data: buildExcessiveGainsReport(previous, rejected)
   };
 }
