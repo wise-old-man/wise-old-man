@@ -12,7 +12,7 @@ interface Payload {
 export class UpdatePlayerJob extends Job<Payload> {
   static options: JobOptions = {
     backoff: 30_000,
-    maxConcurrent: 4,
+    maxConcurrent: 8,
     rateLimiter: { max: 1, duration: 250 }
   };
 
