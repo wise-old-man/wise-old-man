@@ -8,7 +8,6 @@ export async function handleServerInit(serverName: string, initFn: () => Promise
   const cleanupFn = await initFn();
 
   const handleShutdown = async (signal: string) => {
-    console.log({ signal });
     // If already shutting down, return the existing promise
     if (shutdownInProgress) {
       logger.info(`Shutdown already in progress (received ${signal})`);
