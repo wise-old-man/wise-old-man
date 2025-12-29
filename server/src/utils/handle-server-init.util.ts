@@ -8,7 +8,6 @@ export async function handleServerInit(serverName: string, initFn: () => Promise
   const cleanupFn = await initFn();
 
   const handleShutdown = async (signal: string) => {
-    // If already shutting down, return the existing promise
     if (shutdownInProgress) {
       logger.info(`Shutdown already in progress (received ${signal})`);
       return shutdownInProgress;
@@ -16,10 +15,9 @@ export async function handleServerInit(serverName: string, initFn: () => Promise
 
     logger.info(`Received ${signal}, shutting down gracefully...`);
 
-    // Race cleanup against timeout
     shutdownInProgress = Promise.race([
       cleanupFn(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Shutdown timeout after 30s')), 30_000))
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Shutdown timeout after 60s')), 60_000))
     ])
       .then(() => {
         logger.info('Shutdown complete.');
@@ -43,7 +41,7 @@ export async function handleServerInit(serverName: string, initFn: () => Promise
 
   process.on('uncaughtException', async error => {
     logger.error('Uncaught Exception:', error, true);
-    await handleShutdown('unhandledRejection');
+    await handleShutdown('uncaughtException');
   });
 
   process.on('exit', code => {
