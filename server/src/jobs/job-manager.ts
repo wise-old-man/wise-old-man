@@ -222,12 +222,12 @@ class JobManager {
   }
 
   async shutdown() {
-    for (const queue of this.queues) {
-      await queue.close();
-    }
-
     for (const worker of this.workers) {
       await worker.close();
+    }
+
+    for (const queue of this.queues) {
+      await queue.close();
     }
   }
 

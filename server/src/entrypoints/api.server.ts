@@ -25,9 +25,9 @@ handleServerInit('API Server', async () => {
       await new Promise(res => apiServer.close(res));
     }
 
+    prometheusService.shutdown();
+
     await jobManager.shutdown();
     await redisClient.quit();
-
-    prometheusService.shutdown();
   };
 });
