@@ -13,9 +13,9 @@ handleServerInit('Job Runner Server', async () => {
   await jobManager.initWorkers();
 
   return async () => {
+    prometheusService.shutdown();
+
     await jobManager.shutdown();
     await redisClient.quit();
-
-    prometheusService.shutdown();
   };
 });
