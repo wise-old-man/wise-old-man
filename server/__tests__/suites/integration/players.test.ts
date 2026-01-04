@@ -390,7 +390,7 @@ describe('Player API', () => {
       });
 
       // Using the test "main" rates, we should get this number for regular accs
-      expect(response.body.ehp).toBeCloseTo(665.07587, 4);
+      expect(response.body.ehp).toBeCloseTo(705.19455, 4);
 
       expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -622,7 +622,7 @@ describe('Player API', () => {
       // IM rates should have been used, so the output EHP should be different than the one
       // calculate for the regular player (Psikoi)
       expect(response.body.ehp).not.toBeCloseTo(694.4541800000006, 4);
-      expect(response.body.ehp).toBeCloseTo(1260.57215, 4);
+      expect(response.body.ehp).toBeCloseTo(1257.85964, 4);
 
       expect(response.body.latestSnapshot).not.toBeNull();
 
@@ -1654,7 +1654,7 @@ describe('Player API', () => {
       const stackableEHPRatio =
         (aglityEHPDiff + thievingEHPDiff) / (runecraftingEHPDiff + aglityEHPDiff + thievingEHPDiff);
 
-      expect(stackableEHPRatio).toBeCloseTo(0.37663759188558105, 7);
+      expect(stackableEHPRatio).toBeCloseTo(0.23818695475718715, 7);
 
       const rankIncrease =
         (rejectedSnapshot.overallRank - previousSnapshot.overallRank) / previousSnapshot.overallRank;
@@ -1674,7 +1674,7 @@ describe('Player API', () => {
         hasExcessiveGainsReversed: false,
         isPossibleRollback: false,
         data: {
-          stackableGainedRatio: 0.37663758607790426
+          stackableGainedRatio: 0.23818695475718724
         },
         previous: {
           data: {

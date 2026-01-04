@@ -31,7 +31,7 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 490_000,
+        rate: 505_000,
         description: 'Bonus XP from Slayer'
       }
     ],
@@ -100,7 +100,7 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 400_000,
+        rate: 415_000,
         description: 'Bonus XP from Slayer'
       }
     ],
@@ -148,47 +148,47 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 171_000,
+        rate: 172_800,
         description: '1t poison karambwan'
       },
       {
         startExp: 13_363,
-        rate: 513_800,
+        rate: 519_100,
         description: '1t karambwan'
       },
       {
         startExp: 37_224,
-        rate: 585_600,
+        rate: 591_600,
         description: '1t karambwan'
       },
       {
         startExp: 101_333,
-        rate: 656_800,
+        rate: 663_600,
         description: '1t karambwan'
       },
       {
         startExp: 273_742,
-        rate: 728_200,
+        rate: 735_700,
         description: '1t karambwan'
       },
       {
         startExp: 737_627,
-        rate: 799_800,
+        rate: 808_000,
         description: '1t karambwan'
       },
       {
         startExp: 1_986_068,
-        rate: 871_400,
+        rate: 880_400,
         description: '1t karambwan'
       },
       {
         startExp: 5_346_332,
-        rate: 938_400,
+        rate: 948_100,
         description: '1t karambwan'
       },
       {
         startExp: 13_034_431,
-        rate: 970_000,
+        rate: 980_000,
         description: '1t karambwan'
       }
     ],
@@ -265,33 +265,33 @@ export default [
       },
       {
         startExp: 75_127,
-        rate: 81_612,
-        description: 'Drift net fishing (65.2k hunter & 55.9k fishing xp/h)'
+        rate: 84_686,
+        description: 'Drift net fishing (67.7k hunter & 58k fishing xp/h)'
       },
       {
         startExp: 106_046,
-        rate: 94_314,
-        description: 'Drift net fishing (81.6k hunter & 64.6k fishing xp/h)'
+        rate: 97_867,
+        description: 'Drift net fishing (84.7k hunter & 67k fishing xp/h)'
       },
       {
         startExp: 229_685,
-        rate: 108_780,
-        description: 'Drift net fishing (95.1k hunter & 72.2k fishing xp/h)'
+        rate: 112_877,
+        description: 'Drift net fishing (98.7k hunter & 74.9k fishing xp/h)'
       },
       {
         startExp: 302_288,
-        rate: 123_432,
-        description: 'Drift net fishing (108.7k hunter & 80.3k fishing xp/h)'
+        rate: 128_082,
+        description: 'Drift net fishing (112.8k hunter & 83.3k fishing xp/h)'
       },
       {
         startExp: 593_234,
-        rate: 134_256,
-        description: 'Drift net fishing (118.5k hunter & 87.2k fishing xp/h)'
+        rate: 139_313,
+        description: 'Drift net fishing (123k hunter & 90.5k fishing xp/h)'
       },
       {
         startExp: 737_627,
         rate: 132_800,
-        description: 'Drift net fishing (118.5k hunter & 89.9k fishing xp/h) and 2t swordfish & tuna'
+        description: 'Drift net fishing (123k hunter & 93.3k fishing xp/h) + 2t swordfish & tuna'
       }
     ],
     bonuses: []
@@ -321,30 +321,29 @@ export default [
       },
       {
         startExp: 101_333,
-        rate: 414_079,
-        description: 'Artefacts with firemaking (163.6k thieving & 139.5k firemaking xp/h)'
+        rate: 403_745,
+        description: 'Artefacts with firemaking (160.5k thieving & 135.9k firemaking xp/h)'
       },
       {
         startExp: 273_742,
-        rate: 565_154,
-        description: 'Artefacts with firemaking (194.6k thieving & 179.4k firemaking xp/h)'
+        rate: 551_169,
+        description: 'Artefacts with firemaking (191k thieving & 174.7k firemaking xp/h)'
       },
       {
         startExp: 1_210_421,
-        rate: 795_098,
-        description: 'Artefacts with firemaking (224.8k thieving & 269.1k firemaking xp/h)'
+        rate: 775_388,
+        description: 'Artefacts with firemaking (220.6k thieving & 262.1k firemaking xp/h)'
       },
       {
         startExp: 5_346_332,
-        rate: 894_364,
-        description: 'Artefacts with firemaking (246.8k thieving & 310k firemaking xp/h)'
+        rate: 872_198,
+        description: 'Artefacts with firemaking (242.2k thieving & 302k firemaking xp/h)'
       },
       {
         startExp: 13_034_431,
-        rate: 794_566,
-        realRate: 310_000,
-        description:
-          'Artefacts with firemaking (260k thieving & 310k firemaking xp/h), scales to firebwan (505k firemaking & 353.5k cooking xp/h)'
+        rate: 789_944,
+        realRate: 302_000,
+        description: 'Artefacts with firemaking (255k thieving & 302k firemaking xp/h)'
       }
     ],
     bonuses: [
@@ -354,7 +353,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.8387
+        ratio: 0.8443
       }
     ]
   },
@@ -363,7 +362,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 57_000,
+        rate: 37_000,
         description: 'Leather items'
       },
       {
@@ -388,22 +387,22 @@ export default [
       },
       {
         startExp: 368_599,
-        rate: 324_420,
+        rate: 335_230,
         description: "Green d'hide bodies"
       },
       {
         startExp: 814_445,
-        rate: 366_280,
+        rate: 378_490,
         description: "Blue d'hide bodies"
       },
       {
         startExp: 1_475_581,
-        rate: 408_140,
+        rate: 421_740,
         description: "Red d'hide bodies"
       },
       {
         startExp: 2_951_373,
-        rate: 450_000,
+        rate: 465_000,
         description: "Black d'hide bodies"
       }
     ],
@@ -419,13 +418,13 @@ export default [
       },
       {
         startExp: 37_224,
-        rate: 380_000,
-        description: 'Blast Furnace gold'
+        rate: 475_000,
+        description: 'Dolo Blast Furnace gold'
       },
       {
         startExp: 13_034_431,
-        rate: 410_000,
-        description: 'Blast Furnace gold'
+        rate: 505_000,
+        description: 'Dolo Blast Furnace gold'
       }
     ],
     bonuses: []
@@ -440,32 +439,32 @@ export default [
       },
       {
         startExp: 35_025,
-        rate: 45_300,
+        rate: 50_600,
         description: 'Motherlode Mine for the prospector kit and Shooting Stars for the celestial ring'
       },
       {
-        startExp: 489_936,
-        rate: 102_516,
+        startExp: 393_485,
+        rate: 106_540,
         description: '3t granite'
       },
       {
         startExp: 1_210_421,
-        rate: 108_510,
+        rate: 112_166,
         description: '3t granite'
       },
       {
         startExp: 3_258_594,
-        rate: 113_459,
+        rate: 116_760,
         description: '3t granite'
       },
       {
         startExp: 8_771_558,
-        rate: 117_782,
+        rate: 119_438,
         description: '3t granite'
       },
       {
         startExp: 13_034_431,
-        rate: 125_000,
+        rate: 126_000,
         description: '3t granite'
       }
     ],
@@ -473,7 +472,7 @@ export default [
       {
         originSkill: Skill.MINING,
         bonusSkill: Skill.SMITHING,
-        startExp: 489_936,
+        startExp: 1_210_421,
         endExp: 200_000_000,
         end: true,
         ratio: 0.08
@@ -571,23 +570,23 @@ export default [
       },
       {
         startExp: 333_804,
-        rate: 56_250,
+        rate: 56_300,
         description: 'Hallowed Sepulchre'
       },
       {
         startExp: 899_257,
-        rate: 66_667,
+        rate: 68_900,
         description: 'Hallowed Sepulchre'
       },
       {
         startExp: 2_421_087,
-        rate: 76_000,
+        rate: 79_700,
         description: 'Hallowed Sepulchre'
       },
       {
         startExp: 6_517_253,
-        rate: 98_950,
-        description: 'Hallowed Sepulchre with grand coffin looting (98.5k xp/h) and making potions'
+        rate: 102_000,
+        description: 'Hallowed Sepulchre with ancient & forgotten brews'
       }
     ],
     bonuses: [
@@ -597,7 +596,7 @@ export default [
         startExp: 6_517_253,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.5858
+        ratio: 0.6485
       }
     ]
   },
@@ -616,26 +615,26 @@ export default [
       },
       {
         startExp: 91_721,
-        rate: 246_655,
-        description: 'Artefacts with firemaking (163.6k thieving & 139.5k firemaking xp/h)'
+        rate: 241_906,
+        description: 'Artefacts with firemaking (160.5k thieving & 135.9k firemaking xp/h)'
       },
       {
-        startExp: 293_865,
-        rate: 285_024,
-        description: 'Artefacts with firemaking (194.6k thieving & 179.4k firemaking xp/h)'
+        startExp: 295_315,
+        rate: 279_597,
+        description: 'Artefacts with firemaking (191k thieving & 174.7k firemaking xp/h)'
       },
       {
-        startExp: 1_309_988,
-        rate: 339_767,
-        description: 'Artefacts with firemaking (224.8k thieving & 269.1k firemaking xp/h)'
+        startExp: 1_319_012,
+        rate: 333_283,
+        description: 'Artefacts with firemaking (220.6k thieving & 262.1k firemaking xp/h)'
       },
       {
-        startExp: 4_765_013,
-        rate: 377_739,
-        description: 'Artefacts with firemaking (246.8k thieving & 310k firemaking xp/h)'
+        startExp: 4_799_743,
+        rate: 370_532,
+        description: 'Artefacts with firemaking (242.2k thieving & 302k firemaking xp/h)'
       },
       {
-        startExp: 10_885_948,
+        startExp: 10_966_391,
         rate: 363_882,
         description: 'Artefacts with ancient brews (255.6k thieving & 250k herblore xp/h)'
       },
@@ -692,7 +691,7 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 102_300,
+        rate: 105_800,
         description: 'Efficient Slayer'
       }
     ],
@@ -829,42 +828,42 @@ export default [
       },
       {
         startExp: 32_500,
-        rate: 285_000,
+        rate: 304_000,
         description: 'Tree runs'
       },
       {
         startExp: 61_512,
-        rate: 491_000,
+        rate: 506_000,
         description: 'Tree runs'
       },
       {
         startExp: 166_636,
-        rate: 679_000,
+        rate: 719_000,
         description: 'Tree runs'
       },
       {
         startExp: 273_742,
-        rate: 1_052_000,
+        rate: 1_083_000,
         description: 'Tree runs'
       },
       {
         startExp: 605_032,
-        rate: 1_338_000,
+        rate: 1_362_000,
         description: 'Tree runs'
       },
       {
         startExp: 1_210_421,
-        rate: 1_884_000,
+        rate: 1_896_000,
         description: 'Tree runs'
       },
       {
         startExp: 2_192_818,
-        rate: 2_309_000,
+        rate: 2_314_000,
         description: 'Tree runs'
       },
       {
         startExp: 3_258_594,
-        rate: 2_474_000,
+        rate: 2_475_000,
         description: 'Tree runs'
       },
       {
@@ -885,8 +884,23 @@ export default [
       },
       {
         startExp: 33_210,
-        rate: 280_000,
-        description: '0+4 lava runes'
+        rate: 45_000,
+        description: 'GotR rewards'
+      },
+      {
+        startExp: 1_210_421,
+        rate: 75_400,
+        description: 'Solo mud runes'
+      },
+      {
+        startExp: 3_258_594,
+        rate: 106_100,
+        description: 'Solo mud runes'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 162_000,
+        description: 'Duo lava runes'
       }
     ],
     bonuses: []
@@ -916,34 +930,34 @@ export default [
       },
       {
         startExp: 55_649,
-        rate: 161_000,
-        description: 'Drift net fishing (65.2k hunter & 55.9k fishing xp/h)'
+        rate: 215_112,
+        description: 'Drift net fishing (67.7k hunter & 58.0k fishing xp/h)'
       },
       {
         startExp: 91_721,
-        rate: 207_303,
-        description: 'Drift net fishing (81.6k hunter & 64.6k fishing xp/h)'
+        rate: 268_770,
+        description: 'Drift net fishing (84.7k hunter & 67.0k fishing xp/h)'
       },
       {
         startExp: 24_886,
-        rate: 282_663,
-        description: 'Drift net fishing (95.1k hunter & 72.2k fishing xp/h)'
+        rate: 293_310,
+        description: 'Drift net fishing (98.7k hunter & 74.9k fishing xp/h)'
       },
       {
         startExp: 343_551,
-        rate: 310_720,
-        description: 'Drift net fishing (108.7k hunter & 80.3k fishing xp/h)'
+        rate: 322_424,
+        description: 'Drift net fishing (112.8k hunter & 83.3k fishing xp/h)'
       },
       {
         startExp: 737_627,
-        rate: 337_966,
-        description: 'Drift net fishing (118.5k hunter & 87.2k fishing xp/h)'
+        rate: 350_697,
+        description: 'Drift net fishing (123.0k hunter & 90.5k fishing xp/h)'
       },
       {
         startExp: 933_979,
         rate: 265_000,
-        realRate: 118_535,
-        description: 'Drift net fishing (118.5k hunter & 89.9k fishing xp/h), scales to black chinchompas'
+        realRate: 123_000,
+        description: 'Drift net fishing (123k hunter & 93.3k fishing xp/h), scales to black chinchompas'
       }
     ],
     bonuses: [
@@ -978,7 +992,7 @@ export default [
       },
       {
         startExp: 1_475_581,
-        rate: 1_050_000,
+        rate: 1_070_000,
         description: 'Mahogany benches'
       }
     ],
@@ -987,18 +1001,18 @@ export default [
   {
     skill: Skill.SAILING,
     methods: [
-      { startExp: 0, rate: 5_000, description: 'Port tasks & Quests' },
+      { startExp: 0, rate: 10_000, description: 'Port tasks, Charting & Quests' },
       { startExp: 13_363, rate: 25_000, description: 'Barracuda trials (The Tempor Tantrum)' },
       { startExp: 101_333, rate: 35_000, description: 'Large shipwrecks with boost' },
-      { startExp: 166_636, rate: 80_000, description: 'Barracuda Trials (The Jubbly Jive)' },
+      { startExp: 166_636, rate: 85_000, description: 'Barracuda Trials (The Jubbly Jive)' },
       {
         startExp: 899_257,
-        rate: 195_000,
+        rate: 205_000,
         description: 'Barracuda Trials (The Gwenith Glide) - Camphor hull'
       },
       {
         startExp: 5_346_332,
-        rate: 225_000,
+        rate: 240_000,
         description: 'Barracuda Trials (The Gwenith Glide) - Rosewood hull'
       }
     ],

@@ -213,12 +213,12 @@ export default [
       },
       {
         startExp: 123_660,
-        rate: 1_040_000,
+        rate: 880_000,
         description: 'Broad arrows with Sepulchre, hunter, and artefacts'
       },
       {
         startExp: 13_034_431,
-        rate: 1_300_000,
+        rate: 980_000,
         description: 'Broad arrows with Sepulchre, hunter, and artefacts'
       }
     ],
@@ -304,7 +304,6 @@ export default [
         end: false,
         ratio: 0.091
       },
-
       {
         originSkill: Skill.FISHING,
         bonusSkill: Skill.AGILITY,
@@ -400,19 +399,11 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 431_300,
-        description: 'World-hop Wintertodt (375k firemaking rate + stored XP)'
+        rate: 522_000,
+        description: 'World-hop Wintertodt (400k firemaking rate + passive & stored XP)'
       }
     ],
     bonuses: [
-      {
-        originSkill: Skill.FIREMAKING,
-        bonusSkill: Skill.WOODCUTTING,
-        startExp: 13_034_431,
-        endExp: 200_000_000,
-        end: true,
-        ratio: 0.049
-      },
       {
         originSkill: Skill.FIREMAKING,
         bonusSkill: Skill.FLETCHING,
@@ -445,6 +436,11 @@ export default [
         startExp: 3_972_294,
         rate: 103_800,
         description: 'Charters (2-client hopping)'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 130_000,
+        description: 'Dorgesh-Kaan lamps (109k crafting, 81.9k firemaking & 1.6k thieving rate)'
       }
     ],
     bonuses: []
@@ -582,13 +578,13 @@ export default [
       },
       {
         startExp: 2_421_087,
-        rate: 73_700,
-        description: 'Sepulchre looting (72.7k agility rate, incl. passive XP)'
+        rate: 77_500,
+        description: 'Sepulchre looting (76.4k agility rate, incl. passive XP)'
       },
       {
         startExp: 6_517_253,
-        rate: 91_800,
-        description: 'Sepulchre looting (87.6k agility rate, incl. passive XP)'
+        rate: 92_300,
+        description: 'Sepulchre looting (88.1k agility rate, incl. passive XP)'
       }
     ],
     bonuses: []
@@ -633,8 +629,8 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 355_354,
-        description: 'Artefacts with glassblowing (224.9k thieving & 54.6k crafting rate, incl. supply time)'
+        rate: 357_725,
+        description: 'Artefacts with glassblowing (215.4k thieving & 78.7k crafting rate, incl. supply time)'
       }
     ],
     bonuses: []
@@ -804,7 +800,7 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 75_128,
+        rate: 76_000,
         description: 'GotR small teams / solos (77.0k runecraft rate + looting time)'
       }
     ],
@@ -857,8 +853,8 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 200_000,
-        description: 'Red chinchompas, herbiboar'
+        rate: 235_000,
+        description: 'Hunters’ Rumours, red chinchompas for ranged'
       }
     ],
     bonuses: []
@@ -898,36 +894,27 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 125_000,
-        description: '1.5t teaks & mythical capes'
+        rate: 250_500,
+        description: '1.5t mahogany MH with Plank Make (175k construction & 61.7k woodcutting rate)'
       }
     ],
-    bonuses: [
-      {
-        originSkill: Skill.CONSTRUCTION,
-        bonusSkill: Skill.WOODCUTTING,
-        startExp: 13_034_431,
-        endExp: 200_000_000,
-        end: true,
-        ratio: 0.706
-      }
-    ]
+    bonuses: []
   },
   {
     skill: Skill.SAILING,
     methods: [
-      { startExp: 0, rate: 5_000, description: 'Port tasks & Quests' },
+      { startExp: 0, rate: 10_000, description: 'Port tasks & Quests' },
       { startExp: 13_363, rate: 25_000, description: 'Barracuda trials (The Tempor Tantrum)' },
       { startExp: 101_333, rate: 35_000, description: 'Large shipwrecks with boost' },
-      { startExp: 166_636, rate: 80_000, description: 'Barracuda Trials (The Jubbly Jive)' },
+      { startExp: 166_636, rate: 85_000, description: 'Barracuda Trials (The Jubbly Jive)' },
       {
         startExp: 899_257,
-        rate: 195_000,
+        rate: 205_000,
         description: 'Barracuda Trials (The Gwenith Glide) - Camphor hull'
       },
       {
         startExp: 5_346_332,
-        rate: 225_000,
+        rate: 240_000,
         description: 'Barracuda Trials (The Gwenith Glide) - Rosewood hull'
       }
     ],
