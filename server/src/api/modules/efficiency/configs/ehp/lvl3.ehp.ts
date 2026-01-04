@@ -6,47 +6,47 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 171_000,
+        rate: 172_800,
         description: '1t poison karambwan'
       },
       {
         startExp: 13_363,
-        rate: 513_800,
+        rate: 519_100,
         description: '1t karambwan'
       },
       {
         startExp: 37_224,
-        rate: 585_600,
+        rate: 591_600,
         description: '1t karambwan'
       },
       {
         startExp: 101_333,
-        rate: 656_800,
+        rate: 663_600,
         description: '1t karambwan'
       },
       {
         startExp: 273_742,
-        rate: 728_200,
+        rate: 735_700,
         description: '1t karambwan'
       },
       {
         startExp: 737_627,
-        rate: 799_800,
+        rate: 808_000,
         description: '1t karambwan'
       },
       {
         startExp: 1_986_068,
-        rate: 871_400,
+        rate: 880_400,
         description: '1t karambwan'
       },
       {
         startExp: 5_346_332,
-        rate: 938_400,
+        rate: 948_100,
         description: '1t karambwan'
       },
       {
         startExp: 13_034_431,
-        rate: 970_000,
+        rate: 980_000,
         description: '1t karambwan'
       }
     ],
@@ -124,33 +124,33 @@ export default [
       },
       {
         startExp: 75_127,
-        rate: 80_446,
-        description: 'Drift net fishing (65.2k hunter & 55.9k fishing xp/h)'
+        rate: 84_686,
+        description: 'Drift net fishing (67.7k hunter & 58k fishing xp/h)'
       },
       {
         startExp: 106_046,
-        rate: 92_041,
-        description: 'Drift net fishing (81.6k hunter & 64.6k fishing xp/h)'
+        rate: 97_867,
+        description: 'Drift net fishing (84.7k hunter & 67k fishing xp/h)'
       },
       {
         startExp: 229_685,
-        rate: 102_279,
-        description: 'Drift net fishing (95.1k hunter & 72.2k fishing xp/h)'
+        rate: 112_877,
+        description: 'Drift net fishing (98.7k hunter & 74.9k fishing xp/h)'
       },
       {
         startExp: 302_288,
-        rate: 123_438,
-        description: 'Drift net fishing (108.7k hunter & 80.3k fishing xp/h)'
+        rate: 128_082,
+        description: 'Drift net fishing (112.8k hunter & 83.3k fishing xp/h)'
       },
       {
         startExp: 593_234,
-        rate: 134_262,
-        description: 'Drift net fishing (118.5k hunter & 87.2k fishing xp/h)'
+        rate: 139_313,
+        description: 'Drift net fishing (123k hunter & 90.5k fishing xp/h)'
       },
       {
         startExp: 737_627,
-        rate: 120_000,
-        description: 'Drift net fishing + 2t swordfish & tuna'
+        rate: 132_800,
+        description: 'Drift net fishing (123k hunter & 93.3k fishing xp/h) + 2t swordfish & tuna'
       }
     ],
     bonuses: [
@@ -230,7 +230,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 36_600,
+        rate: 37_000,
         description: 'Leather items'
       },
       {
@@ -255,22 +255,22 @@ export default [
       },
       {
         startExp: 368_599,
-        rate: 324_420,
+        rate: 335_230,
         description: "Green d'hide bodies"
       },
       {
         startExp: 814_445,
-        rate: 366_280,
+        rate: 378_490,
         description: "Blue d'hide bodies"
       },
       {
         startExp: 1_475_581,
-        rate: 408_140,
+        rate: 421_740,
         description: "Red d'hide bodies"
       },
       {
         startExp: 2_951_373,
-        rate: 450_000,
+        rate: 465_000,
         description: "Black d'hide bodies"
       }
     ],
@@ -306,8 +306,8 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 410_000,
-        description: 'Blast Furnace Gold'
+        rate: 505_000,
+        description: 'Dolo Blast Furnace gold'
       }
     ],
     bonuses: []
@@ -634,8 +634,8 @@ export default [
       },
       {
         startExp: 6_500,
-        rate: 270_000,
-        description: '0+4 Lava runes'
+        rate: 145_000,
+        description: 'Duo lava runes'
       }
     ],
     bonuses: []
@@ -665,34 +665,34 @@ export default [
       },
       {
         startExp: 55_649,
-        rate: 214_059,
-        description: 'Drift net fishing (65.2k hunter & 55.9k fishing xp/h)'
+        rate: 215_112,
+        description: 'Drift net fishing (67.7k hunter & 58.0k fishing xp/h)'
       },
       {
         startExp: 91_721,
-        rate: 273_711,
-        description: 'Drift net fishing (81.6k hunter & 64.6k fishing xp/h)'
+        rate: 268_770,
+        description: 'Drift net fishing (84.7k hunter & 67.0k fishing xp/h)'
       },
       {
-        startExp: 247_886,
-        rate: 323_167,
-        description: 'Drift net fishing (95.1k hunter & 72.2k fishing xp/h)'
+        startExp: 24_886,
+        rate: 293_310,
+        description: 'Drift net fishing (98.7k hunter & 74.9k fishing xp/h)'
       },
       {
         startExp: 343_551,
-        rate: 310_693,
-        description: 'Drift net fishing (108.7k hunter & 80.3k fishing xp/h)'
+        rate: 322_424,
+        description: 'Drift net fishing (112.8k hunter & 83.3k fishing xp/h)'
       },
       {
         startExp: 737_627,
-        rate: 337_937,
-        description: 'Drift net fishing (118.5k hunter & 87.2k fishing xp/h)'
+        rate: 350_697,
+        description: 'Drift net fishing (123.0k hunter & 90.5k fishing xp/h)'
       },
       {
         startExp: 933_979,
-        rate: 255_000,
-        realRate: 118_535,
-        description: 'Drift net fishing (118.5k hunter & 89.9k fishing xp/h, scales to black chinchompas)'
+        rate: 265_000,
+        realRate: 123_000,
+        description: 'Drift net fishing (123k hunter & 93.3k fishing xp/h), scales to black chinchompas'
       }
     ],
     bonuses: [
@@ -727,7 +727,7 @@ export default [
       },
       {
         startExp: 1_475_581,
-        rate: 1_050_000,
+        rate: 1_070_000,
         description: 'Mahogany benches'
       }
     ],

@@ -216,7 +216,7 @@ export default [
       {
         startExp: 0,
         rate: 160_000,
-        description: 'Bury Big bones & Vile ashes during clan wars melees'
+        description: 'Bury Big bones & Vile ashes during melees'
       }
     ],
     bonuses: []
@@ -252,32 +252,32 @@ export default [
       },
       {
         startExp: 2_411,
-        rate: 36_000,
+        rate: 35_000,
         description: '2t Oaks (steel axe)'
       },
       {
         startExp: 5_018,
-        rate: 46_300,
+        rate: 45_000,
         description: '2t oaks (mith axe)'
       },
       {
         startExp: 14_833,
-        rate: 61_700,
+        rate: 60_000,
         description: '2t oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 82_300,
+        rate: 80_000,
         description: '2t oaks (rune axe)'
       },
       {
         startExp: 101_333,
-        rate: 100_800,
+        rate: 98_000,
         description: '2t oaks (rune axe)'
       },
       {
         startExp: 273_742,
-        rate: 108_000,
+        rate: 105_000,
         description: '2t oaks (100% success)'
       }
     ],
@@ -391,10 +391,10 @@ export default [
       {
         originSkill: Skill.FIREMAKING,
         bonusSkill: Skill.PRAYER,
-        startExp: 0,
+        startExp: 61_512,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.1486
+        ratio: 0.12
       }
     ]
   },
@@ -408,22 +408,22 @@ export default [
       },
       {
         startExp: 4_470,
-        rate: 140_600,
+        rate: 139_000,
         description: 'Sapphires'
       },
       {
         startExp: 9_730,
-        rate: 189_800,
+        rate: 187_650,
         description: 'Emeralds'
       },
       {
         startExp: 20_224,
-        rate: 239_000,
+        rate: 236_300,
         description: 'Rubies'
       },
       {
         startExp: 50_339,
-        rate: 302_300,
+        rate: 298_850,
         description: 'Diamonds'
       }
     ],
@@ -495,8 +495,8 @@ export default [
       },
       {
         startExp: 302_288,
-        rate: 67_000,
-        description: '3t Iron w/ Cake (Adjacent Rocks) and multiskilling'
+        rate: 65_000,
+        description: '3t Iron w/ Cake (Adjacent Rocks) or 3.5t Iron w/ Superheat'
       }
     ],
     bonuses: []
