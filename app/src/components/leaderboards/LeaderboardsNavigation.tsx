@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "../Tabs";
 const TABS = [
   { label: "Current Top", route: "/leaderboards/top" },
   { label: "Records", route: "/leaderboards/records" },
-  { label: "Efficiency", route: "/leaderboards/efficiency" },
+  { label: "Efficiency", route: "/leaderboards/efficiency?playerType=regular&playerBuild=main" },
 ];
 
 export function LeaderboardsNavigation() {
