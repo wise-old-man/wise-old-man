@@ -60,11 +60,6 @@ export function LeaderboardsFilters() {
   let playerType = getPlayerTypeParam(searchParams.get("playerType"));
   let playerBuild = getPlayerBuildParam(searchParams.get("playerBuild"));
 
-  if (isEfficiencyLeaderboard) {
-    if (!playerType) playerType = PlayerType.REGULAR;
-    if (!playerBuild) playerBuild = PlayerBuild.MAIN;
-  }
-
   // For efficiency leaderboards (it only accepts "ehp"/"ehb/"combined")
   const computedMetric = getComputedMetricParam(searchParams.get("metric")) || Metric.EHP;
 

@@ -57,7 +57,9 @@ async function fetchSortedPlayersList(metric: ComputedMetric | typeof COMBINED_M
   };
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
-  if (playerQuery.type === PlayerType.IRONMAN) {
+  if (!playerQuery.type) {
+    playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE, PlayerType.REGULAR] };
+  }else if (playerQuery.type === PlayerType.IRONMAN) {
     playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
   }
 
@@ -92,7 +94,9 @@ async function fetchPlayersList(
     };
 
     // When filtering by player type, the ironman filter should include UIM and HCIM
-    if (playerQuery.type === PlayerType.IRONMAN) {
+    if (!playerQuery.type) {
+      playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE, PlayerType.REGULAR] };
+    }else if (playerQuery.type === PlayerType.IRONMAN) {
       playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
     }
 
@@ -110,9 +114,11 @@ async function fetchPlayersList(
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   let playerQuery =
-    playerType !== PlayerType.IRONMAN
-      ? `"type" = '${playerType}'`
-      : `("type" = '${PlayerType.IRONMAN}' OR "type" = '${PlayerType.HARDCORE}' OR "type" = '${PlayerType.ULTIMATE}')`;
+    !playerType ? 
+      `("type" = '${PlayerType.IRONMAN}' OR "type" = '${PlayerType.HARDCORE}' OR "type" = '${PlayerType.ULTIMATE}' OR "type" = '${PlayerType.REGULAR}')`
+      : playerType === PlayerType.IRONMAN
+      ? `("type" = '${PlayerType.IRONMAN}' OR "type" = '${PlayerType.HARDCORE}' OR "type" = '${PlayerType.ULTIMATE}')`
+      : `"type" = '${playerType}'`
 
   if (country) playerQuery += ` AND "country" = '${country}'`;
   if (playerBuild) playerQuery += ` AND "build" = '${playerBuild}'`;
