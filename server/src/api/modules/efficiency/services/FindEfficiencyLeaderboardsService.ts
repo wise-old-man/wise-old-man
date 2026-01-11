@@ -29,7 +29,8 @@ async function findEfficiencyLeaderboards(
 
   // For EHP categories with multiple players with 200m all, we can't just sort by EHP,
   // we need to find a tie breaker, for this, we'll pull snapshots and use their overall rank
-  const requiresSorting = offset < 50 && metric === Metric.EHP && playerBuild === PlayerBuild.MAIN;
+  const requiresSorting =
+    offset < 50 && metric === Metric.EHP && (!playerBuild || playerBuild === PlayerBuild.MAIN);
 
   if (requiresSorting) {
     // Fetch top 100 players, and include their snapshots
@@ -58,8 +59,10 @@ async function fetchSortedPlayersList(metric: ComputedMetric | typeof COMBINED_M
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   if (!playerQuery.type) {
-    playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE, PlayerType.REGULAR] };
-  }else if (playerQuery.type === PlayerType.IRONMAN) {
+    playerQuery.type = {
+      in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE, PlayerType.REGULAR]
+    };
+  } else if (playerQuery.type === PlayerType.IRONMAN) {
     playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
   }
 
@@ -95,8 +98,10 @@ async function fetchPlayersList(
 
     // When filtering by player type, the ironman filter should include UIM and HCIM
     if (!playerQuery.type) {
-      playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE, PlayerType.REGULAR] };
-    }else if (playerQuery.type === PlayerType.IRONMAN) {
+      playerQuery.type = {
+        in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE, PlayerType.REGULAR]
+      };
+    } else if (playerQuery.type === PlayerType.IRONMAN) {
       playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
     }
 
@@ -113,12 +118,11 @@ async function fetchPlayersList(
   }
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
-  let playerQuery =
-    !playerType ? 
-      `("type" = '${PlayerType.IRONMAN}' OR "type" = '${PlayerType.HARDCORE}' OR "type" = '${PlayerType.ULTIMATE}' OR "type" = '${PlayerType.REGULAR}')`
-      : playerType === PlayerType.IRONMAN
+  let playerQuery = !playerType
+    ? `("type" = '${PlayerType.IRONMAN}' OR "type" = '${PlayerType.HARDCORE}' OR "type" = '${PlayerType.ULTIMATE}' OR "type" = '${PlayerType.REGULAR}')`
+    : playerType === PlayerType.IRONMAN
       ? `("type" = '${PlayerType.IRONMAN}' OR "type" = '${PlayerType.HARDCORE}' OR "type" = '${PlayerType.ULTIMATE}')`
-      : `"type" = '${playerType}'`
+      : `"type" = '${playerType}'`;
 
   if (country) playerQuery += ` AND "country" = '${country}'`;
   if (playerBuild) playerQuery += ` AND "build" = '${playerBuild}'`;

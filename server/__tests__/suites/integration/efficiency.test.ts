@@ -421,7 +421,7 @@ describe('Efficiency API', () => {
     it('should fetch EHP leaderboards (with player type filter)', async () => {
       const response = await api
         .get(`/efficiency/leaderboard`)
-        .query({ metric: 'ehp', playerType: 'ironman' });
+        .query({ metric: 'ehp', playerType: 'ironman', playerBuild: 'main' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(12);
