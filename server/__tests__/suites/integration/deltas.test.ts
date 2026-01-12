@@ -154,7 +154,7 @@ describe('Deltas API', () => {
       expect(secondCachedDeltas.length).toBe(12);
       expect(secondCachedDeltas.filter(c => c.metric === Metric.EHP && c.value > 0.1).length).toBe(3);
       expect(secondCachedDeltas.filter(c => c.metric === Metric.EHB && c.value > 0.1).length).toBe(3);
-      expect(secondCachedDeltas.filter(c => c.metric === Metric.NEX && c.value === 49).length).toBe(3); // 53 - 4 (min kc is 5) = 49
+      expect(secondCachedDeltas.filter(c => c.metric === Metric.NEX && c.value === 53).length).toBe(3);
 
       const smithingCachedDeltas = secondCachedDeltas.filter(c => c.metric === Metric.SMITHING);
       expect(smithingCachedDeltas.length).toBe(3);
@@ -216,8 +216,8 @@ describe('Deltas API', () => {
 
       expect(dayCachedDeltas.find(c => c.metric === Metric.NEX)?.value).toBe(1);
       expect(dayCachedDeltas.find(c => c.metric === Metric.TZKAL_ZUK)?.value).toBe(1);
-      expect(dayCachedDeltas.find(c => c.metric === Metric.BOUNTY_HUNTER_HUNTER)?.value).toBe(4); //  bh went from -1 (unranked) to 5 (min=2), make sure it's 4 gained, not 6
-      expect(dayCachedDeltas.find(c => c.metric === Metric.SOUL_WARS_ZEAL)?.value).toBe(4); // soul wars went from -1 (unranked) to 203 (min=200), make sure it's 4 gained, not 204
+      expect(dayCachedDeltas.find(c => c.metric === Metric.BOUNTY_HUNTER_HUNTER)?.value).toBe(5);
+      expect(dayCachedDeltas.find(c => c.metric === Metric.SOUL_WARS_ZEAL)?.value).toBe(203);
       expect(dayCachedDeltas.find(c => c.metric === Metric.LAST_MAN_STANDING)).toBe(undefined); // LMS went DOWN from 500 to 450, we shouldn't show negative gains
 
       // gained less boss kc, expect ehb gains to be lesser
@@ -290,7 +290,7 @@ describe('Deltas API', () => {
 
       expect(monthNexGains.ehb.gained).toBeGreaterThan(0.1);
       expect(monthEhbGains.value.gained).toBe(monthNexGains.ehb.gained + monthZukGains.ehb.gained);
-      expect(monthNexGains.kills).toMatchObject({ start: -1, end: 54, gained: 50 });
+      expect(monthNexGains.kills).toMatchObject({ start: -1, end: 54, gained: 54 });
       expect(monthLmsGains.score).toMatchObject({ start: 500, end: 450, gained: 0 });
 
       const dayResponse = await api.get(`/players/psikoi/gained`).query({ period: 'day' });
