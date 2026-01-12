@@ -16,7 +16,7 @@ import { MetricDelta } from '../../../types/metric-delta.type';
 import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
 
-import { getLevel, getMinimumValue, isSkill } from '../../../utils/shared';
+import { getLevel, isSkill } from '../../../utils/shared';
 import { roundNumber } from '../../../utils/shared/round-number.util';
 import {
   getPlayerEfficiencyMap,
@@ -66,7 +66,7 @@ function calculateRankDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot:
  * Example (unranked boss):
  * - Starting Snapshot: Zulrah KC: -1
  * - Ending Snapshot: Zulrah KC: 73
- * - Output: { start: -1, end:  73, gained: 24 }
+ * - Output: { start: -1, end:  73, gained: 73 }
  *
  * Example (unranked overall):
  * - Starting Snapshot: Overall Exp: -1
@@ -74,16 +74,12 @@ function calculateRankDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot:
  * - Output: { start: -1, end:  5566255, gained: 0 }
  */
 export function calculateValueDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot: Snapshot) {
-  const minimumValue = getMinimumValue(metric);
   const valueKey = getMetricValueKey(metric);
 
   const startValue = startSnapshot && startSnapshot[valueKey] ? startSnapshot[valueKey] : -1;
   const endValue = endSnapshot && endSnapshot[valueKey] ? endSnapshot[valueKey] : -1;
 
-  let gainedValue = roundNumber(
-    Math.max(0, endValue - (startValue === -1 ? Math.max(0, minimumValue - 1) : startValue)),
-    5
-  );
+  let gainedValue = roundNumber(Math.max(0, endValue - Math.max(startValue, 0)), 5);
 
   // Some players with low total level (but high exp) can sometimes fall off the hiscores
   // causing their starting exp to be -1, this would then cause the diff to think

@@ -121,7 +121,7 @@ describe('Util - Calculate Value Diff', () => {
     expect(diff).toMatchObject({
       start: startSnapshot.zulrahKills,
       end: endSnapshot.zulrahKills,
-      gained: 8 // 5kc minimum, so at most they had 4 kc before
+      gained: 12
     });
   });
 

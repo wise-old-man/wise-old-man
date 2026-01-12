@@ -3066,14 +3066,14 @@ describe('Competition API', () => {
       expect(response.body.participations.length).toBe(5);
 
       expect(response.body.participations[0]).toMatchObject({
-        player: { username: 'rorro' },
-        progress: { start: 500, end: 557, gained: 57 }
+        player: { username: 'usbc' },
+        progress: { start: -1, end: 60, gained: 60 }
       });
       expect(response.body.participations[0].levels).toMatchObject({ start: -1, end: -1, gained: 0 }); // should be the default for non-skill competitions
 
       expect(response.body.participations[1]).toMatchObject({
-        player: { username: 'usbc' },
-        progress: { start: -1, end: 60, gained: 56 } // we start counting at 4 kc (min kc is 5)
+        player: { username: 'rorro' },
+        progress: { start: 500, end: 557, gained: 57 }
       });
       expect(response.body.participations[1].levels).toMatchObject({ start: -1, end: -1, gained: 0 }); // should be the default for non-skill competitions
 
@@ -3457,15 +3457,15 @@ describe('Competition API', () => {
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(5);
 
-      expect(response.body[0].player.username).toBe('rorro');
+      expect(response.body[0].player.username).toBe('usbc');
       expect(response.body[0].history.length).toBe(2);
-      expect(response.body[0].history[0].value).toBe(557);
-      expect(response.body[0].history[1].value).toBe(500);
+      expect(response.body[0].history[0].value).toBe(60);
+      expect(response.body[0].history[1].value).toBe(-1);
 
-      expect(response.body[1].player.username).toBe('usbc');
+      expect(response.body[1].player.username).toBe('rorro');
       expect(response.body[1].history.length).toBe(2);
-      expect(response.body[1].history[0].value).toBe(60);
-      expect(response.body[1].history[1].value).toBe(-1);
+      expect(response.body[1].history[0].value).toBe(557);
+      expect(response.body[1].history[1].value).toBe(500);
 
       expect(response.body[2].player.username).toBe('lynx titan');
       expect(response.body[2].history.length).toBe(1);
@@ -3776,8 +3776,8 @@ describe('Competition API', () => {
       expect(rows[0].split(',').length).toBe(6);
 
       // Check the table body
-      expect(rows[1]).toMatch('1,rorro,500,557,57,');
-      expect(rows[2]).toMatch('2,usbc,-1,60,56,');
+      expect(rows[1]).toMatch('1,usbc,-1,60,60,');
+      expect(rows[2]).toMatch('2,rorro,500,557,57,');
       expect(rows[3]).toMatch('3,LYNX TITAN,1646,1646,0,');
       expect(rows[4]).toMatch('4,Psikoi,1000,1000,0,');
       expect(rows[5]).toMatch('5,ZULU,-1,-1,0,');
@@ -3817,8 +3817,8 @@ describe('Competition API', () => {
       expect(rows[0]).toBe('Rank,Username,Team,Start,End,Gained,Last Updated');
 
       // Check the table body, ensure it has a "Team" column
-      expect(rows[1]).toMatch('1,rorro,Team 1,500,557,57,');
-      expect(rows[2]).toMatch('2,usbc,Team 2,-1,60,56,');
+      expect(rows[1]).toMatch('1,usbc,Team 2,-1,60,60,');
+      expect(rows[2]).toMatch('2,rorro,Team 1,500,557,57,');
       expect(rows[3]).toMatch('3,Psikoi,Team 1,1000,1000,0,');
       expect(rows[4]).toMatch('4,Zezima,Team 2,-1,-1,0,');
     });
@@ -3838,8 +3838,8 @@ describe('Competition API', () => {
       expect(rows[0]).toBe('Rank,Name,Players,Total Gained,Average Gained,MVP');
 
       // Check the table body
-      expect(rows[1]).toMatch('1,Team 1,2,57,28.5,rorro');
-      expect(rows[2]).toMatch('2,Team 2,2,56,28,usbc');
+      expect(rows[1]).toMatch('1,Team 2,2,60,30,usbc');
+      expect(rows[2]).toMatch('2,Team 1,2,57,28.5,rorro');
     });
 
     it('should view CSV export (team)', async () => {
