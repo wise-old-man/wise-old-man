@@ -48,9 +48,6 @@ class RoutingHandler {
   }
 
   setupFallbacks() {
-    // Setup Sentry error tracking
-    this.router.use(Sentry.Handlers.errorHandler());
-
     // Handle endpoint not found
     this.router.use((_req, _res, next) => {
       next(new NotFoundErrorZ({ code: 'ENDPOINT_NOT_FOUND' }));
@@ -93,6 +90,26 @@ class RoutingHandler {
       };
 
       const requestDuration = Date.now() - res.locals.requestStartTime;
+
+      if (statusCode >= 500) {
+        Sentry.captureException(error, {
+          tags: {
+            server_type: process.env.SERVER_TYPE
+          },
+          extra: {
+            request: {
+              method,
+              original_url: originalUrl,
+              query,
+              params
+            },
+            error: {
+              ...errorResponse,
+              sub_error: error.subError
+            }
+          }
+        });
+      }
 
       logger.error(
         `${statusCode} ${method} ${originalUrl} (${requestDuration} ms) - (${errorResponse.code})`,

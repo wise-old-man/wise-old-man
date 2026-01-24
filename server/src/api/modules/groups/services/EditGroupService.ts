@@ -13,7 +13,6 @@ import {
 import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 
 import { assertNever } from '../../../../utils/assert-never.util';
-import { ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -416,7 +415,7 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
     })
     .catch(error => {
       logger.error('Failed to edit group', error);
-      throw new ServerError('Failed to edit group members.');
+      throw error;
     });
 
   // If no error was thrown by this point, dispatch all events
@@ -482,7 +481,7 @@ async function addMissingMemberships(
   });
 
   if (Object.keys(roleMap).length !== missingPlayers.length) {
-    throw new ServerError('Failed to construct roleMap (EditGroupService: addMissingMemberships)');
+    throw new Error('Failed to construct roleMap (EditGroupService: addMissingMemberships)');
   }
 
   const payload = missingPlayers.map(p => ({

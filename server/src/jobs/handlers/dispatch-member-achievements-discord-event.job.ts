@@ -62,10 +62,6 @@ export class DispatchMemberAchievementsDiscordEventJob extends Job<Payload> {
       return;
     }
 
-    if (payload.username === 'psikoi ii') {
-      prometheus.trackGenericMetric('test-dispatching');
-    }
-
     for (const { groupId } of memberships) {
       const dispatchResult = await dispatchDiscordBotEvent(DiscordBotEventType.MEMBER_ACHIEVEMENTS, {
         groupId,
@@ -77,10 +73,6 @@ export class DispatchMemberAchievementsDiscordEventJob extends Job<Payload> {
         // Throw an error to ensure the job fails and is retried
         throw dispatchResult.error;
       }
-    }
-
-    if (payload.username === 'psikoi ii') {
-      prometheus.trackGenericMetric('test-dispatched');
     }
   }
 }
