@@ -15,10 +15,6 @@ export class RecalculateCompetitionTimeEventsJob extends Job<Payload> {
     attempts: 10
   };
 
-  static getUniqueJobId(payload: Payload) {
-    return String(payload.competitionId);
-  }
-
   async execute(payload: Payload) {
     const result = await recalculateCompetitionTimeEvents(payload.competitionId);
 

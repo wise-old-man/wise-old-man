@@ -1,4 +1,3 @@
-import ms from 'ms';
 import prisma from '../../prisma';
 import { CompetitionTimeEvent, CompetitionTimeEventStatus, CompetitionTimeEventType } from '../../types';
 import { assertNever } from '../../utils/assert-never.util';
@@ -77,7 +76,7 @@ async function completeEvent(event: CompetitionTimeEvent) {
         }
       });
 
-      const nextTick = new Date(Date.now() + ms('1 day'));
+      const nextTick = new Date(Date.now() + event.offsetMinutes * 60 * 1000);
       const shouldReplicate = competition !== null && nextTick.getTime() < competition.endsAt.getTime();
 
       await prisma.competitionTimeEvent.update({
@@ -87,6 +86,7 @@ async function completeEvent(event: CompetitionTimeEvent) {
         data: shouldReplicate
           ? {
               status: CompetitionTimeEventStatus.WAITING,
+              executingAt: null,
               executeAt: new Date(event.executeAt.getTime() + event.offsetMinutes * 60 * 1000)
             }
           : {
