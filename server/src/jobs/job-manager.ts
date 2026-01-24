@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import { Job as BullJob, JobsOptions as BullJobOptions, Queue, Worker } from 'bullmq';
 import { getThreadIndex } from '../env';
 import logger from '../services/logging.service';
@@ -112,6 +113,19 @@ class JobManager {
     } catch (error) {
       endTimer({ jobName: bullJob.name, status: 0 });
       logger.error(`[v2] Failed job: ${bullJob.name}`, { ...bullJob.data, error }, true);
+
+      if (bullJob.attemptsMade >= (bullJob.opts.attempts ?? 1)) {
+        Sentry.captureException(error, {
+          tags: {
+            server_type: process.env.SERVER_TYPE
+          },
+          extra: {
+            job_type: bullJob.name,
+            job_id: bullJob.id,
+            payload: bullJob.data
+          }
+        });
+      }
 
       /**
        * Bull-board only shows errors if they're instances of the Error class.
