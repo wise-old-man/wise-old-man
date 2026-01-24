@@ -7,6 +7,7 @@ import * as CompetitionEnding from './handlers/competition-ending.event';
 import * as CompetitionParticipantsJoined from './handlers/competition-participants-joined.event';
 import * as CompetitionStarted from './handlers/competition-started.event';
 import * as CompetitionStarting from './handlers/competition-starting.event';
+import * as CompetitionUpdated from './handlers/competition-updated.event';
 import * as GroupCreated from './handlers/group-created.event';
 import * as GroupMembersJoined from './handlers/group-members-joined.event';
 import * as GroupMembersLeft from './handlers/group-members-left.event';
@@ -43,6 +44,7 @@ export class TypedEventEmitter extends EventEmitter {
     this.on(EventType.COMPETITION_PARTICIPANTS_JOINED, CompetitionParticipantsJoined.handler);
     this.on(EventType.COMPETITION_STARTED, CompetitionStarted.handler);
     this.on(EventType.COMPETITION_STARTING, CompetitionStarting.handler);
+    this.on(EventType.COMPETITION_UPDATED, CompetitionUpdated.handler);
     this.on(EventType.GROUP_CREATED, GroupCreated.handler);
     this.on(EventType.GROUP_MEMBERS_JOINED, GroupMembersJoined.handler);
     this.on(EventType.GROUP_MEMBERS_LEFT, GroupMembersLeft.handler);

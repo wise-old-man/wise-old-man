@@ -26,6 +26,9 @@ export type EventPayloadMap = {
     competitionId: number;
     minutesLeft: number;
   };
+  [EventType.COMPETITION_UPDATED]: {
+    competitionId: number;
+  };
   [EventType.GROUP_CREATED]: {
     groupId: number;
   };
