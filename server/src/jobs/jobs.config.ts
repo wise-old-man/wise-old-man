@@ -24,7 +24,10 @@ import { DispatchMembersJoinedDiscordEventJob } from './handlers/dispatch-member
 import { DispatchMembersLeftDiscordEventJob } from './handlers/dispatch-members-left-discord-event.job';
 import { DispatchMembersRolesChangedDiscordEventJob } from './handlers/dispatch-members-roles-changed-discord-event.job';
 import { DispatchPlayerFlaggedDiscordEventJob } from './handlers/dispatch-player-flagged-discord-event.job';
+import { EnqueueCompetitionTimeEventsJob } from './handlers/enqueue-competition-time-events.job';
+import { ExecuteCompetitionTimeEventJob } from './handlers/execute-competition-time-event.job';
 import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
+import { RecalculateCompetitionTimeEventsJob } from './handlers/recalculate-competition-time-events.job';
 import { RecalculatePlayerAchievementsJob } from './handlers/recalculate-player-achievements.job';
 import { RemovePlayersFromGroupCompetitionsJob } from './handlers/remove-players-from-group-competitions.job';
 import { ReviewNameChangeJob } from './handlers/review-name-change.job';
@@ -80,7 +83,10 @@ export const JOB_HANDLER_MAP = {
   [JobType.DISPATCH_MEMBERS_LEFT_DISCORD_EVENT]: DispatchMembersLeftDiscordEventJob,
   [JobType.DISPATCH_MEMBERS_ROLES_CHANGED_DISCORD_EVENT]: DispatchMembersRolesChangedDiscordEventJob,
   [JobType.DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT]: DispatchPlayerFlaggedDiscordEventJob,
+  [JobType.ENQUEUE_COMPETITION_TIME_EVENTS]: EnqueueCompetitionTimeEventsJob,
+  [JobType.EXECUTE_COMPETITION_TIME_EVENT]: ExecuteCompetitionTimeEventJob,
   [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
+  [JobType.RECALCULATE_COMPETITION_TIME_EVENTS]: RecalculateCompetitionTimeEventsJob,
   [JobType.RECALCULATE_PLAYER_ACHIEVEMENTS]: RecalculatePlayerAchievementsJob,
   [JobType.REMOVE_PLAYERS_FROM_GROUP_COMPETITIONS]: RemovePlayersFromGroupCompetitionsJob,
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangeJob,
@@ -112,6 +118,7 @@ export const CRON_CONFIG = [
   // every 1 min
   { interval: '* * * * *', type: JobType.CHECK_CREATION_SPAM },
   { interval: '* * * * *', type: JobType.CHECK_PROTECED_PLAYERS_SPAM },
+  { interval: '* * * * *', type: JobType.ENQUEUE_COMPETITION_TIME_EVENTS },
   { interval: '* * * * *', type: JobType.SCHEDULE_COMPETITION_EVENTS },
   { interval: '* * * * *', type: JobType.SYNC_API_KEYS },
   { interval: '* * * * *', type: JobType.SYNC_PATRONS },
@@ -137,5 +144,6 @@ export const CRON_CONFIG = [
 export const STARTUP_JOBS = [
   JobType.CHECK_MISSING_COMPUTED_RANK_TABLES,
   JobType.SYNC_API_KEYS,
-  JobType.UPDATE_QUEUE_METRICS
+  JobType.UPDATE_QUEUE_METRICS,
+  JobType.ENQUEUE_COMPETITION_TIME_EVENTS
 ] as const;

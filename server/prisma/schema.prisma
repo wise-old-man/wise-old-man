@@ -49,9 +49,10 @@ model Competition {
   creatorIpHash    String?         @db.VarChar(255)
 
   // Relations
-  group          Group?              @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  participations Participation[]
-  metrics        CompetitionMetric[]
+  group                 Group?                 @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  participations        Participation[]
+  metrics               CompetitionMetric[]
+  competitionTimeEvents CompetitionTimeEvent[]
 
   // Indices
   @@index([endsAt], map: "competitions_ends_at")
@@ -60,6 +61,33 @@ model Competition {
   @@index([creatorIpHash], map: "competitions_creator_ip_hash")
   // Map
   @@map("competitions")
+}
+
+model CompetitionTimeEvent {
+  id            Int                      @id @default(autoincrement())
+  competitionId Int
+  type          CompetitionTimeEventType
+  offsetMinutes Int
+
+  executeAt DateTime                   @db.Timestamptz(6)
+  status    CompetitionTimeEventStatus @default(waiting)
+  attempts  Int                        @default(0)
+
+  executingAt DateTime? @db.Timestamptz(6)
+  completedAt DateTime? @db.Timestamptz(6)
+  failedAt    DateTime? @db.Timestamptz(6)
+  canceledAt  DateTime? @db.Timestamptz(6)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  // Indices
+  @@index([competitionId, status], map: "competition_time_events_competition_id_status")
+  @@index([executeAt, status], map: "competition_time_events_execute_at_status")
+  // Map
+  @@map("competitionTimeEvents")
 }
 
 model CompetitionMetric {
@@ -1354,4 +1382,22 @@ enum ActivityType {
   changed_role
 
   @@map("activity_type")
+}
+
+enum CompetitionTimeEventType {
+  before_start
+  before_end
+  during
+
+  @@map("competition_time_event_type")
+}
+
+enum CompetitionTimeEventStatus {
+  waiting
+  executing
+  completed
+  failed
+  canceled
+
+  @@map("competition_time_event_status")
 }

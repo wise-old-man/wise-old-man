@@ -175,6 +175,8 @@ export async function editCompetition(
     await recalculateParticipationsEnd(competition.id, updatedCompetition.endsAt);
   }
 
+  eventEmitter.emit(EventType.COMPETITION_UPDATED, { competitionId: id });
+
   return complete(updatedCompetition);
 }
 
