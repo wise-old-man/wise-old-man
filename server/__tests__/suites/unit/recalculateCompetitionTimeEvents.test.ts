@@ -704,4 +704,60 @@ describe('recalculateCompetitionTimeEvents (integration)', () => {
     });
     expect(activeDuring.length).toBe(0);
   });
+
+  it('should not cancel events that have already been completed', async () => {
+    const now = new Date();
+
+    const competition = await prisma.competition.create({
+      data: {
+        title: 'Completed Event Comp',
+        type: 'classic',
+        startsAt: new Date(now.getTime() + ms('12 hours')),
+        endsAt: new Date(now.getTime() + ms('36 hours')),
+        score: 0,
+        visible: true,
+        verificationHash: 'hash'
+      }
+    });
+
+    // Manually create an event that is already COMPLETED
+    // e.g., a "BEFORE_START" event that supposedly already ran
+    const completedEvent = await prisma.competitionTimeEvent.create({
+      data: {
+        competitionId: competition.id,
+        type: CompetitionTimeEventType.BEFORE_START,
+        offsetMinutes: 360,
+        executeAt: new Date(now.getTime() - ms('1 hour')), // In the past
+        status: CompetitionTimeEventStatus.COMPLETED,
+        createdAt: new Date(now.getTime() - ms('2 hours'))
+      }
+    });
+
+    // Reschedule the competition to trigger a full recalculation logic
+    await prisma.competition.update({
+      where: { id: competition.id },
+      data: {
+        startsAt: new Date(now.getTime() + ms('24 hours'))
+      }
+    });
+
+    const result = await recalculateCompetitionTimeEvents(competition.id);
+    assertComplete(result);
+
+    const eventAfterRecalc = await prisma.competitionTimeEvent.findUnique({
+      where: { id: completedEvent.id }
+    });
+
+    expect(eventAfterRecalc?.status).toBe(CompetitionTimeEventStatus.COMPLETED);
+    expect(eventAfterRecalc?.canceledAt).toBeNull();
+
+    // Ensure new events were still created for the new schedule
+    const activeEvents = await prisma.competitionTimeEvent.findMany({
+      where: {
+        competitionId: competition.id,
+        status: CompetitionTimeEventStatus.WAITING
+      }
+    });
+    expect(activeEvents.length).toBeGreaterThan(0);
+  });
 });

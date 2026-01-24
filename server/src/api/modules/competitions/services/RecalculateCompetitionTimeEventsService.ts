@@ -85,16 +85,14 @@ export async function recalculateCompetitionTimeEvents(competitionId: number): A
     prisma.$transaction(async tx => {
       const now = new Date();
 
-      const currentTimeEvents = await tx.competitionTimeEvent.findMany({
+      const currentPendingTimeEvents = await tx.competitionTimeEvent.findMany({
         where: {
           competitionId: competition.id,
-          status: {
-            not: CompetitionTimeEventStatus.CANCELED
-          }
+          status: CompetitionTimeEventStatus.WAITING
         }
       });
 
-      const { toCancel, toCreate } = findDiff(currentTimeEvents, newEvents);
+      const { toCancel, toCreate } = findDiff(currentPendingTimeEvents, newEvents);
 
       await tx.competitionTimeEvent.updateMany({
         where: {
