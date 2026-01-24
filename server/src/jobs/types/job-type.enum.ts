@@ -25,6 +25,8 @@ export enum JobType {
   DISPATCH_MEMBERS_LEFT_DISCORD_EVENT = 'dispatch-members-left-discord-event',
   DISPATCH_MEMBERS_ROLES_CHANGED_DISCORD_EVENT = 'dispatch-members-roles-changed-discord-event',
   DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT = 'dispatch-player-flagged-discord-event',
+  ENQUEUE_COMPETITION_TIME_EVENTS = 'enqueue-competition-time-events',
+  EXECUTE_COMPETITION_TIME_EVENT = 'execute-competition-time-event',
   INVALIDATE_DELTAS = 'invalidate-deltas',
   RECALCULATE_COMPETITION_TIME_EVENTS = 'recalculate-competition-time-events',
   RECALCULATE_PLAYER_ACHIEVEMENTS = 'recalculate-player-achievements',
