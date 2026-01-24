@@ -38,7 +38,7 @@ export class EnqueueCompetitionTimeEventsJob extends Job<unknown> {
           break;
         case CompetitionTimeEventStatus.EXECUTING: {
           // If has been stuck in "executing" for more than 30 minutes, consider it failed
-          if (!event.executingAt || event.executingAt < new Date(Date.now() + ms('30 minutes'))) {
+          if (!event.executingAt || event.executingAt < new Date(Date.now() - ms('30 minutes'))) {
             toFail.push(event);
           }
           break;

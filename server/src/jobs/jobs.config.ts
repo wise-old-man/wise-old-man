@@ -25,6 +25,7 @@ import { DispatchMembersLeftDiscordEventJob } from './handlers/dispatch-members-
 import { DispatchMembersRolesChangedDiscordEventJob } from './handlers/dispatch-members-roles-changed-discord-event.job';
 import { DispatchPlayerFlaggedDiscordEventJob } from './handlers/dispatch-player-flagged-discord-event.job';
 import { EnqueueCompetitionTimeEventsJob } from './handlers/enqueue-competition-time-events.job';
+import { ExecuteCompetitionTimeEventJob } from './handlers/execute-competition-time-event.job';
 import { InvalidateDeltasJob } from './handlers/invalidate-deltas.job';
 import { RecalculateCompetitionTimeEventsJob } from './handlers/recalculate-competition-time-events.job';
 import { RecalculatePlayerAchievementsJob } from './handlers/recalculate-player-achievements.job';
@@ -83,6 +84,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.DISPATCH_MEMBERS_ROLES_CHANGED_DISCORD_EVENT]: DispatchMembersRolesChangedDiscordEventJob,
   [JobType.DISPATCH_PLAYER_FLAGGED_DISCORD_EVENT]: DispatchPlayerFlaggedDiscordEventJob,
   [JobType.ENQUEUE_COMPETITION_TIME_EVENTS]: EnqueueCompetitionTimeEventsJob,
+  [JobType.EXECUTE_COMPETITION_TIME_EVENT]: ExecuteCompetitionTimeEventJob,
   [JobType.INVALIDATE_DELTAS]: InvalidateDeltasJob,
   [JobType.RECALCULATE_COMPETITION_TIME_EVENTS]: RecalculateCompetitionTimeEventsJob,
   [JobType.RECALCULATE_PLAYER_ACHIEVEMENTS]: RecalculatePlayerAchievementsJob,
