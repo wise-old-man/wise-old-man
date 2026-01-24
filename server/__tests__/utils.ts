@@ -1,3 +1,4 @@
+import { Complete, Errored, isComplete, isErrored, Result } from '@attio/fetchable';
 import MockAdapter from 'axios-mock-adapter/types';
 import fs from 'fs';
 import prisma from '../src/prisma';
@@ -54,6 +55,18 @@ export function emptyHiscoresData(rawData: string) {
   }
 
   return JSON.stringify(parsed);
+}
+
+export function assertErrored<E>(result: Result<unknown, E>): asserts result is Errored<E> {
+  if (!isErrored(result)) {
+    throw new Error('Expected result to be errored');
+  }
+}
+
+export function assertComplete<T>(result: Result<T, unknown>): asserts result is Complete<T> {
+  if (!isComplete(result)) {
+    throw new Error('Expected result to be complete');
+  }
 }
 
 export function modifyRawHiscoresData(
