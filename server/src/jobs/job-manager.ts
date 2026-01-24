@@ -87,14 +87,6 @@ class JobManager {
 
     await matchingQueue.add(type, payload, opts);
 
-    if (
-      type === JobType.DISPATCH_MEMBER_ACHIEVEMENTS_DISCORD_EVENT &&
-      'username' in payload &&
-      payload.username === 'psikoi ii'
-    ) {
-      prometheus.trackGenericMetric('test-added-job');
-    }
-
     logger.info(`[v2] Added job: ${type}`, opts.jobId, true);
   }
 
