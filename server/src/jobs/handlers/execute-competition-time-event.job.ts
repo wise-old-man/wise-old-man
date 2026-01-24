@@ -1,4 +1,6 @@
+import ms from 'ms';
 import prisma from '../../prisma';
+import logger from '../../services/logging.service';
 import { CompetitionTimeEvent, CompetitionTimeEventStatus, CompetitionTimeEventType } from '../../types';
 import { assertNever } from '../../utils/assert-never.util';
 import { JobManager } from '../job-manager';
@@ -28,6 +30,23 @@ export class ExecuteCompetitionTimeEventJob extends Job<Payload> {
     });
 
     if (event === null || event.status !== CompetitionTimeEventStatus.EXECUTING) {
+      return;
+    }
+
+    // If this event is over 5 minutes late, fail it instead
+    if (event.executeAt < new Date(Date.now() - ms('5 minutes'))) {
+      logger.error('Competition time event is over 5 minutes late, marking as failed', payload);
+
+      await prisma.competitionTimeEvent.update({
+        where: {
+          id: event.id
+        },
+        data: {
+          status: CompetitionTimeEventStatus.FAILED,
+          failedAt: new Date()
+        }
+      });
+
       return;
     }
 
