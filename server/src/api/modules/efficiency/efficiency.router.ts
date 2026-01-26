@@ -23,8 +23,8 @@ router.get(
       .object({
         metric: z.enum([Metric.EHP, Metric.EHB, 'ehp+ehb']),
         country: z.optional(z.nativeEnum(Country)),
-        playerType: z.optional(z.nativeEnum(PlayerType)).default(PlayerType.REGULAR),
-        playerBuild: z.optional(z.nativeEnum(PlayerBuild)).default(PlayerBuild.MAIN)
+        playerType: z.optional(z.nativeEnum(PlayerType)),
+        playerBuild: z.optional(z.nativeEnum(PlayerBuild))
       })
       .merge(getPaginationSchema())
   }),
