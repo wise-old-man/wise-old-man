@@ -325,14 +325,6 @@ export default [
         originSkill: Skill.RANGED,
         bonusSkill: Skill.CRAFTING,
         startExp: 37_224,
-        endExp: 13_034_431,
-        end: true,
-        ratio: 0.0047
-      },
-      {
-        originSkill: Skill.RANGED,
-        bonusSkill: Skill.CRAFTING,
-        startExp: 37_224,
         endExp: 302_288,
         end: true,
         ratio: 0.0047
