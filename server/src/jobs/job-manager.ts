@@ -16,6 +16,7 @@ const REDIS_PREFIX = 'jobs-v2';
 class JobManager {
   private queues: Queue[];
   private workers: Worker[];
+  private handlerIntances: Map<string, Job<unknown>> = new Map();
 
   constructor() {
     this.queues = [];
@@ -134,8 +135,8 @@ class JobManager {
   initQueues() {
     if (process.env.NODE_ENV === 'test') return;
 
-    for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {
-      const { options } = jobClass;
+    for (const [jobType, JobClass] of Object.entries(JOB_HANDLER_MAP)) {
+      const { options } = JobClass;
 
       const queue = new Queue(jobType, {
         prefix: REDIS_PREFIX,
@@ -171,20 +172,35 @@ class JobManager {
     // Otherwise, on a 4 core server, every cronjob would run 4x as often.
     const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
 
-    for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {
-      const { options } = jobClass;
+    for (const [_jobType, JobClass] of Object.entries(JOB_HANDLER_MAP)) {
+      const jobType = _jobType as JobType;
+      const { options } = JobClass;
 
       if (cronJobTypes.includes(jobType) && !isMainThread) {
         continue;
       }
 
-      const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this, bullJob)), {
-        prefix: REDIS_PREFIX,
-        limiter: options?.rateLimiter,
-        connection: REDIS_CONFIG,
-        concurrency: options.maxConcurrent ?? 1,
-        autorun: true
-      });
+      this.handlerIntances.set(jobType, new JobClass(this));
+
+      const worker = new Worker(
+        jobType,
+        bullJob => {
+          const handler = this.handlerIntances.get(jobType);
+
+          if (handler === undefined) {
+            throw new Error(`No job handler instance found for job type "${jobType}".`);
+          }
+
+          return this.handleJob(bullJob, handler);
+        },
+        {
+          prefix: REDIS_PREFIX,
+          limiter: options?.rateLimiter,
+          connection: REDIS_CONFIG,
+          concurrency: options.maxConcurrent ?? 1,
+          autorun: true
+        }
+      );
 
       this.workers.push(worker);
     }
@@ -235,6 +251,8 @@ class JobManager {
     for (const queue of this.queues) {
       await queue.close();
     }
+
+    this.handlerIntances.clear();
   }
 
   async updateQueueMetrics() {
