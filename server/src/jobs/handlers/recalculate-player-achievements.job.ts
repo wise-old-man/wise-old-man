@@ -1,9 +1,8 @@
 import { eventEmitter, EventType } from '../../api/events';
 import {
-  calculatePastDates,
+  findMissingAchievementDates,
   getAchievementDefinitions
 } from '../../api/modules/achievements/achievement.utils';
-import { findPlayerSnapshots } from '../../api/modules/snapshots/services/FindPlayerSnapshotsService';
 import prisma from '../../prisma';
 import { JobHandler } from '../types/job-handler.type';
 
@@ -42,13 +41,12 @@ export const RecalculatePlayerAchievementsJobHandler: JobHandler<Payload> = {
     const unknownDefinitions = ALL_DEFINITIONS.filter(d => unknownAchievementNames.includes(d.name));
 
     // Search dates for previously unknown definitions, based on player history
-    const allSnapshots = await findPlayerSnapshots(player.id);
-    const pastDatesData = calculatePastDates(allSnapshots.reverse(), unknownDefinitions);
+    const missingPastDates = await findMissingAchievementDates(player.id, unknownDefinitions);
 
     // Attach new dates where possible, and filter out any (still) unknown achievements
     const toUpdate = unknownAchievements
       .map(a => {
-        const unknownAchievementData = pastDatesData[a.name];
+        const unknownAchievementData = missingPastDates[a.name];
 
         return {
           ...a,

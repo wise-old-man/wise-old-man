@@ -5,6 +5,8 @@ import APIInstance from '../../../src/api';
 import { eventEmitter } from '../../../src/api/events';
 import * as PlayerAchievementsCreatedEvent from '../../../src/api/events/handlers/player-achievements-created.event';
 import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
+import { jobManager, JobType } from '../../../src/jobs';
+import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
 import { Achievement, Metric, PlayerType } from '../../../src/types';
 import { SKILL_EXP_AT_99 } from '../../../src/utils/shared';
@@ -406,6 +408,105 @@ describe('Achievements API', () => {
       // Ensure the 99 agility achievement is not marked as at 100% completion (none should be tbh)
       expect(agilityAchievements.filter(a => a.relativeProgress === 1).length).toBe(0);
       expect(agilityAchievements.filter(a => a.absoluteProgress === 1).length).toBe(0);
+    });
+
+    test('Batched achievement date search', async () => {
+      // Track a fresh player (first time — creates achievements with unknown dates)
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
+        { hiscoresMetricName: 'Attack', value: 50_000_000 },
+        { hiscoresMetricName: 'Rifts closed', value: 50 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const firstTrackResponse = await api.post('/players/batch_test');
+      expect(firstTrackResponse.status).toBe(201);
+      await sleep(100);
+
+      const playerId = firstTrackResponse.body.id;
+
+      // Verify "99 Attack" was created with unknown date
+      const initialAchievements = await api.get('/players/batch_test/achievements');
+      const attack99Initial = initialAchievements.body.find(a => a.name === '99 Attack');
+      expect(attack99Initial).toBeDefined();
+      expect(new Date(attack99Initial.createdAt).getTime()).toBe(0);
+
+      // Delete "99 Attack" so it becomes a "missing" achievement on next sync
+      await prisma.achievement.deleteMany({
+        where: { playerId, name: '99 Attack' }
+      });
+
+      // Insert 1200 historical snapshots where attack XP crosses the 99 threshold at index 100.
+      // Because findPlayerSnapshots returns DESC order and the batch size is 500,
+      // the crossing (at chronological index 100) lands in the 3rd batch (offset 1000+),
+      // verifying that the batched loop iterates through all necessary batches.
+
+      const CROSSING_INDEX = 100; // threshold crossed early in chronological order (= high offset in DESC)
+      const BASE_DATE = new Date('2020-01-01T00:00:00Z');
+
+      await prisma.snapshot.createMany({
+        data: Array.from({ length: 1200 }, (_, i) => ({
+          playerId,
+          createdAt: new Date(BASE_DATE.getTime() + i * 3_600_000),
+          attackExperience:
+            i < CROSSING_INDEX
+              ? 5_000_000 + i * 80_000 // below threshold: ~5m to ~12.9m
+              : SKILL_EXP_AT_99 + 100_000 + (i - CROSSING_INDEX) * 5_000 // above threshold
+        }))
+      });
+
+      // Track player again with small gains to trigger achievement sync
+      const modifiedRawData2 = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
+        { hiscoresMetricName: 'Attack', value: 50_000_000 },
+        { hiscoresMetricName: 'Rifts closed', value: 51 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData2 },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const secondTrackResponse = await api.post('/players/batch_test');
+      expect(secondTrackResponse.status).toBe(200);
+      await sleep(500);
+
+      // Verify "99 Attack" was re-created with the correct backdated date
+      const updatedAchievements = await api.get('/players/batch_test/achievements');
+      const attack99Updated = updatedAchievements.body.find(a => a.name === '99 Attack');
+
+      expect(attack99Updated).toBeDefined();
+
+      const expectedDate = new Date(BASE_DATE.getTime() + CROSSING_INDEX * 3_600_000);
+      expect(new Date(attack99Updated.createdAt).getTime()).toBe(expectedDate.getTime());
+      expect(attack99Updated.accuracy).toBe(3_600_000);
+
+      // -- now let's test if this works in "reevaluate achievements" --
+
+      // Reset "99 Attack" back to unknown date
+      await prisma.achievement.updateMany({
+        where: {
+          playerId,
+          name: '99 Attack'
+        },
+        data: { createdAt: new Date(0), accuracy: null }
+      });
+
+      await jobManager.runAsync(JobType.RECALCULATE_PLAYER_ACHIEVEMENTS, {
+        username: 'batch test'
+      });
+
+      // Verify "99 Attack" was resolved with the correct backdated date
+      const achievements = await api.get('/players/batch_test/achievements');
+      const attack99Reevaluated = achievements.body.find(a => a.name === '99 Attack');
+      expect(attack99Reevaluated).toBeDefined();
+
+      // Should be the same as before
+      expect(new Date(attack99Reevaluated.createdAt).getTime()).toBe(
+        new Date(attack99Updated.createdAt).getTime()
+      );
     });
   });
 });

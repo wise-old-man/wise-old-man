@@ -1,9 +1,8 @@
 import { eventEmitter, EventType } from '../../api/events';
 import {
-  calculatePastDates,
+  findMissingAchievementDates,
   getAchievementDefinitions
 } from '../../api/modules/achievements/achievement.utils';
-import { findPlayerSnapshots } from '../../api/modules/snapshots/services/FindPlayerSnapshotsService';
 import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snapshot.utils';
 import prisma from '../../prisma';
 import { getMetricValueKey } from '../../utils/get-metric-value-key.util';
@@ -111,10 +110,7 @@ export const SyncPlayerAchievementsJobHandler: JobHandler<Payload> = {
       return;
     }
 
-    // Search dates for missing definitions, based on player history
-    const allSnapshots = await findPlayerSnapshots(playerId);
-
-    const missingPastDates = calculatePastDates(allSnapshots.reverse(), missingDefinitions);
+    const missingPastDates = await findMissingAchievementDates(playerId, missingDefinitions);
 
     // Create achievement instances for all the missing definitions
     const missingAchievements = missingDefinitions.map(({ name, metric, threshold }) => {
