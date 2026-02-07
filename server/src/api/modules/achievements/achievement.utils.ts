@@ -1,3 +1,4 @@
+import prisma from '../../../prisma';
 import { AchievementDefinition, Snapshot } from '../../../types';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
 import { getExpForLevel, getLevel, isMetric, MetricProps } from '../../../utils/shared';
@@ -62,7 +63,7 @@ export function getAchievementDefinitions(): AchievementDefinition[] {
   return definitions;
 }
 
-export function calculatePastDates(pastSnapshots: Snapshot[], definitions: AchievementDefinition[]) {
+function findAchievementActivationDates(pastSnapshots: Snapshot[], definitions: AchievementDefinition[]) {
   if (!definitions || definitions.length === 0) return {};
 
   // The player must have atleast 2 snapshots to find a achievement date
@@ -70,7 +71,7 @@ export function calculatePastDates(pastSnapshots: Snapshot[], definitions: Achie
 
   const dateMap: Record<string, { date: Date; accuracy: number }> = {};
 
-  for (let i = 0; i < pastSnapshots.length - 2; i++) {
+  for (let i = 0; i < pastSnapshots.length - 1; i++) {
     const prev = pastSnapshots[i];
     const next = pastSnapshots[i + 1];
 
@@ -91,6 +92,44 @@ export function calculatePastDates(pastSnapshots: Snapshot[], definitions: Achie
         };
       }
     });
+  }
+
+  return dateMap;
+}
+
+/**
+ * Search for achievement crossing dates in a player's snapshot history, in batches.
+ * Iterates from newest to oldest so that recent crossings resolve quickly.
+ */
+export async function findMissingAchievementDates(playerId: number, definitions: AchievementDefinition[]) {
+  const dateMap: ReturnType<typeof findAchievementActivationDates> = {};
+
+  const BATCH_SIZE = 500;
+  let remainingDefs = [...definitions];
+
+  for (let batchIndex = 0; remainingDefs.length > 0; batchIndex++) {
+    // Overfetch by 1 so consecutive batches share a boundary snapshot,
+    // allowing "findAchievementActivationDates" to detect crossings at batch edges.
+    const batchSnapshots = await prisma.snapshot.findMany({
+      where: { playerId },
+      orderBy: { createdAt: 'desc' },
+      take: BATCH_SIZE + 1,
+      skip: batchIndex * BATCH_SIZE
+    });
+
+    if (batchSnapshots.length === 0) {
+      break;
+    }
+
+    const batchDates = findAchievementActivationDates([...batchSnapshots].reverse(), remainingDefs);
+    Object.assign(dateMap, batchDates);
+
+    // Remove resolved definitions
+    remainingDefs = remainingDefs.filter(d => !(d.name in dateMap));
+
+    if (batchSnapshots.length <= BATCH_SIZE) {
+      break;
+    }
   }
 
   return dateMap;
