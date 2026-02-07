@@ -55,7 +55,7 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
     ]);
 
     // The player only has one snapshot in this period, can't calculate diffs
-    if (!startSnapshot || latestSnapshot.id === startSnapshot.id) {
+    if (!startSnapshot || latestSnapshot.createdAt.getTime() === startSnapshot.createdAt.getTime()) {
       return;
     }
 

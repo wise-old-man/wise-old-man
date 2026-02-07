@@ -310,7 +310,7 @@ async function findOrCreate(username: string): AsyncResult<
   });
 
   if (player) {
-    // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
+    // If this player's "latestSnapshot" isn't populated, fetch the latest snapshot from the DB
     if (!player.latestSnapshot) {
       const latestSnapshot = await prisma.snapshot.findFirst({
         where: { playerId: player.id },
