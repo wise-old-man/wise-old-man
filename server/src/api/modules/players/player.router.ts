@@ -107,7 +107,7 @@ router.post(
           throw new BadRequestErrorZ(updateResult.error);
         case 'PLAYER_IS_RATE_LIMITED': {
           const nextAvailableIn = Math.ceil(
-            (60_000 - (Date.now() - updateResult.error.lastUpdate.getTime())) / 1000
+            (60_000 - (Date.now() - updateResult.error.lastUpdatedAt.getTime())) / 1000
           );
 
           res.set({

@@ -44,7 +44,7 @@ async function updatePlayer(
   | { code: 'PLAYER_IS_FLAGGED' }
   | { code: 'PLAYER_IS_BLOCKED' }
   | { code: 'PLAYER_IS_ARCHIVED' }
-  | { code: 'PLAYER_IS_RATE_LIMITED'; lastUpdate: Date }
+  | { code: 'PLAYER_IS_RATE_LIMITED'; lastUpdatedAt: Date }
   | { code: 'INVALID_USERNAME'; subError: PlayerUsernameValidationError }
 > {
   // Find a player with the given username or create a new one if needed
@@ -72,7 +72,7 @@ async function updatePlayer(
   if (!shouldUpdate(player) && !isNew) {
     return errored({
       code: 'PLAYER_IS_RATE_LIMITED',
-      lastUpdate: player.updatedAt ?? new Date()
+      lastUpdatedAt: player.updatedAt ?? new Date()
     });
   }
 
