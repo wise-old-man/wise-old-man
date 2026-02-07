@@ -13,13 +13,19 @@ import { parseUserAgent } from './util/user-agents';
 const RATE_LIMIT_MAX_REQUESTS = 20;
 const RATE_LIMIT_DURATION_SECONDS = 60;
 
-// Trusted developers are allowed 5x more requests per minute
-const RATE_LIMIT_TRUSTED_RATIO = 5;
-
-const rateLimiter = new RateLimiterRedis({
-  points: RATE_LIMIT_MAX_REQUESTS * RATE_LIMIT_TRUSTED_RATIO,
+const defaultRateLimiter = new RateLimiterRedis({
+  points: RATE_LIMIT_MAX_REQUESTS,
   duration: RATE_LIMIT_DURATION_SECONDS,
-  storeClient: redisClient
+  storeClient: redisClient,
+  keyPrefix: 'rl:default'
+});
+
+// Registered Developer API Keys are allowed 5x more requests per minute
+const trustedRateLimiter = new RateLimiterRedis({
+  points: RATE_LIMIT_MAX_REQUESTS * 5,
+  duration: RATE_LIMIT_DURATION_SECONDS,
+  storeClient: redisClient,
+  keyPrefix: 'rl:trusted'
 });
 
 class APIInstance {
@@ -93,6 +99,10 @@ class APIInstance {
         isTrustedOrigin = true;
       }
 
+      if (isMasterKey) {
+        return next();
+      }
+
       const consumerId = apiKey ?? req.ip;
 
       if (consumerId === undefined) {
@@ -101,13 +111,30 @@ class APIInstance {
         });
       }
 
-      rateLimiter
-        .consume(consumerId, isMasterKey ? 0 : isTrustedOrigin ? 1 : RATE_LIMIT_TRUSTED_RATIO)
-        .then(() => next())
-        .catch(e => {
-          if (!(e instanceof RateLimiterRes)) {
+      const limiter = isTrustedOrigin ? trustedRateLimiter : defaultRateLimiter;
+
+      limiter
+        .consume(consumerId, 1)
+        .then(response => {
+          res.set({
+            'RateLimit-Limit': limiter.points,
+            'RateLimit-Remaining': response.remainingPoints,
+            'RateLimit-Reset': Math.ceil(response.msBeforeNext / 1000)
+          });
+
+          return next();
+        })
+        .catch(error => {
+          if (!(error instanceof RateLimiterRes)) {
             return next();
           }
+
+          res.set({
+            'RateLimit-Limit': limiter.points,
+            'RateLimit-Remaining': 0,
+            'RateLimit-Reset': Math.ceil(error.msBeforeNext / 1000),
+            'Retry-After': Math.ceil(error.msBeforeNext / 1000)
+          });
 
           res.status(429).json({
             message: 'Too Many Requests. Please check https://docs.wiseoldman.net/#rate-limits--api-keys.'

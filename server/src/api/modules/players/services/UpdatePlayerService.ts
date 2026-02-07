@@ -34,24 +34,6 @@ type UpdatablePlayerFields = PrismaTypes.XOR<
 
 let UPDATE_COOLDOWN = process.env.NODE_ENV === 'test' ? 0 : 60;
 
-async function acquireLock(
-  username: string
-): AsyncResult<() => Promise<number>, { code: 'LOCK_ALREADY_EXISTS' }> {
-  const lockRedisKey = buildCompoundRedisKey('player-update-lock', standardize(username));
-
-  const hasLock = await redisClient.get(lockRedisKey);
-
-  if (hasLock) {
-    return errored({ code: 'LOCK_ALREADY_EXISTS' });
-  }
-
-  await redisClient.set(lockRedisKey, 'true', 'PX', 60_000);
-
-  return complete(() => {
-    return redisClient.del(lockRedisKey);
-  });
-}
-
 async function updatePlayer(
   username: string,
   skipFlagChecks = false
@@ -62,51 +44,36 @@ async function updatePlayer(
   | { code: 'PLAYER_IS_FLAGGED' }
   | { code: 'PLAYER_IS_BLOCKED' }
   | { code: 'PLAYER_IS_ARCHIVED' }
-  | { code: 'PLAYER_IS_RATE_LIMITED' }
+  | { code: 'PLAYER_IS_RATE_LIMITED'; lastUpdate: Date }
   | { code: 'INVALID_USERNAME'; subError: PlayerUsernameValidationError }
 > {
-  const lockResult = await acquireLock(username);
-
-  if (isErrored(lockResult)) {
-    return errored({ code: 'PLAYER_IS_RATE_LIMITED' });
-  }
-
-  const releaseLock = lockResult.value;
-
   // Find a player with the given username or create a new one if needed
   const findPlayerResult = await findOrCreate(username);
 
   if (isErrored(findPlayerResult)) {
-    await releaseLock();
-
     return findPlayerResult;
   }
 
   const { player, isNew } = findPlayerResult.value;
 
   if (player.annotations?.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
-    await releaseLock();
-
     return errored({ code: 'PLAYER_OPTED_OUT' });
   }
 
   if (player.annotations?.some(a => a.type === PlayerAnnotationType.BLOCKED)) {
-    await releaseLock();
-
     return errored({ code: 'PLAYER_IS_BLOCKED' });
   }
 
   if (player.status === PlayerStatus.ARCHIVED) {
-    await releaseLock();
-
     return errored({ code: 'PLAYER_IS_ARCHIVED' });
   }
 
   // If the player was updated recently, don't update it
   if (!shouldUpdate(player) && !isNew) {
-    await releaseLock();
-
-    return errored({ code: 'PLAYER_IS_RATE_LIMITED' });
+    return errored({
+      code: 'PLAYER_IS_RATE_LIMITED',
+      lastUpdate: player.updatedAt ?? new Date()
+    });
   }
 
   const updatedPlayerFields: UpdatablePlayerFields = {};
@@ -116,8 +83,6 @@ async function updatePlayer(
     const typeAssertionResult = await assertPlayerType(player);
 
     if (isErrored(typeAssertionResult)) {
-      await releaseLock();
-
       return typeAssertionResult;
     }
 
@@ -138,16 +103,12 @@ async function updatePlayer(
         const typeReviewResult = await reviewType(player);
 
         if (isErrored(typeReviewResult)) {
-          await releaseLock();
-
           return typeReviewResult;
         }
 
         // If they did in fact change type, call this function recursively,
         // so that it fetches their stats from the correct hiscores.
         if (typeReviewResult.value.changed) {
-          await releaseLock();
-
           return updatePlayer(player.username);
         }
       }
@@ -158,8 +119,6 @@ async function updatePlayer(
         jobManager.add(JobType.CHECK_PLAYER_RANKED, { username: player.username });
       }
     }
-
-    await releaseLock();
 
     return currentStatsResult;
   }
@@ -173,13 +132,9 @@ async function updatePlayer(
       // If the flag was properly handled (via a player archive),
       // call this function recursively, so that the new player can be tracked
       if (handled) {
-        await releaseLock();
-
         return updatePlayer(player.username);
       }
     }
-
-    await releaseLock();
 
     return errored({ code: 'PLAYER_IS_FLAGGED' });
   }
@@ -196,8 +151,6 @@ async function updatePlayer(
     // If they did in fact de-iron, call this function recursively,
     // so that it fetches their stats from the correct hiscores.
     if (hasTypeChanged) {
-      await releaseLock();
-
       return updatePlayer(player.username);
     }
   }
@@ -256,8 +209,6 @@ async function updatePlayer(
     hasChanged,
     previousUpdatedAt: previousSnapshot?.createdAt ?? null
   });
-
-  await releaseLock();
 
   return complete({
     player: updatedPlayer,

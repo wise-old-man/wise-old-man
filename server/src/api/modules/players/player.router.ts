@@ -105,8 +105,20 @@ router.post(
         case 'HISCORES_USERNAME_NOT_FOUND':
         case 'INVALID_USERNAME':
           throw new BadRequestErrorZ(updateResult.error);
-        case 'PLAYER_IS_RATE_LIMITED':
+        case 'PLAYER_IS_RATE_LIMITED': {
+          const nextAvailableIn = Math.ceil(
+            (60_000 - (Date.now() - updateResult.error.lastUpdate.getTime())) / 1000
+          );
+
+          res.set({
+            'RateLimit-Limit': 1,
+            'RateLimit-Remaining': 0,
+            'RateLimit-Reset': nextAvailableIn,
+            'Retry-After': nextAvailableIn
+          });
+
           throw new RateLimitErrorZ(updateResult.error);
+        }
         case 'HISCORES_SERVICE_UNAVAILABLE':
         case 'HISCORES_UNEXPECTED_ERROR':
           throw new ServiceUnavailableError(updateResult.error);
