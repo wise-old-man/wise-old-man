@@ -3,18 +3,18 @@ import { fetchGroupDetails } from '../../api/modules/groups/services/FetchGroupD
 import prisma from '../../prisma';
 import { Group, Membership, Player } from '../../types';
 import { PRIVILEGED_GROUP_ROLES } from '../../utils/shared';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   groupId: number;
 }
 
-export class UpdateGroupScoreJob extends Job<Payload> {
-  static getUniqueJobId(payload: Payload) {
+export const UpdateGroupScoreJobHandler: JobHandler<Payload> = {
+  generateUniqueJobId(payload) {
     return payload.groupId.toString();
-  }
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -31,7 +31,7 @@ export class UpdateGroupScoreJob extends Job<Payload> {
       data: { score: newScore }
     });
   }
-}
+};
 
 async function calculateScore(
   group: Group,

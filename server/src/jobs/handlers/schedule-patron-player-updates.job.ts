@@ -2,12 +2,12 @@ import prisma from '../../prisma';
 import { STATIC_PATRON_PLAYER_IDS } from '../../services/patreon.service';
 import { Period } from '../../types';
 import { PeriodProps } from '../../utils/shared';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 import { JobPriority } from '../types/job-priority.enum';
 import { JobType } from '../types/job-type.enum';
 
-export class SchedulePatronPlayerUpdatesJob extends Job<unknown> {
-  async execute() {
+export const SchedulePatronPlayerUpdatesJobHandler: JobHandler<unknown> = {
+  async execute(_payload, context) {
     if (process.env.NODE_ENV !== 'production') {
       return;
     }
@@ -38,7 +38,7 @@ export class SchedulePatronPlayerUpdatesJob extends Job<unknown> {
     });
 
     [...outdatedPatronPlayers, ...outdatedStaticPatronPlayers].forEach(({ username }) => {
-      this.jobManager.add(JobType.UPDATE_PLAYER, { username }, { priority: JobPriority.LOW });
+      context.jobManager.add(JobType.UPDATE_PLAYER, { username }, { priority: JobPriority.LOW });
     });
   }
-}
+};

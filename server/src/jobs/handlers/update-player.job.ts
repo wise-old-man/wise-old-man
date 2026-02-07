@@ -2,25 +2,24 @@ import { isComplete } from '@attio/fetchable';
 import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerService';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import { assertNever } from '../../utils/assert-never.util';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   username: string;
 }
 
-export class UpdatePlayerJob extends Job<Payload> {
-  static options: JobOptions = {
+export const UpdatePlayerJobHandler: JobHandler<Payload> = {
+  options: {
     backoff: 30_000,
     maxConcurrent: 8,
     rateLimiter: { max: 1, duration: 250 }
-  };
+  },
 
-  static getUniqueJobId(payload: Payload) {
+  generateUniqueJobId(payload) {
     return payload.username;
-  }
+  },
 
-  async execute(payload: Payload): Promise<void> {
+  async execute(payload) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -54,4 +53,4 @@ export class UpdatePlayerJob extends Job<Payload> {
         assertNever(updateResult.error);
     }
   }
-}
+};

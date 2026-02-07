@@ -5,18 +5,18 @@ import {
 } from '../../api/modules/achievements/achievement.utils';
 import { findPlayerSnapshots } from '../../api/modules/snapshots/services/FindPlayerSnapshotsService';
 import prisma from '../../prisma';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   username: string;
 }
 
-export class RecalculatePlayerAchievementsJob extends Job<Payload> {
-  static getUniqueJobId(payload: Payload) {
+export const RecalculatePlayerAchievementsJobHandler: JobHandler<Payload> = {
+  generateUniqueJobId(payload) {
     return payload.username;
-  }
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload) {
     const ALL_DEFINITIONS = getAchievementDefinitions();
     const UNKNOWN_DATE = new Date(0);
 
@@ -84,4 +84,4 @@ export class RecalculatePlayerAchievementsJob extends Job<Payload> {
       }))
     });
   }
-}
+};

@@ -1,15 +1,15 @@
 import { eventEmitter, EventType } from '../../api/events';
 import prisma from '../../prisma';
 import { CompetitionType, Participation } from '../../types';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   groupId: number;
   playerIds: number[];
 }
 
-export class AddPlayersToGroupCompetitionsJob extends Job<Payload> {
-  async execute(payload: Payload) {
+export const AddPlayersToGroupCompetitionsJobHandler: JobHandler<Payload> = {
+  async execute(payload) {
     if (payload.playerIds.length === 0) {
       return;
     }
@@ -58,4 +58,4 @@ export class AddPlayersToGroupCompetitionsJob extends Job<Payload> {
       });
     }
   }
-}
+};

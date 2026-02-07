@@ -1,7 +1,7 @@
 import prisma from '../../prisma';
 import logger from '../../services/logging.service';
 import { Metric } from '../../types';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
 // const SAILING_RELEASE_DATE = new Date('2025-11-19T09:00:00Z');
 // Math.max(SAILING_RELEASE_DATE.getTime(), Date.now() - 1000 * 60 * 60 * 24)
@@ -11,8 +11,8 @@ interface Payload {
   segmentValue?: string;
 }
 
-export class CalculateSailingExpTrendJob extends Job<Payload> {
-  async execute(payload: Payload) {
+export const CalculateSailingExpTrendJobHandler: JobHandler<Payload> = {
+  async execute(payload) {
     const updateCuttofDate = new Date(Date.now() - 1000 * 60 * 60 * 24);
 
     const query = ` 
@@ -76,7 +76,7 @@ export class CalculateSailingExpTrendJob extends Job<Payload> {
       }
     });
   }
-}
+};
 
 function calculateSegmentSum(
   data: Array<{

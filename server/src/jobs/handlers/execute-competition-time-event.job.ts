@@ -4,21 +4,20 @@ import logger from '../../services/logging.service';
 import { CompetitionTimeEvent, CompetitionTimeEventStatus, CompetitionTimeEventType } from '../../types';
 import { assertNever } from '../../utils/assert-never.util';
 import { JobManager } from '../job-manager';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 import { JobType } from '../types/job-type.enum';
 
 interface Payload {
   competitionTimeEventId: number;
 }
 
-export class ExecuteCompetitionTimeEventJob extends Job<Payload> {
-  static options: JobOptions = {
+export const ExecuteCompetitionTimeEventJobHandler: JobHandler<Payload> = {
+  options: {
     backoff: 30_000,
     attempts: 10
-  };
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload, context) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -52,13 +51,13 @@ export class ExecuteCompetitionTimeEventJob extends Job<Payload> {
 
     switch (event.type) {
       case CompetitionTimeEventType.BEFORE_START: {
-        await dispatchBeforeStartEvents(event, this.jobManager);
+        await dispatchBeforeStartEvents(event, context.jobManager);
         await completeEvent(event);
 
         break;
       }
       case CompetitionTimeEventType.BEFORE_END: {
-        await dispatchBeforeEndEvents(event, this.jobManager);
+        await dispatchBeforeEndEvents(event, context.jobManager);
         await completeEvent(event);
 
         break;
@@ -71,7 +70,7 @@ export class ExecuteCompetitionTimeEventJob extends Job<Payload> {
       }
     }
   }
-}
+};
 
 async function completeEvent(event: CompetitionTimeEvent) {
   switch (event.type) {

@@ -1,9 +1,9 @@
 import prisma from '../../prisma';
 import { Period, PERIODS } from '../../types';
 import { assertNever } from '../../utils/assert-never.util';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
-export class InvalidateDeltasJob extends Job<unknown> {
+export const InvalidateDeltasJobHandler: JobHandler<unknown> = {
   async execute() {
     for (const period of PERIODS) {
       await prisma.cachedDelta.deleteMany({
@@ -16,7 +16,7 @@ export class InvalidateDeltasJob extends Job<unknown> {
       });
     }
   }
-}
+};
 
 function getMaxAge(period: Period) {
   switch (period) {

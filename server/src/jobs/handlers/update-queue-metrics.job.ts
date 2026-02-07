@@ -1,11 +1,11 @@
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
-export class UpdateQueueMetricsJob extends Job<unknown> {
-  async execute() {
+export const UpdateQueueMetricsJobHandler: JobHandler<unknown> = {
+  async execute(_payload, context) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
 
-    await this.jobManager.updateQueueMetrics();
+    await context.jobManager.updateQueueMetrics();
   }
-}
+};

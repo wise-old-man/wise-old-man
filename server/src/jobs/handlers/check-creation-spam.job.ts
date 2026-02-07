@@ -2,11 +2,11 @@ import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import { Competition, Group, Period } from '../../types';
 import { PeriodProps } from '../../utils/shared';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
 const CREATION_SPAM_THRESHOLD = 5;
 
-export class CheckCreationSpamJob extends Job<unknown> {
+export const CheckCreationSpamJobHandler: JobHandler<unknown> = {
   async execute() {
     const minuteAgo = new Date(Date.now() - 60 * 1000);
 
@@ -103,4 +103,4 @@ export class CheckCreationSpamJob extends Job<unknown> {
       dispatchDiscordBotEvent(DiscordBotEventType.POTENTIAL_CREATION_SPAM, potentialOffender);
     }
   }
-}
+};

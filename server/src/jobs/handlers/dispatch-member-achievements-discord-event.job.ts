@@ -3,8 +3,7 @@ import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import prometheus from '../../services/prometheus.service';
 import { Metric } from '../../types';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   username: string;
@@ -14,15 +13,15 @@ interface Payload {
   }>;
 }
 
-export class DispatchMemberAchievementsDiscordEventJob extends Job<Payload> {
-  static options: JobOptions = {
+export const DispatchMemberAchievementsDiscordEventJobHandler: JobHandler<Payload> = {
+  options: {
     backoff: {
       type: 'exponential',
       delay: 30_000
     }
-  };
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -75,4 +74,4 @@ export class DispatchMemberAchievementsDiscordEventJob extends Job<Payload> {
       }
     }
   }
-}
+};

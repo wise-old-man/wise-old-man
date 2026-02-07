@@ -4,10 +4,10 @@ import { getThreadIndex } from '../env';
 import logger from '../services/logging.service';
 import prometheus from '../services/prometheus.service';
 import { buildCompoundRedisKey, REDIS_CONFIG, redisClient } from '../services/redis.service';
-import { Job } from './job.class';
 import { CRON_CONFIG, JOB_HANDLER_MAP, STARTUP_JOBS } from './jobs.config';
+import { JobHandler } from './types/job-handler.type';
 import type { JobOptions } from './types/job-options.type';
-import type { JobPayloadMapper } from './types/job-payload.type';
+import type { JobHandlerPayloadMapper } from './types/job-payload.type';
 import { JobPriority } from './types/job-priority.enum';
 import { JobType } from './types/job-type.enum';
 
@@ -16,7 +16,6 @@ const REDIS_PREFIX = 'jobs-v2';
 class JobManager {
   private queues: Queue[];
   private workers: Worker[];
-  private handlerIntances: Map<string, Job<unknown>> = new Map();
 
   constructor() {
     this.queues = [];
@@ -31,21 +30,23 @@ class JobManager {
    * This function is used to run a job handler directly, without adding it to the queue.
    * This should be used sparingly, as it bypasses the queue system and does not allow for retrying jobs.
    */
-  async runAsync<T extends JobType, TPayload extends JobPayloadMapper[T]>(
+  async runAsync<T extends JobType, TPayload extends JobHandlerPayloadMapper[T]>(
     type: T,
     payload: TPayload extends undefined ? Record<string, never> : TPayload
   ) {
-    const handlerClass = JOB_HANDLER_MAP[type];
+    const handler = JOB_HANDLER_MAP[type];
 
-    if (handlerClass === undefined) {
+    if (handler === undefined) {
       throw new Error(`No job implementation found for "${type}".`);
     }
 
     // @ts-expect-error -- 🤷‍♂️
-    await new handlerClass(this).execute(payload);
+    await handler.execute(payload, {
+      jobManager: this
+    });
   }
 
-  async add<T extends JobType, TPayload extends JobPayloadMapper[T]>(
+  async add<T extends JobType, TPayload extends JobHandlerPayloadMapper[T]>(
     type: T,
     payload: TPayload extends undefined ? Record<string, never> : TPayload,
     options?: JobOptions
@@ -57,12 +58,15 @@ class JobManager {
       return this.runAsync(type, payload);
     }
 
-    if (type === JobType.UPDATE_PLAYER && 'username' in payload && payload.username !== undefined) {
+    if (type === JobType.UPDATE_PLAYER) {
       // Some players are put into the queue too often (patron group updates),
       // and result in no valid updates due to a "banned" or "unranked" status.
       // This clogs up the queue for valid players, so we need to put them on a 24h cooldown.
       const isInCooldown = await redisClient.get(
-        buildCompoundRedisKey('player-update-cooldown', payload.username)
+        buildCompoundRedisKey(
+          'player-update-cooldown',
+          (payload as JobHandlerPayloadMapper[JobType.UPDATE_PLAYER]).username
+        )
       );
 
       if (isInCooldown !== null) {
@@ -81,9 +85,11 @@ class JobManager {
       priority: options?.priority ?? JobPriority.MEDIUM
     };
 
-    if (payload !== undefined) {
+    const handler = JOB_HANDLER_MAP[type];
+
+    if (payload !== undefined && handler.generateUniqueJobId !== undefined) {
       // @ts-expect-error -- 🤷‍♂️
-      opts.jobId = JOB_HANDLER_MAP[type].getUniqueJobId(payload);
+      opts.jobId = handler.generateUniqueJobId(payload);
     }
 
     await matchingQueue.add(type, payload, opts);
@@ -91,7 +97,7 @@ class JobManager {
     logger.info(`[v2] Added job: ${type}`, opts.jobId, true);
   }
 
-  async handleJob(bullJob: BullJob, jobHandler: Job<unknown>) {
+  async handleJob(bullJob: BullJob, handler: JobHandler<unknown>) {
     const maxAttempts = bullJob.opts.attempts ?? 1;
     const attemptTag = maxAttempts > 1 ? `(#${bullJob.attemptsMade})` : '';
 
@@ -99,7 +105,9 @@ class JobManager {
     logger.info(`[v2] Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
 
     try {
-      await jobHandler.execute(bullJob.data);
+      await handler.execute(bullJob.data, {
+        jobManager: this
+      });
 
       endTimer({ jobName: bullJob.name, status: 1 });
       logger.info(`[v2] Completed job: ${bullJob.name}`, { ...bullJob.data }, true);
@@ -135,8 +143,8 @@ class JobManager {
   initQueues() {
     if (process.env.NODE_ENV === 'test') return;
 
-    for (const [jobType, JobClass] of Object.entries(JOB_HANDLER_MAP)) {
-      const { options } = JobClass;
+    for (const [jobType, handler] of Object.entries(JOB_HANDLER_MAP)) {
+      const { options } = handler;
 
       const queue = new Queue(jobType, {
         prefix: REDIS_PREFIX,
@@ -172,20 +180,17 @@ class JobManager {
     // Otherwise, on a 4 core server, every cronjob would run 4x as often.
     const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
 
-    for (const [_jobType, JobClass] of Object.entries(JOB_HANDLER_MAP)) {
-      const jobType = _jobType as JobType;
-      const { options } = JobClass;
+    for (const [jobType, handler] of Object.entries(JOB_HANDLER_MAP)) {
+      const { options } = handler;
 
       if (cronJobTypes.includes(jobType) && !isMainThread) {
         continue;
       }
 
-      this.handlerIntances.set(jobType, new JobClass(this));
-
       const worker = new Worker(
         jobType,
         bullJob => {
-          const handler = this.handlerIntances.get(jobType);
+          const handler = JOB_HANDLER_MAP[jobType];
 
           if (handler === undefined) {
             throw new Error(`No job handler instance found for job type "${jobType}".`);
@@ -197,7 +202,7 @@ class JobManager {
           prefix: REDIS_PREFIX,
           limiter: options?.rateLimiter,
           connection: REDIS_CONFIG,
-          concurrency: options.maxConcurrent ?? 1,
+          concurrency: options?.maxConcurrent ?? 1,
           autorun: true
         }
       );
@@ -251,8 +256,6 @@ class JobManager {
     for (const queue of this.queues) {
       await queue.close();
     }
-
-    this.handlerIntances.clear();
   }
 
   async updateQueueMetrics() {

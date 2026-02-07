@@ -5,7 +5,7 @@ import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/dis
 import { OpenAiService } from '../../services/openai.service';
 import { METRICS } from '../../types';
 import { MetricProps } from '../../utils/shared';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
 const WHITELISTED_TERMS = [
   'noob',
@@ -76,7 +76,7 @@ const RESPONSE_SCHEMA = z.object({
   )
 });
 
-export class CheckInappropriateContentJob extends Job<unknown> {
+export const CheckInappropriateContentJobHandler: JobHandler<unknown> = {
   async execute() {
     if (!process.env.OPENAI_API_KEY) {
       return;
@@ -146,4 +146,4 @@ export class CheckInappropriateContentJob extends Job<unknown> {
       promptResult.value.offensiveEntities
     );
   }
-}
+};
