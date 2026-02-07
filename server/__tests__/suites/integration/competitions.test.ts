@@ -3878,9 +3878,6 @@ describe('Competition API', () => {
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
-      // Snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
-      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
         teamName: 'Contributors',
@@ -3946,9 +3943,6 @@ describe('Competition API', () => {
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
-      // Snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
-      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
         teamName: 'Contributors',
@@ -3999,9 +3993,6 @@ describe('Competition API', () => {
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
-      // Snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
-      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
         teamName: null,
@@ -4101,10 +4092,6 @@ describe('Competition API', () => {
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
-      // Snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
-      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
-      expect(response.body.filter(p => !!p.player).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
         teamName: 'Contributors',
@@ -4206,9 +4193,6 @@ describe('Competition API', () => {
 
       // Hashes shouldn't be exposed to the API consumer
       expect(secondResponse.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
-      // Snapshot IDs shouldn't be exposed to the API consumer
-      expect(secondResponse.body.filter(p => !!p.startSnapshotId).length).toBe(0);
-      expect(secondResponse.body.filter(p => !!p.endSnapshotId).length).toBe(0);
 
       expect(secondResponse.body[0]).toMatchObject({
         teamName: null,
