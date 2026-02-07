@@ -1,8 +1,8 @@
 import prisma from '../../prisma';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
-export class SyncApiKeysJob extends Job<unknown> {
+export const SyncApiKeysJobHandler: JobHandler<unknown> = {
   async execute() {
     const apiKeys = await prisma.apiKey.findMany();
 
@@ -15,4 +15,4 @@ export class SyncApiKeysJob extends Job<unknown> {
       await redisClient.set(buildCompoundRedisKey('api_key', key.id), String(key.master));
     }
   }
-}
+};

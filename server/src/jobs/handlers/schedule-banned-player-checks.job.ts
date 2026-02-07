@@ -1,13 +1,13 @@
 import prisma from '../../prisma';
 import { Period } from '../../types';
 import { PeriodProps } from '../../utils/shared';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 import { JobType } from '../types/job-type.enum';
 
 const CHECKS_PER_DAY = 1000;
 
-export class ScheduleBannedPlayerChecksJob extends Job<unknown> {
-  async execute() {
+export const ScheduleBannedPlayerChecksJobHandler: JobHandler<unknown> = {
+  async execute(_payload, context) {
     // Find random banned players, and re-check if they are still banned
     const randomBannedPlayers = await prisma.$queryRaw<Array<{ username: string }>>`
       SELECT "username" FROM public.players WHERE "status" = 'banned'
@@ -30,7 +30,7 @@ export class ScheduleBannedPlayerChecksJob extends Job<unknown> {
 
     for (let i = 0; i < usernamesToCheck.length; i++) {
       const username = usernamesToCheck[i];
-      this.jobManager.add(JobType.CHECK_PLAYER_BANNED, { username }, { delay: i * cooldown });
+      context.jobManager.add(JobType.CHECK_PLAYER_BANNED, { username }, { delay: i * cooldown });
     }
   }
-}
+};

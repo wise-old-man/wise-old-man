@@ -1,9 +1,9 @@
 import prisma, { PrismaTypes } from '../../prisma';
 import { sendDiscordWebhook } from '../../services/discord.service';
 import { Competition, Group } from '../../types';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
-export class CheckProtectedPlayersSpamJob extends Job<unknown> {
+export const CheckProtectedPlayersSpamJobHandler: JobHandler<unknown> = {
   async execute() {
     if (
       process.env.API_ABUSE_PROTECTED_PLAYERS_LIST === undefined ||
@@ -90,4 +90,4 @@ export class CheckProtectedPlayersSpamJob extends Job<unknown> {
       });
     }
   }
-}
+};

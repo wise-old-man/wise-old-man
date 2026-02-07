@@ -3,8 +3,7 @@ import prisma, { PrismaTypes } from '../../prisma';
 import { Metric, METRICS, Period } from '../../types';
 import { getMetricValueKey } from '../../utils/get-metric-value-key.util';
 import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   username: string;
@@ -12,14 +11,14 @@ interface Payload {
   periodStartDate: Date;
 }
 
-export class SyncPlayerRecordsJob extends Job<Payload> {
-  static options: JobOptions = {
+export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
+  options: {
     maxConcurrent: 8
-  };
+  },
 
-  static getUniqueJobId(payload: Payload) {
+  generateUniqueJobId(payload) {
     return [payload.username, payload.period, payload.periodStartDate.getTime()].join('_');
-  }
+  },
 
   async execute({ username, period, periodStartDate }: Payload) {
     const currentDeltas = await prisma.cachedDelta.findMany({
@@ -129,4 +128,4 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
       }
     });
   }
-}
+};

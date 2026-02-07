@@ -1,13 +1,13 @@
 import ms from 'ms';
 import prisma from '../../prisma';
 import { CompetitionTimeEvent, CompetitionTimeEventStatus } from '../../types';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 import { JobType } from '../types/job-type.enum';
 
 const MAX_EVENTS_TO_ENQUEUE = 100;
 
-export class EnqueueCompetitionTimeEventsJob extends Job<unknown> {
-  async execute() {
+export const EnqueueCompetitionTimeEventsJobHandler: JobHandler<unknown> = {
+  async execute(_payload, context) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -74,7 +74,7 @@ export class EnqueueCompetitionTimeEventsJob extends Job<unknown> {
       });
 
       for (const event of toExecute) {
-        await this.jobManager.add(JobType.EXECUTE_COMPETITION_TIME_EVENT, {
+        await context.jobManager.add(JobType.EXECUTE_COMPETITION_TIME_EVENT, {
           competitionTimeEventId: event.id
         });
       }
@@ -82,7 +82,7 @@ export class EnqueueCompetitionTimeEventsJob extends Job<unknown> {
 
     if (overdueEvents.length >= MAX_EVENTS_TO_ENQUEUE) {
       // There's likely more overdue events to enqueue - re-dispatch this same task
-      await this.jobManager.add(JobType.ENQUEUE_COMPETITION_TIME_EVENTS, {}, { delay: 5000 });
+      await context.jobManager.add(JobType.ENQUEUE_COMPETITION_TIME_EVENTS, {}, { delay: 5000 });
     }
   }
-}
+};

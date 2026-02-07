@@ -2,14 +2,14 @@ import { standardize } from '../../api/modules/players/player.utils';
 import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerService';
 import prisma from '../../prisma';
 import { Player, PlayerStatus } from '../../types';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   username?: string;
 }
 
-export class ScheduleFlaggedPlayerReviewJob extends Job<Payload> {
-  async execute(payload: Payload) {
+export const ScheduleFlaggedPlayerReviewJobHandler: JobHandler<Payload> = {
+  async execute(payload) {
     const flaggedPlayer =
       payload.username === undefined
         ? await findRandomFlaggedPlayer()
@@ -33,7 +33,7 @@ export class ScheduleFlaggedPlayerReviewJob extends Job<Payload> {
     // or send a review message to our Discord server.
     await updatePlayer(flaggedPlayer.username);
   }
-}
+};
 
 async function findRandomFlaggedPlayer() {
   const results = await prisma.$queryRaw<Array<Pick<Player, 'id' | 'username'>>>`

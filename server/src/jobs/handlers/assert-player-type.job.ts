@@ -4,24 +4,23 @@ import { standardize } from '../../api/modules/players/player.utils';
 import { assertPlayerType } from '../../api/modules/players/services/AssertPlayerTypeService';
 import prisma from '../../prisma';
 import { assertNever } from '../../utils/assert-never.util';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   username: string;
 }
 
-export class AssertPlayerTypeJob extends Job<Payload> {
-  static options: JobOptions = {
+export const AssertPlayerTypeJobHandler: JobHandler<Payload> = {
+  options: {
     backoff: 30_000,
     rateLimiter: { max: 1, duration: 5000 }
-  };
+  },
 
-  static getUniqueJobId(payload: Payload) {
+  generateUniqueJobId(payload) {
     return payload.username;
-  }
+  },
 
-  async execute(payload: Payload): Promise<void> {
+  async execute(payload) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -49,4 +48,4 @@ export class AssertPlayerTypeJob extends Job<Payload> {
       }
     }
   }
-}
+};

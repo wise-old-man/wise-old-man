@@ -1,6 +1,6 @@
 import prisma from '../../prisma';
 import { PlayerType } from '../../types';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 import { JobType } from '../types/job-type.enum';
 
 interface Payload {
@@ -8,8 +8,8 @@ interface Payload {
   playerIds: number[];
 }
 
-export class UpdateNewGroupMembersJob extends Job<Payload> {
-  async execute(payload: Payload) {
+export const UpdateNewGroupMembersJobHandler: JobHandler<Payload> = {
+  async execute(payload, context) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -27,7 +27,7 @@ export class UpdateNewGroupMembersJob extends Job<Payload> {
         return;
       }
 
-      this.jobManager.add(JobType.UPDATE_PLAYER, { username });
+      context.jobManager.add(JobType.UPDATE_PLAYER, { username });
     });
   }
-}
+};

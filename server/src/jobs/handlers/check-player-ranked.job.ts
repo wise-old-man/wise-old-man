@@ -3,8 +3,7 @@ import prisma from '../../prisma';
 import { fetchHiscoresJSON } from '../../services/jagex.service';
 import { PlayerStatus } from '../../types';
 import { assertNever } from '../../utils/assert-never.util';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler, JobHandlerContext } from '../types/job-handler.type';
 import { JobType } from '../types/job-type.enum';
 
 const MAX_CHECK_ATTEMPTS = 5;
@@ -14,19 +13,19 @@ interface Payload {
   attempts?: number;
 }
 
-export class CheckPlayerRankedJob extends Job<Payload> {
-  static options: JobOptions = {
+export const CheckPlayerRankedJobHandler: JobHandler<Payload> = {
+  options: {
     rateLimiter: {
       max: 1,
       duration: 5_000
     }
-  };
+  },
 
-  static getUniqueJobId(payload: Payload) {
+  generateUniqueJobId(payload) {
     return [payload.username, payload.attempts ?? 0].join('_');
-  }
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload, context) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -50,43 +49,43 @@ export class CheckPlayerRankedJob extends Job<Payload> {
       case 'HISCORES_UNEXPECTED_ERROR':
         throw fetchResult.error;
       case 'HISCORES_USERNAME_NOT_FOUND': {
-        this.handleNotFound(payload);
+        await handleNotFound(payload, context);
         break;
       }
       default:
         return assertNever(fetchResult.error);
     }
   }
+};
 
-  async handleNotFound(payload: Payload) {
-    if ((payload.attempts ?? 0) + 1 >= MAX_CHECK_ATTEMPTS) {
-      // If it fails every attempt with the "Failed to load hiscores" (400) error message,
-      // then we can be pretty sure that the player is unranked.
-      await prisma.player.update({
-        where: {
-          username: payload.username
-        },
-        data: {
-          status: PlayerStatus.UNRANKED
-        }
-      });
-
-      // Being unranked could also mean a player is banned, so if we determine
-      // that they're not on the hiscores, check if they're banned on RuneMetrics.
-      this.jobManager.add(JobType.CHECK_PLAYER_BANNED, { username: payload.username });
-
-      return;
-    }
-
-    const nextDelay = 2 ** (payload.attempts ?? 0) * 60 * 1000; // Exponential backoff: 1m, 2m, 4m, 8m
-
-    this.jobManager.add(
-      JobType.CHECK_PLAYER_RANKED,
-      {
-        username: payload.username,
-        attempts: (payload.attempts ?? 0) + 1
+async function handleNotFound(payload: Payload, context: JobHandlerContext) {
+  if ((payload.attempts ?? 0) + 1 >= MAX_CHECK_ATTEMPTS) {
+    // If it fails every attempt with the "Failed to load hiscores" (400) error message,
+    // then we can be pretty sure that the player is unranked.
+    await prisma.player.update({
+      where: {
+        username: payload.username
       },
-      { delay: nextDelay }
-    );
+      data: {
+        status: PlayerStatus.UNRANKED
+      }
+    });
+
+    // Being unranked could also mean a player is banned, so if we determine
+    // that they're not on the hiscores, check if they're banned on RuneMetrics.
+    context.jobManager.add(JobType.CHECK_PLAYER_BANNED, { username: payload.username });
+
+    return;
   }
+
+  const nextDelay = 2 ** (payload.attempts ?? 0) * 60 * 1000; // Exponential backoff: 1m, 2m, 4m, 8m
+
+  context.jobManager.add(
+    JobType.CHECK_PLAYER_RANKED,
+    {
+      username: payload.username,
+      attempts: (payload.attempts ?? 0) + 1
+    },
+    { delay: nextDelay }
+  );
 }

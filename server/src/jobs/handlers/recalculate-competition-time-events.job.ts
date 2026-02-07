@@ -2,20 +2,19 @@ import { isErrored } from '@attio/fetchable';
 import { recalculateCompetitionTimeEvents } from '../../api/modules/competitions/services/RecalculateCompetitionTimeEventsService';
 import logger from '../../services/logging.service';
 import { assertNever } from '../../utils/assert-never.util';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   competitionId: number;
 }
 
-export class RecalculateCompetitionTimeEventsJob extends Job<Payload> {
-  static options: JobOptions = {
+export const RecalculateCompetitionTimeEventsJobHandler: JobHandler<Payload> = {
+  options: {
     backoff: 30_000,
     attempts: 10
-  };
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload) {
     const result = await recalculateCompetitionTimeEvents(payload.competitionId);
 
     if (isErrored(result)) {
@@ -31,4 +30,4 @@ export class RecalculateCompetitionTimeEventsJob extends Job<Payload> {
       }
     }
   }
-}
+};

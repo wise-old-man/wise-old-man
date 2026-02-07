@@ -7,8 +7,7 @@ import { findPlayerSnapshots } from '../../api/modules/snapshots/services/FindPl
 import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snapshot.utils';
 import prisma from '../../prisma';
 import { getMetricValueKey } from '../../utils/get-metric-value-key.util';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
 const UNKNOWN_DATE = new Date(0);
@@ -18,16 +17,16 @@ interface Payload {
   previousUpdatedAt: Date | null;
 }
 
-export class SyncPlayerAchievementsJob extends Job<Payload> {
-  static options: JobOptions = {
+export const SyncPlayerAchievementsJobHandler: JobHandler<Payload> = {
+  options: {
     maxConcurrent: 4
-  };
+  },
 
-  static getUniqueJobId(payload: Payload) {
+  generateUniqueJobId(payload) {
     return [payload.username, payload.previousUpdatedAt?.getTime()].join('_');
-  }
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload) {
     const playerAndSnapshot = await prisma.player.findFirst({
       where: {
         username: payload.username
@@ -178,4 +177,4 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
       }))
     });
   }
-}
+};

@@ -5,8 +5,7 @@ import { fetchNameChangeDetails } from '../../api/modules/name-changes/services/
 import * as playerUtils from '../../api/modules/players/player.utils';
 import prisma from '../../prisma';
 import { Metric, NameChange, NameChangeSkipContext, NameChangeStatus } from '../../types';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 const BASE_MAX_HOURS = 504;
 const BASE_MIN_TOTAL_LEVEL = 700;
@@ -15,8 +14,8 @@ interface Payload {
   nameChangeId: number;
 }
 
-export class ReviewNameChangeJob extends Job<Payload> {
-  static options: JobOptions = {
+export const ReviewNameChangeJobHandler: JobHandler<Payload> = {
+  options: {
     rateLimiter: {
       max: 1,
       duration: 5000
@@ -25,13 +24,13 @@ export class ReviewNameChangeJob extends Job<Payload> {
       type: 'exponential',
       delay: 30_000
     }
-  };
+  },
 
-  static getUniqueJobId(payload: Payload) {
+  generateUniqueJobId(payload) {
     return payload.nameChangeId.toString();
-  }
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -131,7 +130,7 @@ export class ReviewNameChangeJob extends Job<Payload> {
     // All seems to be fine, auto approve
     await approveNameChange(nameChangeId);
   }
-}
+};
 
 /**
  * Finds any neighbouring name changes (submitted around the same time),

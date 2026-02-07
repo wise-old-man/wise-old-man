@@ -1,10 +1,6 @@
 export enum JobType {
   ADD_PLAYERS_TO_GROUP_COMPETITIONS = 'add-players-to-group-competitions',
   ASSERT_PLAYER_TYPE = 'assert-player-type',
-  BACKFILL_DELETE_DUPLICATE_SNAPSHOTS = 'backfill-delete-duplicate-snapshots',
-  BACKFILL_DELETE_DUPLICATE_SNAPSHOTS_FANOUT = 'backfill-delete-duplicate-snapshots-fanout',
-  BACKFILL_PARTICIPATION_SNAPSHOT_DATES = 'backfill-participation-snapshot-dates',
-  BACKFILL_PLAYER_SNAPSHOT_DATES = 'backfill-player-snapshot-dates',
   CALCULATE_COMPUTED_RANK_TABLES = 'calculate-computed-rank-tables',
   CALCULATE_SAILING_EXP_TREND = 'calculate-sailing-exp-trend',
   CHECK_CREATION_SPAM = 'check-creation-spam',

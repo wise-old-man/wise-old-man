@@ -1,22 +1,21 @@
 import prisma, { PrismaTypes } from '../../prisma';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   username: string;
   forceRecalculate?: boolean;
 }
 
-export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
-  static options: JobOptions = {
+export const SyncPlayerCompetitionParticipationsJobHandler: JobHandler<Payload> = {
+  options: {
     maxConcurrent: 4
-  };
+  },
 
-  static getUniqueJobId(payload: Payload) {
+  generateUniqueJobId(payload) {
     return [payload.username, String(payload.forceRecalculate)].join('_');
-  }
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload) {
     const now = new Date();
 
     // Get all on-going competitions (and participations)
@@ -117,4 +116,4 @@ export class SyncPlayerCompetitionParticipationsJob extends Job<Payload> {
       });
     }
   }
-}
+};

@@ -4,22 +4,21 @@ import prisma from '../../prisma';
 import { CachedDelta, Metric, METRICS, Period } from '../../types';
 import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
 import { isActivity, isBoss, isComputedMetric, isSkill, PeriodProps } from '../../utils/shared';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   username: string;
   period: Period;
 }
 
-export class SyncPlayerDeltasJob extends Job<Payload> {
-  static options: JobOptions = {
+export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
+  options: {
     maxConcurrent: 8
-  };
+  },
 
-  static getUniqueJobId(payload: Payload) {
+  generateUniqueJobId(payload) {
     return [payload.username, payload.period].join('_');
-  }
+  },
 
   async execute({ username, period }: Payload) {
     const playerAndSnapshot = await prisma.player.findFirst({
@@ -147,4 +146,4 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
       isPotentialRecord: previousDeltas.length === 0 || hasImprovements
     });
   }
-}
+};
