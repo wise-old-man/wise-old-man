@@ -101,11 +101,11 @@ class JobManager {
     const maxAttempts = bullJob.opts.attempts ?? 1;
     const attemptTag = maxAttempts > 1 ? `(#${bullJob.attemptsMade})` : '';
 
-    // Track queue latency (time from job being added to queue until execution starts)
+    // Track queue latency (time from when job was ready to run until execution starts)
+    // This excludes any intentional delay from the latency calculation
     if (bullJob.timestamp) {
-      const latencyMs = Date.now() - bullJob.timestamp;
-      const latencySeconds = latencyMs / 1000;
-      prometheus.trackJobQueueLatency(bullJob.name, latencySeconds);
+      const latencyMs = Date.now() - bullJob.timestamp + (bullJob.opts.delay ?? 0);
+      prometheus.trackJobQueueLatency(bullJob.name, Math.max(0, latencyMs / 1000));
     }
 
     const endTimer = prometheus.trackJob();
