@@ -106,7 +106,7 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
   const ongoing = competitions.filter((c) => getCompetitionStatus(c) === CompetitionStatus.ONGOING);
 
   if (ongoing.length > 0) {
-    featured = ongoing.sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())[0];
+    featured = ongoing.sort((a, b) => a.endsAt.getTime() - b.endsAt.getTime())[0];
   } else {
     const upcoming = competitions.filter((c) => getCompetitionStatus(c) === CompetitionStatus.UPCOMING);
 
