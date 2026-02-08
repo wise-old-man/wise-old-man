@@ -8,6 +8,7 @@ class PrometheusService {
   private registry: Registry;
   private jobHistogram: Histogram<'jobName' | 'status'>;
   private jobQueueGauge: Gauge<'queueName' | 'state'>;
+  private jobQueueLatencyHistogram: Histogram<'queueName'>;
   private httpHistogram: Histogram<'method' | 'route' | 'status' | 'userAgent'>;
   private eventCounter: Counter<'eventType'>;
   private jagexServiceHistogram: Histogram<'service' | 'status'>;
@@ -45,6 +46,13 @@ class PrometheusService {
       labelNames: ['queueName', 'state']
     });
 
+    this.jobQueueLatencyHistogram = new prometheus.Histogram({
+      name: 'job_queue_latency_seconds',
+      help: 'Time between job being added to queue and job execution starting',
+      labelNames: ['queueName'],
+      buckets: [0.1, 0.5, 1, 5, 10, 30, 60, 120, 300, 600]
+    });
+
     this.eventCounter = new prometheus.Counter({
       name: 'event_counter',
       help: 'Count of events emitted',
@@ -66,6 +74,7 @@ class PrometheusService {
 
     this.registry.registerMetric(this.jobHistogram);
     this.registry.registerMetric(this.jobQueueGauge);
+    this.registry.registerMetric(this.jobQueueLatencyHistogram);
     this.registry.registerMetric(this.httpHistogram);
     this.registry.registerMetric(this.eventCounter);
     this.registry.registerMetric(this.jagexServiceHistogram);
@@ -141,6 +150,10 @@ class PrometheusService {
 
   trackJob() {
     return this.jobHistogram.startTimer();
+  }
+
+  trackJobQueueLatency(queueName: string, latencySeconds: number) {
+    this.jobQueueLatencyHistogram.observe({ queueName }, latencySeconds);
   }
 
   trackEventEmitted(eventType: string) {
