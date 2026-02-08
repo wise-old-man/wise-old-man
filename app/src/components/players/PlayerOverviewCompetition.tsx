@@ -101,7 +101,7 @@ async function getFeaturedCompetition(username: string) {
     .filter((c) => getCompetitionStatus(c) === CompetitionStatus.ONGOING);
 
   if (ongoing.length > 0) {
-    return ongoing.sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())[0];
+    return ongoing.sort((a, b) => a.endsAt.getTime() - b.endsAt.getTime())[0];
   }
 
   const upcoming = participations
