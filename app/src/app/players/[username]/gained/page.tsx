@@ -36,7 +36,6 @@ import {
 } from "~/components/players/PlayerGainedHeatmap";
 import { Await } from "~/components/Await";
 import { ChartViewSelect } from "~/components/players/ChartViewSelect";
-import { calculateGainBuckets } from "~/utils/calcs";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -218,24 +217,13 @@ function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
 
             const maxDate = "period" in timeRange ? new Date() : timeRange.endDate;
 
-            // Convert the timeseries data into daily (bucket) gains
-            const bucketedData = calculateGainBuckets(
-              (isShowingRanks
-                ? data.map((d) => ({ date: d.date, value: d.rank }))
-                : [...data]
-              ).reverse(),
-              minDate,
-              maxDate
-            );
-
             return (
               <PlayerGainedBarchart
                 view={view}
                 metric={metric}
-                data={bucketedData.map((b) => ({
-                  date: b.date,
-                  value: b.gained != null ? b.gained * (isShowingRanks ? -1 : 1) : 0,
-                }))}
+                rawData={data}
+                minDate={minDate}
+                maxDate={maxDate}
               />
             );
           }}
@@ -276,22 +264,12 @@ function YearlyHeatmapPanel(props: YearlyHeatmapPanelProps) {
             const minDate = new Date(Date.now() - PeriodProps[Period.YEAR].milliseconds);
             const maxDate = new Date();
 
-            // Convert the timeseries data into daily (bucket) gains
-            const bucketedData = calculateGainBuckets(
-              (isShowingRanks
-                ? data.map((d) => ({ date: d.date, value: d.rank }))
-                : [...data]
-              ).reverse(),
-              minDate,
-              maxDate
-            );
-
             return (
               <PlayerGainedHeatmap
-                data={bucketedData.map((b) => ({
-                  date: b.date,
-                  value: b.gained != null ? b.gained * (isShowingRanks ? -1 : 1) : null,
-                }))}
+                view={view}
+                rawData={data}
+                minDate={minDate}
+                maxDate={maxDate}
               />
             );
           }}

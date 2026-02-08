@@ -1,13 +1,38 @@
 "use client";
 
+import { useMemo } from "react";
 import { CalendarHeatmap } from "../CalendarHeatmap";
+import { calculateGainBuckets } from "~/utils/calcs";
 
 interface PlayerGainedHeatmapProps {
-  data: Array<{ date: Date; value: number | null }>;
+  rawData: Array<{ date: Date; value: number; rank: number }>;
+  minDate: Date;
+  maxDate: Date;
+  view: "values" | "ranks";
 }
 
 export function PlayerGainedHeatmap(props: PlayerGainedHeatmapProps) {
-  const { data } = props;
+  const { rawData, minDate, maxDate, view } = props;
+
+  // Do the bucketing on the client side using the browser's timezone
+  const data = useMemo(() => {
+    const isShowingRanks = view === "ranks";
+
+    // Convert the timeseries data into daily (bucket) gains
+    const bucketedData = calculateGainBuckets(
+      (isShowingRanks
+        ? rawData.map((d) => ({ date: d.date, value: d.rank }))
+        : [...rawData]
+      ).reverse(),
+      minDate,
+      maxDate
+    );
+
+    return bucketedData.map((b) => ({
+      date: b.date,
+      value: b.gained != null ? b.gained * (isShowingRanks ? -1 : 1) : null,
+    }));
+  }, [rawData, view, minDate, maxDate]);
 
   // If has no gains on any of the days of the week
   if (data.every((b) => b.value === 0)) {

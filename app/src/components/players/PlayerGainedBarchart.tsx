@@ -4,6 +4,8 @@
 import dynamicImport from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Metric, MetricProps } from "@wise-old-man/utils";
+import { useMemo } from "react";
+import { calculateGainBuckets } from "~/utils/calcs";
 
 const BarChartSSR = dynamicImport(() => import("../BarChart"), {
   ssr: false,
@@ -13,15 +15,37 @@ const BarChartSSR = dynamicImport(() => import("../BarChart"), {
 interface PlayerGainedBarchartProps {
   metric: Metric;
   view: "values" | "ranks";
-  data: Array<{ date: Date; value: number }>;
+  rawData: Array<{ date: Date; value: number; rank: number }>;
+  minDate: Date;
+  maxDate: Date;
 }
 
 export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
-  const { data, view, metric } = props;
+  const { rawData, view, metric, minDate, maxDate } = props;
 
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // Do the bucketing on the client side using the browser's timezone
+  const data = useMemo(() => {
+    const isShowingRanks = view === "ranks";
+
+    // Convert the timeseries data into daily (bucket) gains
+    const bucketedData = calculateGainBuckets(
+      (isShowingRanks
+        ? rawData.map((d) => ({ date: d.date, value: d.rank }))
+        : [...rawData]
+      ).reverse(),
+      minDate,
+      maxDate
+    );
+
+    return bucketedData.map((b) => ({
+      date: b.date,
+      value: b.gained != null ? b.gained * (isShowingRanks ? -1 : 1) : 0,
+    }));
+  }, [rawData, view, minDate, maxDate]);
 
   function handleTimeRangeSelected(range: [Date, Date]) {
     const [startDate, endDate] = range;
