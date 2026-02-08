@@ -1,6 +1,7 @@
 import prisma from '../../../prisma';
 import { AchievementDefinition, Snapshot } from '../../../types';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
+import { getRequiredSnapshotFields } from '../../../utils/get-required-snapshot-fields.util';
 import { getExpForLevel, getLevel, isMetric, MetricProps } from '../../../utils/shared';
 import { formatNumber } from '../../../utils/shared/format-number.util';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
@@ -104,17 +105,27 @@ function findAchievementActivationDates(pastSnapshots: Snapshot[], definitions: 
 export async function findMissingAchievementDates(playerId: number, definitions: AchievementDefinition[]) {
   const dateMap: ReturnType<typeof findAchievementActivationDates> = {};
 
-  const BATCH_SIZE = 500;
+  const INITIAL_BATCH_SIZE = 1000;
   let remainingDefs = [...definitions];
 
   for (let batchIndex = 0; remainingDefs.length > 0; batchIndex++) {
+    // Batch size triples on every iteration
+    const batchSize = INITIAL_BATCH_SIZE * 3 ** batchIndex;
+    const offset = (batchSize - INITIAL_BATCH_SIZE) / 2;
+
+    const remainingDefMetrics = Array.from(new Set(remainingDefs.map(d => d.metric)));
+
     // Overfetch by 1 so consecutive batches share a boundary snapshot,
     // allowing "findAchievementActivationDates" to detect crossings at batch edges.
     const batchSnapshots = await prisma.snapshot.findMany({
+      select: {
+        createdAt: true,
+        ...getRequiredSnapshotFields(remainingDefMetrics)
+      },
       where: { playerId },
       orderBy: { createdAt: 'desc' },
-      take: BATCH_SIZE + 1,
-      skip: batchIndex * BATCH_SIZE
+      take: batchSize + 1,
+      skip: offset
     });
 
     if (batchSnapshots.length === 0) {
@@ -127,7 +138,7 @@ export async function findMissingAchievementDates(playerId: number, definitions:
     // Remove resolved definitions
     remainingDefs = remainingDefs.filter(d => !(d.name in dateMap));
 
-    if (batchSnapshots.length <= BATCH_SIZE) {
+    if (batchSnapshots.length <= batchSize) {
       break;
     }
   }
