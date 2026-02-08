@@ -13,7 +13,7 @@ import {
 import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 import { MetricProps } from '../../../../utils/shared';
 import { eventEmitter, EventType } from '../../../events';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 import {
@@ -424,7 +424,7 @@ function getParticipationDiffs(
   const currentUsernames = currentParticipations.map(m => m.player.username);
 
   // The usernames of all future (post-edit) participants
-  const nextUsernames = nextParticipations.map(p => standardize(p.username));
+  const nextUsernames = nextParticipations.map(p => standardizeUsername(p.username));
 
   // These players should be added to the competition
   const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
@@ -522,7 +522,7 @@ async function getValidatedParticipations(
   }
 
   if (teams !== undefined && competition.type === CompetitionType.TEAM) {
-    // ensures every team name is sanitized, and every username is standardized
+    // ensures every team name is sanitized, and every username is standardizeUsernamed
     const newTeams = sanitizeTeams(teams);
 
     const teamValidationResult = combine([

@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "~/hooks/useToast";
 import { useWOMClient } from "~/hooks/useWOMClient";
 import { cn } from "~/utils/styling";
+import { sanitizeDisplayName } from "~/utils/strings";
 import { Input } from "./Input";
 import { Label } from "./Label";
 import { Button } from "./Button";
@@ -147,14 +148,14 @@ function SubmitNameChangeForm(props: NameChangeSubmissionDialogProps) {
 }
 
 function validate(username: string): string | undefined {
-  const sanitized = username.trim();
+  const sanitized = sanitizeDisplayName(username);
 
   if (sanitized.length > 12) {
     return "Usernames have a maximum length of 12 characters.";
   }
 
-  if (sanitized.length > 0 && !new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(sanitized)) {
-    return "Usernames cannot contain any special characters.";
+  if (sanitized !== username.trim()) {
+    return "Usernames can only contain letters, numbers, spaces, dashes and underscores.";
   }
 
   return "";

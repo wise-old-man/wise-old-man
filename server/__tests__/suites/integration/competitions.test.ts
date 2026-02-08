@@ -3778,9 +3778,9 @@ describe('Competition API', () => {
       // Check the table body
       expect(rows[1]).toMatch('1,usbc,-1,60,60,');
       expect(rows[2]).toMatch('2,rorro,500,557,57,');
-      expect(rows[3]).toMatch('3,LYNX TITAN,1646,1646,0,');
+      expect(rows[3]).toMatch('3,LYNX TITAN_,1646,1646,0,');
       expect(rows[4]).toMatch('4,Psikoi,1000,1000,0,');
-      expect(rows[5]).toMatch('5,ZULU,-1,-1,0,');
+      expect(rows[5]).toMatch('5,__ZULU,-1,-1,0,');
     });
 
     it('should view CSV export (participants & other metric)', async () => {
@@ -3800,9 +3800,9 @@ describe('Competition API', () => {
       // Check the table body
       expect(rows[1]).toMatch('1,Psikoi,500000,750000,250000,');
       expect(rows[2]).toMatch('2,rorro,100000,110000,10000,');
-      expect(rows[3]).toMatch('3,LYNX TITAN,5346679,5346679,');
+      expect(rows[3]).toMatch('3,LYNX TITAN_,5346679,5346679,');
       expect(rows[4]).toMatch('4,usbc,50000,50000,0,');
-      expect(rows[5]).toMatch('5,ZULU,-1,-1,0,');
+      expect(rows[5]).toMatch('5,__ZULU,-1,-1,0,');
     });
 
     it('should view CSV export (participants on team comp)', async () => {

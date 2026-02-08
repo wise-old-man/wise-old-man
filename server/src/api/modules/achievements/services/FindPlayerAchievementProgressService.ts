@@ -4,7 +4,7 @@ import { omit } from '../../../../utils/omit.util';
 import { pick } from '../../../../utils/pick.util';
 import { roundNumber } from '../../../../utils/shared/round-number.util';
 import { NotFoundError } from '../../../errors';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 import { LEGACY_TEMPLATE_NAMES } from '../achievement.templates';
 import { getAchievementDefinitions } from '../achievement.utils';
 
@@ -21,7 +21,7 @@ async function findPlayerAchievementProgress(username: string): Promise<
 > {
   const player = await prisma.player.findFirst({
     where: {
-      username: standardize(username)
+      username: standardizeUsername(username)
     },
     include: {
       latestSnapshot: true

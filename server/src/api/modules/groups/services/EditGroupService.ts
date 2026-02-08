@@ -14,7 +14,7 @@ import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 
 import { assertNever } from '../../../../utils/assert-never.util';
 import { eventEmitter, EventType } from '../../../events';
-import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
+import { isValidUsername, sanitizeDisplayName, standardizeUsername } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
 // Only allow images from our Cloudflare R2 CDN, to make sure people don't
@@ -151,7 +151,7 @@ export async function editGroup(
   }
 
   if (payload.clanChat) {
-    updatedGroupFields.clanChat = payload.clanChat ? sanitize(payload.clanChat) : null;
+    updatedGroupFields.clanChat = payload.clanChat ? sanitizeDisplayName(payload.clanChat) : null;
   }
 
   if (payload.homeworld) {
@@ -246,7 +246,7 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
   const currentUsernames = memberships.map(m => m.player.username);
 
   // The usernames of all future (post-edit) members
-  const nextUsernames = members.map(m => standardize(m.username));
+  const nextUsernames = members.map(m => standardizeUsername(m.username));
 
   // These players should be added to the group
   const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
@@ -343,9 +343,9 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
           // This matches a player who left the group with the old name of a name change.
           // And if it's not undefined it means we found a name change that includes
           // both a player who joined the group and a player who left the group.
-          const match = excessMemberships.find(m => m.player.username === standardize(oldName));
+          const match = excessMemberships.find(m => m.player.username === standardizeUsername(oldName));
 
-          if (player.username === standardize(newName) && match !== undefined) {
+          if (player.username === standardizeUsername(newName) && match !== undefined) {
             ignoreFromJoined.push(player.id);
             ignoreFromLeft.push(match.playerId);
           }
@@ -474,7 +474,7 @@ async function addMissingMemberships(
   const roleMap: { [playerId: number]: GroupRole } = {};
 
   missingPlayers.forEach(player => {
-    const role = memberInputs.find(m => standardize(m.username) === player.username)?.role;
+    const role = memberInputs.find(m => standardizeUsername(m.username) === player.username)?.role;
     if (!role) return;
 
     roleMap[player.id] = role;
@@ -520,7 +520,7 @@ function calculateRoleChangeMaps(
 
   keptPlayers.forEach(player => {
     // Find the next role for this player
-    const role = reversedInputs.find(m => standardize(m.username) === player.username)?.role;
+    const role = reversedInputs.find(m => standardizeUsername(m.username) === player.username)?.role;
 
     if (!role) return;
 

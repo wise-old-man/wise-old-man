@@ -1,12 +1,12 @@
 import prisma from '../../../../prisma';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 
 async function clearNameChangeHistory(username: string): Promise<{ count: number }> {
   const { count } = await prisma.nameChange.deleteMany({
     where: {
       player: {
-        username: standardize(username)
+        username: standardizeUsername(username)
       }
     }
   });
@@ -16,7 +16,7 @@ async function clearNameChangeHistory(username: string): Promise<{ count: number
   }
 
   const player = await prisma.player.findFirst({
-    where: { username: standardize(username) }
+    where: { username: standardizeUsername(username) }
   });
 
   if (!player) {

@@ -1,4 +1,4 @@
-import { standardize } from '../../api/modules/players/player.utils';
+import { standardizeUsername } from '../../api/modules/players/player.utils';
 import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerService';
 import prisma from '../../prisma';
 import { Player, PlayerStatus } from '../../types';
@@ -13,7 +13,11 @@ export const ScheduleFlaggedPlayerReviewJobHandler: JobHandler<Payload> = {
     const flaggedPlayer =
       payload.username === undefined
         ? await findRandomFlaggedPlayer()
-        : await prisma.player.findFirst({ where: { username: standardize(payload.username) } });
+        : await prisma.player.findFirst({
+            where: {
+              username: standardizeUsername(payload.username)
+            }
+          });
 
     if (flaggedPlayer === null) {
       return;

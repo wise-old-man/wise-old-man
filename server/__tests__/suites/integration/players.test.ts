@@ -383,7 +383,7 @@ describe('Player API', () => {
 
       expect(response.body).toMatchObject({
         username: 'psikoi',
-        displayName: 'PSIKOI',
+        displayName: 'PSIKOI_',
         build: 'main',
         type: 'regular',
         lastImportedAt: null
@@ -1001,7 +1001,7 @@ describe('Player API', () => {
       expect(byUsernameResponse.status).toBe(200);
       expect(byUsernameResponse.body).toMatchObject({
         username: 'psikoi',
-        displayName: 'PSIKOI',
+        displayName: 'PSIKOI_',
         type: 'regular',
         build: 'main',
         archive: null
@@ -1013,7 +1013,7 @@ describe('Player API', () => {
       expect(byIdResponse.status).toBe(200);
       expect(byIdResponse.body).toMatchObject({
         username: 'psikoi',
-        displayName: 'PSIKOI',
+        displayName: 'PSIKOI_',
         type: 'regular',
         build: 'main',
         archive: null
@@ -1553,15 +1553,47 @@ describe('Player API', () => {
 
   describe('8. Player Utils', () => {
     it('should sanitize usernames', () => {
-      expect(playerUtils.sanitize('PSIKOI')).toBe('PSIKOI');
-      expect(playerUtils.sanitize(' PSIKOI_')).toBe('PSIKOI');
-      expect(playerUtils.sanitize('___psikoi  ')).toBe('psikoi');
+      // unchanged, already valid
+      expect(playerUtils.sanitizeDisplayName('PSIKOI')).toBe('PSIKOI');
+      expect(playerUtils.sanitizeDisplayName('User_123')).toBe('User_123');
+      expect(playerUtils.sanitizeDisplayName('user-name')).toBe('user-name');
+      expect(playerUtils.sanitizeDisplayName('John Doe')).toBe('John Doe');
+
+      // trims leading and trailing spaces
+      expect(playerUtils.sanitizeDisplayName(' PSIKOI ')).toBe('PSIKOI');
+      expect(playerUtils.sanitizeDisplayName('   John Doe   ')).toBe('John Doe');
+
+      // preserves multiple spaces in the middle
+      expect(playerUtils.sanitizeDisplayName('John   Doe')).toBe('John   Doe');
+      expect(playerUtils.sanitizeDisplayName('A    B')).toBe('A    B');
+
+      // removes symbols and punctuation
+      expect(playerUtils.sanitizeDisplayName('User!')).toBe('User');
+      expect(playerUtils.sanitizeDisplayName('Bob@Home')).toBe('BobHome');
+      expect(playerUtils.sanitizeDisplayName('Hello, World.')).toBe('Hello World');
+
+      // removes emojis
+      expect(playerUtils.sanitizeDisplayName('Alice🙂')).toBe('Alice');
+      expect(playerUtils.sanitizeDisplayName('🔥Some🔥User🔥')).toBe('SomeUser');
+
+      // removes accented characters (not normalized)
+      expect(playerUtils.sanitizeDisplayName('José')).toBe('Jos');
+      expect(playerUtils.sanitizeDisplayName('Björk')).toBe('Bjrk');
+
+      // removes tabs and newlines
+      expect(playerUtils.sanitizeDisplayName('\tBob\t')).toBe('Bob');
+      expect(playerUtils.sanitizeDisplayName('Alice\nBob')).toBe('AliceBob');
+
+      // edge cases
+      expect(playerUtils.sanitizeDisplayName('')).toBe('');
+      expect(playerUtils.sanitizeDisplayName('   ')).toBe('');
+      expect(playerUtils.sanitizeDisplayName('!!!')).toBe('');
     });
 
     it('should standardize usernames', () => {
-      expect(playerUtils.standardize('HELLO WORLD')).toBe('hello world');
-      expect(playerUtils.standardize(' HELLO   WORLD_')).toBe('hello   world');
-      expect(playerUtils.standardize('___hello_WORLD123  ')).toBe('hello world123');
+      expect(playerUtils.standardizeUsername('HELLO WORLD')).toBe('hello world');
+      expect(playerUtils.standardizeUsername(' HELLO   WORLD_')).toBe('hello   world');
+      expect(playerUtils.standardizeUsername('___hello_WORLD123  ')).toBe('hello world123');
     });
 
     it('should check for username validity', () => {

@@ -10,12 +10,21 @@ import * as snapshotUtils from '../snapshots/snapshot.utils';
  * "Psikoi" -> "psikoi",
  * "Hello_world  " -> "hello world"
  */
-function standardize(username: string): string {
-  return sanitize(username).toLowerCase();
+function standardizeUsername(username: string): string {
+  return username
+    .replace(/[-_\s]/g, ' ')
+    .trim()
+    .toLowerCase();
 }
 
-function sanitize(username: string): string {
-  return username.replace(/[-_\s]/g, ' ').trim();
+/**
+ * Sanitize display name to only allow letters, numbers, spaces, dashes and underscores.
+ * Removes spaces from start and end, but allows consecutive spaces in the middle.
+ */
+function sanitizeDisplayName(username: string): string {
+  return username
+    .replace(/[^a-zA-Z0-9 \-_]/g, '') // Remove any character that's NOT letter, number, space, dash, or underscore
+    .trim(); // Remove spaces from start and end
 }
 
 export type PlayerUsernameValidationError =
@@ -26,7 +35,7 @@ export type PlayerUsernameValidationError =
   | { code: 'USERNAME_HAS_SPECIAL_CHARACTERS' };
 
 export function validateUsername(username: string): Result<null, PlayerUsernameValidationError> {
-  const standardized = standardize(username);
+  const standardized = standardizeUsername(username);
 
   if (!standardized) {
     return errored({ code: 'USERNAME_IS_UNDEFINED' });
@@ -138,4 +147,4 @@ async function splitArchivalData(playerId: number, lastSnapshotDate: Date) {
   };
 }
 
-export { getBuild, isValidUsername, sanitize, splitArchivalData, standardize };
+export { getBuild, isValidUsername, sanitizeDisplayName, splitArchivalData, standardizeUsername };

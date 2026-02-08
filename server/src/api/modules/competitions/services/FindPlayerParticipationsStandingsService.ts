@@ -5,7 +5,7 @@ import { calculateCompetitionDelta } from '../../../../utils/calculate-competiti
 import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
 import { uniqueBy } from '../../../../utils/unique-by.util';
 import { NotFoundError } from '../../../errors';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 
 type ReturnType = {
   participation: Participation;
@@ -22,7 +22,7 @@ async function findPlayerParticipationsStandings(
 ): Promise<Array<ReturnType>> {
   const player = await prisma.player.findFirst({
     where: {
-      username: standardize(username)
+      username: standardizeUsername(username)
     }
   });
 

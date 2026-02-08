@@ -1,6 +1,6 @@
 import { BadRequestError } from '../../../errors';
+import { isValidUsername, sanitizeDisplayName } from '../../players/player.utils';
 import { submitNameChange } from './SubmitNameChangeService';
-import { isValidUsername, sanitize } from '../../players/player.utils';
 
 type BulkSubmitResult = {
   nameChangesSubmitted: number;
@@ -20,7 +20,7 @@ async function bulkSubmitNameChanges(
       throw new BadRequestError('Invalid new name.');
     }
 
-    if (sanitize(entry.oldName) === sanitize(entry.newName)) {
+    if (sanitizeDisplayName(entry.oldName) === sanitizeDisplayName(entry.newName)) {
       throw new BadRequestError('Old name and new name cannot be the same.');
     }
   });

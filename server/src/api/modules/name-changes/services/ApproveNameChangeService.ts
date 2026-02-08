@@ -34,11 +34,11 @@ async function approveNameChange(id: number): Promise<NameChange> {
   }
 
   const oldPlayer = await prisma.player.findFirst({
-    where: { username: playerUtils.standardize(nameChange.oldName) }
+    where: { username: playerUtils.standardizeUsername(nameChange.oldName) }
   });
 
   const newPlayer = await prisma.player.findFirst({
-    where: { username: playerUtils.standardize(nameChange.newName) }
+    where: { username: playerUtils.standardizeUsername(nameChange.newName) }
   });
 
   if (!oldPlayer) {
@@ -262,8 +262,8 @@ async function transferPlayerData(
       }
 
       // Update the player to the new username & displayName
-      playerUpdateFields.username = playerUtils.standardize(newName);
-      playerUpdateFields.displayName = playerUtils.sanitize(newName);
+      playerUpdateFields.username = playerUtils.standardizeUsername(newName);
+      playerUpdateFields.displayName = playerUtils.sanitizeDisplayName(newName);
       playerUpdateFields.status = PlayerStatus.ACTIVE;
 
       const updatedPlayer = await tx.player.update({

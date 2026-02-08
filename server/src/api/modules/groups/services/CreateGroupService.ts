@@ -5,7 +5,7 @@ import { Group, GroupRole, PlayerAnnotationType } from '../../../../types';
 import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 import { BadRequestError, ForbiddenError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
-import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
+import { isValidUsername, sanitizeDisplayName, standardizeUsername } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
 interface CreateGroupPayload {
@@ -25,7 +25,7 @@ async function createGroup(
 }> {
   const name = sanitizeWhitespace(payload.name);
   const description = payload.description ? sanitizeWhitespace(payload.description) : null;
-  const clanChat = payload.clanChat ? sanitize(payload.clanChat) : null;
+  const clanChat = payload.clanChat ? sanitizeDisplayName(payload.clanChat) : null;
 
   if (clanChat && !isValidUsername(clanChat)) {
     throw new BadRequestError("Invalid 'clanChat'. Cannot contain special characters.");
@@ -46,7 +46,7 @@ async function createGroup(
       where: {
         player: {
           username: {
-            in: payload.members.map(m => standardize(m.username))
+            in: payload.members.map(m => standardizeUsername(m.username))
           }
         },
         type: {
@@ -135,7 +135,9 @@ async function prepareMemberships(members: CreateGroupPayload['members']) {
   // Find or create all players with the given usernames
   const players = await findOrCreatePlayers(members.map(m => m.username));
 
-  const usernameRoleMap = new Map<string, GroupRole>(members.map(m => [standardize(m.username), m.role]));
+  const usernameRoleMap = new Map<string, GroupRole>(
+    members.map(m => [standardizeUsername(m.username), m.role])
+  );
 
   return players.map(player => {
     return { playerId: player.id, role: usernameRoleMap.get(player.username)! };

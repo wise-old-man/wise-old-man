@@ -1,6 +1,6 @@
 import prisma from '../../../../prisma';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 
 async function removeParticipants(id: number, participants: string[]): Promise<{ count: number }> {
   const competition = await prisma.competition.findFirst({
@@ -13,7 +13,7 @@ async function removeParticipants(id: number, participants: string[]): Promise<{
 
   const playersToRemove = await prisma.player.findMany({
     where: {
-      username: { in: participants.map(standardize) }
+      username: { in: participants.map(standardizeUsername) }
     },
     select: {
       id: true
