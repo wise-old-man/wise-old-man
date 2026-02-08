@@ -67,8 +67,7 @@ export function formatSnapshotResponse(
   efficiencyMap: Map<Skill | Boss, number>
 ): SnapshotResponse {
   return {
-    id: snapshot.createdAt.getTime(), // Use timestamp as a snapshot ID (for backwards compatibility)
-    ...pick(snapshot, 'playerId', 'createdAt', 'importedAt'),
+    ...pick(snapshot, 'id', 'playerId', 'createdAt', 'importedAt'),
     data: {
       skills: Object.fromEntries(
         SKILLS.map(s => {
