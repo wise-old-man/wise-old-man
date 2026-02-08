@@ -1,6 +1,6 @@
 import prisma from '../../../../prisma';
 import { Player } from '../../../../types';
-import { sanitize, standardizeUsername } from '../player.utils';
+import { sanitizeDisplayName, standardizeUsername } from '../player.utils';
 
 async function findOrCreatePlayers(usernames: string[]): Promise<Player[]> {
   const foundPlayers = await prisma.player.findMany({
@@ -18,7 +18,7 @@ async function findOrCreatePlayers(usernames: string[]): Promise<Player[]> {
 
   const newPlayerInputs = missingUsernames.map(m => ({
     username: standardizeUsername(m),
-    displayName: sanitize(m)
+    displayName: sanitizeDisplayName(m)
   }));
 
   // Add new players

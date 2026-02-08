@@ -10,10 +10,18 @@ export function capitalize(str: string) {
  * "Hello_world  " -> "hello world"
  */
 export function standardizeUsername(username: string): string {
-  if (!username || typeof username !== "string") return "";
-  return sanitizeUsername(username).toLowerCase();
+  return username
+    .replace(/[-_\s]/g, ' ')
+    .trim()
+    .toLowerCase();
 }
 
-function sanitizeUsername(username: string): string {
-  return username.replace(/[-_\s]/g, " ").trim();
+/**
+ * Sanitize display name to only allow letters, numbers, spaces, dashes and underscores.
+ * Removes spaces from start and end, but allows consecutive spaces in the middle.
+ */
+export function sanitizeDisplayName(username: string): string {
+  return username
+    .replace(/[^a-zA-Z0-9 \-_]/g, '') // Remove any character that's NOT letter, number, space, dash, or underscore
+    .trim(); // Remove spaces from start and end
 }

@@ -11,11 +11,20 @@ import * as snapshotUtils from '../snapshots/snapshot.utils';
  * "Hello_world  " -> "hello world"
  */
 function standardizeUsername(username: string): string {
-  return sanitize(username).toLowerCase();
+  return username
+    .replace(/[-_\s]/g, ' ')
+    .trim()
+    .toLowerCase();
 }
 
-function sanitize(username: string): string {
-  return username.replace(/[-_\s]/g, ' ').trim();
+/**
+ * Sanitize display name to only allow letters, numbers, spaces, dashes and underscores.
+ * Removes spaces from start and end, but allows consecutive spaces in the middle.
+ */
+function sanitizeDisplayName(username: string): string {
+  return username
+    .replace(/[^a-zA-Z0-9 \-_]/g, '') // Remove any character that's NOT letter, number, space, dash, or underscore
+    .trim(); // Remove spaces from start and end
 }
 
 export type PlayerUsernameValidationError =
@@ -138,4 +147,4 @@ async function splitArchivalData(playerId: number, lastSnapshotDate: Date) {
   };
 }
 
-export { getBuild, isValidUsername, sanitize, splitArchivalData, standardizeUsername };
+export { getBuild, isValidUsername, sanitizeDisplayName, splitArchivalData, standardizeUsername };

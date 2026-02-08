@@ -102,19 +102,6 @@ describe('Group API', () => {
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
-    it('should not create (invalid clanChat)', async () => {
-      const response = await api.post('/groups').send({
-        name: 'ooops',
-        clanChat: '#hey_',
-        members: []
-      });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Invalid 'clanChat'");
-
-      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
-    });
-
     it('should not create (clanChat too long)', async () => {
       const response = await api.post('/groups').send({
         name: 'ooops',
@@ -288,7 +275,7 @@ describe('Group API', () => {
       expect(response.body.group.homeworld).toBe(null);
       expect(response.body.group.memberCount).toBe(5);
       expect(response.body.group.memberships.length).toBe(5);
-      expect(response.body.group.memberships[0].player.displayName).toContain('Test Player');
+      expect(response.body.group.memberships[0].player.displayName).toContain('Test_Player');
       expect(response.body.group.memberships[1].player.username).toBe('alt player');
       expect(response.body.group.memberships[2].player.username).toBe('alexsuperfly');
       expect(response.body.group.memberships[3].player.username).toBe('zezima');
@@ -326,7 +313,7 @@ describe('Group API', () => {
       expect(response.body.group.memberships.length).toBe(4);
       expect(response.body.group.memberCount).toBe(4);
       expect(response.body.group.memberships.map(m => m.player.username)).toContain('alt player');
-      expect(response.body.group.memberships.map(m => m.player.displayName)).toContain('Test Player');
+      expect(response.body.group.memberships.map(m => m.player.displayName)).toContain('Test_Player');
       expect(response.body.group.memberships.filter(m => m.role === 'leader').length).toBe(1);
       expect(response.body.group.memberships.filter(m => m.role === 'captain').length).toBe(1);
       expect(response.body.group.memberships.filter(m => m.role === 'member').length).toBe(1);

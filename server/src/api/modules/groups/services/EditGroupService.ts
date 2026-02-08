@@ -14,7 +14,7 @@ import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 
 import { assertNever } from '../../../../utils/assert-never.util';
 import { eventEmitter, EventType } from '../../../events';
-import { isValidUsername, sanitize, standardizeUsername } from '../../players/player.utils';
+import { isValidUsername, sanitizeDisplayName, standardizeUsername } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
 // Only allow images from our Cloudflare R2 CDN, to make sure people don't
@@ -151,7 +151,7 @@ export async function editGroup(
   }
 
   if (payload.clanChat) {
-    updatedGroupFields.clanChat = payload.clanChat ? sanitize(payload.clanChat) : null;
+    updatedGroupFields.clanChat = payload.clanChat ? sanitizeDisplayName(payload.clanChat) : null;
   }
 
   if (payload.homeworld) {

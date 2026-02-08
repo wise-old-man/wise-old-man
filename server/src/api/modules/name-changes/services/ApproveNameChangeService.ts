@@ -263,7 +263,7 @@ async function transferPlayerData(
 
       // Update the player to the new username & displayName
       playerUpdateFields.username = playerUtils.standardizeUsername(newName);
-      playerUpdateFields.displayName = playerUtils.sanitize(newName);
+      playerUpdateFields.displayName = playerUtils.sanitizeDisplayName(newName);
       playerUpdateFields.status = PlayerStatus.ACTIVE;
 
       const updatedPlayer = await tx.player.update({

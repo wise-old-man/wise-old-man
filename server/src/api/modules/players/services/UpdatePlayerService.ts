@@ -19,7 +19,7 @@ import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import {
   getBuild,
   PlayerUsernameValidationError,
-  sanitize,
+  sanitizeDisplayName,
   standardizeUsername,
   validateUsername
 } from '../player.utils';
@@ -345,7 +345,7 @@ async function findOrCreate(username: string): AsyncResult<
   const newPlayer = await prisma.player.create({
     data: {
       username: cleanUsername,
-      displayName: sanitize(username)
+      displayName: sanitizeDisplayName(username)
     }
   });
 

@@ -2,7 +2,11 @@ import prisma from '../../../../prisma';
 import { NameChange, NameChangeStatus } from '../../../../types';
 import { BadRequestError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
-import { isValidUsername, sanitize, standardizeUsername } from '../../../modules/players/player.utils';
+import {
+  isValidUsername,
+  sanitizeDisplayName,
+  standardizeUsername
+} from '../../../modules/players/player.utils';
 
 async function submitNameChange(oldName: string, newName: string): Promise<NameChange> {
   if (!isValidUsername(oldName)) {
@@ -13,7 +17,7 @@ async function submitNameChange(oldName: string, newName: string): Promise<NameC
     throw new BadRequestError(`Invalid new name.`);
   }
 
-  if (sanitize(oldName) === sanitize(newName)) {
+  if (sanitizeDisplayName(oldName) === sanitizeDisplayName(newName)) {
     throw new BadRequestError('Old name and new name cannot be the same.');
   }
 
@@ -74,7 +78,7 @@ async function submitNameChange(oldName: string, newName: string): Promise<NameC
     data: {
       playerId: oldPlayer.id,
       oldName: oldPlayer.displayName,
-      newName: sanitize(newName)
+      newName: sanitizeDisplayName(newName)
     }
   })) as NameChange;
 
