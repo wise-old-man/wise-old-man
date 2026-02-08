@@ -108,6 +108,23 @@ export async function findMissingAchievementDates(playerId: number, definitions:
   const INITIAL_BATCH_SIZE = 1000;
   let remainingDefs = [...definitions];
 
+  const firstSnapshot = await prisma.snapshot.findFirst({
+    where: {
+      playerId
+    },
+    orderBy: {
+      createdAt: 'asc'
+    }
+  });
+
+  /**
+   * If the player has already achievement an achievement by their first snapshot,
+   * skip searching for that definition's transition date entirely.
+   */
+  if (firstSnapshot !== null) {
+    remainingDefs = remainingDefs.filter(d => !d.validate(firstSnapshot));
+  }
+
   for (let batchIndex = 0; remainingDefs.length > 0; batchIndex++) {
     // Batch size triples on every iteration
     const batchSize = INITIAL_BATCH_SIZE * 3 ** batchIndex;
