@@ -1,14 +1,14 @@
 import prisma from '../../../../prisma';
 import { NameChange, NameChangeStatus, PlayerAnnotationType } from '../../../../types';
 import { NotFoundError } from '../../../errors';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 
 async function findPlayerNameChanges(username: string): Promise<NameChange[]> {
   // Query the database for all (approved) name changes of "playerId"
   const nameChanges = await prisma.nameChange.findMany({
     where: {
       player: {
-        username: standardize(username),
+        username: standardizeUsername(username),
         annotations: {
           none: {
             type: PlayerAnnotationType.OPT_OUT
@@ -24,7 +24,7 @@ async function findPlayerNameChanges(username: string): Promise<NameChange[]> {
 
   if (nameChanges.length === 0) {
     const player = await prisma.player.findFirst({
-      where: { username: standardize(username) }
+      where: { username: standardizeUsername(username) }
     });
 
     if (!player) {

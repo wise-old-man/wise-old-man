@@ -1,6 +1,6 @@
 import { isErrored } from '@attio/fetchable';
 import { NotFoundError } from '../../api/errors';
-import { standardize } from '../../api/modules/players/player.utils';
+import { standardizeUsername } from '../../api/modules/players/player.utils';
 import { assertPlayerType } from '../../api/modules/players/services/AssertPlayerTypeService';
 import prisma from '../../prisma';
 import { assertNever } from '../../utils/assert-never.util';
@@ -26,7 +26,7 @@ export const AssertPlayerTypeJobHandler: JobHandler<Payload> = {
     }
 
     const player = await prisma.player.findFirst({
-      where: { username: standardize(payload.username) }
+      where: { username: standardizeUsername(payload.username) }
     });
 
     if (!player) {

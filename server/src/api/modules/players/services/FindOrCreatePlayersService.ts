@@ -1,10 +1,10 @@
 import prisma from '../../../../prisma';
 import { Player } from '../../../../types';
-import { sanitize, standardize } from '../player.utils';
+import { sanitize, standardizeUsername } from '../player.utils';
 
 async function findOrCreatePlayers(usernames: string[]): Promise<Player[]> {
   const foundPlayers = await prisma.player.findMany({
-    where: { username: { in: usernames.map(standardize) } }
+    where: { username: { in: usernames.map(standardizeUsername) } }
   });
 
   // If all players exist on the database already, great, just return them.
@@ -14,10 +14,10 @@ async function findOrCreatePlayers(usernames: string[]): Promise<Player[]> {
   const foundUsernames = foundPlayers.map(f => f.username);
 
   // Find the unregistered usernames
-  const missingUsernames = usernames.filter(u => !foundUsernames.includes(standardize(u)));
+  const missingUsernames = usernames.filter(u => !foundUsernames.includes(standardizeUsername(u)));
 
   const newPlayerInputs = missingUsernames.map(m => ({
-    username: standardize(m),
+    username: standardizeUsername(m),
     displayName: sanitize(m)
   }));
 
@@ -32,7 +32,7 @@ async function findOrCreatePlayers(usernames: string[]): Promise<Player[]> {
   });
 
   // Sort the resulting players list by the order of the input usernames
-  const standardizedUsernames = usernames.map(standardize);
+  const standardizedUsernames = usernames.map(standardizeUsername);
 
   return [...foundPlayers, ...newPlayers].sort(
     (a, b) => standardizedUsernames.indexOf(a.username) - standardizedUsernames.indexOf(b.username)

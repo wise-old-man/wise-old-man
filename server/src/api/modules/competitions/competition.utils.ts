@@ -1,13 +1,13 @@
 import { complete, errored, Result } from '@attio/fetchable';
 import { CompetitionTeam } from '../../../types';
 import { sanitizeWhitespace } from '../../../utils/sanitize-whitespace.util';
-import * as playerUtils from '../players/player.utils';
+import { isValidUsername, standardizeUsername } from '../players/player.utils';
 
 export function sanitizeTeams(teamInputs: CompetitionTeam[]): CompetitionTeam[] {
   // Sanitize the team inputs
   return teamInputs.map(t => ({
     name: sanitizeWhitespace(t.name),
-    participants: t.participants.map(playerUtils.standardize)
+    participants: t.participants.map(standardizeUsername)
   }));
 }
 
@@ -31,7 +31,7 @@ export function validateTeamDuplicates(
 export function validateInvalidParticipants(
   participants: string[]
 ): Result<true, { code: 'INVALID_USERNAMES_FOUND'; data: string[] }> {
-  const invalidUsernames = participants.filter(u => !playerUtils.isValidUsername(u));
+  const invalidUsernames = participants.filter(u => !isValidUsername(u));
 
   if (invalidUsernames.length > 0) {
     return errored({
@@ -46,7 +46,7 @@ export function validateInvalidParticipants(
 export function validateParticipantDuplicates(
   participants: string[]
 ): Result<true, { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] }> {
-  const usernames = participants.map(playerUtils.standardize);
+  const usernames = participants.map(standardizeUsername);
   // adding dupes to a set, otherwise both copies of each dupe would get reported
   const duplicateUsernames = [...new Set(usernames.filter(u => usernames.filter(iu => iu === u).length > 1))];
 

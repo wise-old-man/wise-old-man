@@ -65,7 +65,10 @@ export const ReviewNameChangeJobHandler: JobHandler<Payload> = {
     const { isNewOnHiscores, negativeGains, hoursDiff, ehpDiff, ehbDiff, oldStats } = data;
 
     // If it's a capitalization change, auto-approve
-    if (playerUtils.standardize(nameChange.oldName) === playerUtils.standardize(nameChange.newName)) {
+    if (
+      playerUtils.standardizeUsername(nameChange.oldName) ===
+      playerUtils.standardizeUsername(nameChange.newName)
+    ) {
       await approveNameChange(nameChangeId);
       return;
     }

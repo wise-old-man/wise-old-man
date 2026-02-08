@@ -2,7 +2,7 @@ import { jobManager, JobType } from '../../../../jobs';
 import prisma from '../../../../prisma';
 import { Patron } from '../../../../types';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 
 async function claimPatreonBenefits(
   discordId: string,
@@ -29,7 +29,7 @@ async function claimPatreonBenefits(
 
   if (username) {
     const player = await prisma.player.findFirst({
-      where: { username: standardize(username) }
+      where: { username: standardizeUsername(username) }
     });
 
     if (!player) {

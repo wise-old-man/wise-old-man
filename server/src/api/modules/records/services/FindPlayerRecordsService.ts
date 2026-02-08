@@ -1,12 +1,12 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { Metric, Period, Record } from '../../../../types';
 import { NotFoundError } from '../../../errors';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 
 async function findPlayerRecords(username: string, period?: Period, metric?: Metric): Promise<Record[]> {
   const query: PrismaTypes.RecordWhereInput = {
     player: {
-      username: standardize(username)
+      username: standardizeUsername(username)
     }
   };
 
@@ -20,7 +20,7 @@ async function findPlayerRecords(username: string, period?: Period, metric?: Met
 
   if (records.length === 0) {
     const player = await prisma.player.findFirst({
-      where: { username: standardize(username) }
+      where: { username: standardizeUsername(username) }
     });
 
     if (!player) {

@@ -1559,9 +1559,9 @@ describe('Player API', () => {
     });
 
     it('should standardize usernames', () => {
-      expect(playerUtils.standardize('HELLO WORLD')).toBe('hello world');
-      expect(playerUtils.standardize(' HELLO   WORLD_')).toBe('hello   world');
-      expect(playerUtils.standardize('___hello_WORLD123  ')).toBe('hello world123');
+      expect(playerUtils.standardizeUsername('HELLO WORLD')).toBe('hello world');
+      expect(playerUtils.standardizeUsername(' HELLO   WORLD_')).toBe('hello   world');
+      expect(playerUtils.standardizeUsername('___hello_WORLD123  ')).toBe('hello world123');
     });
 
     it('should check for username validity', () => {

@@ -3,7 +3,7 @@ import logger from '../../../../services/logging.service';
 import { GroupRole, MemberActivityType, PlayerAnnotationType } from '../../../../types';
 import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
-import { isValidUsername, standardize } from '../../players/player.utils';
+import { isValidUsername, standardizeUsername } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
 async function addMembers(
@@ -62,7 +62,7 @@ async function addMembers(
   }
 
   const newMemberships = newPlayers.map(player => {
-    const role = members.find(m => standardize(m.username) === player.username)?.role;
+    const role = members.find(m => standardizeUsername(m.username) === player.username)?.role;
 
     if (!role) {
       throw new ServerError('Failed to find role for player (AddMemberService).');

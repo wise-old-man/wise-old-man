@@ -46,7 +46,7 @@ import { findPlayerSnapshotTimeline } from '../snapshots/services/FindPlayerSnap
 import { findPlayerSnapshots } from '../snapshots/services/FindPlayerSnapshotsService';
 import { rollbackCollectionLog } from '../snapshots/services/RollbackCollectionLogService';
 import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsService';
-import { standardize } from './player.utils';
+import { standardizeUsername } from './player.utils';
 import { archivePlayer } from './services/ArchivePlayerService';
 import { assertPlayerType } from './services/AssertPlayerTypeService';
 import { changePlayerCountry } from './services/ChangePlayerCountryService';
@@ -225,7 +225,7 @@ router.post(
     const { username } = req.params;
 
     const player = await prisma.player.findFirst({
-      where: { username: standardize(username) }
+      where: { username: standardizeUsername(username) }
     });
 
     if (player === null) {
@@ -287,7 +287,7 @@ router.post(
     const { untilLastChange } = req.body;
 
     const player = await prisma.player.findFirst({
-      where: { username: standardize(username) }
+      where: { username: standardizeUsername(username) }
     });
 
     if (!player) {
@@ -336,7 +336,7 @@ router.post(
     const { username } = req.params;
 
     const player = await prisma.player.findFirst({
-      where: { username: standardize(username) }
+      where: { username: standardizeUsername(username) }
     });
 
     if (player === null) {
@@ -375,7 +375,7 @@ router.post(
     const { username } = req.params;
 
     const player = await prisma.player.findFirst({
-      where: { username: standardize(username) }
+      where: { username: standardizeUsername(username) }
     });
 
     if (!player) {
@@ -436,7 +436,7 @@ router.get(
     const { period, startDate, endDate, ...pagination } = req.query;
 
     const player = await prisma.player.findFirst({
-      where: { username: standardize(username) }
+      where: { username: standardizeUsername(username) }
     });
 
     if (!player) {

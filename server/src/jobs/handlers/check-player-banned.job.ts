@@ -1,5 +1,5 @@
 import { isErrored } from '@attio/fetchable';
-import { standardize } from '../../api/modules/players/player.utils';
+import { standardizeUsername } from '../../api/modules/players/player.utils';
 import prisma from '../../prisma';
 import { getRuneMetricsBannedStatus } from '../../services/jagex.service';
 import logger from '../../services/logging.service';
@@ -31,7 +31,7 @@ export const CheckPlayerBannedJobHandler: JobHandler<Payload> = {
       return;
     }
 
-    const username = standardize(payload.username);
+    const username = standardizeUsername(payload.username);
 
     const player = await prisma.player.findFirst({
       where: { username }

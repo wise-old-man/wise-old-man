@@ -10,7 +10,7 @@ import {
 } from '../../../responses';
 import { getPlayerEfficiencyMap } from '../../efficiency/efficiency.utils';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 import { buildHiscoresSnapshot } from '../../snapshots/services/BuildHiscoresSnapshot';
 import { getNegativeGains } from '../../snapshots/snapshot.utils';
 
@@ -32,11 +32,11 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
   }
 
   const oldPlayer = await prisma.player.findFirst({
-    where: { username: standardize(nameChange.oldName) }
+    where: { username: standardizeUsername(nameChange.oldName) }
   });
 
   const newPlayer = await prisma.player.findFirst({
-    where: { username: standardize(nameChange.newName) }
+    where: { username: standardizeUsername(nameChange.newName) }
   });
 
   if (!oldPlayer || nameChange.status !== NameChangeStatus.PENDING) {

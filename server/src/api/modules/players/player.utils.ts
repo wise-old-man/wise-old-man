@@ -10,7 +10,7 @@ import * as snapshotUtils from '../snapshots/snapshot.utils';
  * "Psikoi" -> "psikoi",
  * "Hello_world  " -> "hello world"
  */
-function standardize(username: string): string {
+function standardizeUsername(username: string): string {
   return sanitize(username).toLowerCase();
 }
 
@@ -26,7 +26,7 @@ export type PlayerUsernameValidationError =
   | { code: 'USERNAME_HAS_SPECIAL_CHARACTERS' };
 
 export function validateUsername(username: string): Result<null, PlayerUsernameValidationError> {
-  const standardized = standardize(username);
+  const standardized = standardizeUsername(username);
 
   if (!standardized) {
     return errored({ code: 'USERNAME_IS_UNDEFINED' });
@@ -138,4 +138,4 @@ async function splitArchivalData(playerId: number, lastSnapshotDate: Date) {
   };
 }
 
-export { getBuild, isValidUsername, sanitize, splitArchivalData, standardize };
+export { getBuild, isValidUsername, sanitize, splitArchivalData, standardizeUsername };

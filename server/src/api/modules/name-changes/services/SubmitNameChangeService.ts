@@ -2,7 +2,7 @@ import prisma from '../../../../prisma';
 import { NameChange, NameChangeStatus } from '../../../../types';
 import { BadRequestError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
-import { isValidUsername, sanitize, standardize } from '../../../modules/players/player.utils';
+import { isValidUsername, sanitize, standardizeUsername } from '../../../modules/players/player.utils';
 
 async function submitNameChange(oldName: string, newName: string): Promise<NameChange> {
   if (!isValidUsername(oldName)) {
@@ -17,11 +17,9 @@ async function submitNameChange(oldName: string, newName: string): Promise<NameC
     throw new BadRequestError('Old name and new name cannot be the same.');
   }
 
-  // Standardize both input usernames (convert to lower case, remove symbols)
-  const stOldName = standardize(oldName);
-  const stNewName = standardize(newName);
+  const stOldName = standardizeUsername(oldName);
+  const stNewName = standardizeUsername(newName);
 
-  // Check if a player with the "oldName" username is registered
   const oldPlayer = await prisma.player.findFirst({
     where: { username: stOldName }
   });
@@ -30,7 +28,6 @@ async function submitNameChange(oldName: string, newName: string): Promise<NameC
     throw new BadRequestError(`Player '${oldName}' is not tracked yet.`);
   }
 
-  // Check if there's any pending name changes for these names
   const pending = await prisma.nameChange.findFirst({
     where: {
       oldName: { equals: stOldName, mode: 'insensitive' },
@@ -57,7 +54,7 @@ async function submitNameChange(oldName: string, newName: string): Promise<NameC
         orderBy: { createdAt: 'desc' }
       });
 
-      if (lastChange && standardize(lastChange.oldName) === stOldName) {
+      if (lastChange && standardizeUsername(lastChange.oldName) === stOldName) {
         throw new BadRequestError(`Cannot submit a duplicate (approved) name change. (Id: ${lastChange.id})`);
       }
     }

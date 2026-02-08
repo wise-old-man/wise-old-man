@@ -3,7 +3,7 @@ import { Period } from '../../../../types';
 import { parsePeriodExpression } from '../../../../utils/shared/parse-period-expression.util';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { PlayerDeltasMapResponse } from '../../../responses';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 import { calculatePlayerDeltas, emptyPlayerDelta } from '../delta.utils';
 
 async function findPlayerDeltas(
@@ -26,7 +26,7 @@ async function findPlayerDeltas(
 
   const player = await prisma.player.findFirst({
     where: {
-      username: standardize(username)
+      username: standardizeUsername(username)
     },
     include: {
       // If fetching by period (not custom time range), the "end" snapshots will always be

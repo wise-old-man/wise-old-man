@@ -20,7 +20,7 @@ import {
   getBuild,
   PlayerUsernameValidationError,
   sanitize,
-  standardize,
+  standardizeUsername,
   validateUsername
 } from '../player.utils';
 import { archivePlayer } from './ArchivePlayerService';
@@ -301,7 +301,7 @@ async function findOrCreate(username: string): AsyncResult<
 > {
   const player = await prisma.player.findFirst({
     where: {
-      username: standardize(username)
+      username: standardizeUsername(username)
     },
     include: {
       annotations: true,
@@ -332,7 +332,7 @@ async function findOrCreate(username: string): AsyncResult<
     });
   }
 
-  const cleanUsername = standardize(username);
+  const cleanUsername = standardizeUsername(username);
   const validationResult = validateUsername(cleanUsername);
 
   if (isErrored(validationResult)) {

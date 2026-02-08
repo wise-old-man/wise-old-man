@@ -1,7 +1,7 @@
 import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Player, PlayerAnnotation, PlayerArchive, PlayerStatus, Snapshot } from '../../../../types';
-import { standardize } from '../player.utils';
+import { standardizeUsername } from '../player.utils';
 
 type PlayerDetails = {
   player: Player;
@@ -14,7 +14,7 @@ async function fetchPlayerDetails(
   username: string
 ): AsyncResult<PlayerDetails, { code: 'PLAYER_NOT_FOUND' }> {
   const player = await prisma.player.findFirst({
-    where: { username: standardize(username) },
+    where: { username: standardizeUsername(username) },
     include: { latestSnapshot: true, annotations: true }
   });
 
