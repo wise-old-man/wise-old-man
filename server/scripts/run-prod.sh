@@ -27,4 +27,4 @@ echo "Starting server | SERVER_TYPE=$SERVER_TYPE | PM2_INSTANCES=$PM2_INSTANCES"
 
 # Start the server with PM2 using the specified number of instances
 export NODE_ENV=production
-pm2-runtime "$ENTRYPOINT" -i "$PM2_INSTANCES"
+pm2-runtime "$ENTRYPOINT" -i "$PM2_INSTANCES" --max-memory-restart 1G
