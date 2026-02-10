@@ -4,7 +4,7 @@ import { PeriodProps } from '../../utils/shared';
 import { JobHandler } from '../types/job-handler.type';
 import { JobType } from '../types/job-type.enum';
 
-export const ScheduleGroupScoreUpdatesJobHandler: JobHandler<unknown> = {
+export const ScheduleGroupScoreUpdatesJobHandler: JobHandler = {
   async execute(_payload, context) {
     const groups = await prisma.group.findMany({
       select: { id: true }

@@ -3,7 +3,7 @@ import { sendDiscordWebhook } from '../../services/discord.service';
 import { Competition, Group } from '../../types';
 import { JobHandler } from '../types/job-handler.type';
 
-export const CheckProtectedPlayersSpamJobHandler: JobHandler<unknown> = {
+export const CheckProtectedPlayersSpamJobHandler: JobHandler = {
   async execute() {
     if (
       process.env.API_ABUSE_PROTECTED_PLAYERS_LIST === undefined ||

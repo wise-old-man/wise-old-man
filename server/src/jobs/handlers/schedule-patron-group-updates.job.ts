@@ -6,7 +6,7 @@ import { JobHandler } from '../types/job-handler.type';
 import { JobPriority } from '../types/job-priority.enum';
 import { JobType } from '../types/job-type.enum';
 
-export const SchedulePatronGroupUpdatesJobHandler: JobHandler<unknown> = {
+export const SchedulePatronGroupUpdatesJobHandler: JobHandler = {
   async execute(_payload, context) {
     if (process.env.NODE_ENV !== 'production') {
       return;

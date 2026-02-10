@@ -97,7 +97,7 @@ class JobManager {
     logger.info(`[v2] Added job: ${type}`, opts.jobId, true);
   }
 
-  async handleJob(bullJob: BullJob, handler: JobHandler<unknown>) {
+  async handleJob(bullJob: BullJob, handler: JobHandler) {
     const maxAttempts = bullJob.opts.attempts ?? 1;
     const attemptTag = maxAttempts > 1 ? `(#${bullJob.attemptsMade})` : '';
 

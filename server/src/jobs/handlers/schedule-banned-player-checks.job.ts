@@ -6,7 +6,7 @@ import { JobType } from '../types/job-type.enum';
 
 const CHECKS_PER_DAY = 1000;
 
-export const ScheduleBannedPlayerChecksJobHandler: JobHandler<unknown> = {
+export const ScheduleBannedPlayerChecksJobHandler: JobHandler = {
   async execute(_payload, context) {
     // Find random banned players, and re-check if they are still banned
     const randomBannedPlayers = await prisma.$queryRaw<Array<{ username: string }>>`

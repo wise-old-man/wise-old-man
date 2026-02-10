@@ -6,7 +6,7 @@ import { JobHandler } from '../types/job-handler.type';
 
 const CREATION_SPAM_THRESHOLD = 5;
 
-export const CheckCreationSpamJobHandler: JobHandler<unknown> = {
+export const CheckCreationSpamJobHandler: JobHandler = {
   async execute() {
     const minuteAgo = new Date(Date.now() - 60 * 1000);
 

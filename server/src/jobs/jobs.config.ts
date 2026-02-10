@@ -1,5 +1,6 @@
 import { AddPlayersToGroupCompetitionsJobHandler } from './handlers/add-players-to-group-competitions.job';
 import { AssertPlayerTypeJobHandler } from './handlers/assert-player-type.job';
+import { BackfillCompetitionTimeEventsJobHandler } from './handlers/backfill-competition-time-events.job';
 import { CalculateComputedRankTablesJobHandler } from './handlers/calculate-computed-rank-tables.job';
 import { CalculateSailingExpTrendJobHandler } from './handlers/calculate-sailing-exp-trend.job';
 import { CheckCreationSpamJobHandler } from './handlers/check-creation-spam.job';
@@ -55,6 +56,7 @@ import { JobType } from './types/job-type.enum';
 export const JOB_HANDLER_MAP = {
   [JobType.ADD_PLAYERS_TO_GROUP_COMPETITIONS]: AddPlayersToGroupCompetitionsJobHandler,
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJobHandler,
+  [JobType.BACKFILL_COMPETITION_TIME_EVENTS]: BackfillCompetitionTimeEventsJobHandler,
   [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJobHandler,
   [JobType.CALCULATE_SAILING_EXP_TREND]: CalculateSailingExpTrendJobHandler,
   [JobType.CHECK_CREATION_SPAM]: CheckCreationSpamJobHandler,
@@ -104,7 +106,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.UPDATE_NEW_GROUP_MEMBERS]: UpdateNewGroupMembersJobHandler,
   [JobType.UPDATE_PLAYER]: UpdatePlayerJobHandler,
   [JobType.UPDATE_QUEUE_METRICS]: UpdateQueueMetricsJobHandler
-} satisfies Record<JobType, JobHandler<unknown>>;
+} satisfies Record<JobType, JobHandler>;
 
 export const CRON_CONFIG = [
   // every 1 min
@@ -120,6 +122,7 @@ export const CRON_CONFIG = [
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
   // every hour
+  { interval: '0 * * * *', type: JobType.BACKFILL_COMPETITION_TIME_EVENTS },
   { interval: '0 * * * *', type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW },
   { interval: '0 * * * *', type: JobType.SCHEDULE_TREND_DATAPOINT_CALCULATIONS },
   // every 6 hours
