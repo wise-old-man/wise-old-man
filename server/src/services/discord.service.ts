@@ -136,6 +136,8 @@ export async function sendDiscordWebhook({
     })
   );
 
+  webhookClient.destroy();
+
   if (isErrored(requestResult)) {
     return errored({
       code: 'FAILED_TO_SEND_DISCORD_WEBHOOK',
