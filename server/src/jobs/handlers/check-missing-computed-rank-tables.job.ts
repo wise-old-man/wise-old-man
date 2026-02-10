@@ -4,7 +4,7 @@ import { COMPUTED_METRICS, PLAYER_BUILDS, PLAYER_TYPES, PlayerType } from '../..
 import { JobHandler } from '../types/job-handler.type';
 import { JobType } from '../types/job-type.enum';
 
-export const CheckMissingComputedRankTablesJobHandler: JobHandler<unknown> = {
+export const CheckMissingComputedRankTablesJobHandler: JobHandler = {
   async execute(_payload, context) {
     let isMissingData = false;
 

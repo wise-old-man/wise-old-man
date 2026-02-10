@@ -11,7 +11,7 @@ import { Patron } from '../../types';
 import { omit } from '../../utils/omit.util';
 import { JobHandler } from '../types/job-handler.type';
 
-export const SyncPatronsJobHandler: JobHandler<unknown> = {
+export const SyncPatronsJobHandler: JobHandler = {
   async execute() {
     if (!process.env.PATREON_BEARER_TOKEN || process.env.NODE_ENV !== 'production') {
       return;

@@ -6,7 +6,7 @@ import { JobType } from '../types/job-type.enum';
 
 const REVIEWS_PER_DAY = 500;
 
-export const ScheduleNameChangeReviewsJobHandler: JobHandler<unknown> = {
+export const ScheduleNameChangeReviewsJobHandler: JobHandler = {
   async execute(_payload, context) {
     if (process.env.NODE_ENV !== 'production') {
       return;

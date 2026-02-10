@@ -4,7 +4,7 @@ import { PeriodProps } from '../../utils/shared';
 import { JobHandler } from '../types/job-handler.type';
 import { JobType } from '../types/job-type.enum';
 
-export const ScheduleCompetitionScoreUpdatesJobHandler: JobHandler<unknown> = {
+export const ScheduleCompetitionScoreUpdatesJobHandler: JobHandler = {
   async execute(_payload, context) {
     const competitions = await prisma.competition.findMany({
       where: {

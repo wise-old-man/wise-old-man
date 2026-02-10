@@ -3,7 +3,7 @@ import logger from '../../services/logging.service';
 import { JobHandler } from '../types/job-handler.type';
 import { JobType } from '../types/job-type.enum';
 
-export const BackfillCompetitionTimeEventsJobHandler: JobHandler<unknown> = {
+export const BackfillCompetitionTimeEventsJobHandler: JobHandler = {
   async execute(_payload, context) {
     const competitions = await prisma.competition.findMany({
       where: {

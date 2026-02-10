@@ -15,7 +15,7 @@ const START_TIME_INTERVALS = [360, 5, 0];
 // 12h, 2h, 30min, now
 const END_TIME_INTERVALS = [720, 120, 30, 0];
 
-export const ScheduleCompetitionEventsJobHandler: JobHandler<unknown> = {
+export const ScheduleCompetitionEventsJobHandler: JobHandler = {
   async execute() {
     // Schedule "starting" and "started" events for each interval
     for (const start of START_TIME_INTERVALS) {

@@ -3,7 +3,7 @@ import { Period, PERIODS } from '../../types';
 import { assertNever } from '../../utils/assert-never.util';
 import { JobHandler } from '../types/job-handler.type';
 
-export const InvalidateDeltasJobHandler: JobHandler<unknown> = {
+export const InvalidateDeltasJobHandler: JobHandler = {
   async execute() {
     for (const period of PERIODS) {
       await prisma.cachedDelta.deleteMany({

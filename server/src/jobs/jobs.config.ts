@@ -106,7 +106,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.UPDATE_NEW_GROUP_MEMBERS]: UpdateNewGroupMembersJobHandler,
   [JobType.UPDATE_PLAYER]: UpdatePlayerJobHandler,
   [JobType.UPDATE_QUEUE_METRICS]: UpdateQueueMetricsJobHandler
-} satisfies Record<JobType, JobHandler<unknown>>;
+} satisfies Record<JobType, JobHandler>;
 
 export const CRON_CONFIG = [
   // every 1 min

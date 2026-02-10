@@ -6,7 +6,7 @@ import { JobType } from '../types/job-type.enum';
 
 const MAX_EVENTS_TO_ENQUEUE = 100;
 
-export const EnqueueCompetitionTimeEventsJobHandler: JobHandler<unknown> = {
+export const EnqueueCompetitionTimeEventsJobHandler: JobHandler = {
   async execute(_payload, context) {
     if (process.env.NODE_ENV === 'test') {
       return;

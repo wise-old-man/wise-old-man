@@ -15,7 +15,7 @@ import { JobHandler } from '../types/job-handler.type';
 // The higher the resolution, the more accurate the estimates are, but the more memory is used
 export const RANK_RESOLUTION = 10;
 
-export const CalculateComputedRankTablesJobHandler: JobHandler<unknown> = {
+export const CalculateComputedRankTablesJobHandler: JobHandler = {
   async execute() {
     await updateRankMaps(ComputedMetric.EHP);
     await updateRankMaps(ComputedMetric.EHB);
