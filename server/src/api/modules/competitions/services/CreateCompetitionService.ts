@@ -284,7 +284,7 @@ async function getValidatedParticipations({
           in: participations.map(p => p.playerId)
         },
         type: {
-          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]
+          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS]
         }
       },
       include: {
