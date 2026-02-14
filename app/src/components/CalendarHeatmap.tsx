@@ -29,27 +29,28 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
 
   const maxValue = getMaxValue(data) || 0;
 
-  const dayDiff = (endDate.getTime() - startDate.getTime()) / 1000 / 60 / 60 / 24;
-
   const map = new Map<number, number | null>(data.map((d) => [d.date.getTime(), d.value]));
 
-  for (let i = 0; i < dayDiff + 1; i++) {
-    const timestamp = startDate.getTime() + 1000 * 60 * 60 * 24 * i;
-    if (!map.has(timestamp)) map.set(timestamp, 0);
+  const allDays: Date[] = [];
+  const cursor = new Date(startDate);
+
+  while (cursor.getTime() <= endDate.getTime()) {
+    allDays.push(new Date(cursor));
+    
+    if (!map.has(cursor.getTime())) {
+      map.set(cursor.getTime(), 0);
+    }
+
+    cursor.setDate(cursor.getDate() + 1);
   }
 
   const rows: Array<DataPoint>[] = [[], [], [], [], [], [], []];
 
-  for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
-    for (let i = 0; i <= dayDiff; i += 7) {
-      const timestamp = startDate.getTime() + 1000 * 60 * 60 * 24 * (i + dayIndex);
-      const match = map.get(timestamp);
+  const startDow = startDate.getDay();
 
-      if (match === undefined) continue;
-
-      const date = new Date(timestamp);
-      rows[dayIndex].push({ date, value: match });
-    }
+  for (const date of allDays) {
+    const value = map.get(date.getTime()) ?? null;
+    rows[(date.getDay() - startDow + 7) % 7].push({ date, value });
   }
 
   return (
