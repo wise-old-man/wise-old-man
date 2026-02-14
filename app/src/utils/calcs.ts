@@ -1,5 +1,3 @@
-import { PeriodProps, Period } from "@wise-old-man/utils";
-
 export function calculateGainBuckets(
   data: Array<{ value: number; date: Date }>,
   minDate: Date,
@@ -43,7 +41,7 @@ export function calculateGainBuckets(
     if (!map.has(current.getTime())) {
       map.set(current.getTime(), { count: 0, gained: null });
     }
-    current = new Date(current.getTime() + PeriodProps[Period.DAY].milliseconds);
+    current.setDate(current.getDate() + 1);
   }
 
   const results: { date: Date; count: number; gained: number | null }[] = [];
