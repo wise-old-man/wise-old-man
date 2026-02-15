@@ -80,7 +80,7 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
               const y = rowIndex * (SIZE + GAP);
 
               return (
-                <Tooltip key={`${rowIndex}-${columnIndex}`} delayDuration={0}>
+                <Tooltip key={`${rowIndex}-${columnIndex}`} delayDuration={0} disableHoverableContent>
                   <TooltipTrigger asChild>
                     <g className="stroke stroke-transparent hover:stroke-white">
                       <rect
