@@ -146,11 +146,15 @@ async function updatePlayer(
   // This is because when players de-iron, their ironman stats stay frozen, so they don't gain exp.
   // To fix, we can check the "regular" hiscores to see if they've de-ironed, and update their type accordingly.
   if (!hasChanged && (await shouldReviewType(player))) {
-    const hasTypeChanged = await reviewType(player);
+    const reviewResult = await reviewType(player);
+
+    if (isErrored(reviewResult)) {
+      return reviewResult;
+    }
 
     // If they did in fact de-iron, call this function recursively,
     // so that it fetches their stats from the correct hiscores.
-    if (hasTypeChanged) {
+    if (reviewResult.value.changed) {
       return updatePlayer(player.username);
     }
   }
