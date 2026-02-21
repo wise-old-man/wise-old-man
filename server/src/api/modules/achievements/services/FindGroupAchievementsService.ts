@@ -1,5 +1,6 @@
 import prisma from '../../../../prisma';
-import { Achievement, Player } from '../../../../types';
+import { Achievement, Player, PlayerAnnotationType } from '../../../../types';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 
@@ -26,7 +27,12 @@ async function findGroupAchievements(
 
   // Fetch all achievements for these player IDs
   const achievements = await prisma.achievement.findMany({
-    where: { playerId: { in: playerIds } },
+    where: {
+      playerId: { in: playerIds },
+      player: {
+        ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS])
+      }
+    },
     include: { player: true },
     orderBy: [{ createdAt: 'desc' }],
     take: pagination.limit,
