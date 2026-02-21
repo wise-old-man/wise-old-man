@@ -1,6 +1,7 @@
 import prisma from '../../../../prisma';
-import { Period } from '../../../../types';
+import { Period, PlayerAnnotationType } from '../../../../types';
 import { parsePeriodExpression } from '../../../../utils/shared/parse-period-expression.util';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { PlayerDeltasMapResponse } from '../../../responses';
 import { standardizeUsername } from '../../players/player.utils';
@@ -26,7 +27,8 @@ async function findPlayerDeltas(
 
   const player = await prisma.player.findFirst({
     where: {
-      username: standardizeUsername(username)
+      username: standardizeUsername(username),
+      ...optOutFilter(PlayerAnnotationType.OPT_OUT)
     },
     include: {
       // If fetching by period (not custom time range), the "end" snapshots will always be
