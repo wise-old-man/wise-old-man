@@ -159,12 +159,10 @@ async function updatePlayer(
     }
   }
 
-  // Refresh the player's build
-  updatedPlayerFields.build = getBuild(
-    currentStats,
-    player.annotations?.some(a => a.type === PlayerAnnotationType.FAKE_F2P) ?? false
-  );
+  const isFakeF2p = player.annotations?.some(a => a.type === PlayerAnnotationType.FAKE_F2P) ?? false;
+
   updatedPlayerFields.status = PlayerStatus.ACTIVE;
+  updatedPlayerFields.build = getBuild(currentStats, isFakeF2p);
 
   const computedMetrics = await computePlayerMetrics(
     {
@@ -191,7 +189,6 @@ async function updatePlayer(
   currentStats.ehbValue = computedMetrics.ehbValue;
   currentStats.ehbRank = computedMetrics.ehbRank;
 
-  // Create (and save) a new snapshot
   const newSnapshot = await prisma.snapshot.create({
     data: currentStats
   });
@@ -200,9 +197,10 @@ async function updatePlayer(
   updatedPlayerFields.latestSnapshotId = newSnapshot.id;
   updatedPlayerFields.latestSnapshotDate = newSnapshot.createdAt;
 
-  if (hasChanged) updatedPlayerFields.lastChangedAt = newSnapshot.createdAt;
+  if (hasChanged) {
+    updatedPlayerFields.lastChangedAt = newSnapshot.createdAt;
+  }
 
-  // update player with all this new data
   const updatedPlayer = await prisma.player.update({
     data: updatedPlayerFields,
     where: { id: player.id }
