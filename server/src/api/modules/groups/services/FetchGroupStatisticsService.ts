@@ -5,6 +5,7 @@ import {
   COMPUTED_METRICS,
   Metric,
   Player,
+  PlayerAnnotationType,
   PlayerBuild,
   PlayerType,
   SKILLS,
@@ -13,6 +14,7 @@ import {
 import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { getLevel, REAL_SKILLS } from '../../../../utils/shared';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import {
   formatPlayerResponse,
@@ -48,7 +50,8 @@ async function fetchGroupStatistics(groupId: number): Promise<GroupStatisticsRes
   const players = (
     await prisma.player.findMany({
       where: {
-        id: { in: memberships.map(m => m.playerId) }
+        id: { in: memberships.map(m => m.playerId) },
+        ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS])
       },
       include: {
         latestSnapshot: true

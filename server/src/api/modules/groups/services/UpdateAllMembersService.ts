@@ -1,7 +1,8 @@
 import { jobManager, JobType } from '../../../../jobs';
 import prisma from '../../../../prisma';
-import { Period, Player } from '../../../../types';
+import { Period, Player, PlayerAnnotationType } from '../../../../types';
 import { PeriodProps } from '../../../../utils/shared';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
 async function updateAllMembers(groupId: number): Promise<number> {
@@ -38,6 +39,7 @@ async function getOutdatedMembers(groupId: number): Promise<Pick<Player, 'userna
     where: {
       groupId,
       player: {
+        ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]),
         OR: [{ updatedAt: { lt: dayAgo } }, { updatedAt: null }]
       }
     },

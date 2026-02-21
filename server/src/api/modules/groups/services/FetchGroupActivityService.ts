@@ -1,5 +1,6 @@
 import prisma from '../../../../prisma';
-import { MemberActivity, Player } from '../../../../types';
+import { MemberActivity, Player, PlayerAnnotationType } from '../../../../types';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 
@@ -8,7 +9,12 @@ async function fetchGroupActivity(
   pagination: PaginationOptions
 ): Promise<Array<{ activity: MemberActivity; player: Player }>> {
   const activities = await prisma.memberActivity.findMany({
-    where: { groupId },
+    where: {
+      groupId,
+      player: {
+        ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS])
+      }
+    },
     include: {
       player: true
     },

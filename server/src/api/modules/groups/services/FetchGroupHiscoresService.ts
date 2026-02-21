@@ -1,8 +1,9 @@
 import prisma from '../../../../prisma';
-import { Metric, MetricMeasure, Player } from '../../../../types';
+import { Metric, MetricMeasure, Player, PlayerAnnotationType } from '../../../../types';
 import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { getLevel, MetricProps } from '../../../../utils/shared';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { getTotalLevel } from '../../snapshots/snapshot.utils';
@@ -36,7 +37,10 @@ async function fetchGroupHiscores(
   pagination: PaginationOptions
 ): Promise<Array<{ player: Player; data: EntryType }>> {
   const memberships = await prisma.membership.findMany({
-    where: { groupId },
+    where: {
+      groupId,
+      player: { ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]) }
+    },
     include: {
       player: {
         include: {
