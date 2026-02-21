@@ -1,6 +1,13 @@
 import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { Player, PlayerAnnotation, PlayerArchive, PlayerStatus, Snapshot } from '../../../../types';
+import {
+  Player,
+  PlayerAnnotation,
+  PlayerAnnotationType,
+  PlayerArchive,
+  PlayerStatus,
+  Snapshot
+} from '../../../../types';
 import { standardizeUsername } from '../player.utils';
 
 type PlayerDetails = {
@@ -10,9 +17,13 @@ type PlayerDetails = {
   annotations: Array<PlayerAnnotation>;
 };
 
-async function fetchPlayerDetails(
-  username: string
-): AsyncResult<PlayerDetails, { code: 'PLAYER_NOT_FOUND' }> {
+async function fetchPlayerDetails(username: string): AsyncResult<
+  PlayerDetails,
+  | { code: 'PLAYER_NOT_FOUND' }
+  | {
+      code: 'PLAYER_OPTED_OUT';
+    }
+> {
   const player = await prisma.player.findFirst({
     where: { username: standardizeUsername(username) },
     include: { latestSnapshot: true, annotations: true }
@@ -20,6 +31,10 @@ async function fetchPlayerDetails(
 
   if (!player) {
     return errored({ code: 'PLAYER_NOT_FOUND' });
+  }
+
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    return errored({ code: 'PLAYER_OPTED_OUT' });
   }
 
   if (!player.latestSnapshot) {
