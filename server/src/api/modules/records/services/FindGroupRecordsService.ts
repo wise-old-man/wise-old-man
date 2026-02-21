@@ -1,5 +1,6 @@
 import prisma from '../../../../prisma';
-import { Metric, Period, Player, Record } from '../../../../types';
+import { Metric, Period, Player, PlayerAnnotationType, Record } from '../../../../types';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 
@@ -30,7 +31,8 @@ async function findGroupRecords(
     where: {
       playerId: { in: playerIds },
       period,
-      metric
+      metric,
+      player: optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS])
     },
     include: { player: true },
     orderBy: [{ value: 'desc' }],
