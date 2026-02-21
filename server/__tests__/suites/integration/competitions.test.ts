@@ -488,7 +488,7 @@ describe('Competition API', () => {
           username: 'richie',
           displayName: 'Richie',
           annotations: {
-            create: [{ type: PlayerAnnotationType.OPT_OUT_GROUPS }]
+            create: [{ type: PlayerAnnotationType.OPT_OUT_COMPETITIONS }]
           }
         }
       });
