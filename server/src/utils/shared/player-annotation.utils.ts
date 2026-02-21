@@ -1,6 +1,6 @@
-import { PlayerAnnotationType } from '@prisma/client';
+import { Prisma, PlayerAnnotationType } from '@prisma/client';
 
-export function optOutFilter(types: PlayerAnnotationType | PlayerAnnotationType[]) {
+export function optOutFilter(types: PlayerAnnotationType | PlayerAnnotationType[]): Prisma.PlayerWhereInput {
   return {
     annotations: {
       none: {
