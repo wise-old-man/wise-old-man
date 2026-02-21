@@ -17,7 +17,7 @@ async function findPlayerMemberships(
   const memberships = await prisma.membership.findMany({
     where: {
       player: {
-        username: standardizeUsername(username)
+        username: standardizeUsername(username),
         ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS])
       },
       group: {

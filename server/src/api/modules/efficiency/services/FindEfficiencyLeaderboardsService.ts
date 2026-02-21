@@ -4,11 +4,13 @@ import {
   Country,
   Metric,
   Player,
+  PlayerAnnotationType,
   PlayerBuild,
   PlayerStatus,
   PlayerType
 } from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { PaginationOptions } from '../../../util/validation';
 
 const COMBINED_METRIC = 'ehp+ehb';
@@ -64,7 +66,10 @@ async function fetchSortedPlayersList(metric: ComputedMetric | typeof COMBINED_M
   if (country) playerQuery.country = country;
 
   const players = await prisma.player.findMany({
-    where: { ...playerQuery },
+    where: {
+      ...playerQuery,
+      ...optOutFilter(PlayerAnnotationType.OPT_OUT)
+    },
     orderBy: { [metric]: 'desc' },
     take: 100,
     skip: 0,
@@ -99,7 +104,10 @@ async function fetchPlayersList(
     if (country) playerQuery.country = country;
 
     const players = await prisma.player.findMany({
-      where: { ...playerQuery },
+      where: {
+        ...playerQuery,
+        ...optOutFilter(PlayerAnnotationType.OPT_OUT)
+      },
       orderBy: { [metric]: 'desc' },
       take: limit,
       skip: offset

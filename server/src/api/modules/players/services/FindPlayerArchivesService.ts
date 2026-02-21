@@ -1,35 +1,39 @@
 import prisma from '../../../../prisma';
-import { Player, PlayerArchive } from '../../../../types';
-import { NotFoundError } from '../../../errors';
+import { Player, PlayerAnnotationType, PlayerArchive } from '../../../../types';
+import { ForbiddenError, NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../player.utils';
 
 async function findPlayerArchives(
   username: string
 ): Promise<Array<{ archive: PlayerArchive; player: Player }>> {
-  const archives = await prisma.playerArchive.findMany({
+  const standardized = standardizeUsername(username);
+
+  const player = await prisma.player.findFirst({
     where: {
-      previousUsername: standardizeUsername(username),
-      restoredAt: null
+      username: standardized
     },
     include: {
-      player: true
+      annotations: true
+    }
+  });
+
+  // TODO: refactor error handling
+  if (!player) {
+    throw new NotFoundError('Player not found.');
+  }
+
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    throw new ForbiddenError('Player has opted out.');
+  }
+
+  const archives = await prisma.playerArchive.findMany({
+    where: {
+      playerId: player.id,
+      restoredAt: null
     },
     orderBy: { createdAt: 'desc' }
   });
 
-  if (archives.length === 0) {
-    const player = await prisma.player.findFirst({
-      where: {
-        username: standardizeUsername(username)
-      }
-    });
-
-    if (!player) {
-      throw new NotFoundError('Player not found.');
-    }
-  }
-
-  return archives.map(({ player, ...archive }) => ({ archive, player }));
+  return archives.map(archive => ({ archive, player }));
 }
-
 export { findPlayerArchives };
