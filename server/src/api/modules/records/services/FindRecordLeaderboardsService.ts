@@ -9,9 +9,8 @@ import {
   PlayerStatus,
   PlayerType,
   Record
-import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
-import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 } from '../../../../types';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 
 const MAX_RESULTS = 20;
 
@@ -46,7 +45,7 @@ async function findRecordLeaderboards(
       player: {
         ...playerQuery,
         status: PlayerStatus.ACTIVE,
-        ...optOutFilter(PlayerAnnotationType.OPT_OUT)
+        ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS])
       }
     },
     include: { player: true },
