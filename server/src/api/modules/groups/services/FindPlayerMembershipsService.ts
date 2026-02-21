@@ -1,5 +1,6 @@
 import prisma from '../../../../prisma';
-import { Group, Membership } from '../../../../types';
+import { Group, Membership, PlayerAnnotationType } from '../../../../types';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { standardizeUsername } from '../../players/player.utils';
@@ -16,7 +17,8 @@ async function findPlayerMemberships(
   const memberships = await prisma.membership.findMany({
     where: {
       player: {
-        username: standardizeUsername(username)
+        username: standardizeUsername(username),
+        ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS])
       },
       group: {
         visible: true

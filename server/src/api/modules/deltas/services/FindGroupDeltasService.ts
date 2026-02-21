@@ -1,7 +1,8 @@
 import prisma from '../../../../prisma';
-import { Metric, Period, Player, Snapshot } from '../../../../types';
+import { Metric, Period, Player, PlayerAnnotationType, Snapshot } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
 import { parsePeriodExpression } from '../../../../utils/shared/parse-period-expression.util';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
@@ -30,16 +31,18 @@ async function findGroupDeltas(
     throw new BadRequestError('Min date must be before the max date.');
   }
 
-  // Fetch this group and all of its memberships
   const groupAndMemberships = await prisma.group.findFirst({
     where: { id: groupId },
     include: {
       memberships: {
+        where: {
+          player: optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS])
+        },
         select: {
           player: {
             include: {
               // If fetching by period (not custom time range), the "end" snapshots will always be
-              // the player's latest snapshots. So it's cheaper to just pull them from the "latestSnapshot" relation
+              //             // the player's latest snapshots. So it's cheaper to just pull them from the "latestSnapshot" relation
               latestSnapshot: !!period
             }
           }

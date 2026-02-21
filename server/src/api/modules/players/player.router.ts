@@ -139,8 +139,10 @@ router.post(
       switch (playerDetailsResult.error.code) {
         case 'PLAYER_NOT_FOUND':
           throw new NotFoundErrorZ(playerDetailsResult.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(playerDetailsResult.error);
         default:
-          assertNever(playerDetailsResult.error.code);
+          assertNever(playerDetailsResult.error);
       }
     }
 
@@ -166,8 +168,10 @@ router.get(
       switch (playerDetailsResult.error.code) {
         case 'PLAYER_NOT_FOUND':
           throw new NotFoundErrorZ(playerDetailsResult.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(playerDetailsResult.error);
         default:
-          assertNever(playerDetailsResult.error.code);
+          assertNever(playerDetailsResult.error);
       }
     }
 
@@ -203,8 +207,10 @@ router.get(
       switch (playerDetailsResult.error.code) {
         case 'PLAYER_NOT_FOUND':
           throw new NotFoundErrorZ(playerDetailsResult.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(playerDetailsResult.error);
         default:
-          assertNever(playerDetailsResult.error.code);
+          assertNever(playerDetailsResult.error);
       }
     }
 

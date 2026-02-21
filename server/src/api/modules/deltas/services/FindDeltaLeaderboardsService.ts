@@ -1,5 +1,15 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { Country, Metric, Period, Player, PlayerBuild, PlayerStatus, PlayerType } from '../../../../types';
+import {
+  Country,
+  Metric,
+  Period,
+  Player,
+  PlayerAnnotationType,
+  PlayerBuild,
+  PlayerStatus,
+  PlayerType
+} from '../../../../types';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 
 const MAX_RESULTS = 20;
 
@@ -41,7 +51,8 @@ async function findDeltaLeaderboards(
       metric,
       player: {
         ...playerQuery,
-        status: PlayerStatus.ACTIVE
+        status: PlayerStatus.ACTIVE,
+        ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS])
       }
     },
     select: {

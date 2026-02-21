@@ -1,5 +1,13 @@
 import prisma from '../../../../prisma';
-import { Group, GroupRoleOrder, GroupSocialLinks, Membership, Player } from '../../../../types';
+import {
+  Group,
+  GroupRoleOrder,
+  GroupSocialLinks,
+  Membership,
+  Player,
+  PlayerAnnotationType
+} from '../../../../types';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { NotFoundError } from '../../../errors';
 import { sortMembers } from '../group.utils';
 
@@ -14,6 +22,11 @@ async function fetchGroupDetails(id: number): Promise<{
     where: { id },
     include: {
       memberships: {
+        where: {
+          player: {
+            ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS])
+          }
+        },
         include: { player: true }
       },
       socialLinks: true,

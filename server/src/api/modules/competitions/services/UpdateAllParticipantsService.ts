@@ -1,6 +1,7 @@
 import { JobType, jobManager } from '../../../../jobs';
 import prisma from '../../../../prisma';
-import { Player } from '../../../../types';
+import { Player, PlayerAnnotationType } from '../../../../types';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
 // The first and last 6h of a competition are considered a priority period
@@ -64,6 +65,7 @@ async function getOutdatedParticipants(
     where: {
       competitionId,
       player: {
+        ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS]),
         OR: [{ updatedAt: { lt: cooldownExpiration } }, { updatedAt: null }]
       }
     },

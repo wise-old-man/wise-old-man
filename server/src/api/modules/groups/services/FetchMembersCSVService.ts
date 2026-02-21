@@ -2,11 +2,16 @@ import dayjs from 'dayjs';
 import prisma from '../../../../prisma';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { sortMembers } from '../group.utils';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
+import { PlayerAnnotationType } from '../../../../types';
 
 async function fetchGroupMembersCSV(groupId: number): Promise<string> {
   const memberships = await prisma.membership.findMany({
     where: {
-      groupId
+      groupId,
+      player: {
+        ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS])
+      }
     },
     include: {
       player: true

@@ -1,11 +1,13 @@
 import prisma from '../../../../prisma';
-import { Player } from '../../../../types';
+import { Player, PlayerAnnotationType } from '../../../../types';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { PaginationOptions } from '../../../util/validation';
 
 async function searchPlayers(username: string, pagination: PaginationOptions): Promise<Player[]> {
   const players = await prisma.player.findMany({
     where: {
-      username: { startsWith: username.trim(), mode: 'insensitive' }
+      username: { startsWith: username.trim(), mode: 'insensitive' },
+      ...optOutFilter(PlayerAnnotationType.OPT_OUT)
     },
     orderBy: {
       ehp: 'desc'

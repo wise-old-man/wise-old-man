@@ -4,11 +4,13 @@ import {
   Metric,
   Period,
   Player,
+  PlayerAnnotationType,
   PlayerBuild,
   PlayerStatus,
   PlayerType,
   Record
 } from '../../../../types';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 
 const MAX_RESULTS = 20;
 
@@ -40,7 +42,11 @@ async function findRecordLeaderboards(
     where: {
       metric,
       period,
-      player: { ...playerQuery, status: PlayerStatus.ACTIVE }
+      player: {
+        ...playerQuery,
+        status: PlayerStatus.ACTIVE,
+        ...optOutFilter([PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS])
+      }
     },
     include: { player: true },
     orderBy: [{ value: 'desc' }],

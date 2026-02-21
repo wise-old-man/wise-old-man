@@ -1,10 +1,14 @@
 import prisma from '../../../../prisma';
-import { Player } from '../../../../types';
+import { Player, PlayerAnnotationType } from '../../../../types';
+import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { sanitizeDisplayName, standardizeUsername } from '../player.utils';
 
 async function findOrCreatePlayers(usernames: string[]): Promise<Player[]> {
   const foundPlayers = await prisma.player.findMany({
-    where: { username: { in: usernames.map(standardizeUsername) } }
+    where: {
+      username: { in: usernames.map(standardizeUsername) },
+      ...optOutFilter(PlayerAnnotationType.OPT_OUT)
+    }
   });
 
   // If all players exist on the database already, great, just return them.
@@ -28,7 +32,10 @@ async function findOrCreatePlayers(usernames: string[]): Promise<Player[]> {
   });
 
   const newPlayers = await prisma.player.findMany({
-    where: { username: { in: newPlayerInputs.map(n => n.username) } }
+    where: {
+      username: { in: newPlayerInputs.map(n => n.username) },
+      ...optOutFilter(PlayerAnnotationType.OPT_OUT)
+    }
   });
 
   // Sort the resulting players list by the order of the input usernames
