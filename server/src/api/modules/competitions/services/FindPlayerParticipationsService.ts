@@ -1,6 +1,13 @@
 import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation } from '../../../../types';
+import {
+  Competition,
+  CompetitionMetric,
+  CompetitionStatus,
+  Group,
+  Participation,
+  PlayerAnnotationType
+} from '../../../../types';
 import { standardizeUsername } from '../../players/player.utils';
 
 export async function findPlayerParticipations(
@@ -12,7 +19,7 @@ export async function findPlayerParticipations(
     competition: Competition & { metrics: CompetitionMetric[]; participantCount: number };
     group: (Group & { memberCount: number }) | null;
   }>,
-  { code: 'PLAYER_NOT_FOUND' }
+  { code: 'PLAYER_NOT_FOUND' } | { code: 'PLAYER_OPTED_OUT' }
 > {
   const competitionQuery: PrismaTypes.CompetitionWhereInput = {
     visible: true
@@ -20,11 +27,15 @@ export async function findPlayerParticipations(
 
   const player = await prisma.player.findFirst({
     where: { username: standardizeUsername(username) },
-    select: { id: true }
+    select: { id: true, annotations: true }
   });
 
   if (player === null) {
     return errored({ code: 'PLAYER_NOT_FOUND' });
+  }
+
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    return errored({ code: 'PLAYER_OPTED_OUT' });
   }
 
   if (status) {

@@ -246,7 +246,9 @@ describe('Deltas API', () => {
 
   describe('2 - Fetch Player Deltas', () => {
     it('should not fetch (player not found)', async () => {
-      await expect(findPlayerDeltas('woaaaaaah', 'week')).rejects.toThrow('Player not found.');
+      const playerDeltasResponse = await findPlayerDeltas('woaaaaaah', 'week');
+      assertErrored(playerDeltasResponse);
+      expect(playerDeltasResponse.error).toMatchObject({ code: 'PLAYER_NOT_FOUND' });
     });
 
     it('should not fetch (no snapshots found with player id)', async () => {
@@ -255,9 +257,10 @@ describe('Deltas API', () => {
 
       const result = await findPlayerDeltas(testPlayer.username, 'week');
 
+      assertComplete(result);
       // If there are no snapshots found for the given period, it'll return an empty diff
-      expect(result.startsAt).toBe(null);
-      expect(result.endsAt).toBe(null);
+      expect(result.value.startsAt).toBe(null);
+      expect(result.value.endsAt).toBe(null);
     });
 
     it('should not fetch (invalid period)', async () => {
@@ -281,8 +284,8 @@ describe('Deltas API', () => {
 
       expect(weekResponse.status).toBe(200);
 
-      const weekSmithingGains = weekResponse.body.data.skills.smithing;
-      const weekEHPGains = weekResponse.body.data.computed.ehp;
+      const weekSmithingGains = weekResponse.body.value.data.skills.smithing;
+      const weekEHPGains = weekResponse.body.value.data.computed.ehp;
 
       expect(weekSmithingGains.ehp.gained).toBeGreaterThan(0.1);
       expect(weekEHPGains.value.gained).toBe(weekSmithingGains.ehp.gained);
@@ -292,10 +295,10 @@ describe('Deltas API', () => {
 
       expect(monthResponse.status).toBe(200);
 
-      const monthNexGains = monthResponse.body.data.bosses.nex;
-      const monthZukGains = monthResponse.body.data.bosses.tzkal_zuk;
-      const monthEhbGains = monthResponse.body.data.computed.ehb;
-      const monthLmsGains = monthResponse.body.data.activities.last_man_standing;
+      const monthNexGains = monthResponse.body.value.data.bosses.nex;
+      const monthZukGains = monthResponse.body.value.data.bosses.tzkal_zuk;
+      const monthEhbGains = monthResponse.body.value.data.computed.ehb;
+      const monthLmsGains = monthResponse.body.value.data.activities.last_man_standing;
 
       expect(monthNexGains.ehb.gained).toBeGreaterThan(0.1);
       expect(monthEhbGains.value.gained).toBe(monthNexGains.ehb.gained + monthZukGains.ehb.gained);
@@ -306,7 +309,7 @@ describe('Deltas API', () => {
 
       expect(dayResponse.status).toBe(200);
 
-      const dayOverallGains = dayResponse.body.data.skills.overall;
+      const dayOverallGains = dayResponse.body.value.data.skills.overall;
 
       expect(dayOverallGains.experience).toMatchObject({
         start: -1,

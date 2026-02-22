@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { MetricType } from "@wise-old-man/utils";
+import { MetricType, PlayerAnnotationType } from "@wise-old-man/utils";
 import { getPlayerDetails } from "~/services/wiseoldman";
 import { PlayerStatsTable } from "~/components/players/PlayerStatsTable";
 import { PlayerOverviewWidgets } from "~/components/players/PlayerOverviewWidgets";
@@ -38,6 +38,9 @@ export default async function PlayerPage(props: PageProps) {
   const metricType = convertMetricType(searchParams.view);
 
   const player = await getPlayerDetails(username);
+
+  const hasOptedOut = player.annotations?.some((a) => a.type === PlayerAnnotationType.OPT_OUT);
+  if (hasOptedOut) return;
 
   return (
     <div>

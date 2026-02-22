@@ -1,6 +1,13 @@
 import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { Player, PlayerAnnotation, PlayerArchive, PlayerStatus, Snapshot } from '../../../../types';
+import {
+  Player,
+  PlayerAnnotation,
+  PlayerAnnotationType,
+  PlayerArchive,
+  PlayerStatus,
+  Snapshot
+} from '../../../../types';
 import { standardizeUsername } from '../player.utils';
 
 type PlayerDetails = {
@@ -21,6 +28,8 @@ async function fetchPlayerDetails(
   if (!player) {
     return errored({ code: 'PLAYER_NOT_FOUND' });
   }
+
+  const hasOptedOut = player.annotations?.some(a => a.type === PlayerAnnotationType.OPT_OUT);
 
   if (!player.latestSnapshot) {
     // If this player's "latestSnapshot" isn't populated, fetch the latest snapshot from the DB
@@ -53,7 +62,7 @@ async function fetchPlayerDetails(
   return complete({
     player: playerProps,
     annotations,
-    latestSnapshot,
+    latestSnapshot: hasOptedOut ? null : latestSnapshot,
     archive: currentArchive
   });
 }
