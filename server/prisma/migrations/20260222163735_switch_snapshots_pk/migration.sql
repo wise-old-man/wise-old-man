@@ -1,7 +1,4 @@
 -- PK swap: reuses pre-built indexes where possible, all ALTER TABLE ops are instant metadata changes.
--- Prerequisites:
---   1. "snapshots_player_id_created_at_unique_idx" must exist (from Deploy 1a)
---   2. "snapshots_id_unique" is built here if not already present (production has it pre-built via CONCURRENTLY)
 
 -- Build unique index on id if it doesn't already exist
 CREATE UNIQUE INDEX IF NOT EXISTS "snapshots_id_unique" ON "snapshots" ("id");
