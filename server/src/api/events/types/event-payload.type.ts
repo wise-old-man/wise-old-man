@@ -73,7 +73,6 @@ export type EventPayloadMap = {
   [EventType.PLAYER_DELTA_UPDATED]: {
     username: string;
     period: Period;
-    periodStartDate: Date;
     isPotentialRecord: boolean;
   };
   [EventType.PLAYER_FLAGGED]: {
@@ -92,6 +91,7 @@ export type EventPayloadMap = {
   [EventType.PLAYER_UPDATED]: {
     username: string;
     hasChanged: boolean;
-    previousUpdatedAt: Date | null;
+    latestSnapshotDate: Date;
+    previousSnapshotDate: Date | null;
   };
 };

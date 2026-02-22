@@ -8,7 +8,6 @@ import { JobHandler } from '../types/job-handler.type';
 interface Payload {
   username: string;
   period: Period;
-  periodStartDate: Date;
 }
 
 export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
@@ -17,16 +16,16 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
   },
 
   generateUniqueJobId(payload) {
-    return [payload.username, payload.period, payload.periodStartDate.getTime()].join('_');
+    return [payload.username, payload.period].join('_');
   },
 
-  async execute({ username, period, periodStartDate }: Payload) {
+  async execute(payload: Payload) {
     const currentDeltas = await prisma.cachedDelta.findMany({
       where: {
         player: {
-          username
+          username: payload.username
         },
-        period
+        period: payload.period
       }
     });
 
@@ -40,13 +39,13 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
       prisma.record.findMany({
         where: {
           playerId,
-          period
+          period: payload.period
         }
       }),
       prisma.snapshot.findFirst({
         where: {
           playerId,
-          createdAt: periodStartDate
+          createdAt: currentDeltas[0].startedAt
         }
       })
     ]);
@@ -86,7 +85,7 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
       if (metricRecord === undefined) {
         toCreate.push({
           playerId,
-          period,
+          period: payload.period,
           metric,
           value: prepareDecimalValue(metric, value)
         });
@@ -119,7 +118,7 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
           where: {
             playerId_period_metric: {
               playerId,
-              period,
+              period: payload.period,
               metric: update.metric
             }
           },

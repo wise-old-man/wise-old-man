@@ -46,7 +46,7 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
       prisma.snapshot.findFirst({
         where: {
           playerId: playerAndSnapshot.id,
-          createdAt: { gte: new Date(Date.now() - PeriodProps[period].milliseconds) }
+          createdAt: { gte: new Date(latestSnapshot.createdAt.getTime() - PeriodProps[period].milliseconds) }
         },
         orderBy: {
           createdAt: 'asc'
@@ -142,7 +142,6 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
     eventEmitter.emit(EventType.PLAYER_DELTA_UPDATED, {
       username,
       period,
-      periodStartDate: startSnapshot.createdAt,
       isPotentialRecord: previousDeltas.length === 0 || hasImprovements
     });
   }
