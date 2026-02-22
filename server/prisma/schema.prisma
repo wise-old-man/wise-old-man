@@ -351,7 +351,7 @@ model Record {
 }
 
 model Snapshot {
-  id                                    Int       @id @default(autoincrement())
+  id                                    Int       @default(autoincrement()) @unique(map: "snapshots_id_unique")
   playerId                              Int
   importedAt                            DateTime? @db.Timestamptz(6)
   createdAt                             DateTime  @default(now()) @db.Timestamptz(6)
@@ -586,9 +586,7 @@ model Snapshot {
   Player                     Player[]        @relation("player_latest_snapshot")
 
   // Constraints
-  @@unique([playerId, createdAt], map: "snapshots_player_id_created_at_unique_idx")
-  // Indices
-  @@index([playerId, createdAt(sort: Desc)], map: "snapshots_player_id_created_at")
+  @@id([playerId, createdAt])
   // Map
   @@map("snapshots")
 }
