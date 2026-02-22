@@ -1,13 +1,16 @@
 import prisma from '../../../../prisma';
 import { Player, PlayerAnnotationType } from '../../../../types';
-import { optOutFilter } from '../../../../utils/shared/player-annotation.utils';
 import { sanitizeDisplayName, standardizeUsername } from '../player.utils';
 
 async function findOrCreatePlayers(usernames: string[]): Promise<Player[]> {
   const foundPlayers = await prisma.player.findMany({
     where: {
       username: { in: usernames.map(standardizeUsername) },
-      ...optOutFilter(PlayerAnnotationType.OPT_OUT)
+      annotations: {
+        none: {
+          type: PlayerAnnotationType.OPT_OUT
+        }
+      }
     }
   });
 
