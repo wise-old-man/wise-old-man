@@ -31,7 +31,7 @@ export function handler({
   if (hasChanged) {
     jobManager.add(JobType.SYNC_PLAYER_ACHIEVEMENTS, {
       username,
-      previousUpdatedAt: previousSnapshotDate
+      previousSnapshotDate
     });
   }
 }
