@@ -16,9 +16,16 @@ export const SyncPlayerCompetitionParticipationsJobHandler: JobHandler<Payload> 
   },
 
   async execute(payload) {
-    const now = new Date();
+    const player = await prisma.player.findFirst({
+      where: {
+        username: payload.username
+      }
+    });
 
-    // Get all on-going competitions (and participations)
+    if (player === null || player.latestSnapshotDate === null) {
+      return;
+    }
+
     const participations = await prisma.participation.findMany({
       where: {
         player: {
@@ -28,8 +35,8 @@ export const SyncPlayerCompetitionParticipationsJobHandler: JobHandler<Payload> 
           payload.forceRecalculate === true
             ? undefined
             : {
-                startsAt: { lt: now },
-                endsAt: { gt: now }
+                startsAt: { lte: player.latestSnapshotDate },
+                endsAt: { gte: player.latestSnapshotDate }
               }
       },
       include: {
@@ -42,16 +49,6 @@ export const SyncPlayerCompetitionParticipationsJobHandler: JobHandler<Payload> 
       return;
     }
 
-    const player = await prisma.player.findFirst({
-      where: {
-        username: payload.username
-      }
-    });
-
-    if (player === null || player.latestSnapshotDate === null) {
-      return;
-    }
-
     for (const participation of participations) {
       // Update this participation's latest (end) snapshot
       const updatePayload: PrismaTypes.ParticipationUncheckedUpdateInput = {
@@ -60,12 +57,15 @@ export const SyncPlayerCompetitionParticipationsJobHandler: JobHandler<Payload> 
       };
 
       // If this participation's starting snapshot has not been set,
-      // find the first snapshot created since the start date and set it
+      // find the first snapshot within the competition period and set it
       if (participation.startSnapshotDate === null || payload.forceRecalculate === true) {
         const startSnapshot = await prisma.snapshot.findFirst({
           where: {
             playerId: player.id,
-            createdAt: { gte: participation.competition.startsAt }
+            createdAt: {
+              gte: participation.competition.startsAt,
+              lte: participation.competition.endsAt
+            }
           },
           select: {
             id: true,
@@ -88,7 +88,9 @@ export const SyncPlayerCompetitionParticipationsJobHandler: JobHandler<Payload> 
         const endSnapshot = await prisma.snapshot.findFirst({
           where: {
             playerId: player.id,
-            createdAt: { lte: participation.competition.endsAt }
+            createdAt: {
+              lte: participation.competition.endsAt
+            }
           },
           select: {
             id: true,

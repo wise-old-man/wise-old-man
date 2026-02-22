@@ -13,7 +13,9 @@ const UNKNOWN_DATE = new Date(0);
 
 interface Payload {
   username: string;
-  previousUpdatedAt: Date | null;
+  /** @deprecated - remove this soon */
+  previousUpdatedAt?: Date | null;
+  previousSnapshotDate?: Date | null;
 }
 
 export const SyncPlayerAchievementsJobHandler: JobHandler<Payload> = {
@@ -22,10 +24,14 @@ export const SyncPlayerAchievementsJobHandler: JobHandler<Payload> = {
   },
 
   generateUniqueJobId(payload) {
-    return [payload.username, payload.previousUpdatedAt?.getTime()].join('_');
+    const date = payload.previousSnapshotDate ?? payload.previousUpdatedAt;
+    return [payload.username, date?.getTime()].join('_');
   },
 
   async execute(payload) {
+    // Support legacy in-flight jobs that used previousUpdatedAt
+    const previousSnapshotDate = payload.previousSnapshotDate ?? payload.previousUpdatedAt ?? null;
+
     const playerAndSnapshot = await prisma.player.findFirst({
       where: {
         username: payload.username
@@ -43,7 +49,7 @@ export const SyncPlayerAchievementsJobHandler: JobHandler<Payload> = {
 
     const playerId = currentSnapshot.playerId;
 
-    if (payload.previousUpdatedAt === null) {
+    if (previousSnapshotDate === null) {
       // If this is the first time player's being updated, find missing achievements and set them to "unknown" date
       const missingAchievements = ALL_DEFINITIONS.filter(d => d.validate(currentSnapshot)).map(
         ({ name, metric, threshold }) => ({
@@ -80,7 +86,7 @@ export const SyncPlayerAchievementsJobHandler: JobHandler<Payload> = {
     const previousSnapshot = await prisma.snapshot.findFirst({
       where: {
         playerId,
-        createdAt: payload.previousUpdatedAt
+        createdAt: previousSnapshotDate
       }
     });
 
