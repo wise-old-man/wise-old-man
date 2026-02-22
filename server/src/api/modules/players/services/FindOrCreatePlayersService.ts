@@ -37,7 +37,11 @@ async function findOrCreatePlayers(usernames: string[]): Promise<Player[]> {
   const newPlayers = await prisma.player.findMany({
     where: {
       username: { in: newPlayerInputs.map(n => n.username) },
-      ...optOutFilter(PlayerAnnotationType.OPT_OUT)
+      annotations: {
+        none: {
+          type: PlayerAnnotationType.OPT_OUT
+        }
+      }
     }
   });
 
