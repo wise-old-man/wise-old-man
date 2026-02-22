@@ -1661,10 +1661,20 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
 
   // Create two pre-transition-date snapshots
   await prisma.snapshot.create({
-    data: { ...filteredSnapshotData, playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
+    data: {
+      ...filteredSnapshotData,
+      playerId: newPlayerId,
+      oborKills: 30,
+      createdAt: mockDate
+    }
   });
   await prisma.snapshot.create({
-    data: { ...filteredSnapshotData, playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
+    data: {
+      ...filteredSnapshotData,
+      playerId: newPlayerId,
+      oborKills: 30,
+      createdAt: new Date(mockDate.getTime() + 1000)
+    }
   });
 
   // Create a pre-transition-date test competition and add this player to it

@@ -585,6 +585,8 @@ model Snapshot {
   participationEndPointers   Participation[] @relation("participations_endSnapshotIdTosnapshots")
   Player                     Player[]        @relation("player_latest_snapshot")
 
+  // Constraints
+  @@unique([playerId, createdAt], map: "snapshots_player_id_created_at_unique_idx")
   // Indices
   @@index([playerId, createdAt(sort: Desc)], map: "snapshots_player_id_created_at")
   // Map
