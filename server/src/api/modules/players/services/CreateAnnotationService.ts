@@ -20,6 +20,26 @@ export async function createPlayerAnnotation(
     return errored({ code: 'DUPLICATE_PLAYER_ANNOTATION' });
   }
 
+  // If it's an opt out, we remove the profile from any groups and competitions.
+  if (annotationType === PlayerAnnotationType.OPT_OUT) {
+    const [annotation] = await prisma.$transaction([
+      prisma.playerAnnotation.create({
+        data: {
+          playerId: player.id,
+          type: annotationType
+        }
+      }),
+      prisma.membership.deleteMany({
+        where: { playerId: player.id }
+      }),
+      prisma.participation.deleteMany({
+        where: { playerId: player.id, competition: { endsAt: { gte: new Date() } } }
+      })
+    ]);
+
+    return complete(annotation);
+  }
+
   const result = await prisma.playerAnnotation.create({
     data: {
       playerId: player.id,

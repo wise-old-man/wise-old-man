@@ -1,7 +1,8 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { Period } from '../../../../types';
+import { Period, PlayerAnnotationType } from '../../../../types';
 import { parsePeriodExpression } from '../../../../utils/shared/parse-period-expression.util';
-import { BadRequestError, NotFoundError } from '../../../errors';
+import { BadRequestError } from '../../../errors';
 import { PlayerDeltasMapResponse } from '../../../responses';
 import { standardizeUsername } from '../../players/player.utils';
 import { calculatePlayerDeltas, emptyPlayerDelta } from '../delta.utils';
@@ -11,11 +12,14 @@ async function findPlayerDeltas(
   period?: Period | string,
   minDate?: Date,
   maxDate?: Date
-): Promise<{
-  startsAt: Date | null;
-  endsAt: Date | null;
-  data: PlayerDeltasMapResponse;
-}> {
+): AsyncResult<
+  {
+    startsAt: Date | null;
+    endsAt: Date | null;
+    data: PlayerDeltasMapResponse;
+  },
+  { code: 'PLAYER_NOT_FOUND' } | { code: 'PLAYER_OPTED_OUT' }
+> {
   if (!period && (!minDate || !maxDate)) {
     throw new BadRequestError('Invalid period and start/end dates.');
   }
@@ -31,12 +35,17 @@ async function findPlayerDeltas(
     include: {
       // If fetching by period (not custom time range), the "end" snapshots will always be
       // the player's latest snapshots. So it's cheaper to just pull them from the "latestSnapshot" relation
-      latestSnapshot: !!period
+      latestSnapshot: !!period,
+      annotations: true
     }
   });
 
   if (!player) {
-    throw new NotFoundError('Player not found.');
+    return errored({ code: 'PLAYER_NOT_FOUND' });
+  }
+
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    return errored({ code: 'PLAYER_OPTED_OUT' });
   }
 
   const startSnapshot = await prisma.snapshot.findFirst({
@@ -66,20 +75,20 @@ async function findPlayerDeltas(
 
   // Player was inactive during this period (no snapshots), return empty deltas
   if (!startSnapshot || !endSnapshot) {
-    return {
+    return complete({
       startsAt: null,
       endsAt: null,
       data: emptyPlayerDelta()
-    };
+    });
   }
 
   const data = calculatePlayerDeltas(startSnapshot, endSnapshot, player);
 
-  return {
+  return complete({
     startsAt: startSnapshot.createdAt,
     endsAt: endSnapshot.createdAt,
     data
-  };
+  });
 }
 
 function parseStartDate(period: Period | string | undefined, minDate?: Date): Date {

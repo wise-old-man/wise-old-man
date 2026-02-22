@@ -504,7 +504,7 @@ describe('Names API', () => {
       const firstResponse = await api.get(`/players/Jakesterwars/names`);
 
       expect(firstResponse.status).toBe(404);
-      expect(firstResponse.body.message).toMatch('Player not found.');
+      expect(firstResponse.body.message).toMatch('Player not found');
     });
 
     it('should fetch list', async () => {
@@ -805,52 +805,63 @@ describe('Names API', () => {
       expect(archive).not.toBeNull();
 
       // Check if records transfered correctly to the main player
-      const mainRecordsResponse = await api.get(`/players/USBC/records`);
+      const mainRecordsResponse = await prisma.record.findMany({
+        where: {
+          player: {
+            username: 'usbc'
+          }
+        }
+      });
 
-      expect(mainRecordsResponse.status).toBe(200);
-      expect(mainRecordsResponse.body.length).toBe(5);
+      expect(mainRecordsResponse.length).toBe(5);
 
-      expect(mainRecordsResponse.body.filter(r => r.metric === 'zulrah')[0]).toMatchObject({
+      expect(mainRecordsResponse.filter(r => r.metric === 'zulrah')[0]).toMatchObject({
         period: 'month',
         metric: 'zulrah',
         value: 500
       });
 
-      expect(mainRecordsResponse.body.filter(r => r.metric === 'ranged')[0]).toMatchObject({
+      expect(mainRecordsResponse.filter(r => r.metric === 'ranged')[0]).toMatchObject({
         period: 'year',
         metric: 'ranged',
         value: 1_350_000
       });
 
-      expect(mainRecordsResponse.body.filter(r => r.metric === 'agility')[0]).toMatchObject({
+      expect(mainRecordsResponse.filter(r => r.metric === 'agility')[0]).toMatchObject({
         period: 'week',
         metric: 'agility',
         value: 100_000
       });
 
-      expect(mainRecordsResponse.body.filter(r => r.metric === 'smithing')[0]).toMatchObject({
+      expect(mainRecordsResponse.filter(r => r.metric === 'smithing')[0]).toMatchObject({
         period: 'day',
         metric: 'smithing',
         value: 10_000
       });
 
-      expect(mainRecordsResponse.body.filter(r => r.metric === 'ehp')[0]).toMatchObject({
+      expect(mainRecordsResponse.filter(r => r.metric === 'ehp')[0]).toMatchObject({
         period: 'day',
         metric: 'ehp',
         value: 5.67
       });
 
       // Check if records transfered correctly to the archived player
-      const archivedRecordsResponse = await api.get(`/players/${archiveUsername}/records`);
 
-      expect(archivedRecordsResponse.status).toBe(200);
-      expect(archivedRecordsResponse.body.length).toBe(1); // Only one record was "abandoned"
+      const archivedRecordsResponse = await prisma.record.findMany({
+        where: {
+          player: {
+            username: archiveUsername
+          }
+        }
+      });
+
+      expect(archivedRecordsResponse.length).toBe(1); // Only one record was "abandoned"
 
       // oldPlayer's week record for agility was 100k, but newPlayer's week record for agility was 50k.
       // So this 50k record wasn't transfered (because it was lower than the existing one).
       // In other words, it was abandoned in this archived "new" profile.
 
-      expect(archivedRecordsResponse.body.filter(r => r.metric === 'agility')[0]).toMatchObject({
+      expect(archivedRecordsResponse.filter(r => r.metric === 'agility')[0]).toMatchObject({
         period: 'week',
         metric: 'agility',
         value: 50_000
@@ -891,30 +902,54 @@ describe('Names API', () => {
       ).toBeDefined();
 
       // Check if none of the pre-transition snapshots have been transfered
-      const mainSnapshotsResponse = await api.get(`/players/USBC/snapshots`).query({ period: 'week' });
+      // const mainSnapshotsResponse = await api.get(`/players/USBC/snapshots`).query({ period: 'week' });
 
-      expect(mainSnapshotsResponse.status).toBe(200);
-      expect(mainSnapshotsResponse.body.filter(s => s.data.bosses.obor.kills > -1).length).toBe(0);
+      const mainSnapshotsResponse = await prisma.snapshot.findMany({
+        where: {
+          player: {
+            username: 'usbc'
+          },
+          createdAt: {
+            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+            lte: new Date()
+          }
+        }
+      });
+
+      expect(mainSnapshotsResponse.filter(s => s.oborKills > -1).length).toBe(0);
 
       // One snapshot should have been abandoned (it was on newPlayer's profile before the transition date).
       // This snapshot has 30 obor kills, so the presence or abcense of these 30 kills are an indicator of transfer success.
 
-      const archivedSnapshotsResponse = await api
-        .get(`/players/${archiveUsername}/snapshots`)
-        .query({ period: 'week' });
+      const archivedSnapshotsResponse = await prisma.snapshot.findMany({
+        where: {
+          player: {
+            username: archiveUsername
+          },
+          createdAt: {
+            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+            lte: new Date()
+          }
+        }
+      });
 
-      expect(archivedSnapshotsResponse.status).toBe(200);
-
-      expect(
-        archivedSnapshotsResponse.body.filter(s => s.data.bosses.obor.kills === 30).length
-      ).toBeGreaterThan(0);
+      expect(archivedSnapshotsResponse.filter(s => s.oborKills === 30).length).toBeGreaterThan(0);
 
       // Check if none of the pre-transition memberships have been transfered
-      const mainGroupsResponse = await api.get(`/players/USBC/groups`);
+      const mainGroupsResponse = await prisma.membership.findMany({
+        where: {
+          player: {
+            username: 'usbc'
+          }
+        },
+        include: {
+          group: true
+        },
+        orderBy: [{ group: { score: 'desc' } }, { createdAt: 'desc' }]
+      });
 
-      expect(mainGroupsResponse.status).toBe(200);
-      expect(mainGroupsResponse.body.length).toBe(2);
-      expect(mainGroupsResponse.body[0]).toMatchObject({
+      expect(mainGroupsResponse.length).toBe(2);
+      expect(mainGroupsResponse[0]).toMatchObject({
         role: 'medic', // Did not transfer newPlayer's "archer" membership, we kept oldPlayer's "medic" membership
         group: { name: 'Test Transfer Group' }
       });
@@ -922,29 +957,54 @@ describe('Names API', () => {
       // Before the name change happened, the "newPlayer" was in a group called "Test Transfer Group (Pre)"".
       // So this archived player profile should still be in it.
 
-      const archivedGroupsResponse = await api.get(`/players/${archiveUsername}/groups`);
+      const archivedGroupsResponse = await prisma.membership.findMany({
+        where: {
+          player: {
+            username: archiveUsername
+          }
+        },
+        include: {
+          group: true
+        },
+        orderBy: [{ group: { score: 'desc' } }, { createdAt: 'desc' }]
+      });
 
-      expect(archivedGroupsResponse.status).toBe(200);
-      expect(archivedGroupsResponse.body.length).toBe(2);
-      expect(archivedGroupsResponse.body[0]).toMatchObject({
+      expect(archivedGroupsResponse.length).toBe(2);
+      expect(archivedGroupsResponse[0]).toMatchObject({
         role: 'archer', // This membership was left behind because oldPlayer was already on this group
         group: { name: 'Test Transfer Group' }
       });
-      expect(archivedGroupsResponse.body[1]).toMatchObject({
+      expect(archivedGroupsResponse[1]).toMatchObject({
         role: 'beast',
         group: { name: 'Test Transfer Group (Pre)' }
       });
 
-      // Check if none of the pre-transition participations have been transfered
-      const mainCompetitionsResponse = await api.get(`/players/USBC/competitions`);
+      const mainCompetitionsResponse = (
+        await prisma.participation.findMany({
+          where: {
+            player: {
+              username: archiveUsername
+            }
+          },
+          include: {
+            competition: {
+              include: {
+                metrics: true
+              }
+            }
+          },
+          orderBy: [{ createdAt: 'desc' }]
+        })
+      ).map(m => {
+        return { title: m.competition.title, metric: m.competition.metrics[0].metric };
+      });
 
-      expect(mainCompetitionsResponse.status).toBe(200);
-      expect(mainCompetitionsResponse.body.length).toBe(2);
-      expect(mainCompetitionsResponse.body[0].competition).toMatchObject({
+      expect(mainCompetitionsResponse.length).toBe(2);
+      expect(mainCompetitionsResponse[0]).toMatchObject({
         title: 'Test Comp',
         metric: 'thieving'
       });
-      expect(mainCompetitionsResponse.body[1].competition).toMatchObject({
+      expect(mainCompetitionsResponse[1]).toMatchObject({
         title: 'Test Comp (Pre)',
         metric: 'herblore'
       });
@@ -952,15 +1012,34 @@ describe('Names API', () => {
       // Before the name change happened, the "newPlayer" was in a competition called "Test Comp (Pre)".
       // So this archived player profile should still be in it.
 
-      const archivedCompetitionsResponse = await api.get(`/players/${archiveUsername}/competitions`);
+      // const archivedCompetitionsResponse = await api.get(`/players/${archiveUsername}/competitions`);
 
-      expect(archivedCompetitionsResponse.status).toBe(200);
-      expect(archivedCompetitionsResponse.body.length).toBe(2);
-      expect(archivedCompetitionsResponse.body[0].competition).toMatchObject({
+      const archivedCompetitionsResponse = (
+        await prisma.participation.findMany({
+          where: {
+            player: {
+              username: archiveUsername
+            }
+          },
+          include: {
+            competition: {
+              include: {
+                metrics: true
+              }
+            }
+          },
+          orderBy: [{ createdAt: 'desc' }]
+        })
+      ).map(m => {
+        return { title: m.competition.title, metric: m.competition.metrics[0].metric };
+      });
+
+      expect(archivedCompetitionsResponse.length).toBe(2);
+      expect(archivedCompetitionsResponse[0]).toMatchObject({
         title: 'Test Comp',
         metric: 'thieving'
       });
-      expect(archivedCompetitionsResponse.body[1].competition).toMatchObject({
+      expect(archivedCompetitionsResponse[1]).toMatchObject({
         title: 'Test Comp (Pre)',
         metric: 'herblore'
       });
@@ -968,9 +1047,8 @@ describe('Names API', () => {
       // Check if none of the pre-transition name changes have been transfered
       const filteredMainNameChanges = await api.get(`/players/USBC/names`);
 
-      expect(filteredMainNameChanges.status).toBe(200);
-      // Should be 0 because name changes for opted out players are filtered out
-      expect(filteredMainNameChanges.body.length).toBe(0);
+      // Should be 403 opted out player names are not returned by the API
+      expect(filteredMainNameChanges.status).toBe(403);
 
       await prisma.playerAnnotation.delete({
         where: {

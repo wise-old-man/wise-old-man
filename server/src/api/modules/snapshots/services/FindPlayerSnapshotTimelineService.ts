@@ -1,9 +1,10 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { Metric, Period, Snapshot } from '../../../../types';
+import { Metric, Period, PlayerAnnotationType, Snapshot } from '../../../../types';
 import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { parsePeriodExpression } from '../../../../utils/shared/parse-period-expression.util';
-import { BadRequestError, NotFoundError } from '../../../errors';
+import { BadRequestError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 
 type Datapoint = { value: number; rank: number; date: Date };
@@ -14,7 +15,7 @@ async function findPlayerSnapshotTimeline(
   period?: Period | string,
   minDate?: Date,
   maxDate?: Date
-): Promise<Array<Datapoint>> {
+): AsyncResult<Array<Datapoint>, { code: 'PLAYER_NOT_FOUND' } | { code: 'PLAYER_OPTED_OUT' }> {
   if (minDate && maxDate && minDate >= maxDate) {
     throw new BadRequestError('Min date must be before the max date.');
   }
@@ -22,11 +23,16 @@ async function findPlayerSnapshotTimeline(
   const player = await prisma.player.findFirst({
     where: {
       username: standardizeUsername(username)
-    }
+    },
+    include: { annotations: true }
   });
 
   if (!player) {
-    throw new NotFoundError('Player not found.');
+    return errored({ code: 'PLAYER_NOT_FOUND' });
+  }
+
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    return errored({ code: 'PLAYER_OPTED_OUT' });
   }
 
   const dateQuery: PrismaTypes.SnapshotWhereInput = {};
@@ -70,7 +76,7 @@ async function findPlayerSnapshotTimeline(
     };
   });
 
-  return history;
+  return complete(history);
 }
 
 export { findPlayerSnapshotTimeline };
