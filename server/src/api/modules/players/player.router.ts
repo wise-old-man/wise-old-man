@@ -7,6 +7,7 @@ import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../.
 import { assertNever } from '../../../utils/assert-never.util';
 import {
   BadRequestErrorZ,
+  ForbiddenError,
   ForbiddenErrorZ,
   NotFoundError,
   NotFoundErrorZ,
@@ -436,11 +437,16 @@ router.get(
     const { period, startDate, endDate, ...pagination } = req.query;
 
     const player = await prisma.player.findFirst({
-      where: { username: standardizeUsername(username) }
+      where: { username: standardizeUsername(username) },
+      include: { annotations: true }
     });
 
     if (!player) {
       throw new NotFoundError('Player not found.');
+    }
+
+    if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+      throw new ForbiddenError('Player has opted out of snapshots.');
     }
 
     const snapshots = await findPlayerSnapshots(player.id, period, startDate, endDate, pagination);

@@ -1,9 +1,9 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { Metric, Period, Snapshot } from '../../../../types';
+import { Metric, Period, PlayerAnnotationType, Snapshot } from '../../../../types';
 import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { parsePeriodExpression } from '../../../../utils/shared/parse-period-expression.util';
-import { BadRequestError, NotFoundError } from '../../../errors';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 
 type Datapoint = { value: number; rank: number; date: Date };
@@ -22,11 +22,17 @@ async function findPlayerSnapshotTimeline(
   const player = await prisma.player.findFirst({
     where: {
       username: standardizeUsername(username)
-    }
+    },
+    include: { annotations: true }
   });
 
+  // TODO: Refactor error handling
   if (!player) {
     throw new NotFoundError('Player not found.');
+  }
+
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    throw new ForbiddenError('Player has opted out of snapshots.');
   }
 
   const dateQuery: PrismaTypes.SnapshotWhereInput = {};
