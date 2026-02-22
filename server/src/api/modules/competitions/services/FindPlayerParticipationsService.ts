@@ -26,8 +26,7 @@ async function findPlayerParticipations(
 
   const player = await prisma.player.findFirst({
     where: { username: standardizeUsername(username) },
-    select: { id: true },
-    include: { annotations: true }
+    select: { id: true, annotations: true }
   });
 
   // TODO: refactor error handling
