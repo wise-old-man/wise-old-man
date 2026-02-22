@@ -1,6 +1,13 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation } from '../../../../types';
-import { NotFoundError } from '../../../errors';
+import {
+  Competition,
+  CompetitionMetric,
+  CompetitionStatus,
+  Group,
+  Participation,
+  PlayerAnnotationType
+} from '../../../../types';
+import { ForbiddenError, NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 
 async function findPlayerParticipations(
@@ -19,11 +26,17 @@ async function findPlayerParticipations(
 
   const player = await prisma.player.findFirst({
     where: { username: standardizeUsername(username) },
-    select: { id: true }
+    select: { id: true },
+    include: { annotations: true }
   });
 
+  // TODO: refactor error handling
   if (!player) {
     throw new NotFoundError('Player not found.');
+  }
+
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    throw new ForbiddenError('Player as opted out');
   }
 
   if (status) {

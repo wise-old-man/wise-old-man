@@ -32,7 +32,7 @@ async function findPlayerSnapshotTimeline(
   }
 
   if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
-    throw new ForbiddenError('Player has opted out of snapshots.');
+    throw new ForbiddenError('Player has opted out.');
   }
 
   const dateQuery: PrismaTypes.SnapshotWhereInput = {};

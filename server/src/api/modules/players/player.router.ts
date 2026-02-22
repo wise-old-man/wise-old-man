@@ -446,7 +446,7 @@ router.get(
     }
 
     if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
-      throw new ForbiddenError('Player has opted out of snapshots.');
+      throw new ForbiddenError('Player as opted out');
     }
 
     const snapshots = await findPlayerSnapshots(player.id, period, startDate, endDate, pagination);
