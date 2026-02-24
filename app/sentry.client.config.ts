@@ -10,8 +10,11 @@ Sentry.init({
   // Add optional integrations for additional features
   integrations: [Sentry.replayIntegration()],
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 0.05,
+  tracesSampler: (samplingContext) => {
+    const name = samplingContext.name ?? "";
+    if (name.includes("/_next/")) return 0;
+    return 0.05;
+  },
 
   // Define how likely Replay events are sampled.
   // This sets the sample rate to be 10%. You may want this to be 100% while
