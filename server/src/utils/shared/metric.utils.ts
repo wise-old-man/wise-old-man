@@ -75,6 +75,7 @@ export const BossProps: Record<
     [Boss.ARAXXOR]: { name: 'Araxxor' },
     [Boss.ARTIO]: { name: 'Artio' },
     [Boss.BARROWS_CHESTS]: { name: 'Barrows Chests' },
+    [Boss.BRUTUS]: { name: 'Brutus', isMembers: false },
     [Boss.BRYOPHYTA]: { name: 'Bryophyta', isMembers: false },
     [Boss.CALLISTO]: { name: 'Callisto' },
     [Boss.CALVARION]: { name: "Calvar'ion" },

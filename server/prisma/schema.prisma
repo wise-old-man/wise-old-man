@@ -351,7 +351,7 @@ model Record {
 }
 
 model Snapshot {
-  id                                    Int       @default(autoincrement()) @unique(map: "snapshots_id_unique")
+  id                                    Int       @unique(map: "snapshots_id_unique") @default(autoincrement())
   playerId                              Int
   importedAt                            DateTime? @db.Timestamptz(6)
   createdAt                             DateTime  @default(now()) @db.Timestamptz(6)
@@ -442,6 +442,8 @@ model Snapshot {
   artioKills                            Int       @default(-1)
   barrows_chestsRank                    Int       @default(-1)
   barrows_chestsKills                   Int       @default(-1)
+  brutusRank                            Int       @default(-1)
+  brutusKills                           Int       @default(-1)
   bryophytaKills                        Int       @default(-1)
   bryophytaRank                         Int       @default(-1)
   cerberusKills                         Int       @default(-1)
@@ -1305,6 +1307,7 @@ enum Metric {
   araxxor
   artio
   barrows_chests
+  brutus
   bryophyta
   callisto
   calvarion

@@ -199,6 +199,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
+    name: '{threshold} Brutus kills',
+    metric: Metric.BRUTUS,
+    thresholds: [100, 500, 1000, 5000]
+  },
+  {
     name: '{threshold} Bryophyta kills',
     metric: Metric.BRYOPHYTA,
     thresholds: [50, 100, 500, 1000]
