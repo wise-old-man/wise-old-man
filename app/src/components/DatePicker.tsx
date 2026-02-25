@@ -40,7 +40,7 @@ const PopoverContent = forwardRef<
       className={cn(
         "z-10 mt-1 rounded-md border border-gray-500 bg-gray-700 p-4 text-gray-100 shadow-md outline-none",
         "animate-in data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-        className
+        className,
       )}
       {...props}
     />
@@ -125,7 +125,7 @@ export function DateField(props: AriaDatePickerProps<DateValue> & { isSegmented?
       className={cn(
         "inline-flex h-10 min-w-[10rem] flex-1 items-center border border-gray-700 bg-gray-900 px-3 py-2 text-sm",
         props.isDisabled ? "cursor-not-allowed opacity-50" : "",
-        props.isSegmented ? "rounded-l-md border-r-0" : "rounded-md"
+        props.isSegmented ? "rounded-l-md border-r-0" : "rounded-md",
       )}
     >
       {state.segments.map((segment, i) => (
@@ -149,7 +149,7 @@ export function TimeField(props: AriaTimeFieldProps<TimeValue>) {
       ref={ref}
       className={cn(
         "inline-flex h-10 w-full min-w-[5rem] flex-1 rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm",
-        props.isDisabled ? "cursor-not-allowed opacity-50" : ""
+        props.isDisabled ? "cursor-not-allowed opacity-50" : "",
       )}
     >
       {state.segments.map((segment, i) => (
@@ -176,7 +176,7 @@ function DateSegment({ segment, state }: DateSegmentProps) {
       className={cn(
         "focus:rounded-[2px] focus:bg-gray-600 focus:text-white focus:outline-none",
         segment.type !== "literal" ? "px-[1px]" : "",
-        segment.isPlaceholder ? "text-gray-200" : ""
+        segment.isPlaceholder ? "text-gray-200" : "",
       )}
     >
       {segment.text}
@@ -186,7 +186,7 @@ function DateSegment({ segment, state }: DateSegmentProps) {
 
 export function toCalendarDate(date: Date) {
   return parseDate(
-    [date.getFullYear(), padNumber(date.getMonth() + 1), padNumber(date.getDate())].join("-")
+    [date.getFullYear(), padNumber(date.getMonth() + 1), padNumber(date.getDate())].join("-"),
   );
 }
 

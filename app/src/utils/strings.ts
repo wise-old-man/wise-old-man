@@ -11,7 +11,7 @@ export function capitalize(str: string) {
  */
 export function standardizeUsername(username: string): string {
   return username
-    .replace(/[-_\s]/g, ' ')
+    .replace(/[-_\s]/g, " ")
     .trim()
     .toLowerCase();
 }
@@ -22,6 +22,6 @@ export function standardizeUsername(username: string): string {
  */
 export function sanitizeDisplayName(username: string): string {
   return username
-    .replace(/[^a-zA-Z0-9 \-_]/g, '') // Remove any character that's NOT letter, number, space, dash, or underscore
+    .replace(/[^a-zA-Z0-9 \-_]/g, "") // Remove any character that's NOT letter, number, space, dash, or underscore
     .trim(); // Remove spaces from start and end
 }

@@ -108,10 +108,12 @@ function ProgressTable(props: ProgressTableProps) {
   const { player, metricType, achievements } = props;
 
   const hiddenMetrics = getBuildHiddenMetrics(player.build);
-  const filteredAchievements = achievements.filter((a) => !hiddenMetrics.includes(a.metric) && !a.legacy);
+  const filteredAchievements = achievements.filter(
+    (a) => !hiddenMetrics.includes(a.metric) && !a.legacy,
+  );
 
   const groups = groupAchievementsByType(filteredAchievements).filter(
-    (g) => g.metric in MetricProps && (!metricType || MetricProps[g.metric].type === metricType)
+    (g) => g.metric in MetricProps && (!metricType || MetricProps[g.metric].type === metricType),
   );
 
   return (
@@ -185,7 +187,7 @@ function ProgressTableRow(props: ProgressTableRowProps) {
                     className={cn(
                       "z-[1] flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200 shadow-md",
                       isDone && "border-green-500 text-green-500",
-                      isInProgress && "text-white"
+                      isInProgress && "text-white",
                     )}
                   >
                     {formatThreshold(a.threshold)}
@@ -223,7 +225,7 @@ function RecentAchievements(props: RecentAchievementsProps) {
       (a) =>
         a.metric in MetricProps &&
         a.createdAt &&
-        (!metricType || MetricProps[a.metric].type === metricType)
+        (!metricType || MetricProps[a.metric].type === metricType),
     )
     .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime())
     .slice(0, 5);
@@ -257,7 +259,7 @@ function NearestAchievements(props: NearestAchievementsProps) {
       (a) =>
         a.metric in MetricProps &&
         (!metricType || MetricProps[a.metric].type === metricType) &&
-        !a.createdAt
+        !a.createdAt,
     )
     .sort((a, b) => b.absoluteProgress - a.absoluteProgress)
     .slice(0, 5);
@@ -284,17 +286,17 @@ interface LegacyAchievementsProps {
 }
 
 function LegacyAchievements(props: LegacyAchievementsProps) {
-  const {  metricType, achievements } = props;
-  
+  const { metricType, achievements } = props;
+
   const legacyAchievements = achievements
     .filter(
       (a) =>
         a.metric in MetricProps &&
         a.createdAt &&
-        a.legacy && 
-        (!metricType || MetricProps[a.metric].type === metricType)
+        a.legacy &&
+        (!metricType || MetricProps[a.metric].type === metricType),
     )
-    .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime())
+    .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
 
   if (legacyAchievements.length === 0) return null;
 
@@ -323,7 +325,7 @@ function Tab(props: TabProps) {
     <div
       className={cn(
         "flex flex-col rounded-lg border border-gray-600 bg-gray-800 px-5 py-3 shadow-md transition-colors hover:bg-gray-700",
-        props.isSelected && "border-gray-400 bg-gray-700"
+        props.isSelected && "border-gray-400 bg-gray-700",
       )}
     >
       <span className="text-xl text-white">{props.count}</span>

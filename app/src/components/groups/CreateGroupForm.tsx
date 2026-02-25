@@ -123,13 +123,13 @@ export function CreateGroupForm() {
           <div
             className={cn(
               "h-1 w-12 rounded-full transition-colors duration-300",
-              step === "info" ? "bg-gray-500" : "bg-blue-500"
+              step === "info" ? "bg-gray-500" : "bg-blue-500",
             )}
           />
           <div
             className={cn(
               "h-1 w-12 rounded-full transition-colors duration-300",
-              step !== "members" ? "bg-gray-500" : "bg-blue-500"
+              step !== "members" ? "bg-gray-500" : "bg-blue-500",
             )}
           />
         </div>
@@ -302,7 +302,7 @@ function GroupMembersForm(props: GroupMembersFormProps) {
 
   function handleRemovePlayer(username: string) {
     setMembers((members) =>
-      members.filter((m) => standardizeUsername(m.username) !== standardizeUsername(username))
+      members.filter((m) => standardizeUsername(m.username) !== standardizeUsername(username)),
     );
   }
 
@@ -314,7 +314,7 @@ function GroupMembersForm(props: GroupMembersFormProps) {
         }
 
         return m;
-      })
+      }),
     );
   }
 
@@ -377,7 +377,7 @@ function GroupMembersForm(props: GroupMembersFormProps) {
 
 function getColumnDefinitions(
   onRemoveClicked: (username: string) => void,
-  onRoleChanged: (username: string, role: GroupRole) => void
+  onRoleChanged: (username: string, role: GroupRole) => void,
 ) {
   const MEMBERS_COLUMN_DEFS: ColumnDef<MemberFragment>[] = [
     {

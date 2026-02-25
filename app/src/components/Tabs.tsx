@@ -15,7 +15,7 @@ const TabsList = React.forwardRef<
     ref={ref}
     className={cn(
       "flex w-full grow items-center justify-start gap-x-8 border-b border-gray-700",
-      className
+      className,
     )}
     {...props}
   >
@@ -36,7 +36,7 @@ const TabsTrigger = React.forwardRef<
       "focus-visible:bg-gray-300/5 focus-visible:outline-none",
       "disabled:pointer-events-none disabled:opacity-50",
       "data-[state=active]:border-blue-500 data-[state=active]:text-white",
-      className
+      className,
     )}
     {...props}
   />
@@ -51,7 +51,7 @@ const TabsContent = React.forwardRef<
     ref={ref}
     className={cn(
       "mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-      className
+      className,
     )}
     {...props}
   />

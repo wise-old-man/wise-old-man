@@ -143,7 +143,7 @@ function getColumnDefinitions(page: number, metric: Metric) {
         cell: ({ row }) => (
           <FormattedNumber value={(row.original.data as GroupHiscoresSkillItem).level} />
         ),
-      }
+      },
     );
   } else if (isBoss(metric)) {
     columns.push({

@@ -43,7 +43,7 @@ export function CompetitionParticipantsForm(props: CompetitionParticipantsFormPr
 
   function handleRemovePlayer(username: string) {
     onParticipantsChanged(
-      participants.filter((p) => standardizeUsername(p) !== standardizeUsername(username))
+      participants.filter((p) => standardizeUsername(p) !== standardizeUsername(username)),
     );
   }
 

@@ -46,7 +46,7 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
   const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
 
   const outdatedParticipants = rows.filter(
-    (p) => !p.player.updatedAt || p.player.updatedAt < competition.startsAt
+    (p) => !p.player.updatedAt || p.player.updatedAt < competition.startsAt,
   );
 
   const showOnlyOutdated = searchParams.get("filter") === "outdated";
@@ -341,7 +341,7 @@ function UpdateParticipantCell(props: {
     <div
       className={cn(
         "flex w-full items-center justify-between gap-x-3",
-        !hasUpdated && !hasStartingValue && hasStarted && "text-red-500"
+        !hasUpdated && !hasStartingValue && hasStarted && "text-red-500",
       )}
     >
       {!hasEnded && hasUpdated ? (

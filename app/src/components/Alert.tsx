@@ -32,7 +32,7 @@ const AlertTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<H
       className={cn("mb-2 flex items-center font-medium leading-7 tracking-tight", className)}
       {...props}
     />
-  )
+  ),
 );
 AlertTitle.displayName = "AlertTitle";
 

@@ -109,7 +109,7 @@ function SearchResultItem(props: { group: GroupResponse }) {
       className={({ active }) =>
         cn(
           "relative block cursor-default select-none truncate rounded p-3",
-          active ? "bg-gray-600 text-white" : "text-gray-100"
+          active ? "bg-gray-600 text-white" : "text-gray-100",
         )
       }
     >
@@ -137,7 +137,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>((props, ref) 
         onChange={onChange}
         className={cn(
           "flex h-12 w-full items-center rounded-md border border-gray-700 bg-gray-950 px-10 text-sm leading-7 shadow-inner shadow-black/50 placeholder:text-gray-300",
-          "focus-visible:bg-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-500 focus-visible:ring-offset-0"
+          "focus-visible:bg-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-500 focus-visible:ring-offset-0",
         )}
         {...inputProps}
       />

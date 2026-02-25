@@ -77,7 +77,7 @@ async function TopLeaderboard(props: TopLeaderboardProps) {
     period,
     filters.country,
     filters.playerType,
-    filters.playerBuild
+    filters.playerBuild,
   );
 
   return (

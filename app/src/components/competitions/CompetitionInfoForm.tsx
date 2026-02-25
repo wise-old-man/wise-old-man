@@ -75,7 +75,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
 
   const [startDate, setStartDate] = useState<DateValue>(toCalendarDate(startsAt));
   const [startTime, setStartTime] = useState<TimeValue>(
-    new Time(startsAt.getHours(), startsAt.getMinutes())
+    new Time(startsAt.getHours(), startsAt.getMinutes()),
   );
 
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(endsAt));
@@ -84,7 +84,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
   const hasUnsavedChanges = checkUnsavedChanges(
     competition,
     { title, metric, startsAt: toDate(startDate, startTime), endsAt: toDate(endDate, endTime) },
-    timezone
+    timezone,
   );
 
   const hasPastStartDate = toDate(startDate, startTime).getTime() < Date.now();
@@ -197,7 +197,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
         title.length === 0 ||
           !isEndDateAfterStartDate ||
           (mode === "create" && (hasPastStartDate || hasPastEndDate)),
-        hasUnsavedChanges
+        hasUnsavedChanges,
       )}
     </form>
   );
@@ -259,7 +259,7 @@ function MetricSelect(props: MetricSelectProps) {
         <ComboboxButton
           className={cn(
             "w-full bg-gray-800 hover:bg-gray-700",
-            metric === Metric.LEAGUE_POINTS && "border border-red-800"
+            metric === Metric.LEAGUE_POINTS && "border border-red-800",
           )}
         >
           <div className="flex items-center gap-x-2">

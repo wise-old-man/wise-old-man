@@ -74,7 +74,7 @@ function ProfileImageUploadTrigger(props: ProfileImageUploadTriggerProps) {
         <div
           className={cn(
             "absolute inset-0 flex flex-col items-center justify-center bg-black/80",
-            previewImageURL && "invisible group-hover:visible"
+            previewImageURL && "invisible group-hover:visible",
           )}
         >
           <ImageIcon className="h-5 w-5 text-white" />
@@ -84,7 +84,7 @@ function ProfileImageUploadTrigger(props: ProfileImageUploadTriggerProps) {
           </span>
         </div>
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center  justify-center bg-black/80">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80">
           <LoadingIcon className="h-5 w-5 animate-spin text-white" />
         </div>
       )}
@@ -157,14 +157,14 @@ function BannerImageUploadTrigger(props: BannerImageUploadTriggerProps) {
         <div
           className={cn(
             "absolute inset-0 flex flex-col items-center justify-center bg-black/80",
-            previewImageURL && "invisible group-hover:visible"
+            previewImageURL && "invisible group-hover:visible",
           )}
         >
           <ImageIcon className="h-5 w-5 text-white" />
           <span className="mt-1 text-xs font-medium text-white">Upload image (1184x144)</span>
         </div>
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center  justify-center bg-black/80">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80">
           <LoadingIcon className="h-5 w-5 animate-spin text-white" />
         </div>
       )}

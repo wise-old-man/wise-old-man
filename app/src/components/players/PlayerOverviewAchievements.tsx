@@ -25,7 +25,7 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
         !hiddenMetrics.includes(a.metric) &&
         a.currentValue < SKILL_EXP_AT_99 &&
         a.threshold === SKILL_EXP_AT_99 &&
-        !a.createdAt
+        !a.createdAt,
     )
     .sort((a, b) => b.currentValue - a.currentValue)
     .slice(0, 3);

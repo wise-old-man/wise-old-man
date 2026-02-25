@@ -51,7 +51,7 @@ export function Pagination(props: PaginationProps) {
           rel="nofollow"
           className={cn(
             "relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-200 ring-1 ring-inset ring-gray-500 hover:bg-gray-700 hover:text-white focus:z-20 focus:outline-offset-0",
-            "aria-disabled:pointer-events-none aria-disabled:opacity-30"
+            "aria-disabled:pointer-events-none aria-disabled:opacity-30",
           )}
         >
           <span className="sr-only">Previous</span>
@@ -81,7 +81,9 @@ export function Pagination(props: PaginationProps) {
             aria-current={currentPage === number ? "page" : undefined}
             className={cn(
               "relative inline-flex w-12 items-center justify-center px-4 py-2 text-sm font-semibold tabular-nums text-gray-200 ring-1 ring-inset ring-gray-500 focus:z-20 focus:outline-offset-0",
-              currentPage === number ? "bg-gray-600 text-blue-400" : "hover:bg-gray-700 hover:text-white"
+              currentPage === number
+                ? "bg-gray-600 text-blue-400"
+                : "hover:bg-gray-700 hover:text-white",
             )}
           >
             {number}
@@ -94,7 +96,7 @@ export function Pagination(props: PaginationProps) {
           rel="nofollow"
           className={cn(
             "relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-200 ring-1 ring-inset ring-gray-500 hover:bg-gray-700 hover:text-white focus:z-20 focus:outline-offset-0",
-            "aria-disabled:pointer-events-none aria-disabled:opacity-30"
+            "aria-disabled:pointer-events-none aria-disabled:opacity-30",
           )}
         >
           <span className="sr-only">Next</span>

@@ -27,7 +27,7 @@ export function FormattedNumber(props: FormattedNumberProps) {
               "text-green-500": value > 0 && (!lowThreshold || value > lowThreshold) && colored,
               "text-lime-300": value > 0 && lowThreshold && value <= lowThreshold && colored,
               "text-red-500": value < 0 && colored,
-            }
+            },
           )}
         >
           {value > 0 && colored ? "+" : ""}

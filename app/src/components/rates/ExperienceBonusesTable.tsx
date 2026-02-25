@@ -1,6 +1,12 @@
 "use client";
 
-import { MAX_SKILL_EXP, MetricProps, SkillMetaBonus, SKILL_EXP_AT_99, getLevel } from "@wise-old-man/utils";
+import {
+  MAX_SKILL_EXP,
+  MetricProps,
+  SkillMetaBonus,
+  SKILL_EXP_AT_99,
+  getLevel,
+} from "@wise-old-man/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { TableTitle } from "../Table";
 import { DataTable } from "../DataTable";

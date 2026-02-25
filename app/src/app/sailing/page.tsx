@@ -40,12 +40,17 @@ export default async function SailingPage() {
   return (
     <div>
       <div className="relative mb-16 h-[28rem] w-full bg-blue-900">
-        <div className="bg-sailing-hero-gradient absolute inset-0 mx-auto max-w-[100vw]" />
-        <Image src={BackgroundImage} fill alt="" className="absolute blur-[2px] inset-0 object-cover opacity-20" />
+        <div className="absolute inset-0 mx-auto max-w-[100vw] bg-sailing-hero-gradient" />
+        <Image
+          src={BackgroundImage}
+          fill
+          alt=""
+          className="absolute inset-0 object-cover opacity-20 blur-[2px]"
+        />
         <div className="z-1 absolute bottom-0 flex w-full justify-center">
           <Image src={WomCharacterImage} width={496} height={405} alt="" />
         </div>
-        <div className="bg-sailing-hero-overlay-gradient z-2 absolute bottom-0 h-60 w-full" />
+        <div className="z-2 absolute bottom-0 h-60 w-full bg-sailing-hero-overlay-gradient" />
         <div className="z-5 absolute bottom-24 flex w-full justify-center">
           <SailingTitle />
         </div>

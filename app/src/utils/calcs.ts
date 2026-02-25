@@ -1,7 +1,7 @@
 export function calculateGainBuckets(
   data: Array<{ value: number; date: Date }>,
   minDate: Date,
-  maxDate: Date
+  maxDate: Date,
 ) {
   const normalizeDate = (date: Date) => {
     const copy = new Date(date.getTime());

@@ -41,7 +41,7 @@ export function CompetitionDetailsNavigation(props: CompetitionDetailsNavigation
       <Tabs defaultValue={selectedTab.route}>
         <TabsList aria-label="Competition Details Navigation">
           {TABS.filter(
-            (t) => t.route !== "/participants" || competition.type === CompetitionType.TEAM
+            (t) => t.route !== "/participants" || competition.type === CompetitionType.TEAM,
           ).map((tab) => {
             let url = `/competitions/${competition.id}${tab.route}`;
             if (previewMetric) url += `?preview=${previewMetric}`;

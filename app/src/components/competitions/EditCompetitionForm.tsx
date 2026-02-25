@@ -122,7 +122,7 @@ function SideNavigation(props: { type: CompetitionType }) {
           <li
             className={cn(
               "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
-              (!section || section === "general") && "bg-gray-700 text-white"
+              (!section || section === "general") && "bg-gray-700 text-white",
             )}
           >
             {(!section || section === "general") && (
@@ -136,7 +136,7 @@ function SideNavigation(props: { type: CompetitionType }) {
             <li
               className={cn(
                 "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
-                section === "participants" && "bg-gray-700 text-white"
+                section === "participants" && "bg-gray-700 text-white",
               )}
             >
               {section === "participants" && (
@@ -150,7 +150,7 @@ function SideNavigation(props: { type: CompetitionType }) {
             <li
               className={cn(
                 "relative overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
-                section === "teams" && "bg-gray-700 text-white"
+                section === "teams" && "bg-gray-700 text-white",
               )}
             >
               {section === "teams" && (
