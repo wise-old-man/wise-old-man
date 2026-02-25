@@ -69,7 +69,7 @@ async function uploadToS3(fileName: string, buffer: Buffer) {
       Key: fileName,
       Body: buffer,
       ACL: "public-read",
-    })
+    }),
   );
 
   return `https://img.wiseoldman.net/${fileName}`;

@@ -36,7 +36,7 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
 
   while (cursor.getTime() <= endDate.getTime()) {
     allDays.push(new Date(cursor));
-    
+
     if (!map.has(cursor.getTime())) {
       map.set(cursor.getTime(), 0);
     }
@@ -64,7 +64,7 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
               key={i}
               className={cn(
                 "text-xs text-gray-200",
-                monthIndex % 2 !== startingMonth % 2 && "invisible @lg:visible"
+                monthIndex % 2 !== startingMonth % 2 && "invisible @lg:visible",
               )}
             >
               {MONTHS[monthIndex].slice(0, 3)}

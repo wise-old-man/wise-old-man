@@ -480,7 +480,7 @@ interface Stats {
 
 async function fetchRuneliteInstalls() {
   const installs = await fetch(
-    "https://raw.githubusercontent.com/runelite/plugin-hub/master/runelite.version"
+    "https://raw.githubusercontent.com/runelite/plugin-hub/master/runelite.version",
   )
     .then((res) => res.text())
     .then((latestVersion) => fetch(`https://api.runelite.net/runelite-${latestVersion}/pluginhub`))

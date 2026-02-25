@@ -138,7 +138,7 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
       <div
         className={cn(
           "group relative flex h-[5rem] w-full items-center gap-x-5 overflow-hidden rounded-lg border border-gray-600 pl-6 pr-8 hover:border-gray-400",
-          featured.metrics.length > 1 && "gap-x-4 pl-4"
+          featured.metrics.length > 1 && "gap-x-4 pl-4",
         )}
       >
         <Image

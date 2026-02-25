@@ -19,7 +19,7 @@ const Table = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
         {...props}
       />
     </div>
-  )
+  ),
 );
 Table.displayName = "Table";
 
@@ -28,7 +28,7 @@ function TableTitle(props: PropsWithChildren<{ className?: string }>) {
     <div
       className={cn(
         "flex w-full items-center justify-between border-b border-gray-500 px-5 py-4",
-        props.className
+        props.className,
       )}
     >
       {props.children}
@@ -39,14 +39,14 @@ function TableTitle(props: PropsWithChildren<{ className?: string }>) {
 const TableHeader = forwardRef<HTMLTableSectionElement, HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
     <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
-  )
+  ),
 );
 TableHeader.displayName = "TableHeader";
 
 const TableBody = forwardRef<HTMLTableSectionElement, HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
     <tbody ref={ref} className={cn("[&_tr:last-child]:border-0", className)} {...props} />
-  )
+  ),
 );
 TableBody.displayName = "TableBody";
 
@@ -56,11 +56,11 @@ const TableRow = forwardRef<HTMLTableRowElement, HTMLAttributes<HTMLTableRowElem
       ref={ref}
       className={cn(
         "border-b border-gray-600 transition-colors data-[state=selected]:bg-gray-500",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  ),
 );
 TableRow.displayName = "TableRow";
 
@@ -70,11 +70,11 @@ const TableHead = forwardRef<HTMLTableCellElement, ThHTMLAttributes<HTMLTableCel
       ref={ref}
       className={cn(
         "h-10 whitespace-nowrap px-4 text-left align-middle text-xs font-medium tabular-nums text-gray-200 [&:has([role=checkbox])]:pr-0",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  ),
 );
 TableHead.displayName = "TableHead";
 
@@ -85,7 +85,7 @@ const TableCell = forwardRef<HTMLTableCellElement, TdHTMLAttributes<HTMLTableCel
       className={cn("whitespace-nowrap p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
       {...props}
     />
-  )
+  ),
 );
 TableCell.displayName = "TableCell";
 

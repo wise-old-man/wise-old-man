@@ -99,13 +99,13 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
         <div
           className={cn(
             "h-1 w-12 rounded-full transition-colors duration-300",
-            step === "info" ? "bg-gray-500" : "bg-blue-500"
+            step === "info" ? "bg-gray-500" : "bg-blue-500",
           )}
         />
         <div
           className={cn(
             "h-1 w-12 rounded-full transition-colors duration-300",
-            step !== "participants" ? "bg-gray-500" : "bg-blue-500"
+            step !== "participants" ? "bg-gray-500" : "bg-blue-500",
           )}
         />
       </div>

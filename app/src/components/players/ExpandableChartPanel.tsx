@@ -54,7 +54,7 @@ function ChartPanel(props: ExpandableChartPanelProps & { isExpanded: boolean }) 
       <div
         className={cn(
           "mb-7 flex justify-between gap-x-5",
-          props.isExpanded && "-mx-5 border-b border-gray-500 px-5 pb-4"
+          props.isExpanded && "-mx-5 border-b border-gray-500 px-5 pb-4",
         )}
       >
         <div>

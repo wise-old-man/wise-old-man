@@ -234,8 +234,8 @@ function PlayerStatusAlert(props: { player: PlayerDetailsResponse }) {
             {` for more information.`}
 
             <p className="mt-5">
-              <span className="text-white">Note (November 10th 2025):</span> There&apos;s currently an issue
-              with the Jagex hiscores due to a recent rollback that is causing some players to get
+              <span className="text-white">Note (November 10th 2025):</span> There&apos;s currently an
+              issue with the Jagex hiscores due to a recent rollback that is causing some players to get
               flagged. If you&apos;re affected, try to log out in-game (to update your hiscores) and then
               update your WOM profile.
             </p>
@@ -291,7 +291,7 @@ function PlayerAttributes(props: PlayerDetailsResponse) {
           </a>
         </TooltipTrigger>
         <TooltipContent>Check our Patreon benefits</TooltipContent>
-      </Tooltip>
+      </Tooltip>,
     );
   }
 
@@ -320,7 +320,7 @@ function PlayerAttributes(props: PlayerDetailsResponse) {
           <span>Last updated {timeago.format(latestSnapshot.createdAt)}</span>
         </TooltipTrigger>
         <TooltipContent side="bottom">{formatDatetime(latestSnapshot.createdAt)}</TooltipContent>
-      </Tooltip>
+      </Tooltip>,
     );
   }
 

@@ -29,7 +29,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
           "disabled:cursor-not-allowed disabled:opacity-50",
           !!leftElement && "pl-10",
           !!rightElement && "pr-10",
-          className
+          className,
         )}
         ref={ref}
         {...otherProps}
@@ -40,7 +40,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
       <div
         className={cn(
           "absolute bottom-0 right-3 top-0 flex items-center",
-          !rightElementClickable && "pointer-events-none"
+          !rightElementClickable && "pointer-events-none",
         )}
       >
         {rightElement}

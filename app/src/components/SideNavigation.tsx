@@ -24,7 +24,7 @@ import PatreonIcon from "~/assets/patreon.svg";
 import RuneliteIcon from "~/assets/runelite.svg";
 import NewspaperIcon from "~/assets/newspaper.svg";
 import LeaderboardsIcon from "~/assets/leaderboards.svg";
-import AnchorIcon from '~/assets/anchor.svg';
+import AnchorIcon from "~/assets/anchor.svg";
 
 const ROUTES = [
   { label: "Leaderboards", href: "/leaderboards", icon: LeaderboardsIcon },
@@ -62,7 +62,7 @@ function SideNavigation(props: SideNavigationProps) {
   const pathname = usePathname();
 
   const currentRoute = ROUTES.find(
-    (r) => pathname.startsWith(r.href) || r.relatedRoutes?.some((r) => pathname.startsWith(r))
+    (r) => pathname.startsWith(r.href) || r.relatedRoutes?.some((r) => pathname.startsWith(r)),
   );
 
   return (
@@ -153,7 +153,7 @@ function SideBar(props: SideBarProps) {
               className={cn(
                 "flex items-center px-5 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700",
                 currentRouteHref === link.href &&
-                  "border-l-2 border-blue-500 bg-gray-700/50 px-[1.625rem] text-white hover:bg-gray-700/50"
+                  "border-l-2 border-blue-500 bg-gray-700/50 px-[1.625rem] text-white hover:bg-gray-700/50",
               )}
               onClick={onRouteSelected}
             >
@@ -162,19 +162,19 @@ function SideBar(props: SideBarProps) {
             </Link>
           </li>
         ))}
-          <li>
-            <Link
-              href="/sailing"
-              prefetch={false}
-              className="flex items-center justify-between px-5 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700"
-            >
-              <div className="flex items-center">
-                <AnchorIcon className="mr-2 h-5 w-5" />
-                Sailing
-              </div>
-              <span className="mt-px text-xs text-blue-400">New</span>
-            </Link>
-          </li>
+        <li>
+          <Link
+            href="/sailing"
+            prefetch={false}
+            className="flex items-center justify-between px-5 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700"
+          >
+            <div className="flex items-center">
+              <AnchorIcon className="mr-2 h-5 w-5" />
+              Sailing
+            </div>
+            <span className="mt-px text-xs text-blue-400">New</span>
+          </Link>
+        </li>
       </ul>
       <div className="w-[calc(100% - 1.6rem)] mx-5 my-4 h-px shrink-0 bg-gray-600" />
       <ul className="flex flex-col">

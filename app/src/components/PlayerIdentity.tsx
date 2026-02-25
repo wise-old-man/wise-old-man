@@ -64,7 +64,7 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
               href={href || `/players/${player.username}`}
               className={cn(
                 "line-clamp-1 text-sm font-medium hover:underline",
-                player.patron && "text-amber-300"
+                player.patron && "text-amber-300",
               )}
             >
               {player.status === PlayerStatus.ARCHIVED ? "[Archived]" : player.displayName}

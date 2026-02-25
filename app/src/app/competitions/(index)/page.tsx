@@ -52,7 +52,7 @@ export default async function CompetitionsPage(props: PageProps) {
     type,
     status,
     RESULTS_PER_PAGE,
-    (page - 1) * RESULTS_PER_PAGE
+    (page - 1) * RESULTS_PER_PAGE,
   );
 
   return (

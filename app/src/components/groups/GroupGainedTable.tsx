@@ -377,12 +377,12 @@ function getPercentGained(metric: Metric, start: number, end: number, gained: nu
   if (gained === 0) return 0;
 
   let minimum = 0;
-  
+
   if (isBoss(metric) || isActivity(metric)) {
     minimum = MetricProps[metric].minimumValue - 1;
   }
 
-  const startVal = start === -1 ? Math.max(minimum, start) : start
+  const startVal = start === -1 ? Math.max(minimum, start) : start;
 
   if (startVal === 0) return 1;
 

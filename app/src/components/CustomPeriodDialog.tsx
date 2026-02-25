@@ -28,7 +28,7 @@ export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
   const [isDateRangeInvalid, setIsDateRangeInvalid] = useState<boolean>();
 
   const [startDate, setStartDate] = useState<DateValue>(
-    toCalendarDate(new Date(Date.now() - PeriodProps[Period.WEEK].milliseconds))
+    toCalendarDate(new Date(Date.now() - PeriodProps[Period.WEEK].milliseconds)),
   );
 
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(new Date()));

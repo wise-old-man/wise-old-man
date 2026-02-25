@@ -265,12 +265,7 @@ function YearlyHeatmapPanel(props: YearlyHeatmapPanelProps) {
             const maxDate = new Date();
 
             return (
-              <PlayerGainedHeatmap
-                view={view}
-                rawData={data}
-                minDate={minDate}
-                maxDate={maxDate}
-              />
+              <PlayerGainedHeatmap view={view} rawData={data} minDate={minDate} maxDate={maxDate} />
             );
           }}
         </Await>
@@ -331,7 +326,7 @@ function GainedHeader(props: GainedHeaderProps) {
           <ChartViewSelect metric={metric} />
         </div>
       </div>
-      <div className="grid grid-cols-3 divide-x divide-gray-500 ">
+      <div className="grid grid-cols-3 divide-x divide-gray-500">
         <div className="px-5 py-3">
           <span className="text-xs text-gray-200">Start</span>
           <span className="block text-sm text-white">

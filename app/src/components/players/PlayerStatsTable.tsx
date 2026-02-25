@@ -173,7 +173,7 @@ function getVirtualTotalLevel(skills: Record<Skill, SkillValue>): number {
 }
 
 function PlayerSkillsTable(
-  props: PropsWithChildren<{ player: PlayerDetailsResponse; showVirtualLevels: boolean }>
+  props: PropsWithChildren<{ player: PlayerDetailsResponse; showVirtualLevels: boolean }>,
 ) {
   const { children, player, showVirtualLevels } = props;
 
@@ -186,7 +186,7 @@ function PlayerSkillsTable(
     .map((v) =>
       showVirtualLevels && v.metric === Skill.OVERALL
         ? { ...v, level: getVirtualTotalLevel(player.latestSnapshot!.data.skills) }
-        : v
+        : v,
     );
 
   const rows = [
@@ -213,7 +213,7 @@ function PlayerSkillsTable(
 
 function getSkillColumnDefinitions(
   player: PlayerResponse,
-  showVirtualLevels: boolean
+  showVirtualLevels: boolean,
 ): ColumnDef<SkillValue>[] {
   const hasSpecialEhp =
     player.type !== PlayerType.REGULAR || ["f2p", "f2p_lvl3", "lvl3"].includes(player.build);
@@ -481,7 +481,7 @@ function PlayerActivitiesTable(props: PropsWithChildren<{ player: PlayerDetailsR
   }
 
   const rows = Object.values(player.latestSnapshot.data.activities).filter(
-    (s) => s.metric in MetricProps
+    (s) => s.metric in MetricProps,
   );
 
   return (

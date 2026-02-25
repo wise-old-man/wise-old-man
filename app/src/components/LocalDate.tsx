@@ -44,7 +44,7 @@ export function LocalDate(props: LocalDateProps) {
       <div
         className={cn(
           "absolute inset-0 bottom-[0.2em] top-[0.2em] animate-pulse rounded-full bg-gray-600",
-          hasMounted && "hidden"
+          hasMounted && "hidden",
         )}
       />
     </div>

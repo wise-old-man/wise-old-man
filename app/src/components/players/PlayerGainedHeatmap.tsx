@@ -20,12 +20,9 @@ export function PlayerGainedHeatmap(props: PlayerGainedHeatmapProps) {
 
     // Convert the timeseries data into daily (bucket) gains
     const bucketedData = calculateGainBuckets(
-      (isShowingRanks
-        ? rawData.map((d) => ({ date: d.date, value: d.rank }))
-        : [...rawData]
-      ).reverse(),
+      (isShowingRanks ? rawData.map((d) => ({ date: d.date, value: d.rank })) : [...rawData]).reverse(),
       minDate,
-      maxDate
+      maxDate,
     );
 
     return bucketedData.map((b) => ({

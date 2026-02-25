@@ -353,13 +353,13 @@ function TimezoneSelector(props: TimezoneSelectorProps) {
 function getTopParticipant(
   sorting: TopParticipantSorting,
   metric: Metric,
-  participations: TopParticipant[]
+  participations: TopParticipant[],
 ) {
   if (participations.length === 0) return null;
   if (sorting === "by_value") return participations[0];
 
   return [...participations].sort(
-    (a, b) => getPercentGained(metric, b.progress) - getPercentGained(metric, a.progress)
+    (a, b) => getPercentGained(metric, b.progress) - getPercentGained(metric, a.progress),
   )[0];
 }
 
@@ -384,7 +384,7 @@ function getPercentGained(metric: Metric, progress: MetricDelta) {
     minimum = MetricProps[metric].minimumValue - 1;
   }
 
-  const start = progress.start === -1 ? Math.max(minimum, progress.start) : progress.start
+  const start = progress.start === -1 ? Math.max(minimum, progress.start) : progress.start;
 
   if (start === 0) return 1;
 

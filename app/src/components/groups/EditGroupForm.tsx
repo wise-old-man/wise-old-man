@@ -396,7 +396,7 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
   const [showingEmptyGroupDialog, setShowingEmptyGroupDialog] = useState(false);
 
   const [members, setMembers] = useState<EditableMemberFragment[]>(
-    group.memberships.map((g) => ({ username: g.player.displayName, role: g.role, isNew: false }))
+    group.memberships.map((g) => ({ username: g.player.displayName, role: g.role, isNew: false })),
   );
 
   const [removedMembers, setRemovedMembers] = useState<EditableMemberFragment[]>([]);
@@ -462,7 +462,7 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
     });
 
     setRemovedMembers((prev) =>
-      prev.filter((p) => !playersToReAdd.includes(standardizeUsername(p.username)))
+      prev.filter((p) => !playersToReAdd.includes(standardizeUsername(p.username))),
     );
 
     setMembers((prev) => [
@@ -476,13 +476,13 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
 
   function handleReaddPlayer(username: string) {
     const match = removedMembers.find(
-      (m) => standardizeUsername(m.username) === standardizeUsername(username)
+      (m) => standardizeUsername(m.username) === standardizeUsername(username),
     );
     if (!match) return;
 
     setMembers((prev) => [...prev, match]);
     setRemovedMembers((prev) =>
-      prev.filter((m) => standardizeUsername(m.username) !== standardizeUsername(username))
+      prev.filter((m) => standardizeUsername(m.username) !== standardizeUsername(username)),
     );
   }
 
@@ -495,7 +495,7 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
     }
 
     setMembers((prev) =>
-      prev.filter((m) => standardizeUsername(m.username) !== standardizeUsername(username))
+      prev.filter((m) => standardizeUsername(m.username) !== standardizeUsername(username)),
     );
   }
 
@@ -507,7 +507,7 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
         }
 
         return m;
-      })
+      }),
     );
   }
 
@@ -689,7 +689,7 @@ function SideNavigation(props: SideNavigationProps) {
               <li
                 className={cn(
                   "relative flex items-center justify-between overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
-                  isSelected && "bg-gray-700 text-white"
+                  isSelected && "bg-gray-700 text-white",
                 )}
               >
                 {isSelected && <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />}
@@ -781,7 +781,7 @@ function GroupRoleSelect(props: { role?: GroupRole; onRoleChanged: (role: GroupR
 
 function getMembersColumnDefinitions(
   onRemoveClicked: (username: string) => void,
-  onRoleChanged: (username: string, role: GroupRole) => void
+  onRoleChanged: (username: string, role: GroupRole) => void,
 ) {
   const MEMBERS_COLUMN_DEFS: ColumnDef<EditableMemberFragment>[] = [
     {
@@ -882,7 +882,7 @@ function getRemovedMembersColumnDefinitions(onReaddClicked: (username: string) =
 
 function hasChangedMembers(
   memberships: Array<MembershipResponse & { player: PlayerResponse }>,
-  fragments: MemberFragment[]
+  fragments: MemberFragment[],
 ) {
   const previousMap = new Map<string, GroupRole>();
   const nextMap = new Map<string, GroupRole>();

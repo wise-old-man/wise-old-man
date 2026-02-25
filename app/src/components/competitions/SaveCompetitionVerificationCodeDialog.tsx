@@ -20,7 +20,7 @@ interface SaveCompetitionVerificationCodeDialogProps {
 }
 
 export function SaveCompetitionVerificationCodeDialog(
-  props: SaveCompetitionVerificationCodeDialogProps
+  props: SaveCompetitionVerificationCodeDialogProps,
 ) {
   const { isOpen, isGroupCompetition, onClose, verificationCode } = props;
 

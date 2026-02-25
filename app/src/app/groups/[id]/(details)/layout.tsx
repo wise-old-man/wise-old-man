@@ -186,7 +186,7 @@ function Header(props: GroupDetailsResponse) {
           <div
             className={cn(
               "flex justify-center",
-              profileImage ? "w-[6.25rem] pr-5 md:w-[9.75rem]" : "pr-7"
+              profileImage ? "w-[6.25rem] pr-5 md:w-[9.75rem]" : "pr-7",
             )}
           >
             <Tooltip>
