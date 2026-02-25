@@ -22,7 +22,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
+
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - name: Clear NODE_AUTH_TOKEN
+        run: echo "NODE_AUTH_TOKEN=" >> $GITHUB_ENV
 
       - name: Install server dependencies
         run: cd server && npm ci
