@@ -7,11 +7,7 @@ import * as Sentry from "@sentry/nextjs";
 Sentry.init({
   dsn: "https://4dd8ab5461d16ecb142879b8190fbff2@o450288.ingest.us.sentry.io/4508660011827200",
 
-  tracesSampler: (samplingContext) => {
-    const name = samplingContext.name ?? "";
-    if (name.includes("/_next/")) return 0;
-    return 0.05;
-  },
+  tracesSampleRate: 0,
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
