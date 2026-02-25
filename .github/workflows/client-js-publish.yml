@@ -26,7 +26,7 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Install server dependencies
-        run: cd server && npm ci
+        run: cd server && npm ci --omit=optional
 
       - name: Install client-js dependencies
         run: cd client-js && npm ci
