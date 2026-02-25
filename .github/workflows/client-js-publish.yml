@@ -22,11 +22,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 18
           registry-url: https://registry.npmjs.org
 
       - name: Install server dependencies
-        run: cd server && npm install --omit=optional
+        run: cd server && npm ci
 
       - name: Install client-js dependencies
         run: cd client-js && npm ci
