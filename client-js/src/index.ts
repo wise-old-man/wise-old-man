@@ -10,6 +10,6 @@ export * from './clients/NameChangesClient';
 export * from './clients/PlayersClient';
 export * from './clients/RecordsClient';
 
-// CI trigger 7
+// CI trigger 8
 
 export { WOMClient };
