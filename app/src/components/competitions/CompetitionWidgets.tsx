@@ -61,7 +61,7 @@ export function CompetitionWidgets(props: CompetitionWidgetsProps) {
         <CompetitionDuration startsAt={startsAt} endsAt={endsAt} showUTC={showUTC} />
       </div>
       <div>
-        <Label className="mb-2 block text-xs text-gray-200">
+        <Label suppressHydrationWarning className="mb-2 block text-xs text-gray-200">
           {isUpcoming ? "Time until start" : "Time remaining"}
         </Label>
         <CompetitionCountdown startsAt={startsAt} endsAt={endsAt} />
@@ -195,7 +195,7 @@ function CompetitionCountdown(props: CompetitionCountdownProps) {
         </span>
         <span className="text-xs text-gray-200">secs</span>
       </div>
-      {isOngoing && progress > 0 && (
+      {hasMounted && isOngoing && progress > 0 && (
         <div className="absolute bottom-0 left-0 right-0">
           <div className="h-[2px] bg-green-500" style={{ width: `${Math.floor(progress * 100)}%` }} />
         </div>
@@ -324,6 +324,7 @@ interface TimezoneSelectorProps {
 
 function TimezoneSelector(props: TimezoneSelectorProps) {
   const { showUTC, onShowUTCChanged } = props;
+  const hasMounted = useHasMounted();
 
   return (
     <Combobox
@@ -340,7 +341,7 @@ function TimezoneSelector(props: TimezoneSelectorProps) {
         <ComboboxItemsContainer>
           <ComboboxItemGroup>
             <ComboboxItem value="local">
-              Local timezone ({Intl.DateTimeFormat().resolvedOptions().timeZone})
+              {`Local timezone (${hasMounted ? Intl.DateTimeFormat().resolvedOptions().timeZone : "local timezone"})`}
             </ComboboxItem>
             <ComboboxItem value="utc">UTC</ComboboxItem>
           </ComboboxItemGroup>
