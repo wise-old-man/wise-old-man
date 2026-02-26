@@ -1,9 +1,15 @@
 import prisma from '../../../../prisma';
-import { Achievement, AchievementDefinition, Metric, MetricMeasure } from '../../../../types';
+import {
+  Achievement,
+  AchievementDefinition,
+  Metric,
+  MetricMeasure,
+  PlayerAnnotationType
+} from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
 import { pick } from '../../../../utils/pick.util';
 import { roundNumber } from '../../../../utils/shared/round-number.util';
-import { NotFoundError } from '../../../errors';
+import { ForbiddenError, NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 import { LEGACY_TEMPLATE_NAMES } from '../achievement.templates';
 import { getAchievementDefinitions } from '../achievement.utils';
@@ -24,12 +30,18 @@ async function findPlayerAchievementProgress(username: string): Promise<
       username: standardizeUsername(username)
     },
     include: {
-      latestSnapshot: true
+      latestSnapshot: true,
+      annotations: true
     }
   });
 
+  // TODO: Refactor error handlign
   if (!player) {
     throw new NotFoundError('Player not found.');
+  }
+
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    throw new ForbiddenError('Player has opted out.');
   }
 
   let latestSnapshot = player.latestSnapshot;

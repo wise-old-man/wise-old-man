@@ -1,10 +1,17 @@
 import prisma from '../../../../prisma';
-import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation } from '../../../../types';
+import {
+  Competition,
+  CompetitionMetric,
+  CompetitionStatus,
+  Group,
+  Participation,
+  PlayerAnnotationType
+} from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
 import { calculateCompetitionDelta } from '../../../../utils/calculate-competition-delta.util';
 import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
 import { uniqueBy } from '../../../../utils/unique-by.util';
-import { NotFoundError } from '../../../errors';
+import { ForbiddenError, NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 
 type ReturnType = {
@@ -23,11 +30,16 @@ async function findPlayerParticipationsStandings(
   const player = await prisma.player.findFirst({
     where: {
       username: standardizeUsername(username)
-    }
+    },
+    include: { annotations: true }
   });
 
   if (!player) {
     throw new NotFoundError('Player not found.');
+  }
+
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    throw new ForbiddenError('Player as opted out');
   }
 
   const now = new Date();
