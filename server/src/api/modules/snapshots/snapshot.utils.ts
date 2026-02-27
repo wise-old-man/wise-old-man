@@ -41,7 +41,7 @@ function hasChanged(before: Snapshot, after: Snapshot): boolean {
   const metricsToIgnore = [Metric.EHP, Metric.EHB];
   const isValidKey = (key: MetricValueKey<Metric>) => !metricsToIgnore.map(getMetricValueKey).includes(key);
 
-  return METRICS.map(getMetricValueKey).some(k => isValidKey(k) && after[k] > -1 && after[k] > before[k]);
+  return METRICS.map(getMetricValueKey).some(k => isValidKey(k) && after[k] > 0 && after[k] > before[k]);
 }
 
 /**

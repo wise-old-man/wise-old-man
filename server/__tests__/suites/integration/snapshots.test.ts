@@ -177,6 +177,16 @@ describe('Snapshots API', () => {
       expect(
         utils.hasChanged(globalData.snapshots[0], { ...globalData.snapshots[0], ehpValue: 1, ehbValue: 1 })
       ).toBe(false);
+
+      // New fields (such as bosses) should not be detected until they progress
+
+      expect(utils.hasChanged(globalData.snapshots[0], { ...globalData.snapshots[0], brutusKills: 0 })).toBe(
+        false
+      );
+
+      expect(utils.hasChanged(globalData.snapshots[0], { ...globalData.snapshots[0], brutusKills: 1 })).toBe(
+        true
+      );
     });
 
     it('should detect negative gains between snapshots', () => {
