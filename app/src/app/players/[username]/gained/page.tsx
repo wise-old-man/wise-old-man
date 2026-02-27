@@ -213,7 +213,7 @@ function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
             const minDate =
               "period" in timeRange
                 ? new Date(Date.now() - PeriodProps[timeRange.period].milliseconds)
-                : timeRange.startDate;
+                : data.find((d) => d.date > timeRange.startDate)?.date || timeRange.startDate;
 
             const maxDate = "period" in timeRange ? new Date() : timeRange.endDate;
 
