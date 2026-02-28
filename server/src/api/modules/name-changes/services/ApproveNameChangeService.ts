@@ -229,7 +229,6 @@ async function transferPlayerData(
             id: newPlayer.id
           },
           data: {
-            latestSnapshotId: null,
             latestSnapshotDate: null
           }
         });
@@ -481,8 +480,6 @@ function transferParticipations(
     },
     data: {
       playerId: oldPlayerId,
-      startSnapshotId: null,
-      endSnapshotId: null,
       startSnapshotDate: null,
       endSnapshotDate: null
     }

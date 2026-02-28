@@ -194,7 +194,6 @@ async function updatePlayer(
   });
 
   updatedPlayerFields.updatedAt = newSnapshot.createdAt;
-  updatedPlayerFields.latestSnapshotId = newSnapshot.id;
   updatedPlayerFields.latestSnapshotDate = newSnapshot.createdAt;
 
   if (hasChanged) {
