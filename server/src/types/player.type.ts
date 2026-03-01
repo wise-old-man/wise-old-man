@@ -21,6 +21,5 @@ export interface Player {
   updatedAt: Date | null;
   lastChangedAt: Date | null;
   lastImportedAt: Date | null;
-  latestSnapshotId: number | null;
   latestSnapshotDate: Date | null;
 }

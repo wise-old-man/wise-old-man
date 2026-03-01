@@ -52,7 +52,6 @@ export const SyncPlayerCompetitionParticipationsJobHandler: JobHandler<Payload> 
     for (const participation of participations) {
       // Update this participation's latest (end) snapshot
       const updatePayload: PrismaTypes.ParticipationUncheckedUpdateInput = {
-        endSnapshotId: player.latestSnapshotId,
         endSnapshotDate: player.latestSnapshotDate
       };
 
@@ -68,7 +67,6 @@ export const SyncPlayerCompetitionParticipationsJobHandler: JobHandler<Payload> 
             }
           },
           select: {
-            id: true,
             createdAt: true
           },
           orderBy: {
@@ -77,7 +75,6 @@ export const SyncPlayerCompetitionParticipationsJobHandler: JobHandler<Payload> 
         });
 
         if (startSnapshot) {
-          updatePayload.startSnapshotId = startSnapshot.id;
           updatePayload.startSnapshotDate = startSnapshot.createdAt;
         }
       }
@@ -93,7 +90,6 @@ export const SyncPlayerCompetitionParticipationsJobHandler: JobHandler<Payload> 
             }
           },
           select: {
-            id: true,
             createdAt: true
           },
           orderBy: {
@@ -102,7 +98,6 @@ export const SyncPlayerCompetitionParticipationsJobHandler: JobHandler<Payload> 
         });
 
         if (endSnapshot) {
-          updatePayload.endSnapshotId = endSnapshot.id;
           updatePayload.endSnapshotDate = endSnapshot.createdAt;
         }
       }

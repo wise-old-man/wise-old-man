@@ -1281,14 +1281,22 @@ describe('Names API', () => {
       });
       expect(playerSnapshot).not.toBeNull();
 
-      await prisma.snapshot.update({
-        where: {
-          id: playerSnapshot!.id
-        },
-        data: {
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12) // 12 hours ago
-        }
-      });
+      const newCreatedAt = new Date(Date.now() - 1000 * 60 * 60 * 12); // 12 hours ago
+
+      await prisma.$transaction([
+        prisma.player.update({
+          where: { id: oldPlayerUpdateResponse.body.id },
+          data: { latestSnapshotDate: null }
+        }),
+        prisma.snapshot.update({
+          where: { id: playerSnapshot!.id },
+          data: { createdAt: newCreatedAt }
+        }),
+        prisma.player.update({
+          where: { id: oldPlayerUpdateResponse.body.id },
+          data: { latestSnapshotDate: newCreatedAt }
+        })
+      ]);
 
       const createCompetitionResponse = await api.post('/competitions').send({
         title: 'Test',
