@@ -247,8 +247,8 @@ model Participation {
   // Relations
   player        Player      @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  startSnapshot Snapshot?   @relation("participations_startSnapshotIdTosnapshots", fields: [playerId, startSnapshotDate], references: [playerId, createdAt], onDelete: NoAction, onUpdate: NoAction)
-  endSnapshot   Snapshot?   @relation("participations_endSnapshotIdTosnapshots", fields: [playerId, endSnapshotDate], references: [playerId, createdAt], onDelete: NoAction, onUpdate: NoAction)
+  startSnapshot Snapshot?   @relation("participation_start_snapshot", fields: [playerId, startSnapshotDate], references: [playerId, createdAt], onDelete: NoAction, onUpdate: NoAction)
+  endSnapshot   Snapshot?   @relation("participation_end_snapshot", fields: [playerId, endSnapshotDate], references: [playerId, createdAt], onDelete: NoAction, onUpdate: NoAction)
 
   // Constraints
   @@id([playerId, competitionId])
@@ -345,7 +345,6 @@ model Record {
 }
 
 model Snapshot {
-  id                                    Int       @unique(map: "snapshots_id_unique") @default(autoincrement())
   playerId                              Int
   importedAt                            DateTime? @db.Timestamptz(6)
   createdAt                             DateTime  @default(now()) @db.Timestamptz(6)
@@ -577,8 +576,8 @@ model Snapshot {
 
   // Relations
   player                     Player          @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  participationStartPointers Participation[] @relation("participations_startSnapshotIdTosnapshots")
-  participationEndPointers   Participation[] @relation("participations_endSnapshotIdTosnapshots")
+  participationStartPointers Participation[] @relation("participation_start_snapshot")
+  participationEndPointers   Participation[] @relation("participation_end_snapshot")
   Player                     Player[]        @relation("player_latest_snapshot")
 
   // Constraints
