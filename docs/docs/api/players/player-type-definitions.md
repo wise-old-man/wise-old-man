@@ -103,7 +103,6 @@ sidebar_position: 1
 
 | Field      | Type                                                                                     | Description                                                                          |
 | :--------- | :--------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- |
-| id         | integer                                                                                  | The snapshot's unique ID.                                                            |
 | playerId   | integer                                                                                  | The snapshot's parent player ID.                                                     |
 | createdAt  | date                                                                                     | The snapshot's creaton date.                                                         |
 | importedAt | date?                                                                                    | The date at which the snapshot was imported at.                                      |

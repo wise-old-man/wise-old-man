@@ -50,7 +50,6 @@ interface ComputeMetricData {
 }
 
 export interface SnapshotResponse {
-  id: number;
   playerId: number;
   createdAt: Date;
   importedAt: Date | null;
@@ -67,7 +66,9 @@ export function formatSnapshotResponse(
   efficiencyMap: Map<Skill | Boss, number>
 ): SnapshotResponse {
   return {
-    ...pick(snapshot, 'id', 'playerId', 'createdAt', 'importedAt'),
+    // @ts-expect-error -- Leaving this id field here for backwards compatibility
+    id: -1,
+    ...pick(snapshot, 'playerId', 'createdAt', 'importedAt'),
     data: {
       skills: Object.fromEntries(
         SKILLS.map(s => {

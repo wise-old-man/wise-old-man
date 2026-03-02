@@ -1289,7 +1289,12 @@ describe('Names API', () => {
           data: { latestSnapshotDate: null }
         }),
         prisma.snapshot.update({
-          where: { id: playerSnapshot!.id },
+          where: {
+            playerId_createdAt: {
+              playerId: playerSnapshot!.playerId,
+              createdAt: playerSnapshot!.createdAt
+            }
+          },
           data: { createdAt: newCreatedAt }
         }),
         prisma.player.update({

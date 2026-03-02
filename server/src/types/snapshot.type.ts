@@ -1,5 +1,4 @@
 export interface Snapshot {
-  id: number;
   playerId: number;
   importedAt: Date | null;
   createdAt: Date;
