@@ -238,8 +238,6 @@ model NameChange {
 model Participation {
   playerId          Int
   competitionId     Int
-  startSnapshotId   Int?
-  endSnapshotId     Int?
   teamName          String?   @db.VarChar(30)
   startSnapshotDate DateTime?
   endSnapshotDate   DateTime?
@@ -280,7 +278,6 @@ model Player {
   updatedAt          DateTime?    @db.Timestamptz(6)
   lastChangedAt      DateTime?    @db.Timestamptz(6)
   lastImportedAt     DateTime?    @db.Timestamptz(6)
-  latestSnapshotId   Int?
   latestSnapshotDate DateTime?    @db.Timestamptz(6)
 
   // Temporary
