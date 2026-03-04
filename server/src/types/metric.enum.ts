@@ -27,7 +27,6 @@ export const Skill = {
 } as const;
 
 export const Activity = {
-  LEAGUE_POINTS: 'league_points',
   BOUNTY_HUNTER_HUNTER: 'bounty_hunter_hunter',
   BOUNTY_HUNTER_ROGUE: 'bounty_hunter_rogue',
   CLUE_SCROLLS_ALL: 'clue_scrolls_all',
