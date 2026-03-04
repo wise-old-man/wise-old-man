@@ -7,6 +7,7 @@ import { ServerError } from '../../../errors';
 
 const SKIPPED_METRICS = [
   'Grid Points',
+  'League Points',
   'Deadman Points',
   'Bounty Hunter (Legacy) - Hunter',
   'Bounty Hunter (Legacy) - Rogue'

@@ -79,9 +79,6 @@ export interface Snapshot {
   sailingRank: number;
   sailingExperience: number;
 
-  league_pointsRank: number;
-  league_pointsScore: number;
-
   bounty_hunter_hunterRank: number;
   bounty_hunter_hunterScore: number;
 
