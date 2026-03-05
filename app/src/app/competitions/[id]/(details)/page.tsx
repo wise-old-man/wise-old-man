@@ -1,7 +1,6 @@
-import { CompetitionType, Metric, isMetric } from "@wise-old-man/utils";
+import { CompetitionType, isMetric } from "@wise-old-man/utils";
 import { getCompetitionDetails } from "~/services/wiseoldman";
 import { TeamsTable } from "~/components/competitions/TeamsTable";
-import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import { ParticipantsTable } from "~/components/competitions/ParticipantsTable";
 import { CompetitionWidgets } from "~/components/competitions/CompetitionWidgets";
 import { CompetitionStatusWarning } from "~/components/competitions/CompetitionStatusWarning";
@@ -59,21 +58,6 @@ export default async function CompetitionOverviewPage(props: PageProps) {
     <div className="flex flex-col gap-y-10">
       {isEndingSoon && <CompetitionStatusWarning status="ending" />}
       {isStartingSoon && <CompetitionStatusWarning status="starting" />}
-
-      {LEAGUES.active && metric === Metric.LEAGUE_POINTS && (
-        <Alert className="pb-4" variant="error">
-          <AlertTitle>League Points competitions are not supported on this version.</AlertTitle>
-          <AlertDescription>
-            <p className="mb-3">{`You might want to use the "${LEAGUES.editionName}" version of our website that does allow you to create League-specific competitions.`}</p>
-            <a
-              href="https://league.wiseoldman.net"
-              className="font-medium text-blue-400 hover:text-blue-400"
-            >
-              Go to {LEAGUES.editionName} Website
-            </a>
-          </AlertDescription>
-        </Alert>
-      )}
 
       <CompetitionWidgets metric={metric} competition={competition} />
 
