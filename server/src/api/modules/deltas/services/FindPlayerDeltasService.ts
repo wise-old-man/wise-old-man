@@ -1,7 +1,7 @@
 import prisma from '../../../../prisma';
-import { Period } from '../../../../types';
+import { Period, PlayerAnnotationType } from '../../../../types';
 import { parsePeriodExpression } from '../../../../utils/shared/parse-period-expression.util';
-import { BadRequestError, NotFoundError } from '../../../errors';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { PlayerDeltasMapResponse } from '../../../responses';
 import { standardizeUsername } from '../../players/player.utils';
 import { calculatePlayerDeltas, emptyPlayerDelta } from '../delta.utils';
@@ -31,12 +31,18 @@ async function findPlayerDeltas(
     include: {
       // If fetching by period (not custom time range), the "end" snapshots will always be
       // the player's latest snapshots. So it's cheaper to just pull them from the "latestSnapshot" relation
-      latestSnapshot: !!period
+      latestSnapshot: !!period,
+      annotations: true
     }
   });
 
+  //TODO: refactor error handling
   if (!player) {
     throw new NotFoundError('Player not found.');
+  }
+
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    throw new ForbiddenError('Player has opted out.');
   }
 
   const startSnapshot = await prisma.snapshot.findFirst({
