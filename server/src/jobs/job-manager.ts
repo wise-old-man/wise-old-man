@@ -94,7 +94,7 @@ class JobManager {
 
     await matchingQueue.add(type, payload, opts);
 
-    logger.info(`[v2] Added job: ${type}`, opts.jobId);
+    logger.info(`[v2] Added job: ${type}`, { jobId: opts.jobId });
   }
 
   async handleJob(bullJob: BullJob, handler: JobHandler) {
@@ -109,7 +109,7 @@ class JobManager {
     }
 
     const endTimer = prometheus.trackJob();
-    logger.info(`[v2] Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId);
+    logger.info(`[v2] Executing job: ${bullJob.name} ${attemptTag}`, { jobId: bullJob.opts.jobId });
 
     try {
       await handler.execute(bullJob.data, {
