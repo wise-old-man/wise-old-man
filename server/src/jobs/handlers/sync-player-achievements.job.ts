@@ -35,6 +35,7 @@ export const SyncPlayerAchievementsJobHandler: JobHandler<Payload> = {
       include: {
         latestSnapshot: {
           select: {
+            playerId: true,
             createdAt: true,
             ...getRequiredSnapshotFields(METRICS)
           }
@@ -86,6 +87,7 @@ export const SyncPlayerAchievementsJobHandler: JobHandler<Payload> = {
 
     const previousSnapshot = await prisma.snapshot.findFirst({
       select: {
+        playerId: true,
         createdAt: true,
         ...getRequiredSnapshotFields(METRICS)
       },

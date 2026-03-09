@@ -29,6 +29,7 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
       include: {
         latestSnapshot: {
           select: {
+            playerId: true,
             createdAt: true,
             ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
           }
@@ -51,6 +52,7 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
       }),
       prisma.snapshot.findFirst({
         select: {
+          playerId: true,
           createdAt: true,
           ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
         },

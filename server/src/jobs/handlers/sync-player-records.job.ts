@@ -45,6 +45,7 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
       }),
       prisma.snapshot.findFirst({
         select: {
+          playerId: true,
           createdAt: true,
           ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
         },
