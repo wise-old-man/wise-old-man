@@ -2,6 +2,7 @@ import { eventEmitter, EventType } from '../../api/events';
 import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
 import prisma from '../../prisma';
 import { CachedDelta, Metric, METRICS, Period } from '../../types';
+import { getRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
 import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
 import { isActivity, isBoss, isComputedMetric, isSkill, PeriodProps } from '../../utils/shared';
 import { JobHandler } from '../types/job-handler.type';
@@ -21,31 +22,42 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
   },
 
   async execute({ username, period }: Payload) {
-    const playerAndSnapshot = await prisma.player.findFirst({
+    const data = await prisma.player.findFirst({
       where: {
         username
       },
       include: {
-        latestSnapshot: true
+        latestSnapshot: {
+          select: {
+            playerId: true,
+            createdAt: true,
+            ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
+          }
+        }
       }
     });
 
-    if (playerAndSnapshot === null || playerAndSnapshot.latestSnapshot === null) {
+    if (data === null || data.latestSnapshot === null) {
       return;
     }
 
-    const latestSnapshot = playerAndSnapshot.latestSnapshot;
+    const { latestSnapshot, ...player } = data;
 
     const [previousDeltas, startSnapshot] = await Promise.all([
       prisma.cachedDelta.findMany({
         where: {
-          playerId: playerAndSnapshot.id,
+          playerId: player.id,
           period
         }
       }),
       prisma.snapshot.findFirst({
+        select: {
+          playerId: true,
+          createdAt: true,
+          ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
+        },
         where: {
-          playerId: playerAndSnapshot.id,
+          playerId: player.id,
           createdAt: { gte: new Date(latestSnapshot.createdAt.getTime() - PeriodProps[period].milliseconds) }
         },
         orderBy: {
@@ -65,10 +77,10 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
 
     const newCachedDeltasMap = new Map<Metric, CachedDelta>();
 
-    const periodDiffs = calculatePlayerDeltas(startSnapshot, latestSnapshot, playerAndSnapshot);
+    const periodDiffs = calculatePlayerDeltas(startSnapshot, latestSnapshot, player);
 
     const commonProps = {
-      playerId: playerAndSnapshot.id,
+      playerId: player.id,
       period,
       startedAt: startSnapshot.createdAt,
       endedAt: latestSnapshot.createdAt,
@@ -101,7 +113,7 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
     if (newCachedDeltasMap.size === 0) {
       await prisma.cachedDelta.deleteMany({
         where: {
-          playerId: playerAndSnapshot.id,
+          playerId: player.id,
           period
         }
       });
@@ -129,7 +141,7 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
     await prisma.$transaction(async transaction => {
       await transaction.cachedDelta.deleteMany({
         where: {
-          playerId: playerAndSnapshot.id,
+          playerId: player.id,
           period
         }
       });
