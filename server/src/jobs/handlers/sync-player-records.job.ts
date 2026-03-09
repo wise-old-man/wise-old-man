@@ -2,6 +2,7 @@ import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snap
 import prisma, { PrismaTypes } from '../../prisma';
 import { Metric, METRICS, Period } from '../../types';
 import { getMetricValueKey } from '../../utils/get-metric-value-key.util';
+import { getRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
 import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
 import { JobHandler } from '../types/job-handler.type';
 
@@ -43,6 +44,10 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
         }
       }),
       prisma.snapshot.findFirst({
+        select: {
+          createdAt: true,
+          ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
+        },
         where: {
           playerId,
           createdAt: currentDeltas[0].startedAt
@@ -106,23 +111,28 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
     }
 
     await prisma.$transaction(async tx => {
-      if (toCreate.length > 0) {
-        await tx.record.createMany({
-          data: toCreate,
-          skipDuplicates: true
+      if (toUpdate.length > 0) {
+        await tx.record.deleteMany({
+          where: {
+            playerId,
+            period: payload.period,
+            metric: { in: toUpdate.map(u => u.metric) }
+          }
         });
       }
 
-      for (const update of toUpdate) {
-        await tx.record.update({
-          where: {
-            playerId_period_metric: {
+      if (toCreate.length > 0 || toUpdate.length > 0) {
+        await tx.record.createMany({
+          data: [
+            ...toCreate,
+            ...toUpdate.map(u => ({
               playerId,
               period: payload.period,
-              metric: update.metric
-            }
-          },
-          data: { value: update.newValue }
+              metric: u.metric,
+              value: u.newValue
+            }))
+          ],
+          skipDuplicates: true
         });
       }
     });
