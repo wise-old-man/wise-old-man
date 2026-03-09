@@ -91,6 +91,7 @@ export type EventPayloadMap = {
   [EventType.PLAYER_UPDATED]: {
     username: string;
     hasChanged: boolean;
+    lastChangedAt: Date | null;
     latestSnapshotDate: Date;
     previousSnapshotDate: Date | null;
   };
