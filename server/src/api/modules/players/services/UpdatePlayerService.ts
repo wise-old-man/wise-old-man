@@ -208,6 +208,7 @@ async function updatePlayer(
   eventEmitter.emit(EventType.PLAYER_UPDATED, {
     username: updatedPlayer.username,
     hasChanged,
+    lastChangedAt: updatedPlayer.lastChangedAt,
     latestSnapshotDate: newSnapshot.createdAt,
     previousSnapshotDate: previousSnapshot?.createdAt ?? null
   });
