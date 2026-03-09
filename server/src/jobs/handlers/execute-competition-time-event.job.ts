@@ -1,6 +1,6 @@
 import ms from 'ms';
 import prisma from '../../prisma';
-import logger from '../../services/logging.service';
+import { logger } from '../../services/logger.service';
 import { CompetitionTimeEvent, CompetitionTimeEventStatus, CompetitionTimeEventType } from '../../types';
 import { assertNever } from '../../utils/assert-never.util';
 import { JobManager } from '../job-manager';

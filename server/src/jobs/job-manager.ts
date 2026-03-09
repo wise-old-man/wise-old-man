@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 import { Job as BullJob, JobsOptions as BullJobOptions, Queue, Worker } from 'bullmq';
 import { getThreadIndex } from '../env';
-import logger from '../services/logging.service';
+import { logger } from '../services/logger.service';
 import prometheus from '../services/prometheus.service';
 import { buildCompoundRedisKey, REDIS_CONFIG, redisClient } from '../services/redis.service';
 import { CRON_CONFIG, JOB_HANDLER_MAP, STARTUP_JOBS } from './jobs.config';
@@ -94,7 +94,7 @@ class JobManager {
 
     await matchingQueue.add(type, payload, opts);
 
-    logger.info(`[v2] Added job: ${type}`, opts.jobId, true);
+    logger.info(`[v2] Added job: ${type}`, opts.jobId);
   }
 
   async handleJob(bullJob: BullJob, handler: JobHandler) {
@@ -109,7 +109,7 @@ class JobManager {
     }
 
     const endTimer = prometheus.trackJob();
-    logger.info(`[v2] Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
+    logger.info(`[v2] Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId);
 
     try {
       await handler.execute(bullJob.data, {
@@ -117,10 +117,10 @@ class JobManager {
       });
 
       endTimer({ jobName: bullJob.name, status: 1 });
-      logger.info(`[v2] Completed job: ${bullJob.name}`, { ...bullJob.data }, true);
+      logger.info(`[v2] Completed job: ${bullJob.name}`, { ...bullJob.data });
     } catch (error) {
       endTimer({ jobName: bullJob.name, status: 0 });
-      logger.error(`[v2] Failed job: ${bullJob.name}`, { ...bullJob.data, error }, true);
+      logger.error(`[v2] Failed job: ${bullJob.name}`, { ...bullJob.data, error });
 
       if (bullJob.attemptsMade >= maxAttempts) {
         Sentry.captureException(error, {
@@ -239,7 +239,7 @@ class JobManager {
         throw new Error(`No job implementation found for type "${type}".`);
       }
 
-      logger.info(`[v2] Scheduling cron job`, { type, interval }, true);
+      logger.info(`[v2] Scheduling cron job`, { type, interval });
       await matchingQueue.add(type, {}, { repeat: { pattern: interval } });
     }
 
@@ -250,7 +250,7 @@ class JobManager {
         throw new Error(`No job implementation found for type "${jobName}".`);
       }
 
-      logger.info(`[v2] Scheduling startup job`, { jobName }, true);
+      logger.info(`[v2] Scheduling startup job`, { jobName });
       await matchingQueue.add(jobName, {}, { priority: JobPriority.HIGH });
     }
   }

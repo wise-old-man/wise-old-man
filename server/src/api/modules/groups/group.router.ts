@@ -1,7 +1,7 @@
 import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
-import logger from '../../../services/logging.service';
+import { logger } from '../../../services/logger.service';
 import { GroupRole, Metric, Period } from '../../../types';
 import { assertNever } from '../../../utils/assert-never.util';
 import { BadRequestErrorZ, ForbiddenErrorZ, NotFoundErrorZ } from '../../errors';
@@ -85,7 +85,7 @@ router.post(
 
     const createResult = await createGroup(req.body, ipHash);
 
-    logger.moderation(`Created group ${createResult.group.id}`, {
+    logger.info(`Created group ${createResult.group.id}`, {
       timestamp: new Date().toISOString(),
       ipHash
     });
@@ -147,7 +147,7 @@ router.put(
       }
     }
 
-    logger.moderation(`Edited group ${updateResult.value.id}`, {
+    logger.info(`Edited group ${updateResult.value.id}`, {
       timestamp: new Date().toISOString(),
       ipHash: getRequestIpHash(req)
     });

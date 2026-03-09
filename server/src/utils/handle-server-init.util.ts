@@ -1,4 +1,4 @@
-import logger from '../services/logging.service';
+import { logger } from '../services/logger.service';
 
 export async function handleServerInit(serverName: string, initFn: () => Promise<() => Promise<void>>) {
   let shutdownInProgress: Promise<void> | null = null;
@@ -24,7 +24,7 @@ export async function handleServerInit(serverName: string, initFn: () => Promise
         process.exit(0);
       })
       .catch(error => {
-        logger.error('Error during shutdown:', error, true);
+        logger.error('Error during shutdown:', error);
         process.exit(1);
       });
 
@@ -35,12 +35,12 @@ export async function handleServerInit(serverName: string, initFn: () => Promise
   process.on('SIGINT', () => handleShutdown('SIGINT'));
 
   process.on('unhandledRejection', async reason => {
-    logger.error('Unhandled Rejection:', reason, true);
+    logger.error('Unhandled Rejection:', reason);
     await handleShutdown('unhandledRejection');
   });
 
   process.on('uncaughtException', async error => {
-    logger.error('Uncaught Exception:', error, true);
+    logger.error('Uncaught Exception:', error);
     await handleShutdown('uncaughtException');
   });
 

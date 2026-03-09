@@ -1,6 +1,6 @@
 import { AsyncResult, combine, complete, Errored, errored, fromPromise, isErrored } from '@attio/fetchable';
 import prisma, { PrismaTypes } from '../../../../prisma';
-import logger from '../../../../services/logging.service';
+import { logger } from '../../../../services/logger.service';
 import {
   Competition,
   CompetitionTeam,

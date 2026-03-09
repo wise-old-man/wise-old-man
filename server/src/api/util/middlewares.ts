@@ -2,7 +2,7 @@ import { isErrored } from '@attio/fetchable';
 import { NextFunction, Request, Response } from 'express';
 import prisma from '../../prisma';
 import * as cryptService from '../../services/crypt.service';
-import logger from '../../services/logging.service';
+import { logger } from '../../services/logger.service';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import { BadRequestErrorZ, ForbiddenErrorZ, NotFoundErrorZ } from '../errors';
 import { submitNameChange } from '../modules/name-changes/services/SubmitNameChangeService';

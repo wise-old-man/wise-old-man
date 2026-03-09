@@ -1,5 +1,5 @@
 import prisma from '../../prisma';
-import logger from '../../services/logging.service';
+import { logger } from '../../services/logger.service';
 import { JobHandler } from '../types/job-handler.type';
 import { JobType } from '../types/job-type.enum';
 

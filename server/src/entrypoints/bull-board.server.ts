@@ -3,7 +3,7 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import express from 'express';
 import { jobManager } from '../jobs';
-import logger from '../services/logging.service';
+import { logger } from '../services/logger.service';
 import { redisClient } from '../services/redis.service';
 import { handleServerInit } from '../utils/handle-server-init.util';
 

@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import logger from '../../services/logging.service';
+import { logger } from '../../services/logger.service';
 import prometheus from '../../services/prometheus.service';
 import * as CompetitionCreated from './handlers/competition-created.event';
 import * as CompetitionEnded from './handlers/competition-ended.event';
@@ -27,7 +27,7 @@ import { EventType } from './types/event-type.enum';
 export class TypedEventEmitter extends EventEmitter {
   emit<K extends keyof EventPayloadMap>(event: K, data: EventPayloadMap[K]): boolean {
     prometheus.trackEventEmitted(event);
-    logger.info(`[Event] ${event}`, data, true);
+    logger.info(`[Event] ${event}`, data);
     return super.emit(event, data);
   }
 

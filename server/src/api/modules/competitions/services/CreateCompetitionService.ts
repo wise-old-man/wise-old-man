@@ -1,7 +1,7 @@
 import { AsyncResult, combine, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
-import logger from '../../../../services/logging.service';
+import { logger } from '../../../../services/logger.service';
 import {
   Competition,
   CompetitionTeam,
