@@ -1,5 +1,5 @@
 import prisma from '../../prisma';
-import logger from '../../services/logging.service';
+import { logger } from '../../services/logger.service';
 import { Metric } from '../../types';
 import { JobHandler } from '../types/job-handler.type';
 
@@ -31,7 +31,7 @@ export const CalculateSailingExpTrendJobHandler: JobHandler<Payload> = {
       return;
     }
 
-    logger.info(`Calculating Sailing EXP sum for ${rawData.length} players`, payload, true);
+    logger.info(`Calculating Sailing EXP sum for ${rawData.length} players`, payload);
 
     const previousTrendDatapoint = await prisma.trendDatapoint.findFirst({
       where: {
@@ -44,7 +44,7 @@ export const CalculateSailingExpTrendJobHandler: JobHandler<Payload> = {
       }
     });
 
-    logger.info(`Previous Sailing Trend datapoint`, { payload, previousTrendDatapoint }, true);
+    logger.info(`Previous Sailing Trend datapoint`, { payload, previousTrendDatapoint });
 
     if (rawData.length < 30) {
       return;
@@ -56,7 +56,7 @@ export const CalculateSailingExpTrendJobHandler: JobHandler<Payload> = {
         : calculateSegmentSum(rawData);
 
     const { sum, first, last, size } = result;
-    logger.info(`Sailing EXP Trend result`, { payload, result }, true);
+    logger.info(`Sailing EXP Trend result`, { payload, result });
 
     if (size < 30 || (previousTrendDatapoint !== null && sum <= previousTrendDatapoint.sum)) {
       return;

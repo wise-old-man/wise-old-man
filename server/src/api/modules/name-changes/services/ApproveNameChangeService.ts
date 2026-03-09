@@ -1,5 +1,5 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import logger from '../../../../services/logging.service';
+import { logger } from '../../../../services/logger.service';
 import {
   MemberActivity,
   MemberActivityType,

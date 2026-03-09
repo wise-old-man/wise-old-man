@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import { Options, RequestValidation, processRequest } from 'zod-express';
-import logger from '../../services/logging.service';
+import { logger } from '../../services/logger.service';
 
 export function executeRequest<TParams, TQuery, TBody>(fn: RequestHandler<TParams, unknown, TBody, TQuery>) {
   return async (

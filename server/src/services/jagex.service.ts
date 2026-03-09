@@ -5,7 +5,7 @@ import { PlayerType } from '../types';
 import { assertNever } from '../utils/assert-never.util';
 import { fetchWithProxy } from '../utils/fetch-with-proxy.util';
 import { retry } from '../utils/retry.util';
-import logger from './logging.service';
+import { logger } from './logger.service';
 
 const RUNEMETRICS_URL = 'https://apps.runescape.com/runemetrics/profile/profile';
 

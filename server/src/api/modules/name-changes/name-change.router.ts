@@ -1,7 +1,7 @@
 import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
-import logger from '../../../services/logging.service';
+import { logger } from '../../../services/logger.service';
 import { NameChangeStatus } from '../../../types';
 import { NotFoundErrorZ, ServiceUnavailableError } from '../../errors';
 import { formatNameChangeResponse } from '../../responses';
@@ -52,7 +52,7 @@ router.post(
 
     const result = await submitNameChange(oldName, newName);
 
-    logger.moderation(`Submitted name change ${result.oldName} -> ${result.newName}`, {
+    logger.info(`Submitted name change ${result.oldName} -> ${result.newName}`, {
       timestamp: new Date().toISOString(),
       ipHash: getRequestIpHash(req)
     });

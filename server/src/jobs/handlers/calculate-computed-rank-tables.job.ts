@@ -1,6 +1,6 @@
 import { getAlgorithmType } from '../../api/modules/efficiency/efficiency.utils';
 import prisma from '../../prisma';
-import logger from '../../services/logging.service';
+import { logger } from '../../services/logger.service';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import {
   ComputedMetric,
@@ -61,7 +61,7 @@ async function updateRankMaps(metric: ComputedMetric) {
     }
   }
 
-  logger.info(`Storing rank table data...`, { metric }, true);
+  logger.info(`Storing rank table data...`, { metric });
 
   for (const [algorithmType, data] of Array.from(map.entries())) {
     await redisClient

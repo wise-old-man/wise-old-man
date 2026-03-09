@@ -1,6 +1,6 @@
 import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import prisma, { PrismaTypes } from '../../../../prisma';
-import logger from '../../../../services/logging.service';
+import { logger } from '../../../../services/logger.service';
 import {
   Group,
   GroupRole,

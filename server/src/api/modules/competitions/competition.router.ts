@@ -1,7 +1,7 @@
 import { isErrored } from '@attio/fetchable';
 import { NextFunction, Request, Response, Router } from 'express';
 import { z } from 'zod';
-import logger from '../../../services/logging.service';
+import { logger } from '../../../services/logger.service';
 import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric } from '../../../types';
 import { assertNever } from '../../../utils/assert-never.util';
 import { BadRequestError, BadRequestErrorZ, ForbiddenErrorZ, NotFoundErrorZ } from '../../errors';
@@ -156,7 +156,7 @@ router.post(
 
     const { competition, verificationCode } = createResult.value;
 
-    logger.moderation(`Created competition ${competition.id}`, {
+    logger.info(`Created competition ${competition.id}`, {
       timestamp: new Date().toISOString(),
       ipHash
     });
@@ -265,7 +265,7 @@ router.put(
       }
     }
 
-    logger.moderation(`Edited competition ${updateResult.value.id}`, {
+    logger.info(`Edited competition ${updateResult.value.id}`, {
       timestamp: new Date().toISOString(),
       ipHash: getRequestIpHash(req)
     });

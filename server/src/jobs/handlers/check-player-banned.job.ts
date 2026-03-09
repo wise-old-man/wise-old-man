@@ -2,7 +2,7 @@ import { isErrored } from '@attio/fetchable';
 import { standardizeUsername } from '../../api/modules/players/player.utils';
 import prisma from '../../prisma';
 import { getRuneMetricsBannedStatus } from '../../services/jagex.service';
-import logger from '../../services/logging.service';
+import { logger } from '../../services/logger.service';
 import { PlayerStatus } from '../../types';
 import { JobHandler } from '../types/job-handler.type';
 

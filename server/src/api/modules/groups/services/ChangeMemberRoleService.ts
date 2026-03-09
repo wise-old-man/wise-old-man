@@ -1,5 +1,5 @@
 import prisma from '../../../../prisma';
-import logger from '../../../../services/logging.service';
+import { logger } from '../../../../services/logger.service';
 import { GroupRole, MemberActivityType, Membership, Player } from '../../../../types';
 import { BadRequestError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';

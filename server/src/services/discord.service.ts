@@ -4,7 +4,7 @@ import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import { CompetitionResponse, FlaggedPlayerReviewContextResponse } from '../api/responses';
 import { Achievement, Competition, Group, GroupRole, Player } from '../types';
-import logger from './logging.service';
+import { logger } from './logger.service';
 
 export enum DiscordBotEventType {
   // Player-facing Events

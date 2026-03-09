@@ -1,6 +1,6 @@
 import { isErrored } from '@attio/fetchable';
 import { recalculateCompetitionTimeEvents } from '../../api/modules/competitions/services/RecalculateCompetitionTimeEventsService';
-import logger from '../../services/logging.service';
+import { logger } from '../../services/logger.service';
 import { assertNever } from '../../utils/assert-never.util';
 import { JobHandler } from '../types/job-handler.type';
 
