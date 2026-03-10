@@ -1,14 +1,12 @@
+import { formatCompetitionResponse, formatGroupResponse } from '../../api/responses';
 import prisma, { PrismaTypes } from '../../prisma';
-import { sendDiscordWebhook } from '../../services/discord.service';
+import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import { Competition, Group } from '../../types';
 import { JobHandler } from '../types/job-handler.type';
 
 export const CheckProtectedPlayersSpamJobHandler: JobHandler = {
   async execute() {
-    if (
-      process.env.API_ABUSE_PROTECTED_PLAYERS_LIST === undefined ||
-      process.env.API_ABUSE_PROTECTED_PLAYERS_URL === undefined
-    ) {
+    if (process.env.API_ABUSE_PROTECTED_PLAYERS_LIST === undefined) {
       return;
     }
 
@@ -28,7 +26,7 @@ export const CheckProtectedPlayersSpamJobHandler: JobHandler = {
         ORDER BY count DESC
       `,
       prisma.$queryRaw<Array<Competition & { count: number }>>`
-        SELECT 
+        SELECT
         c.*,
         COUNT(DISTINCT p."id") AS count
         FROM public.competitions c
@@ -76,17 +74,38 @@ export const CheckProtectedPlayersSpamJobHandler: JobHandler = {
       }
     });
 
-    if (susGroups.length > 0) {
-      await sendDiscordWebhook({
-        content: `🚨🚨🚨 GROUPS 🚨🚨🚨\n${susGroups.map(g => `**ID: ${g.id}**\t${g.name}`).join('\n')}`,
-        webhookUrl: process.env.API_ABUSE_PROTECTED_PLAYERS_URL
-      });
+    const byIpHashMap = new Map<string, { groups: Group[]; competitions: Competition[] }>();
+
+    for (const group of susGroups) {
+      if (!group.creatorIpHash) continue;
+      const current = byIpHashMap.get(group.creatorIpHash);
+      if (current) {
+        current.groups.push(group);
+      } else {
+        byIpHashMap.set(group.creatorIpHash, { groups: [group], competitions: [] });
+      }
     }
 
-    if (susCompetitions.length > 0) {
-      await sendDiscordWebhook({
-        content: `🚨🚨🚨 COMPETITIONS 🚨🚨🚨\n${susCompetitions.map(g => `**ID: ${g.id}**\t${g.title}`).join('\n')}`,
-        webhookUrl: process.env.API_ABUSE_PROTECTED_PLAYERS_URL
+    for (const competition of susCompetitions) {
+      if (!competition.creatorIpHash) continue;
+      const current = byIpHashMap.get(competition.creatorIpHash);
+      if (current) {
+        current.competitions.push(competition);
+      } else {
+        byIpHashMap.set(competition.creatorIpHash, { groups: [], competitions: [competition] });
+      }
+    }
+
+    for (const [ipHash, { groups, competitions }] of byIpHashMap) {
+      await dispatchDiscordBotEvent(DiscordBotEventType.CREATION_SPAM_WARNING, {
+        creatorIpHash: ipHash,
+        type: 'protected-players' as const,
+        groups: groups.map(group => ({
+          group: formatGroupResponse(group, -1)
+        })),
+        competitions: competitions.map(competition => ({
+          competition: formatCompetitionResponse({ ...competition, participantCount: -1, metrics: [] }, null)
+        }))
       });
     }
   }

@@ -1,7 +1,8 @@
+import ms from 'ms';
+import { formatCompetitionResponse, formatGroupResponse } from '../../api/responses';
 import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
-import { Competition, Group, Period } from '../../types';
-import { PeriodProps } from '../../utils/shared';
+import { Competition, Group } from '../../types';
 import { JobHandler } from '../types/job-handler.type';
 
 const CREATION_SPAM_THRESHOLD = 5;
@@ -59,20 +60,19 @@ export const CheckCreationSpamJobHandler: JobHandler = {
       }
     });
 
-    const potentialOffenders = Array.from(byIpHashMap.values()).filter(({ groups, competitions }) => {
+    const offenders = Array.from(byIpHashMap.values()).filter(({ groups, competitions }) => {
       return groups.length + competitions.length >= CREATION_SPAM_THRESHOLD;
     });
 
     await prisma.$transaction(async transaction => {
       // Hide all groups and competitions created within the past 24h and by potential offenders
+      const dayAgo = new Date(Date.now() - ms('1 day'));
 
-      const dayAgo = new Date(Date.now() - PeriodProps[Period.DAY].milliseconds);
-
-      for (const potentialOffender of potentialOffenders) {
-        if (potentialOffender.groups.length > 0) {
+      for (const offender of offenders) {
+        if (offender.groups.length > 0) {
           await transaction.group.updateMany({
             where: {
-              creatorIpHash: potentialOffender.ipHash,
+              creatorIpHash: offender.ipHash,
               createdAt: {
                 gte: dayAgo
               }
@@ -83,10 +83,10 @@ export const CheckCreationSpamJobHandler: JobHandler = {
           });
         }
 
-        if (potentialOffender.competitions.length > 0) {
+        if (offender.competitions.length > 0) {
           await transaction.competition.updateMany({
             where: {
-              creatorIpHash: potentialOffender.ipHash,
+              creatorIpHash: offender.ipHash,
               createdAt: {
                 gte: dayAgo
               }
@@ -99,8 +99,17 @@ export const CheckCreationSpamJobHandler: JobHandler = {
       }
     });
 
-    for (const potentialOffender of potentialOffenders) {
-      dispatchDiscordBotEvent(DiscordBotEventType.POTENTIAL_CREATION_SPAM, potentialOffender);
+    for (const { ipHash, groups, competitions } of offenders) {
+      await dispatchDiscordBotEvent(DiscordBotEventType.CREATION_SPAM_WARNING, {
+        creatorIpHash: ipHash,
+        type: 'burst-creation-spam' as const,
+        groups: groups.map(group => ({
+          group: formatGroupResponse(group, -1)
+        })),
+        competitions: competitions.map(competition => ({
+          competition: formatCompetitionResponse({ ...competition, participantCount: -1, metrics: [] }, null)
+        }))
+      });
     }
   }
 };
