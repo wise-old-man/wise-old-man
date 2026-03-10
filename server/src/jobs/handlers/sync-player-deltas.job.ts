@@ -14,7 +14,7 @@ interface Payload {
 
 export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
   options: {
-    maxConcurrent: 8
+    maxConcurrent: 4
   },
 
   generateUniqueJobId(payload) {

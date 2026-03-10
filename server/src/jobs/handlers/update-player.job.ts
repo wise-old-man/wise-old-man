@@ -11,7 +11,7 @@ interface Payload {
 export const UpdatePlayerJobHandler: JobHandler<Payload> = {
   options: {
     backoff: 30_000,
-    maxConcurrent: 8,
+    maxConcurrent: 4,
     rateLimiter: { max: 1, duration: 250 }
   },
 
