@@ -1,4 +1,5 @@
 import { isErrored } from '@attio/fetchable';
+import ms from 'ms';
 import { z } from 'zod';
 import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
@@ -83,7 +84,7 @@ export const CheckInappropriateContentJobHandler: JobHandler = {
     }
 
     const openAi = new OpenAiService();
-    const fiveMinAgo = new Date(Date.now() - 1000 * 60 * 5);
+    const fiveMinAgo = new Date(Date.now() - ms('5 min'));
 
     const [groups, competitions] = await Promise.all([
       prisma.group.findMany({
@@ -126,7 +127,7 @@ export const CheckInappropriateContentJobHandler: JobHandler = {
     };
 
     const promptResult = await openAi.makePrompt(
-      'gpt-4o',
+      'gpt-5.4',
       JSON.stringify(input),
       SYSTEM_PROMPT,
       RESPONSE_SCHEMA
