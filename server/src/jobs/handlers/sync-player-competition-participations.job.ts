@@ -8,7 +8,7 @@ interface Payload {
 
 export const SyncPlayerCompetitionParticipationsJobHandler: JobHandler<Payload> = {
   options: {
-    maxConcurrent: 4
+    maxConcurrent: 2
   },
 
   generateUniqueJobId(payload) {

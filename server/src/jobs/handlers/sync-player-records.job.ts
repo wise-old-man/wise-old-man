@@ -13,7 +13,7 @@ interface Payload {
 
 export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
   options: {
-    maxConcurrent: 8
+    maxConcurrent: 4
   },
 
   generateUniqueJobId(payload) {
