@@ -56,7 +56,6 @@ const envVariablesSchema = z.object({
   // Openai API Key
   OPENAI_API_KEY: prodOnly(z.string().trim().min(1).startsWith('sk-')),
   // Abuse Protection Configs
-  API_ABUSE_PROTECTED_PLAYERS_URL: z.optional(z.string().trim().url()),
   API_ABUSE_PROTECTED_PLAYERS_LIST: z.optional(z.string().trim()),
   // Feature Flags
   API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS: z.optional(z.string())
