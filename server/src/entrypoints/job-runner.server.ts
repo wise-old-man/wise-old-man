@@ -1,3 +1,8 @@
+/**
+ * Import this first so that dotenv is loaded before anything else.
+ */
+import '../env';
+
 import { eventEmitter } from '../api/events';
 import { jobManager } from '../jobs';
 import prometheusService from '../services/prometheus.service';

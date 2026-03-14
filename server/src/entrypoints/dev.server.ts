@@ -1,6 +1,10 @@
+/**
+ * Import this first so that dotenv is loaded before anything else.
+ */
+import { getThreadIndex } from '../env';
+
 import APIInstance from '../api';
 import { eventEmitter } from '../api/events';
-import { getThreadIndex } from '../env';
 import { jobManager } from '../jobs';
 import { logger } from '../services/logger.service';
 import prometheusService from '../services/prometheus.service';

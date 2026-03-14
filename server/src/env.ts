@@ -27,6 +27,7 @@ const envVariablesSchema = z.object({
   CORE_DATABASE_URL: z.string().trim().min(1),
   // Redis Configs
   REDIS_HOST: z.string().trim().min(1),
+  REDIS_PASSWORD: z.string().trim().min(1),
   REDIS_PORT: z.coerce.number().positive().int(),
   // Node Environment
   NODE_ENV: z.enum(['development', 'production', 'test']),

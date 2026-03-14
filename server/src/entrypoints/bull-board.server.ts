@@ -1,3 +1,8 @@
+/**
+ * Import this first so that dotenv is loaded before anything else.
+ */
+import '../env';
+
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
