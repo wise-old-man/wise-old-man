@@ -1,4 +1,5 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
+import { logger } from '../../../../services/logger.service';
 import { BOSSES, Metric, Player, Snapshot } from '../../../../types';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { REAL_SKILLS } from '../../../../utils/shared';
@@ -23,8 +24,6 @@ async function reviewFlaggedPlayer(
   previousStats: Snapshot,
   rejectedStats: Snapshot
 ): Promise<FlaggedPlayerReviewContextResponse | null> {
-  if (!player || !previousStats || !rejectedStats) return null;
-
   const negativeGains = getNegativeGains(previousStats, rejectedStats);
   const excessiveGains = getExcessiveGains(previousStats, rejectedStats);
   const excessiveGainsReversed = getExcessiveGains(rejectedStats, previousStats);
@@ -38,6 +37,12 @@ async function reviewFlaggedPlayer(
 
     if (!isPossibleRollback) {
       // If it isn't a rollback, then it's definitely a name transfer, and should be archived (null context)
+      logger.debug(`Reviewing flagged player - ${player.username}`, {
+        isPossibleRollback,
+        isExcessiveGains: excessiveGains !== null,
+        isExcessiveGainsReversed: excessiveGainsReversed !== null,
+        lostTooMuch: hasLostTooMuch(previous, rejected)
+      });
       return null;
     }
 
