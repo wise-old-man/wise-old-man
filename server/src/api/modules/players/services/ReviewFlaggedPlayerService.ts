@@ -37,7 +37,7 @@ async function reviewFlaggedPlayer(
 
     if (!isPossibleRollback) {
       // If it isn't a rollback, then it's definitely a name transfer, and should be archived (null context)
-      logger.debug(`Reviewing flagged player - ${player.username}`, {
+      logger.info(`Reviewing flagged player - ${player.username}`, {
         isPossibleRollback,
         isExcessiveGains: excessiveGains !== null,
         isExcessiveGainsReversed: excessiveGainsReversed !== null,
