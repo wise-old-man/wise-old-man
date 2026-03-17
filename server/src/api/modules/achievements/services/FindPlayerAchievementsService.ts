@@ -1,28 +1,25 @@
 import prisma from '../../../../prisma';
-import { Achievement } from '../../../../types';
-import { NotFoundError } from '../../../errors';
+import { Achievement, PlayerAnnotationType } from '../../../../types';
+import { ForbiddenError, NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 
-async function findPlayerAchievements(username: string): Promise<Achievement[]> {
-  const achievements = await prisma.achievement.findMany({
-    where: {
-      player: {
-        username: standardizeUsername(username)
-      }
+export async function findPlayerAchievements(username: string): Promise<Achievement[]> {
+  const player = await prisma.player.findFirst({
+    where: { username: standardizeUsername(username) },
+    include: {
+      achievements: true,
+      annotations: true
     }
   });
 
-  if (achievements.length === 0) {
-    const player = await prisma.player.findFirst({
-      where: { username: standardizeUsername(username) }
-    });
-
-    if (!player) {
-      throw new NotFoundError('Player not found.');
-    }
+  // TODO: Refactor error handlign
+  if (!player) {
+    throw new NotFoundError('Player not found.');
   }
 
-  return achievements;
-}
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    throw new ForbiddenError('Player has opted out.');
+  }
 
-export { findPlayerAchievements };
+  return player.achievements;
+}
