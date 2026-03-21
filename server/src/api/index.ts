@@ -4,6 +4,7 @@ import cors from 'cors';
 import express, { Express } from 'express';
 import userAgent from 'express-useragent';
 import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
+import { logger } from '../services/logger.service';
 import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 import prometheus from './../services/prometheus.service';
 import router from './routing';
@@ -126,6 +127,8 @@ class APIInstance {
         })
         .catch(error => {
           if (!(error instanceof RateLimiterRes)) {
+            Sentry.captureException(error);
+            logger.error('Error consuming rate limiter points', { error });
             return next();
           }
 
