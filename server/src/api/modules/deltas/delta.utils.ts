@@ -24,15 +24,7 @@ import {
   getPlayerEHP
 } from '../../modules/efficiency/efficiency.utils';
 import { PlayerDeltasMapResponse } from '../../responses';
-import { getTotalLevel } from '../snapshots/snapshot.utils';
-
-// These metrics can legitimately decrease (see getNegativeGains in snapshot.utils.ts)
-const METRICS_ALLOWING_NEGATIVE_GAINS: Metric[] = [
-  Metric.EHP,
-  Metric.EHB,
-  Metric.LAST_MAN_STANDING,
-  Metric.PVP_ARENA
-];
+import { getTotalLevel, METRICS_ALLOWING_NEGATIVE_GAINS } from '../snapshots/snapshot.utils';
 
 const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 }) satisfies MetricDelta;
 
