@@ -218,7 +218,7 @@ describe('Deltas API', () => {
       expect(dayCachedDeltas.find(c => c.metric === Metric.TZKAL_ZUK)?.value).toBe(1);
       expect(dayCachedDeltas.find(c => c.metric === Metric.BOUNTY_HUNTER_HUNTER)?.value).toBe(5);
       expect(dayCachedDeltas.find(c => c.metric === Metric.SOUL_WARS_ZEAL)?.value).toBe(203);
-      expect(dayCachedDeltas.find(c => c.metric === Metric.LAST_MAN_STANDING)).toBe(undefined); // LMS went DOWN from 500 to 450, we shouldn't show negative gains
+      expect(dayCachedDeltas.find(c => c.metric === Metric.LAST_MAN_STANDING)?.value).toBe(-50); // LMS went DOWN from 500 to 450
 
       // gained less boss kc, expect ehb gains to be lesser
       expect(dayCachedDeltas.find(c => c.metric === Metric.EHB)?.value).toBeLessThan(
