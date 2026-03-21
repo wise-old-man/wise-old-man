@@ -9,4 +9,5 @@ prisma migrate dev
 
 # Run ts-node-dev on the dev server and keep the process alive, restarting when the code changes
 export NODE_ENV=development
+export SERVER_TYPE=dev
 ts-node-dev --poll --exit-child --respawn --transpile-only --ignore-watch node_modules src/entrypoints/dev.server.ts

@@ -15,10 +15,6 @@ import { handleServerInit } from '../utils/handle-server-init.util';
 const BULL_BOARD_PORT = 5100;
 
 handleServerInit('Bull Board Server', async () => {
-  if (process.env.ADMIN_PASSWORD === undefined) {
-    throw new Error('ADMIN_PASSWORD is not set');
-  }
-
   jobManager.initQueues();
 
   const expressApp = express();
