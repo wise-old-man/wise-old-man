@@ -1,9 +1,9 @@
-import { AsyncResult, complete, errored, isComplete, isErrored } from '@attio/fetchable';
+import { AsyncResult, complete, errored, fromPromise, isComplete, isErrored } from '@attio/fetchable';
+import axios, { AxiosError } from 'axios';
 import { z } from 'zod';
 import prometheus from '../services/prometheus.service';
 import { PlayerType } from '../types';
 import { assertNever } from '../utils/assert-never.util';
-import { fetchWithProxy } from '../utils/fetch-with-proxy.util';
 import { retry } from '../utils/retry.util';
 import { logger } from './logger.service';
 
@@ -25,26 +25,21 @@ export async function getRuneMetricsBannedStatus(username: string): AsyncResult<
 
     const stopTrackingTimer = prometheus.trackJagexServiceRequest();
 
-    const fetchResult = await fetchWithProxy(url);
+    const axiosResult = await fromPromise(axios({ url }));
 
     stopTrackingTimer({
       service: 'RuneMetrics',
-      status: isErrored(fetchResult) ? 0 : 1
+      status: isErrored(axiosResult) ? 0 : 1
     });
 
-    if (isErrored(fetchResult)) {
-      // If it's a proxy error, we throw it so that it can be retried with other proxies
-      if (fetchResult.error.code === 'PROXY_ERROR') {
-        throw fetchResult.error;
-      }
-
+    if (isErrored(axiosResult)) {
       return errored({
         code: 'FAILED_TO_LOAD_RUNEMETRICS',
-        subError: fetchResult.error.subError
+        subError: axiosResult.error as AxiosError
       } as const);
     }
 
-    const parseResult = RUNEMETRICS_ERROR_RESPONSE_SCHEMA.safeParse(fetchResult.value);
+    const parseResult = RUNEMETRICS_ERROR_RESPONSE_SCHEMA.safeParse(axiosResult.value.data);
     const isBanned = parseResult.success && parseResult.data.error === 'NOT_A_MEMBER';
 
     return complete({ isBanned });
@@ -112,36 +107,31 @@ export async function fetchHiscoresJSON(
   async function retriedFunction(): AsyncResult<HiscoresData, HiscoresError> {
     const stopTrackingTimer = prometheus.trackJagexServiceRequest();
 
-    const fetchResult = await fetchWithProxy(`${getBaseHiscoresUrl(type)}?player=${username}`);
+    const axiosResult = await fromPromise(axios({ url: `${getBaseHiscoresUrl(type)}?player=${username}` }));
 
     stopTrackingTimer({
       service: 'OSRS Hiscores (JSON)',
-      status: isErrored(fetchResult) ? 0 : 1
+      status: isErrored(axiosResult) ? 0 : 1
     });
 
-    if (isErrored(fetchResult)) {
-      // If it's a proxy error, we throw it so that it can be retried with other proxies
-      if (fetchResult.error.code === 'PROXY_ERROR') {
-        throw fetchResult.error;
-      }
+    if (isErrored(axiosResult)) {
+      const axiosError = axiosResult.error as AxiosError;
 
-      const axiosError = fetchResult.error.subError;
-
-      if ('response' in axiosError && axiosError.response?.status === 404) {
+      if (axiosError.response?.status === 404) {
         return errored({
           code: 'HISCORES_USERNAME_NOT_FOUND'
         } as const);
       }
 
-      logger.error('Unexpected hiscores error', fetchResult.error);
+      logger.error('Unexpected hiscores error', axiosError);
 
       return errored({
         code: 'HISCORES_UNEXPECTED_ERROR',
-        subError: fetchResult.error.subError
+        subError: axiosError
       } as const);
     }
 
-    const parsedHiscores = HiscoresDataSchema.safeParse(fetchResult.value);
+    const parsedHiscores = HiscoresDataSchema.safeParse(axiosResult.value.data);
 
     if (!parsedHiscores.success) {
       return errored({ code: 'HISCORES_SERVICE_UNAVAILABLE' } as const);
