@@ -71,30 +71,6 @@ Copy the example files to configure the development server, by running the follo
 cp .env.example .env
 ```
 
-By default the example files contain the following example snippets
-
-```
-CORE_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/wise-old-man_LOCAL?schema=public
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-
-REDIS_HOST=localhost
-REDIS_PORT=6379
-
-PGADMIN_DEFAULT_EMAIL=test@wiseoldman.net
-PGADMIN_DEFAULT_PASSWORD=postgres
-PGADMIN_PORT=54321
-
-# ADMIN_PASSWORD=
-
-# DISCORD_BOT_API_URL=
-
-# DISCORD_MONITORING_WEBHOOK_URL=
-# DISCORD_PATREON_WEBHOOK_URL=
-
-# PATREON_BEARER_TOKEN=
-```
-
 <br />
 
 **Finally! You're done with the setup and installation, now you can run the server and start developing!**
