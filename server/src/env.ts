@@ -81,7 +81,8 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
     'CORE_DATABASE_URL',
     'REDIS_PORT',
     'REDIS_HOST',
-    'REDIS_PASSWORD'
+    'REDIS_PASSWORD',
+    'ADMIN_PASSWORD'
   ]
 };
 
