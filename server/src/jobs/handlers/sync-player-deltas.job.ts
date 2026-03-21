@@ -100,7 +100,7 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
         value = periodDiffs.computed[metric].value.gained;
       }
 
-      if (value !== 0) {
+      if (value > 0) {
         newCachedDeltasMap.set(metric, {
           ...commonProps,
           metric,
