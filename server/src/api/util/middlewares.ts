@@ -54,11 +54,11 @@ export function checkAdminPermission(req: unknown, _res: Response, next: NextFun
   const { adminPassword } = (req as Request).body;
 
   if (!adminPassword) {
-    return next(new BadRequestErrorZ({ code: 'MISSING_SHARED_ADMIN_PASSWORD' }));
+    return next(new BadRequestErrorZ({ code: 'MISSING_ADMIN_PASSWORD' }));
   }
 
   if (String(adminPassword) !== process.env.SHARED_ADMIN_PASSWORD) {
-    return next(new ForbiddenErrorZ({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' }));
+    return next(new ForbiddenErrorZ({ code: 'INCORRECT_ADMIN_PASSWORD' }));
   }
 
   next();

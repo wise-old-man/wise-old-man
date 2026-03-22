@@ -4690,7 +4690,7 @@ describe('Competition API', () => {
       const response = await api.put(`/competitions/100000/reset-code`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not reset code (incorrect admin password)', async () => {
@@ -4699,7 +4699,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not reset code (competition not found)', async () => {

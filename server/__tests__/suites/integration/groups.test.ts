@@ -2904,7 +2904,7 @@ describe('Group API', () => {
       const response = await api.put(`/groups/100000/reset-code`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not reset code (incorrect admin password)', async () => {
@@ -2913,7 +2913,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not reset code (group not found)', async () => {
@@ -2958,7 +2958,7 @@ describe('Group API', () => {
       const response = await api.put(`/groups/100000/verify`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not verify group (incorrect admin password)', async () => {
@@ -2967,7 +2967,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not verify group (group not found)', async () => {

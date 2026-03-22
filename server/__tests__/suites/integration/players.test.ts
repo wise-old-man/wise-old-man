@@ -873,12 +873,12 @@ describe('Player API', () => {
 
       const thirdResponse = await api.post(`/players/jonxslays`).send({ force: true });
       expect(thirdResponse.status).toBe(400);
-      expect(thirdResponse.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
+      expect(thirdResponse.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
 
       const fourthResponse = await api.post(`/players/jonxslays`).send({ force: true, adminPassword: 'idk' });
 
       expect(fourthResponse.status).toBe(403);
-      expect(fourthResponse.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
+      expect(fourthResponse.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
 
       const fifthResponse = await api
         .post(`/players/jonxslays`)
@@ -1115,14 +1115,14 @@ describe('Player API', () => {
       const response = await api.put(`/players/psikoi/country`).send({ country: 'PT' });
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not update player country (incorrect admin password)', async () => {
       const response = await api.put(`/players/psikoi/country`).send({ country: 'PT', adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not update player country (undefined country)', async () => {
@@ -1241,14 +1241,14 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi/rollback`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it("shouldn't rollback player (incorrect admin password)", async () => {
       const response = await api.post(`/players/psikoi/rollback`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it("shouldn't rollback player (player not found)", async () => {
@@ -1517,14 +1517,14 @@ describe('Player API', () => {
       const response = await api.delete(`/players/psikoi`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not delete player (incorrect admin password)', async () => {
       const response = await api.delete(`/players/psikoi`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not delete player (player not found)', async () => {
@@ -2129,14 +2129,14 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi/archive`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it("shouldn't archive player (incorrect admin password)", async () => {
       const response = await api.post(`/players/psikoi/archive`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it("shouldn't archive player (player not found)", async () => {
@@ -2385,7 +2385,7 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should return 403 when admin password is incorrect (admin validation)', async () => {
@@ -2395,7 +2395,7 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should return 400 when annotation is invalid', async () => {

@@ -535,14 +535,14 @@ describe('Names API', () => {
       const response = await api.post(`/names/2000000000/deny`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not deny (incorrect admin password)', async () => {
       const response = await api.post(`/names/2000000000/deny`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not deny (invalid id)', async () => {
@@ -590,7 +590,7 @@ describe('Names API', () => {
       const response = await api.post(`/names/2000000000/approve`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
 
       expect(playerNameChangedEvent).not.toHaveBeenCalled();
     });
@@ -599,7 +599,7 @@ describe('Names API', () => {
       const response = await api.post(`/names/2000000000/approve`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
 
       expect(playerNameChangedEvent).not.toHaveBeenCalled();
     });
@@ -1542,7 +1542,7 @@ describe('Names API', () => {
       const response = await api.post(`/names/walter/clear-history`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not clear history (incorrect admin password)', async () => {
@@ -1551,7 +1551,7 @@ describe('Names API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not clear history (player not found)', async () => {
