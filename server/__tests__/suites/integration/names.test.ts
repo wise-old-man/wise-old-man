@@ -184,7 +184,7 @@ describe('Names API', () => {
 
       const approveResponse = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveResponse.status).toBe(200);
       expect(approveResponse.body.status).toBe('approved');
@@ -230,7 +230,7 @@ describe('Names API', () => {
       // Approve this name change
       const approvalResponse = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approvalResponse.status).toBe(200);
       expect(approvalResponse.body.status).toBe('approved');
@@ -299,7 +299,7 @@ describe('Names API', () => {
 
       const approveResponse = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveResponse.status).toBe(200);
       expect(approveResponse.body.status).toBe('approved');
@@ -520,7 +520,7 @@ describe('Names API', () => {
 
       const approvalResponse = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approvalResponse.status).toBe(200);
 
@@ -546,7 +546,9 @@ describe('Names API', () => {
     });
 
     it('should not deny (invalid id)', async () => {
-      const response = await api.post(`/names/abc/deny`).send({ adminPassword: process.env.ADMIN_PASSWORD });
+      const response = await api
+        .post(`/names/abc/deny`)
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
@@ -555,7 +557,7 @@ describe('Names API', () => {
     it('should not deny (id not found)', async () => {
       const response = await api
         .post(`/names/2000000000/deny`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Name change id was not found.');
@@ -564,7 +566,7 @@ describe('Names API', () => {
     it('should not deny (already approved)', async () => {
       const response = await api
         .post(`/names/${globalData.secondNameChangeId}/deny`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Name change status must be PENDING');
@@ -573,7 +575,7 @@ describe('Names API', () => {
     it('should deny', async () => {
       const response = await api
         .post(`/names/${globalData.firstNameChangeId}/deny`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.id).toBe(globalData.firstNameChangeId);
@@ -605,7 +607,7 @@ describe('Names API', () => {
     it('should not approve (invalid id)', async () => {
       const response = await api
         .post(`/names/abc/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
@@ -616,7 +618,7 @@ describe('Names API', () => {
     it('should not approve (id not found)', async () => {
       const response = await api
         .post(`/names/2000000000/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Name change id was not found.');
@@ -627,7 +629,7 @@ describe('Names API', () => {
     it('should not approve (not pending)', async () => {
       const response = await api
         .post(`/names/${globalData.secondNameChangeId}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Name change status must be PENDING');
@@ -644,7 +646,7 @@ describe('Names API', () => {
 
       const response = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('approved');
@@ -677,7 +679,7 @@ describe('Names API', () => {
 
       const response = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('approved');
@@ -722,7 +724,7 @@ describe('Names API', () => {
 
       const response = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('approved');
@@ -977,7 +979,7 @@ describe('Names API', () => {
 
       const response = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('approved');
@@ -1017,7 +1019,7 @@ describe('Names API', () => {
 
       const archiveResponse = await api
         .post(`/players/Nightfirecat/archive`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(archiveResponse.status).toBe(200);
 
@@ -1041,7 +1043,7 @@ describe('Names API', () => {
 
       const approveResponse = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveResponse.status).toBe(200);
       expect(approveResponse.body.status).toBe('approved');
@@ -1186,7 +1188,7 @@ describe('Names API', () => {
 
       const approveNameChangeResponse = await api
         .post(`/names/${submitNameChangeResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveNameChangeResponse.status).toBe(200);
 
@@ -1245,7 +1247,7 @@ describe('Names API', () => {
 
       const approveResponse = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveResponse.status).toBe(200);
       expect(approveResponse.body.status).toBe('approved');
@@ -1372,7 +1374,7 @@ describe('Names API', () => {
 
       const approveNameChangeResponse = await api
         .post(`/names/${submitNameChangeResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveNameChangeResponse.status).toBe(200);
 
@@ -1555,7 +1557,7 @@ describe('Names API', () => {
     it('should not clear history (player not found)', async () => {
       const response = await api
         .post(`/names/walter/clear-history`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
@@ -1564,7 +1566,7 @@ describe('Names API', () => {
     it('should not clear history (no name changes)', async () => {
       const response = await api
         .post(`/names/zezima/clear-history`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('No name changes were found for this player.');
@@ -1573,7 +1575,7 @@ describe('Names API', () => {
     it('should clear history', async () => {
       const response = await api
         .post(`/names/usbc/clear-history`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.count).toBe(6);

@@ -6,11 +6,13 @@ import { JobHandler } from '../types/job-handler.type';
 
 export const CheckProtectedPlayersSpamJobHandler: JobHandler = {
   async execute() {
-    if (process.env.API_ABUSE_PROTECTED_PLAYERS_LIST === undefined) {
+    if (process.env.SERVER_API_ABUSE_PROTECTED_PLAYERS_LIST === undefined) {
       return;
     }
 
-    const protectedPlayers = process.env.API_ABUSE_PROTECTED_PLAYERS_LIST.split(',').map(p => p.trim());
+    const protectedPlayers = process.env.SERVER_API_ABUSE_PROTECTED_PLAYERS_LIST.split(',').map(p =>
+      p.trim()
+    );
 
     const [groupResults, competitionResults] = await Promise.all([
       prisma.$queryRaw<Array<Group & { count: number }>>`

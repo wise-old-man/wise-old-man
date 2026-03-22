@@ -57,7 +57,7 @@ export function checkAdminPermission(req: unknown, _res: Response, next: NextFun
     return next(new BadRequestErrorZ({ code: 'MISSING_ADMIN_PASSWORD' }));
   }
 
-  if (String(adminPassword) !== process.env.ADMIN_PASSWORD) {
+  if (String(adminPassword) !== process.env.SHARED_ADMIN_PASSWORD) {
     return next(new ForbiddenErrorZ({ code: 'INCORRECT_ADMIN_PASSWORD' }));
   }
 
@@ -69,7 +69,7 @@ export async function checkCompetitionVerificationCode(req: unknown, _res: Respo
   const { verificationCode, adminPassword } = (req as Request).body;
 
   // Override verification code checks for admins
-  if (adminPassword && String(adminPassword) === process.env.ADMIN_PASSWORD) {
+  if (adminPassword && String(adminPassword) === process.env.SHARED_ADMIN_PASSWORD) {
     return next();
   }
 
@@ -107,7 +107,7 @@ export async function checkGroupVerificationCode(req: unknown, _res: Response, n
   const { verificationCode, adminPassword } = (req as Request).body;
 
   // Override verification code checks for admins
-  if (adminPassword && String(adminPassword) === process.env.ADMIN_PASSWORD) {
+  if (adminPassword && String(adminPassword) === process.env.SHARED_ADMIN_PASSWORD) {
     return next();
   }
 

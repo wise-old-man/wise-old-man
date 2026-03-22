@@ -11,7 +11,7 @@ import prometheusService from '../services/prometheus.service';
 import { redisClient } from '../services/redis.service';
 import { handleServerInit } from '../utils/handle-server-init.util';
 
-const PORT = process.env.API_PORT || 5000;
+const PORT = process.env.SERVER_API_PORT || 5000;
 
 handleServerInit('Development Server', async () => {
   jobManager.initQueues();

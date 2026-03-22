@@ -567,7 +567,7 @@ describe('Records API', () => {
     it('should fetch leaderboards (with player country filter)', async () => {
       const updateCountryResponse = await api
         .put('/players/usbc/country')
-        .send({ country: 'SE', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'SE', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
       expect(updateCountryResponse.body).toMatchObject({ username: 'usbc', country: 'SE' });
