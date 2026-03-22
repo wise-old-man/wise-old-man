@@ -1,7 +1,7 @@
 "use server";
 
+import { PutObjectCommand, S3 } from "@aws-sdk/client-s3";
 import sharp from "sharp";
-import { S3, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const PROFILE_IMAGE_WIDTH = 120;
 const PROFILE_IMAGE_HEIGHT = 120;
@@ -49,7 +49,7 @@ async function processImage(file: File, width: number, height: number) {
 }
 
 async function uploadToS3(fileName: string, buffer: Buffer) {
-  if (!process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || !process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY) {
+  if (!process.env.APP_CLOUDFLARE_R2_ACCESS_KEY_ID || !process.env.APP_CLOUDFLARE_R2_SECRET_ACCESS_KEY) {
     throw new Error("Missing Cloudflare R2 credentials");
   }
 
@@ -58,8 +58,8 @@ async function uploadToS3(fileName: string, buffer: Buffer) {
     forcePathStyle: false,
     endpoint: CLOUDFLARE_R2_ENDPOINT,
     credentials: {
-      accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID ?? "",
-      secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY ?? "",
+      accessKeyId: process.env.APP_CLOUDFLARE_R2_ACCESS_KEY_ID ?? "",
+      secretAccessKey: process.env.APP_CLOUDFLARE_R2_SECRET_ACCESS_KEY ?? "",
     },
   });
 
