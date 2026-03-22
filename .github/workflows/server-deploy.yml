@@ -29,31 +29,57 @@ jobs:
           cd server
           docker build . -f Dockerfile -t wiseoldman/server:latest -t wiseoldman/server:${{steps.package-version.outputs.current-version}}
           docker push -a wiseoldman/server
-  deploy:
-    name: Pull & Restart Docker Container
+
+  apply-db-migrations:
+    name: Migrate Database
     needs: [build-server-image]
     runs-on: ubuntu-latest
     steps:
-      - name: Migrate DB & Restart Server Containers
+      - name: Run Prisma Migrations
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DO_HOST }}
+          host: ${{ secrets.DO_CORE_HOST }}
           username: ${{ secrets.DO_USER }}
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd wise-old-man
-
-            # Remove the old image before pulling the new one
             docker image rm wiseoldman/server
-
-            # Pull the latest server image
             docker pull wiseoldman/server:latest
-
-            # Migrate the database to the latest Prisma schema
             docker run --rm \
               --env-file .env \
               --network wise-old-man_generic-network \
               wiseoldman/server:latest npx prisma migrate deploy
 
-            # Restart the server containers
-            docker compose up -d --no-deps --build server-api server-job-runner server-bull-board
+  deploy-core:
+    name: Deploy Core Server
+    needs: [apply-db-migrations]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull & Restart Core Containers
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_CORE_HOST }}
+          username: ${{ secrets.DO_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd wise-old-man
+            docker image rm wiseoldman/server
+            docker pull wiseoldman/server:latest
+            docker compose up -d --no-deps --build server-api server-bull-board
+
+  deploy-worker:
+    name: Deploy Worker Server
+    needs: [apply-db-migrations]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull & Restart Worker Containers
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_WORKER_HOST }}
+          username: ${{ secrets.DO_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd wise-old-man
+            docker image rm wiseoldman/server
+            docker pull wiseoldman/server:latest
+            docker compose up -d --no-deps --build server-job-runner
