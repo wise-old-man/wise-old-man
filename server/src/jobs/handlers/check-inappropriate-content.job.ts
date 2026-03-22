@@ -80,7 +80,7 @@ const RESPONSE_SCHEMA = z.object({
 
 export const CheckInappropriateContentJobHandler: JobHandler = {
   async execute() {
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.SERVER_OPENAI_API_KEY) {
       return;
     }
 

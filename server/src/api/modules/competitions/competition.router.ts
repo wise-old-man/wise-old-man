@@ -99,7 +99,10 @@ router.post(
   executeRequest(async (req, res) => {
     const ipHash = getRequestIpHash(req);
 
-    if (process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS !== 'true' && req.body.metrics.length > 1) {
+    if (
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS !== 'true' &&
+      req.body.metrics.length > 1
+    ) {
       throw new BadRequestError('Creating multi-metric competitions is not enabled yet.');
     }
 
@@ -218,7 +221,7 @@ router.put(
     const { id } = req.params;
 
     if (
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS !== 'true' &&
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS !== 'true' &&
       req.body.metrics !== undefined &&
       req.body.metrics.length > 1
     ) {

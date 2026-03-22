@@ -156,16 +156,16 @@ export async function dispatchDiscordBotEvent<
 ): AsyncResult<
   true,
   | { code: 'NOT_ALLOWED_IN_TEST_ENV' }
-  | { code: 'MISSING_DISCORD_BOT_API_URL' }
+  | { code: 'MISSING_SERVER_DISCORD_BOT_EVENTS_API_URL' }
   | { code: 'FAILED_TO_SEND_DISCORD_BOT_EVENT'; subError: unknown }
 > {
   if (process.env.NODE_ENV === 'test') {
     return errored({ code: 'NOT_ALLOWED_IN_TEST_ENV' });
   }
 
-  if (!process.env.DISCORD_BOT_API_URL) {
+  if (!process.env.SERVER_DISCORD_BOT_EVENTS_API_URL) {
     logger.error('Missing Discord Bot API URL.');
-    return errored({ code: 'MISSING_DISCORD_BOT_API_URL' });
+    return errored({ code: 'MISSING_SERVER_DISCORD_BOT_EVENTS_API_URL' });
   }
 
   const eventId = cuid2();
@@ -173,7 +173,7 @@ export async function dispatchDiscordBotEvent<
   logger.info(`Dispatching Discord Bot Event: ${type} with ID: ${eventId}`, payload);
 
   const requestResult = await fromPromise(
-    axios.post(process.env.DISCORD_BOT_API_URL, {
+    axios.post(process.env.SERVER_DISCORD_BOT_EVENTS_API_URL, {
       eventId,
       type,
       data: payload

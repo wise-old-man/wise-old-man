@@ -892,7 +892,7 @@ describe('Competition API', () => {
     });
 
     it('should NOT create with mixed metric types', async () => {
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
 
       const response = await api.post('/competitions').send({
         title: 'Test',
@@ -904,11 +904,11 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body).toMatchObject({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
     });
 
     it('should create with multiple metrics', async () => {
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
 
       const response = await api.post('/competitions').send({
         title: 'Test',
@@ -923,7 +923,7 @@ describe('Competition API', () => {
         metrics: ['hunter', 'fishing']
       });
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       await prisma.competition.delete({
         where: { id: response.body.competition.id }
@@ -1630,7 +1630,7 @@ describe('Competition API', () => {
       expect(createResponse.body.competition.metric).toBe('agility');
       expect(createResponse.body.competition.metrics).toMatchObject(['agility']);
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
 
       const firstUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode,
@@ -1706,7 +1706,7 @@ describe('Competition API', () => {
         deletedAt: null
       });
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       const deleteResponse = await api
         .delete(`/competitions/${createResponse.body.competition.id}`)
@@ -1773,7 +1773,7 @@ describe('Competition API', () => {
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition.metric).toBe('agility');
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
 
       const editResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode,
@@ -1782,7 +1782,7 @@ describe('Competition API', () => {
       expect(editResponse.status).toBe(400);
       expect(editResponse.body).toMatchObject({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       const deleteResponse = await api
         .delete(`/competitions/${createResponse.body.competition.id}`)
@@ -3210,7 +3210,7 @@ describe('Competition API', () => {
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 10_000 + 604_800_000);
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
       const createResponse = await api.post('/competitions').send({
         title: 'Test',
         metrics: ['hunter', 'fishing'],
@@ -3218,7 +3218,7 @@ describe('Competition API', () => {
         endsAt: endDate,
         participants: ['sue', 'reed', 'johnny', 'ben']
       });
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition).toMatchObject({
@@ -3578,7 +3578,7 @@ describe('Competition API', () => {
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 10_000 + 604_800_000);
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
       const createResponse = await api.post('/competitions').send({
         title: 'Test',
         metrics: ['hunter', 'fishing'],
@@ -3586,7 +3586,7 @@ describe('Competition API', () => {
         endsAt: endDate,
         participants: ['toblink', 'tobilical', 'tobicula', 'tobinky']
       });
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition).toMatchObject({
@@ -4278,7 +4278,7 @@ describe('Competition API', () => {
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 10_000 + 604_800_000);
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
       const createResponse = await api.post('/competitions').send({
         title: 'Test',
         metrics: ['hunter', 'fishing'],
@@ -4286,7 +4286,7 @@ describe('Competition API', () => {
         endsAt: endDate,
         participants: ['morticia', 'gomez', 'thing', 'fester']
       });
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition).toMatchObject({
