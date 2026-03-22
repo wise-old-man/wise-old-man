@@ -2162,7 +2162,7 @@ describe('Group API', () => {
       expect(before.status).toBe(200);
 
       const removeResponse = await api.delete(`/groups/${createResponse.body.group.id}/members`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         members: ['harry']
       });
 
@@ -2207,7 +2207,7 @@ describe('Group API', () => {
 
     it('should not delete (group not found with admin perms)', async () => {
       const response = await api.delete(`/groups/123456789`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(404);
@@ -2273,7 +2273,7 @@ describe('Group API', () => {
       expect(before.status).toBe(200);
 
       const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(deleteResponse.status).toBe(200);
@@ -2904,7 +2904,7 @@ describe('Group API', () => {
       const response = await api.put(`/groups/100000/reset-code`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should not reset code (incorrect admin password)', async () => {
@@ -2913,12 +2913,12 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should not reset code (group not found)', async () => {
       const response = await api.put(`/groups/100000/reset-code`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(404);
@@ -2927,7 +2927,7 @@ describe('Group API', () => {
 
     it('should reset code', async () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/reset-code`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(200);
@@ -2958,7 +2958,7 @@ describe('Group API', () => {
       const response = await api.put(`/groups/100000/verify`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should not verify group (incorrect admin password)', async () => {
@@ -2967,12 +2967,12 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should not verify group (group not found)', async () => {
       const response = await api.put(`/groups/100000/verify`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(404);
@@ -2981,7 +2981,7 @@ describe('Group API', () => {
 
     it('should verify group', async () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/verify`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(200);

@@ -35,7 +35,7 @@ describe('Patrons API', () => {
       const response = await api.put(`/patrons/claim/abc`).send({});
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should not claim patreon benefits (incorrect admin password)', async () => {
@@ -44,13 +44,13 @@ describe('Patrons API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should not claim patreon benefits (no username or groupId provided)', async () => {
       const response = await api
         .put(`/patrons/claim/abc`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Username and/or groupId must be provided.');
@@ -59,7 +59,7 @@ describe('Patrons API', () => {
     it('should not claim patreon benefits (discord id not a patron)', async () => {
       const response = await api
         .put(`/patrons/claim/abc`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD, groupId: 123 });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD, groupId: 123 });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('No patronage found for this discordId.');
@@ -78,7 +78,7 @@ describe('Patrons API', () => {
 
       const response = await api
         .put(`/patrons/claim/some-discord-id`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD, groupId: 123 });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD, groupId: 123 });
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('You must be a tier 2 patron to claim group benefits.');
@@ -87,7 +87,7 @@ describe('Patrons API', () => {
     it('should not claim patreon benefits (player not found)', async () => {
       const response = await api
         .put(`/patrons/claim/some-discord-id`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD, username: 'toph' });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD, username: 'toph' });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Player not found.');
@@ -102,7 +102,7 @@ describe('Patrons API', () => {
 
       const response = await api
         .put(`/patrons/claim/some-discord-id`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD, groupId: 123 });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD, groupId: 123 });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Group not found.');
@@ -114,7 +114,7 @@ describe('Patrons API', () => {
 
       const response = await api
         .put(`/patrons/claim/some-discord-id`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD, username: 'Katara' });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD, username: 'Katara' });
 
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({
@@ -138,7 +138,7 @@ describe('Patrons API', () => {
 
       const response = await api
         .put(`/patrons/claim/some-discord-id`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD, groupId: createResponse.body.group.id });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD, groupId: createResponse.body.group.id });
 
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({

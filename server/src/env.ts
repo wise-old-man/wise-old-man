@@ -26,7 +26,7 @@ const envVariablesSchema = z.object({
   // Port for the API to run on
   API_PORT: z.optional(z.coerce.number().positive().int()),
   // Admin Password (For mod+ operations)
-  ADMIN_PASSWORD: z.string().trim().min(1),
+  SHARED_ADMIN_PASSWORD: z.string().trim().min(1),
   // Sentry (for error tracking)
   API_SENTRY_DSN: z.string().trim().min(1),
   // Patreon Token (to access their API)
@@ -54,7 +54,7 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
     'REDIS_PORT',
     'REDIS_PASSWORD',
     'PROMETHEUS_METRICS_SERVICE_URL',
-    'ADMIN_PASSWORD',
+    'SHARED_ADMIN_PASSWORD',
     'API_SENTRY_DSN',
     'API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS'
   ],
@@ -82,7 +82,7 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
     'REDIS_PORT',
     'REDIS_HOST',
     'REDIS_PASSWORD',
-    'ADMIN_PASSWORD'
+    'SHARED_ADMIN_PASSWORD'
   ]
 };
 

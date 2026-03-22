@@ -606,7 +606,7 @@ describe('Deltas API', () => {
     it('should fetch leaderboards (with player country filter)', async () => {
       const updateCountryResponse = await api
         .put('/players/psikoi/country')
-        .send({ country: 'USA', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'USA', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
       expect(updateCountryResponse.body).toMatchObject({

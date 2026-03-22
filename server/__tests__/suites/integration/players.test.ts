@@ -873,16 +873,16 @@ describe('Player API', () => {
 
       const thirdResponse = await api.post(`/players/jonxslays`).send({ force: true });
       expect(thirdResponse.status).toBe(400);
-      expect(thirdResponse.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+      expect(thirdResponse.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
 
       const fourthResponse = await api.post(`/players/jonxslays`).send({ force: true, adminPassword: 'idk' });
 
       expect(fourthResponse.status).toBe(403);
-      expect(fourthResponse.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+      expect(fourthResponse.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
 
       const fifthResponse = await api
         .post(`/players/jonxslays`)
-        .send({ force: true, adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ force: true, adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(fifthResponse.status).toBe(200);
     });
@@ -1115,20 +1115,20 @@ describe('Player API', () => {
       const response = await api.put(`/players/psikoi/country`).send({ country: 'PT' });
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should not update player country (incorrect admin password)', async () => {
       const response = await api.put(`/players/psikoi/country`).send({ country: 'PT', adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should not update player country (undefined country)', async () => {
       const response = await api
         .put(`/players/psikoi/country`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
 
@@ -1141,7 +1141,7 @@ describe('Player API', () => {
     it('should not update player country (empty country)', async () => {
       const response = await api
         .put(`/players/psikoi/country`)
-        .send({ country: '', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: '', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
 
@@ -1154,7 +1154,7 @@ describe('Player API', () => {
     it('should not update player country (player not found)', async () => {
       const response = await api
         .put(`/players/zezima/country`)
-        .send({ country: 'PT', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'PT', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Player not found.');
@@ -1163,7 +1163,7 @@ describe('Player API', () => {
     it('should not update player country (invalid country code)', async () => {
       const response = await api
         .put(`/players/PSIKOI/country`)
-        .send({ country: 'XX', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'XX', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid country.');
@@ -1172,7 +1172,7 @@ describe('Player API', () => {
     it('should not update player country (invalid country name)', async () => {
       const response = await api
         .put(`/players/PSIKOI/country`)
-        .send({ country: 'Made up', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'Made up', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid country.');
@@ -1181,7 +1181,7 @@ describe('Player API', () => {
     it('should update player country', async () => {
       const updateCountryResponse = await api
         .put(`/players/PSIKOI/country`)
-        .send({ country: 'Portugal', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'Portugal', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
 
@@ -1200,7 +1200,7 @@ describe('Player API', () => {
     it('should update player country', async () => {
       const updateCountryResponse = await api
         .put(`/players/PSIKOI/country`)
-        .send({ country: 'pt', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'pt', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
 
@@ -1219,7 +1219,7 @@ describe('Player API', () => {
     it('should update player country (unsetting country)', async () => {
       const updateCountryResponse = await api
         .put(`/players/psikoi/country`)
-        .send({ country: null, adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: null, adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
 
@@ -1241,20 +1241,20 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi/rollback`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
     });
 
     it("shouldn't rollback player (incorrect admin password)", async () => {
       const response = await api.post(`/players/psikoi/rollback`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
     });
 
     it("shouldn't rollback player (player not found)", async () => {
       const response = await api
         .post(`/players/woah/rollback`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Player not found.');
@@ -1270,14 +1270,14 @@ describe('Player API', () => {
 
       const firstResponse = await api
         .post(`/players/rollmeback/rollback`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(firstResponse.status).toBe(400);
       expect(firstResponse.body).toMatchObject({ code: 'NO_SNAPSHOTS_TO_DELETE' });
 
       const secondResponse = await api
         .post(`/players/rollmeback/rollback`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD, untilLastChange: true });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD, untilLastChange: true });
 
       expect(secondResponse.status).toBe(400);
       expect(secondResponse.body).toMatchObject({ code: 'NO_SNAPSHOTS_TO_DELETE' });
@@ -1314,7 +1314,7 @@ describe('Player API', () => {
 
       const rollbackResponse = await api
         .post(`/players/psikoi/rollback`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(rollbackResponse.status).toBe(200);
       expect(rollbackResponse.body.message).toMatch('Successfully rolled back player: PSIKOI');
@@ -1389,7 +1389,7 @@ describe('Player API', () => {
       // this should now delete any snapshots from the past 30s
       const rollbackResponse = await api
         .post(`/players/psikoi/rollback`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD, untilLastChange: true });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD, untilLastChange: true });
 
       expect(rollbackResponse.status).toBe(200);
       expect(rollbackResponse.body.message).toMatch('Successfully rolled back player: PSIKOI');
@@ -1444,7 +1444,7 @@ describe('Player API', () => {
 
       const response = await api
         .post(`/players/test123/rollback-col-log`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(500);
       expect(response.body.message).toBe('Failed to rollback collection log data from snapshots.');
@@ -1492,7 +1492,7 @@ describe('Player API', () => {
 
       const rollbackResponse = await api
         .post(`/players/test123/rollback-col-log`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(rollbackResponse.status).toBe(200);
       expect(rollbackResponse.body.message).toMatch(
@@ -1517,20 +1517,20 @@ describe('Player API', () => {
       const response = await api.delete(`/players/psikoi`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should not delete player (incorrect admin password)', async () => {
       const response = await api.delete(`/players/psikoi`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should not delete player (player not found)', async () => {
       const response = await api
         .delete(`/players/zezima`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Player not found.');
@@ -1539,7 +1539,7 @@ describe('Player API', () => {
     it('should delete player', async () => {
       const deletePlayerResponse = await api
         .delete(`/players/psikoi`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(deletePlayerResponse.status).toBe(200);
       expect(deletePlayerResponse.body.message).toMatch('Successfully deleted player: PSIKOI');
@@ -2129,20 +2129,20 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi/archive`);
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
     });
 
     it("shouldn't archive player (incorrect admin password)", async () => {
       const response = await api.post(`/players/psikoi/archive`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
     });
 
     it("shouldn't archive player (player not found)", async () => {
       const response = await api
         .post(`/players/woah/archive`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Player not found.');
@@ -2223,7 +2223,7 @@ describe('Player API', () => {
 
       const archiveResponse = await api
         .post(`/players/TomWambsgans/archive`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(archiveResponse.status).toBe(200);
       expect(archiveResponse.body.status).toBe(PlayerStatus.ARCHIVED);
@@ -2325,7 +2325,7 @@ describe('Player API', () => {
 
       const archiveResponse = await api
         .post(`/players/siobhan/archive`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(archiveResponse.status).toBe(200);
       expect(archiveResponse.body.status).toBe(PlayerStatus.ARCHIVED);
@@ -2356,7 +2356,7 @@ describe('Player API', () => {
 
       const approveNameChangeResponse = await api
         .post(`/names/${submitNameChangeResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveNameChangeResponse.status).toBe(200);
 
@@ -2385,7 +2385,7 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should return 403 when admin password is incorrect (admin validation)', async () => {
@@ -2395,12 +2395,12 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should return 400 when annotation is invalid', async () => {
       const response = await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: 'invalid'
       });
 
@@ -2413,7 +2413,7 @@ describe('Player API', () => {
 
     it('shoould return 400 when annotation is missing', async () => {
       const response = await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(400);
@@ -2427,7 +2427,7 @@ describe('Player API', () => {
     it('should create a valid annotation', async () => {
       await findOrCreatePlayers(['psikoi']);
       const response = await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
 
@@ -2438,7 +2438,7 @@ describe('Player API', () => {
     it('should fetch "psikoi"', async () => {
       await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
       const response = await api.get(`/players/psikoi`);
@@ -2450,12 +2450,12 @@ describe('Player API', () => {
     it('should delete annotation', async () => {
       await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       const response = await api.delete(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
 
@@ -2466,7 +2466,7 @@ describe('Player API', () => {
     it('should fail to delete unexisting annotation', async () => {
       await findOrCreatePlayers(['psikoi']);
       const response = await api.delete(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
 
@@ -2477,12 +2477,12 @@ describe('Player API', () => {
     it('should throw conflit error 409 to create', async () => {
       await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       const response = await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
 

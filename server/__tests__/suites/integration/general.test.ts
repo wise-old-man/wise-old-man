@@ -87,18 +87,18 @@ describe('General API', () => {
       const response = await api.post(`/api-key`).send({});
 
       expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'MISSING_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should not create API key (incorrect admin password)', async () => {
       const response = await api.post(`/api-key`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+      expect(response.body).toMatchObject({ code: 'INCORRECT_SHARED_ADMIN_PASSWORD' });
     });
 
     it('should not create API key (undefined application name)', async () => {
-      const response = await api.post(`/api-key`).send({ adminPassword: process.env.ADMIN_PASSWORD });
+      const response = await api.post(`/api-key`).send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'application' is undefined.");
@@ -107,7 +107,7 @@ describe('General API', () => {
     it('should not create API key (undefined developer name)', async () => {
       const response = await api
         .post(`/api-key`)
-        .send({ application: 'Some Website', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ application: 'Some Website', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'developer' is undefined.");
@@ -117,7 +117,7 @@ describe('General API', () => {
       const response = await api.post(`/api-key`).send({
         application: 'Some Website',
         developer: 'aluminoti',
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(201);
@@ -178,7 +178,7 @@ describe('General API', () => {
       const apiKeyResponse = await api.post(`/api-key`).send({
         application: '123456',
         developer: 'psikoi',
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
       expect(apiKeyResponse.status).toBe(201);
 
@@ -212,7 +212,7 @@ describe('General API', () => {
       const apiKeyResponse = await api.post(`/api-key`).send({
         application: 'xyzxyz',
         developer: 'Rorro',
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
       expect(apiKeyResponse.status).toBe(201);
 
