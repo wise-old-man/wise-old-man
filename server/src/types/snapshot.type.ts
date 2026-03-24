@@ -1,5 +1,4 @@
 export interface Snapshot {
-  id: number;
   playerId: number;
   importedAt: Date | null;
   createdAt: Date;
@@ -77,8 +76,8 @@ export interface Snapshot {
   constructionRank: number;
   constructionExperience: number;
 
-  league_pointsRank: number;
-  league_pointsScore: number;
+  sailingRank: number;
+  sailingExperience: number;
 
   bounty_hunter_hunterRank: number;
   bounty_hunter_hunterScore: number;
@@ -142,6 +141,9 @@ export interface Snapshot {
 
   barrows_chestsRank: number;
   barrows_chestsKills: number;
+
+  brutusRank: number;
+  brutusKills: number;
 
   bryophytaRank: number;
   bryophytaKills: number;
@@ -250,6 +252,9 @@ export interface Snapshot {
 
   scurriusRank: number;
   scurriusKills: number;
+
+  shellbane_gryphonRank: number;
+  shellbane_gryphonKills: number;
 
   skotizoRank: number;
   skotizoKills: number;

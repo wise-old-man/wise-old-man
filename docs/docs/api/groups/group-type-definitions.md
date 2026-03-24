@@ -189,7 +189,7 @@ Used as an input for group modification endpoints (create, edit, add members, et
 | Field            | Type                                                                       | Description                                                     |
 | :--------------- | :------------------------------------------------------------------------- | :-------------------------------------------------------------- |
 | maxedCombatCount | integer                                                                    | The total amount of members with 126 combat level (max combat). |
-| maxedTotalCount  | integer                                                                    | The total amount of members with 2277 total level (maxed).      |
+| maxedTotalCount  | integer                                                                    | The total amount of members with 2376 total level (maxed).      |
 | maxed200msCount  | integer                                                                    | The total amount of 200m exp skills between all members.        |
 | averageStats     | [Snapshot](/api/players/player-type-definitions#object-snapshot)           | The average stats of all group members.                         |
 | metricLeaders    | [Metric Leaders](/api/groups/group-type-definitions#object-metric-leaders) | The best player in each metric out of all group members.        |

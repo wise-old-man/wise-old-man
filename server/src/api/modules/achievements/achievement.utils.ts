@@ -1,22 +1,12 @@
+import prisma from '../../../prisma';
 import { AchievementDefinition, Snapshot } from '../../../types';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
-import { getExpForLevel, getLevel, isMetric, MetricProps, REAL_SKILLS } from '../../../utils/shared';
+import { getRequiredSnapshotFields } from '../../../utils/get-required-snapshot-fields.util';
+import { getExpForLevel, getLevel, isMetric, MetricProps } from '../../../utils/shared';
 import { formatNumber } from '../../../utils/shared/format-number.util';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 
-function getAchievementName(name: string, threshold: number): string {
-  const newName = name
-    .replace('{threshold}', formatThreshold(threshold))
-    .replace('{level}', formatThreshold(threshold));
-
-  if (newName === 'Base 99 Stats') {
-    return 'Maxed Overall';
-  }
-
-  return newName;
-}
-
-function formatThreshold(threshold: number): string {
+function formatAchievementThreshold(templateName: string, threshold: number): string {
   if (threshold < 1000) return String(threshold);
   if (threshold <= 10_000) return `${threshold / 1000}k`;
 
@@ -24,19 +14,23 @@ function formatThreshold(threshold: number): string {
     return '99';
   }
 
-  if (
-    [
-      getExpForLevel(60) * REAL_SKILLS.length,
-      getExpForLevel(70) * REAL_SKILLS.length,
-      getExpForLevel(80) * REAL_SKILLS.length,
-      getExpForLevel(90) * REAL_SKILLS.length,
-      getExpForLevel(99) * REAL_SKILLS.length
-    ].includes(threshold)
-  ) {
-    return getLevel(threshold / REAL_SKILLS.length).toString();
+  if (templateName.startsWith('Base {level} Stats')) {
+    return getLevel(threshold / 23).toString();
   }
 
   return formatNumber(threshold, true).toString();
+}
+
+function getHydratedAchievementName(templateName: string, threshold: number): string {
+  const newName = templateName
+    .replace('{threshold}', formatAchievementThreshold(templateName, threshold))
+    .replace('{level}', formatAchievementThreshold(templateName, threshold));
+
+  if (newName.startsWith('Base 99 Stats')) {
+    return newName.replace('Base 99 Stats', 'Maxed Overall');
+  }
+
+  return newName;
 }
 
 export function getAchievementDefinitions(): AchievementDefinition[] {
@@ -46,7 +40,7 @@ export function getAchievementDefinitions(): AchievementDefinition[] {
     const metricValueKey = getMetricValueKey(metric);
 
     thresholds.forEach(threshold => {
-      const newName = getAchievementName(name, threshold);
+      const newName = getHydratedAchievementName(name, threshold);
 
       const getCurrentValueFn = (snapshot: Snapshot) => {
         return getCurrentValue ? getCurrentValue(snapshot, threshold) : snapshot[metricValueKey];
@@ -70,7 +64,7 @@ export function getAchievementDefinitions(): AchievementDefinition[] {
   return definitions;
 }
 
-export function calculatePastDates(pastSnapshots: Snapshot[], definitions: AchievementDefinition[]) {
+function findAchievementActivationDates(pastSnapshots: Snapshot[], definitions: AchievementDefinition[]) {
   if (!definitions || definitions.length === 0) return {};
 
   // The player must have atleast 2 snapshots to find a achievement date
@@ -78,7 +72,7 @@ export function calculatePastDates(pastSnapshots: Snapshot[], definitions: Achie
 
   const dateMap: Record<string, { date: Date; accuracy: number }> = {};
 
-  for (let i = 0; i < pastSnapshots.length - 2; i++) {
+  for (let i = 0; i < pastSnapshots.length - 1; i++) {
     const prev = pastSnapshots[i];
     const next = pastSnapshots[i + 1];
 
@@ -99,6 +93,71 @@ export function calculatePastDates(pastSnapshots: Snapshot[], definitions: Achie
         };
       }
     });
+  }
+
+  return dateMap;
+}
+
+/**
+ * Search for achievement crossing dates in a player's snapshot history, in batches.
+ * Iterates from newest to oldest so that recent crossings resolve quickly.
+ */
+export async function findMissingAchievementDates(playerId: number, definitions: AchievementDefinition[]) {
+  const dateMap: ReturnType<typeof findAchievementActivationDates> = {};
+
+  const INITIAL_BATCH_SIZE = 1000;
+  let remainingDefs = [...definitions];
+
+  const firstSnapshot = await prisma.snapshot.findFirst({
+    where: {
+      playerId
+    },
+    orderBy: {
+      createdAt: 'asc'
+    }
+  });
+
+  /**
+   * If the player has already achievement an achievement by their first snapshot,
+   * skip searching for that definition's transition date entirely.
+   */
+  if (firstSnapshot !== null) {
+    remainingDefs = remainingDefs.filter(d => !d.validate(firstSnapshot));
+  }
+
+  for (let batchIndex = 0; remainingDefs.length > 0; batchIndex++) {
+    // Batch size triples on every iteration
+    const batchSize = INITIAL_BATCH_SIZE * 3 ** batchIndex;
+    const offset = (batchSize - INITIAL_BATCH_SIZE) / 2;
+
+    const remainingDefMetrics = Array.from(new Set(remainingDefs.map(d => d.metric)));
+
+    // Overfetch by 1 so consecutive batches share a boundary snapshot,
+    // allowing "findAchievementActivationDates" to detect crossings at batch edges.
+    const batchSnapshots = await prisma.snapshot.findMany({
+      select: {
+        createdAt: true,
+        ...getRequiredSnapshotFields(remainingDefMetrics)
+      },
+      where: { playerId },
+      orderBy: { createdAt: 'desc' },
+      take: batchSize + 1,
+      skip: offset
+    });
+
+    if (batchSnapshots.length === 0) {
+      break;
+    }
+
+    const batchDates = findAchievementActivationDates([...batchSnapshots].reverse(), remainingDefs);
+    Object.assign(dateMap, batchDates);
+
+    // Remove resolved definitions
+    remainingDefs = remainingDefs.filter(d => !(d.name in dateMap));
+
+    if (batchSnapshots.length <= batchSize) {
+      break;
+    }
   }
 
   return dateMap;

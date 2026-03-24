@@ -5,6 +5,8 @@ import APIInstance from '../../../src/api';
 import { eventEmitter } from '../../../src/api/events';
 import * as PlayerAchievementsCreatedEvent from '../../../src/api/events/handlers/player-achievements-created.event';
 import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
+import { jobManager, JobType } from '../../../src/jobs';
+import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
 import { Achievement, Metric, PlayerType } from '../../../src/types';
 import { SKILL_EXP_AT_99 } from '../../../src/utils/shared';
@@ -14,10 +16,6 @@ const api = supertest(new APIInstance().init().express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const playerAchievementsCreatedEvent = jest.spyOn(PlayerAchievementsCreatedEvent, 'handler');
-
-const ACHIEVEMENTS_FILE_PATH = `${__dirname}/../../data/achievements/psikoi_achievements.json`;
-const HISCORES_FILE_PATH_A = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
-const HISCORES_FILE_PATH_B = `${__dirname}/../../data/hiscores/lynx_titan_hiscores.txt`;
 
 const globalData = {
   testPlayerId: -1,
@@ -38,9 +36,12 @@ beforeAll(async () => {
   await resetDatabase();
   await redisClient.flushall();
 
-  globalData.hiscoresRawDataA = await readFile(HISCORES_FILE_PATH_A);
-  globalData.hiscoresRawDataB = await readFile(HISCORES_FILE_PATH_B);
-  globalData.expectedAchievements = JSON.parse(await readFile(ACHIEVEMENTS_FILE_PATH)) as Achievement[];
+  globalData.hiscoresRawDataA = await readFile(`${__dirname}/../../data/hiscores/psikoi_hiscores.json`);
+  globalData.hiscoresRawDataB = await readFile(`${__dirname}/../../data/hiscores/lynx_titan_hiscores.json`);
+
+  globalData.expectedAchievements = JSON.parse(
+    await readFile(`${__dirname}/../../data/achievements/psikoi_achievements.json`)
+  ) as Achievement[];
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
@@ -69,7 +70,7 @@ describe('Achievements API', () => {
 
     test('Track Player (first time, all achievements (unknown dates))', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
-        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 50 }
+        { hiscoresMetricName: 'Rifts closed', value: 50 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -110,7 +111,7 @@ describe('Achievements API', () => {
     test('Track Player (second time, no new achievements)', async () => {
       // Force some gains (+1 GOTR) so that achievements sync is triggered
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
-        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 51 }
+        { hiscoresMetricName: 'Rifts closed', value: 51 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -188,31 +189,31 @@ describe('Achievements API', () => {
 
       expect(progressMap['Base 60 Stats']).toMatchObject({
         measure: 'levels',
-        currentValue: 6_296_066, // 273_742 * 23 skills
+        currentValue: 6_569_808, // 273_742 * 24 skills
         absoluteProgress: 1,
         relativeProgress: 1
       });
 
       expect(progressMap['Base 70 Stats']).toMatchObject({
         measure: 'levels',
-        currentValue: 16_965_421, // 737_627 * 23 skills
+        currentValue: 17_703_048, // 737_627 * 24 skills
         absoluteProgress: 1,
         relativeProgress: 1
       });
 
       expect(progressMap['Base 80 Stats']).toMatchObject({
         measure: 'levels',
-        currentValue: 45_679_564, // 1_986_068 * 23 skills
+        currentValue: 47_665_632, // 1_986_068 * 24 skills
         absoluteProgress: 1, // 100% done with this achievement - (45_679_564 / 45_679_564) = 1
         relativeProgress: 1 // 100% done between Base 70 and Base 80 - ((45_679_564 - 16_965_421) / (45_679_564 - 16_965_421)) >= 1
       });
 
       expect(progressMap['Base 90 Stats']).toMatchObject({
         measure: 'levels',
-        // there's 2 skills under 90, agility and construction
-        currentValue: 121_252_498, // (5_346_332 * 21 skills) + 4_537_106 (construction) + 4_442_420 (agility)
-        absoluteProgress: 0.9861, // 100% done with this achievement - (121_252_498 / 122_965_636) = 0.9861
-        relativeProgress: 0.9778 // 19.3% done between Base 80 and Base 90 - ((121_252_498 - 1_986_068) / (122_965_636 - 1_986_068)) = 0.9778
+        // there's 3 skills under 90, agility, construction and sailing
+        currentValue: 125_499_711, // (5_346_332 * 21 skills) + 4_537_106 (construction) + 4_442_420 (agility) + 4_247_213 (sailing)
+        absoluteProgress: 0.9781, // 97% done with this achievement - (125_499_711 / 128_311_968) = 0.9781
+        relativeProgress: 0.9651 // 96% done between Base 80 and Base 90 - ((125_499_711 - 1_986_068) / (128_311_968 - 1_986_068)) = 0.9778  });
       });
     });
 
@@ -228,7 +229,7 @@ describe('Achievements API', () => {
       expect(failedFetchResponse.body.message).toBe('Group not found.');
 
       let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataB, [
-        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 50 }
+        { hiscoresMetricName: 'Rifts closed', value: 50 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -246,7 +247,7 @@ describe('Achievements API', () => {
       // Note: this should be reviewed in the future, as it would make sense to still
       // sync and back date achievements on the first ever player update
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataB, [
-        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 51 }
+        { hiscoresMetricName: 'Rifts closed', value: 51 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -302,16 +303,16 @@ describe('Achievements API', () => {
       const totalCount =
         firstFetchResponse.body.length + secondFetchResponse.body.length + thirdFetchResponse.body.length;
 
-      expect(totalCount).toBe(140); // 37 achievements from Psikoi, 103 from Lynx Titan
+      expect(totalCount).toBe(144); // 37 achievements from Psikoi, 107 from Lynx Titan
     });
 
     test('Track player again, test new achievements', async () => {
       // Change attack to 50.5m
       let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
-        { metric: Metric.ATTACK, value: 50_585_985 },
-        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 51 },
-        { metric: Metric.SOUL_WARS_ZEAL, value: 5500 }, // This should trigger a new achievement
-        { metric: Metric.COLLECTIONS_LOGGED, value: 653 } // This should trigger a new achievement with unknown date (added to the hiscores way after release)
+        { hiscoresMetricName: 'Attack', value: 50_585_985 },
+        { hiscoresMetricName: 'Rifts closed', value: 51 },
+        { hiscoresMetricName: 'Soul Wars Zeal', value: 5500 }, // This should trigger a new achievement
+        { hiscoresMetricName: 'Collections Logged', value: 653 } // This should trigger a new achievement with unknown date (added to the hiscores way after release)
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -357,10 +358,10 @@ describe('Achievements API', () => {
 
       // Change attack to 50.5m
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
-        { metric: Metric.ATTACK, value: 50_585_985 },
-        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 51 },
-        { metric: Metric.SOUL_WARS_ZEAL, value: 5500 },
-        { metric: Metric.COLLECTIONS_LOGGED, value: 660 } // Gained 7 more collections
+        { hiscoresMetricName: 'Attack', value: 50_585_985 },
+        { hiscoresMetricName: 'Rifts closed', value: 51 },
+        { hiscoresMetricName: 'Soul Wars Zeal', value: 5500 },
+        { hiscoresMetricName: 'Collections Logged', value: 660 } // Gained 7 more collections
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -388,7 +389,7 @@ describe('Achievements API', () => {
 
     it('should not count very-close achievements as complete', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
-        { metric: Metric.AGILITY, value: SKILL_EXP_AT_99 - 50 } // 50 exp away from 99
+        { hiscoresMetricName: 'Agility', value: SKILL_EXP_AT_99 - 50 } // 50 exp away from 99
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -407,6 +408,105 @@ describe('Achievements API', () => {
       // Ensure the 99 agility achievement is not marked as at 100% completion (none should be tbh)
       expect(agilityAchievements.filter(a => a.relativeProgress === 1).length).toBe(0);
       expect(agilityAchievements.filter(a => a.absoluteProgress === 1).length).toBe(0);
+    });
+
+    test('Batched achievement date search', async () => {
+      // Track a fresh player (first time — creates achievements with unknown dates)
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
+        { hiscoresMetricName: 'Attack', value: 50_000_000 },
+        { hiscoresMetricName: 'Rifts closed', value: 50 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const firstTrackResponse = await api.post('/players/batch_test');
+      expect(firstTrackResponse.status).toBe(201);
+      await sleep(100);
+
+      const playerId = firstTrackResponse.body.id;
+
+      // Verify "99 Attack" was created with unknown date
+      const initialAchievements = await api.get('/players/batch_test/achievements');
+      const attack99Initial = initialAchievements.body.find(a => a.name === '99 Attack');
+      expect(attack99Initial).toBeDefined();
+      expect(new Date(attack99Initial.createdAt).getTime()).toBe(0);
+
+      // Delete "99 Attack" so it becomes a "missing" achievement on next sync
+      await prisma.achievement.deleteMany({
+        where: { playerId, name: '99 Attack' }
+      });
+
+      // Insert 1200 historical snapshots where attack XP crosses the 99 threshold at index 100.
+      // Because findPlayerSnapshots returns DESC order and the batch size is 500,
+      // the crossing (at chronological index 100) lands in the 3rd batch (offset 1000+),
+      // verifying that the batched loop iterates through all necessary batches.
+
+      const CROSSING_INDEX = 100; // threshold crossed early in chronological order (= high offset in DESC)
+      const BASE_DATE = new Date('2020-01-01T00:00:00Z');
+
+      await prisma.snapshot.createMany({
+        data: Array.from({ length: 1200 }, (_, i) => ({
+          playerId,
+          createdAt: new Date(BASE_DATE.getTime() + i * 3_600_000),
+          attackExperience:
+            i < CROSSING_INDEX
+              ? 5_000_000 + i * 80_000 // below threshold: ~5m to ~12.9m
+              : SKILL_EXP_AT_99 + 100_000 + (i - CROSSING_INDEX) * 5_000 // above threshold
+        }))
+      });
+
+      // Track player again with small gains to trigger achievement sync
+      const modifiedRawData2 = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
+        { hiscoresMetricName: 'Attack', value: 50_000_000 },
+        { hiscoresMetricName: 'Rifts closed', value: 51 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData2 },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const secondTrackResponse = await api.post('/players/batch_test');
+      expect(secondTrackResponse.status).toBe(200);
+      await sleep(500);
+
+      // Verify "99 Attack" was re-created with the correct backdated date
+      const updatedAchievements = await api.get('/players/batch_test/achievements');
+      const attack99Updated = updatedAchievements.body.find(a => a.name === '99 Attack');
+
+      expect(attack99Updated).toBeDefined();
+
+      const expectedDate = new Date(BASE_DATE.getTime() + CROSSING_INDEX * 3_600_000);
+      expect(new Date(attack99Updated.createdAt).getTime()).toBe(expectedDate.getTime());
+      expect(attack99Updated.accuracy).toBe(3_600_000);
+
+      // -- now let's test if this works in "reevaluate achievements" --
+
+      // Reset "99 Attack" back to unknown date
+      await prisma.achievement.updateMany({
+        where: {
+          playerId,
+          name: '99 Attack'
+        },
+        data: { createdAt: new Date(0), accuracy: null }
+      });
+
+      await jobManager.runAsync(JobType.RECALCULATE_PLAYER_ACHIEVEMENTS, {
+        username: 'batch test'
+      });
+
+      // Verify "99 Attack" was resolved with the correct backdated date
+      const achievements = await api.get('/players/batch_test/achievements');
+      const attack99Reevaluated = achievements.body.find(a => a.name === '99 Attack');
+      expect(attack99Reevaluated).toBeDefined();
+
+      // Should be the same as before
+      expect(new Date(attack99Reevaluated.createdAt).getTime()).toBe(
+        new Date(attack99Updated.createdAt).getTime()
+      );
     });
   });
 });

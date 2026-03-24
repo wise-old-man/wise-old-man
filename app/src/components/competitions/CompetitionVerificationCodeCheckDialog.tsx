@@ -23,7 +23,7 @@ interface CompetitionVerificationCodeCheckDialogProps {
 }
 
 export function CompetitionVerificationCodeCheckDialog(
-  props: CompetitionVerificationCodeCheckDialogProps
+  props: CompetitionVerificationCodeCheckDialogProps,
 ) {
   const { competition, isOpen, onValidated } = props;
 

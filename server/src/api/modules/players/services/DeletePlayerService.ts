@@ -1,12 +1,12 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { Player } from '../../../../types';
 import { NotFoundError, ServerError } from '../../../errors';
-import { standardize } from '../player.utils';
+import { standardizeUsername } from '../player.utils';
 
 async function deletePlayer(username: string): Promise<Player> {
   try {
     const deletedPlayer = await prisma.player.delete({
-      where: { username: standardize(username) }
+      where: { username: standardizeUsername(username) }
     });
 
     return deletedPlayer;

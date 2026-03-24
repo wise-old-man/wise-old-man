@@ -176,7 +176,7 @@ async function fetchMembers(campaignId: string): AsyncResult<
     const requestResult = await fromPromise(
       axios.get(url.toString(), {
         headers: {
-          Authorization: `Bearer ${process.env.PATREON_BEARER_TOKEN}`
+          Authorization: `Bearer ${process.env.SERVER_PATREON_BEARER_TOKEN}`
         }
       })
     );

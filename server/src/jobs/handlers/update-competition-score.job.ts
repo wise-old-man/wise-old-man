@@ -2,18 +2,18 @@ import { fetchCompetitionDetails } from '../../api/modules/competitions/services
 import prisma from '../../prisma';
 import { Competition, Metric } from '../../types';
 import { isActivity, isBoss, isSkill } from '../../utils/shared';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   competitionId: number;
 }
 
-export class UpdateCompetitionScoreJob extends Job<Payload> {
-  static getUniqueJobId(payload: Payload) {
+export const UpdateCompetitionScoreJobHandler: JobHandler<Payload> = {
+  generateUniqueJobId(payload) {
     return payload.competitionId.toString();
-  }
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -36,7 +36,7 @@ export class UpdateCompetitionScoreJob extends Job<Payload> {
       data: { score: newScore }
     });
   }
-}
+};
 
 async function calculateScore(competition: Competition): Promise<number> {
   const now = new Date();

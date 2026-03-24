@@ -1,18 +1,17 @@
 import { isErrored } from '@attio/fetchable';
-import { standardize } from '../../api/modules/players/player.utils';
+import { standardizeUsername } from '../../api/modules/players/player.utils';
 import prisma from '../../prisma';
 import { getRuneMetricsBannedStatus } from '../../services/jagex.service';
-import logger from '../../services/logging.service';
+import { logger } from '../../services/logger.service';
 import { PlayerStatus } from '../../types';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   username: string;
 }
 
-export class CheckPlayerBannedJob extends Job<Payload> {
-  static options: JobOptions = {
+export const CheckPlayerBannedJobHandler: JobHandler<Payload> = {
+  options: {
     rateLimiter: {
       max: 1,
       duration: 5000
@@ -21,18 +20,18 @@ export class CheckPlayerBannedJob extends Job<Payload> {
       type: 'exponential',
       delay: 600_000
     }
-  };
+  },
 
-  static getUniqueJobId(payload: Payload) {
+  generateUniqueJobId(payload) {
     return payload.username;
-  }
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
 
-    const username = standardize(payload.username);
+    const username = standardizeUsername(payload.username);
 
     const player = await prisma.player.findFirst({
       where: { username }
@@ -66,4 +65,4 @@ export class CheckPlayerBannedJob extends Job<Payload> {
       });
     }
   }
-}
+};

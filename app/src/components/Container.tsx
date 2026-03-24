@@ -11,7 +11,7 @@ function Container(props: ContainerProps) {
     <div
       className={cn(
         "mx-auto w-full max-w-[min(calc(100vw-1rem),var(--max-width))] px-4 py-6 sm:p-8 md:p-12",
-        props.className
+        props.className,
       )}
       style={
         props.style ?? {

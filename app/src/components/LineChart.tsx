@@ -219,7 +219,7 @@ export default function LineChart(props: LineChartProps) {
                         className={cn(
                           "flex items-center gap-x-2 rounded px-2 py-1 text-gray-200 hover:bg-gray-700",
                           !!selectedDataset && a.name !== selectedDataset && "opacity-50",
-                          !!selectedDataset && a.name === selectedDataset && "bg-gray-800 text-white"
+                          !!selectedDataset && a.name === selectedDataset && "bg-gray-800 text-white",
                         )}
                         onClick={() => toggleSelectedDataset(a.name)}
                       >

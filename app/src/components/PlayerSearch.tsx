@@ -211,7 +211,7 @@ function SearchSuggestionItem(props: SearchSuggestionItemProps) {
       className={({ active }) =>
         cn(
           "relative block cursor-default select-none truncate rounded p-2",
-          active ? "bg-gray-600 text-white" : "text-gray-100"
+          active ? "bg-gray-600 text-white" : "text-gray-100",
         )
       }
     >
@@ -241,7 +241,7 @@ function RecentSearchItem(props: RecentSearchItemProps) {
       className={({ active }) =>
         cn(
           "relative flex cursor-default select-none items-center justify-between truncate rounded p-2",
-          active ? "bg-gray-600 text-white" : "text-gray-100"
+          active ? "bg-gray-600 text-white" : "text-gray-100",
         )
       }
     >
@@ -274,7 +274,7 @@ function SearchResultItem(props: { player: PlayerResponse }) {
       className={({ active }) =>
         cn(
           "relative block cursor-default select-none truncate rounded p-2",
-          active ? "bg-gray-600 text-white" : "text-gray-100"
+          active ? "bg-gray-600 text-white" : "text-gray-100",
         )
       }
     >
@@ -302,7 +302,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>((props, ref) 
         className={cn(
           "flex h-10 w-full items-center rounded-md border border-gray-600 bg-gray-950 px-10 text-sm leading-7 shadow-inner shadow-black/50 placeholder:text-gray-300",
           "focus-visible:bg-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-500 focus-visible:ring-offset-0",
-          className
+          className,
         )}
         {...inputProps}
       />

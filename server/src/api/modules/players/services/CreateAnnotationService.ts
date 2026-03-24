@@ -1,14 +1,14 @@
 import prisma from '../../../../prisma';
 import { PlayerAnnotation, PlayerAnnotationType } from '../../../../types';
 import { ConflictRequestError, NotFoundError } from '../../../errors';
-import { standardize } from '../player.utils';
+import { standardizeUsername } from '../player.utils';
 
 async function createPlayerAnnotation(
   username: string,
   annotationType: PlayerAnnotationType
 ): Promise<PlayerAnnotation> {
   const player = await prisma.player.findUnique({
-    where: { username: standardize(username) },
+    where: { username: standardizeUsername(username) },
     include: { annotations: true }
   });
 

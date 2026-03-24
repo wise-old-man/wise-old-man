@@ -49,7 +49,7 @@ export default async function GroupGainedPage(props: PageProps) {
           metric,
           timeRange.period,
           RESULTS_PER_PAGE,
-          (page - 1) * RESULTS_PER_PAGE
+          (page - 1) * RESULTS_PER_PAGE,
         )
       : getGroupGainsByDates(
           id,
@@ -57,7 +57,7 @@ export default async function GroupGainedPage(props: PageProps) {
           timeRange.startDate,
           timeRange.endDate,
           RESULTS_PER_PAGE,
-          (page - 1) * RESULTS_PER_PAGE
+          (page - 1) * RESULTS_PER_PAGE,
         ),
   ]);
 

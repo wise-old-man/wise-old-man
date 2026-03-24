@@ -16,8 +16,6 @@ const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 const participantsJoinedEvent = jest.spyOn(ParticipantsJoinedEvent, 'handler');
 const competitionCreatedEvent = jest.spyOn(CompetitionCreatedEvent, 'handler');
 
-const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
-
 const EMPTY_DATA = { id: -1, verificationCode: '' };
 
 const globalData = {
@@ -44,7 +42,7 @@ beforeAll(async () => {
   await resetDatabase();
   await redisClient.flushall();
 
-  globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
+  globalData.hiscoresRawData = await readFile(`${__dirname}/../../data/hiscores/psikoi_hiscores.json`);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
@@ -161,7 +159,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Start date must be before the end date.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_START_DATE_AFTER_END_DATE' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -175,7 +173,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid dates: All start and end dates must be in the future.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_DATES_IN_THE_PAST' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -184,11 +182,15 @@ describe('Competition API', () => {
     it('should not create (invalid metric)', async () => {
       const response = await api.post('/competitions').send({
         ...VALID_CREATE_BASE,
-        metric: 'sailing'
+        metric: 'dungeoneering'
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Invalid enum value for 'metric'."
+      });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -201,7 +203,11 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'title' must have a maximum of 50 character(s).");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'title' must have a maximum of 50 character(s)."
+      });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -214,7 +220,11 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'participants' is not a valid array.");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'participants' is not a valid array."
+      });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -227,8 +237,11 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
-      expect(response.body.data).toContain('areallylongusername');
+
+      expect(response.body).toMatchObject({
+        code: 'INVALID_USERNAMES_FOUND',
+        data: ['areallylongusername']
+      });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -242,7 +255,6 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Properties "participants" and "teams" are mutually exclusive.');
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -370,7 +382,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names.');
+      expect(response.body).toMatchObject({ code: 'DUPLICATE_TEAM_NAMES_FOUND' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -386,7 +398,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body).toMatchObject({ code: 'DUPLICATE_USERNAMES_FOUND' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -400,7 +412,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Group not found.');
+      expect(response.body).toMatchObject({ code: 'GROUP_NOT_FOUND' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -413,7 +425,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid group verification code.');
+      expect(response.body).toMatchObject({ code: 'MISSING_GROUP_VERIFICATION_CODE' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -439,7 +451,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toMatch('Incorrect group verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_GROUP_VERIFICATION_CODE' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -454,9 +466,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Properties "participants" and "groupId" are mutually exclusive.'
-      );
+      expect(response.body).toMatchObject({ code: 'PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE' });
 
       expect(competitionCreatedEvent).not.toHaveBeenCalled();
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
@@ -478,7 +488,7 @@ describe('Competition API', () => {
           username: 'richie',
           displayName: 'Richie',
           annotations: {
-            create: [{ type: PlayerAnnotationType.OPT_OUT_GROUPS }]
+            create: [{ type: PlayerAnnotationType.OPT_OUT_COMPETITIONS }]
           }
         }
       });
@@ -492,7 +502,7 @@ describe('Competition API', () => {
       });
 
       expect(createCompetitionResponse.status).toBe(403);
-      expect(createCompetitionResponse.body.message).toMatch('One or more players have opted out');
+      expect(createCompetitionResponse.body).toMatchObject({ code: 'OPTED_OUT_PARTICIPANTS_FOUND' });
       expect(createCompetitionResponse.body.data.includes('Carmen')).toBe(true);
       expect(createCompetitionResponse.body.data.includes('Richie')).toBe(true);
     });
@@ -882,7 +892,7 @@ describe('Competition API', () => {
     });
 
     it('should NOT create with mixed metric types', async () => {
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
 
       const response = await api.post('/competitions').send({
         title: 'Test',
@@ -892,13 +902,13 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All metrics must be of the same type.');
+      expect(response.body).toMatchObject({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
     });
 
     it('should create with multiple metrics', async () => {
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
 
       const response = await api.post('/competitions').send({
         title: 'Test',
@@ -913,7 +923,7 @@ describe('Competition API', () => {
         metrics: ['hunter', 'fishing']
       });
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       await prisma.competition.delete({
         where: { id: response.body.competition.id }
@@ -929,7 +939,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -964,14 +974,14 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Nothing to update.');
+      expect(response.body).toMatchObject({ code: 'NOTHING_TO_UPDATE' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (invalid metric)', async () => {
       const response = await api.put(`/competitions/${globalData.testCompetitionStarting.id}`).send({
-        metric: 'sailing',
+        metric: 'dungeoneering',
         verificationCode: globalData.testCompetitionStarting.verificationCode
       });
 
@@ -989,7 +999,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Start date must be before the end date.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_START_DATE_AFTER_END_DATE' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1013,8 +1023,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
-      expect(response.body.data).toContain('areallylongusername');
+      expect(response.body).toMatchObject({ code: 'INVALID_USERNAMES_FOUND', data: ['areallylongusername'] });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1133,7 +1142,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names');
+      expect(response.body).toMatchObject({ code: 'DUPLICATE_TEAM_NAMES_FOUND', data: ['warriors'] });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1148,7 +1157,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body).toMatchObject({ code: 'DUPLICATE_USERNAMES_FOUND', data: ['zezima'] });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1159,7 +1168,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1171,7 +1180,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toMatch('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1183,7 +1192,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('The competition type cannot be changed.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1195,7 +1204,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('The competition type cannot be changed.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1317,7 +1326,7 @@ describe('Competition API', () => {
         });
 
       expect(editResponse.status).toBe(403);
-      expect(editResponse.body.message).toMatch('One or more players have opted out');
+      expect(editResponse.body).toMatchObject({ code: 'OPTED_OUT_PARTICIPANTS_FOUND' });
       expect(editResponse.body.data).toEqual(['Noah', 'Adam']);
 
       const deleteResponse = await api
@@ -1621,7 +1630,7 @@ describe('Competition API', () => {
       expect(createResponse.body.competition.metric).toBe('agility');
       expect(createResponse.body.competition.metrics).toMatchObject(['agility']);
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
 
       const firstUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode,
@@ -1697,7 +1706,7 @@ describe('Competition API', () => {
         deletedAt: null
       });
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       const deleteResponse = await api
         .delete(`/competitions/${createResponse.body.competition.id}`)
@@ -1764,16 +1773,16 @@ describe('Competition API', () => {
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition.metric).toBe('agility');
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
 
       const editResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode,
         metrics: ['agility', 'zulrah']
       });
       expect(editResponse.status).toBe(400);
-      expect(editResponse.body.message).toBe('All metrics must be of the same type.');
+      expect(editResponse.body).toMatchObject({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       const deleteResponse = await api
         .delete(`/competitions/${createResponse.body.competition.id}`)
@@ -1794,7 +1803,9 @@ describe('Competition API', () => {
     });
 
     it('should not search competitions (invalid metric)', async () => {
-      const response = await api.get('/competitions').query({ metric: 'sailing' });
+      const response = await api.get('/competitions').query({
+        metric: 'dungeoneering'
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
@@ -2031,7 +2042,7 @@ describe('Competition API', () => {
       const response = await api.post('/competitions/1000/participants').send({ participants: ['psikoi'] });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2043,7 +2054,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2057,7 +2068,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toMatch('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2263,7 +2274,7 @@ describe('Competition API', () => {
       const response = await api.delete('/competitions/1000/participants').send({ participants: ['psikoi'] });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not remove participants (competition not found)', async () => {
@@ -2273,7 +2284,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
     });
 
     it('should not remove participants (incorrect verification code)', async () => {
@@ -2285,7 +2296,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toMatch('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not remove participants, incorrect admin override (invalid verification code)', async () => {
@@ -2294,7 +2305,7 @@ describe('Competition API', () => {
         .send({ adminPassword: 'xxx-xxx-xxx', participants: ['psikoi'] });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not remove participants, incorrect admin override (incorrect verification code)', async () => {
@@ -2303,7 +2314,7 @@ describe('Competition API', () => {
         .send({ adminPassword: 'xxx-xxx-xxx', verificationCode: 'xxx-xxx-xxx', members: ['psikoi'] });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not remove participants (undefined participant list)', async () => {
@@ -2467,7 +2478,7 @@ describe('Competition API', () => {
 
       const removeResponse = await api
         .delete(`/competitions/${createResponse.body.competition.id}/participants`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD, participants: ['harry'] });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD, participants: ['harry'] });
 
       expect(removeResponse.status).toBe(200);
       expect(removeResponse.body).toMatchObject({
@@ -2496,14 +2507,14 @@ describe('Competition API', () => {
       const response = await api.post(`/competitions/100000/teams`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not add teams (competition not found)', async () => {
       const response = await api.post(`/competitions/100000/teams`).send({ verificationCode: 'xxx-xxx-xxx' });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
     });
 
     it('should not add teams (incorrect verification code)', async () => {
@@ -2512,7 +2523,7 @@ describe('Competition API', () => {
         .send({ verificationCode: 'xxx-xxx-xxx' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not add teams (undefined teams list)', async () => {
@@ -2804,7 +2815,7 @@ describe('Competition API', () => {
       const response = await api.delete(`/competitions/100000/teams`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not remove teams (competition not found)', async () => {
@@ -2813,7 +2824,7 @@ describe('Competition API', () => {
         .send({ verificationCode: 'xxx-xxx-xxx', teamNames: [] });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
     });
 
     it('should not remove teams (incorrect verification code)', async () => {
@@ -2822,7 +2833,7 @@ describe('Competition API', () => {
         .send({ verificationCode: 'xxx-xxx-xxx', teamNames: [] });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not remove teams (undefined teams list)', async () => {
@@ -2908,7 +2919,7 @@ describe('Competition API', () => {
 
     it('should not view details (invalid metric)', async () => {
       const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
-        metric: 'sailing'
+        metric: 'dungeoneering'
       });
 
       expect(response.status).toBe(400);
@@ -2940,8 +2951,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'zulrah', value: -1 },
-            { metric: 'hunter', value: 50_000 }
+            { hiscoresMetricName: 'Zulrah', value: -1 },
+            { hiscoresMetricName: 'Hunter', value: 50_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -2956,8 +2967,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'zulrah', value: 500 },
-            { metric: 'hunter', value: 100_000 }
+            { hiscoresMetricName: 'Zulrah', value: 500 },
+            { hiscoresMetricName: 'Hunter', value: 100_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -2972,8 +2983,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'zulrah', value: 1000 },
-            { metric: 'hunter', value: 500_000 }
+            { hiscoresMetricName: 'Zulrah', value: 1000 },
+            { hiscoresMetricName: 'Hunter', value: 500_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -2994,8 +3005,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'zulrah', value: 60 },
-            { metric: 'hunter', value: 50_000 }
+            { hiscoresMetricName: 'Zulrah', value: 60 },
+            { hiscoresMetricName: 'Hunter', value: 50_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3010,8 +3021,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'zulrah', value: 557 },
-            { metric: 'hunter', value: 110_000 }
+            { hiscoresMetricName: 'Zulrah', value: 557 },
+            { hiscoresMetricName: 'Hunter', value: 110_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3026,8 +3037,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'zulrah', value: 1000 },
-            { metric: 'hunter', value: 750_000 }
+            { hiscoresMetricName: 'Zulrah', value: 1000 },
+            { hiscoresMetricName: 'Hunter', value: 750_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3055,14 +3066,14 @@ describe('Competition API', () => {
       expect(response.body.participations.length).toBe(5);
 
       expect(response.body.participations[0]).toMatchObject({
-        player: { username: 'rorro' },
-        progress: { start: 500, end: 557, gained: 57 }
+        player: { username: 'usbc' },
+        progress: { start: -1, end: 60, gained: 60 }
       });
       expect(response.body.participations[0].levels).toMatchObject({ start: -1, end: -1, gained: 0 }); // should be the default for non-skill competitions
 
       expect(response.body.participations[1]).toMatchObject({
-        player: { username: 'usbc' },
-        progress: { start: -1, end: 60, gained: 56 } // we start counting at 4 kc (min kc is 5)
+        player: { username: 'rorro' },
+        progress: { start: 500, end: 557, gained: 57 }
       });
       expect(response.body.participations[1].levels).toMatchObject({ start: -1, end: -1, gained: 0 }); // should be the default for non-skill competitions
 
@@ -3140,8 +3151,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 100_000 },
-            { metric: 'fishing', value: 2_400_000 }
+            { hiscoresMetricName: 'Hunter', value: 100_000 },
+            { hiscoresMetricName: 'Fishing', value: 2_400_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3155,8 +3166,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 14_500_000 },
-            { metric: 'fishing', value: 12_200_000 }
+            { hiscoresMetricName: 'Hunter', value: 14_500_000 },
+            { hiscoresMetricName: 'Fishing', value: 12_200_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3170,8 +3181,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3185,8 +3196,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3199,7 +3210,7 @@ describe('Competition API', () => {
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 10_000 + 604_800_000);
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
       const createResponse = await api.post('/competitions').send({
         title: 'Test',
         metrics: ['hunter', 'fishing'],
@@ -3207,7 +3218,7 @@ describe('Competition API', () => {
         endsAt: endDate,
         participants: ['sue', 'reed', 'johnny', 'ben']
       });
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition).toMatchObject({
@@ -3225,8 +3236,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 900_000 },
-            { metric: 'fishing', value: 3_100_000 }
+            { hiscoresMetricName: 'Hunter', value: 900_000 },
+            { hiscoresMetricName: 'Fishing', value: 3_100_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3240,8 +3251,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 14_700_000 },
-            { metric: 'fishing', value: 13_200_000 }
+            { hiscoresMetricName: 'Hunter', value: 14_700_000 },
+            { hiscoresMetricName: 'Fishing', value: 13_200_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3255,8 +3266,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 50_000 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: 50_000 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3270,8 +3281,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3434,7 +3445,7 @@ describe('Competition API', () => {
     it('should not view top 5 snapshots (invalid metric)', async () => {
       const response = await api
         .get(`/competitions/${globalData.testCompetitionStarted.id}/top-history`)
-        .query({ metric: 'sailing' });
+        .query({ metric: 'dungeoneering' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
@@ -3446,15 +3457,15 @@ describe('Competition API', () => {
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(5);
 
-      expect(response.body[0].player.username).toBe('rorro');
+      expect(response.body[0].player.username).toBe('usbc');
       expect(response.body[0].history.length).toBe(2);
-      expect(response.body[0].history[0].value).toBe(557);
-      expect(response.body[0].history[1].value).toBe(500);
+      expect(response.body[0].history[0].value).toBe(60);
+      expect(response.body[0].history[1].value).toBe(-1);
 
-      expect(response.body[1].player.username).toBe('usbc');
+      expect(response.body[1].player.username).toBe('rorro');
       expect(response.body[1].history.length).toBe(2);
-      expect(response.body[1].history[0].value).toBe(60);
-      expect(response.body[1].history[1].value).toBe(-1);
+      expect(response.body[1].history[0].value).toBe(557);
+      expect(response.body[1].history[1].value).toBe(500);
 
       expect(response.body[2].player.username).toBe('lynx titan');
       expect(response.body[2].history.length).toBe(1);
@@ -3508,8 +3519,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 100_000 },
-            { metric: 'fishing', value: 2_400_000 }
+            { hiscoresMetricName: 'Hunter', value: 100_000 },
+            { hiscoresMetricName: 'Fishing', value: 2_400_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3523,8 +3534,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 14_500_000 },
-            { metric: 'fishing', value: 12_200_000 }
+            { hiscoresMetricName: 'Hunter', value: 14_500_000 },
+            { hiscoresMetricName: 'Fishing', value: 12_200_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3538,8 +3549,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3553,8 +3564,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3567,7 +3578,7 @@ describe('Competition API', () => {
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 10_000 + 604_800_000);
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
       const createResponse = await api.post('/competitions').send({
         title: 'Test',
         metrics: ['hunter', 'fishing'],
@@ -3575,7 +3586,7 @@ describe('Competition API', () => {
         endsAt: endDate,
         participants: ['toblink', 'tobilical', 'tobicula', 'tobinky']
       });
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition).toMatchObject({
@@ -3593,8 +3604,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 900_000 },
-            { metric: 'fishing', value: 3_100_000 }
+            { hiscoresMetricName: 'Hunter', value: 900_000 },
+            { hiscoresMetricName: 'Fishing', value: 3_100_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3608,8 +3619,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 14_700_000 },
-            { metric: 'fishing', value: 13_200_000 }
+            { hiscoresMetricName: 'Hunter', value: 14_700_000 },
+            { hiscoresMetricName: 'Fishing', value: 13_200_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3623,8 +3634,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 50_000 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: 50_000 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3638,8 +3649,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -3716,7 +3727,7 @@ describe('Competition API', () => {
     it('should not view CSV export (invalid metric)', async () => {
       const response = await api
         .get(`/competitions/${globalData.testCompetitionStarted.id}/csv`)
-        .query({ metric: 'sailing' });
+        .query({ metric: 'dungeoneering' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
@@ -3765,11 +3776,11 @@ describe('Competition API', () => {
       expect(rows[0].split(',').length).toBe(6);
 
       // Check the table body
-      expect(rows[1]).toMatch('1,rorro,500,557,57,');
-      expect(rows[2]).toMatch('2,usbc,-1,60,56,');
-      expect(rows[3]).toMatch('3,LYNX TITAN,1646,1646,0,');
+      expect(rows[1]).toMatch('1,usbc,-1,60,60,');
+      expect(rows[2]).toMatch('2,rorro,500,557,57,');
+      expect(rows[3]).toMatch('3,LYNX TITAN_,1646,1646,0,');
       expect(rows[4]).toMatch('4,Psikoi,1000,1000,0,');
-      expect(rows[5]).toMatch('5,ZULU,-1,-1,0,');
+      expect(rows[5]).toMatch('5,__ZULU,-1,-1,0,');
     });
 
     it('should view CSV export (participants & other metric)', async () => {
@@ -3789,9 +3800,9 @@ describe('Competition API', () => {
       // Check the table body
       expect(rows[1]).toMatch('1,Psikoi,500000,750000,250000,');
       expect(rows[2]).toMatch('2,rorro,100000,110000,10000,');
-      expect(rows[3]).toMatch('3,LYNX TITAN,5346679,5346679,');
+      expect(rows[3]).toMatch('3,LYNX TITAN_,5346679,5346679,');
       expect(rows[4]).toMatch('4,usbc,50000,50000,0,');
-      expect(rows[5]).toMatch('5,ZULU,-1,-1,0,');
+      expect(rows[5]).toMatch('5,__ZULU,-1,-1,0,');
     });
 
     it('should view CSV export (participants on team comp)', async () => {
@@ -3806,8 +3817,8 @@ describe('Competition API', () => {
       expect(rows[0]).toBe('Rank,Username,Team,Start,End,Gained,Last Updated');
 
       // Check the table body, ensure it has a "Team" column
-      expect(rows[1]).toMatch('1,rorro,Team 1,500,557,57,');
-      expect(rows[2]).toMatch('2,usbc,Team 2,-1,60,56,');
+      expect(rows[1]).toMatch('1,usbc,Team 2,-1,60,60,');
+      expect(rows[2]).toMatch('2,rorro,Team 1,500,557,57,');
       expect(rows[3]).toMatch('3,Psikoi,Team 1,1000,1000,0,');
       expect(rows[4]).toMatch('4,Zezima,Team 2,-1,-1,0,');
     });
@@ -3827,8 +3838,8 @@ describe('Competition API', () => {
       expect(rows[0]).toBe('Rank,Name,Players,Total Gained,Average Gained,MVP');
 
       // Check the table body
-      expect(rows[1]).toMatch('1,Team 1,2,57,28.5,rorro');
-      expect(rows[2]).toMatch('2,Team 2,2,56,28,usbc');
+      expect(rows[1]).toMatch('1,Team 2,2,60,30,usbc');
+      expect(rows[2]).toMatch('2,Team 1,2,57,28.5,rorro');
     });
 
     it('should view CSV export (team)', async () => {
@@ -3867,9 +3878,6 @@ describe('Competition API', () => {
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
-      // Snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
-      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
         teamName: 'Contributors',
@@ -3935,9 +3943,6 @@ describe('Competition API', () => {
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
-      // Snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
-      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
         teamName: 'Contributors',
@@ -3988,9 +3993,6 @@ describe('Competition API', () => {
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
-      // Snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
-      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
         teamName: null,
@@ -4090,10 +4092,6 @@ describe('Competition API', () => {
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
-      // Snapshot IDs shouldn't be exposed to the API consumer
-      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
-      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
-      expect(response.body.filter(p => !!p.player).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
         teamName: 'Contributors',
@@ -4195,9 +4193,6 @@ describe('Competition API', () => {
 
       // Hashes shouldn't be exposed to the API consumer
       expect(secondResponse.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
-      // Snapshot IDs shouldn't be exposed to the API consumer
-      expect(secondResponse.body.filter(p => !!p.startSnapshotId).length).toBe(0);
-      expect(secondResponse.body.filter(p => !!p.endSnapshotId).length).toBe(0);
 
       expect(secondResponse.body[0]).toMatchObject({
         teamName: null,
@@ -4224,8 +4219,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 100_000 },
-            { metric: 'fishing', value: 2_400_000 }
+            { hiscoresMetricName: 'Hunter', value: 100_000 },
+            { hiscoresMetricName: 'Fishing', value: 2_400_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4239,8 +4234,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 14_500_000 },
-            { metric: 'fishing', value: 12_200_000 }
+            { hiscoresMetricName: 'Hunter', value: 14_500_000 },
+            { hiscoresMetricName: 'Fishing', value: 12_200_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4254,8 +4249,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4269,8 +4264,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4283,7 +4278,7 @@ describe('Competition API', () => {
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 10_000 + 604_800_000);
 
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
       const createResponse = await api.post('/competitions').send({
         title: 'Test',
         metrics: ['hunter', 'fishing'],
@@ -4291,7 +4286,7 @@ describe('Competition API', () => {
         endsAt: endDate,
         participants: ['morticia', 'gomez', 'thing', 'fester']
       });
-      process.env.API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition).toMatchObject({
@@ -4309,8 +4304,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 900_000 },
-            { metric: 'fishing', value: 3_100_000 }
+            { hiscoresMetricName: 'Hunter', value: 900_000 },
+            { hiscoresMetricName: 'Fishing', value: 3_100_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4324,8 +4319,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 14_700_000 },
-            { metric: 'fishing', value: 13_200_000 }
+            { hiscoresMetricName: 'Hunter', value: 14_700_000 },
+            { hiscoresMetricName: 'Fishing', value: 13_200_000 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4339,8 +4334,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: 50_000 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: 50_000 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4354,8 +4349,8 @@ describe('Competition API', () => {
         [PlayerType.REGULAR]: {
           statusCode: 200,
           rawData: modifyRawHiscoresData(globalData.hiscoresRawData, [
-            { metric: 'hunter', value: -1 },
-            { metric: 'fishing', value: -1 }
+            { hiscoresMetricName: 'Hunter', value: -1 },
+            { hiscoresMetricName: 'Fishing', value: -1 }
           ])
         },
         [PlayerType.IRONMAN]: { statusCode: 404 }
@@ -4515,7 +4510,7 @@ describe('Competition API', () => {
       const response = await api.post(`/competitions/123456789/update-all`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not update all (competition not found)', async () => {
@@ -4524,7 +4519,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
     });
 
     it('should not update all (incorrect verification code)', async () => {
@@ -4533,7 +4528,7 @@ describe('Competition API', () => {
         .send({ verificationCode: 'xxx-xxx-xxx' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not update all (no outdated participants)', async () => {
@@ -4695,7 +4690,7 @@ describe('Competition API', () => {
       const response = await api.put(`/competitions/100000/reset-code`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not reset code (incorrect admin password)', async () => {
@@ -4704,12 +4699,12 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not reset code (competition not found)', async () => {
       const response = await api.put(`/competitions/100000/reset-code`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(404);
@@ -4720,7 +4715,7 @@ describe('Competition API', () => {
       const response = await api
         .put(`/competitions/${globalData.testCompetitionWithGroup.id}/reset-code`)
         .send({
-          adminPassword: process.env.ADMIN_PASSWORD
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD
         });
 
       expect(response.status).toBe(400);
@@ -4730,7 +4725,7 @@ describe('Competition API', () => {
     it('should reset code', async () => {
       const response = await api
         .put(`/competitions/${globalData.testCompetitionOngoing.id}/reset-code`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.newCode).toBeDefined();
@@ -4742,7 +4737,7 @@ describe('Competition API', () => {
       });
 
       expect(failEditAttempt.status).toBe(403);
-      expect(failEditAttempt.body.message).toBe('Incorrect verification code.');
+      expect(failEditAttempt.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
 
       // try to edit the competition with the new code
       const editAttempt = await api.put(`/competitions/${globalData.testCompetitionOngoing.id}`).send({
@@ -4764,12 +4759,12 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
     });
 
     it('should not delete (group not found with admin perms)', async () => {
       const response = await api.delete(`/competitions/123456789`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(404);
@@ -4780,7 +4775,7 @@ describe('Competition API', () => {
       const response = await api.delete(`/competitions/123456789`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not delete (incorrect verification code)', async () => {
@@ -4789,7 +4784,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not delete, incorrect admin override (invalid verification code)', async () => {
@@ -4798,7 +4793,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not delete, incorrect admin override (incorrect verification code)', async () => {
@@ -4808,7 +4803,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should delete', async () => {
@@ -4852,7 +4847,7 @@ describe('Competition API', () => {
       expect(before.status).toBe(200);
 
       const deleteResponse = await api.delete(`/competitions/${createResponse.body.competition.id}`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(deleteResponse.status).toBe(200);

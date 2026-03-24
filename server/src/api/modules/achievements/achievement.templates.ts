@@ -10,6 +10,14 @@ interface AchievementTemplate {
   getCurrentValue?: (snapshot: Snapshot, threshold: number) => number;
 }
 
+export const LEGACY_TEMPLATE_NAMES = [
+  'Base 60 Stats (Pre-Sailing)',
+  'Base 70 Stats (Pre-Sailing)',
+  'Base 80 Stats (Pre-Sailing)',
+  'Base 90 Stats (Pre-Sailing)',
+  'Maxed Overall (Pre-Sailing)'
+];
+
 export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ------------------
   // CUSTOM ACHIEVEMENTS
@@ -152,6 +160,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     metric: Metric.CONSTRUCTION,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
+  {
+    name: '{threshold} Sailing',
+    metric: Metric.SAILING,
+    thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
+  },
   // -----------------
   // BOSS ACHIEVEMENTS
   // -----------------
@@ -184,6 +197,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: '{threshold} Barrows Chests',
     metric: Metric.BARROWS_CHESTS,
     thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
+    name: '{threshold} Brutus kills',
+    metric: Metric.BRUTUS,
+    thresholds: [100, 500, 1000, 5000]
   },
   {
     name: '{threshold} Bryophyta kills',
@@ -368,6 +386,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   {
     name: '{threshold} Scurrius kills',
     metric: Metric.SCURRIUS,
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
+    name: '{threshold} Shellbane Gryphon kills',
+    metric: Metric.SHELLBANE_GRYPHON,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {

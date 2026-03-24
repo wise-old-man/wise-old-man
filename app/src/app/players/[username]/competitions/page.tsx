@@ -41,13 +41,13 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
   const mappedCompetitions = competitions.map((c) => c.competition);
 
   const ongoing = mappedCompetitions.filter(
-    (c) => getCompetitionStatus(c) === CompetitionStatus.ONGOING
+    (c) => getCompetitionStatus(c) === CompetitionStatus.ONGOING,
   );
   const upcoming = mappedCompetitions.filter(
-    (c) => getCompetitionStatus(c) === CompetitionStatus.UPCOMING
+    (c) => getCompetitionStatus(c) === CompetitionStatus.UPCOMING,
   );
   const finished = mappedCompetitions.filter(
-    (c) => getCompetitionStatus(c) === CompetitionStatus.FINISHED
+    (c) => getCompetitionStatus(c) === CompetitionStatus.FINISHED,
   );
 
   return (

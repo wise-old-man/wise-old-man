@@ -1,11 +1,13 @@
 import { isErrored } from '@attio/fetchable';
+import ms from 'ms';
 import { z } from 'zod';
+import { formatCompetitionResponse, formatGroupResponse } from '../../api/responses';
 import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
 import { OpenAiService } from '../../services/openai.service';
-import { METRICS } from '../../types';
+import { Competition, Group, METRICS } from '../../types';
 import { MetricProps } from '../../utils/shared';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
 const WHITELISTED_TERMS = [
   'noob',
@@ -76,14 +78,14 @@ const RESPONSE_SCHEMA = z.object({
   )
 });
 
-export class CheckInappropriateContentJob extends Job<unknown> {
+export const CheckInappropriateContentJobHandler: JobHandler = {
   async execute() {
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.SERVER_OPENAI_API_KEY) {
       return;
     }
 
     const openAi = new OpenAiService();
-    const fiveMinAgo = new Date(Date.now() - 1000 * 60 * 5);
+    const fiveMinAgo = new Date(Date.now() - ms('5 min'));
 
     const [groups, competitions] = await Promise.all([
       prisma.group.findMany({
@@ -120,14 +122,12 @@ export class CheckInappropriateContentJob extends Job<unknown> {
       return;
     }
 
-    const input = {
-      entities: inputEntities,
-      whiteListedTerms: WHITELISTED_TERMS
-    };
-
     const promptResult = await openAi.makePrompt(
-      'gpt-4o',
-      JSON.stringify(input),
+      'gpt-5.4',
+      JSON.stringify({
+        entities: inputEntities,
+        whiteListedTerms: WHITELISTED_TERMS
+      }),
       SYSTEM_PROMPT,
       RESPONSE_SCHEMA
     );
@@ -137,13 +137,98 @@ export class CheckInappropriateContentJob extends Job<unknown> {
       throw promptResult.error;
     }
 
-    if (promptResult.value.offensiveEntities.length === 0) {
+    const offensiveEntities = promptResult.value.offensiveEntities;
+
+    if (offensiveEntities.length === 0) {
       return;
     }
 
-    await dispatchDiscordBotEvent(
-      DiscordBotEventType.OFFENSIVE_NAMES_FOUND,
-      promptResult.value.offensiveEntities
-    );
+    const offensiveGroupIds = offensiveEntities.filter(e => e.type === 'group').map(e => e.id);
+    const offensiveCompetitionIds = offensiveEntities.filter(e => e.type === 'competition').map(e => e.id);
+
+    const [offensiveGroups, offensiveCompetitions] = await Promise.all([
+      prisma.group.findMany({
+        where: {
+          id: {
+            in: offensiveGroupIds
+          }
+        }
+      }),
+      prisma.competition.findMany({
+        where: {
+          id: {
+            in: offensiveCompetitionIds
+          }
+        }
+      })
+    ]);
+
+    await prisma.$transaction(async transaction => {
+      if (offensiveGroupIds.length > 0) {
+        await transaction.group.updateMany({
+          where: {
+            id: {
+              in: offensiveGroupIds
+            },
+            visible: true
+          },
+          data: {
+            visible: false
+          }
+        });
+      }
+
+      if (offensiveCompetitionIds.length > 0) {
+        await transaction.competition.updateMany({
+          where: {
+            id: {
+              in: offensiveCompetitionIds
+            },
+            visible: true
+          },
+          data: {
+            visible: false
+          }
+        });
+      }
+    });
+
+    const byIpHashMap = new Map<string, { groups: Group[]; competitions: Competition[] }>();
+
+    for (const group of offensiveGroups) {
+      if (!group.creatorIpHash) continue;
+
+      const current = byIpHashMap.get(group.creatorIpHash);
+      if (current) {
+        current.groups.push(group);
+      } else {
+        byIpHashMap.set(group.creatorIpHash, { groups: [group], competitions: [] });
+      }
+    }
+
+    for (const competition of offensiveCompetitions) {
+      if (!competition.creatorIpHash) continue;
+      const current = byIpHashMap.get(competition.creatorIpHash);
+      if (current) {
+        current.competitions.push(competition);
+      } else {
+        byIpHashMap.set(competition.creatorIpHash, { groups: [], competitions: [competition] });
+      }
+    }
+
+    for (const [ipHash, { groups: flaggedGroups, competitions: flaggedCompetitions }] of byIpHashMap) {
+      await dispatchDiscordBotEvent(DiscordBotEventType.CREATION_SPAM_WARNING, {
+        creatorIpHash: ipHash,
+        type: 'inappropriate-content' as const,
+        groups: flaggedGroups.map(group => ({
+          group: formatGroupResponse(group, -1),
+          reason: offensiveEntities.find(e => e.type === 'group' && e.id === group.id)?.reason
+        })),
+        competitions: flaggedCompetitions.map(competition => ({
+          competition: formatCompetitionResponse({ ...competition, participantCount: -1, metrics: [] }, null),
+          reason: offensiveEntities.find(e => e.type === 'competition' && e.id === competition.id)?.reason
+        }))
+      });
+    }
   }
-}
+};

@@ -14,17 +14,23 @@ import * as playerUtils from '../../../src/api/modules/players/player.utils';
 import { findOrCreatePlayers } from '../../../src/api/modules/players/services/FindOrCreatePlayersService';
 import { reviewFlaggedPlayer } from '../../../src/api/modules/players/services/ReviewFlaggedPlayerService';
 import { setUpdateCooldown } from '../../../src/api/modules/players/services/UpdatePlayerService';
-import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
+import { buildHiscoresSnapshot } from '../../../src/api/modules/snapshots/services/BuildHiscoresSnapshot';
 import { formatSnapshotResponse } from '../../../src/api/responses';
 import prisma from '../../../src/prisma';
+import { HiscoresDataSchema } from '../../../src/services/jagex.service';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
-import { BOSSES, Metric, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
-import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
+import { PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
+import {
+  emptyHiscoresData,
+  modifyRawHiscoresData,
+  readFile,
+  registerHiscoresMock,
+  resetDatabase,
+  sleep
+} from '../../utils';
 
 const api = supertest(new APIInstance().init().express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
-
-const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
 const groupMembersLeftEvent = jest.spyOn(GroupMembersLeftEvent, 'handler');
 const groupMembersJoinedEvent = jest.spyOn(GroupMembersJoinedEvent, 'handler');
@@ -35,7 +41,6 @@ const playerUpdatedEvent = jest.spyOn(PlayerUpdatedEvent, 'handler');
 const playerTypeChangedEvent = jest.spyOn(PlayerTypeChangedEvent, 'handler');
 
 const globalData = {
-  testPlayerId: -1,
   hiscoresRawData: ''
 };
 
@@ -51,7 +56,7 @@ beforeAll(async () => {
   await resetDatabase();
   await redisClient.flushall();
 
-  globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
+  globalData.hiscoresRawData = await readFile(`${__dirname}/../../data/hiscores/psikoi_hiscores.json`);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
@@ -72,7 +77,13 @@ describe('Player API', () => {
       const response = await api.post(`/players/wow$~#`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Validation error: USERNAME_HAS_SPECIAL_CHARACTERS');
+
+      expect(response.body).toMatchObject({
+        code: 'INVALID_USERNAME',
+        subError: {
+          code: 'USERNAME_HAS_SPECIAL_CHARACTERS'
+        }
+      });
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
@@ -81,7 +92,13 @@ describe('Player API', () => {
       const response = await api.post(`/players/ALongUsername`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Validation error: USERNAME_TOO_LONG');
+
+      expect(response.body).toMatchObject({
+        code: 'INVALID_USERNAME',
+        subError: {
+          code: 'USERNAME_TOO_LONG'
+        }
+      });
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
@@ -89,13 +106,13 @@ describe('Player API', () => {
     it('should not track player (hiscores failed)', async () => {
       // Mock the hiscores to fail
       registerHiscoresMock(axiosMock, {
-        [PlayerType.REGULAR]: { statusCode: 404, rawData: '' }
+        [PlayerType.REGULAR]: { statusCode: 500, rawData: '' }
       });
 
       const response = await api.post(`/players/enrique`);
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(response.status).toBe(503);
+      expect(response.body).toMatchObject({ code: 'HISCORES_UNEXPECTED_ERROR' });
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
 
@@ -114,7 +131,7 @@ describe('Player API', () => {
 
       const firstResponse = await api.post(`/players/toby`);
       expect(firstResponse.status).toBe(400);
-      expect(firstResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(firstResponse.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
 
@@ -122,7 +139,7 @@ describe('Player API', () => {
       // therefor, we should allow them to be tracked again without waiting 60s
       const secondResponse = await api.post(`/players/toby`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(secondResponse.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
 
@@ -153,7 +170,7 @@ describe('Player API', () => {
 
       const response = await api.post(`/players/alanec`);
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(response.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       // this player has "unknown" type, shouldn't be reviewed on 400 (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'alanec'))).toBeNull();
@@ -190,7 +207,7 @@ describe('Player API', () => {
 
       const secondResponse = await api.post(`/players/aluminoti`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(secondResponse.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
       // this player has "regular" type, shouldn't be reviewed on 400 (null cooldown = no review)
@@ -241,7 +258,7 @@ describe('Player API', () => {
 
       const secondResponse = await api.post(`/players/tony_stark`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(secondResponse.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       // this player has "ironman" type, but has been reviewed recently, so they shouldn't be reviewed on 400
       // if the cooldown timestamp is the same as the previous one, then it didn't get reviewed again
@@ -286,7 +303,7 @@ describe('Player API', () => {
 
       const secondResponse = await api.post(`/players/ash`);
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Player not found.');
+      expect(secondResponse.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       // failed to review (null cooldown = no review)
       expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
@@ -366,14 +383,14 @@ describe('Player API', () => {
 
       expect(response.body).toMatchObject({
         username: 'psikoi',
-        displayName: 'PSIKOI',
+        displayName: 'PSIKOI_',
         build: 'main',
         type: 'regular',
         lastImportedAt: null
       });
 
       // Using the test "main" rates, we should get this number for regular accs
-      expect(response.body.ehp).toBeCloseTo(630.6918952334495, 4);
+      expect(response.body.ehp).toBeCloseTo(705.19455, 4);
 
       expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -419,13 +436,11 @@ describe('Player API', () => {
       );
 
       expect(secondTypeReviewCooldown).toBeNull();
-
-      globalData.testPlayerId = response.body.id;
     });
 
     it('should track player (1 def)', async () => {
       const data1Def = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.DEFENCE, value: 0 } // 1 defence
+        { hiscoresMetricName: 'Defence', value: 0 } // 1 defence
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -449,7 +464,7 @@ describe('Player API', () => {
 
     it('should track player (zerker)', async () => {
       const dataZerker = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.DEFENCE, value: 61_512 } // 45 defence
+        { hiscoresMetricName: 'Defence', value: 61_512 } // 45 defence
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -473,7 +488,7 @@ describe('Player API', () => {
 
     it('should track player (10hp)', async () => {
       const data10HP = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.HITPOINTS, value: 1154 } // 10 Hitpoints
+        { hiscoresMetricName: 'Hitpoints', value: 1154 } // 10 Hitpoints
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -497,13 +512,13 @@ describe('Player API', () => {
 
     it('should track player (lvl3)', async () => {
       const dataLvl3 = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.ATTACK, value: 0 },
-        { metric: Metric.STRENGTH, value: 0 },
-        { metric: Metric.DEFENCE, value: 0 },
-        { metric: Metric.HITPOINTS, value: 1154 },
-        { metric: Metric.PRAYER, value: 0 },
-        { metric: Metric.RANGED, value: 0 },
-        { metric: Metric.MAGIC, value: 0 }
+        { hiscoresMetricName: 'Attack', value: 0 },
+        { hiscoresMetricName: 'Strength', value: 0 },
+        { hiscoresMetricName: 'Defence', value: 0 },
+        { hiscoresMetricName: 'Hitpoints', value: 1154 },
+        { hiscoresMetricName: 'Prayer', value: 0 },
+        { hiscoresMetricName: 'Ranged', value: 0 },
+        { hiscoresMetricName: 'Magic', value: 0 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -527,18 +542,14 @@ describe('Player API', () => {
     });
 
     it('should track player (f2p)', async () => {
-      const dataF2P = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.AGILITY, value: 0 },
-        { metric: Metric.CONSTRUCTION, value: 0 },
-        { metric: Metric.FARMING, value: 0 },
-        { metric: Metric.FLETCHING, value: 0 },
-        { metric: Metric.HERBLORE, value: 0 },
-        { metric: Metric.HUNTER, value: 0 },
-        { metric: Metric.THIEVING, value: 0 },
-        { metric: Metric.SLAYER, value: 0 },
-        ...BOSSES.map(b => ({ metric: b, value: 0 })),
-        { metric: Metric.BRYOPHYTA, value: 10 },
-        { metric: Metric.OBOR, value: 10 }
+      const dataF2P = modifyRawHiscoresData(emptyHiscoresData(globalData.hiscoresRawData), [
+        { hiscoresMetricName: 'Overall', value: 5000 },
+        { hiscoresMetricName: 'Attack', value: 1000 },
+        { hiscoresMetricName: 'Magic', value: 1000 },
+        { hiscoresMetricName: 'Cooking', value: 1000 },
+        { hiscoresMetricName: 'Woodcutting', value: 2000 },
+        { hiscoresMetricName: 'Bryophyta', value: 10 },
+        { hiscoresMetricName: 'Obor', value: 10 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -562,25 +573,12 @@ describe('Player API', () => {
     });
 
     it('should track player (f2p & lvl3)', async () => {
-      const dataF2P = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.ATTACK, value: 0 },
-        { metric: Metric.STRENGTH, value: 0 },
-        { metric: Metric.DEFENCE, value: 0 },
-        { metric: Metric.HITPOINTS, value: 1154 },
-        { metric: Metric.PRAYER, value: 0 },
-        { metric: Metric.RANGED, value: 0 },
-        { metric: Metric.MAGIC, value: 0 },
-        { metric: Metric.AGILITY, value: 0 },
-        { metric: Metric.CONSTRUCTION, value: 0 },
-        { metric: Metric.FARMING, value: 0 },
-        { metric: Metric.FLETCHING, value: 0 },
-        { metric: Metric.HERBLORE, value: 0 },
-        { metric: Metric.HUNTER, value: 0 },
-        { metric: Metric.THIEVING, value: 0 },
-        { metric: Metric.SLAYER, value: 0 },
-        ...BOSSES.map(b => ({ metric: b, value: 0 })),
-        { metric: Metric.BRYOPHYTA, value: 10 },
-        { metric: Metric.OBOR, value: 10 }
+      const dataF2P = modifyRawHiscoresData(emptyHiscoresData(globalData.hiscoresRawData), [
+        { hiscoresMetricName: 'Overall', value: 3000 },
+        { hiscoresMetricName: 'Cooking', value: 1000 },
+        { hiscoresMetricName: 'Woodcutting', value: 2000 },
+        { hiscoresMetricName: 'Bryophyta', value: 10 },
+        { hiscoresMetricName: 'Obor', value: 10 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -624,7 +622,7 @@ describe('Player API', () => {
       // IM rates should have been used, so the output EHP should be different than the one
       // calculate for the regular player (Psikoi)
       expect(response.body.ehp).not.toBeCloseTo(694.4541800000006, 4);
-      expect(response.body.ehp).toBeCloseTo(1226.188183430856, 4);
+      expect(response.body.ehp).toBeCloseTo(1257.85964, 4);
 
       expect(response.body.latestSnapshot).not.toBeNull();
 
@@ -667,7 +665,7 @@ describe('Player API', () => {
 
     it('should track and review type', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.OVERALL, value: 350_192_115 } // overall exp increased by 50m
+        { hiscoresMetricName: 'Overall', value: 350_192_115 } // overall exp increased by 50m
       ]);
 
       // Mock the hiscores to mark the next tracked player as a regular ironman
@@ -709,14 +707,14 @@ describe('Player API', () => {
       const response = await api.post(`/players/enriath`);
 
       expect(response.status).toBe(429);
-      expect(response.body.message).toMatch('Error: enriath has been updated recently.');
+      expect(response.body).toMatchObject({ code: 'PLAYER_IS_RATE_LIMITED' });
 
       setUpdateCooldown(0);
     });
 
     it('should not track player (excessive gains)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.RUNECRAFTING, value: 100_000_000 } // player jumps to 100m RC exp
+        { hiscoresMetricName: 'Runecraft', value: 100_000_000 } // player jumps to 100m RC exp
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -726,8 +724,8 @@ describe('Player API', () => {
 
       const response = await api.post(`/players/psikoi`);
 
-      expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Failed to update: Player is flagged.');
+      expect(response.status).toBe(403);
+      expect(response.body).toMatchObject({ code: 'PLAYER_IS_FLAGGED' });
 
       expect(playerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -754,7 +752,7 @@ describe('Player API', () => {
 
     it('should not track player (negative gains)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.RUNECRAFTING, value: 100_000 } // player's RC exp goes down to 100k
+        { hiscoresMetricName: 'Runecraft', value: 100_000 } // player's RC exp goes down to 100k
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -764,8 +762,8 @@ describe('Player API', () => {
 
       const response = await api.post(`/players/psikoi`);
 
-      expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Failed to update: Player is flagged.');
+      expect(response.status).toBe(403);
+      expect(response.body).toMatchObject({ code: 'PLAYER_IS_FLAGGED' });
 
       // The player is already flagged, so this event shouldn't be triggeted
       expect(playerFlaggedEvent).not.toHaveBeenCalled();
@@ -773,8 +771,8 @@ describe('Player API', () => {
 
     it('should track player (new gains)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.ZULRAH, value: 1646 + 7 }, // player gains 7 zulrah kc
-        { metric: Metric.SMITHING, value: 6_177_978 + 1337 } // player gains 1337 smithing exp
+        { hiscoresMetricName: 'Zulrah', value: 1646 + 7 }, // player gains 7 zulrah kc
+        { hiscoresMetricName: 'Smithing', value: 6_177_978 + 1337 } // player gains 1337 smithing exp
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -804,8 +802,8 @@ describe('Player API', () => {
         .send({ accountHash: '123456' })
         .set('User-Agent', 'RuneLite');
 
-      expect(secondResponse.status).toBe(500); // Player update gets interrupted if a name change is detected
-      expect(secondResponse.body.message).toBe('Failed to update: Name change detected.');
+      expect(secondResponse.status).toBe(403); // Player update gets interrupted if a name change is detected
+      expect(secondResponse.body).toMatchObject({ code: 'RUNELITE_NAME_CHANGE_DETECTED' });
 
       const fetchNameChangesResponse = await api.get('/names').query({ username: 'ruben' });
 
@@ -859,7 +857,7 @@ describe('Player API', () => {
       expect(firstResponse.status).toBe(201);
 
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.RUNECRAFTING, value: 100_000_000 } // player jumps to 100m RC exp
+        { hiscoresMetricName: 'Runecraft', value: 100_000_000 } // player jumps to 100m RC exp
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -868,23 +866,23 @@ describe('Player API', () => {
       });
 
       const secondResponse = await api.post(`/players/jonxslays`);
-      expect(secondResponse.status).toBe(500);
-      expect(secondResponse.body.message).toMatch('Failed to update: Player is flagged.');
+      expect(secondResponse.status).toBe(403);
+      expect(secondResponse.body).toMatchObject({ code: 'PLAYER_IS_FLAGGED' });
 
       expect(playerFlaggedEvent).toHaveBeenCalled();
 
       const thirdResponse = await api.post(`/players/jonxslays`).send({ force: true });
       expect(thirdResponse.status).toBe(400);
-      expect(thirdResponse.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(thirdResponse.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
 
       const fourthResponse = await api.post(`/players/jonxslays`).send({ force: true, adminPassword: 'idk' });
 
       expect(fourthResponse.status).toBe(403);
-      expect(fourthResponse.body.message).toBe('Incorrect admin password.');
+      expect(fourthResponse.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
 
       const fifthResponse = await api
         .post(`/players/jonxslays`)
-        .send({ force: true, adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ force: true, adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(fifthResponse.status).toBe(200);
     });
@@ -895,28 +893,41 @@ describe('Player API', () => {
       const response = await api.get('/players/search').query({});
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'username' is undefined."
+      });
     });
 
     it('should not search players (empty username)', async () => {
       const response = await api.get('/players/search').query({ username: '' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' must have a minimum of 1 character(s).");
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'username' must have a minimum of 1 character(s)."
+      });
     });
 
     it('should not search players (negative pagination limit)', async () => {
       const response = await api.get(`/players/search`).query({ username: 'enr', limit: -5 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'limit' must be > 0."
+      });
     });
 
     it('should not search players (negative pagination offset)', async () => {
       const response = await api.get(`/players/search`).query({ username: 'enr', offset: -5 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'offset' must be >= 0."
+      });
     });
 
     it('should search players (partial username w/ offset)', async () => {
@@ -976,12 +987,12 @@ describe('Player API', () => {
       const byUsernameResponse = await api.get('/players/zezima');
 
       expect(byUsernameResponse.status).toBe(404);
-      expect(byUsernameResponse.body.message).toMatch('Player not found.');
+      expect(byUsernameResponse.body).toMatchObject({ code: 'PLAYER_NOT_FOUND' });
 
       const byIdResponse = await api.get('/players/id/48478474');
 
       expect(byIdResponse.status).toBe(404);
-      expect(byIdResponse.body.message).toMatch('Player not found.');
+      expect(byIdResponse.body).toMatchObject({ code: 'PLAYER_NOT_FOUND' });
     });
 
     it('should view player details', async () => {
@@ -990,7 +1001,7 @@ describe('Player API', () => {
       expect(byUsernameResponse.status).toBe(200);
       expect(byUsernameResponse.body).toMatchObject({
         username: 'psikoi',
-        displayName: 'PSIKOI',
+        displayName: 'PSIKOI_',
         type: 'regular',
         build: 'main',
         archive: null
@@ -1002,7 +1013,7 @@ describe('Player API', () => {
       expect(byIdResponse.status).toBe(200);
       expect(byIdResponse.body).toMatchObject({
         username: 'psikoi',
-        displayName: 'PSIKOI',
+        displayName: 'PSIKOI_',
         type: 'regular',
         build: 'main',
         archive: null
@@ -1023,8 +1034,8 @@ describe('Player API', () => {
 
     it('should assert player type (regular)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.ZULRAH, value: 1646 + 7 }, // restore the zulrah kc,
-        { metric: Metric.SMITHING, value: 6_177_978 + 1337 } // restore the smithing exp
+        { hiscoresMetricName: 'Zulrah', value: 1646 + 7 }, // restore the zulrah kc,
+        { hiscoresMetricName: 'Smithing', value: 6_177_978 + 1337 } // restore the smithing exp
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1104,38 +1115,46 @@ describe('Player API', () => {
       const response = await api.put(`/players/psikoi/country`).send({ country: 'PT' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not update player country (incorrect admin password)', async () => {
       const response = await api.put(`/players/psikoi/country`).send({ country: 'PT', adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not update player country (undefined country)', async () => {
       const response = await api
         .put(`/players/psikoi/country`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'country' is undefined.");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'country' is undefined."
+      });
     });
 
     it('should not update player country (empty country)', async () => {
       const response = await api
         .put(`/players/psikoi/country`)
-        .send({ country: '', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: '', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'country' must have a minimum of 2 character(s).");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'country' must have a minimum of 2 character(s)."
+      });
     });
 
     it('should not update player country (player not found)', async () => {
       const response = await api
         .put(`/players/zezima/country`)
-        .send({ country: 'PT', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'PT', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Player not found.');
@@ -1144,7 +1163,7 @@ describe('Player API', () => {
     it('should not update player country (invalid country code)', async () => {
       const response = await api
         .put(`/players/PSIKOI/country`)
-        .send({ country: 'XX', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'XX', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid country.');
@@ -1153,7 +1172,7 @@ describe('Player API', () => {
     it('should not update player country (invalid country name)', async () => {
       const response = await api
         .put(`/players/PSIKOI/country`)
-        .send({ country: 'Made up', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'Made up', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid country.');
@@ -1162,7 +1181,7 @@ describe('Player API', () => {
     it('should update player country', async () => {
       const updateCountryResponse = await api
         .put(`/players/PSIKOI/country`)
-        .send({ country: 'Portugal', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'Portugal', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
 
@@ -1181,7 +1200,7 @@ describe('Player API', () => {
     it('should update player country', async () => {
       const updateCountryResponse = await api
         .put(`/players/PSIKOI/country`)
-        .send({ country: 'pt', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'pt', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
 
@@ -1200,7 +1219,7 @@ describe('Player API', () => {
     it('should update player country (unsetting country)', async () => {
       const updateCountryResponse = await api
         .put(`/players/psikoi/country`)
-        .send({ country: null, adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: null, adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
 
@@ -1222,20 +1241,20 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi/rollback`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it("shouldn't rollback player (incorrect admin password)", async () => {
       const response = await api.post(`/players/psikoi/rollback`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it("shouldn't rollback player (player not found)", async () => {
       const response = await api
         .post(`/players/woah/rollback`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Player not found.');
@@ -1251,23 +1270,23 @@ describe('Player API', () => {
 
       const firstResponse = await api
         .post(`/players/rollmeback/rollback`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(firstResponse.status).toBe(400);
-      expect(firstResponse.body.message).toBe('No snapshots were deleted, rollback not performed.');
+      expect(firstResponse.body).toMatchObject({ code: 'NO_SNAPSHOTS_TO_DELETE' });
 
       const secondResponse = await api
         .post(`/players/rollmeback/rollback`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD, untilLastChange: true });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD, untilLastChange: true });
 
       expect(secondResponse.status).toBe(400);
-      expect(secondResponse.body.message).toBe('No snapshots were deleted, rollback not performed.');
+      expect(secondResponse.body).toMatchObject({ code: 'NO_SNAPSHOTS_TO_DELETE' });
     });
 
     it('should rollback player (last snapshot)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.ZULRAH, value: 1646 + 7 }, // restore the zulrah kc,
-        { metric: Metric.SMITHING, value: 6_177_978 + 1337 } // restore the smithing exp
+        { hiscoresMetricName: 'Zulrah', value: 1646 + 7 }, // restore the zulrah kc,
+        { hiscoresMetricName: 'Smithing', value: 6_177_978 + 1337 } // restore the smithing exp
       ]);
 
       // Mock regular hiscores data, and block any ironman requests
@@ -1295,7 +1314,7 @@ describe('Player API', () => {
 
       const rollbackResponse = await api
         .post(`/players/psikoi/rollback`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(rollbackResponse.status).toBe(200);
       expect(rollbackResponse.body.message).toMatch('Successfully rolled back player: PSIKOI');
@@ -1370,7 +1389,7 @@ describe('Player API', () => {
       // this should now delete any snapshots from the past 30s
       const rollbackResponse = await api
         .post(`/players/psikoi/rollback`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD, untilLastChange: true });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD, untilLastChange: true });
 
       expect(rollbackResponse.status).toBe(200);
       expect(rollbackResponse.body.message).toMatch('Successfully rolled back player: PSIKOI');
@@ -1406,7 +1425,7 @@ describe('Player API', () => {
 
     it("shouldn't rollback col log (player has no snapshots)", async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.COLLECTIONS_LOGGED, value: 100 }
+        { hiscoresMetricName: 'Collections Logged', value: 100 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1425,7 +1444,7 @@ describe('Player API', () => {
 
       const response = await api
         .post(`/players/test123/rollback-col-log`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(500);
       expect(response.body.message).toBe('Failed to rollback collection log data from snapshots.');
@@ -1433,7 +1452,7 @@ describe('Player API', () => {
 
     it('should rollback col log (last snapshot)', async () => {
       let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.COLLECTIONS_LOGGED, value: 100 }
+        { hiscoresMetricName: 'Collections Logged', value: 100 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1447,7 +1466,7 @@ describe('Player API', () => {
       expect(trackResponse.statusCode).toBe(200);
 
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.COLLECTIONS_LOGGED, value: 1000 }
+        { hiscoresMetricName: 'Collections Logged', value: 1000 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1461,7 +1480,7 @@ describe('Player API', () => {
       expect(secondTrackResponse.statusCode).toBe(200);
 
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.COLLECTIONS_LOGGED, value: 200 }
+        { hiscoresMetricName: 'Collections Logged', value: 200 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1473,7 +1492,7 @@ describe('Player API', () => {
 
       const rollbackResponse = await api
         .post(`/players/test123/rollback-col-log`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(rollbackResponse.status).toBe(200);
       expect(rollbackResponse.body.message).toMatch(
@@ -1498,20 +1517,20 @@ describe('Player API', () => {
       const response = await api.delete(`/players/psikoi`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not delete player (incorrect admin password)', async () => {
       const response = await api.delete(`/players/psikoi`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not delete player (player not found)', async () => {
       const response = await api
         .delete(`/players/zezima`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Player not found.');
@@ -1520,7 +1539,7 @@ describe('Player API', () => {
     it('should delete player', async () => {
       const deletePlayerResponse = await api
         .delete(`/players/psikoi`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(deletePlayerResponse.status).toBe(200);
       expect(deletePlayerResponse.body.message).toMatch('Successfully deleted player: PSIKOI');
@@ -1528,21 +1547,53 @@ describe('Player API', () => {
       const detailsResponse = await api.get('/players/PsiKOI');
 
       expect(detailsResponse.status).toBe(404);
-      expect(detailsResponse.body.message).toBe('Player not found.');
+      expect(detailsResponse.body).toMatchObject({ code: 'PLAYER_NOT_FOUND' });
     });
   });
 
   describe('8. Player Utils', () => {
     it('should sanitize usernames', () => {
-      expect(playerUtils.sanitize('PSIKOI')).toBe('PSIKOI');
-      expect(playerUtils.sanitize(' PSIKOI_')).toBe('PSIKOI');
-      expect(playerUtils.sanitize('___psikoi  ')).toBe('psikoi');
+      // unchanged, already valid
+      expect(playerUtils.sanitizeDisplayName('PSIKOI')).toBe('PSIKOI');
+      expect(playerUtils.sanitizeDisplayName('User_123')).toBe('User_123');
+      expect(playerUtils.sanitizeDisplayName('user-name')).toBe('user-name');
+      expect(playerUtils.sanitizeDisplayName('John Doe')).toBe('John Doe');
+
+      // trims leading and trailing spaces
+      expect(playerUtils.sanitizeDisplayName(' PSIKOI ')).toBe('PSIKOI');
+      expect(playerUtils.sanitizeDisplayName('   John Doe   ')).toBe('John Doe');
+
+      // preserves multiple spaces in the middle
+      expect(playerUtils.sanitizeDisplayName('John   Doe')).toBe('John   Doe');
+      expect(playerUtils.sanitizeDisplayName('A    B')).toBe('A    B');
+
+      // removes symbols and punctuation
+      expect(playerUtils.sanitizeDisplayName('User!')).toBe('User');
+      expect(playerUtils.sanitizeDisplayName('Bob@Home')).toBe('BobHome');
+      expect(playerUtils.sanitizeDisplayName('Hello, World.')).toBe('Hello World');
+
+      // removes emojis
+      expect(playerUtils.sanitizeDisplayName('Alice🙂')).toBe('Alice');
+      expect(playerUtils.sanitizeDisplayName('🔥Some🔥User🔥')).toBe('SomeUser');
+
+      // removes accented characters (not normalized)
+      expect(playerUtils.sanitizeDisplayName('José')).toBe('Jos');
+      expect(playerUtils.sanitizeDisplayName('Björk')).toBe('Bjrk');
+
+      // removes tabs and newlines
+      expect(playerUtils.sanitizeDisplayName('\tBob\t')).toBe('Bob');
+      expect(playerUtils.sanitizeDisplayName('Alice\nBob')).toBe('AliceBob');
+
+      // edge cases
+      expect(playerUtils.sanitizeDisplayName('')).toBe('');
+      expect(playerUtils.sanitizeDisplayName('   ')).toBe('');
+      expect(playerUtils.sanitizeDisplayName('!!!')).toBe('');
     });
 
     it('should standardize usernames', () => {
-      expect(playerUtils.standardize('HELLO WORLD')).toBe('hello world');
-      expect(playerUtils.standardize(' HELLO   WORLD_')).toBe('hello   world');
-      expect(playerUtils.standardize('___hello_WORLD123  ')).toBe('hello world123');
+      expect(playerUtils.standardizeUsername('HELLO WORLD')).toBe('hello world');
+      expect(playerUtils.standardizeUsername(' HELLO   WORLD_')).toBe('hello   world');
+      expect(playerUtils.standardizeUsername('___hello_WORLD123  ')).toBe('hello world123');
     });
 
     it('should check for username validity', () => {
@@ -1587,12 +1638,15 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
+      const previousSnapshot = buildHiscoresSnapshot(
+        player.id,
+        HiscoresDataSchema.parse(JSON.parse(globalData.hiscoresRawData))
+      );
 
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.RUNECRAFTING, value: 50_000_000 },
-        { metric: Metric.AGILITY, value: 10_000_000 },
-        { metric: Metric.THIEVING, value: 20_000_000 }
+        { hiscoresMetricName: 'Runecraft', value: 50_000_000 },
+        { hiscoresMetricName: 'Agility', value: 10_000_000 },
+        { hiscoresMetricName: 'Thieving', value: 20_000_000 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1600,7 +1654,10 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await parseHiscoresSnapshot(player.id, modifiedRawData);
+      const rejectedSnapshot = buildHiscoresSnapshot(
+        player.id,
+        HiscoresDataSchema.parse(JSON.parse(modifiedRawData))
+      );
 
       // Manually set overall ranks and exp for de-iron checks later on
       previousSnapshot.overallRank = 10_000;
@@ -1629,7 +1686,7 @@ describe('Player API', () => {
       const stackableEHPRatio =
         (aglityEHPDiff + thievingEHPDiff) / (runecraftingEHPDiff + aglityEHPDiff + thievingEHPDiff);
 
-      expect(stackableEHPRatio).toBeCloseTo(0.37663759188558105, 7);
+      expect(stackableEHPRatio).toBeCloseTo(0.23818695475718715, 7);
 
       const rankIncrease =
         (rejectedSnapshot.overallRank - previousSnapshot.overallRank) / previousSnapshot.overallRank;
@@ -1639,17 +1696,17 @@ describe('Player API', () => {
         previousSnapshot.overallExperience;
 
       expect(rankIncrease).toBe(5); // Increased by 500% (10k -> 60k)
-      expect(expIncrease).toBeCloseTo(0.20986560556395695, 8); // Increased by 20.98% (300_192_115 -> 363_192_115)
+      expect(expIncrease).toBeCloseTo(0.1929868502403211, 8); // Increased by 20.98% (304_439_328 -> 363_192_115)
 
-      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
 
       expect(flagContext).toMatchObject({
-        negativeGains: false,
-        excessiveGains: true,
-        excessiveGainsReversed: false,
-        possibleRollback: false,
+        hasNegativeGains: false,
+        hasExcessiveGains: true,
+        hasExcessiveGainsReversed: false,
+        isPossibleRollback: false,
         data: {
-          stackableGainedRatio: 0.37663758607790426
+          stackableGainedRatio: 0.23818695475718724
         },
         previous: {
           data: {
@@ -1672,8 +1729,8 @@ describe('Player API', () => {
       });
 
       const trackResponse = await api.post(`/players/Kendall`);
-      expect(trackResponse.status).toBe(500);
-      expect(trackResponse.body.message).toBe('Failed to update: Player is flagged.');
+      expect(trackResponse.status).toBe(403);
+      expect(trackResponse.body).toMatchObject({ code: 'PLAYER_IS_FLAGGED' });
 
       expect(playerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1712,11 +1769,14 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
+      const previousSnapshot = buildHiscoresSnapshot(
+        player.id,
+        HiscoresDataSchema.parse(JSON.parse(globalData.hiscoresRawData))
+      );
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.ZULRAH, value: 1615 }, // zulrah kc dropped from 1646 to 1615
-        { metric: Metric.CONSTRUCTION, value: 10_000_000 } // construction exp increased from 4_537_106 to 10m
+        { hiscoresMetricName: 'Zulrah', value: 1615 }, // zulrah kc dropped from 1646 to 1615
+        { hiscoresMetricName: 'Construction', value: 10_000_000 } // construction exp increased from 4_537_106 to 10m
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1724,15 +1784,18 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await parseHiscoresSnapshot(player.id, modifiedRejectedRawData);
+      const rejectedSnapshot = buildHiscoresSnapshot(
+        player.id,
+        HiscoresDataSchema.parse(JSON.parse(modifiedRejectedRawData))
+      );
 
-      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
 
       expect(flagContext).toMatchObject({
-        possibleRollback: true,
-        excessiveGains: false,
-        negativeGains: true,
-        excessiveGainsReversed: false,
+        isPossibleRollback: true,
+        hasExcessiveGains: false,
+        hasNegativeGains: true,
+        hasExcessiveGainsReversed: false,
         data: {
           stackableGainedRatio: 0
         },
@@ -1759,8 +1822,8 @@ describe('Player API', () => {
       });
 
       const trackResponse = await api.post(`/players/Roman`);
-      expect(trackResponse.status).toBe(500);
-      expect(trackResponse.body.message).toBe('Failed to update: Player is flagged.');
+      expect(trackResponse.status).toBe(403);
+      expect(trackResponse.body).toMatchObject({ code: 'PLAYER_IS_FLAGGED' });
 
       expect(playerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1800,16 +1863,19 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
+      const previousSnapshot = buildHiscoresSnapshot(
+        player.id,
+        HiscoresDataSchema.parse(JSON.parse(globalData.hiscoresRawData))
+      );
 
       await sleep(100);
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.ZULRAH, value: 20_000 },
-        { metric: Metric.TOMBS_OF_AMASCUT, value: 20_000 },
-        { metric: Metric.RUNECRAFTING, value: 200_000_000 },
-        { metric: Metric.WOODCUTTING, value: 200_000_000 },
-        { metric: Metric.SKOTIZO, value: 20 } // Skotizo kc decreased from 21 to 20
+        { hiscoresMetricName: 'Zulrah', value: 20_000 },
+        { hiscoresMetricName: 'Tombs of Amascut', value: 20_000 },
+        { hiscoresMetricName: 'Runecraft', value: 200_000_000 },
+        { hiscoresMetricName: 'Woodcutting', value: 200_000_000 },
+        { hiscoresMetricName: 'Skotizo', value: 20 } // Skotizo kc decreased from 21 to 20
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1817,9 +1883,12 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await parseHiscoresSnapshot(player.id, modifiedRejectedRawData);
+      const rejectedSnapshot = buildHiscoresSnapshot(
+        player.id,
+        HiscoresDataSchema.parse(JSON.parse(modifiedRejectedRawData))
+      );
 
-      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
 
       const trackResponse = await api.post(`/players/Siobhan`);
@@ -1840,7 +1909,7 @@ describe('Player API', () => {
 
     it("should auto-archive, and not send discord flagged report (negative gains, excessive gains reversed, can't be a rollback)", async () => {
       const modifiedPreviousRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.MINING, value: 200_000_000 } // mining exp will go from 200m to 6.5m
+        { hiscoresMetricName: 'Mining', value: 200_000_000 } // mining exp will go from 200m to 6.5m
       ]);
 
       // Mock regular hiscores data, and block any ironman requests
@@ -1854,7 +1923,10 @@ describe('Player API', () => {
 
       const player = playerResponse.body;
 
-      const previousSnapshot = await parseHiscoresSnapshot(player.id, modifiedPreviousRawData);
+      const previousSnapshot = buildHiscoresSnapshot(
+        player.id,
+        HiscoresDataSchema.parse(JSON.parse(modifiedPreviousRawData))
+      );
 
       await sleep(100);
 
@@ -1863,9 +1935,12 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
+      const rejectedSnapshot = buildHiscoresSnapshot(
+        player.id,
+        HiscoresDataSchema.parse(JSON.parse(globalData.hiscoresRawData))
+      );
 
-      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
 
       const trackResponse = await api.post(`/players/Connor`);
@@ -1898,7 +1973,10 @@ describe('Player API', () => {
       // pre changes setup
       const groupId = await setupPreTransitionData(1000, player.id);
 
-      const previousSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
+      const previousSnapshot = buildHiscoresSnapshot(
+        player.id,
+        HiscoresDataSchema.parse(JSON.parse(globalData.hiscoresRawData))
+      );
 
       await prisma.snapshot.create({ data: previousSnapshot });
 
@@ -1906,10 +1984,10 @@ describe('Player API', () => {
       await setupPostTransitionDate(1000, player.id, groupId);
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.RUNECRAFTING, value: 50_000_000 },
-        { metric: Metric.AGILITY, value: 10_000_000 },
-        { metric: Metric.THIEVING, value: 20_000_000 },
-        { metric: Metric.MINING, value: 1_000_000 }
+        { hiscoresMetricName: 'Runecraft', value: 50_000_000 },
+        { hiscoresMetricName: 'Agility', value: 10_000_000 },
+        { hiscoresMetricName: 'Thieving', value: 20_000_000 },
+        { hiscoresMetricName: 'Mining', value: 1_000_000 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1917,7 +1995,10 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await parseHiscoresSnapshot(player.id, modifiedRejectedRawData);
+      const rejectedSnapshot = buildHiscoresSnapshot(
+        player.id,
+        HiscoresDataSchema.parse(JSON.parse(modifiedRejectedRawData))
+      );
 
       const submitNameChangeResponse = await api.post(`/names`).send({
         oldName: 'Greg Hirsch',
@@ -1947,7 +2028,7 @@ describe('Player API', () => {
       expect(Array.from(newPlayerGroupIds)).toEqual([1002, 1003, 1004]);
       expect(Array.from(newPlayerCompetitionIds)).toEqual([1004, 1006, 1008]);
 
-      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
 
       const trackResponse = await api.post(`/players/Greg Hirsch`);
@@ -1985,8 +2066,8 @@ describe('Player API', () => {
       expect(archivedPlayer.username.startsWith('archive')).toBeTruthy();
 
       const trackArchivedPlayerResponse = await api.post(`/players/${archivedPlayer.username}`);
-      expect(trackArchivedPlayerResponse.status).toBe(400);
-      expect(trackArchivedPlayerResponse.body.message).toBe('Failed to update: Player is archived.');
+      expect(trackArchivedPlayerResponse.status).toBe(403);
+      expect(trackArchivedPlayerResponse.body).toMatchObject({ code: 'PLAYER_IS_ARCHIVED' });
 
       const archivals = await prisma.playerArchive.findMany({
         where: { playerId: player.id }
@@ -2048,20 +2129,20 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi/archive`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it("shouldn't archive player (incorrect admin password)", async () => {
       const response = await api.post(`/players/psikoi/archive`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it("shouldn't archive player (player not found)", async () => {
       const response = await api
         .post(`/players/woah/archive`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Player not found.');
@@ -2082,7 +2163,10 @@ describe('Player API', () => {
       // pre changes setup
       const groupId = await setupPreTransitionData(2000, player.id);
 
-      const previousSnapshot = await parseHiscoresSnapshot(player.id, globalData.hiscoresRawData);
+      const previousSnapshot = buildHiscoresSnapshot(
+        player.id,
+        HiscoresDataSchema.parse(JSON.parse(globalData.hiscoresRawData))
+      );
 
       await prisma.snapshot.create({ data: previousSnapshot });
 
@@ -2090,10 +2174,10 @@ describe('Player API', () => {
       await setupPostTransitionDate(2000, player.id, groupId);
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.RUNECRAFTING, value: 50_000_000 },
-        { metric: Metric.AGILITY, value: 10_000_000 },
-        { metric: Metric.THIEVING, value: 20_000_000 },
-        { metric: Metric.MINING, value: 1_000_000 }
+        { hiscoresMetricName: 'Runecraft', value: 50_000_000 },
+        { hiscoresMetricName: 'Agility', value: 10_000_000 },
+        { hiscoresMetricName: 'Thieving', value: 20_000_000 },
+        { hiscoresMetricName: 'Mining', value: 1_000_000 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -2101,7 +2185,10 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const rejectedSnapshot = await parseHiscoresSnapshot(player.id, modifiedRejectedRawData);
+      const rejectedSnapshot = buildHiscoresSnapshot(
+        player.id,
+        HiscoresDataSchema.parse(JSON.parse(modifiedRejectedRawData))
+      );
 
       const submitNameChangeResponse = await api.post(`/names`).send({
         oldName: 'TomWambsgans',
@@ -2131,12 +2218,12 @@ describe('Player API', () => {
       expect(Array.from(newPlayerGroupIds)).toEqual([2002, 2003, 2004]);
       expect(Array.from(newPlayerCompetitionIds)).toEqual([2004, 2006, 2008]);
 
-      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
 
       const archiveResponse = await api
         .post(`/players/TomWambsgans/archive`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(archiveResponse.status).toBe(200);
       expect(archiveResponse.body.status).toBe(PlayerStatus.ARCHIVED);
@@ -2163,8 +2250,8 @@ describe('Player API', () => {
       expect(archivedPlayer.username.startsWith('archive')).toBeTruthy();
 
       const trackArchivedPlayerResponse = await api.post(`/players/${archivedPlayer.username}`);
-      expect(trackArchivedPlayerResponse.status).toBe(400);
-      expect(trackArchivedPlayerResponse.body.message).toBe('Failed to update: Player is archived.');
+      expect(trackArchivedPlayerResponse.status).toBe(403);
+      expect(trackArchivedPlayerResponse.body).toMatchObject({ code: 'PLAYER_IS_ARCHIVED' });
 
       const archivals = await prisma.playerArchive.findMany({
         where: { playerId: player.id }
@@ -2238,7 +2325,7 @@ describe('Player API', () => {
 
       const archiveResponse = await api
         .post(`/players/siobhan/archive`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(archiveResponse.status).toBe(200);
       expect(archiveResponse.body.status).toBe(PlayerStatus.ARCHIVED);
@@ -2269,7 +2356,7 @@ describe('Player API', () => {
 
       const approveNameChangeResponse = await api
         .post(`/names/${submitNameChangeResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveNameChangeResponse.status).toBe(200);
 
@@ -2286,10 +2373,19 @@ describe('Player API', () => {
 
   describe('11. Annotations', () => {
     it('should not fetch annotations (player not found)', async () => {
-      const response = await api.get(`/players/gringoloko`);
+      const response = await api.get(`/players/rodzao`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Player not found.');
+      expect(response.body).toMatchObject({ code: 'PLAYER_NOT_FOUND' });
+    });
+
+    it('should return 400 when admin password is missing (admin validation)', async () => {
+      const response = await api.post(`/players/psikoi/annotation`).send({
+        annotationType: PlayerAnnotationType.OPT_OUT
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should return 403 when admin password is incorrect (admin validation)', async () => {
@@ -2299,41 +2395,39 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
-    });
-
-    it('should return 400 when admin password is missing (admin validation)', async () => {
-      const response = await api.post(`/players/psikoi/annotation`).send({
-        annotationType: PlayerAnnotationType.OPT_OUT
-      });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should return 400 when annotation is invalid', async () => {
       const response = await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: 'invalid'
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Invalid enum value for 'annotationType'.");
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Invalid enum value for 'annotationType'."
+      });
     });
 
     it('shoould return 400 when annotation is missing', async () => {
       const response = await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'annotationType' is undefined.");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'annotationType' is undefined."
+      });
     });
 
     it('should create a valid annotation', async () => {
       await findOrCreatePlayers(['psikoi']);
       const response = await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
 
@@ -2344,7 +2438,7 @@ describe('Player API', () => {
     it('should fetch "psikoi"', async () => {
       await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
       const response = await api.get(`/players/psikoi`);
@@ -2356,12 +2450,12 @@ describe('Player API', () => {
     it('should delete annotation', async () => {
       await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       const response = await api.delete(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
 
@@ -2372,7 +2466,7 @@ describe('Player API', () => {
     it('should fail to delete unexisting annotation', async () => {
       await findOrCreatePlayers(['psikoi']);
       const response = await api.delete(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
 
@@ -2383,12 +2477,12 @@ describe('Player API', () => {
     it('should throw conflit error 409 to create', async () => {
       await findOrCreatePlayers(['psikoi']);
       await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
 
       const response = await api.post(`/players/psikoi/annotation`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         annotationType: PlayerAnnotationType.OPT_OUT
       });
 

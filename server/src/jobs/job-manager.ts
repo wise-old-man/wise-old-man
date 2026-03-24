@@ -1,12 +1,13 @@
+import * as Sentry from '@sentry/node';
 import { Job as BullJob, JobsOptions as BullJobOptions, Queue, Worker } from 'bullmq';
 import { getThreadIndex } from '../env';
-import logger from '../services/logging.service';
+import { logger } from '../services/logger.service';
 import prometheus from '../services/prometheus.service';
 import { buildCompoundRedisKey, REDIS_CONFIG, redisClient } from '../services/redis.service';
-import { Job } from './job.class';
 import { CRON_CONFIG, JOB_HANDLER_MAP, STARTUP_JOBS } from './jobs.config';
+import { JobHandler } from './types/job-handler.type';
 import type { JobOptions } from './types/job-options.type';
-import type { JobPayloadMapper } from './types/job-payload.type';
+import type { JobHandlerPayloadMapper } from './types/job-payload.type';
 import { JobPriority } from './types/job-priority.enum';
 import { JobType } from './types/job-type.enum';
 
@@ -29,21 +30,23 @@ class JobManager {
    * This function is used to run a job handler directly, without adding it to the queue.
    * This should be used sparingly, as it bypasses the queue system and does not allow for retrying jobs.
    */
-  async runAsync<T extends JobType, TPayload extends JobPayloadMapper[T]>(
+  async runAsync<T extends JobType, TPayload extends JobHandlerPayloadMapper[T]>(
     type: T,
     payload: TPayload extends undefined ? Record<string, never> : TPayload
   ) {
-    const handlerClass = JOB_HANDLER_MAP[type];
+    const handler = JOB_HANDLER_MAP[type];
 
-    if (handlerClass === undefined) {
+    if (handler === undefined) {
       throw new Error(`No job implementation found for "${type}".`);
     }
 
     // @ts-expect-error -- 🤷‍♂️
-    await new handlerClass(this).execute(payload);
+    await handler.execute(payload, {
+      jobManager: this
+    });
   }
 
-  async add<T extends JobType, TPayload extends JobPayloadMapper[T]>(
+  async add<T extends JobType, TPayload extends JobHandlerPayloadMapper[T]>(
     type: T,
     payload: TPayload extends undefined ? Record<string, never> : TPayload,
     options?: JobOptions
@@ -55,12 +58,15 @@ class JobManager {
       return this.runAsync(type, payload);
     }
 
-    if (type === JobType.UPDATE_PLAYER && 'username' in payload) {
+    if (type === JobType.UPDATE_PLAYER) {
       // Some players are put into the queue too often (patron group updates),
       // and result in no valid updates due to a "banned" or "unranked" status.
       // This clogs up the queue for valid players, so we need to put them on a 24h cooldown.
       const isInCooldown = await redisClient.get(
-        buildCompoundRedisKey('player-update-cooldown', payload.username)
+        buildCompoundRedisKey(
+          'player-update-cooldown',
+          (payload as JobHandlerPayloadMapper[JobType.UPDATE_PLAYER]).username
+        )
       );
 
       if (isInCooldown !== null) {
@@ -79,39 +85,55 @@ class JobManager {
       priority: options?.priority ?? JobPriority.MEDIUM
     };
 
-    if (payload !== undefined) {
+    const handler = JOB_HANDLER_MAP[type];
+
+    if (payload !== undefined && handler.generateUniqueJobId !== undefined) {
       // @ts-expect-error -- 🤷‍♂️
-      opts.jobId = JOB_HANDLER_MAP[type].getUniqueJobId(payload);
+      opts.jobId = handler.generateUniqueJobId(payload);
     }
 
     await matchingQueue.add(type, payload, opts);
 
-    if (
-      type === JobType.DISPATCH_MEMBER_ACHIEVEMENTS_DISCORD_EVENT &&
-      'username' in payload &&
-      payload.username === 'psikoi ii'
-    ) {
-      prometheus.trackGenericMetric('test-added-job');
-    }
-
-    logger.info(`[v2] Added job: ${type}`, opts.jobId, true);
+    logger.info(`[v2] Added job: ${type}`, { jobId: opts.jobId });
   }
 
-  async handleJob(bullJob: BullJob, jobHandler: Job<unknown>) {
+  async handleJob(bullJob: BullJob, handler: JobHandler) {
     const maxAttempts = bullJob.opts.attempts ?? 1;
     const attemptTag = maxAttempts > 1 ? `(#${bullJob.attemptsMade})` : '';
 
+    // Track queue latency (time from when job was ready to run until execution starts)
+    // This excludes any intentional delay from the latency calculation
+    if (bullJob.timestamp) {
+      const latencyMs = Date.now() - bullJob.timestamp - (bullJob.opts.delay ?? 0);
+      prometheus.trackJobQueueLatency(bullJob.name, Math.max(0, latencyMs / 1000));
+    }
+
     const endTimer = prometheus.trackJob();
-    logger.info(`[v2] Executing job: ${bullJob.name} ${attemptTag}`, bullJob.opts.jobId, true);
+    logger.info(`[v2] Executing job: ${bullJob.name} ${attemptTag}`, { jobId: bullJob.opts.jobId });
 
     try {
-      await jobHandler.execute(bullJob.data);
+      await handler.execute(bullJob.data, {
+        jobManager: this
+      });
 
       endTimer({ jobName: bullJob.name, status: 1 });
-      logger.info(`[v2] Completed job: ${bullJob.name}`, { ...bullJob.data }, true);
+      logger.info(`[v2] Completed job: ${bullJob.name}`, { ...bullJob.data });
     } catch (error) {
       endTimer({ jobName: bullJob.name, status: 0 });
-      logger.error(`[v2] Failed job: ${bullJob.name}`, { ...bullJob.data, error }, true);
+      logger.error(`[v2] Failed job: ${bullJob.name}`, { ...bullJob.data, error });
+
+      if (bullJob.attemptsMade >= maxAttempts) {
+        Sentry.captureException(error, {
+          tags: {
+            server_type: process.env.SERVER_TYPE
+          },
+          extra: {
+            job_type: bullJob.name,
+            job_id: bullJob.id,
+            payload: bullJob.data
+          }
+        });
+      }
 
       /**
        * Bull-board only shows errors if they're instances of the Error class.
@@ -128,8 +150,8 @@ class JobManager {
   initQueues() {
     if (process.env.NODE_ENV === 'test') return;
 
-    for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {
-      const { options } = jobClass;
+    for (const [jobType, handler] of Object.entries(JOB_HANDLER_MAP)) {
+      const { options } = handler;
 
       const queue = new Queue(jobType, {
         prefix: REDIS_PREFIX,
@@ -165,20 +187,32 @@ class JobManager {
     // Otherwise, on a 4 core server, every cronjob would run 4x as often.
     const isMainThread = getThreadIndex() === 0 || process.env.NODE_ENV === 'development';
 
-    for (const [jobType, jobClass] of Object.entries(JOB_HANDLER_MAP)) {
-      const { options } = jobClass;
+    for (const [jobType, handler] of Object.entries(JOB_HANDLER_MAP)) {
+      const { options } = handler;
 
       if (cronJobTypes.includes(jobType) && !isMainThread) {
         continue;
       }
 
-      const worker = new Worker(jobType, bullJob => this.handleJob(bullJob, new jobClass(this, bullJob)), {
-        prefix: REDIS_PREFIX,
-        limiter: options?.rateLimiter,
-        connection: REDIS_CONFIG,
-        concurrency: options.maxConcurrent ?? 1,
-        autorun: true
-      });
+      const worker = new Worker(
+        jobType,
+        bullJob => {
+          const handler = JOB_HANDLER_MAP[jobType];
+
+          if (handler === undefined) {
+            throw new Error(`No job handler instance found for job type "${jobType}".`);
+          }
+
+          return this.handleJob(bullJob, handler);
+        },
+        {
+          prefix: REDIS_PREFIX,
+          limiter: options?.rateLimiter,
+          connection: REDIS_CONFIG,
+          concurrency: options?.maxConcurrent ?? 1,
+          autorun: true
+        }
+      );
 
       this.workers.push(worker);
     }
@@ -205,7 +239,7 @@ class JobManager {
         throw new Error(`No job implementation found for type "${type}".`);
       }
 
-      logger.info(`[v2] Scheduling cron job`, { type, interval }, true);
+      logger.info(`[v2] Scheduling cron job`, { type, interval });
       await matchingQueue.add(type, {}, { repeat: { pattern: interval } });
     }
 
@@ -216,18 +250,18 @@ class JobManager {
         throw new Error(`No job implementation found for type "${jobName}".`);
       }
 
-      logger.info(`[v2] Scheduling startup job`, { jobName }, true);
+      logger.info(`[v2] Scheduling startup job`, { jobName });
       await matchingQueue.add(jobName, {}, { priority: JobPriority.HIGH });
     }
   }
 
   async shutdown() {
-    for (const queue of this.queues) {
-      await queue.close();
-    }
-
     for (const worker of this.workers) {
       await worker.close();
+    }
+
+    for (const queue of this.queues) {
+      await queue.close();
     }
   }
 

@@ -6,6 +6,7 @@
  */
 import { Achievement } from '../../types';
 import { getAchievementMeasure } from '../../utils/get-achievement-measure.util';
+import { LEGACY_TEMPLATE_NAMES } from '../modules/achievements/achievement.templates';
 import { AchievementResponse } from './achievement.response';
 
 export interface AchievementProgressResponse extends Omit<AchievementResponse, 'createdAt'> {
@@ -31,6 +32,7 @@ export function formatAchievementProgressResponse({
   return {
     ...achievement,
     measure: getAchievementMeasure(achievement),
+    legacy: LEGACY_TEMPLATE_NAMES.includes(achievement.name),
     createdAt,
     currentValue,
     absoluteProgress,

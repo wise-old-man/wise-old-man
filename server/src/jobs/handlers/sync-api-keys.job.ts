@@ -1,21 +1,9 @@
-import { eventEmitter, EventType } from '../../api/events';
 import prisma from '../../prisma';
-import prometheus from '../../services/prometheus.service';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
-import { Metric } from '../../types';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
-export class SyncApiKeysJob extends Job<unknown> {
+export const SyncApiKeysJobHandler: JobHandler = {
   async execute() {
-    /**
-     * Doing this here just as a test
-     */
-    eventEmitter.emit(EventType.PLAYER_ACHIEVEMENTS_CREATED, {
-      username: 'psikoi ii',
-      achievements: [{ metric: Metric.ZULRAH, threshold: 500 }]
-    });
-    prometheus.trackGenericMetric('test-emit');
-
     const apiKeys = await prisma.apiKey.findMany();
 
     // Cache all these api keys in Redis, so that they can be quickly accessed on every API request
@@ -27,4 +15,4 @@ export class SyncApiKeysJob extends Job<unknown> {
       await redisClient.set(buildCompoundRedisKey('api_key', key.id), String(key.master));
     }
   }
-}
+};

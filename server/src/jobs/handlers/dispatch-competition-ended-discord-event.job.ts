@@ -3,22 +3,21 @@ import { fetchCompetitionDetails } from '../../api/modules/competitions/services
 import { formatCompetitionResponse } from '../../api/responses';
 import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   competitionId: number;
 }
 
-export class DispatchCompetitionEndedDiscordEventJob extends Job<Payload> {
-  static options: JobOptions = {
+export const DispatchCompetitionEndedDiscordEventJobHandler: JobHandler<Payload> = {
+  options: {
     backoff: {
       type: 'exponential',
       delay: 30_000
     }
-  };
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -64,4 +63,4 @@ export class DispatchCompetitionEndedDiscordEventJob extends Job<Payload> {
       throw dispatchResult.error;
     }
   }
-}
+};

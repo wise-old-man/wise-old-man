@@ -1,21 +1,16 @@
 import { Achievement, AchievementMeasure, Metric } from '../types';
-import { getExpForLevel, MetricProps, REAL_SKILLS } from './shared';
+import { MetricProps } from './shared';
 
-export function getAchievementMeasure(
-  achievement: Pick<Achievement, 'metric' | 'threshold'>
-): AchievementMeasure {
+export function getAchievementMeasure({
+  name,
+  metric
+}: Pick<Achievement, 'name' | 'metric'>): AchievementMeasure {
   if (
-    achievement.metric === Metric.OVERALL &&
-    [
-      getExpForLevel(60) * REAL_SKILLS.length,
-      getExpForLevel(70) * REAL_SKILLS.length,
-      getExpForLevel(80) * REAL_SKILLS.length,
-      getExpForLevel(90) * REAL_SKILLS.length,
-      getExpForLevel(99) * REAL_SKILLS.length
-    ].includes(achievement.threshold)
+    metric === Metric.OVERALL &&
+    (name.includes('Maxed Overall') || new RegExp(/Base (60|70|80|90) Stats/).test(name))
   ) {
     return 'levels';
   }
 
-  return MetricProps[achievement.metric].measure;
+  return MetricProps[metric].measure;
 }

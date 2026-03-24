@@ -31,6 +31,7 @@ export async function PlayerOverviewCompetition(props: PlayerOverviewCompetition
         <Link
           prefetch={false}
           href={`/players/${username}/competitions`}
+          rel="nofollow"
           className="text-xs font-medium text-gray-200 hover:underline"
         >
           View all
@@ -52,11 +53,11 @@ function CompetitionCard(props: CompetitionResponse) {
   }
 
   return (
-    <Link prefetch={false} href={`/competitions/${props.id}`}>
+    <Link prefetch={false} href={`/competitions/${props.id}`} rel="nofollow">
       <div
         className={cn(
           "group relative flex h-[5rem] w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-600 px-6 hover:border-gray-400",
-          props.metrics.length > 1 && "gap-x-3 px-3"
+          props.metrics.length > 1 && "gap-x-3 px-3",
         )}
       >
         <Image
@@ -100,7 +101,7 @@ async function getFeaturedCompetition(username: string) {
     .filter((c) => getCompetitionStatus(c) === CompetitionStatus.ONGOING);
 
   if (ongoing.length > 0) {
-    return ongoing.sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())[0];
+    return ongoing.sort((a, b) => a.endsAt.getTime() - b.endsAt.getTime())[0];
   }
 
   const upcoming = participations

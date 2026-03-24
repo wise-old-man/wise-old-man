@@ -16,7 +16,7 @@ import { MetricDelta } from '../../../types/metric-delta.type';
 import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
 
-import { getLevel, getMinimumValue, isSkill } from '../../../utils/shared';
+import { getLevel, isSkill } from '../../../utils/shared';
 import { roundNumber } from '../../../utils/shared/round-number.util';
 import {
   getPlayerEfficiencyMap,
@@ -66,26 +66,27 @@ function calculateRankDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot:
  * Example (unranked boss):
  * - Starting Snapshot: Zulrah KC: -1
  * - Ending Snapshot: Zulrah KC: 73
- * - Output: { start: -1, end:  73, gained: 24 }
+ * - Output: { start: -1, end:  73, gained: 73 }
  *
  * Example (unranked overall):
  * - Starting Snapshot: Overall Exp: -1
  * - Ending Snapshot: OverallExp: 5,566,255
  * - Output: { start: -1, end:  5566255, gained: 0 }
  */
-function calculateValueDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot: Snapshot) {
-  const minimumValue = getMinimumValue(metric);
+export function calculateValueDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot: Snapshot) {
   const valueKey = getMetricValueKey(metric);
 
   const startValue = startSnapshot && startSnapshot[valueKey] ? startSnapshot[valueKey] : -1;
   const endValue = endSnapshot && endSnapshot[valueKey] ? endSnapshot[valueKey] : -1;
 
-  let gainedValue = roundNumber(Math.max(0, endValue - Math.max(0, minimumValue - 1, startValue)), 5);
+  let gainedValue = roundNumber(Math.max(0, endValue - Math.max(startValue, 0)), 5);
 
   // Some players with low total level (but high exp) can sometimes fall off the hiscores
   // causing their starting exp to be -1, this would then cause the diff to think
   // that their entire ranked exp has just been gained (by jumping from -1 to 40m, for example)
-  if (metric === Metric.OVERALL && startValue === -1) gainedValue = 0;
+  if (metric === Metric.OVERALL && startValue === -1) {
+    gainedValue = 0;
+  }
 
   return {
     gained: gainedValue,

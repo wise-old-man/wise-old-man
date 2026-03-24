@@ -9,10 +9,15 @@ import { SnapshotResponse } from './snapshot.response';
 export interface FlaggedPlayerReviewContextResponse {
   previous: SnapshotResponse;
   rejected: SnapshotResponse;
-  negativeGains: boolean;
-  excessiveGains: boolean;
-  possibleRollback: boolean;
-  excessiveGainsReversed: boolean;
+  hasNegativeGains: boolean;
+  hasExcessiveGains: boolean;
+  hasExcessiveGainsReversed: boolean;
+  isPossibleRollback: boolean;
+  rollbackContext: {
+    earliestMatchDate: Date;
+    latestMatchDate: Date;
+    totalMatches: number;
+  } | null;
   data: {
     stackableGainedRatio: number;
     previousEHP: number;

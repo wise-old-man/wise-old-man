@@ -25,7 +25,7 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
         !hiddenMetrics.includes(a.metric) &&
         a.currentValue < SKILL_EXP_AT_99 &&
         a.threshold === SKILL_EXP_AT_99 &&
-        !a.createdAt
+        !a.createdAt,
     )
     .sort((a, b) => b.currentValue - a.currentValue)
     .slice(0, 3);
@@ -49,6 +49,7 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
             <Link
               prefetch={false}
               href={`/players/${player.username}/achievements`}
+              rel="nofollow"
               className="text-xs font-medium text-gray-200 hover:underline"
             >
               View all
@@ -68,6 +69,7 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
             <Link
               prefetch={false}
               href={`/players/${player.username}/achievements`}
+              rel="nofollow"
               className="text-xs font-medium text-gray-200 hover:underline"
             >
               View all

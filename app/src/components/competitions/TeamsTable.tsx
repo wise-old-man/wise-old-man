@@ -107,7 +107,7 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
             <ChevronDownIcon
               className={cn(
                 "h-4 w-4 transition-transform",
-                row.getIsExpanded() ? "rotate-180" : "rotate-0"
+                row.getIsExpanded() ? "rotate-180" : "rotate-0",
               )}
             />
           </Button>

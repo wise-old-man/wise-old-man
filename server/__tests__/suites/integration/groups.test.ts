@@ -18,9 +18,6 @@ const groupMembersLeftEvent = jest.spyOn(GroupMembersLeftEvent, 'handler');
 const groupMembersJoinedEvent = jest.spyOn(GroupMembersJoinedEvent, 'handler');
 const groupMembersRolesChangedEvent = jest.spyOn(GroupMembersRolesChangedEvent, 'handler');
 
-const P_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
-const LT_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/lynx_titan_hiscores.txt`;
-
 const globalData = {
   pHiscoresRawData: '',
   ltHiscoresRawData: '',
@@ -58,8 +55,8 @@ beforeAll(async () => {
   await resetDatabase();
   await redisClient.flushall();
 
-  globalData.pHiscoresRawData = await readFile(P_HISCORES_FILE_PATH);
-  globalData.ltHiscoresRawData = await readFile(LT_HISCORES_FILE_PATH);
+  globalData.pHiscoresRawData = await readFile(`${__dirname}/../../data/hiscores/psikoi_hiscores.json`);
+  globalData.ltHiscoresRawData = await readFile(`${__dirname}/../../data/hiscores/lynx_titan_hiscores.json`);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
@@ -101,19 +98,6 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'name' must have a maximum of 30 character(s).");
-
-      expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
-    });
-
-    it('should not create (invalid clanChat)', async () => {
-      const response = await api.post('/groups').send({
-        name: 'ooops',
-        clanChat: '#hey_',
-        members: []
-      });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Invalid 'clanChat'");
 
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
@@ -291,7 +275,7 @@ describe('Group API', () => {
       expect(response.body.group.homeworld).toBe(null);
       expect(response.body.group.memberCount).toBe(5);
       expect(response.body.group.memberships.length).toBe(5);
-      expect(response.body.group.memberships[0].player.displayName).toContain('Test Player');
+      expect(response.body.group.memberships[0].player.displayName).toContain('Test_Player');
       expect(response.body.group.memberships[1].player.username).toBe('alt player');
       expect(response.body.group.memberships[2].player.username).toBe('alexsuperfly');
       expect(response.body.group.memberships[3].player.username).toBe('zezima');
@@ -329,7 +313,7 @@ describe('Group API', () => {
       expect(response.body.group.memberships.length).toBe(4);
       expect(response.body.group.memberCount).toBe(4);
       expect(response.body.group.memberships.map(m => m.player.username)).toContain('alt player');
-      expect(response.body.group.memberships.map(m => m.player.displayName)).toContain('Test Player');
+      expect(response.body.group.memberships.map(m => m.player.displayName)).toContain('Test_Player');
       expect(response.body.group.memberships.filter(m => m.role === 'leader').length).toBe(1);
       expect(response.body.group.memberships.filter(m => m.role === 'captain').length).toBe(1);
       expect(response.body.group.memberships.filter(m => m.role === 'member').length).toBe(1);
@@ -407,7 +391,7 @@ describe('Group API', () => {
       const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({ name: 'idk' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -419,7 +403,7 @@ describe('Group API', () => {
         .send({ verificationCode: 'XYZ', name: 'ABC' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toMatch('Incorrect verification code');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -433,7 +417,7 @@ describe('Group API', () => {
         .send({ verificationCode: dashlessCode });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Nothing to update.');
+      expect(response.body).toMatchObject({ code: 'NOTHING_TO_UPDATE' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -447,7 +431,7 @@ describe('Group API', () => {
         .send({ verificationCode: codeWithWhitespace });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Nothing to update.');
+      expect(response.body).toMatchObject({ code: 'NOTHING_TO_UPDATE' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -459,7 +443,7 @@ describe('Group API', () => {
         .send({ verificationCode: globalData.testGroupNoMembers.verificationCode });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Nothing to update.');
+      expect(response.body).toMatchObject({ code: 'NOTHING_TO_UPDATE' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -469,7 +453,7 @@ describe('Group API', () => {
       const response = await api.put('/groups/1000').send({ verificationCode: 'XYZ', name: 'ABC' });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Group not found.');
+      expect(response.body).toMatchObject({ code: 'GROUP_NOT_FOUND' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -482,9 +466,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        `Group name '${globalData.testGroupNoLeaders.name}' is already taken.`
-      );
+      expect(response.body).toMatchObject({ code: 'GROUP_NAME_ALREADY_EXISTS' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -497,9 +479,10 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Invalid members list. Must be an array of { username: string; role?: string; }.'
-      );
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid members list. Must be an array of { username: string; role?: string; }.'
+      });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -512,7 +495,10 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Invalid enum value for 'role'.");
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Invalid enum value for 'role'."
+      });
     });
 
     it('should not edit (invalid members list)', async () => {
@@ -522,7 +508,10 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'members' is not a valid array.");
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'members' is not a valid array."
+      });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -535,7 +524,10 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'bannerImage' is not a valid URL.");
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'bannerImage' is not a valid URL."
+      });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -553,9 +545,11 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        "Parameter 'bannerImage' must have a maximum of 255 character(s)."
-      );
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'bannerImage' must have a maximum of 255 character(s)."
+      });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -568,7 +562,11 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'profileImage' is not a valid URL.");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'profileImage' is not a valid URL."
+      });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -586,9 +584,11 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        "Parameter 'profileImage' must have a maximum of 255 character(s)."
-      );
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'profileImage' must have a maximum of 255 character(s)."
+      });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -601,9 +601,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Banner or profile images can only be uploaded by patron groups.'
-      );
+      expect(response.body).toMatchObject({ code: 'GROUP_NOT_PATRON' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -616,9 +614,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Banner or profile images can only be uploaded by patron groups.'
-      );
+      expect(response.body).toMatchObject({ code: 'GROUP_NOT_PATRON' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -633,7 +629,11 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'socialLinks.twitter' is not a valid URL.");
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_ERROR',
+        message: "Parameter 'socialLinks.twitter' is not a valid URL."
+      });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -648,7 +648,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Social links can only be added to patron groups.');
+      expect(response.body).toMatchObject({ code: 'GROUP_NOT_PATRON' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -665,7 +665,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found 1 invalid usernames');
+      expect(response.body).toMatchObject({ code: 'INVALID_USERNAMES_FOUND' });
       expect(response.body.data).toEqual(['Some really long username']);
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
@@ -691,7 +691,7 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe(
-        'Cannot upload images from external sources. Please upload an image via the website.'
+        'Cannot upload images from external sources - Please upload an image via the website'
       );
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
@@ -717,7 +717,7 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe(
-        'Cannot upload images from external sources. Please upload an image via the website.'
+        'Cannot upload images from external sources - Please upload an image via the website'
       );
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
@@ -783,7 +783,7 @@ describe('Group API', () => {
       });
 
       expect(editResponse.status).toBe(403);
-      expect(editResponse.body.message).toMatch('One or more players have opted out');
+      expect(editResponse.body).toMatchObject({ code: 'OPTED_OUT_MEMBERS_FOUND' });
       expect(editResponse.body.data).toEqual(['Noah', 'Claudia']);
 
       const deleteGroupResponse = await api.delete(`/groups/${createGroupResponse.body.group.id}`).send({
@@ -1496,7 +1496,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Group not found.');
+      expect(response.body.message).toMatch('Group not found');
 
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1507,7 +1507,7 @@ describe('Group API', () => {
         .send({ members: [] });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
 
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1519,7 +1519,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toMatch('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
 
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1734,7 +1734,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
+      expect(response.body.message).toBe('Group not found');
 
       expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
@@ -1746,7 +1746,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
 
       expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
@@ -1759,7 +1759,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
 
       expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
@@ -1986,7 +1986,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
+      expect(response.body.message).toBe('Group not found');
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
@@ -1997,7 +1997,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
@@ -2009,7 +2009,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
@@ -2021,7 +2021,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
@@ -2034,7 +2034,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
@@ -2162,7 +2162,7 @@ describe('Group API', () => {
       expect(before.status).toBe(200);
 
       const removeResponse = await api.delete(`/groups/${createResponse.body.group.id}/members`).send({
-        adminPassword: process.env.ADMIN_PASSWORD,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
         members: ['harry']
       });
 
@@ -2202,12 +2202,12 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
+      expect(response.body.message).toBe('Group not found');
     });
 
     it('should not delete (group not found with admin perms)', async () => {
       const response = await api.delete(`/groups/123456789`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(404);
@@ -2218,7 +2218,7 @@ describe('Group API', () => {
       const response = await api.delete(`/groups/123456789`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not delete (incorrect verification code)', async () => {
@@ -2227,7 +2227,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not delete, incorrect admin override (invalid verification code)', async () => {
@@ -2236,7 +2236,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not delete, incorrect admin override (incorrect verification code)', async () => {
@@ -2246,7 +2246,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should delete', async () => {
@@ -2273,7 +2273,7 @@ describe('Group API', () => {
       expect(before.status).toBe(200);
 
       const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(deleteResponse.status).toBe(200);
@@ -2289,7 +2289,7 @@ describe('Group API', () => {
       const response = await api.get('/groups/9999');
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Group not found.');
+      expect(response.body.message).toMatch('Group not found');
     });
 
     it('should view details (empty group)', async () => {
@@ -2414,7 +2414,7 @@ describe('Group API', () => {
       const response = await api.get('/groups/9999/csv');
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Group not found.');
+      expect(response.body.message).toMatch('Group not found');
     });
 
     it('should not view members CSV (empty group)', async () => {
@@ -2478,7 +2478,7 @@ describe('Group API', () => {
     it('should not view hiscores (invalid metric)', async () => {
       const response = await api
         .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
-        .query({ metric: 'sailing' });
+        .query({ metric: 'dungeoneering' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
@@ -2498,8 +2498,8 @@ describe('Group API', () => {
       expect(trackResponse.status).toBe(200);
 
       const modifiedRawData = modifyRawHiscoresData(globalData.pHiscoresRawData, [
-        { metric: 'zulrah', value: 100 },
-        { metric: 'magic', value: 5_500_000 }
+        { hiscoresMetricName: 'Zulrah', value: 100 },
+        { hiscoresMetricName: 'Magic', value: 5_500_000 }
       ]);
 
       // Change the mock hiscores data to return 100 zulrah kc
@@ -2735,7 +2735,7 @@ describe('Group API', () => {
       expect(response.body).toMatchObject({
         maxedCombatCount: 1,
         maxedTotalCount: 1,
-        maxed200msCount: 23,
+        maxed200msCount: 24,
         averageStats: {
           data: {
             bosses: {
@@ -2809,7 +2809,7 @@ describe('Group API', () => {
       const response = await api.post(`/groups/123456789/update-all`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+      expect(response.body).toMatchObject({ code: 'MISSING_VERIFICATION_CODE' });
     });
 
     it('should not update all (group not found)', async () => {
@@ -2818,7 +2818,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
+      expect(response.body.message).toBe('Group not found');
     });
 
     it('should not update all (incorrect verification code)', async () => {
@@ -2827,7 +2827,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
     });
 
     it('should not update all (no outdated members)', async () => {
@@ -2904,7 +2904,7 @@ describe('Group API', () => {
       const response = await api.put(`/groups/100000/reset-code`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not reset code (incorrect admin password)', async () => {
@@ -2913,12 +2913,12 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not reset code (group not found)', async () => {
       const response = await api.put(`/groups/100000/reset-code`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(404);
@@ -2927,7 +2927,7 @@ describe('Group API', () => {
 
     it('should reset code', async () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/reset-code`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(200);
@@ -2940,7 +2940,7 @@ describe('Group API', () => {
       });
 
       expect(failEditAttempt.status).toBe(403);
-      expect(failEditAttempt.body.message).toBe('Incorrect verification code.');
+      expect(failEditAttempt.body).toMatchObject({ code: 'INCORRECT_VERIFICATION_CODE' });
 
       // try to edit the group with the new code
       const editAttempt = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
@@ -2958,7 +2958,7 @@ describe('Group API', () => {
       const response = await api.put(`/groups/100000/verify`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not verify group (incorrect admin password)', async () => {
@@ -2967,12 +2967,12 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not verify group (group not found)', async () => {
       const response = await api.put(`/groups/100000/verify`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(404);
@@ -2981,7 +2981,7 @@ describe('Group API', () => {
 
     it('should verify group', async () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/verify`).send({
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
       expect(response.status).toBe(200);

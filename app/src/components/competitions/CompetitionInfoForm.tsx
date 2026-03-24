@@ -75,7 +75,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
 
   const [startDate, setStartDate] = useState<DateValue>(toCalendarDate(startsAt));
   const [startTime, setStartTime] = useState<TimeValue>(
-    new Time(startsAt.getHours(), startsAt.getMinutes())
+    new Time(startsAt.getHours(), startsAt.getMinutes()),
   );
 
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(endsAt));
@@ -84,7 +84,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
   const hasUnsavedChanges = checkUnsavedChanges(
     competition,
     { title, metric, startsAt: toDate(startDate, startTime), endsAt: toDate(endDate, endTime) },
-    timezone
+    timezone,
   );
 
   const hasPastStartDate = toDate(startDate, startTime).getTime() < Date.now();
@@ -197,7 +197,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
         title.length === 0 ||
           !isEndDateAfterStartDate ||
           (mode === "create" && (hasPastStartDate || hasPastEndDate)),
-        hasUnsavedChanges
+        hasUnsavedChanges,
       )}
     </form>
   );
@@ -256,12 +256,7 @@ function MetricSelect(props: MetricSelectProps) {
           }
         }}
       >
-        <ComboboxButton
-          className={cn(
-            "w-full bg-gray-800 hover:bg-gray-700",
-            metric === Metric.LEAGUE_POINTS && "border border-red-800"
-          )}
-        >
+        <ComboboxButton className="w-full bg-gray-800 hover:bg-gray-700">
           <div className="flex items-center gap-x-2">
             <MetricIconSmall metric={metric} />
             <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
@@ -290,13 +285,7 @@ function MetricSelect(props: MetricSelectProps) {
             </ComboboxItemGroup>
             <ComboboxSeparator />
             <ComboboxItemGroup label="Activities">
-              {ACTIVITIES.filter((a) => {
-                if (a === Metric.LEAGUE_POINTS && !LEAGUES.active) {
-                  return false;
-                }
-
-                return true;
-              }).map((activity) => (
+              {ACTIVITIES.map((activity) => (
                 <ComboboxItem key={activity} value={activity}>
                   <MetricIconSmall metric={activity} />
                   {MetricProps[activity].name}
@@ -314,20 +303,6 @@ function MetricSelect(props: MetricSelectProps) {
           </ComboboxItemsContainer>
         </ComboboxContent>
       </Combobox>
-      {LEAGUES.active && metric === Metric.LEAGUE_POINTS && (
-        <Alert className="mt-6 pb-4" variant="error">
-          <AlertTitle>League Points competitions are not supported on this version.</AlertTitle>
-          <AlertDescription>
-            <p className="mb-3">{`You might want to use the "${LEAGUES.editionName}" version of our website that does allow you to create League-specific competitions.`}</p>
-            <a
-              href="https://league.wiseoldman.net"
-              className="font-medium text-blue-400 hover:text-blue-400"
-            >
-              Go to {LEAGUES.editionName} Website
-            </a>
-          </AlertDescription>
-        </Alert>
-      )}
     </>
   );
 }

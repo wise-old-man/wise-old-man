@@ -1,9 +1,9 @@
 import prisma from '../../../../prisma';
-import logger from '../../../../services/logging.service';
+import { logger } from '../../../../services/logger.service';
 import { GroupRole, MemberActivityType, Membership, Player } from '../../../../types';
 import { BadRequestError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 
 async function changeMemberRole(
   groupId: number,
@@ -13,7 +13,7 @@ async function changeMemberRole(
   const membership = await prisma.membership.findFirst({
     where: {
       groupId,
-      player: { username: standardize(username) }
+      player: { username: standardizeUsername(username) }
     }
   });
 

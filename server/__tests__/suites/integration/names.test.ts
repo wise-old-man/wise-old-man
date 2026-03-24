@@ -7,11 +7,12 @@ import * as GroupMembersJoinedEvent from '../../../src/api/events/handlers/group
 import * as NameChangeCreatedEvent from '../../../src/api/events/handlers/name-change-created.event';
 import * as PlayerArchivedEvent from '../../../src/api/events/handlers/player-archived.event';
 import * as PlayerNameChangedEvent from '../../../src/api/events/handlers/player-name-changed.event';
-import { parseHiscoresSnapshot } from '../../../src/api/modules/snapshots/snapshot.utils';
+import { buildHiscoresSnapshot } from '../../../src/api/modules/snapshots/services/BuildHiscoresSnapshot';
 import { jobManager, JobType } from '../../../src/jobs';
 import prisma from '../../../src/prisma';
+import { HiscoresDataSchema } from '../../../src/services/jagex.service';
 import { redisClient } from '../../../src/services/redis.service';
-import { Metric, METRICS, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
+import { METRICS, PlayerAnnotationType, PlayerStatus, PlayerType } from '../../../src/types';
 import { getMetricRankKey } from '../../../src/utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../src/utils/get-metric-value-key.util';
 import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
@@ -23,8 +24,6 @@ const groupMembersJoinedEvent = jest.spyOn(GroupMembersJoinedEvent, 'handler');
 const playerArchivedEvent = jest.spyOn(PlayerArchivedEvent, 'handler');
 const playerNameChangedEvent = jest.spyOn(PlayerNameChangedEvent, 'handler');
 const nameChangeCreatedEvent = jest.spyOn(NameChangeCreatedEvent, 'handler');
-
-const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
 const globalData = {
   hiscoresRawData: '',
@@ -45,7 +44,7 @@ beforeAll(async () => {
   await resetDatabase();
   await redisClient.flushall();
 
-  globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
+  globalData.hiscoresRawData = await readFile(`${__dirname}/../../data/hiscores/psikoi_hiscores.json`);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
@@ -185,7 +184,7 @@ describe('Names API', () => {
 
       const approveResponse = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveResponse.status).toBe(200);
       expect(approveResponse.body.status).toBe('approved');
@@ -231,7 +230,7 @@ describe('Names API', () => {
       // Approve this name change
       const approvalResponse = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approvalResponse.status).toBe(200);
       expect(approvalResponse.body.status).toBe('approved');
@@ -300,7 +299,7 @@ describe('Names API', () => {
 
       const approveResponse = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveResponse.status).toBe(200);
       expect(approveResponse.body.status).toBe('approved');
@@ -337,7 +336,7 @@ describe('Names API', () => {
       const response = await api.get(`/names/2000000000`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Name change id was not found.');
+      expect(response.body).toMatchObject({ code: 'NAME_CHANGE_NOT_FOUND' });
     });
 
     it('should fetch details (pending name change)', async () => {
@@ -521,7 +520,7 @@ describe('Names API', () => {
 
       const approvalResponse = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approvalResponse.status).toBe(200);
 
@@ -536,18 +535,20 @@ describe('Names API', () => {
       const response = await api.post(`/names/2000000000/deny`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not deny (incorrect admin password)', async () => {
       const response = await api.post(`/names/2000000000/deny`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not deny (invalid id)', async () => {
-      const response = await api.post(`/names/abc/deny`).send({ adminPassword: process.env.ADMIN_PASSWORD });
+      const response = await api
+        .post(`/names/abc/deny`)
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
@@ -556,16 +557,16 @@ describe('Names API', () => {
     it('should not deny (id not found)', async () => {
       const response = await api
         .post(`/names/2000000000/deny`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Name change id was not found.');
+      expect(response.body.message).toMatch('Name change id was not found.');
     });
 
     it('should not deny (already approved)', async () => {
       const response = await api
         .post(`/names/${globalData.secondNameChangeId}/deny`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Name change status must be PENDING');
@@ -574,7 +575,7 @@ describe('Names API', () => {
     it('should deny', async () => {
       const response = await api
         .post(`/names/${globalData.firstNameChangeId}/deny`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.id).toBe(globalData.firstNameChangeId);
@@ -589,7 +590,7 @@ describe('Names API', () => {
       const response = await api.post(`/names/2000000000/approve`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
 
       expect(playerNameChangedEvent).not.toHaveBeenCalled();
     });
@@ -598,7 +599,7 @@ describe('Names API', () => {
       const response = await api.post(`/names/2000000000/approve`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
 
       expect(playerNameChangedEvent).not.toHaveBeenCalled();
     });
@@ -606,7 +607,7 @@ describe('Names API', () => {
     it('should not approve (invalid id)', async () => {
       const response = await api
         .post(`/names/abc/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
@@ -617,7 +618,7 @@ describe('Names API', () => {
     it('should not approve (id not found)', async () => {
       const response = await api
         .post(`/names/2000000000/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Name change id was not found.');
@@ -628,7 +629,7 @@ describe('Names API', () => {
     it('should not approve (not pending)', async () => {
       const response = await api
         .post(`/names/${globalData.secondNameChangeId}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Name change status must be PENDING');
@@ -645,7 +646,7 @@ describe('Names API', () => {
 
       const response = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('approved');
@@ -678,7 +679,7 @@ describe('Names API', () => {
 
       const response = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('approved');
@@ -723,7 +724,7 @@ describe('Names API', () => {
 
       const response = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('approved');
@@ -978,7 +979,7 @@ describe('Names API', () => {
 
       const response = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('approved');
@@ -1018,7 +1019,7 @@ describe('Names API', () => {
 
       const archiveResponse = await api
         .post(`/players/Nightfirecat/archive`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(archiveResponse.status).toBe(200);
 
@@ -1042,7 +1043,7 @@ describe('Names API', () => {
 
       const approveResponse = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveResponse.status).toBe(200);
       expect(approveResponse.body.status).toBe('approved');
@@ -1187,7 +1188,7 @@ describe('Names API', () => {
 
       const approveNameChangeResponse = await api
         .post(`/names/${submitNameChangeResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveNameChangeResponse.status).toBe(200);
 
@@ -1246,7 +1247,7 @@ describe('Names API', () => {
 
       const approveResponse = await api
         .post(`/names/${submitResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveResponse.status).toBe(200);
       expect(approveResponse.body.status).toBe('approved');
@@ -1263,7 +1264,7 @@ describe('Names API', () => {
     it('should recalculate competition participations on approval', async () => {
       // Setup the "old player"
       let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.FIREMAKING, value: 4_500_000 }
+        { hiscoresMetricName: 'Firemaking', value: 4_500_000 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1282,14 +1283,27 @@ describe('Names API', () => {
       });
       expect(playerSnapshot).not.toBeNull();
 
-      await prisma.snapshot.update({
-        where: {
-          id: playerSnapshot!.id
-        },
-        data: {
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12) // 12 hours ago
-        }
-      });
+      const newCreatedAt = new Date(Date.now() - 1000 * 60 * 60 * 12); // 12 hours ago
+
+      await prisma.$transaction([
+        prisma.player.update({
+          where: { id: oldPlayerUpdateResponse.body.id },
+          data: { latestSnapshotDate: null }
+        }),
+        prisma.snapshot.update({
+          where: {
+            playerId_createdAt: {
+              playerId: playerSnapshot!.playerId,
+              createdAt: playerSnapshot!.createdAt
+            }
+          },
+          data: { createdAt: newCreatedAt }
+        }),
+        prisma.player.update({
+          where: { id: oldPlayerUpdateResponse.body.id },
+          data: { latestSnapshotDate: newCreatedAt }
+        })
+      ]);
 
       const createCompetitionResponse = await api.post('/competitions').send({
         title: 'Test',
@@ -1311,7 +1325,7 @@ describe('Names API', () => {
       });
 
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.FIREMAKING, value: 5_000_000 }
+        { hiscoresMetricName: 'Firemaking', value: 5_000_000 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1324,7 +1338,7 @@ describe('Names API', () => {
       await sleep(100);
 
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.FIREMAKING, value: 7_500_000 }
+        { hiscoresMetricName: 'Firemaking', value: 7_500_000 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -1360,7 +1374,7 @@ describe('Names API', () => {
 
       const approveNameChangeResponse = await api
         .post(`/names/${submitNameChangeResponse.body.id}/approve`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(approveNameChangeResponse.status).toBe(200);
 
@@ -1528,7 +1542,7 @@ describe('Names API', () => {
       const response = await api.post(`/names/walter/clear-history`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not clear history (incorrect admin password)', async () => {
@@ -1537,13 +1551,13 @@ describe('Names API', () => {
       });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe('Incorrect admin password.');
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not clear history (player not found)', async () => {
       const response = await api
         .post(`/names/walter/clear-history`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
@@ -1552,7 +1566,7 @@ describe('Names API', () => {
     it('should not clear history (no name changes)', async () => {
       const response = await api
         .post(`/names/zezima/clear-history`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('No name changes were found for this player.');
@@ -1561,7 +1575,7 @@ describe('Names API', () => {
     it('should clear history', async () => {
       const response = await api
         .post(`/names/usbc/clear-history`)
-        .send({ adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
       expect(response.body.count).toBe(6);
@@ -1650,7 +1664,10 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await parseHiscoresSnapshot(oldPlayerId, globalData.hiscoresRawData);
+  const snapshotData = buildHiscoresSnapshot(
+    oldPlayerId,
+    HiscoresDataSchema.parse(JSON.parse(globalData.hiscoresRawData))
+  );
 
   METRICS.forEach(m => {
     filteredSnapshotData[getMetricValueKey(m)] = snapshotData[getMetricValueKey(m)];
@@ -1659,10 +1676,20 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
 
   // Create two pre-transition-date snapshots
   await prisma.snapshot.create({
-    data: { ...filteredSnapshotData, playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
+    data: {
+      ...filteredSnapshotData,
+      playerId: newPlayerId,
+      oborKills: 30,
+      createdAt: mockDate
+    }
   });
   await prisma.snapshot.create({
-    data: { ...filteredSnapshotData, playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
+    data: {
+      ...filteredSnapshotData,
+      playerId: newPlayerId,
+      oborKills: 30,
+      createdAt: new Date(mockDate.getTime() + 1000)
+    }
   });
 
   // Create a pre-transition-date test competition and add this player to it
@@ -1769,7 +1796,10 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await parseHiscoresSnapshot(oldPlayerId, globalData.hiscoresRawData);
+  const snapshotData = buildHiscoresSnapshot(
+    oldPlayerId,
+    HiscoresDataSchema.parse(JSON.parse(globalData.hiscoresRawData))
+  );
 
   METRICS.forEach(m => {
     filteredSnapshotData[getMetricValueKey(m)] = snapshotData[getMetricValueKey(m)];

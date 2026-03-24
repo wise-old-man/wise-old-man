@@ -9,18 +9,18 @@ import {
 } from '../../services/patreon.service';
 import { Patron } from '../../types';
 import { omit } from '../../utils/omit.util';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
-export class SyncPatronsJob extends Job<unknown> {
+export const SyncPatronsJobHandler: JobHandler = {
   async execute() {
-    if (!process.env.PATREON_BEARER_TOKEN || process.env.NODE_ENV !== 'production') {
+    if (!process.env.SERVER_PATREON_BEARER_TOKEN || process.env.NODE_ENV !== 'production') {
       return;
     }
 
     await syncPatrons();
     await syncBenefits();
   }
-}
+};
 
 async function syncPatrons() {
   const currentPatrons = await prisma.patron.findMany();
@@ -100,7 +100,7 @@ async function syncPatrons() {
 
     sendDiscordWebhook({
       content: `**🎉 New Patron:** ${p.name} (T${p.tier}) - ${discordTag}`,
-      webhookUrl: process.env.DISCORD_PATREON_WEBHOOK_URL
+      webhookUrl: process.env.SERVER_DISCORD_PATREON_WEBHOOK_URL
     });
   });
 
@@ -109,7 +109,7 @@ async function syncPatrons() {
 
     sendDiscordWebhook({
       content: `**😢 Patron canceled:** ${p.name} (T${p.tier}) - ${discordTag}`,
-      webhookUrl: process.env.DISCORD_PATREON_WEBHOOK_URL
+      webhookUrl: process.env.SERVER_DISCORD_PATREON_WEBHOOK_URL
     });
   });
 
@@ -122,12 +122,12 @@ async function syncPatrons() {
     if (field === 'tier') {
       sendDiscordWebhook({
         content: `**🔔 Patron tier changed:** ${p.name} (T${p.tier}) - ${discordTag}`,
-        webhookUrl: process.env.DISCORD_PATREON_WEBHOOK_URL
+        webhookUrl: process.env.SERVER_DISCORD_PATREON_WEBHOOK_URL
       });
     } else if (field === 'discordId') {
       sendDiscordWebhook({
         content: `**🔔 Patron Discord changed:** ${p.name} (T${p.tier}) - ${discordTag}`,
-        webhookUrl: process.env.DISCORD_PATREON_WEBHOOK_URL
+        webhookUrl: process.env.SERVER_DISCORD_PATREON_WEBHOOK_URL
       });
     }
   });

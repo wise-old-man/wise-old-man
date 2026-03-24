@@ -1,39 +1,45 @@
 import { eventEmitter, EventType } from '../../api/events';
 import {
-  calculatePastDates,
+  findMissingAchievementDates,
   getAchievementDefinitions
 } from '../../api/modules/achievements/achievement.utils';
-import { findPlayerSnapshots } from '../../api/modules/snapshots/services/FindPlayerSnapshotsService';
 import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snapshot.utils';
 import prisma from '../../prisma';
+import { METRICS } from '../../types';
 import { getMetricValueKey } from '../../utils/get-metric-value-key.util';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { getRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
+import { JobHandler } from '../types/job-handler.type';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
 const UNKNOWN_DATE = new Date(0);
 
 interface Payload {
   username: string;
-  previousUpdatedAt: Date | null;
+  previousSnapshotDate: Date | null;
 }
 
-export class SyncPlayerAchievementsJob extends Job<Payload> {
-  static options: JobOptions = {
-    maxConcurrent: 5
-  };
+export const SyncPlayerAchievementsJobHandler: JobHandler<Payload> = {
+  options: {
+    maxConcurrent: 2
+  },
 
-  static getUniqueJobId(payload: Payload) {
-    return [payload.username, payload.previousUpdatedAt?.getTime()].join('_');
-  }
+  generateUniqueJobId(payload) {
+    return [payload.username, payload.previousSnapshotDate?.getTime()].join('_');
+  },
 
-  async execute(payload: Payload) {
+  async execute(payload) {
     const playerAndSnapshot = await prisma.player.findFirst({
       where: {
         username: payload.username
       },
       include: {
-        latestSnapshot: true
+        latestSnapshot: {
+          select: {
+            playerId: true,
+            createdAt: true,
+            ...getRequiredSnapshotFields(METRICS)
+          }
+        }
       }
     });
 
@@ -45,7 +51,7 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
 
     const playerId = currentSnapshot.playerId;
 
-    if (payload.previousUpdatedAt === null) {
+    if (payload.previousSnapshotDate === null) {
       // If this is the first time player's being updated, find missing achievements and set them to "unknown" date
       const missingAchievements = ALL_DEFINITIONS.filter(d => d.validate(currentSnapshot)).map(
         ({ name, metric, threshold }) => ({
@@ -80,9 +86,14 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
     }
 
     const previousSnapshot = await prisma.snapshot.findFirst({
+      select: {
+        playerId: true,
+        createdAt: true,
+        ...getRequiredSnapshotFields(METRICS)
+      },
       where: {
         playerId,
-        createdAt: payload.previousUpdatedAt
+        createdAt: payload.previousSnapshotDate
       }
     });
 
@@ -112,10 +123,7 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
       return;
     }
 
-    // Search dates for missing definitions, based on player history
-    const allSnapshots = await findPlayerSnapshots(playerId);
-
-    const missingPastDates = calculatePastDates(allSnapshots.reverse(), missingDefinitions);
+    const missingPastDates = await findMissingAchievementDates(playerId, missingDefinitions);
 
     // Create achievement instances for all the missing definitions
     const missingAchievements = missingDefinitions.map(({ name, metric, threshold }) => {
@@ -178,4 +186,4 @@ export class SyncPlayerAchievementsJob extends Job<Payload> {
       }))
     });
   }
-}
+};

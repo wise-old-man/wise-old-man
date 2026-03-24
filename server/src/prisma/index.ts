@@ -15,6 +15,20 @@ const prisma = new PrismaClient();
 
 const extendedClient = prisma.$extends({
   result: {
+    trendDatapoint: {
+      sum: {
+        needs: { sum: true },
+        compute({ sum }) {
+          return parseBigInt(sum);
+        }
+      },
+      maxValue: {
+        needs: { maxValue: true },
+        compute({ maxValue }) {
+          return parseBigInt(maxValue);
+        }
+      }
+    },
     record: {
       value: {
         needs: { metric: true, value: true },

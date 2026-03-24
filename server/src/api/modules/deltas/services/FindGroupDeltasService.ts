@@ -39,7 +39,7 @@ async function findGroupDeltas(
           player: {
             include: {
               // If fetching by period (not custom time range), the "end" snapshots will always be
-              // the player's latest snapshots. So it's cheaper to just pull them from the latestSnapshotId relation
+              // the player's latest snapshots. So it's cheaper to just pull them from the "latestSnapshot" relation
               latestSnapshot: !!period
             }
           }

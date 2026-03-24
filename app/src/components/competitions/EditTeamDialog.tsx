@@ -51,7 +51,7 @@ export function EditTeamDialog(props: EditTeamDialogProps) {
 
   function handleRemovePlayer(username: string) {
     setParticipants(
-      participants.filter((p) => standardizeUsername(p) !== standardizeUsername(username))
+      participants.filter((p) => standardizeUsername(p) !== standardizeUsername(username)),
     );
   }
 

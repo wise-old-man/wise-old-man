@@ -7,11 +7,14 @@ on:
     paths:
       - "client-js/**"
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4
@@ -19,16 +22,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18.18.0
+          node-version: 22
+
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - name: Clear NODE_AUTH_TOKEN
+        run: echo "NODE_AUTH_TOKEN=" >> $GITHUB_ENV
 
       - name: Install server dependencies
         run: cd server && npm ci
 
-      - name: Install client-js dependencies & build JavaScript bundle
+      - name: Install client-js dependencies
         run: cd client-js && npm ci
 
       - name: Publish package
-        uses: JS-DevTools/npm-publish@v1
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
-          package: ./client-js/package.json
+        run: cd client-js && npm publish --provenance --access public

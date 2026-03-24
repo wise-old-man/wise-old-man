@@ -54,8 +54,8 @@ function convertToDiffTimeseries(metric: Metric, history: ParticipantHistoryResp
     .sort()
     .map((p) => {
       const value =
-        isBoss(metric) || isActivity(metric)
-          ? Math.max(p.value, MetricProps[metric].minimumValue - 1)
+        p.value === -1 && (isBoss(metric) || isActivity(metric))
+          ? MetricProps[metric].minimumValue - 1
           : p.value;
 
       return { time: p.date, value: value };

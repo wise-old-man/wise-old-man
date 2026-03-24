@@ -1,36 +1,46 @@
-import { FlatCompat } from '@eslint/eslintrc'
-import { defineConfig, globalIgnores } from 'eslint/config';
-import tseslint from 'typescript-eslint';
+import { FlatCompat } from "@eslint/eslintrc";
+import { defineConfig, globalIgnores } from "eslint/config";
+import prettierConfig from "eslint-config-prettier";
+import prettierPlugin from "eslint-plugin-prettier";
+import tseslint from "typescript-eslint";
 
 const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname
-})
+  baseDirectory: import.meta.dirname,
+});
 
 export default defineConfig([
   {
     extends: [
       ...compat.config({
-        extends: ['next', 'next/core-web-vitals'],
+        extends: ["next", "next/core-web-vitals"],
         rules: {
-          '@next/next/no-html-link-for-pages': 'off'
+          "@next/next/no-html-link-for-pages": "off",
         },
         settings: {
           next: {
-            rootDir: 'app/'
-          }
-        }
-      })
+            rootDir: "app/",
+          },
+        },
+      }),
     ],
-    files: ['**/*.ts', '**/*.tsx'],
+    files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        project: './tsconfig.json',
-        sourceType: 'module',
-        tsconfigRootDir: import.meta.dirname
-      }
+        project: "./tsconfig.json",
+        sourceType: "module",
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
-    name: 'wise-old-man/app',
+    name: "wise-old-man/app",
   },
-  globalIgnores(['.next', 'node_modules'])
+  {
+    ...prettierConfig,
+    name: "prettier-config",
+    plugins: { prettier: prettierPlugin },
+    rules: {
+      "prettier/prettier": "error",
+    },
+  },
+  globalIgnores([".next", "node_modules"]),
 ]);

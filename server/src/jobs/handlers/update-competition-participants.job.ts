@@ -1,6 +1,6 @@
 import { fetchCompetitionDetails } from '../../api/modules/competitions/services/FetchCompetitionDetailsService';
 import prisma, { PrismaTypes } from '../../prisma';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 import { JobPriority } from '../types/job-priority.enum';
 import { JobType } from '../types/job-type.enum';
 
@@ -9,12 +9,8 @@ interface Payload {
   trigger: 'competition-started' | 'competition-ending-2h' | 'competition-ending-12h';
 }
 
-export class UpdateCompetitionParticipantsJob extends Job<Payload> {
-  static getUniqueJobId(payload: Payload) {
-    return [payload.competitionId, payload.trigger].join('_');
-  }
-
-  async execute(payload: Payload) {
+export const UpdateCompetitionParticipantsJobHandler: JobHandler<Payload> = {
+  async execute(payload, context) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -25,7 +21,7 @@ export class UpdateCompetitionParticipantsJob extends Job<Payload> {
       competitionDetails.participations
         .filter(p => p.progress.gained > 0) // Only update players that have gained xp
         .forEach(p => {
-          this.jobManager.add(JobType.UPDATE_PLAYER, {
+          context.jobManager.add(JobType.UPDATE_PLAYER, {
             username: p.player.username
           });
         });
@@ -58,11 +54,11 @@ export class UpdateCompetitionParticipantsJob extends Job<Payload> {
     });
 
     participants.forEach(({ player }) => {
-      this.jobManager.add(
+      context.jobManager.add(
         JobType.UPDATE_PLAYER,
         { username: player.username },
         { priority: payload.trigger === 'competition-started' ? JobPriority.HIGH : JobPriority.LOW }
       );
     });
   }
-}
+};

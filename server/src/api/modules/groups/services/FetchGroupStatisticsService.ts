@@ -12,7 +12,7 @@ import {
 } from '../../../../types';
 import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
-import { getLevel } from '../../../../utils/shared';
+import { getLevel, REAL_SKILLS } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import {
   formatPlayerResponse,
@@ -63,7 +63,7 @@ async function fetchGroupStatistics(groupId: number): Promise<GroupStatisticsRes
   }
 
   const maxedCombatCount = allSnapshots.filter(s => getCombatLevelFromSnapshot(s) === 126).length;
-  const maxedTotalCount = allSnapshots.filter(s => getTotalLevel(s) === 2277).length;
+  const maxedTotalCount = allSnapshots.filter(s => getTotalLevel(s) === REAL_SKILLS.length * 99).length;
   const maxed200msCount = allSnapshots.map(s => get200msCount(s)).reduce((acc, cur) => acc + cur, 0);
 
   const averageSnapshot = average(allSnapshots);

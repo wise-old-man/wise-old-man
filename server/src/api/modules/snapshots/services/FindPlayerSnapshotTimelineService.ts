@@ -4,7 +4,7 @@ import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { parsePeriodExpression } from '../../../../utils/shared/parse-period-expression.util';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 
 type Datapoint = { value: number; rank: number; date: Date };
 
@@ -21,7 +21,7 @@ async function findPlayerSnapshotTimeline(
 
   const player = await prisma.player.findFirst({
     where: {
-      username: standardize(username)
+      username: standardizeUsername(username)
     }
   });
 

@@ -1,6 +1,6 @@
 import { AsyncResult, combine, complete, Errored, errored, fromPromise, isErrored } from '@attio/fetchable';
 import prisma, { PrismaTypes } from '../../../../prisma';
-import logger from '../../../../services/logging.service';
+import { logger } from '../../../../services/logger.service';
 import {
   Competition,
   CompetitionTeam,
@@ -13,7 +13,7 @@ import {
 import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 import { MetricProps } from '../../../../utils/shared';
 import { eventEmitter, EventType } from '../../../events';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 import {
@@ -49,35 +49,38 @@ export async function editCompetition(
   | { code: 'COMPETITION_START_DATE_AFTER_END_DATE' }
   | { code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' }
   | { code: 'METRICS_MUST_BE_OF_SAME_TYPE' }
-  | { code: 'OPTED_OUT_PLAYERS_FOUND'; displayNames: string[] }
+  | { code: 'OPTED_OUT_PARTICIPANTS_FOUND'; data: string[] }
   | { code: 'FAILED_TO_UPDATE_COMPETITION' }
   | {
       code: 'FAILED_TO_VALIDATE_PARTICIPANTS';
       subError:
-        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] };
+        | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] };
     }
   | {
       code: 'FAILED_TO_VALIDATE_TEAMS';
       subError:
-        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] };
+        | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; data: string[] };
     }
 > {
-  const { title, metrics, startsAt, endsAt, participants, teams } = payload;
-
-  if (participants && participants.length > 0 && teams && teams.length > 0) {
+  if (
+    payload.participants !== undefined &&
+    payload.participants.length > 0 &&
+    payload.teams &&
+    payload.teams.length > 0
+  ) {
     return errored({ code: 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE' });
   }
 
   if (
-    title === undefined &&
-    metrics === undefined &&
-    startsAt === undefined &&
-    endsAt === undefined &&
-    teams === undefined &&
-    participants === undefined
+    payload.title === undefined &&
+    payload.metrics === undefined &&
+    payload.startsAt === undefined &&
+    payload.endsAt === undefined &&
+    payload.teams === undefined &&
+    payload.participants === undefined
   ) {
     return errored({ code: 'NOTHING_TO_UPDATE' });
   }
@@ -92,24 +95,32 @@ export async function editCompetition(
     return errored({ code: 'COMPETITION_NOT_FOUND' });
   }
 
-  if (startsAt || endsAt) {
-    const startDate = startsAt || competition.startsAt;
-    const endDate = endsAt || competition.endsAt;
+  if (payload.startsAt !== undefined || payload.endsAt !== undefined) {
+    const startDate = payload.startsAt ?? competition.startsAt;
+    const endDate = payload.endsAt ?? competition.endsAt;
 
     if (endDate.getTime() < startDate.getTime()) {
       return errored({ code: 'COMPETITION_START_DATE_AFTER_END_DATE' });
     }
   }
 
-  if (competition.type === CompetitionType.CLASSIC && teams !== undefined && teams.length > 0) {
+  if (
+    competition.type === CompetitionType.CLASSIC &&
+    payload.teams !== undefined &&
+    payload.teams.length > 0
+  ) {
     return errored({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
   }
 
-  if (competition.type === CompetitionType.TEAM && participants !== undefined && participants.length > 0) {
+  if (
+    competition.type === CompetitionType.TEAM &&
+    payload.participants !== undefined &&
+    payload.participants.length > 0
+  ) {
     return errored({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
   }
 
-  if (metrics !== undefined && new Set(metrics.map(m => MetricProps[m].type)).size > 1) {
+  if (payload.metrics !== undefined && new Set(payload.metrics.map(m => MetricProps[m].type)).size > 1) {
     return errored({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
   }
 
@@ -119,11 +130,16 @@ export async function editCompetition(
     return participationsResult;
   }
 
-  if (title) competitionUpdatePayload.title = sanitizeWhitespace(title);
-  if (startsAt) competitionUpdatePayload.startsAt = startsAt;
-  if (endsAt) competitionUpdatePayload.endsAt = endsAt;
+  if (payload.title) competitionUpdatePayload.title = sanitizeWhitespace(payload.title);
+  if (payload.startsAt) competitionUpdatePayload.startsAt = payload.startsAt;
+  if (payload.endsAt) competitionUpdatePayload.endsAt = payload.endsAt;
 
-  const updateResult = await executeUpdate(id, competitionUpdatePayload, metrics, participationsResult.value);
+  const updateResult = await executeUpdate(
+    id,
+    competitionUpdatePayload,
+    payload.metrics,
+    participationsResult.value
+  );
 
   if (isErrored(updateResult)) {
     return updateResult;
@@ -159,6 +175,8 @@ export async function editCompetition(
     await recalculateParticipationsEnd(competition.id, updatedCompetition.endsAt);
   }
 
+  eventEmitter.emit(EventType.COMPETITION_UPDATED, { competitionId: id });
+
   return complete(updatedCompetition);
 }
 
@@ -166,8 +184,6 @@ async function invalidateParticipations(competitionId: number) {
   await prisma.participation.updateMany({
     where: { competitionId },
     data: {
-      startSnapshotId: null,
-      endSnapshotId: null,
       startSnapshotDate: null,
       endSnapshotDate: null
     }
@@ -195,7 +211,6 @@ async function recalculateParticipationsStart(competitionId: number, startDate: 
       await transaction.participation.update({
         where: { playerId_competitionId: { competitionId, playerId } },
         data: {
-          startSnapshotId: snapshotMap.get(playerId)?.id ?? null,
           startSnapshotDate: snapshotMap.get(playerId)?.createdAt ?? null
         }
       });
@@ -224,7 +239,6 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
       await transaction.participation.update({
         where: { playerId_competitionId: { competitionId, playerId } },
         data: {
-          endSnapshotId: snapshotMap.get(playerId)?.id ?? null,
           endSnapshotDate: snapshotMap.get(playerId)?.createdAt ?? null
         }
       });
@@ -242,7 +256,7 @@ async function executeUpdate(
     updatedCompetition: Competition;
     addedParticipations: PartialParticipation[];
   },
-  { code: 'FAILED_TO_UPDATE_COMPETITION' } | { code: 'OPTED_OUT_PLAYERS_FOUND'; displayNames: string[] }
+  { code: 'FAILED_TO_UPDATE_COMPETITION' } | { code: 'OPTED_OUT_PARTICIPANTS_FOUND'; data: string[] }
 > {
   const transactionResult = await fromPromise(
     prisma.$transaction(async transaction => {
@@ -337,8 +351,8 @@ async function executeUpdate(
         if (optOuts.length > 0) {
           // Throw here to rollback the transaction
           throw {
-            code: 'OPTED_OUT_PLAYERS_FOUND',
-            displayNames: optOuts.map(o => o.player.displayName)
+            code: 'OPTED_OUT_PARTICIPANTS_FOUND',
+            data: optOuts.map(o => o.player.displayName)
           };
         }
       }
@@ -390,8 +404,8 @@ async function executeUpdate(
 
     // A little type coercion never hurt nobody...right?
     return transactionResult as Errored<{
-      code: 'OPTED_OUT_PLAYERS_FOUND';
-      displayNames: string[];
+      code: 'OPTED_OUT_PARTICIPANTS_FOUND';
+      data: string[];
     }>;
   }
 
@@ -406,7 +420,7 @@ function getParticipationDiffs(
   const currentUsernames = currentParticipations.map(m => m.player.username);
 
   // The usernames of all future (post-edit) participants
-  const nextUsernames = nextParticipations.map(p => standardize(p.username));
+  const nextUsernames = nextParticipations.map(p => standardizeUsername(p.username));
 
   // These players should be added to the competition
   const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
@@ -473,15 +487,15 @@ async function getValidatedParticipations(
   | {
       code: 'FAILED_TO_VALIDATE_PARTICIPANTS';
       subError:
-        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] };
+        | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] };
     }
   | {
       code: 'FAILED_TO_VALIDATE_TEAMS';
       subError:
-        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] };
+        | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; data: string[] };
     }
 > {
   let participations: PartialParticipation[] | undefined = undefined;
@@ -504,7 +518,7 @@ async function getValidatedParticipations(
   }
 
   if (teams !== undefined && competition.type === CompetitionType.TEAM) {
-    // ensures every team name is sanitized, and every username is standardized
+    // ensures every team name is sanitized, and every username is standardizeUsernamed
     const newTeams = sanitizeTeams(teams);
 
     const teamValidationResult = combine([

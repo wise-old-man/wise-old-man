@@ -756,5 +756,25 @@ export default [
       }
     ],
     bonuses: []
+  },
+  {
+    skill: Skill.SAILING,
+    methods: [
+      { startExp: 0, rate: 10_000, description: 'Port tasks, Charting & Quests' },
+      { startExp: 13_363, rate: 25_000, description: 'Barracuda trials (The Tempor Tantrum)' },
+      { startExp: 101_333, rate: 35_000, description: 'Large shipwrecks with boost' },
+      { startExp: 166_636, rate: 85_000, description: 'Barracuda Trials (The Jubbly Jive)' },
+      {
+        startExp: 899_257,
+        rate: 205_000,
+        description: 'Barracuda Trials (The Gwenith Glide) - Camphor hull'
+      },
+      {
+        startExp: 5_346_332,
+        rate: 240_000,
+        description: 'Barracuda Trials (The Gwenith Glide) - Rosewood hull'
+      }
+    ],
+    bonuses: []
   }
 ];

@@ -1,5 +1,4 @@
-import csv from 'csvtojson';
-import { ACTIVITIES, BOSSES, Metric, METRICS, Skill, SKILLS, Snapshot } from '../../../types';
+import { BOSSES, Metric, METRICS, Skill, Snapshot } from '../../../types';
 import { getMetricRankKey } from '../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey, MetricValueKey } from '../../../utils/get-metric-value-key.util';
 import {
@@ -13,9 +12,6 @@ import {
 import { ServerError } from '../../errors';
 import { getPlayerEHB, getPlayerEHP } from '../../modules/efficiency/efficiency.utils';
 
-// Skip Grid Points, Deadman Points and Legacy Bounty Hunter (hunter/rogue)
-export const SKIPPED_ACTIVITY_INDICES = [0, 2, 5, 6];
-
 // These metrics were added to the hiscores long after their in-game release,
 // causing players to go from unranked to very high values in a single update.
 export const POST_RELEASE_HISCORE_ADDITIONS = [
@@ -27,79 +23,6 @@ export const POST_RELEASE_HISCORE_ADDITIONS = [
 
 // On this date, the Bounty Hunter was updated and scores were reset.
 const BOUNTY_HUNTER_UPDATE_DATE = new Date('2023-05-24T10:30:00.000Z');
-
-async function parseHiscoresSnapshot(playerId: number, rawCSV: string, previous?: Snapshot) {
-  // Convert the CSV text into an array of values
-  // Ex: for skills, each row is [rank, level, experience]
-  const rows = await csv({ noheader: true, output: 'csv' }).fromString(rawCSV);
-
-  // If a new skill/activity/boss was added to the hiscores,
-  // prevent any further snapshot saves to prevent incorrect DB data
-  if (rows.length !== SKILLS.length + ACTIVITIES.length + BOSSES.length + SKIPPED_ACTIVITY_INDICES.length) {
-    throw new ServerError('The OSRS Hiscores were updated. Please wait for a fix.');
-  }
-
-  const snapshotFields: Partial<Snapshot> = {
-    playerId,
-    createdAt: new Date()
-  };
-
-  let totalExp = 0;
-
-  // Populate the skills' values with the values from the csv
-  SKILLS.forEach((s, i) => {
-    const [rank, level, experience] = rows[i];
-    let expNum = parseInt(experience);
-
-    if (s === Metric.OVERALL && expNum === 0) {
-      // Sometimes the hiscores return 0 as unranked, but we want to be consistent and keep -1 as the "unranked" value
-      expNum = -1;
-    }
-
-    if (expNum === -1 && previous && previous[getMetricValueKey(s)] > -1) {
-      // If the player was previously ranked in this skill, and then somehow became unranked, just fallback to the previous value
-      expNum = previous[getMetricValueKey(s)];
-    }
-
-    snapshotFields[getMetricRankKey(s)] = parseInt(rank);
-    snapshotFields[getMetricValueKey(s)] = expNum;
-
-    if (s === Metric.OVERALL) {
-      snapshotFields.overallLevel = level === '0' ? -1 : parseInt(level);
-    } else {
-      totalExp += Math.max(0, expNum);
-    }
-  });
-
-  // If this player is unranked in overall exp, we should set their overall exp to the total exp of all skills
-  // since that's at least closer to the real number than -1
-  if (snapshotFields[getMetricValueKey(Metric.OVERALL)]! < totalExp && totalExp > 0) {
-    snapshotFields[getMetricValueKey(Metric.OVERALL)] = totalExp;
-  }
-
-  // Populate the activities' values with the values from the csv
-  for (let i = 0; i < ACTIVITIES.length + SKIPPED_ACTIVITY_INDICES.length; i++) {
-    if (SKIPPED_ACTIVITY_INDICES.includes(i)) continue;
-
-    const [rank, score] = rows[SKILLS.length + i];
-    const skippedCount = SKIPPED_ACTIVITY_INDICES.filter(x => x < i).length;
-
-    const activity = ACTIVITIES[i - skippedCount];
-
-    snapshotFields[getMetricRankKey(activity)] = parseInt(rank);
-    snapshotFields[getMetricValueKey(activity)] = parseInt(score);
-  }
-
-  // Populate the bosses' values with the values from the csv
-  BOSSES.forEach((s, i) => {
-    const [rank, kills] = rows[SKILLS.length + ACTIVITIES.length + SKIPPED_ACTIVITY_INDICES.length + i];
-
-    snapshotFields[getMetricRankKey(s)] = parseInt(rank);
-    snapshotFields[getMetricValueKey(s)] = parseInt(kills);
-  });
-
-  return snapshotFields as Snapshot;
-}
 
 /**
  * Decides whether two snapshots are within reasonable time/progress distance
@@ -118,7 +41,7 @@ function hasChanged(before: Snapshot, after: Snapshot): boolean {
   const metricsToIgnore = [Metric.EHP, Metric.EHB];
   const isValidKey = (key: MetricValueKey<Metric>) => !metricsToIgnore.map(getMetricValueKey).includes(key);
 
-  return METRICS.map(getMetricValueKey).some(k => isValidKey(k) && after[k] > -1 && after[k] > before[k]);
+  return METRICS.map(getMetricValueKey).some(k => isValidKey(k) && after[k] > 0 && after[k] > before[k]);
 }
 
 /**
@@ -179,7 +102,6 @@ function average(snapshots: Snapshot[]): Snapshot {
   }
 
   const base: Partial<Snapshot> = {
-    id: -1,
     playerId: -1,
     importedAt: null,
     createdAt: new Date()
@@ -225,7 +147,9 @@ function getMinimumExp(snapshot: Snapshot) {
 }
 
 function getCappedExp(snapshot: Snapshot, max: number) {
-  return REAL_SKILLS.map(s => Math.min(snapshot[getMetricValueKey(s)], max)).reduce((acc, cur) => acc + cur);
+  return REAL_SKILLS.map(s => Math.min(snapshot[getMetricValueKey(s)], max)).reduce(
+    (acc, cur) => acc + Math.max(cur, 0)
+  );
 }
 
 function getTotalLevel(snapshot: Snapshot) {
@@ -280,6 +204,5 @@ export {
   isF2p,
   isLvl3,
   isZerker,
-  parseHiscoresSnapshot,
   withinRange
 };

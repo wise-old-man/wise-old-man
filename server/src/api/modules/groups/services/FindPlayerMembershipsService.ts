@@ -2,7 +2,7 @@ import prisma from '../../../../prisma';
 import { Group, Membership } from '../../../../types';
 import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 
 async function findPlayerMemberships(
   username: string,
@@ -16,7 +16,7 @@ async function findPlayerMemberships(
   const memberships = await prisma.membership.findMany({
     where: {
       player: {
-        username: standardize(username)
+        username: standardizeUsername(username)
       },
       group: {
         visible: true
@@ -40,7 +40,7 @@ async function findPlayerMemberships(
 
   if (memberships.length === 0) {
     const player = await prisma.player.findFirst({
-      where: { username: standardize(username) }
+      where: { username: standardizeUsername(username) }
     });
 
     if (!player) {

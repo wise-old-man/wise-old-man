@@ -2,7 +2,7 @@ import prisma from '../../../../prisma';
 import { Country, Player } from '../../../../types';
 import { findCountry } from '../../../../utils/shared';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
-import { standardize } from '../player.utils';
+import { standardizeUsername } from '../player.utils';
 
 async function changePlayerCountry(username: string, country: string | null): Promise<Player> {
   const countryObject = country ? findCountry(country) : null;
@@ -22,7 +22,7 @@ async function changePlayerCountry(username: string, country: string | null): Pr
   try {
     const updatedPlayer = await prisma.player.update({
       data: { country: countryCode ? countryCode : null },
-      where: { username: standardize(username) }
+      where: { username: standardizeUsername(username) }
     });
 
     return updatedPlayer;

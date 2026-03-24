@@ -13,7 +13,7 @@ const RESULTS_PER_PAGE = 20;
 function useInfiniteLoad(
   groupId: number,
   initialData: Array<MemberActivityResponse & { player: PlayerResponse }>,
-  options: { enabled?: boolean }
+  options: { enabled?: boolean },
 ) {
   const client = useWOMClient();
 

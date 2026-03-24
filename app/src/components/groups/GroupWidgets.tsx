@@ -106,7 +106,7 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
   const ongoing = competitions.filter((c) => getCompetitionStatus(c) === CompetitionStatus.ONGOING);
 
   if (ongoing.length > 0) {
-    featured = ongoing.sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())[0];
+    featured = ongoing.sort((a, b) => a.endsAt.getTime() - b.endsAt.getTime())[0];
   } else {
     const upcoming = competitions.filter((c) => getCompetitionStatus(c) === CompetitionStatus.UPCOMING);
 
@@ -138,7 +138,7 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
       <div
         className={cn(
           "group relative flex h-[5rem] w-full items-center gap-x-5 overflow-hidden rounded-lg border border-gray-600 pl-6 pr-8 hover:border-gray-400",
-          featured.metrics.length > 1 && "gap-x-4 pl-4"
+          featured.metrics.length > 1 && "gap-x-4 pl-4",
         )}
       >
         <Image

@@ -32,6 +32,7 @@ export async function PlayerOverviewMemberships(props: PlayerOverviewMemberships
           <Link
             prefetch={false}
             href={`/players/${username}/groups`}
+            rel="nofollow"
             className="text-xs font-medium text-gray-200 hover:underline"
           >
             View all

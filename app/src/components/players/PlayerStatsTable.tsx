@@ -173,7 +173,7 @@ function getVirtualTotalLevel(skills: Record<Skill, SkillValue>): number {
 }
 
 function PlayerSkillsTable(
-  props: PropsWithChildren<{ player: PlayerDetailsResponse; showVirtualLevels: boolean }>
+  props: PropsWithChildren<{ player: PlayerDetailsResponse; showVirtualLevels: boolean }>,
 ) {
   const { children, player, showVirtualLevels } = props;
 
@@ -186,7 +186,7 @@ function PlayerSkillsTable(
     .map((v) =>
       showVirtualLevels && v.metric === Skill.OVERALL
         ? { ...v, level: getVirtualTotalLevel(player.latestSnapshot!.data.skills) }
-        : v
+        : v,
     );
 
   const rows = [
@@ -213,7 +213,7 @@ function PlayerSkillsTable(
 
 function getSkillColumnDefinitions(
   player: PlayerResponse,
-  showVirtualLevels: boolean
+  showVirtualLevels: boolean,
 ): ColumnDef<SkillValue>[] {
   const hasSpecialEhp =
     player.type !== PlayerType.REGULAR || ["f2p", "f2p_lvl3", "lvl3"].includes(player.build);
@@ -411,11 +411,10 @@ function getBossColumnDefinitions(player: PlayerResponse): ColumnDef<BossValue>[
           return (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span>&lt; {minimum}</span>
+                <span className="text-gray-300">---</span>
               </TooltipTrigger>
               <TooltipContent>
-                This player is unranked in {MetricProps[row.original.metric].name}. The Hiscores only
-                start tracking kills at {minimum} kc.
+                This player is unranked in {MetricProps[row.original.metric].name}.
               </TooltipContent>
             </Tooltip>
           );
@@ -434,7 +433,7 @@ function getBossColumnDefinitions(player: PlayerResponse): ColumnDef<BossValue>[
           return (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span>---</span>
+                <span className="text-gray-300">---</span>
               </TooltipTrigger>
               <TooltipContent>
                 This player is unranked in {MetricProps[row.original.metric].name}.
@@ -459,7 +458,7 @@ function getBossColumnDefinitions(player: PlayerResponse): ColumnDef<BossValue>[
           return (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span>---</span>
+                <span className="text-gray-300">---</span>
               </TooltipTrigger>
               <TooltipContent>
                 This player is unranked in {MetricProps[row.original.metric].name}.
@@ -482,7 +481,7 @@ function PlayerActivitiesTable(props: PropsWithChildren<{ player: PlayerDetailsR
   }
 
   const rows = Object.values(player.latestSnapshot.data.activities).filter(
-    (s) => s.metric in MetricProps
+    (s) => s.metric in MetricProps,
   );
 
   return (

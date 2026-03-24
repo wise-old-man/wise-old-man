@@ -1,33 +1,50 @@
-import logger from '../services/logging.service';
+import { logger } from '../services/logger.service';
 
-export async function handleServerInit(initServerFn: () => Promise<() => Promise<void>>) {
-  const handleShutdown = await initServerFn().then(fn => {
-    return async () => {
-      try {
-        await fn();
+export async function handleServerInit(serverName: string, initFn: () => Promise<() => Promise<void>>) {
+  let shutdownInProgress: Promise<void> | null = null;
+
+  logger.info(`Starting ${serverName}...`);
+
+  const cleanupFn = await initFn();
+
+  const handleShutdown = async (signal: string) => {
+    if (shutdownInProgress) {
+      logger.info(`Shutdown already in progress (received ${signal})`);
+      return shutdownInProgress;
+    }
+
+    logger.info(`Received ${signal}, shutting down gracefully...`);
+
+    shutdownInProgress = Promise.race([
+      cleanupFn(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Shutdown timeout after 60s')), 60_000))
+    ])
+      .then(() => {
         logger.info('Shutdown complete.');
         process.exit(0);
-      } catch (error) {
-        logger.error('Error during shutdown:', error, true);
+      })
+      .catch(error => {
+        logger.error('Error during shutdown:', error);
         process.exit(1);
-      }
-    };
+      });
+
+    return shutdownInProgress;
+  };
+
+  process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+  process.on('SIGINT', () => handleShutdown('SIGINT'));
+
+  process.on('unhandledRejection', async reason => {
+    logger.error('Unhandled Rejection:', reason);
+    await handleShutdown('unhandledRejection');
   });
 
-  process.on('SIGTERM', handleShutdown);
-  process.on('SIGINT', handleShutdown);
+  process.on('uncaughtException', async error => {
+    logger.error('Uncaught Exception:', error);
+    await handleShutdown('uncaughtException');
+  });
 
   process.on('exit', code => {
     logger.info(`Process exiting with code ${code}`);
-  });
-
-  process.on('unhandledRejection', reason => {
-    logger.error('Unhandled Rejection:', reason, true);
-    handleShutdown();
-  });
-
-  process.on('uncaughtException', error => {
-    logger.error('Uncaught Exception:', error, true);
-    handleShutdown();
   });
 }

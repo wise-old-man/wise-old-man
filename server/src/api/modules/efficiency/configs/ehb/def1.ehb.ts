@@ -1,9 +1,9 @@
 import { Boss } from '../../../../../types';
 
 export default [
-  { boss: Boss.ABYSSAL_SIRE, rate: 25 },
+  { boss: Boss.ABYSSAL_SIRE, rate: 35 },
   { boss: Boss.ALCHEMICAL_HYDRA, rate: 25 },
-  { boss: Boss.AMOXLIATL, rate: 45 },
+  { boss: Boss.AMOXLIATL, rate: 55 },
   { boss: Boss.ARAXXOR, rate: 25 },
   { boss: Boss.ARTIO, rate: 50 },
   { boss: Boss.CALLISTO, rate: 85 },
@@ -19,7 +19,7 @@ export default [
   { boss: Boss.DAGANNOTH_REX, rate: 75 },
   { boss: Boss.DAGANNOTH_SUPREME, rate: 75 },
   { boss: Boss.DOOM_OF_MOKHAIOTL, rate: 16 },
-  { boss: Boss.DUKE_SUCELLUS, rate: 22 },
+  { boss: Boss.DUKE_SUCELLUS, rate: 27 },
   { boss: Boss.GENERAL_GRAARDOR, rate: 52 },
   { boss: Boss.GIANT_MOLE, rate: 90 },
   { boss: Boss.GROTESQUE_GUARDIANS, rate: 23 },
@@ -32,7 +32,7 @@ export default [
   { boss: Boss.NEX, rate: 23 },
   { boss: Boss.NIGHTMARE, rate: 12 },
   { boss: Boss.PHANTOM_MUSPAH, rate: 20 },
-  { boss: Boss.PHOSANIS_NIGHTMARE, rate: 5 },
+  { boss: Boss.PHOSANIS_NIGHTMARE, rate: 7 },
   { boss: Boss.SARACHNIS, rate: 80 },
   { boss: Boss.SCORPIA, rate: 130 },
   { boss: Boss.SCURRIUS, rate: 50 },

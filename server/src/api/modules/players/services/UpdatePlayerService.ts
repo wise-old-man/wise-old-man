@@ -1,7 +1,7 @@
 import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import { jobManager, JobType } from '../../../../jobs';
 import prisma, { PrismaTypes } from '../../../../prisma';
-import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
+import { fetchHiscoresJSON, HiscoresError } from '../../../../services/jagex.service';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 import {
   Player,
@@ -14,12 +14,13 @@ import {
 } from '../../../../types';
 import { eventEmitter, EventType } from '../../../events';
 import { computePlayerMetrics } from '../../efficiency/services/ComputePlayerMetricsService';
+import { buildHiscoresSnapshot } from '../../snapshots/services/BuildHiscoresSnapshot';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import {
   getBuild,
   PlayerUsernameValidationError,
-  sanitize,
-  standardize,
+  sanitizeDisplayName,
+  standardizeUsername,
   validateUsername
 } from '../player.utils';
 import { archivePlayer } from './ArchivePlayerService';
@@ -33,24 +34,6 @@ type UpdatablePlayerFields = PrismaTypes.XOR<
 
 let UPDATE_COOLDOWN = process.env.NODE_ENV === 'test' ? 0 : 60;
 
-async function acquireLock(
-  username: string
-): AsyncResult<() => Promise<number>, { code: 'LOCK_ALREADY_EXISTS' }> {
-  const lockRedisKey = buildCompoundRedisKey('player-update-lock', standardize(username));
-
-  const hasLock = await redisClient.get(lockRedisKey);
-
-  if (hasLock) {
-    return errored({ code: 'LOCK_ALREADY_EXISTS' });
-  }
-
-  await redisClient.set(lockRedisKey, 'true', 'PX', 60_000);
-
-  return complete(() => {
-    return redisClient.del(lockRedisKey);
-  });
-}
-
 async function updatePlayer(
   username: string,
   skipFlagChecks = false
@@ -61,51 +44,36 @@ async function updatePlayer(
   | { code: 'PLAYER_IS_FLAGGED' }
   | { code: 'PLAYER_IS_BLOCKED' }
   | { code: 'PLAYER_IS_ARCHIVED' }
-  | { code: 'PLAYER_IS_RATE_LIMITED' }
-  | { code: 'USERNAME_VALIDATION_ERROR'; subError: PlayerUsernameValidationError }
+  | { code: 'PLAYER_IS_RATE_LIMITED'; lastUpdatedAt: Date }
+  | { code: 'INVALID_USERNAME'; subError: PlayerUsernameValidationError }
 > {
-  const lockResult = await acquireLock(username);
-
-  if (isErrored(lockResult)) {
-    return errored({ code: 'PLAYER_IS_RATE_LIMITED' });
-  }
-
-  const releaseLock = lockResult.value;
-
   // Find a player with the given username or create a new one if needed
   const findPlayerResult = await findOrCreate(username);
 
   if (isErrored(findPlayerResult)) {
-    await releaseLock();
-
     return findPlayerResult;
   }
 
   const { player, isNew } = findPlayerResult.value;
 
   if (player.annotations?.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
-    await releaseLock();
-
     return errored({ code: 'PLAYER_OPTED_OUT' });
   }
 
   if (player.annotations?.some(a => a.type === PlayerAnnotationType.BLOCKED)) {
-    await releaseLock();
-
     return errored({ code: 'PLAYER_IS_BLOCKED' });
   }
 
   if (player.status === PlayerStatus.ARCHIVED) {
-    await releaseLock();
-
     return errored({ code: 'PLAYER_IS_ARCHIVED' });
   }
 
   // If the player was updated recently, don't update it
   if (!shouldUpdate(player) && !isNew) {
-    await releaseLock();
-
-    return errored({ code: 'PLAYER_IS_RATE_LIMITED' });
+    return errored({
+      code: 'PLAYER_IS_RATE_LIMITED',
+      lastUpdatedAt: player.updatedAt ?? new Date()
+    });
   }
 
   const updatedPlayerFields: UpdatablePlayerFields = {};
@@ -115,8 +83,6 @@ async function updatePlayer(
     const typeAssertionResult = await assertPlayerType(player);
 
     if (isErrored(typeAssertionResult)) {
-      await releaseLock();
-
       return typeAssertionResult;
     }
 
@@ -127,7 +93,7 @@ async function updatePlayer(
   const previousSnapshot = player.latestSnapshot;
 
   // Fetch the new player stats from the hiscores API
-  const currentStatsResult = await fetchStats(player, updatedPlayerFields.type, previousSnapshot);
+  const currentStatsResult = await fetchStats(player, updatedPlayerFields.type);
 
   if (isErrored(currentStatsResult)) {
     // If failed to load this player's stats from the hiscores, and they're not "regular" or "unknown"
@@ -137,16 +103,12 @@ async function updatePlayer(
         const typeReviewResult = await reviewType(player);
 
         if (isErrored(typeReviewResult)) {
-          await releaseLock();
-
           return typeReviewResult;
         }
 
         // If they did in fact change type, call this function recursively,
         // so that it fetches their stats from the correct hiscores.
         if (typeReviewResult.value.changed) {
-          await releaseLock();
-
           return updatePlayer(player.username);
         }
       }
@@ -157,8 +119,6 @@ async function updatePlayer(
         jobManager.add(JobType.CHECK_PLAYER_RANKED, { username: player.username });
       }
     }
-
-    await releaseLock();
 
     return currentStatsResult;
   }
@@ -172,13 +132,9 @@ async function updatePlayer(
       // If the flag was properly handled (via a player archive),
       // call this function recursively, so that the new player can be tracked
       if (handled) {
-        await releaseLock();
-
         return updatePlayer(player.username);
       }
     }
-
-    await releaseLock();
 
     return errored({ code: 'PLAYER_IS_FLAGGED' });
   }
@@ -190,23 +146,23 @@ async function updatePlayer(
   // This is because when players de-iron, their ironman stats stay frozen, so they don't gain exp.
   // To fix, we can check the "regular" hiscores to see if they've de-ironed, and update their type accordingly.
   if (!hasChanged && (await shouldReviewType(player))) {
-    const hasTypeChanged = await reviewType(player);
+    const reviewResult = await reviewType(player);
+
+    if (isErrored(reviewResult)) {
+      return reviewResult;
+    }
 
     // If they did in fact de-iron, call this function recursively,
     // so that it fetches their stats from the correct hiscores.
-    if (hasTypeChanged) {
-      await releaseLock();
-
+    if (reviewResult.value.changed) {
       return updatePlayer(player.username);
     }
   }
 
-  // Refresh the player's build
-  updatedPlayerFields.build = getBuild(
-    currentStats,
-    player.annotations?.some(a => a.type === PlayerAnnotationType.FAKE_F2P) ?? false
-  );
+  const isFakeF2p = player.annotations?.some(a => a.type === PlayerAnnotationType.FAKE_F2P) ?? false;
+
   updatedPlayerFields.status = PlayerStatus.ACTIVE;
+  updatedPlayerFields.build = getBuild(currentStats, isFakeF2p);
 
   const computedMetrics = await computePlayerMetrics(
     {
@@ -224,24 +180,26 @@ async function updatePlayer(
   updatedPlayerFields.ttm = computedMetrics.ttm;
   updatedPlayerFields.tt200m = computedMetrics.tt200m;
 
+  updatedPlayerFields.sailing = currentStats.sailingExperience;
+  updatedPlayerFields.sailingRank = currentStats.sailingRank;
+
   // Add the computed metrics to the snapshot
   currentStats.ehpValue = computedMetrics.ehpValue;
   currentStats.ehpRank = computedMetrics.ehpRank;
   currentStats.ehbValue = computedMetrics.ehbValue;
   currentStats.ehbRank = computedMetrics.ehbRank;
 
-  // Create (and save) a new snapshot
   const newSnapshot = await prisma.snapshot.create({
     data: currentStats
   });
 
   updatedPlayerFields.updatedAt = newSnapshot.createdAt;
-  updatedPlayerFields.latestSnapshotId = newSnapshot.id;
   updatedPlayerFields.latestSnapshotDate = newSnapshot.createdAt;
 
-  if (hasChanged) updatedPlayerFields.lastChangedAt = newSnapshot.createdAt;
+  if (hasChanged) {
+    updatedPlayerFields.lastChangedAt = newSnapshot.createdAt;
+  }
 
-  // update player with all this new data
   const updatedPlayer = await prisma.player.update({
     data: updatedPlayerFields,
     where: { id: player.id }
@@ -250,10 +208,10 @@ async function updatePlayer(
   eventEmitter.emit(EventType.PLAYER_UPDATED, {
     username: updatedPlayer.username,
     hasChanged,
-    previousUpdatedAt: previousSnapshot?.createdAt ?? null
+    lastChangedAt: updatedPlayer.lastChangedAt,
+    latestSnapshotDate: newSnapshot.createdAt,
+    previousSnapshotDate: previousSnapshot?.createdAt ?? null
   });
-
-  await releaseLock();
 
   return complete({
     player: updatedPlayer,
@@ -276,7 +234,7 @@ async function handlePlayerFlagged(player: Player, previousStats: Snapshot, reje
     where: { id: player.id }
   });
 
-  const flaggedContext = reviewFlaggedPlayer(player, previousStats, rejectedStats);
+  const flaggedContext = await reviewFlaggedPlayer(player, previousStats, rejectedStats);
 
   if (flaggedContext) {
     eventEmitter.emit(EventType.PLAYER_FLAGGED, {
@@ -322,23 +280,14 @@ async function reviewType(player: Player): AsyncResult<{ changed: boolean }, His
   });
 }
 
-async function fetchStats(
-  player: Player,
-  type?: PlayerType,
-  previousStats?: Snapshot
-): AsyncResult<Snapshot, HiscoresError> {
-  // Load data from OSRS hiscors
-  const hiscoresCSVResult = await fetchHiscoresData(player.username, type || player.type);
+async function fetchStats(player: Player, type?: PlayerType): AsyncResult<Snapshot, HiscoresError> {
+  const hiscoresResult = await fetchHiscoresJSON(player.username, type || player.type);
 
-  if (isErrored(hiscoresCSVResult)) {
-    return hiscoresCSVResult;
+  if (isErrored(hiscoresResult)) {
+    return hiscoresResult;
   }
 
-  const newSnapshot = await snapshotUtils.parseHiscoresSnapshot(
-    player.id,
-    hiscoresCSVResult.value,
-    previousStats
-  );
+  const newSnapshot = buildHiscoresSnapshot(player.id, hiscoresResult.value);
 
   return complete(newSnapshot);
 }
@@ -349,13 +298,13 @@ async function findOrCreate(username: string): AsyncResult<
     isNew: boolean;
   },
   {
-    code: 'USERNAME_VALIDATION_ERROR';
+    code: 'INVALID_USERNAME';
     subError: PlayerUsernameValidationError;
   }
 > {
   const player = await prisma.player.findFirst({
     where: {
-      username: standardize(username)
+      username: standardizeUsername(username)
     },
     include: {
       annotations: true,
@@ -364,7 +313,7 @@ async function findOrCreate(username: string): AsyncResult<
   });
 
   if (player) {
-    // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
+    // If this player's "latestSnapshot" isn't populated, fetch the latest snapshot from the DB
     if (!player.latestSnapshot) {
       const latestSnapshot = await prisma.snapshot.findFirst({
         where: { playerId: player.id },
@@ -386,12 +335,12 @@ async function findOrCreate(username: string): AsyncResult<
     });
   }
 
-  const cleanUsername = standardize(username);
+  const cleanUsername = standardizeUsername(username);
   const validationResult = validateUsername(cleanUsername);
 
   if (isErrored(validationResult)) {
     return errored({
-      code: 'USERNAME_VALIDATION_ERROR',
+      code: 'INVALID_USERNAME',
       subError: validationResult.error
     });
   }
@@ -399,7 +348,7 @@ async function findOrCreate(username: string): AsyncResult<
   const newPlayer = await prisma.player.create({
     data: {
       username: cleanUsername,
-      displayName: sanitize(username)
+      displayName: sanitizeDisplayName(username)
     }
   });
 

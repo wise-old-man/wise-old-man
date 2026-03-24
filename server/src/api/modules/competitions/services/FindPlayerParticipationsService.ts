@@ -1,7 +1,7 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation } from '../../../../types';
 import { NotFoundError } from '../../../errors';
-import { standardize } from '../../players/player.utils';
+import { standardizeUsername } from '../../players/player.utils';
 
 async function findPlayerParticipations(
   username: string,
@@ -18,7 +18,7 @@ async function findPlayerParticipations(
   };
 
   const player = await prisma.player.findFirst({
-    where: { username: standardize(username) },
+    where: { username: standardizeUsername(username) },
     select: { id: true }
   });
 

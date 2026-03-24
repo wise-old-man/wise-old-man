@@ -31,6 +31,7 @@ export function QueryLink(props: QueryLinkProps) {
     <Link
       prefetch={false}
       href={`${pathname}?${nextParams.toString()}`}
+      rel="nofollow"
       onClick={(e) => {
         if (e.metaKey || props.shallow === false) {
           return;

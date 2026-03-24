@@ -1,4 +1,7 @@
+import prisma, { PrismaTypes } from '../../../../prisma';
+import { logger } from '../../../../services/logger.service';
 import { BOSSES, Metric, Player, Snapshot } from '../../../../types';
+import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { REAL_SKILLS } from '../../../../utils/shared';
 import {
   FlaggedPlayerReviewContextResponse,
@@ -16,37 +19,43 @@ const STACKABLE_EXP_SKILLS = [
   Metric.THIEVING
 ];
 
-function reviewFlaggedPlayer(
+async function reviewFlaggedPlayer(
   player: Player,
   previousStats: Snapshot,
   rejectedStats: Snapshot
-): FlaggedPlayerReviewContextResponse | null {
-  if (!player || !previousStats || !rejectedStats) return null;
-
-  const negativeGains = !!getNegativeGains(previousStats, rejectedStats);
-
-  const excessiveGains = !!getExcessiveGains(previousStats, rejectedStats);
-  const excessiveGainsReversed = !!getExcessiveGains(rejectedStats, previousStats);
+): Promise<FlaggedPlayerReviewContextResponse | null> {
+  const negativeGains = getNegativeGains(previousStats, rejectedStats);
+  const excessiveGains = getExcessiveGains(previousStats, rejectedStats);
+  const excessiveGainsReversed = getExcessiveGains(rejectedStats, previousStats);
 
   const previous = formatSnapshotResponse(previousStats, getPlayerEfficiencyMap(previousStats, player));
   const rejected = formatSnapshotResponse(rejectedStats, getPlayerEfficiencyMap(rejectedStats, player));
 
-  if (negativeGains) {
-    const possibleRollback =
-      !excessiveGains && !excessiveGainsReversed && !hasLostTooMuch(previous, rejected);
+  if (negativeGains !== null) {
+    const isPossibleRollback =
+      excessiveGains === null && excessiveGainsReversed === null && !hasLostTooMuch(previous, rejected);
 
-    if (!possibleRollback) {
+    if (!isPossibleRollback) {
       // If it isn't a rollback, then it's definitely a name transfer, and should be archived (null context)
+      logger.info(`Reviewing flagged player - ${player.username}`, {
+        isPossibleRollback,
+        isExcessiveGains: excessiveGains !== null,
+        isExcessiveGainsReversed: excessiveGainsReversed !== null,
+        lostTooMuch: hasLostTooMuch(previous, rejected)
+      });
       return null;
     }
+
+    const rollbackContext = await getRollbackContext(player, rejectedStats, negativeGains);
 
     return {
       previous,
       rejected,
-      negativeGains,
-      excessiveGains,
-      possibleRollback,
-      excessiveGainsReversed,
+      rollbackContext: rollbackContext,
+      hasNegativeGains: !!negativeGains,
+      hasExcessiveGains: !!excessiveGains,
+      hasExcessiveGainsReversed: !!excessiveGainsReversed,
+      isPossibleRollback: isPossibleRollback,
       data: buildNegativeGainsReport(previous, rejected)
     };
   }
@@ -54,11 +63,59 @@ function reviewFlaggedPlayer(
   return {
     previous,
     rejected,
-    negativeGains,
-    excessiveGains,
-    possibleRollback: false,
-    excessiveGainsReversed,
+    rollbackContext: null,
+    hasNegativeGains: !!negativeGains,
+    hasExcessiveGains: !!excessiveGains,
+    hasExcessiveGainsReversed: !!excessiveGainsReversed,
+    isPossibleRollback: false,
     data: buildExcessiveGainsReport(previous, rejected)
+  };
+}
+
+async function getRollbackContext(
+  player: Player,
+  rejectedStats: Snapshot,
+  negativeGains: Record<Metric, number>
+) {
+  const query: PrismaTypes.SnapshotWhereInput = {};
+
+  for (const metric of Object.keys(negativeGains) as Metric[]) {
+    const metricKey = getMetricValueKey(metric);
+    const rejectedVal = rejectedStats[metricKey];
+
+    query[metricKey] = {
+      lte: rejectedVal
+    };
+  }
+
+  /**
+   * Find all snapshots where this player's WOM stats matched the current rejected hiscores stats
+   */
+  const matches = await prisma.snapshot.findMany({
+    select: {
+      createdAt: true
+    },
+    where: {
+      playerId: player.id,
+      ...query
+    },
+    orderBy: {
+      createdAt: 'asc'
+    }
+  });
+
+  if (matches.length === 0) {
+    return null;
+  }
+
+  const earliestMatchDate = matches.at(0)!.createdAt;
+  const latestMatchDate = matches.at(-1)!.createdAt;
+  const totalMatches = matches.length;
+
+  return {
+    earliestMatchDate,
+    latestMatchDate,
+    totalMatches
   };
 }
 

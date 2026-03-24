@@ -1,13 +1,13 @@
 import prisma from '../../prisma';
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   groupId: number;
   playerIds: number[];
 }
 
-export class RemovePlayersFromGroupCompetitionsJob extends Job<Payload> {
-  async execute(payload: Payload) {
+export const RemovePlayersFromGroupCompetitionsJobHandler: JobHandler<Payload> = {
+  async execute(payload) {
     if (payload.playerIds.length === 0) {
       return;
     }
@@ -27,4 +27,4 @@ export class RemovePlayersFromGroupCompetitionsJob extends Job<Payload> {
       }
     });
   }
-}
+};

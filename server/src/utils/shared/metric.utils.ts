@@ -46,7 +46,8 @@ export const SkillProps: Record<
     [Skill.FARMING]: { name: 'Farming', isMembers: true },
     [Skill.RUNECRAFTING]: { name: 'Runecrafting' },
     [Skill.HUNTER]: { name: 'Hunter', isMembers: true },
-    [Skill.CONSTRUCTION]: { name: 'Construction', isMembers: true }
+    [Skill.CONSTRUCTION]: { name: 'Construction', isMembers: true },
+    [Skill.SAILING]: { name: 'Sailing', isMembers: true }
   },
   props => ({
     ...props,
@@ -74,6 +75,7 @@ export const BossProps: Record<
     [Boss.ARAXXOR]: { name: 'Araxxor' },
     [Boss.ARTIO]: { name: 'Artio' },
     [Boss.BARROWS_CHESTS]: { name: 'Barrows Chests' },
+    [Boss.BRUTUS]: { name: 'Brutus', isMembers: false },
     [Boss.BRYOPHYTA]: { name: 'Bryophyta', isMembers: false },
     [Boss.CALLISTO]: { name: 'Callisto' },
     [Boss.CALVARION]: { name: "Calvar'ion" },
@@ -111,6 +113,7 @@ export const BossProps: Record<
     [Boss.SARACHNIS]: { name: 'Sarachnis' },
     [Boss.SCORPIA]: { name: 'Scorpia' },
     [Boss.SCURRIUS]: { name: 'Scurrius' },
+    [Boss.SHELLBANE_GRYPHON]: { name: 'Shellbane Gryphon' },
     [Boss.SKOTIZO]: { name: 'Skotizo' },
     [Boss.SOL_HEREDIT]: { name: 'Sol Heredit' },
     [Boss.SPINDEL]: { name: 'Spindel' },
@@ -155,7 +158,6 @@ export const ActivityProps: Record<
   }
 > = mapValues(
   {
-    [Activity.LEAGUE_POINTS]: { name: 'League Points', minimumValue: 100 },
     [Activity.BOUNTY_HUNTER_HUNTER]: { name: 'Bounty Hunter (Hunter)', minimumValue: 2 },
     [Activity.BOUNTY_HUNTER_ROGUE]: { name: 'Bounty Hunter (Rogue)', minimumValue: 2 },
     [Activity.CLUE_SCROLLS_ALL]: { name: 'Clue Scrolls (All)' },

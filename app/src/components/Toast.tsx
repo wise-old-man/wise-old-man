@@ -18,7 +18,7 @@ const ToastViewport = React.forwardRef<
     className={cn(
       "pointer-events-none fixed right-0 top-0 z-[100] flex max-h-screen flex-col-reverse p-4 sm:flex-col",
       RemoveScroll.classNames.zeroRight,
-      className
+      className,
     )}
     {...props}
   />
@@ -38,7 +38,7 @@ const toastVariants = cva(
     defaultVariants: {
       variant: "success",
     },
-  }
+  },
 );
 
 const Toast = React.forwardRef<
@@ -71,7 +71,7 @@ const ToastClose = React.forwardRef<
     ref={ref}
     className={cn(
       "absolute right-2 top-2.5 rounded-md p-1 text-gray-200 opacity-0 transition-opacity hover:text-white focus:opacity-100 focus:outline-none focus:ring-0 group-hover:opacity-100",
-      className
+      className,
     )}
     toast-close=""
     {...props}

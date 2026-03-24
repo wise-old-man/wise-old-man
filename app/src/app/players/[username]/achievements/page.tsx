@@ -88,6 +88,7 @@ export default async function PlayerAchievements(props: PageProps) {
         <div className="col-span-12 grid grid-cols-1 flex-col gap-x-4 gap-y-7 sm:grid-cols-2 xl:col-span-4 xl:flex">
           <RecentAchievements achievements={completedAchievements} metricType={metricType} />
           <NearestAchievements achievements={achievements} metricType={metricType} />
+          <LegacyAchievements achievements={completedAchievements} metricType={metricType} />
         </div>
         <div className="col-span-12 xl:col-span-8">
           <ProgressTable player={player} achievements={achievements} metricType={metricType} />
@@ -107,10 +108,12 @@ function ProgressTable(props: ProgressTableProps) {
   const { player, metricType, achievements } = props;
 
   const hiddenMetrics = getBuildHiddenMetrics(player.build);
-  const filteredAchievements = achievements.filter((a) => !hiddenMetrics.includes(a.metric));
+  const filteredAchievements = achievements.filter(
+    (a) => !hiddenMetrics.includes(a.metric) && !a.legacy,
+  );
 
   const groups = groupAchievementsByType(filteredAchievements).filter(
-    (g) => g.metric in MetricProps && (!metricType || MetricProps[g.metric].type === metricType)
+    (g) => g.metric in MetricProps && (!metricType || MetricProps[g.metric].type === metricType),
   );
 
   return (
@@ -184,7 +187,7 @@ function ProgressTableRow(props: ProgressTableRowProps) {
                     className={cn(
                       "z-[1] flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200 shadow-md",
                       isDone && "border-green-500 text-green-500",
-                      isInProgress && "text-white"
+                      isInProgress && "text-white",
                     )}
                   >
                     {formatThreshold(a.threshold)}
@@ -222,7 +225,7 @@ function RecentAchievements(props: RecentAchievementsProps) {
       (a) =>
         a.metric in MetricProps &&
         a.createdAt &&
-        (!metricType || MetricProps[a.metric].type === metricType)
+        (!metricType || MetricProps[a.metric].type === metricType),
     )
     .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime())
     .slice(0, 5);
@@ -256,7 +259,7 @@ function NearestAchievements(props: NearestAchievementsProps) {
       (a) =>
         a.metric in MetricProps &&
         (!metricType || MetricProps[a.metric].type === metricType) &&
-        !a.createdAt
+        !a.createdAt,
     )
     .sort((a, b) => b.absoluteProgress - a.absoluteProgress)
     .slice(0, 5);
@@ -277,6 +280,40 @@ function NearestAchievements(props: NearestAchievementsProps) {
   );
 }
 
+interface LegacyAchievementsProps {
+  metricType?: MetricType;
+  achievements: AchievementProgressResponse[];
+}
+
+function LegacyAchievements(props: LegacyAchievementsProps) {
+  const { metricType, achievements } = props;
+
+  const legacyAchievements = achievements
+    .filter(
+      (a) =>
+        a.metric in MetricProps &&
+        a.createdAt &&
+        a.legacy &&
+        (!metricType || MetricProps[a.metric].type === metricType),
+    )
+    .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
+
+  if (legacyAchievements.length === 0) return null;
+
+  return (
+    <div>
+      <Label className="text-xs text-gray-200">
+        Legacy {metricType ? `${metricType} ` : ""} achievements
+      </Label>
+      <div className="mt-2 flex flex-col gap-y-3">
+        {legacyAchievements.map((a) => (
+          <AchievementListItem {...a} key={a.name} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 interface TabProps {
   label: string;
   count: number;
@@ -288,7 +325,7 @@ function Tab(props: TabProps) {
     <div
       className={cn(
         "flex flex-col rounded-lg border border-gray-600 bg-gray-800 px-5 py-3 shadow-md transition-colors hover:bg-gray-700",
-        props.isSelected && "border-gray-400 bg-gray-700"
+        props.isSelected && "border-gray-400 bg-gray-700",
       )}
     >
       <span className="text-xl text-white">{props.count}</span>

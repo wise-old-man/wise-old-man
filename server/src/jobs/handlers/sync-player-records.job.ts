@@ -2,32 +2,31 @@ import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snap
 import prisma, { PrismaTypes } from '../../prisma';
 import { Metric, METRICS, Period } from '../../types';
 import { getMetricValueKey } from '../../utils/get-metric-value-key.util';
+import { getRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
 import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   username: string;
   period: Period;
-  periodStartDate: Date;
 }
 
-export class SyncPlayerRecordsJob extends Job<Payload> {
-  static options: JobOptions = {
-    maxConcurrent: 20
-  };
+export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
+  options: {
+    maxConcurrent: 4
+  },
 
-  static getUniqueJobId(payload: Payload) {
-    return [payload.username, payload.period, payload.periodStartDate.getTime()].join('_');
-  }
+  generateUniqueJobId(payload) {
+    return [payload.username, payload.period].join('_');
+  },
 
-  async execute({ username, period, periodStartDate }: Payload) {
+  async execute(payload: Payload) {
     const currentDeltas = await prisma.cachedDelta.findMany({
       where: {
         player: {
-          username
+          username: payload.username
         },
-        period
+        period: payload.period
       }
     });
 
@@ -41,13 +40,18 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
       prisma.record.findMany({
         where: {
           playerId,
-          period
+          period: payload.period
         }
       }),
       prisma.snapshot.findFirst({
+        select: {
+          playerId: true,
+          createdAt: true,
+          ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
+        },
         where: {
           playerId,
-          createdAt: periodStartDate
+          createdAt: currentDeltas[0].startedAt
         }
       })
     ]);
@@ -87,7 +91,7 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
       if (metricRecord === undefined) {
         toCreate.push({
           playerId,
-          period,
+          period: payload.period,
           metric,
           value: prepareDecimalValue(metric, value)
         });
@@ -108,25 +112,30 @@ export class SyncPlayerRecordsJob extends Job<Payload> {
     }
 
     await prisma.$transaction(async tx => {
-      if (toCreate.length > 0) {
-        await tx.record.createMany({
-          data: toCreate,
-          skipDuplicates: true
+      if (toUpdate.length > 0) {
+        await tx.record.deleteMany({
+          where: {
+            playerId,
+            period: payload.period,
+            metric: { in: toUpdate.map(u => u.metric) }
+          }
         });
       }
 
-      for (const update of toUpdate) {
-        await tx.record.update({
-          where: {
-            playerId_period_metric: {
+      if (toCreate.length > 0 || toUpdate.length > 0) {
+        await tx.record.createMany({
+          data: [
+            ...toCreate,
+            ...toUpdate.map(u => ({
               playerId,
-              period,
-              metric: update.metric
-            }
-          },
-          data: { value: update.newValue }
+              period: payload.period,
+              metric: u.metric,
+              value: u.newValue
+            }))
+          ],
+          skipDuplicates: true
         });
       }
     });
   }
-}
+};

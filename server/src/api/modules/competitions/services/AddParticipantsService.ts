@@ -30,10 +30,10 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
       case 'INVALID_USERNAMES_FOUND':
         throw new BadRequestError(
           `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
-          validationResult.error.usernames
+          validationResult.error.data
         );
       case 'DUPLICATE_USERNAMES_FOUND':
-        throw new BadRequestError(`Found repeated usernames.`, validationResult.error.usernames);
+        throw new BadRequestError(`Found repeated usernames.`, validationResult.error.data);
       default:
         return assertNever(validationResult.error);
     }

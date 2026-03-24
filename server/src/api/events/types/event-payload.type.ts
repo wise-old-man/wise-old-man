@@ -26,6 +26,9 @@ export type EventPayloadMap = {
     competitionId: number;
     minutesLeft: number;
   };
+  [EventType.COMPETITION_UPDATED]: {
+    competitionId: number;
+  };
   [EventType.GROUP_CREATED]: {
     groupId: number;
   };
@@ -70,7 +73,6 @@ export type EventPayloadMap = {
   [EventType.PLAYER_DELTA_UPDATED]: {
     username: string;
     period: Period;
-    periodStartDate: Date;
     isPotentialRecord: boolean;
   };
   [EventType.PLAYER_FLAGGED]: {
@@ -89,6 +91,8 @@ export type EventPayloadMap = {
   [EventType.PLAYER_UPDATED]: {
     username: string;
     hasChanged: boolean;
-    previousUpdatedAt: Date | null;
+    lastChangedAt: Date | null;
+    latestSnapshotDate: Date;
+    previousSnapshotDate: Date | null;
   };
 };

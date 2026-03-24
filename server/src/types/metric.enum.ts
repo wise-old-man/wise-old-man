@@ -22,11 +22,11 @@ export const Skill = {
   FARMING: 'farming',
   RUNECRAFTING: 'runecrafting',
   HUNTER: 'hunter',
-  CONSTRUCTION: 'construction'
+  CONSTRUCTION: 'construction',
+  SAILING: 'sailing'
 } as const;
 
 export const Activity = {
-  LEAGUE_POINTS: 'league_points',
   BOUNTY_HUNTER_HUNTER: 'bounty_hunter_hunter',
   BOUNTY_HUNTER_ROGUE: 'bounty_hunter_rogue',
   CLUE_SCROLLS_ALL: 'clue_scrolls_all',
@@ -51,6 +51,7 @@ export const Boss = {
   ARAXXOR: 'araxxor',
   ARTIO: 'artio',
   BARROWS_CHESTS: 'barrows_chests',
+  BRUTUS: 'brutus',
   BRYOPHYTA: 'bryophyta',
   CALLISTO: 'callisto',
   CALVARION: 'calvarion',
@@ -87,6 +88,7 @@ export const Boss = {
   SARACHNIS: 'sarachnis',
   SCORPIA: 'scorpia',
   SCURRIUS: 'scurrius',
+  SHELLBANE_GRYPHON: 'shellbane_gryphon',
   SKOTIZO: 'skotizo',
   SOL_HEREDIT: 'sol_heredit',
   SPINDEL: 'spindel',

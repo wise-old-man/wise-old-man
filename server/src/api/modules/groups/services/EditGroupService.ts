@@ -1,5 +1,6 @@
+import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import prisma, { PrismaTypes } from '../../../../prisma';
-import logger from '../../../../services/logging.service';
+import { logger } from '../../../../services/logger.service';
 import {
   Group,
   GroupRole,
@@ -11,9 +12,9 @@ import {
 } from '../../../../types';
 import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 
-import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
+import { assertNever } from '../../../../utils/assert-never.util';
 import { eventEmitter, EventType } from '../../../events';
-import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
+import { isValidUsername, sanitizeDisplayName, standardizeUsername } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
 // Only allow images from our Cloudflare R2 CDN, to make sure people don't
@@ -38,99 +39,100 @@ interface EditGroupPayload {
   roleOrders?: Array<{ role: GroupRole; index: number }>;
 }
 
-async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Group> {
-  const {
-    name,
-    clanChat,
-    homeworld,
-    description,
-    members,
-    bannerImage,
-    profileImage,
-    socialLinks,
-    roleOrders
-  } = payload;
-
-  if (clanChat && !isValidUsername(clanChat)) {
-    throw new BadRequestError("Invalid 'clanChat'. Cannot contain special characters.");
+export async function editGroup(
+  groupId: number,
+  payload: EditGroupPayload
+): AsyncResult<
+  Group,
+  | { code: 'CLAN_CHAT_HAS_INVALID_CHARACTERS' }
+  | { code: 'NOTHING_TO_UPDATE' }
+  | { code: 'GROUP_NOT_FOUND' }
+  | { code: 'GROUP_NOT_PATRON' }
+  | { code: 'IMAGES_MUST_BE_INTERNALLY_HOSTED' }
+  | { code: 'ROLE_ORDER_MUST_HAVE_UNIQUE_INDEXES' }
+  | { code: 'ROLE_ORDER_MUST_HAVE_UNIQUE_ROLES' }
+  | { code: 'GROUP_NAME_ALREADY_EXISTS' }
+  | { code: 'FAILED_TO_UPDATE_GROUP' }
+  | { code: 'OPTED_OUT_MEMBERS_FOUND'; data: string[] }
+  | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+> {
+  if (payload.clanChat !== undefined && !isValidUsername(payload.clanChat)) {
+    return errored({ code: 'CLAN_CHAT_HAS_INVALID_CHARACTERS' });
   }
 
   if (
-    !name &&
-    !clanChat &&
-    !homeworld &&
-    !description &&
-    !members &&
-    !bannerImage &&
-    !profileImage &&
-    !socialLinks &&
-    !roleOrders
+    payload.name === undefined &&
+    payload.clanChat === undefined &&
+    payload.homeworld === undefined &&
+    payload.description === undefined &&
+    payload.members === undefined &&
+    payload.bannerImage === undefined &&
+    payload.profileImage === undefined &&
+    payload.socialLinks === undefined &&
+    payload.roleOrders === undefined
   ) {
-    throw new BadRequestError('Nothing to update.');
+    return errored({ code: 'NOTHING_TO_UPDATE' });
   }
 
   const group = await prisma.group.findFirst({
     where: { id: groupId }
   });
 
-  if (!group) {
-    throw new BadRequestError('Group not found.');
+  if (group === null) {
+    return errored({ code: 'GROUP_NOT_FOUND' });
   }
 
-  if ((bannerImage || profileImage) && !group.patron) {
-    throw new BadRequestError('Banner or profile images can only be uploaded by patron groups.');
+  if ((payload.bannerImage || payload.profileImage) && !group.patron) {
+    return errored({ code: 'GROUP_NOT_PATRON' });
   }
 
-  if (socialLinks && !group.patron) {
-    throw new BadRequestError('Social links can only be added to patron groups.');
+  if (payload.socialLinks && !group.patron) {
+    return errored({ code: 'GROUP_NOT_PATRON' });
   }
 
   if (
-    (bannerImage && !bannerImage.startsWith(ALLOWED_IMAGE_PATH)) ||
-    (profileImage && !profileImage.startsWith(ALLOWED_IMAGE_PATH))
+    (payload.bannerImage !== undefined && !payload.bannerImage.startsWith(ALLOWED_IMAGE_PATH)) ||
+    (payload.profileImage !== undefined && !payload.profileImage.startsWith(ALLOWED_IMAGE_PATH))
   ) {
-    throw new BadRequestError(
-      'Cannot upload images from external sources. Please upload an image via the website.'
-    );
+    return errored({ code: 'IMAGES_MUST_BE_INTERNALLY_HOSTED' });
   }
 
-  if (roleOrders) {
-    const uniqueIndexes = new Set(roleOrders.map(x => x.index));
-    const uniqueRoles = new Set(roleOrders.map(x => x.role));
+  if (payload.roleOrders) {
+    const uniqueIndexes = new Set(payload.roleOrders.map(x => x.index));
+    const uniqueRoles = new Set(payload.roleOrders.map(x => x.role));
 
-    if (uniqueIndexes.size < roleOrders.length) {
-      throw new BadRequestError('Role Order must contain unique indexes for each role');
+    if (uniqueIndexes.size < payload.roleOrders.length) {
+      return errored({ code: 'ROLE_ORDER_MUST_HAVE_UNIQUE_INDEXES' });
     }
 
-    if (uniqueRoles.size < roleOrders.length) {
-      throw new BadRequestError('Role Order must contain unique roles');
+    if (uniqueRoles.size < payload.roleOrders.length) {
+      return errored({ code: 'ROLE_ORDER_MUST_HAVE_UNIQUE_ROLES' });
     }
   }
 
   const updatedGroupFields: PrismaTypes.GroupUpdateInput = {};
 
-  if (bannerImage) {
-    updatedGroupFields.bannerImage = bannerImage;
+  if (payload.bannerImage) {
+    updatedGroupFields.bannerImage = payload.bannerImage;
   }
 
-  if (profileImage) {
-    updatedGroupFields.profileImage = profileImage;
+  if (payload.profileImage) {
+    updatedGroupFields.profileImage = payload.profileImage;
   }
 
-  if (members) {
-    const invalidUsernames = members.map(m => m.username).filter(u => !isValidUsername(u));
+  if (payload.members) {
+    const invalidUsernames = payload.members.map(m => m.username).filter(u => !isValidUsername(u));
 
     if (invalidUsernames.length > 0) {
-      throw new BadRequestError(
-        `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
-         contain no special characters, and/or contain no space at the beginning or end of the name.`,
-        invalidUsernames
-      );
+      return errored({
+        code: 'INVALID_USERNAMES_FOUND',
+        data: invalidUsernames
+      });
     }
   }
 
-  if (name) {
-    const sanitizedName = sanitizeWhitespace(name);
+  if (payload.name) {
+    const sanitizedName = sanitizeWhitespace(payload.name);
 
     // Check for duplicate names
     const duplicateGroup = await prisma.group.findFirst({
@@ -138,41 +140,67 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
     });
 
     if (duplicateGroup && duplicateGroup.id !== groupId) {
-      throw new BadRequestError(`Group name '${sanitizedName}' is already taken. (ID: ${duplicateGroup.id})`);
+      return errored({ code: 'GROUP_NAME_ALREADY_EXISTS' });
     }
 
     updatedGroupFields.name = sanitizedName;
   }
 
-  if (description) {
-    updatedGroupFields.description = description ? sanitizeWhitespace(description) : null;
+  if (payload.description) {
+    updatedGroupFields.description = payload.description ? sanitizeWhitespace(payload.description) : null;
   }
 
-  if (clanChat) {
-    updatedGroupFields.clanChat = clanChat ? sanitize(clanChat) : null;
+  if (payload.clanChat) {
+    updatedGroupFields.clanChat = payload.clanChat ? sanitizeDisplayName(payload.clanChat) : null;
   }
 
-  if (homeworld) {
-    updatedGroupFields.homeworld = homeworld;
+  if (payload.homeworld) {
+    updatedGroupFields.homeworld = payload.homeworld;
   }
 
-  if (members) {
-    await updateMembers(groupId, members);
+  if (payload.members) {
+    const updateResult = await updateMembers(groupId, payload.members);
+
+    if (isErrored(updateResult)) {
+      switch (updateResult.error.code) {
+        case 'OPTED_OUT_MEMBERS_FOUND':
+          return updateResult;
+        default:
+          assertNever(updateResult.error.code);
+      }
+    }
   }
 
-  await prisma
-    .$transaction(async tx => {
+  const transactionResult = await fromPromise(
+    prisma.$transaction(async tx => {
       const transaction = tx as unknown as PrismaTypes.TransactionClient;
 
-      if (socialLinks) {
-        await updateSocialLinks(groupId, socialLinks, transaction);
+      if (payload.socialLinks !== undefined) {
+        await transaction.groupSocialLinks.upsert({
+          where: {
+            groupId
+          },
+          create: {
+            groupId,
+            ...payload.socialLinks
+          },
+          update: {
+            ...payload.socialLinks
+          }
+        });
       }
 
-      if (roleOrders) {
-        await updateGroupRoleOrder(groupId, roleOrders, transaction);
+      if (payload.roleOrders !== undefined) {
+        await transaction.groupRoleOrder.deleteMany({
+          where: { groupId }
+        });
+
+        await transaction.groupRoleOrder.createMany({
+          data: payload.roleOrders.map(r => ({ ...r, groupId }))
+        });
       }
 
-      await transaction.group.update({
+      const updatedGroup = await transaction.group.update({
         where: {
           id: groupId
         },
@@ -181,34 +209,31 @@ async function editGroup(groupId: number, payload: EditGroupPayload): Promise<Gr
           updatedAt: new Date() // Force update the "updatedAt" field
         }
       });
+
+      return {
+        updatedGroup
+      };
     })
-    .catch(error => {
-      logger.error('Failed to edit group', error);
-      throw new ServerError('Failed to edit group details.');
-    });
+  );
 
-  const updatedGroup = await prisma.group.findFirst({
-    where: { id: groupId },
-    include: {
-      memberships: {
-        include: { player: true }
-      },
-      socialLinks: true,
-      roleOrders: {
-        orderBy: {
-          index: 'asc'
-        }
-      }
-    }
-  });
-
-  if (!updatedGroup) {
-    throw new ServerError('Failed to edit group. (EditGroupService)');
+  if (isErrored(transactionResult)) {
+    logger.error('Failed to update group', transactionResult);
+    return errored({ code: 'FAILED_TO_UPDATE_GROUP' });
+    // // Prisma error
+    // if (!('error' in transactionResult)) {
+    //   logger.error('Failed to update group', transactionResult);
+    //   return errored({ code: 'FAILED_TO_UPDATE_GROUP' });
+    // }
+    // // A little type coercion never hurt nobody...right?
+    // return transactionResult as Errored<{
+    //   code: 'OPTED_OUT_PLAYERS_FOUND';
+    //   displayNames: string[];
+    // }>;
   }
 
   eventEmitter.emit(EventType.GROUP_UPDATED, { groupId });
 
-  return updatedGroup;
+  return complete(transactionResult.value.updatedGroup);
 }
 
 async function updateMembers(groupId: number, members: Array<{ username: string; role: GroupRole }>) {
@@ -221,7 +246,7 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
   const currentUsernames = memberships.map(m => m.player.username);
 
   // The usernames of all future (post-edit) members
-  const nextUsernames = members.map(m => standardize(m.username));
+  const nextUsernames = members.map(m => standardizeUsername(m.username));
 
   // These players should be added to the group
   const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
@@ -253,10 +278,10 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
     });
 
     if (optOuts.length > 0) {
-      throw new ForbiddenError(
-        'One or more players have opted out of joining groups, so they cannot be added as members.',
-        optOuts.map(o => o.player.displayName)
-      );
+      return errored({
+        code: 'OPTED_OUT_MEMBERS_FOUND',
+        data: optOuts.map(o => o.player.displayName)
+      } as const);
     }
   }
 
@@ -318,9 +343,9 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
           // This matches a player who left the group with the old name of a name change.
           // And if it's not undefined it means we found a name change that includes
           // both a player who joined the group and a player who left the group.
-          const match = excessMemberships.find(m => m.player.username === standardize(oldName));
+          const match = excessMemberships.find(m => m.player.username === standardizeUsername(oldName));
 
-          if (player.username === standardize(newName) && match !== undefined) {
+          if (player.username === standardizeUsername(newName) && match !== undefined) {
             ignoreFromJoined.push(player.id);
             ignoreFromLeft.push(match.playerId);
           }
@@ -390,7 +415,7 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
     })
     .catch(error => {
       logger.error('Failed to edit group', error);
-      throw new ServerError('Failed to edit group members.');
+      throw error;
     });
 
   // If no error was thrown by this point, dispatch all events
@@ -418,31 +443,8 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
       }))
     });
   }
-}
 
-async function updateSocialLinks(
-  groupId: number,
-  socialLinks: NonNullable<EditGroupPayload['socialLinks']>,
-  transaction: PrismaTypes.TransactionClient
-) {
-  const existingId = await prisma.$queryRaw<{ id: number }[]>`
-    SELECT "id" FROM public."groupSocialLinks" WHERE "groupId" = ${groupId} LIMIT 1
-  `.then(rows => {
-    return rows && Array.isArray(rows) && rows.length > 0 ? rows[0].id : null;
-  });
-
-  if (!existingId) {
-    await transaction.groupSocialLinks.create({
-      data: { ...socialLinks, groupId }
-    });
-
-    return;
-  }
-
-  await transaction.groupSocialLinks.update({
-    where: { id: existingId },
-    data: socialLinks
-  });
+  return complete(true);
 }
 
 async function removeExcessMemberships(
@@ -472,14 +474,14 @@ async function addMissingMemberships(
   const roleMap: { [playerId: number]: GroupRole } = {};
 
   missingPlayers.forEach(player => {
-    const role = memberInputs.find(m => standardize(m.username) === player.username)?.role;
+    const role = memberInputs.find(m => standardizeUsername(m.username) === player.username)?.role;
     if (!role) return;
 
     roleMap[player.id] = role;
   });
 
   if (Object.keys(roleMap).length !== missingPlayers.length) {
-    throw new ServerError('Failed to construct roleMap (EditGroupService: addMissingMemberships)');
+    throw new Error('Failed to construct roleMap (EditGroupService: addMissingMemberships)');
   }
 
   const payload = missingPlayers.map(p => ({
@@ -518,7 +520,7 @@ function calculateRoleChangeMaps(
 
   keptPlayers.forEach(player => {
     // Find the next role for this player
-    const role = reversedInputs.find(m => standardize(m.username) === player.username)?.role;
+    const role = reversedInputs.find(m => standardizeUsername(m.username) === player.username)?.role;
 
     if (!role) return;
 
@@ -541,20 +543,4 @@ function calculateRoleChangeMaps(
   });
 
   return newRoleMap;
-}
-
-export { editGroup };
-
-async function updateGroupRoleOrder(
-  groupId: number,
-  roleOrders: Array<{ role: GroupRole; index: number }>,
-  transaction: PrismaTypes.TransactionClient
-) {
-  await transaction.groupRoleOrder.deleteMany({
-    where: { groupId }
-  });
-
-  await transaction.groupRoleOrder.createMany({
-    data: roleOrders.map(x => ({ ...x, groupId: groupId }))
-  });
 }

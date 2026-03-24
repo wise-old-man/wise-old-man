@@ -6,7 +6,7 @@ const MAINTENANCE_MODE = {
 const ANNOUNCEMENT_BANNER = {
   enabled: false,
   color: undefined, // "blue" / "yellow" / undefined
-  message: undefined
+  message: undefined,
 };
 
 const LEAGUES = {

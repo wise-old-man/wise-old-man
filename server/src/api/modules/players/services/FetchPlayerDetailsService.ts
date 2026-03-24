@@ -1,25 +1,29 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Player, PlayerAnnotation, PlayerArchive, PlayerStatus, Snapshot } from '../../../../types';
-import { NotFoundError } from '../../../errors';
-import { standardize } from '../player.utils';
+import { standardizeUsername } from '../player.utils';
 
-async function fetchPlayerDetails(username: string): Promise<{
+type PlayerDetails = {
   player: Player;
   latestSnapshot: Snapshot | null;
   archive: PlayerArchive | null;
   annotations: Array<PlayerAnnotation>;
-}> {
+};
+
+async function fetchPlayerDetails(
+  username: string
+): AsyncResult<PlayerDetails, { code: 'PLAYER_NOT_FOUND' }> {
   const player = await prisma.player.findFirst({
-    where: { username: standardize(username) },
+    where: { username: standardizeUsername(username) },
     include: { latestSnapshot: true, annotations: true }
   });
 
   if (!player) {
-    throw new NotFoundError('Player not found.');
+    return errored({ code: 'PLAYER_NOT_FOUND' });
   }
 
   if (!player.latestSnapshot) {
-    // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
+    // If this player's "latestSnapshot" isn't populated, fetch the latest snapshot from the DB
     const latestSnapshot = await prisma.snapshot.findFirst({
       where: { playerId: player.id },
       orderBy: { createdAt: 'desc' }
@@ -30,33 +34,28 @@ async function fetchPlayerDetails(username: string): Promise<{
     }
   }
 
-  const { annotations, latestSnapshot, ...playerProps } = player;
+  let currentArchive: PlayerArchive | null = null;
 
-  if (player.status !== PlayerStatus.ARCHIVED) {
-    return {
-      player: playerProps,
-      annotations,
-      latestSnapshot,
-      archive: null
-    };
+  if (player.status === PlayerStatus.ARCHIVED) {
+    currentArchive = await prisma.playerArchive.findFirst({
+      where: {
+        playerId: player.id,
+        restoredAt: null
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
   }
 
-  const currentArchive = await prisma.playerArchive.findFirst({
-    where: {
-      playerId: player.id,
-      restoredAt: null
-    },
-    orderBy: {
-      createdAt: 'desc'
-    }
-  });
+  const { annotations, latestSnapshot, ...playerProps } = player;
 
-  return {
+  return complete({
     player: playerProps,
     annotations,
     latestSnapshot,
     archive: currentArchive
-  };
+  });
 }
 
 export { fetchPlayerDetails };

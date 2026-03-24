@@ -174,7 +174,7 @@ function filterMembers(members: Array<MembershipResponse & { player: PlayerRespo
       (m) =>
         m.player.status !== PlayerStatus.ACTIVE ||
         !m.player.updatedAt ||
-        m.player.updatedAt.getTime() < Date.now() - 1000 * 60 * 60 * 24 * 7
+        m.player.updatedAt.getTime() < Date.now() - 1000 * 60 * 60 * 24 * 7,
     );
   }
 
@@ -182,7 +182,7 @@ function filterMembers(members: Array<MembershipResponse & { player: PlayerRespo
     return members.filter(
       (m) =>
         !m.player.lastChangedAt ||
-        m.player.lastChangedAt.getTime() < Date.now() - 1000 * 60 * 60 * 24 * 7
+        m.player.lastChangedAt.getTime() < Date.now() - 1000 * 60 * 60 * 24 * 7,
     );
   }
 
@@ -190,7 +190,7 @@ function filterMembers(members: Array<MembershipResponse & { player: PlayerRespo
     return members.filter(
       (m) =>
         !m.player.lastChangedAt ||
-        m.player.lastChangedAt.getTime() < Date.now() - 1000 * 60 * 60 * 24 * 30
+        m.player.lastChangedAt.getTime() < Date.now() - 1000 * 60 * 60 * 24 * 30,
     );
   }
 
@@ -198,7 +198,7 @@ function filterMembers(members: Array<MembershipResponse & { player: PlayerRespo
     return members.filter(
       (m) =>
         !m.player.lastChangedAt ||
-        m.player.lastChangedAt.getTime() < Date.now() - 1000 * 60 * 60 * 24 * 90
+        m.player.lastChangedAt.getTime() < Date.now() - 1000 * 60 * 60 * 24 * 90,
     );
   }
 

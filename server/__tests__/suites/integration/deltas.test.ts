@@ -16,8 +16,6 @@ const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const playerDeltaUpdatedEvent = jest.spyOn(PlayerDeltaUpdatedEvent, 'handler');
 
-const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
-
 const globalData = {
   hiscoresRawData: '',
   testGroupId: -1,
@@ -37,7 +35,7 @@ beforeAll(async () => {
   await resetDatabase();
   await redisClient.flushall();
 
-  globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
+  globalData.hiscoresRawData = await readFile(`${__dirname}/../../data/hiscores/psikoi_hiscores.json`);
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
@@ -93,7 +91,7 @@ describe('Deltas API', () => {
       const firstTrackResponse = await api.post(`/players/psikoi`);
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(6_177_978);
-      expect(firstTrackResponse.body.latestSnapshot.data.skills.overall.experience).toBe(300_192_115);
+      expect(firstTrackResponse.body.latestSnapshot.data.skills.overall.experience).toBe(304_439_328);
 
       globalData.testPlayerId = firstTrackResponse.body.id;
 
@@ -113,10 +111,10 @@ describe('Deltas API', () => {
       expect(firstCachedDeltas.length).toBe(0);
 
       let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.LAST_MAN_STANDING, value: 500 },
-        { metric: Metric.SMITHING, value: 6_177_978 + 50_000 },
-        { metric: Metric.OVERALL, value: -1 },
-        { metric: Metric.NEX, value: 53 }
+        { hiscoresMetricName: 'LMS - Rank', value: 500 },
+        { hiscoresMetricName: 'Smithing', value: 6_177_978 + 50_000 },
+        { hiscoresMetricName: 'Overall', value: -1 },
+        { hiscoresMetricName: 'Nex', value: 53 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -130,10 +128,6 @@ describe('Deltas API', () => {
       expect(secondTrackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(
         6_177_978 + 50_000
       );
-
-      expect(secondTrackResponse.body.latestSnapshot.data.skills.overall.experience).toBe(
-        300_192_115 + 50_000
-      ); // mocked as -1 overall, had to sum all skills' exp to use as the fallback
 
       // Wait for the deltas to update
       await sleep(100);
@@ -157,10 +151,10 @@ describe('Deltas API', () => {
         where: { playerId: firstTrackResponse.body.id }
       });
 
-      expect(secondCachedDeltas.length).toBe(15); // 5 periods * 3 metrics (ehp, ehb, nex, smithing, overall)
+      expect(secondCachedDeltas.length).toBe(12);
       expect(secondCachedDeltas.filter(c => c.metric === Metric.EHP && c.value > 0.1).length).toBe(3);
       expect(secondCachedDeltas.filter(c => c.metric === Metric.EHB && c.value > 0.1).length).toBe(3);
-      expect(secondCachedDeltas.filter(c => c.metric === Metric.NEX && c.value === 49).length).toBe(3); // 53 - 4 (min kc is 5) = 49
+      expect(secondCachedDeltas.filter(c => c.metric === Metric.NEX && c.value === 53).length).toBe(3);
 
       const smithingCachedDeltas = secondCachedDeltas.filter(c => c.metric === Metric.SMITHING);
       expect(smithingCachedDeltas.length).toBe(3);
@@ -168,12 +162,6 @@ describe('Deltas API', () => {
       expect(smithingCachedDeltas.map(c => c.period)).toContain('week');
       expect(smithingCachedDeltas.map(c => c.period)).toContain('month');
       expect(smithingCachedDeltas.map(c => c.period)).toContain('year');
-      const overallCachedDeltas = secondCachedDeltas.filter(c => c.metric === Metric.OVERALL);
-      expect(overallCachedDeltas.length).toBe(3);
-      expect(overallCachedDeltas.filter(c => c.value === 50_000).length).toBe(3);
-      expect(overallCachedDeltas.map(c => c.period)).toContain('week');
-      expect(overallCachedDeltas.map(c => c.period)).toContain('month');
-      expect(overallCachedDeltas.map(c => c.period)).toContain('year');
 
       // All deltas' end snapshot is the latest one
       expect(secondCachedDeltas.filter(d => Date.now() - d.endedAt.getTime() > 10_000).length).toBe(0);
@@ -181,13 +169,13 @@ describe('Deltas API', () => {
       const monthCachedDeltas = secondCachedDeltas.filter(c => c.period === 'month');
 
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.OVERALL, value: 300_192_115 + 50_000 },
-        { metric: Metric.SMITHING, value: 6_177_978 + 50_000 },
-        { metric: Metric.LAST_MAN_STANDING, value: 450 },
-        { metric: Metric.NEX, value: 54 },
-        { metric: Metric.TZKAL_ZUK, value: 1 },
-        { metric: Metric.SOUL_WARS_ZEAL, value: 203 },
-        { metric: Metric.BOUNTY_HUNTER_HUNTER, value: 5 }
+        { hiscoresMetricName: 'Overall', value: 304_439_328 + 50_000 },
+        { hiscoresMetricName: 'Smithing', value: 6_177_978 + 50_000 },
+        { hiscoresMetricName: 'LMS - Rank', value: 450 },
+        { hiscoresMetricName: 'Nex', value: 54 },
+        { hiscoresMetricName: 'TzKal-Zuk', value: 1 },
+        { hiscoresMetricName: 'Soul Wars Zeal', value: 203 },
+        { hiscoresMetricName: 'Bounty Hunter - Hunter', value: 5 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -228,8 +216,8 @@ describe('Deltas API', () => {
 
       expect(dayCachedDeltas.find(c => c.metric === Metric.NEX)?.value).toBe(1);
       expect(dayCachedDeltas.find(c => c.metric === Metric.TZKAL_ZUK)?.value).toBe(1);
-      expect(dayCachedDeltas.find(c => c.metric === Metric.BOUNTY_HUNTER_HUNTER)?.value).toBe(4); //  bh went from -1 (unranked) to 5 (min=2), make sure it's 4 gained, not 6
-      expect(dayCachedDeltas.find(c => c.metric === Metric.SOUL_WARS_ZEAL)?.value).toBe(4); // soul wars went from -1 (unranked) to 203 (min=200), make sure it's 4 gained, not 204
+      expect(dayCachedDeltas.find(c => c.metric === Metric.BOUNTY_HUNTER_HUNTER)?.value).toBe(5);
+      expect(dayCachedDeltas.find(c => c.metric === Metric.SOUL_WARS_ZEAL)?.value).toBe(203);
       expect(dayCachedDeltas.find(c => c.metric === Metric.LAST_MAN_STANDING)).toBe(undefined); // LMS went DOWN from 500 to 450, we shouldn't show negative gains
 
       // gained less boss kc, expect ehb gains to be lesser
@@ -302,7 +290,7 @@ describe('Deltas API', () => {
 
       expect(monthNexGains.ehb.gained).toBeGreaterThan(0.1);
       expect(monthEhbGains.value.gained).toBe(monthNexGains.ehb.gained + monthZukGains.ehb.gained);
-      expect(monthNexGains.kills).toMatchObject({ start: -1, end: 54, gained: 50 });
+      expect(monthNexGains.kills).toMatchObject({ start: -1, end: 54, gained: 54 });
       expect(monthLmsGains.score).toMatchObject({ start: 500, end: 450, gained: 0 });
 
       const dayResponse = await api.get(`/players/psikoi/gained`).query({ period: 'day' });
@@ -311,7 +299,11 @@ describe('Deltas API', () => {
 
       const dayOverallGains = dayResponse.body.data.skills.overall;
 
-      expect(dayOverallGains.experience).toMatchObject({ start: 300242115, end: 300242115, gained: 0 });
+      expect(dayOverallGains.experience).toMatchObject({
+        start: -1,
+        end: 304_489_328,
+        gained: 0
+      });
     });
 
     it('should not fetch deltas between (min date greater than max date)', async () => {
@@ -416,7 +408,7 @@ describe('Deltas API', () => {
         'smithing',
         undefined,
         new Date('2021-12-14T04:15:36.000Z'),
-        new Date('2025-12-14T04:15:36.000Z')
+        new Date('2030-12-14T04:15:36.000Z')
       );
 
       expect(recentGains[0]).toMatchObject({
@@ -433,12 +425,12 @@ describe('Deltas API', () => {
         new Date('2021-12-14T04:15:36.000Z').getTime()
       );
 
-      expect(recentGains[0].endDate.getTime()).toBeLessThan(new Date('2025-12-14T04:15:36.000Z').getTime());
+      expect(recentGains[0].endDate.getTime()).toBeLessThan(new Date('2030-12-14T04:15:36.000Z').getTime());
 
       const apiResponse = await api.get(`/groups/${globalData.testGroupId}/gained`).query({
         metric: 'smithing',
         startDate: '2021-12-14T04:15:36.000Z',
-        endDate: '2025-12-14T04:15:36.000Z'
+        endDate: '2030-12-14T04:15:36.000Z'
       });
 
       for (const gain of recentGains) {
@@ -486,7 +478,7 @@ describe('Deltas API', () => {
         'smithing',
         undefined,
         new Date('2021-12-14T04:15:36.000Z'),
-        new Date('2025-12-14T04:15:36.000Z'),
+        new Date('2030-12-14T04:15:36.000Z'),
         { limit: 1, offset: 1 }
       );
 
@@ -556,13 +548,13 @@ describe('Deltas API', () => {
 
     it('should fetch leaderboards (no player filters)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.OVERALL, value: 500_000_000 },
-        { metric: Metric.SMITHING, value: 7_000_000 },
-        { metric: Metric.LAST_MAN_STANDING, value: 450 },
-        { metric: Metric.NEX, value: 54 },
-        { metric: Metric.TZKAL_ZUK, value: 1 },
-        { metric: Metric.SOUL_WARS_ZEAL, value: 203 },
-        { metric: Metric.BOUNTY_HUNTER_HUNTER, value: 5 }
+        { hiscoresMetricName: 'Overall', value: 500_000_000 },
+        { hiscoresMetricName: 'Smithing', value: 7_000_000 },
+        { hiscoresMetricName: 'LMS - Rank', value: 450 },
+        { hiscoresMetricName: 'Nex', value: 54 },
+        { hiscoresMetricName: 'TzKal-Zuk', value: 1 },
+        { hiscoresMetricName: 'Soul Wars Zeal', value: 203 },
+        { hiscoresMetricName: 'Bounty Hunter - Hunter', value: 5 }
       ]);
 
       // Setup mocks for HCIM for the second test player later on (hydrox6)
@@ -614,7 +606,7 @@ describe('Deltas API', () => {
     it('should fetch leaderboards (with player country filter)', async () => {
       const updateCountryResponse = await api
         .put('/players/psikoi/country')
-        .send({ country: 'USA', adminPassword: process.env.ADMIN_PASSWORD });
+        .send({ country: 'USA', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
       expect(updateCountryResponse.body).toMatchObject({

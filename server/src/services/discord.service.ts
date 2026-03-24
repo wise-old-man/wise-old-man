@@ -2,9 +2,9 @@ import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/f
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
-import { CompetitionResponse, FlaggedPlayerReviewContextResponse } from '../api/responses';
-import { Achievement, Competition, Group, GroupRole, Player } from '../types';
-import logger from './logging.service';
+import { CompetitionResponse, FlaggedPlayerReviewContextResponse, GroupResponse } from '../api/responses';
+import { Achievement, GroupRole, Player } from '../types';
+import { logger } from './logger.service';
 
 export enum DiscordBotEventType {
   // Player-facing Events
@@ -21,9 +21,8 @@ export enum DiscordBotEventType {
   MEMBER_NAME_CHANGED = 'MEMBER_NAME_CHANGED',
 
   // Moderation Events
-  OFFENSIVE_NAMES_FOUND = 'OFFENSIVE_NAMES_FOUND',
   PLAYER_FLAGGED_REVIEW = 'PLAYER_FLAGGED_REVIEW',
-  POTENTIAL_CREATION_SPAM = 'POTENTIAL_CREATION_SPAM'
+  CREATION_SPAM_WARNING = 'CREATION_SPAM_WARNING'
 }
 
 type DiscordBotEventPayloadMap = {
@@ -87,21 +86,21 @@ type DiscordBotEventPayloadMap = {
     player: Player;
     previousName: string;
   };
-  [DiscordBotEventType.OFFENSIVE_NAMES_FOUND]: Array<{
-    id: number;
-    type: string;
-    name: string;
-    description?: string;
-    reason: string;
-  }>;
   [DiscordBotEventType.PLAYER_FLAGGED_REVIEW]: {
     player: Player;
     flagContext: FlaggedPlayerReviewContextResponse;
   };
-  [DiscordBotEventType.POTENTIAL_CREATION_SPAM]: {
-    ipHash: string;
-    groups: Array<Group>;
-    competitions: Array<Competition>;
+  [DiscordBotEventType.CREATION_SPAM_WARNING]: {
+    creatorIpHash: string;
+    type: 'burst-creation-spam' | 'inappropriate-content' | 'protected-players';
+    groups: Array<{
+      group: GroupResponse;
+      reason?: string;
+    }>;
+    competitions: Array<{
+      competition: CompetitionResponse;
+      reason?: string;
+    }>;
   };
 };
 
@@ -136,6 +135,8 @@ export async function sendDiscordWebhook({
     })
   );
 
+  webhookClient.destroy();
+
   if (isErrored(requestResult)) {
     return errored({
       code: 'FAILED_TO_SEND_DISCORD_WEBHOOK',
@@ -155,16 +156,16 @@ export async function dispatchDiscordBotEvent<
 ): AsyncResult<
   true,
   | { code: 'NOT_ALLOWED_IN_TEST_ENV' }
-  | { code: 'MISSING_DISCORD_BOT_API_URL' }
+  | { code: 'MISSING_SERVER_DISCORD_BOT_EVENTS_API_URL' }
   | { code: 'FAILED_TO_SEND_DISCORD_BOT_EVENT'; subError: unknown }
 > {
   if (process.env.NODE_ENV === 'test') {
     return errored({ code: 'NOT_ALLOWED_IN_TEST_ENV' });
   }
 
-  if (!process.env.DISCORD_BOT_API_URL) {
+  if (!process.env.SERVER_DISCORD_BOT_EVENTS_API_URL) {
     logger.error('Missing Discord Bot API URL.');
-    return errored({ code: 'MISSING_DISCORD_BOT_API_URL' });
+    return errored({ code: 'MISSING_SERVER_DISCORD_BOT_EVENTS_API_URL' });
   }
 
   const eventId = cuid2();
@@ -172,7 +173,7 @@ export async function dispatchDiscordBotEvent<
   logger.info(`Dispatching Discord Bot Event: ${type} with ID: ${eventId}`, payload);
 
   const requestResult = await fromPromise(
-    axios.post(process.env.DISCORD_BOT_API_URL, {
+    axios.post(process.env.SERVER_DISCORD_BOT_EVENTS_API_URL, {
       eventId,
       type,
       data: payload

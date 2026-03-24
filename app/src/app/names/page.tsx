@@ -54,7 +54,7 @@ export default async function NameChangesPage(props: PageProps) {
     search || "",
     status,
     RESULTS_PER_PAGE,
-    (page - 1) * RESULTS_PER_PAGE
+    (page - 1) * RESULTS_PER_PAGE,
   );
 
   return (

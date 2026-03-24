@@ -11,8 +11,6 @@ import {
   MetricProps,
   PlayerResponse,
   PlayerStatus,
-  isActivity,
-  isBoss,
   isSkill,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
@@ -48,7 +46,7 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
   const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
 
   const outdatedParticipants = rows.filter(
-    (p) => !p.player.updatedAt || p.player.updatedAt < competition.startsAt
+    (p) => !p.player.updatedAt || p.player.updatedAt < competition.startsAt,
   );
 
   const showOnlyOutdated = searchParams.get("filter") === "outdated";
@@ -246,36 +244,6 @@ function ParticipantStartCell(props: {
     );
   }
 
-  if (isBoss(metric) && MetricProps[metric].minimumValue > progress.start) {
-    const { name, minimumValue } = MetricProps[metric];
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>&lt; {minimumValue}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          The Hiscores only start showing {name} kills at {minimumValue} kc.
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (isActivity(metric) && MetricProps[metric].minimumValue > progress.start) {
-    const { name, minimumValue } = MetricProps[metric];
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>&lt; {minimumValue}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          The Hiscores only start showing {name} after {minimumValue}+ score.
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
   if (progress.start === -1) {
     return (
       <Tooltip>
@@ -320,36 +288,6 @@ function ParticipantEndCell(props: {
         </TooltipTrigger>
         <TooltipContent>
           This player hasn&apos;t yet been updated since the competition started.
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (isBoss(metric) && MetricProps[metric].minimumValue > progress.end) {
-    const { name, minimumValue } = MetricProps[metric];
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>&lt; {minimumValue}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          The Hiscores only start showing {name} kills at {minimumValue} kc.
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (isActivity(metric) && MetricProps[metric].minimumValue > progress.end) {
-    const { name, minimumValue } = MetricProps[metric];
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>&lt; {minimumValue}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          The Hiscores only start showing {name} after {minimumValue}+ score.
         </TooltipContent>
       </Tooltip>
     );
@@ -403,7 +341,7 @@ function UpdateParticipantCell(props: {
     <div
       className={cn(
         "flex w-full items-center justify-between gap-x-3",
-        !hasUpdated && !hasStartingValue && hasStarted && "text-red-500"
+        !hasUpdated && !hasStartingValue && hasStarted && "text-red-500",
       )}
     >
       {!hasEnded && hasUpdated ? (

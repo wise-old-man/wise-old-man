@@ -1,7 +1,7 @@
 import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
-import { parseHiscoresSnapshot } from '../snapshot.utils';
+import { fetchHiscoresJSON, HiscoresError } from '../../../../services/jagex.service';
+import { buildHiscoresSnapshot } from './BuildHiscoresSnapshot';
 
 export async function rollbackCollectionLog(
   playerId: number,
@@ -12,7 +12,7 @@ export async function rollbackCollectionLog(
   | { code: 'FAILED_TO_ROLLBACK_COLLECTION_LOG' }
   | { code: 'FAILED_TO_LOAD_HISCORES'; subError: HiscoresError }
 > {
-  const rawHiscoresResult = await fetchHiscoresData(username);
+  const rawHiscoresResult = await fetchHiscoresJSON(username);
 
   if (isErrored(rawHiscoresResult)) {
     return errored({
@@ -21,8 +21,7 @@ export async function rollbackCollectionLog(
     });
   }
 
-  const parsedSnapshot = await parseHiscoresSnapshot(1, rawHiscoresResult.value);
-
+  const parsedSnapshot = buildHiscoresSnapshot(1, rawHiscoresResult.value);
   const currentCollectionsLogged = parsedSnapshot.collections_loggedScore;
 
   if (currentCollectionsLogged === -1) {

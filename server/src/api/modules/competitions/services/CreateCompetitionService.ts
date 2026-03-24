@@ -1,7 +1,7 @@
 import { AsyncResult, combine, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
-import logger from '../../../../services/logging.service';
+import { logger } from '../../../../services/logger.service';
 import {
   Competition,
   CompetitionTeam,
@@ -45,27 +45,27 @@ export async function createCompetition(
   | { code: 'METRICS_MUST_BE_OF_SAME_TYPE' }
   | { code: 'PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE' }
   | { code: 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE' }
-  | { code: 'OPTED_OUT_PLAYERS_FOUND'; displayNames: string[] }
+  | { code: 'OPTED_OUT_PARTICIPANTS_FOUND'; data: string[] }
   | { code: 'FAILED_TO_GENERATE_VERIFICATION_CODE' }
   | { code: 'FAILED_TO_CREATE_COMPETITION' }
   | {
       code: 'FAILED_TO_VALIDATE_PARTICIPANTS';
       subError:
-        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] };
+        | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] };
     }
   | {
       code: 'FAILED_TO_VALIDATE_TEAMS';
       subError:
-        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] };
+        | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; data: string[] };
     }
   | {
       code: 'FAILED_TO_VERIFY_GROUP_VERIFICATION_CODE';
       subError:
         | { code: 'GROUP_NOT_FOUND' }
-        | { code: 'INVALID_GROUP_VERIFICATION_CODE' }
+        | { code: 'MISSING_GROUP_VERIFICATION_CODE' }
         | { code: 'INCORRECT_GROUP_VERIFICATION_CODE' };
     }
 > {
@@ -162,12 +162,12 @@ async function validateGroupVerification(
   groupVerificationCode: string | undefined
 ): AsyncResult<
   true,
-  | { code: 'INVALID_GROUP_VERIFICATION_CODE' }
+  | { code: 'MISSING_GROUP_VERIFICATION_CODE' }
   | { code: 'GROUP_NOT_FOUND' }
   | { code: 'INCORRECT_GROUP_VERIFICATION_CODE' }
 > {
   if (groupVerificationCode === undefined) {
-    return errored({ code: 'INVALID_GROUP_VERIFICATION_CODE' });
+    return errored({ code: 'MISSING_GROUP_VERIFICATION_CODE' });
   }
 
   const group = await prisma.group.findFirst({
@@ -200,25 +200,25 @@ async function getValidatedParticipations({
   },
   | { code: 'PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE' }
   | { code: 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE' }
-  | { code: 'OPTED_OUT_PLAYERS_FOUND'; displayNames: string[] }
+  | { code: 'OPTED_OUT_PARTICIPANTS_FOUND'; data: string[] }
   | {
       code: 'FAILED_TO_VALIDATE_PARTICIPANTS';
       subError:
-        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] };
+        | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] };
     }
   | {
       code: 'FAILED_TO_VALIDATE_TEAMS';
       subError:
-        | { code: 'INVALID_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_USERNAMES_FOUND'; usernames: string[] }
-        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; teamNames: string[] };
+        | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] }
+        | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; data: string[] };
     }
   | {
       code: 'FAILED_TO_VERIFY_GROUP_VERIFICATION_CODE';
       subError:
         | { code: 'GROUP_NOT_FOUND' }
-        | { code: 'INVALID_GROUP_VERIFICATION_CODE' }
+        | { code: 'MISSING_GROUP_VERIFICATION_CODE' }
         | { code: 'INCORRECT_GROUP_VERIFICATION_CODE' };
     }
 > {
@@ -284,7 +284,7 @@ async function getValidatedParticipations({
           in: participations.map(p => p.playerId)
         },
         type: {
-          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_GROUPS]
+          in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS]
         }
       },
       include: {
@@ -296,8 +296,8 @@ async function getValidatedParticipations({
 
     if (optOuts.length > 0) {
       return errored({
-        code: 'OPTED_OUT_PLAYERS_FOUND',
-        displayNames: optOuts.map(o => o.player.displayName)
+        code: 'OPTED_OUT_PARTICIPANTS_FOUND',
+        data: optOuts.map(o => o.player.displayName)
       });
     }
   }

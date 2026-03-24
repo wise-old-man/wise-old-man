@@ -2,52 +2,63 @@ import { eventEmitter, EventType } from '../../api/events';
 import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
 import prisma from '../../prisma';
 import { CachedDelta, Metric, METRICS, Period } from '../../types';
+import { getRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
 import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
 import { isActivity, isBoss, isComputedMetric, isSkill, PeriodProps } from '../../utils/shared';
-import { Job } from '../job.class';
-import { JobOptions } from '../types/job-options.type';
+import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   username: string;
   period: Period;
 }
 
-export class SyncPlayerDeltasJob extends Job<Payload> {
-  static options: JobOptions = {
-    maxConcurrent: 12
-  };
+export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
+  options: {
+    maxConcurrent: 4
+  },
 
-  static getUniqueJobId(payload: Payload) {
+  generateUniqueJobId(payload) {
     return [payload.username, payload.period].join('_');
-  }
+  },
 
   async execute({ username, period }: Payload) {
-    const playerAndSnapshot = await prisma.player.findFirst({
+    const data = await prisma.player.findFirst({
       where: {
         username
       },
       include: {
-        latestSnapshot: true
+        latestSnapshot: {
+          select: {
+            playerId: true,
+            createdAt: true,
+            ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
+          }
+        }
       }
     });
 
-    if (playerAndSnapshot === null || playerAndSnapshot.latestSnapshot === null) {
+    if (data === null || data.latestSnapshot === null) {
       return;
     }
 
-    const latestSnapshot = playerAndSnapshot.latestSnapshot;
+    const { latestSnapshot, ...player } = data;
 
     const [previousDeltas, startSnapshot] = await Promise.all([
       prisma.cachedDelta.findMany({
         where: {
-          playerId: playerAndSnapshot.id,
+          playerId: player.id,
           period
         }
       }),
       prisma.snapshot.findFirst({
+        select: {
+          playerId: true,
+          createdAt: true,
+          ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
+        },
         where: {
-          playerId: playerAndSnapshot.id,
-          createdAt: { gte: new Date(Date.now() - PeriodProps[period].milliseconds) }
+          playerId: player.id,
+          createdAt: { gte: new Date(latestSnapshot.createdAt.getTime() - PeriodProps[period].milliseconds) }
         },
         orderBy: {
           createdAt: 'asc'
@@ -56,7 +67,7 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
     ]);
 
     // The player only has one snapshot in this period, can't calculate diffs
-    if (!startSnapshot || latestSnapshot.id === startSnapshot.id) {
+    if (!startSnapshot || latestSnapshot.createdAt.getTime() === startSnapshot.createdAt.getTime()) {
       return;
     }
 
@@ -66,10 +77,10 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
 
     const newCachedDeltasMap = new Map<Metric, CachedDelta>();
 
-    const periodDiffs = calculatePlayerDeltas(startSnapshot, latestSnapshot, playerAndSnapshot);
+    const periodDiffs = calculatePlayerDeltas(startSnapshot, latestSnapshot, player);
 
     const commonProps = {
-      playerId: playerAndSnapshot.id,
+      playerId: player.id,
       period,
       startedAt: startSnapshot.createdAt,
       endedAt: latestSnapshot.createdAt,
@@ -102,7 +113,7 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
     if (newCachedDeltasMap.size === 0) {
       await prisma.cachedDelta.deleteMany({
         where: {
-          playerId: playerAndSnapshot.id,
+          playerId: player.id,
           period
         }
       });
@@ -130,7 +141,7 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
     await prisma.$transaction(async transaction => {
       await transaction.cachedDelta.deleteMany({
         where: {
-          playerId: playerAndSnapshot.id,
+          playerId: player.id,
           period
         }
       });
@@ -143,8 +154,7 @@ export class SyncPlayerDeltasJob extends Job<Payload> {
     eventEmitter.emit(EventType.PLAYER_DELTA_UPDATED, {
       username,
       period,
-      periodStartDate: startSnapshot.createdAt,
       isPotentialRecord: previousDeltas.length === 0 || hasImprovements
     });
   }
-}
+};

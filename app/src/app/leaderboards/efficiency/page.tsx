@@ -62,7 +62,7 @@ export default async function EfficiencyLeaderboardsPage(props: PageProps) {
     getPlayerTypeParam(searchParams.playerType),
     getPlayerBuildParam(searchParams.playerBuild),
     RESULTS_PER_PAGE,
-    (page - 1) * RESULTS_PER_PAGE
+    (page - 1) * RESULTS_PER_PAGE,
   );
 
   return (

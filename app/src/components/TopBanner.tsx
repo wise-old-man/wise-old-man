@@ -15,7 +15,7 @@ export function TopBanner(props: TopBannerProps) {
         "flex items-center gap-x-4 p-3",
         !!cta ? "justify-between" : "justify-center",
         color === "blue" && "bg-blue-600",
-        color === "yellow" && "bg-yellow-600"
+        color === "yellow" && "bg-yellow-600",
       )}
     >
       <span className="text-sm">{body}</span>

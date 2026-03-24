@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("CORE_DATABASE_URL")
+  url      = env("SERVER_CORE_DATABASE_URL")
 }
 
 model ApiKey {
@@ -49,9 +49,10 @@ model Competition {
   creatorIpHash    String?         @db.VarChar(255)
 
   // Relations
-  group          Group?              @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  participations Participation[]
-  metrics        CompetitionMetric[]
+  group                 Group?                 @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  participations        Participation[]
+  metrics               CompetitionMetric[]
+  competitionTimeEvents CompetitionTimeEvent[]
 
   // Indices
   @@index([endsAt], map: "competitions_ends_at")
@@ -60,6 +61,33 @@ model Competition {
   @@index([creatorIpHash], map: "competitions_creator_ip_hash")
   // Map
   @@map("competitions")
+}
+
+model CompetitionTimeEvent {
+  id            Int                      @id @default(autoincrement())
+  competitionId Int
+  type          CompetitionTimeEventType
+  offsetMinutes Int
+
+  executeAt DateTime                   @db.Timestamptz(6)
+  status    CompetitionTimeEventStatus @default(waiting)
+  attempts  Int                        @default(0)
+
+  executingAt DateTime? @db.Timestamptz(6)
+  completedAt DateTime? @db.Timestamptz(6)
+  failedAt    DateTime? @db.Timestamptz(6)
+  canceledAt  DateTime? @db.Timestamptz(6)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  // Indices
+  @@index([competitionId, status], map: "competition_time_events_competition_id_status")
+  @@index([executeAt, status], map: "competition_time_events_execute_at_status")
+  // Map
+  @@map("competitionTimeEvents")
 }
 
 model CompetitionMetric {
@@ -168,7 +196,6 @@ model Membership {
 }
 
 model GroupSocialLinks {
-  id        Int      @id @default(autoincrement())
   groupId   Int
   website   String?
   discord   String?
@@ -181,8 +208,8 @@ model GroupSocialLinks {
   // Relations
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  // Indices
-  @@index([groupId], map: "group_social_links_group_id")
+  // Constraints
+  @@id([groupId])
   // Map
   @@map("groupSocialLinks")
 }
@@ -211,8 +238,6 @@ model NameChange {
 model Participation {
   playerId          Int
   competitionId     Int
-  startSnapshotId   Int?
-  endSnapshotId     Int?
   teamName          String?   @db.VarChar(30)
   startSnapshotDate DateTime?
   endSnapshotDate   DateTime?
@@ -222,15 +247,13 @@ model Participation {
   // Relations
   player        Player      @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  startSnapshot Snapshot?   @relation("participations_startSnapshotIdTosnapshots", fields: [startSnapshotId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  endSnapshot   Snapshot?   @relation("participations_endSnapshotIdTosnapshots", fields: [endSnapshotId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  startSnapshot Snapshot?   @relation("participation_start_snapshot", fields: [playerId, startSnapshotDate], references: [playerId, createdAt], onDelete: NoAction, onUpdate: NoAction)
+  endSnapshot   Snapshot?   @relation("participation_end_snapshot", fields: [playerId, endSnapshotDate], references: [playerId, createdAt], onDelete: NoAction, onUpdate: NoAction)
 
   // Constraints
   @@id([playerId, competitionId])
   // Indices
   @@index([competitionId], map: "participations_competition_id")
-  @@index([endSnapshotId], map: "participations_end_snapshot_id")
-  @@index([startSnapshotId], map: "participations_start_snapshot_id")
   @@index([startSnapshotDate], map: "participations_start_snapshot_date")
   @@index([endSnapshotDate], map: "participations_end_snapshot_date")
   // Map
@@ -255,11 +278,14 @@ model Player {
   updatedAt          DateTime?    @db.Timestamptz(6)
   lastChangedAt      DateTime?    @db.Timestamptz(6)
   lastImportedAt     DateTime?    @db.Timestamptz(6)
-  latestSnapshotId   Int?
   latestSnapshotDate DateTime?    @db.Timestamptz(6)
 
+  // Temporary
+  sailing     Int @default(-1)
+  sailingRank Int @default(-1)
+
   // Relations
-  latestSnapshot Snapshot?          @relation("player_latest_snapshot", fields: [latestSnapshotId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  latestSnapshot Snapshot?          @relation("player_latest_snapshot", fields: [id, latestSnapshotDate], references: [playerId, createdAt], onDelete: NoAction, onUpdate: NoAction)
   achievements   Achievement[]
   memberships    Membership[]
   nameChanges    NameChange[]
@@ -275,10 +301,10 @@ model Player {
   // Indices
   @@index([build], map: "players_build")
   @@index([country], map: "players_country")
-  @@index([latestSnapshotId], map: "players_latest_snapshot_id")
   @@index([latestSnapshotDate], map: "players_latest_snapshot_date")
   @@index([type, ehp(sort: Desc)], map: "players_type_ehp")
   @@index([type, ehb(sort: Desc)], map: "players_type_ehb")
+  @@index([updatedAt, sailing, sailingRank], map: "players_updated_at_sailing_sailing_rank")
   // Map
   @@map("players")
 }
@@ -319,7 +345,6 @@ model Record {
 }
 
 model Snapshot {
-  id                                    Int       @id @default(autoincrement())
   playerId                              Int
   importedAt                            DateTime? @db.Timestamptz(6)
   createdAt                             DateTime  @default(now()) @db.Timestamptz(6)
@@ -372,8 +397,8 @@ model Snapshot {
   hunterExperience                      Int       @default(-1)
   constructionRank                      Int       @default(-1)
   constructionExperience                Int       @default(-1)
-  league_pointsRank                     Int       @default(-1)
-  league_pointsScore                    Int       @default(-1)
+  sailingRank                           Int       @default(-1)
+  sailingExperience                     Int       @default(-1)
   bounty_hunter_hunterRank              Int       @default(-1)
   bounty_hunter_hunterScore             Int       @default(-1)
   bounty_hunter_rogueScore              Int       @default(-1)
@@ -408,6 +433,8 @@ model Snapshot {
   artioKills                            Int       @default(-1)
   barrows_chestsRank                    Int       @default(-1)
   barrows_chestsKills                   Int       @default(-1)
+  brutusRank                            Int       @default(-1)
+  brutusKills                           Int       @default(-1)
   bryophytaKills                        Int       @default(-1)
   bryophytaRank                         Int       @default(-1)
   cerberusKills                         Int       @default(-1)
@@ -476,6 +503,8 @@ model Snapshot {
   scorpiaKills                          Int       @default(-1)
   scurriusRank                          Int       @default(-1)
   scurriusKills                         Int       @default(-1)
+  shellbane_gryphonRank                 Int       @default(-1)
+  shellbane_gryphonKills                Int       @default(-1)
   skotizoRank                           Int       @default(-1)
   skotizoKills                          Int       @default(-1)
   sol_hereditRank                       Int       @default(-1)
@@ -545,12 +574,12 @@ model Snapshot {
 
   // Relations
   player                     Player          @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  participationStartPointers Participation[] @relation("participations_startSnapshotIdTosnapshots")
-  participationEndPointers   Participation[] @relation("participations_endSnapshotIdTosnapshots")
+  participationStartPointers Participation[] @relation("participation_start_snapshot")
+  participationEndPointers   Participation[] @relation("participation_end_snapshot")
   Player                     Player[]        @relation("player_latest_snapshot")
 
-  // Indices
-  @@index([playerId, createdAt(sort: Desc)], map: "snapshots_player_id_created_at")
+  // Constraints
+  @@id([playerId, createdAt])
   // Map
   @@map("snapshots")
 }
@@ -594,15 +623,20 @@ model Patron {
 }
 
 model TrendDatapoint {
-  date     DateTime
-  metric   Metric
-  sum      BigInt
-  maxValue BigInt
-  minValue Int
-  maxRank  Int
+  metric       Metric
+  segmentType  String?
+  segmentValue String?
+  segmentSize  Int?
+  date         DateTime
+  sum          BigInt
+  maxValue     BigInt
+  minValue     Int
+  maxRank      Int
 
   // Constraints
   @@id([metric, date])
+  // Indices
+  @@index([metric, segmentType, segmentValue, date(sort: Desc)], map: "trend_datapoints_metric_segment_type_segment_value_date")
   // Map
   @@map("trendDatapoints")
 }
@@ -749,6 +783,7 @@ enum Country {
   FR
   GA
   GB
+  GB_ENG
   GB_NIR
   GB_SCT
   GB_WLS
@@ -1244,7 +1279,7 @@ enum Metric {
   runecrafting
   hunter
   construction
-  league_points
+  sailing
   bounty_hunter_hunter
   bounty_hunter_rogue
   clue_scrolls_all
@@ -1262,6 +1297,7 @@ enum Metric {
   araxxor
   artio
   barrows_chests
+  brutus
   bryophyta
   callisto
   calvarion
@@ -1297,6 +1333,7 @@ enum Metric {
   sarachnis
   scorpia
   scurrius
+  shellbane_gryphon
   skotizo
   sol_heredit
   spindel
@@ -1339,4 +1376,22 @@ enum ActivityType {
   changed_role
 
   @@map("activity_type")
+}
+
+enum CompetitionTimeEventType {
+  before_start
+  before_end
+  during
+
+  @@map("competition_time_event_type")
+}
+
+enum CompetitionTimeEventStatus {
+  waiting
+  executing
+  completed
+  failed
+  canceled
+
+  @@map("competition_time_event_status")
 }

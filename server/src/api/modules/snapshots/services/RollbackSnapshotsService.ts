@@ -1,4 +1,5 @@
 import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
+import { jobManager, JobType } from '../../../../jobs';
 import prisma from '../../../../prisma';
 
 export async function rollbackSnapshots(
@@ -6,7 +7,7 @@ export async function rollbackSnapshots(
   deleteAllSince?: Date
 ): AsyncResult<
   true,
-  { code: 'FAILED_TO_ROLLBACK_SNAPSHOTS'; subError: unknown } | { code: 'NO_SNAPSHOTS_DELETED' }
+  { code: 'FAILED_TO_ROLLBACK_SNAPSHOTS'; subError: unknown } | { code: 'NO_SNAPSHOTS_TO_DELETE' }
 > {
   const transactionResult = await fromPromise(
     prisma.$transaction(async transaction => {
@@ -47,11 +48,27 @@ export async function rollbackSnapshots(
         return 0;
       }
 
+      const snapshotDatesToDelete = snapshotsToDelete.map(s => s.createdAt);
+
+      await transaction.participation.updateMany({
+        where: {
+          playerId,
+          OR: [
+            { startSnapshotDate: { in: snapshotDatesToDelete } },
+            { endSnapshotDate: { in: snapshotDatesToDelete } }
+          ]
+        },
+        data: {
+          startSnapshotDate: null,
+          endSnapshotDate: null
+        }
+      });
+
       await transaction.snapshot.deleteMany({
         where: {
           playerId,
           createdAt: {
-            in: snapshotsToDelete.map(s => s.createdAt)
+            in: snapshotDatesToDelete
           }
         }
       });
@@ -91,7 +108,23 @@ export async function rollbackSnapshots(
   }
 
   if (transactionResult.value === 0) {
-    return errored({ code: 'NO_SNAPSHOTS_DELETED' });
+    return errored({ code: 'NO_SNAPSHOTS_TO_DELETE' });
+  }
+
+  const player = await prisma.player.findFirst({
+    where: {
+      id: playerId
+    },
+    select: {
+      username: true
+    }
+  });
+
+  if (player !== null) {
+    jobManager.add(JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS, {
+      username: player.username,
+      forceRecalculate: true
+    });
   }
 
   return complete(true);

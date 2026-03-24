@@ -27,7 +27,7 @@ const PopoverContent = forwardRef<
         "z-10 min-w-[12rem] translate-y-1 overflow-hidden rounded-md border border-gray-500 bg-gray-700 shadow-md outline-none",
         "animate-in data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
         align !== "center" && "min-w-[--radix-popper-anchor-width]",
-        className
+        className,
       )}
       {...props}
     />
@@ -66,7 +66,7 @@ const CommandInput = forwardRef<
       className={cn(
         "flex w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-300",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        className
+        className,
       )}
       {...props}
     />
@@ -92,7 +92,7 @@ const CommandGroup = forwardRef<
     className={cn(
       "p-1",
       "[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-gray-200",
-      className
+      className,
     )}
     {...props}
   />
@@ -117,7 +117,7 @@ const CommandItem = forwardRef<
         "relative flex cursor-pointer select-none items-center gap-x-2 rounded p-2 text-sm text-gray-100 outline-none aria-selected:bg-gray-600 aria-selected:text-white",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         selectedValue === props.value && "!bg-gray-800 font-medium !text-white",
-        className
+        className,
       )}
       {...props}
     >

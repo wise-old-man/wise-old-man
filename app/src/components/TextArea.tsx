@@ -19,7 +19,7 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>((props, re
           "disabled:cursor-not-allowed disabled:opacity-50",
           !!leftElement && "pl-10",
           !!rightElement && "pr-10",
-          className
+          className,
         )}
         ref={ref}
         {...otherProps}

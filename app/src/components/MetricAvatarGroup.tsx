@@ -31,7 +31,7 @@ export function MetricAvatarGroup({
           key={metric}
           className={cn(
             "absolute flex shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900",
-            avatarClassname
+            avatarClassname,
           )}
           style={{
             zIndex: index,
@@ -47,7 +47,7 @@ export function MetricAvatarGroup({
         <div
           className={cn(
             "absolute flex shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200",
-            avatarClassname
+            avatarClassname,
           )}
           style={{
             zIndex: itemCount - 1,

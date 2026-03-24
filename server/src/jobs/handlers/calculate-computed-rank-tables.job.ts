@@ -1,6 +1,6 @@
 import { getAlgorithmType } from '../../api/modules/efficiency/efficiency.utils';
 import prisma from '../../prisma';
-import logger from '../../services/logging.service';
+import { logger } from '../../services/logger.service';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import {
   ComputedMetric,
@@ -10,18 +10,17 @@ import {
   PlayerBuild,
   PlayerType
 } from '../../types';
-
-import { Job } from '../job.class';
+import { JobHandler } from '../types/job-handler.type';
 
 // The higher the resolution, the more accurate the estimates are, but the more memory is used
 export const RANK_RESOLUTION = 10;
 
-export class CalculateComputedRankTablesJob extends Job<unknown> {
+export const CalculateComputedRankTablesJobHandler: JobHandler = {
   async execute() {
     await updateRankMaps(ComputedMetric.EHP);
     await updateRankMaps(ComputedMetric.EHB);
   }
-}
+};
 
 async function updateRankMaps(metric: ComputedMetric) {
   const map = new Map<EfficiencyAlgorithmType, Record<number, number>>();
@@ -62,7 +61,7 @@ async function updateRankMaps(metric: ComputedMetric) {
     }
   }
 
-  logger.info(`Storing rank table data...`, { metric }, true);
+  logger.info(`Storing rank table data...`, { metric });
 
   for (const [algorithmType, data] of Array.from(map.entries())) {
     await redisClient

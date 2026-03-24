@@ -47,12 +47,12 @@ async function addTeams(id: number, teams: CompetitionTeam[]): Promise<{ count: 
       case 'INVALID_USERNAMES_FOUND':
         throw new BadRequestError(
           `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
-          teamValidationResult.error.usernames
+          teamValidationResult.error.data
         );
       case 'DUPLICATE_USERNAMES_FOUND':
-        throw new BadRequestError(`Found repeated usernames.`, teamValidationResult.error.usernames);
+        throw new BadRequestError(`Found repeated usernames.`, teamValidationResult.error.data);
       case 'DUPLICATE_TEAM_NAMES_FOUND':
-        throw new BadRequestError(`Found repeated team names.`, teamValidationResult.error.teamNames);
+        throw new BadRequestError(`Found repeated team names.`, teamValidationResult.error.data);
       default:
         return assertNever(teamValidationResult.error);
     }

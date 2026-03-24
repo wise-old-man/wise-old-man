@@ -1,9 +1,9 @@
 import { AsyncResult, complete, errored, isComplete, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { fetchHiscoresData, HiscoresError } from '../../../../services/jagex.service';
+import { fetchHiscoresJSON, HiscoresError } from '../../../../services/jagex.service';
 import { Player, PlayerType } from '../../../../types';
 import { eventEmitter, EventType } from '../../../events';
-import { parseHiscoresSnapshot } from '../../snapshots/snapshot.utils';
+import { buildHiscoresSnapshot } from '../../snapshots/services/BuildHiscoresSnapshot';
 
 async function assertPlayerType(player: Player): AsyncResult<
   | {
@@ -154,21 +154,21 @@ async function getOverallExperience(
     subError: Exclude<HiscoresError, { code: 'HISCORES_USERNAME_NOT_FOUND' }>;
   }
 > {
-  const hiscoresCSVResult = await fetchHiscoresData(username, type);
+  const hiscoresResult = await fetchHiscoresJSON(username, type);
 
-  if (isComplete(hiscoresCSVResult)) {
-    const parsedSnapshot = await parseHiscoresSnapshot(1, hiscoresCSVResult.value);
+  if (isComplete(hiscoresResult)) {
+    const parsedSnapshot = buildHiscoresSnapshot(1, hiscoresResult.value);
 
     return complete(parsedSnapshot.overallExperience);
   }
 
-  if (hiscoresCSVResult.error.code === 'HISCORES_USERNAME_NOT_FOUND') {
+  if (hiscoresResult.error.code === 'HISCORES_USERNAME_NOT_FOUND') {
     return complete(-1);
   }
 
   return errored({
     code: 'FAILED_TO_LOAD_HISCORES',
-    subError: hiscoresCSVResult.error
+    subError: hiscoresResult.error
   } as const);
 }
 

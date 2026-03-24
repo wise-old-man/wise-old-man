@@ -78,7 +78,7 @@ async function RecordLeaderboard(props: RecordLeaderboardProps) {
     period,
     filters.country,
     filters.playerType,
-    filters.playerBuild
+    filters.playerBuild,
   );
 
   return (

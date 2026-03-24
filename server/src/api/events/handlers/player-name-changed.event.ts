@@ -1,12 +1,12 @@
 import { jobManager, JobType } from '../../../jobs';
-import { standardize } from '../../modules/players/player.utils';
+import { standardizeUsername } from '../../modules/players/player.utils';
 import { EventPayloadMap } from '../types/event-payload.type';
 import { EventType } from '../types/event-type.enum';
 
 export function handler({ username, previousDisplayName }: EventPayloadMap[EventType.PLAYER_NAME_CHANGED]) {
   jobManager.add(JobType.UPDATE_PLAYER, { username });
 
-  if (standardize(username) !== standardize(previousDisplayName)) {
+  if (standardizeUsername(username) !== standardizeUsername(previousDisplayName)) {
     jobManager.add(JobType.ASSERT_PLAYER_TYPE, { username });
     jobManager.add(JobType.DISPATCH_MEMBER_NAME_CHANGED_DISCORD_EVENT, { username, previousDisplayName });
 

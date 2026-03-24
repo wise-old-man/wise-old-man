@@ -26,7 +26,7 @@ export function CompetitionTeamsForm(props: CompetitionTeamsFormProps) {
   const [isEditing, setEditing] = useState(false);
   const [editingTeamName, setEditingTeamName] = useState<string | undefined>();
 
-  const editingTeam = editingTeamName ? teams.find((t) => t.name === editingTeamName) ?? null : null;
+  const editingTeam = editingTeamName ? (teams.find((t) => t.name === editingTeamName) ?? null) : null;
 
   function handleAddTeam(team: CompetitionTeam) {
     const hasRepeatedNames = teams
