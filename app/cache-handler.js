@@ -4,7 +4,7 @@ const createLruHandler = require("@neshca/cache-handler/local-lru").default;
 const { createClient } = require("redis");
 
 CacheHandler.onCreation(async () => {
-  // During local build, we don't can't connect to Redis.
+  // During local build, we can't connect to Redis.
   if (process.env.BUILD_STANDALONE === "true") {
     return {
       handlers: [],
@@ -17,6 +17,7 @@ CacheHandler.onCreation(async () => {
     // Create a Redis client.
     client = createClient({
       url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+      password: process.env.REDIS_PASSWORD,
     });
 
     // Redis won't work without error handling.
