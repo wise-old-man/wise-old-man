@@ -30,6 +30,8 @@ model Achievement {
 
   // Constraints
   @@id([playerId, name])
+  // Indices
+  @@index([playerId, createdAt(sort: Desc)], map: "achievements_player_id_created_at")
   // Map
   @@map("achievements")
 }
@@ -155,6 +157,7 @@ model Group {
 
   // Constraints
   @@unique([name], map: "groups_name_key")
+  @@index([patron], map: "groups_patron")
   @@index([creatorIpHash], map: "groups_creator_ip_hash")
   // Map
   @@map("groups")
@@ -231,6 +234,7 @@ model NameChange {
   // Indices
   @@index([playerId], map: "name_changes_player_id")
   @@index([status], map: "name_changes_status")
+  @@index([createdAt(sort: Desc)], map: "name_changes_created_at")
   // Map
   @@map("nameChanges")
 }
@@ -297,6 +301,8 @@ model Player {
   // Indices
   @@index([build], map: "players_build")
   @@index([country], map: "players_country")
+  @@index([status], map: "players_status")
+  @@index([patron], map: "players_patron")
   @@index([latestSnapshotDate], map: "players_latest_snapshot_date")
   @@index([type, ehp(sort: Desc)], map: "players_type_ehp")
   @@index([type, ehb(sort: Desc)], map: "players_type_ehb")
@@ -613,6 +619,9 @@ model Patron {
   group  Group?  @relation(fields: [groupId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   player Player? @relation(fields: [playerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
+  // Indices
+  @@index([groupId], map: "patrons_group_id")
+  @@index([playerId], map: "patrons_player_id")
   // Map
   @@map("patrons")
 }
