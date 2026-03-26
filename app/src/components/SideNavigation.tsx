@@ -162,19 +162,6 @@ function SideBar(props: SideBarProps) {
             </Link>
           </li>
         ))}
-        <li>
-          <Link
-            href="/sailing"
-            prefetch={false}
-            className="flex items-center justify-between px-5 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700"
-          >
-            <div className="flex items-center">
-              <AnchorIcon className="mr-2 h-5 w-5" />
-              Sailing
-            </div>
-            <span className="mt-px text-xs text-blue-400">New</span>
-          </Link>
-        </li>
       </ul>
       <div className="w-[calc(100% - 1.6rem)] mx-5 my-4 h-px shrink-0 bg-gray-600" />
       <ul className="flex flex-col">
