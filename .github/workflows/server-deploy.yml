@@ -65,7 +65,7 @@ jobs:
             cd wise-old-man
             docker image rm wiseoldman/server
             docker pull wiseoldman/server:latest
-            docker compose up -d --no-deps --build server-api server-bull-board
+            docker compose up -d --no-deps --build server-api server-job-runner server-bull-board
 
   deploy-worker:
     name: Deploy Worker Server

@@ -232,15 +232,17 @@ class JobManager {
       }
     }
 
-    for (const { interval, type } of CRON_CONFIG) {
-      const matchingQueue = this.queues.find(q => q.name === type);
+    if (process.env.SERVER_JOB_RUNNER_CRON_JOBS !== 'disabled') {
+      for (const { interval, type } of CRON_CONFIG) {
+        const matchingQueue = this.queues.find(q => q.name === type);
 
-      if (!matchingQueue) {
-        throw new Error(`No job implementation found for type "${type}".`);
+        if (!matchingQueue) {
+          throw new Error(`No job implementation found for type "${type}".`);
+        }
+
+        logger.info(`[v2] Scheduling cron job`, { type, interval });
+        await matchingQueue.add(type, {}, { repeat: { pattern: interval } });
       }
-
-      logger.info(`[v2] Scheduling cron job`, { type, interval });
-      await matchingQueue.add(type, {}, { repeat: { pattern: interval } });
     }
 
     for (const jobName of STARTUP_JOBS) {
