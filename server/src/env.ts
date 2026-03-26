@@ -41,10 +41,13 @@ const envVariablesSchema = z.object({
   SERVER_API_ABUSE_PROTECTED_PLAYERS_LIST: z.optional(z.string().trim()),
   // Feature Flags
   SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS: z.optional(z.string()),
-  // Admin Password (For mod+ operations)
+  // Admin Password (For moderation operations)
   SHARED_ADMIN_PASSWORD: z.string().trim().min(1),
   // Our Prometheus metrics aggregator service URL
-  PROMETHEUS_METRICS_SERVICE_URL: z.string().trim().min(1).url()
+  PROMETHEUS_METRICS_SERVICE_URL: z.string().trim().min(1).url(),
+
+  // Temporary
+  SERVER_JOB_RUNNER_CRON_JOBS: z.enum(['enabled', 'disabled']).optional().default('enabled')
 });
 
 type EnvKey = keyof typeof envVariablesSchema.shape;
