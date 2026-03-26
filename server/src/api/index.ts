@@ -8,7 +8,7 @@ import { logger } from '../services/logger.service';
 import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 import prometheus from './../services/prometheus.service';
 import router from './routing';
-import { getRequestIpHash } from './util/request';
+import { getRequestIp, getRequestIpHash } from './util/request';
 import { parseUserAgent } from './util/user-agents';
 
 const RATE_LIMIT_MAX_REQUESTS = 20;
@@ -104,7 +104,7 @@ class APIInstance {
         return next();
       }
 
-      const consumerId = apiKey ?? req.ip;
+      const consumerId = apiKey ?? getRequestIp(req);
 
       if (consumerId === undefined) {
         return res.status(403).json({
