@@ -40,5 +40,5 @@ jobs:
             docker image rm wiseoldman/app
             docker compose pull app
             docker compose up -d --no-deps --build app
-            docker exec redis sh -c 'redis-cli KEYS "next*" | xargs redis-cli DEL'
+            docker exec redis sh -c 'export REDISCLI_AUTH="$REDIS_PASSWORD"; redis-cli --scan --pattern "next*" | xargs -r redis-cli DEL'
             docker image prune
