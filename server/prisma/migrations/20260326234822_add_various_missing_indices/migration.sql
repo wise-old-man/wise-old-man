@@ -1,10 +1,3 @@
-/*
-  Warnings:
-
-  - The values [league_points] on the enum `metric` will be removed. If these variants are still used in the database, this will fail.
-
-*/
-
 -- CreateIndex
 CREATE INDEX "achievements_player_id_created_at" ON "public"."achievements"("playerId", "createdAt" DESC);
 
