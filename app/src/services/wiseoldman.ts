@@ -3,7 +3,6 @@ import {
   CompetitionStatus,
   CompetitionType,
   Country,
-  GroupResponse,
   Metric,
   NameChangeStatus,
   Period,
@@ -184,24 +183,6 @@ export const getSnapshotTimelineByDate = cache(
       apiClient.players.getPlayerSnapshotTimeline(username, metric, { startDate, endDate }),
     );
   },
-);
-
-export const getSailingData = cache(() =>
-  apiClient.getRequest<{
-    count99: number;
-    top10Groups: Array<{
-      group: GroupResponse;
-      count: number;
-      avg: number;
-      sum: number;
-    }>;
-    timeseries: Array<{
-      date: Date;
-      sum: number;
-      count: number;
-      sampleSize: number;
-    }>;
-  }>("/sailing", {}),
 );
 
 export const getRecordLeaderboard = cache(
