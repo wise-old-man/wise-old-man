@@ -180,9 +180,6 @@ async function updatePlayer(
   updatedPlayerFields.ttm = computedMetrics.ttm;
   updatedPlayerFields.tt200m = computedMetrics.tt200m;
 
-  updatedPlayerFields.sailing = currentStats.sailingExperience;
-  updatedPlayerFields.sailingRank = currentStats.sailingRank;
-
   // Add the computed metrics to the snapshot
   currentStats.ehpValue = computedMetrics.ehpValue;
   currentStats.ehpRank = computedMetrics.ehpRank;
