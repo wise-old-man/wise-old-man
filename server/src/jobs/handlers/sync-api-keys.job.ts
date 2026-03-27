@@ -11,11 +11,12 @@ export const SyncApiKeysJobHandler: JobHandler = {
     }
 
     // Cache all these api keys in Redis, so that they can be quickly accessed on every API request
-    const apiKeyEntries = apiKeys.flatMap(key => [
-      buildCompoundRedisKey('api_key', key.id),
-      String(key.master)
-    ]);
+    const payload = {};
 
-    await redisClient.mset(apiKeyEntries);
+    for (const key of apiKeys) {
+      payload[buildCompoundRedisKey('api_key', key.id)] = String(key.master);
+    }
+
+    await redisClient.mset(payload);
   }
 };
