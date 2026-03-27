@@ -1,4 +1,5 @@
 import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
+import ms from 'ms';
 import { jobManager, JobType } from '../../../../jobs';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { fetchHiscoresJSON, HiscoresError } from '../../../../services/jagex.service';
@@ -222,7 +223,7 @@ async function shouldReviewType(player: Player) {
   }
 
   // Check if this player has been reviewed recently (past 7 days)
-  return !(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', player.username)));
+  return !(await redisClient.get(buildCompoundRedisKey('cooldown', 'player_type_review', player.username)));
 }
 
 async function handlePlayerFlagged(player: Player, previousStats: Snapshot, rejectedStats: Snapshot) {
@@ -257,19 +258,10 @@ async function reviewType(player: Player): AsyncResult<{ changed: boolean }, His
 
   // Store the current timestamp in Redis, so that we don't review this player again for 7 days
   await redisClient.set(
-    buildCompoundRedisKey('cd', 'PlayerTypeReview', player.username),
-    Date.now(),
-    'PX',
-    604_800_000
-  );
-
-  // Also write to this key, so that we can slowly migrate to a new naming convention
-  // In the future, we can remove the version above, and move all reads to this new version
-  await redisClient.set(
     buildCompoundRedisKey('cooldown', 'player_type_review', player.username),
     Date.now(),
     'PX',
-    604_800_000
+    ms('7 days')
   );
 
   return complete({

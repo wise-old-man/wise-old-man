@@ -27,12 +27,8 @@ export async function detectRuneLiteNameChange(req: unknown, res: Response, next
   // If this ID is linked to a different username than before, that means that account has changed
   // their name and we should automatically submit a name change for it.
 
-  const storedUsername = await redisClient.get(buildCompoundRedisKey('hash', accountHash));
+  const storedUsername = await redisClient.get(buildCompoundRedisKey('runelite_hash', accountHash));
 
-  await redisClient.set(buildCompoundRedisKey('hash', accountHash), username);
-
-  // Also write to this key, so that we can slowly migrate to a new naming convention
-  // In the future, we can remove the version above, and move all reads to this new version
   await redisClient.set(buildCompoundRedisKey('runelite_hash', accountHash), username);
 
   if (storedUsername && storedUsername !== username) {

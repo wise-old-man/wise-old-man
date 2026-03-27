@@ -173,7 +173,9 @@ describe('Player API', () => {
       expect(response.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       // this player has "unknown" type, shouldn't be reviewed on 400 (null cooldown = no review)
-      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'alanec'))).toBeNull();
+      expect(
+        await redisClient.get(buildCompoundRedisKey('cooldown', 'player_type_review', 'alanec'))
+      ).toBeNull();
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
@@ -196,7 +198,9 @@ describe('Player API', () => {
         })
       );
 
-      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'aluminoti'))).toBeNull();
+      expect(
+        await redisClient.get(buildCompoundRedisKey('cooldown', 'player_type_review', 'aluminoti'))
+      ).toBeNull();
 
       playerUpdatedEvent.mockClear();
 
@@ -211,7 +215,9 @@ describe('Player API', () => {
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
       // this player has "regular" type, shouldn't be reviewed on 400 (null cooldown = no review)
-      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'aluminoti'))).toBeNull();
+      expect(
+        await redisClient.get(buildCompoundRedisKey('cooldown', 'player_type_review', 'aluminoti'))
+      ).toBeNull();
     });
 
     it("shouldn't review player type on 400 (ironman, but has cooldown)", async () => {
@@ -227,7 +233,9 @@ describe('Player API', () => {
       expect(firstResponse.status).toBe(201);
       expect(firstResponse.body.type).toBe('ironman');
 
-      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'tony stark'))).toBeNull();
+      expect(
+        await redisClient.get(buildCompoundRedisKey('cooldown', 'player_type_review', 'tony stark'))
+      ).toBeNull();
 
       expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -242,7 +250,7 @@ describe('Player API', () => {
 
       // Manually set a review cooldown for this username
       await redisClient.set(
-        buildCompoundRedisKey('cd', 'PlayerTypeReview', 'tony stark'),
+        buildCompoundRedisKey('cooldown', 'player_type_review', 'tony stark'),
         currentTimestamp,
         'PX',
         604_800_000
@@ -262,9 +270,9 @@ describe('Player API', () => {
 
       // this player has "ironman" type, but has been reviewed recently, so they shouldn't be reviewed on 400
       // if the cooldown timestamp is the same as the previous one, then it didn't get reviewed again
-      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'tony stark'))).not.toBe(
-        currentTimestamp
-      );
+      expect(
+        await redisClient.get(buildCompoundRedisKey('cooldown', 'player_type_review', 'tony stark'))
+      ).not.toBe(currentTimestamp);
 
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
@@ -282,7 +290,9 @@ describe('Player API', () => {
       expect(firstResponse.status).toBe(201);
       expect(firstResponse.body.type).toBe('ironman');
 
-      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
+      expect(
+        await redisClient.get(buildCompoundRedisKey('cooldown', 'player_type_review', 'ash'))
+      ).toBeNull();
 
       expect(playerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -306,7 +316,9 @@ describe('Player API', () => {
       expect(secondResponse.body).toMatchObject({ code: 'HISCORES_USERNAME_NOT_FOUND' });
 
       // failed to review (null cooldown = no review)
-      expect(await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'ash'))).toBeNull();
+      expect(
+        await redisClient.get(buildCompoundRedisKey('cooldown', 'player_type_review', 'ash'))
+      ).toBeNull();
       expect(playerUpdatedEvent).not.toHaveBeenCalled();
     });
 
@@ -325,7 +337,7 @@ describe('Player API', () => {
 
       // (null cooldown = no review)
       expect(
-        await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'peter parker'))
+        await redisClient.get(buildCompoundRedisKey('cooldown', 'player_type_review', 'peter parker'))
       ).toBeNull();
 
       expect(playerUpdatedEvent).toHaveBeenCalledWith(
@@ -351,7 +363,7 @@ describe('Player API', () => {
 
       // non-null cooldown = successfully reviewed
       expect(
-        await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'peter parker'))
+        await redisClient.get(buildCompoundRedisKey('cooldown', 'player_type_review', 'peter parker'))
       ).not.toBeNull();
 
       expect(playerTypeChangedEvent).toHaveBeenCalledWith(
@@ -413,7 +425,7 @@ describe('Player API', () => {
 
       // This is a new player, so we shouldn't be reviewing their type yet
       const firstTypeReviewCooldown = await redisClient.get(
-        buildCompoundRedisKey('cd', 'PlayerTypeReview', 'psikoi')
+        buildCompoundRedisKey('cooldown', 'player_type_review', 'psikoi')
       );
 
       expect(firstTypeReviewCooldown).toBeNull();
@@ -432,7 +444,7 @@ describe('Player API', () => {
 
       // No longer a new player, but they are a regular player, so we shouldn't be reviewing their type
       const secondTypeReviewCooldown = await redisClient.get(
-        buildCompoundRedisKey('cd', 'PlayerTypeReview', 'psikoi')
+        buildCompoundRedisKey('cooldown', 'player_type_review', 'psikoi')
       );
 
       expect(secondTypeReviewCooldown).toBeNull();
@@ -635,7 +647,7 @@ describe('Player API', () => {
 
       // This is a new player, so we shouldn't be reviewing their type yet
       const firstUpdateCooldown = await redisClient.get(
-        buildCompoundRedisKey('cd', 'PlayerTypeReview', 'enriath')
+        buildCompoundRedisKey('cooldown', 'player_type_review', 'enriath')
       );
 
       expect(firstUpdateCooldown).toBeNull();
@@ -646,7 +658,7 @@ describe('Player API', () => {
       // This is no longer a new player AND they're an ironman AND their stats haven't changed
       // so their type should be reviewed
       const secondUpdateCooldown = await redisClient.get(
-        buildCompoundRedisKey('cd', 'PlayerTypeReview', 'enriath')
+        buildCompoundRedisKey('cooldown', 'player_type_review', 'enriath')
       );
 
       expect(secondUpdateCooldown).not.toBeNull();
@@ -657,7 +669,7 @@ describe('Player API', () => {
       // This player was recently reviewed, and since the current timestamp gets stored on Redis
       // if they were to get reviewed again, their timestamp would be greater than the one stored
       const thirdUpdateCooldown = await redisClient.get(
-        buildCompoundRedisKey('cd', 'PlayerTypeReview', 'enriath')
+        buildCompoundRedisKey('cooldown', 'player_type_review', 'enriath')
       );
 
       expect(thirdUpdateCooldown).toBe(secondUpdateCooldown);
@@ -683,14 +695,16 @@ describe('Player API', () => {
       expect(firstResponse.body).toMatchObject({ username: 'enriath', type: 'ironman' });
 
       // Manually clear the cooldown
-      await redisClient.del(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'enriath'));
+      await redisClient.del(buildCompoundRedisKey('cooldown', 'player_type_review', 'enriath'));
 
       const secondResponse = await api.post(`/players/Enriath`);
 
       expect(secondResponse.status).toBe(200);
       expect(secondResponse.body).toMatchObject({ username: 'enriath', type: 'regular' }); // type changed to regular
 
-      const cooldown = await redisClient.get(buildCompoundRedisKey('cd', 'PlayerTypeReview', 'enriath'));
+      const cooldown = await redisClient.get(
+        buildCompoundRedisKey('cooldown', 'player_type_review', 'enriath')
+      );
       expect(cooldown).not.toBeNull();
 
       // Revert the hiscores mocking back to "regular" player type
@@ -812,7 +826,7 @@ describe('Player API', () => {
       expect(fetchNameChangesResponse.body[0]).toMatchObject({ oldName: 'ruben', newName: 'alan' });
 
       // Ensure the hash was updated to now be linked to "alan"
-      const storedUsername = await redisClient.get(buildCompoundRedisKey('hash', '123456'));
+      const storedUsername = await redisClient.get(buildCompoundRedisKey('runelite_hash', '123456'));
       expect(storedUsername).toBe('alan');
     });
 
@@ -843,7 +857,7 @@ describe('Player API', () => {
       expect(fetchNameChangesResponse.body.length).toBe(1);
 
       // It should however stll update the hash to the new name
-      const storedUsername = await redisClient.get(buildCompoundRedisKey('hash', '98765'));
+      const storedUsername = await redisClient.get(buildCompoundRedisKey('runelite_hash', '98765'));
       expect(storedUsername).toBe('chuckie');
     });
 

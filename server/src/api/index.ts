@@ -99,7 +99,7 @@ class APIInstance {
       const ipHash = getRequestIpHash(req);
 
       const isBlocked =
-        ipHash !== null && (await redisClient.get(buildCompoundRedisKey('api-blocked', ipHash)));
+        ipHash !== null && (await redisClient.get(buildCompoundRedisKey('api_blocked', ipHash)));
 
       if (isBlocked) {
         res.status(429).json({
@@ -114,7 +114,7 @@ class APIInstance {
       let isTrustedOrigin = false;
 
       if (apiKey) {
-        const activeKey = await redisClient.get(buildCompoundRedisKey('api-key', apiKey));
+        const activeKey = await redisClient.get(buildCompoundRedisKey('api_key', apiKey));
 
         if (activeKey === null) {
           return res.status(403).json({
