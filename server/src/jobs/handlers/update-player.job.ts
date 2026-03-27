@@ -1,4 +1,5 @@
 import { isComplete } from '@attio/fetchable';
+import ms from 'ms';
 import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerService';
 import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
 import { assertNever } from '../../utils/assert-never.util';
@@ -40,8 +41,8 @@ export const UpdatePlayerJobHandler: JobHandler<Payload> = {
       case 'INVALID_USERNAME':
       case 'HISCORES_USERNAME_NOT_FOUND': {
         // This player doesn't need to be auto-updated anytime soon
-        const cooldownKey = buildCompoundRedisKey('player-update-cooldown', payload.username);
-        await redisClient.set(cooldownKey, 'true', 'PX', 86_400_000); // 24 hours
+        const cooldownKey = buildCompoundRedisKey('cooldown', 'player_update', payload.username);
+        await redisClient.set(cooldownKey, 'true', 'PX', ms('24 hours'));
         break;
       }
       case 'HISCORES_UNEXPECTED_ERROR':
