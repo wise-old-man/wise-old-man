@@ -32,7 +32,7 @@ jobs:
       - name: Restart docker
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DO_HOST }}
+          host: ${{ secrets.DO_CORE_HOST }}
           username: ${{ secrets.DO_USER }}
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
