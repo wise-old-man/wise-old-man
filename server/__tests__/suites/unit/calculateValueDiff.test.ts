@@ -125,6 +125,46 @@ describe('Util - Calculate Value Diff', () => {
     });
   });
 
+  it('should calculate a negative diff for LMS score', () => {
+    const startSnapshot = {
+      ...globalData.baseSnapshot,
+      last_man_standingScore: 500
+    };
+
+    const endSnapshot = {
+      ...globalData.baseSnapshot,
+      last_man_standingScore: 450
+    };
+
+    const diff = calculateValueDiff(Metric.LAST_MAN_STANDING, startSnapshot, endSnapshot);
+
+    expect(diff).toMatchObject({
+      start: 500,
+      end: 450,
+      gained: -50
+    });
+  });
+
+  it('should calculate a negative diff for PVP Arena score', () => {
+    const startSnapshot = {
+      ...globalData.baseSnapshot,
+      pvp_arenaScore: 1200
+    };
+
+    const endSnapshot = {
+      ...globalData.baseSnapshot,
+      pvp_arenaScore: 1150
+    };
+
+    const diff = calculateValueDiff(Metric.PVP_ARENA, startSnapshot, endSnapshot);
+
+    expect(diff).toMatchObject({
+      start: 1200,
+      end: 1150,
+      gained: -50
+    });
+  });
+
   it('should calculate the diff for unranked->ranked (with minimum kc, and start kc below min)', () => {
     const startSnapshot = {
       ...globalData.baseSnapshot,
