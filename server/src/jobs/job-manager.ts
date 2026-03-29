@@ -121,7 +121,7 @@ class JobManager {
       endTimer({ jobName: bullJob.name, status: 0 });
       logger.error(`[v2] Failed job: ${bullJob.name}`, { ...bullJob.data, error });
 
-      if (bullJob.attemptsMade >= maxAttempts) {
+      if (bullJob.attemptsMade + 1 >= maxAttempts) {
         Sentry.captureException(error, {
           tags: {
             server_type: process.env.SERVER_TYPE
