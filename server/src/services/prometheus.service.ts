@@ -124,7 +124,7 @@ class PrometheusService {
 
     const requestResult = await fromPromise(
       axios.post(process.env.PROMETHEUS_METRICS_SERVICE_URL, {
-        source: process.env.SERVER_TYPE ?? 'dev',
+        source: `league-${process.env.SERVER_TYPE ?? 'dev'}`,
         data: mergedMetrics,
         thread_index: getThreadIndex()
       })
