@@ -5,8 +5,6 @@
 import 'dotenv/config';
 import { z } from 'zod';
 
-// Fake change to test new server deployment
-
 export enum ServerType {
   DEV = 'dev',
   API = 'api',
