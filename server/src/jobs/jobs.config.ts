@@ -102,27 +102,19 @@ export const JOB_HANDLER_MAP = {
 
 export const CRON_CONFIG = [
   // every 1 min
-  { interval: '* * * * *', type: JobType.CHECK_CREATION_SPAM },
-  { interval: '* * * * *', type: JobType.CHECK_PROTECED_PLAYERS_SPAM },
   { interval: '* * * * *', type: JobType.ENQUEUE_COMPETITION_TIME_EVENTS },
   { interval: '* * * * *', type: JobType.SCHEDULE_COMPETITION_EVENTS },
   { interval: '* * * * *', type: JobType.SYNC_PATRONS },
   { interval: '* * * * *', type: JobType.UPDATE_QUEUE_METRICS },
   // every 5 mins
-  { interval: '*/5 * * * *', type: JobType.CHECK_INAPPROPRIATE_CONTENT },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
-  // every hour
-  { interval: '0 * * * *', type: JobType.BACKFILL_COMPETITION_TIME_EVENTS },
-  { interval: '0 * * * *', type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW },
   // every 6 hours
   { interval: '0 */6 * * *', type: JobType.INVALIDATE_DELTAS },
   // everyday at 8:00 UTC
   { interval: '0 8 * * *', type: JobType.CALCULATE_COMPUTED_RANK_TABLES },
-  { interval: '0 8 * * *', type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS },
   { interval: '0 8 * * *', type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES },
-  { interval: '0 8 * * *', type: JobType.SCHEDULE_GROUP_SCORE_UPDATES },
-  { interval: '0 8 * * *', type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS }
+  { interval: '0 8 * * *', type: JobType.SCHEDULE_GROUP_SCORE_UPDATES }
 ];
 
 // Jobs to run when the server starts
