@@ -5,7 +5,7 @@ import { ComputedMetric, Player, PLAYER_BUILDS, PlayerBuild, PlayerStatus } from
 import { getAlgorithmType } from '../efficiency.utils';
 
 async function computeEfficiencyRank(
-  player: Pick<Player, 'id' | 'type' | 'build'>,
+  player: Pick<Player, 'id' | 'build'>,
   metric: ComputedMetric,
   value: number
 ): Promise<number> {
@@ -28,7 +28,7 @@ async function computeEfficiencyRank(
 }
 
 async function calculateSoftEstimate(
-  player: Pick<Player, 'id' | 'type' | 'build'>,
+  player: Pick<Player, 'id' | 'build'>,
   metric: ComputedMetric,
   value: number
 ) {
@@ -60,7 +60,7 @@ async function calculateSoftEstimate(
 }
 
 async function calculateHardEstimate(
-  player: Pick<Player, 'id' | 'type' | 'build'>,
+  player: Pick<Player, 'id' | 'build'>,
   metric: ComputedMetric,
   value: number
 ) {

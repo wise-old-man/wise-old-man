@@ -5,15 +5,7 @@ import { JobType, jobManager } from '../../../jobs';
 import prisma from '../../../prisma';
 import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../../types';
 import { assertNever } from '../../../utils/assert-never.util';
-import {
-  BadRequestErrorZ,
-  ForbiddenErrorZ,
-  NotFoundError,
-  NotFoundErrorZ,
-  RateLimitErrorZ,
-  ServerError,
-  ServiceUnavailableError
-} from '../../errors';
+import { BadRequestErrorZ, NotFoundError, NotFoundErrorZ, ServerError } from '../../errors';
 import {
   formatAchievementProgressResponse,
   formatAchievementResponse,
@@ -48,7 +40,6 @@ import { rollbackCollectionLog } from '../snapshots/services/RollbackCollectionL
 import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsService';
 import { standardizeUsername } from './player.utils';
 import { archivePlayer } from './services/ArchivePlayerService';
-import { assertPlayerType } from './services/AssertPlayerTypeService';
 import { changePlayerCountry } from './services/ChangePlayerCountryService';
 import { createPlayerAnnotation } from './services/CreateAnnotationService';
 import { deletePlayerAnnotation } from './services/DeleteAnnotationService';
@@ -95,58 +86,62 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    const { username } = req.params;
-    const { force } = req.body;
+    // const { username } = req.params;
+    // const { force } = req.body;
 
-    const updateResult = await updatePlayer(username, force);
+    // const updateResult = await updatePlayer(username, force);
 
-    if (isErrored(updateResult)) {
-      switch (updateResult.error.code) {
-        case 'HISCORES_USERNAME_NOT_FOUND':
-        case 'INVALID_USERNAME':
-          throw new BadRequestErrorZ(updateResult.error);
-        case 'PLAYER_IS_RATE_LIMITED': {
-          const nextAvailableIn = Math.ceil(
-            (60_000 - (Date.now() - updateResult.error.lastUpdatedAt.getTime())) / 1000
-          );
+    // if (isErrored(updateResult)) {
+    //   switch (updateResult.error.code) {
+    //     case 'HISCORES_USERNAME_NOT_FOUND':
+    //     case 'INVALID_USERNAME':
+    //       throw new BadRequestErrorZ(updateResult.error);
+    //     case 'PLAYER_IS_RATE_LIMITED': {
+    //       const nextAvailableIn = Math.ceil(
+    //         (60_000 - (Date.now() - updateResult.error.lastUpdatedAt.getTime())) / 1000
+    //       );
 
-          res.set({
-            'RateLimit-Limit': 1,
-            'RateLimit-Remaining': 0,
-            'RateLimit-Reset': nextAvailableIn,
-            'Retry-After': nextAvailableIn
-          });
+    //       res.set({
+    //         'RateLimit-Limit': 1,
+    //         'RateLimit-Remaining': 0,
+    //         'RateLimit-Reset': nextAvailableIn,
+    //         'Retry-After': nextAvailableIn
+    //       });
 
-          throw new RateLimitErrorZ(updateResult.error);
-        }
-        case 'HISCORES_SERVICE_UNAVAILABLE':
-        case 'HISCORES_UNEXPECTED_ERROR':
-          throw new ServiceUnavailableError(updateResult.error);
-        case 'PLAYER_IS_BLOCKED':
-        case 'PLAYER_OPTED_OUT':
-        case 'PLAYER_IS_ARCHIVED':
-        case 'PLAYER_IS_FLAGGED':
-          throw new ForbiddenErrorZ(updateResult.error);
+    //       throw new RateLimitErrorZ(updateResult.error);
+    //     }
+    //     case 'HISCORES_SERVICE_UNAVAILABLE':
+    //     case 'HISCORES_UNEXPECTED_ERROR':
+    //       throw new ServiceUnavailableError(updateResult.error);
+    //     case 'PLAYER_IS_BLOCKED':
+    //     case 'PLAYER_OPTED_OUT':
+    //     case 'PLAYER_IS_ARCHIVED':
+    //     case 'PLAYER_IS_FLAGGED':
+    //       throw new ForbiddenErrorZ(updateResult.error);
 
-        default:
-          assertNever(updateResult.error);
-      }
-    }
+    //     default:
+    //       assertNever(updateResult.error);
+    //   }
+    // }
 
-    const playerDetailsResult = await fetchPlayerDetails(username);
+    // const playerDetailsResult = await fetchPlayerDetails(username);
 
-    if (isErrored(playerDetailsResult)) {
-      switch (playerDetailsResult.error.code) {
-        case 'PLAYER_NOT_FOUND':
-          throw new NotFoundErrorZ(playerDetailsResult.error);
-        default:
-          assertNever(playerDetailsResult.error.code);
-      }
-    }
+    // if (isErrored(playerDetailsResult)) {
+    //   switch (playerDetailsResult.error.code) {
+    //     case 'PLAYER_NOT_FOUND':
+    //       throw new NotFoundErrorZ(playerDetailsResult.error);
+    //     default:
+    //       assertNever(playerDetailsResult.error.code);
+    //   }
+    // }
 
-    const response = formatPlayerDetailsResponse(playerDetailsResult.value);
+    // const response = formatPlayerDetailsResponse(playerDetailsResult.value);
 
-    res.status(updateResult.value.isNew ? 201 : 200).json(response);
+    // res.status(updateResult.value.isNew ? 201 : 200).json(response);
+
+    res.status(400).json({
+      message: 'Currently disabled until the League starts.'
+    });
   })
 );
 
@@ -222,30 +217,9 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    const { username } = req.params;
-
-    const player = await prisma.player.findFirst({
-      where: { username: standardizeUsername(username) }
+    res.status(400).json({
+      message: 'Not available in leagues.'
     });
-
-    if (player === null) {
-      throw new NotFoundError('Player not found.');
-    }
-
-    const assertionResult = await assertPlayerType(player);
-
-    if (isErrored(assertionResult)) {
-      throw new ServerError('Failed to assert player type.');
-    }
-
-    const response = {
-      changed: assertionResult.value.changed,
-      player: formatPlayerResponse(
-        assertionResult.value.changed ? assertionResult.value.updatedPlayer : player
-      )
-    };
-
-    res.status(200).json(response);
   })
 );
 

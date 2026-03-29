@@ -53,7 +53,7 @@ export function getRates(metric: ComputedMetric, type: EfficiencyAlgorithmType) 
   return metric === Metric.EHB ? algorithm.bossMetas : algorithm.skillMetas;
 }
 
-export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>) {
+export function getAlgorithm(player?: Pick<Player, 'build'>) {
   const algorithm = ALGORITHMS.get(getAlgorithmType(player));
 
   if (!algorithm) {

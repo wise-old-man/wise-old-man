@@ -1,7 +1,7 @@
 import { AsyncResult, bindError, complete, errored, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { fetchHiscoresJSON, HiscoresError } from '../../../../services/jagex.service';
-import { NameChange, NameChangeStatus, PlayerBuild, PlayerType } from '../../../../types';
+import { NameChange, NameChangeStatus, PlayerBuild } from '../../../../types';
 import { assertNever } from '../../../../utils/assert-never.util';
 import {
   formatNameChangeResponse,
@@ -124,7 +124,6 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
   const oldPlayerComputedMetrics = await computePlayerMetrics(
     {
       id: -1,
-      type: PlayerType.IRONMAN,
       build: PlayerBuild.MAIN
     },
     oldStats
@@ -159,7 +158,6 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
   const newPlayerComputedMetrics = await computePlayerMetrics(
     {
       id: -1,
-      type: PlayerType.IRONMAN,
       build: PlayerBuild.MAIN
     },
     newStats
