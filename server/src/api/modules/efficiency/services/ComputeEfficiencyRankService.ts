@@ -1,15 +1,7 @@
 import { RANK_RESOLUTION } from '../../../../jobs/handlers/calculate-computed-rank-tables.job';
 import prisma from '../../../../prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
-import {
-  ComputedMetric,
-  Player,
-  PLAYER_BUILDS,
-  PLAYER_TYPES,
-  PlayerBuild,
-  PlayerStatus,
-  PlayerType
-} from '../../../../types';
+import { ComputedMetric, Player, PLAYER_BUILDS, PlayerBuild, PlayerStatus } from '../../../../types';
 import { getAlgorithmType } from '../efficiency.utils';
 
 async function computeEfficiencyRank(
@@ -41,7 +33,6 @@ async function calculateSoftEstimate(
   value: number
 ) {
   const algorithmType = getAlgorithmType({
-    type: player.type,
     build: player.build
   });
 
@@ -76,7 +67,7 @@ async function calculateHardEstimate(
   // Figure out all combinatiosn of player types and builds that match this player's algorithm.
   // For example, regular 1def pures should be compared to mains, 10hp, zerkers, etc,
   // because they all share the same EHP/EHB rates
-  const matches = getTypeAndBuildMatches(player);
+  const matches = getBuildMatches(player);
 
   return await prisma.player.count({
     where: {
@@ -87,7 +78,7 @@ async function calculateHardEstimate(
 }
 
 async function calculateExactRank(
-  player: Pick<Player, 'id' | 'type' | 'build'>,
+  player: Pick<Player, 'id' | 'build'>,
   metric: ComputedMetric,
   value: number,
   estimate: number
@@ -95,7 +86,7 @@ async function calculateExactRank(
   // Figure out all combinations of player types and builds that match this player's algorithm.
   // For example: regular 1def pures should be compared to mains, 10hp, zerkers, etc,
   // because they all share the same EHP/EHB rates
-  const matches = getTypeAndBuildMatches(player);
+  const matches = getBuildMatches(player);
 
   const topPlayers = await prisma.player.findMany({
     where: {
@@ -122,22 +113,17 @@ async function calculateExactRank(
   return smarterRank < 0 ? estimate + 1 : smarterRank + 1;
 }
 
-function getTypeAndBuildMatches(player: Pick<Player, 'id' | 'type' | 'build'>) {
+function getBuildMatches(player: Pick<Player, 'id' | 'build'>) {
   const algorithmType = getAlgorithmType({
-    type: player.type,
     build: player.build
   });
 
-  const matches: Array<{ type: PlayerType; build: PlayerBuild }> = [];
+  const matches: Array<{ build: PlayerBuild }> = [];
 
-  PLAYER_TYPES.forEach(type => {
-    if (type === PlayerType.UNKNOWN) return;
-
-    PLAYER_BUILDS.forEach(build => {
-      if (algorithmType === getAlgorithmType({ type, build })) {
-        matches.push({ type, build });
-      }
-    });
+  PLAYER_BUILDS.forEach(build => {
+    if (algorithmType === getAlgorithmType({ build })) {
+      matches.push({ build });
+    }
   });
 
   return matches;

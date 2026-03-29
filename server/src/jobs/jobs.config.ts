@@ -1,5 +1,4 @@
 import { AddPlayersToGroupCompetitionsJobHandler } from './handlers/add-players-to-group-competitions.job';
-import { AssertPlayerTypeJobHandler } from './handlers/assert-player-type.job';
 import { BackfillCompetitionTimeEventsJobHandler } from './handlers/backfill-competition-time-events.job';
 import { CalculateComputedRankTablesJobHandler } from './handlers/calculate-computed-rank-tables.job';
 import { CheckCreationSpamJobHandler } from './handlers/check-creation-spam.job';
@@ -35,7 +34,6 @@ import { ScheduleGroupScoreUpdatesJobHandler } from './handlers/schedule-group-s
 import { ScheduleNameChangeReviewsJobHandler } from './handlers/schedule-name-change-reviews.job';
 import { SchedulePatronGroupUpdatesJobHandler } from './handlers/schedule-patron-group-updates.job';
 import { SchedulePatronPlayerUpdatesJobHandler } from './handlers/schedule-patron-player-updates.job';
-import { SyncApiKeysJobHandler } from './handlers/sync-api-keys.job';
 import { SyncPatronsJobHandler } from './handlers/sync-patrons.job';
 import { SyncPlayerAchievementsJobHandler } from './handlers/sync-player-achievements.job';
 import { SyncPlayerCompetitionParticipationsJobHandler } from './handlers/sync-player-competition-participations.job';
@@ -53,7 +51,6 @@ import { JobType } from './types/job-type.enum';
 
 export const JOB_HANDLER_MAP = {
   [JobType.ADD_PLAYERS_TO_GROUP_COMPETITIONS]: AddPlayersToGroupCompetitionsJobHandler,
-  [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJobHandler,
   [JobType.BACKFILL_COMPETITION_TIME_EVENTS]: BackfillCompetitionTimeEventsJobHandler,
   [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJobHandler,
   [JobType.CHECK_CREATION_SPAM]: CheckCreationSpamJobHandler,
@@ -89,7 +86,6 @@ export const JOB_HANDLER_MAP = {
   [JobType.SCHEDULE_NAME_CHANGE_REVIEWS]: ScheduleNameChangeReviewsJobHandler,
   [JobType.SCHEDULE_PATRON_GROUP_UPDATES]: SchedulePatronGroupUpdatesJobHandler,
   [JobType.SCHEDULE_PATRON_PLAYER_UPDATES]: SchedulePatronPlayerUpdatesJobHandler,
-  [JobType.SYNC_API_KEYS]: SyncApiKeysJobHandler,
   [JobType.SYNC_PATRONS]: SyncPatronsJobHandler,
   [JobType.SYNC_PLAYER_ACHIEVEMENTS]: SyncPlayerAchievementsJobHandler,
   [JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS]: SyncPlayerCompetitionParticipationsJobHandler,
@@ -110,7 +106,6 @@ export const CRON_CONFIG = [
   { interval: '* * * * *', type: JobType.CHECK_PROTECED_PLAYERS_SPAM },
   { interval: '* * * * *', type: JobType.ENQUEUE_COMPETITION_TIME_EVENTS },
   { interval: '* * * * *', type: JobType.SCHEDULE_COMPETITION_EVENTS },
-  { interval: '* * * * *', type: JobType.SYNC_API_KEYS },
   { interval: '* * * * *', type: JobType.SYNC_PATRONS },
   { interval: '* * * * *', type: JobType.UPDATE_QUEUE_METRICS },
   // every 5 mins
@@ -133,7 +128,6 @@ export const CRON_CONFIG = [
 // Jobs to run when the server starts
 export const STARTUP_JOBS = [
   JobType.CHECK_MISSING_COMPUTED_RANK_TABLES,
-  JobType.SYNC_API_KEYS,
   JobType.UPDATE_QUEUE_METRICS,
   JobType.ENQUEUE_COMPETITION_TIME_EVENTS
 ] as const;

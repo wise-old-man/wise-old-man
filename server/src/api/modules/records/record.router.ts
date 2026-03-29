@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { Country, Metric, Period, PlayerBuild, PlayerType } from '../../../types';
+import { Country, Metric, Period, PlayerBuild } from '../../../types';
 import { formatPlayerResponse, formatRecordResponse } from '../../responses';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { findRecordLeaderboards } from './services/FindRecordLeaderboardsService';
@@ -14,16 +14,14 @@ router.get(
       period: z.nativeEnum(Period),
       metric: z.nativeEnum(Metric),
       country: z.optional(z.nativeEnum(Country)),
-      playerType: z.optional(z.nativeEnum(PlayerType)),
       playerBuild: z.optional(z.nativeEnum(PlayerBuild))
     })
   }),
   executeRequest(async (req, res) => {
-    const { period, metric, country, playerType, playerBuild } = req.query;
+    const { period, metric, country, playerBuild } = req.query;
 
     const result = await findRecordLeaderboards(period, metric, {
       country,
-      playerType,
       playerBuild
     });
 

@@ -20,7 +20,7 @@ class PrometheusService {
     this.registry = new prometheus.Registry();
 
     this.registry.setDefaultLabels({
-      app: process.env.SERVER_TYPE ?? 'dev',
+      app: `league-${process.env.SERVER_TYPE ?? 'dev'}`,
       threadIndex: getThreadIndex()
     });
 

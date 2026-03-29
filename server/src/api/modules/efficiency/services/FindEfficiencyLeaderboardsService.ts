@@ -1,13 +1,5 @@
 import prisma, { PrismaTypes } from '../../../../prisma';
-import {
-  ComputedMetric,
-  Country,
-  Metric,
-  Player,
-  PlayerBuild,
-  PlayerStatus,
-  PlayerType
-} from '../../../../types';
+import { ComputedMetric, Country, Metric, Player, PlayerBuild, PlayerStatus } from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
 import { PaginationOptions } from '../../../util/validation';
 
@@ -15,7 +7,6 @@ const COMBINED_METRIC = 'ehp+ehb';
 
 type Filter = {
   country?: Country;
-  playerType?: PlayerType;
   playerBuild?: PlayerBuild;
 };
 
@@ -48,18 +39,12 @@ async function findEfficiencyLeaderboards(
 }
 
 async function fetchSortedPlayersList(metric: ComputedMetric | typeof COMBINED_METRIC, filter: Filter) {
-  const { country, playerType, playerBuild } = filter;
+  const { country, playerBuild } = filter;
 
   const playerQuery: PrismaTypes.PlayerWhereInput = {
-    type: playerType,
     build: playerBuild,
     status: PlayerStatus.ACTIVE
   };
-
-  // When filtering by player type, the ironman filter should include UIM and HCIM
-  if (playerQuery.type === PlayerType.IRONMAN) {
-    playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
-  }
 
   if (country) playerQuery.country = country;
 
@@ -81,20 +66,14 @@ async function fetchPlayersList(
   filter: Filter,
   pagination: PaginationOptions
 ) {
-  const { country, playerType, playerBuild } = filter;
+  const { country, playerBuild } = filter;
   const { limit, offset } = pagination;
 
   if (metric !== COMBINED_METRIC) {
     const playerQuery: PrismaTypes.PlayerWhereInput = {
-      type: playerType,
       build: playerBuild,
       status: { not: PlayerStatus.ARCHIVED }
     };
-
-    // When filtering by player type, the ironman filter should include UIM and HCIM
-    if (playerQuery.type === PlayerType.IRONMAN) {
-      playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
-    }
 
     if (country) playerQuery.country = country;
 
@@ -108,12 +87,7 @@ async function fetchPlayersList(
     return players;
   }
 
-  // When filtering by player type, the ironman filter should include UIM and HCIM
-  let playerQuery =
-    playerType !== PlayerType.IRONMAN
-      ? `"type" = '${playerType}'`
-      : `("type" = '${PlayerType.IRONMAN}' OR "type" = '${PlayerType.HARDCORE}' OR "type" = '${PlayerType.ULTIMATE}')`;
-
+  let playerQuery = '1=1';
   if (country) playerQuery += ` AND "country" = '${country}'`;
   if (playerBuild) playerQuery += ` AND "build" = '${playerBuild}'`;
 

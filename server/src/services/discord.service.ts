@@ -1,10 +1,6 @@
-import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
-import { createId as cuid2 } from '@paralleldrive/cuid2';
-import axios from 'axios';
-import { WebhookClient } from 'discord.js';
+import { AsyncResult, complete } from '@attio/fetchable';
 import { CompetitionResponse, FlaggedPlayerReviewContextResponse, GroupResponse } from '../api/responses';
 import { Achievement, GroupRole, Player } from '../types';
-import { logger } from './logger.service';
 
 export enum DiscordBotEventType {
   // Player-facing Events
@@ -104,10 +100,7 @@ type DiscordBotEventPayloadMap = {
   };
 };
 
-export async function sendDiscordWebhook({
-  content,
-  webhookUrl
-}: {
+export async function sendDiscordWebhook(_args: {
   content: string;
   webhookUrl: string | undefined;
 }): AsyncResult<
@@ -116,34 +109,7 @@ export async function sendDiscordWebhook({
   | { code: 'MISSING_WEBHOOK_URL' }
   | { code: 'FAILED_TO_SEND_DISCORD_WEBHOOK'; subError: unknown }
 > {
-  if (process.env.NODE_ENV === 'test') {
-    return errored({ code: 'NOT_ALLOWED_IN_TEST_ENV' });
-  }
-
-  if (!webhookUrl) {
-    logger.error('Missing Discord Bot API URL.');
-    return errored({ code: 'MISSING_WEBHOOK_URL' });
-  }
-
-  const webhookClient = new WebhookClient({
-    url: webhookUrl
-  });
-
-  const requestResult = await fromPromise(
-    webhookClient.send({
-      content
-    })
-  );
-
-  webhookClient.destroy();
-
-  if (isErrored(requestResult)) {
-    return errored({
-      code: 'FAILED_TO_SEND_DISCORD_WEBHOOK',
-      subError: requestResult.error
-    });
-  }
-
+  // Nope
   return complete(true);
 }
 
@@ -151,43 +117,14 @@ export async function dispatchDiscordBotEvent<
   T extends DiscordBotEventType,
   TPayload extends DiscordBotEventPayloadMap[T]
 >(
-  type: T,
-  payload: TPayload
+  _type: T,
+  _payload: TPayload
 ): AsyncResult<
   true,
   | { code: 'NOT_ALLOWED_IN_TEST_ENV' }
   | { code: 'MISSING_SERVER_DISCORD_BOT_EVENTS_API_URL' }
   | { code: 'FAILED_TO_SEND_DISCORD_BOT_EVENT'; subError: unknown }
 > {
-  if (process.env.NODE_ENV === 'test') {
-    return errored({ code: 'NOT_ALLOWED_IN_TEST_ENV' });
-  }
-
-  if (!process.env.SERVER_DISCORD_BOT_EVENTS_API_URL) {
-    logger.error('Missing Discord Bot API URL.');
-    return errored({ code: 'MISSING_SERVER_DISCORD_BOT_EVENTS_API_URL' });
-  }
-
-  const eventId = cuid2();
-
-  logger.info(`Dispatching Discord Bot Event: ${type} with ID: ${eventId}`, payload);
-
-  const requestResult = await fromPromise(
-    axios.post(process.env.SERVER_DISCORD_BOT_EVENTS_API_URL, {
-      eventId,
-      type,
-      data: payload
-    })
-  );
-
-  if (isErrored(requestResult)) {
-    logger.error(`Failed to send Discord Bot Event: ${type} with ID: ${eventId}`, requestResult.error);
-
-    return errored({
-      code: 'FAILED_TO_SEND_DISCORD_BOT_EVENT',
-      subError: requestResult.error
-    });
-  }
-
+  // Nope
   return complete(true);
 }
