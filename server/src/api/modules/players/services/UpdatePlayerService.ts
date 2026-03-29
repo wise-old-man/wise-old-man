@@ -125,6 +125,7 @@ async function updatePlayer(
 
   // Set the player's global computed data
   updatedPlayerFields.exp = Math.max(0, currentStats.overallExperience);
+  updatedPlayerFields.leaguePoints = currentStats.league_pointsScore;
   updatedPlayerFields.ehp = computedMetrics.ehpValue;
   updatedPlayerFields.ehb = computedMetrics.ehbValue;
   updatedPlayerFields.ttm = computedMetrics.ttm;
