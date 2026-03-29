@@ -65,7 +65,7 @@ jobs:
             cd wise-old-man
             docker image rm wiseoldman/league-server
             docker pull wiseoldman/league-server:latest
-            docker compose up -d --no-deps --build league-server-api league-server-job-runner league-server-bull-board
+            docker compose up -d --no-deps --build league-server-api league-server-bull-board
 
   deploy-worker:
     name: Deploy Worker Server
@@ -82,4 +82,4 @@ jobs:
             cd wise-old-man
             docker image rm wiseoldman/league-server
             docker pull wiseoldman/league-server:latest
-            docker compose up -d --no-deps --build leagueserver-job-runner
+            docker compose up -d --no-deps --build league-server-job-runner
