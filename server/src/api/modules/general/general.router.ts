@@ -2,10 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { checkAdminPermission } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
-import { createAPIKey } from './services/CreateAPIKeyService';
 import { fetchTableCounts } from './services/FetchTableCountsService';
-import { blockUserActions } from './services/BlockUserActionsService';
-import { allowUserActions } from './services/AllowUserActionsService';
 
 const router = Router();
 
@@ -19,10 +16,9 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    const { application, developer } = req.body;
-    const key = await createAPIKey(application, developer);
-
-    res.status(201).json(key);
+    res.status(400).json({
+      message: 'Not available in leagues.'
+    });
   })
 );
 
@@ -43,8 +39,9 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    await blockUserActions(req.body.ipHash);
-    res.status(200).json(true);
+    res.status(400).json({
+      message: 'Not available in leagues.'
+    });
   })
 );
 
@@ -57,8 +54,9 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    await allowUserActions(req.body.ipHash);
-    res.status(200).json(true);
+    res.status(400).json({
+      message: 'Not available in leagues.'
+    });
   })
 );
 

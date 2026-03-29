@@ -1,9 +1,7 @@
 import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
-import ms from 'ms';
 import { jobManager, JobType } from '../../../../jobs';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { fetchHiscoresJSON, HiscoresError } from '../../../../services/jagex.service';
-import { buildCompoundRedisKey, redisClient } from '../../../../services/redis.service';
 import {
   Player,
   PlayerAnnotation,
@@ -24,9 +22,6 @@ import {
   standardizeUsername,
   validateUsername
 } from '../player.utils';
-import { archivePlayer } from './ArchivePlayerService';
-import { assertPlayerType } from './AssertPlayerTypeService';
-import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
 
 type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
@@ -77,43 +72,24 @@ async function updatePlayer(
     });
   }
 
-  const updatedPlayerFields: UpdatablePlayerFields = {};
-
-  // Always determine the rank before tracking (to fetch correct ranks)
-  if (player.type === PlayerType.UNKNOWN) {
-    const typeAssertionResult = await assertPlayerType(player);
-
-    if (isErrored(typeAssertionResult)) {
-      return typeAssertionResult;
-    }
-
-    updatedPlayerFields.type = typeAssertionResult.value.type;
-  }
+  const updatedPlayerFields: UpdatablePlayerFields = {
+    ...(player.type !== PlayerType.IRONMAN
+      ? {
+          type: PlayerType.IRONMAN
+        }
+      : {})
+  };
 
   // Fetch the previous player stats from the database
   const previousSnapshot = player.latestSnapshot;
 
   // Fetch the new player stats from the hiscores API
-  const currentStatsResult = await fetchStats(player, updatedPlayerFields.type);
+  const currentStatsResult = await fetchStats(player);
 
   if (isErrored(currentStatsResult)) {
     // If failed to load this player's stats from the hiscores, and they're not "regular" or "unknown"
     // we should at least check if their type has changed (e.g. the name was transfered to a regular acc)
     if (currentStatsResult.error.code === 'HISCORES_USERNAME_NOT_FOUND') {
-      if (await shouldReviewType(player)) {
-        const typeReviewResult = await reviewType(player);
-
-        if (isErrored(typeReviewResult)) {
-          return typeReviewResult;
-        }
-
-        // If they did in fact change type, call this function recursively,
-        // so that it fetches their stats from the correct hiscores.
-        if (typeReviewResult.value.changed) {
-          return updatePlayer(player.username);
-        }
-      }
-
       // If it failed to load their stats, and the player isn't unranked,
       // we should start a background job to check (a few times) if they're really unranked
       if (!isNew && player.status !== PlayerStatus.UNRANKED && player.status !== PlayerStatus.BANNED) {
@@ -128,37 +104,11 @@ async function updatePlayer(
 
   // There has been a significant change in this player's stats, mark it as flagged
   if (!skipFlagChecks && previousSnapshot && !snapshotUtils.withinRange(previousSnapshot, currentStats)) {
-    if (player.status !== PlayerStatus.FLAGGED) {
-      const handled = await handlePlayerFlagged(player, previousSnapshot, currentStats);
-      // If the flag was properly handled (via a player archive),
-      // call this function recursively, so that the new player can be tracked
-      if (handled) {
-        return updatePlayer(player.username);
-      }
-    }
-
     return errored({ code: 'PLAYER_IS_FLAGGED' });
   }
 
   // The player has gained exp/kc/scores since the last update
   const hasChanged = !previousSnapshot || snapshotUtils.hasChanged(previousSnapshot, currentStats);
-
-  // If this player (IM/HCIM/UIM) hasn't gained exp in a while, we should review their type.
-  // This is because when players de-iron, their ironman stats stay frozen, so they don't gain exp.
-  // To fix, we can check the "regular" hiscores to see if they've de-ironed, and update their type accordingly.
-  if (!hasChanged && (await shouldReviewType(player))) {
-    const reviewResult = await reviewType(player);
-
-    if (isErrored(reviewResult)) {
-      return reviewResult;
-    }
-
-    // If they did in fact de-iron, call this function recursively,
-    // so that it fetches their stats from the correct hiscores.
-    if (reviewResult.value.changed) {
-      return updatePlayer(player.username);
-    }
-  }
 
   const isFakeF2p = player.annotations?.some(a => a.type === PlayerAnnotationType.FAKE_F2P) ?? false;
 
@@ -168,7 +118,6 @@ async function updatePlayer(
   const computedMetrics = await computePlayerMetrics(
     {
       id: player.id,
-      type: updatedPlayerFields.type ?? player.type,
       build: (updatedPlayerFields.build as PlayerBuild) ?? player.build
     },
     currentStats
@@ -176,6 +125,7 @@ async function updatePlayer(
 
   // Set the player's global computed data
   updatedPlayerFields.exp = Math.max(0, currentStats.overallExperience);
+  updatedPlayerFields.leaguePoints = currentStats.league_pointsScore;
   updatedPlayerFields.ehp = computedMetrics.ehpValue;
   updatedPlayerFields.ehb = computedMetrics.ehbValue;
   updatedPlayerFields.ttm = computedMetrics.ttm;
@@ -217,60 +167,8 @@ async function updatePlayer(
   });
 }
 
-async function shouldReviewType(player: Player) {
-  if (player.type === PlayerType.UNKNOWN || player.type === PlayerType.REGULAR) {
-    return false;
-  }
-
-  // Check if this player has been reviewed recently (past 7 days)
-  return !(await redisClient.get(buildCompoundRedisKey('cooldown', 'player_type_review', player.username)));
-}
-
-async function handlePlayerFlagged(player: Player, previousStats: Snapshot, rejectedStats: Snapshot) {
-  await prisma.player.update({
-    data: { status: PlayerStatus.FLAGGED },
-    where: { id: player.id }
-  });
-
-  const flaggedContext = await reviewFlaggedPlayer(player, previousStats, rejectedStats);
-
-  if (flaggedContext) {
-    eventEmitter.emit(EventType.PLAYER_FLAGGED, {
-      username: player.username,
-      context: flaggedContext
-    });
-
-    return false;
-  }
-
-  // no context, we know this is a name transfer and can be auto-archived
-  await archivePlayer(player);
-
-  return true;
-}
-
-async function reviewType(player: Player): AsyncResult<{ changed: boolean }, HiscoresError> {
-  const typeAssertionResult = await assertPlayerType(player);
-
-  if (isErrored(typeAssertionResult)) {
-    return typeAssertionResult;
-  }
-
-  // Store the current timestamp in Redis, so that we don't review this player again for 7 days
-  await redisClient.set(
-    buildCompoundRedisKey('cooldown', 'player_type_review', player.username),
-    Date.now(),
-    'PX',
-    ms('7 days')
-  );
-
-  return complete({
-    changed: typeAssertionResult.value.changed
-  });
-}
-
-async function fetchStats(player: Player, type?: PlayerType): AsyncResult<Snapshot, HiscoresError> {
-  const hiscoresResult = await fetchHiscoresJSON(player.username, type || player.type);
+async function fetchStats(player: Player): AsyncResult<Snapshot, HiscoresError> {
+  const hiscoresResult = await fetchHiscoresJSON(player.username);
 
   if (isErrored(hiscoresResult)) {
     return hiscoresResult;

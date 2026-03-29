@@ -5,7 +5,7 @@ import express, { Express } from 'express';
 import userAgent from 'express-useragent';
 import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
 import { logger } from '../services/logger.service';
-import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
+import { buildCompoundRedisKey, bypassedRedisClient, redisClient } from '../services/redis.service';
 import prometheus from './../services/prometheus.service';
 import router from './routing';
 import { getRequestIp, getRequestIpHash } from './util/request';
@@ -99,7 +99,7 @@ class APIInstance {
       const ipHash = getRequestIpHash(req);
 
       const isBlocked =
-        ipHash !== null && (await redisClient.get(buildCompoundRedisKey('api_blocked', ipHash)));
+        ipHash !== null && (await bypassedRedisClient.get(buildCompoundRedisKey('api_blocked', ipHash)));
 
       if (isBlocked) {
         res.status(429).json({
@@ -114,7 +114,7 @@ class APIInstance {
       let isTrustedOrigin = false;
 
       if (apiKey) {
-        const activeKey = await redisClient.get(buildCompoundRedisKey('api_key', apiKey));
+        const activeKey = await bypassedRedisClient.get(buildCompoundRedisKey('api_key', apiKey));
 
         if (activeKey === null) {
           return res.status(403).json({
@@ -182,7 +182,7 @@ class APIInstance {
 
   private setupServices() {
     Sentry.init({
-      dsn: process.env.SERVER_SENTRY_DSN,
+      dsn: process.env.LEAGUE_SERVER_SENTRY_DSN,
       tracesSampleRate: 0.01,
       integrations: [
         new Sentry.Integrations.Http({ tracing: true }),

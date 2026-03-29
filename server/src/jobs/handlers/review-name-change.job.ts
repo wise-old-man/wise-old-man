@@ -10,6 +10,9 @@ import { JobHandler } from '../types/job-handler.type';
 const BASE_MAX_HOURS = 504;
 const BASE_MIN_TOTAL_LEVEL = 700;
 
+const leagueExpModifier = 20;
+const leagueEhbModifier = 10;
+
 interface Payload {
   nameChangeId: number;
 }
@@ -108,7 +111,7 @@ export const ReviewNameChangeJobHandler: JobHandler<Payload> = {
     }
 
     // If has gained too much exp/kills
-    if (ehpDiff + ehbDiff > allowedEfficiencyDiff) {
+    if (ehpDiff / leagueExpModifier + ehbDiff / leagueEhbModifier > allowedEfficiencyDiff) {
       await skipReview(nameChangeId, {
         reason: 'excessive_gains',
         ehpDiff,

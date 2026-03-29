@@ -1,13 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import {
-  ComputedMetric,
-  Country,
-  EfficiencyAlgorithmType,
-  Metric,
-  PlayerBuild,
-  PlayerType
-} from '../../../types';
+import { ComputedMetric, Country, EfficiencyAlgorithmType, Metric, PlayerBuild } from '../../../types';
 import { formatPlayerResponse } from '../../responses';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { getPaginationSchema } from '../../util/validation';
@@ -23,19 +16,14 @@ router.get(
       .object({
         metric: z.enum([Metric.EHP, Metric.EHB, 'ehp+ehb']),
         country: z.optional(z.nativeEnum(Country)),
-        playerType: z.optional(z.nativeEnum(PlayerType)).default(PlayerType.REGULAR),
         playerBuild: z.optional(z.nativeEnum(PlayerBuild)).default(PlayerBuild.MAIN)
       })
       .merge(getPaginationSchema())
   }),
   executeRequest(async (req, res) => {
-    const { metric, country, playerType, playerBuild, offset, limit } = req.query;
+    const { metric, country, playerBuild, offset, limit } = req.query;
 
-    const result = await findEfficiencyLeaderboards(
-      metric,
-      { country, playerType, playerBuild },
-      { limit, offset }
-    );
+    const result = await findEfficiencyLeaderboards(metric, { country, playerBuild }, { limit, offset });
 
     const response = result.map(formatPlayerResponse);
 

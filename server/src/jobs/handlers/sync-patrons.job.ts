@@ -1,7 +1,6 @@
 import { isErrored } from '@attio/fetchable';
 import { eventEmitter, EventType } from '../../api/events';
 import prisma from '../../prisma';
-import { sendDiscordWebhook } from '../../services/discord.service';
 import {
   getPatrons,
   STATIC_PATRON_GROUP_IDS,
@@ -92,43 +91,6 @@ async function syncPatrons() {
           data: omit(patron, 'groupId', 'playerId')
         });
       }
-    }
-  });
-
-  toAdd.forEach(p => {
-    const discordTag = p.discordId ? `<@${p.discordId}>` : '';
-
-    sendDiscordWebhook({
-      content: `**🎉 New Patron:** ${p.name} (T${p.tier}) - ${discordTag}`,
-      webhookUrl: process.env.SERVER_DISCORD_PATREON_WEBHOOK_URL
-    });
-  });
-
-  toDelete.forEach(p => {
-    const discordTag = p.discordId ? `<@${p.discordId}>` : '';
-
-    sendDiscordWebhook({
-      content: `**😢 Patron canceled:** ${p.name} (T${p.tier}) - ${discordTag}`,
-      webhookUrl: process.env.SERVER_DISCORD_PATREON_WEBHOOK_URL
-    });
-  });
-
-  Array.from(updatedFieldsMap.entries()).forEach(([patronId, field]) => {
-    const p = patronsResult.value.find(patron => patron.patron.id === patronId)?.patron;
-    if (!p) return;
-
-    const discordTag = p.discordId ? `<@${p.discordId}>` : '';
-
-    if (field === 'tier') {
-      sendDiscordWebhook({
-        content: `**🔔 Patron tier changed:** ${p.name} (T${p.tier}) - ${discordTag}`,
-        webhookUrl: process.env.SERVER_DISCORD_PATREON_WEBHOOK_URL
-      });
-    } else if (field === 'discordId') {
-      sendDiscordWebhook({
-        content: `**🔔 Patron Discord changed:** ${p.name} (T${p.tier}) - ${discordTag}`,
-        webhookUrl: process.env.SERVER_DISCORD_PATREON_WEBHOOK_URL
-      });
     }
   });
 }

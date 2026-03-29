@@ -8,7 +8,14 @@ export const REDIS_CONFIG: RedisOptions = {
   enableReadyCheck: false
 };
 
-export const redisClient = new IORedis(REDIS_CONFIG);
+export const redisClient = new IORedis({
+  ...REDIS_CONFIG,
+  keyPrefix: 'league'
+});
+
+export const bypassedRedisClient = new IORedis({
+  ...REDIS_CONFIG
+});
 
 export function buildCompoundRedisKey(...keys: string[]) {
   return keys.join(':');

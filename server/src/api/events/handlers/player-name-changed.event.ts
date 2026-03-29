@@ -7,7 +7,6 @@ export function handler({ username, previousDisplayName }: EventPayloadMap[Event
   jobManager.add(JobType.UPDATE_PLAYER, { username });
 
   if (standardizeUsername(username) !== standardizeUsername(previousDisplayName)) {
-    jobManager.add(JobType.ASSERT_PLAYER_TYPE, { username });
     jobManager.add(JobType.DISPATCH_MEMBER_NAME_CHANGED_DISCORD_EVENT, { username, previousDisplayName });
 
     // Reevaluate this player's achievements to try and find earlier completion dates as there might be new data

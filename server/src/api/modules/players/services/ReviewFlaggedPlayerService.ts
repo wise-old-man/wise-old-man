@@ -2,7 +2,6 @@ import prisma, { PrismaTypes } from '../../../../prisma';
 import { logger } from '../../../../services/logger.service';
 import { BOSSES, Metric, Player, Snapshot } from '../../../../types';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
-import { REAL_SKILLS } from '../../../../utils/shared';
 import {
   FlaggedPlayerReviewContextResponse,
   formatSnapshotResponse,
@@ -32,16 +31,14 @@ async function reviewFlaggedPlayer(
   const rejected = formatSnapshotResponse(rejectedStats, getPlayerEfficiencyMap(rejectedStats, player));
 
   if (negativeGains !== null) {
-    const isPossibleRollback =
-      excessiveGains === null && excessiveGainsReversed === null && !hasLostTooMuch(previous, rejected);
+    const isPossibleRollback = excessiveGains === null && excessiveGainsReversed === null;
 
     if (!isPossibleRollback) {
       // If it isn't a rollback, then it's definitely a name transfer, and should be archived (null context)
       logger.info(`Reviewing flagged player - ${player.username}`, {
         isPossibleRollback,
         isExcessiveGains: excessiveGains !== null,
-        isExcessiveGainsReversed: excessiveGainsReversed !== null,
-        lostTooMuch: hasLostTooMuch(previous, rejected)
+        isExcessiveGainsReversed: excessiveGainsReversed !== null
       });
       return null;
     }
@@ -175,27 +172,6 @@ function buildNegativeGainsReport(
     rejectedEHB,
     rejectedRank
   };
-}
-
-function hasLostTooMuch(previous: SnapshotResponse, rejected: SnapshotResponse) {
-  const lostEHP = Math.abs(
-    REAL_SKILLS.filter(s => rejected.data.skills[s].experience > -1)
-      .map(s => rejected.data.skills[s].ehp - previous.data.skills[s].ehp)
-      .filter(ehpDiff => ehpDiff < 0)
-      .reduce((a, b) => a + b, 0)
-  );
-
-  const lostEHB = Math.abs(
-    BOSSES.filter(b => rejected.data.bosses[b].kills > -1)
-      .map(s => rejected.data.bosses[s].ehb - previous.data.bosses[s].ehb)
-      .filter(ehbDiff => ehbDiff < 0)
-      .reduce((a, b) => a + b, 0)
-  );
-
-  // If lost over 24h of EHP and EHB, then it's probably not a rollback.
-  // Rollbacks are usually quickly fixed by Jagex, so it's unlikely
-  // that a player gains a huge amount of EHP and EHB in a short period of time.
-  return lostEHP + lostEHB > 24;
 }
 
 export { reviewFlaggedPlayer };

@@ -5,8 +5,6 @@
 import 'dotenv/config';
 import { z } from 'zod';
 
-// Fake change to test new server deployment
-
 export enum ServerType {
   DEV = 'dev',
   API = 'api',
@@ -24,11 +22,11 @@ const envVariablesSchema = z.object({
   REDIS_PASSWORD: z.string().trim().min(1),
   REDIS_PORT: z.coerce.number().positive().int(),
   // Prisma Database URL
-  SERVER_CORE_DATABASE_URL: z.string().trim().min(1),
+  LEAGUE_SERVER_DATABASE_URL: z.string().trim().min(1),
   // Port for the API to run on
-  SERVER_API_PORT: z.optional(z.coerce.number().positive().int()),
+  LEAGUE_SERVER_API_PORT: z.optional(z.coerce.number().positive().int()),
   // Sentry (for error tracking)
-  SERVER_SENTRY_DSN: z.string().trim().min(1),
+  LEAGUE_SERVER_SENTRY_DSN: z.string().trim().min(1),
   // Patreon Token (to access their API)
   SERVER_PATREON_BEARER_TOKEN: z.string().trim().min(1),
   // Discord Bot API URL (to send events to)
@@ -54,17 +52,18 @@ type EnvKey = keyof typeof envVariablesSchema.shape;
 
 const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
   [ServerType.API]: [
-    'SERVER_CORE_DATABASE_URL',
+    'LEAGUE_SERVER_DATABASE_URL',
+    'LEAGUE_SERVER_API_PORT',
     'REDIS_HOST',
     'REDIS_PORT',
     'REDIS_PASSWORD',
     'PROMETHEUS_METRICS_SERVICE_URL',
     'SHARED_ADMIN_PASSWORD',
-    'SERVER_SENTRY_DSN',
+    'LEAGUE_SERVER_SENTRY_DSN',
     'SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS'
   ],
   [ServerType.JOB_RUNNER]: [
-    'SERVER_CORE_DATABASE_URL',
+    'LEAGUE_SERVER_DATABASE_URL',
     'REDIS_PORT',
     'REDIS_HOST',
     'REDIS_PASSWORD',
@@ -83,7 +82,7 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
   ],
   [ServerType.DEV]: [
     //
-    'SERVER_CORE_DATABASE_URL',
+    'LEAGUE_SERVER_DATABASE_URL',
     'REDIS_PORT',
     'REDIS_HOST',
     'REDIS_PASSWORD',

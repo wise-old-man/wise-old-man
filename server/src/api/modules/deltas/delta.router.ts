@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { Country, Metric, Period, PlayerBuild, PlayerType } from '../../../types';
+import { Country, Metric, Period, PlayerBuild } from '../../../types';
 import { formatPlayerResponse } from '../../responses';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { findDeltaLeaderboards } from './services/FindDeltaLeaderboardsService';
@@ -14,16 +14,14 @@ router.get(
       period: z.nativeEnum(Period),
       metric: z.nativeEnum(Metric),
       country: z.optional(z.nativeEnum(Country)),
-      playerType: z.optional(z.nativeEnum(PlayerType)),
       playerBuild: z.optional(z.nativeEnum(PlayerBuild))
     })
   }),
   executeRequest(async (req, res) => {
-    const { period, metric, country, playerType, playerBuild } = req.query;
+    const { period, metric, country, playerBuild } = req.query;
 
     const results = await findDeltaLeaderboards(period, metric, {
       country,
-      playerType,
       playerBuild
     });
 

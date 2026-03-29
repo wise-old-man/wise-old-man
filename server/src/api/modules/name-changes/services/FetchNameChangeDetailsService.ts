@@ -1,7 +1,7 @@
-import { AsyncResult, bindError, complete, errored, isComplete, isErrored } from '@attio/fetchable';
+import { AsyncResult, bindError, complete, errored, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { fetchHiscoresJSON, HiscoresData, HiscoresError } from '../../../../services/jagex.service';
-import { NameChange, NameChangeStatus, PlayerBuild, PlayerType } from '../../../../types';
+import { fetchHiscoresJSON, HiscoresError } from '../../../../services/jagex.service';
+import { NameChange, NameChangeStatus, PlayerBuild } from '../../../../types';
 import { assertNever } from '../../../../utils/assert-never.util';
 import {
   formatNameChangeResponse,
@@ -46,9 +46,7 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
   }
 
   // Attempt to fetch hiscores data for the new name
-  // if they can't be found on the regular hiscores, fallback to trying the ironman hiscores
-  // before asserting that the new name is not on the hiscores at all
-  const newHiscoresResult = await fetchHiscoresWithFallback(nameChange.newName).then(result =>
+  const newHiscoresResult = await fetchHiscoresJSON(nameChange.newName).then(result =>
     bindError(result, error => {
       switch (error.code) {
         case 'HISCORES_USERNAME_NOT_FOUND':
@@ -126,7 +124,6 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
   const oldPlayerComputedMetrics = await computePlayerMetrics(
     {
       id: -1,
-      type: PlayerType.REGULAR,
       build: PlayerBuild.MAIN
     },
     oldStats
@@ -161,7 +158,6 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
   const newPlayerComputedMetrics = await computePlayerMetrics(
     {
       id: -1,
-      type: PlayerType.REGULAR,
       build: PlayerBuild.MAIN
     },
     newStats
@@ -190,25 +186,6 @@ async function fetchNameChangeDetails(id: number): AsyncResult<
       newStats: formatSnapshotResponse(newStats, getPlayerEfficiencyMap(newStats, newPlayer ?? oldPlayer))
     }
   });
-}
-
-async function fetchHiscoresWithFallback(username: string): AsyncResult<HiscoresData, HiscoresError> {
-  const regularHiscoresDataResult = await fetchHiscoresJSON(username);
-
-  if (isComplete(regularHiscoresDataResult)) {
-    return regularHiscoresDataResult;
-  }
-
-  switch (regularHiscoresDataResult.error.code) {
-    case 'HISCORES_USERNAME_NOT_FOUND':
-      // If not found on the regular hiscores, fallback to trying the ironman hiscores instead
-      return fetchHiscoresJSON(username, PlayerType.IRONMAN);
-    case 'HISCORES_UNEXPECTED_ERROR':
-    case 'HISCORES_SERVICE_UNAVAILABLE':
-      return regularHiscoresDataResult;
-    default:
-      assertNever(regularHiscoresDataResult.error);
-  }
 }
 
 export { fetchNameChangeDetails };

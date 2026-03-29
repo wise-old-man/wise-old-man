@@ -26,7 +26,6 @@ import { removeParticipants } from './services/RemoveParticipantsService';
 import { removeTeams } from './services/RemoveTeamsService';
 import { resetCompetitionCode } from './services/ResetCompetitionCodeService';
 import { searchCompetitions } from './services/SearchCompetitionsService';
-import { updateAllParticipants } from './services/UpdateAllParticipantsService';
 
 const router = Router();
 
@@ -479,13 +478,17 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    const { id } = req.params;
+    // const { id } = req.params;
 
-    const { outdatedCount, cooldownDuration } = await updateAllParticipants(id);
+    // const { outdatedCount, cooldownDuration } = await updateAllParticipants(id);
 
-    res.status(200).json({
-      count: outdatedCount,
-      message: `${outdatedCount} outdated (updated > ${cooldownDuration}h ago) players are being updated. This can take up to a few minutes.`
+    // res.status(200).json({
+    //   count: outdatedCount,
+    //   message: `${outdatedCount} outdated (updated > ${cooldownDuration}h ago) players are being updated. This can take up to a few minutes.`
+    // });
+
+    res.status(400).json({
+      message: 'Currently disabled until the League starts.'
     });
   })
 );
