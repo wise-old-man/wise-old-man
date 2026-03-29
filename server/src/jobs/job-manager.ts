@@ -11,7 +11,7 @@ import type { JobHandlerPayloadMapper } from './types/job-payload.type';
 import { JobPriority } from './types/job-priority.enum';
 import { JobType } from './types/job-type.enum';
 
-const REDIS_PREFIX = 'jobs-v2';
+const REDIS_PREFIX = 'jobs-league';
 
 class JobManager {
   private queues: Queue[];
