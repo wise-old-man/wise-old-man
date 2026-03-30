@@ -1596,7 +1596,7 @@ describe('Player API', () => {
 
       // removes tabs and newlines
       expect(playerUtils.sanitizeDisplayName('\tBob\t')).toBe('Bob');
-      expect(playerUtils.sanitizeDisplayName('Alice\nBob')).toBe('AliceBob');
+      expect(playerUtils.sanitizeDisplayName('Alice\nBob')).toBe('Alice Bob');
 
       // edge cases
       expect(playerUtils.sanitizeDisplayName('')).toBe('');
