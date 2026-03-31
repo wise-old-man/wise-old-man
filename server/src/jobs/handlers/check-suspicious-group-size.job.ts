@@ -33,6 +33,15 @@ export const CheckSuspiciousGroupSizeJobHandler: JobHandler<Payload> = {
       return;
     }
 
+    await prisma.group.update({
+      where: {
+        id: group.id
+      },
+      data: {
+        visible: false
+      }
+    });
+    
     await dispatchDiscordBotEvent(DiscordBotEventType.CREATION_SPAM_WARNING, {
       creatorIpHash: group.creatorIpHash,
       type: 'suspicious-size' as const,
