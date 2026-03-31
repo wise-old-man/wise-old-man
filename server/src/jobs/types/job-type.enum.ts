@@ -9,6 +9,7 @@ export enum JobType {
   CHECK_PLAYER_BANNED = 'check-player-banned',
   CHECK_PLAYER_RANKED = 'check-player-ranked',
   CHECK_PROTECED_PLAYERS_SPAM = 'check-protected-players-spam',
+  CHECK_SUSPICIOUS_GROUP_SIZE = 'check-suspicious-group-size',
   DISPATCH_COMPETITION_CREATED_DISCORD_EVENT = 'dispatch-competition-created-discord-event',
   DISPATCH_COMPETITION_ENDED_DISCORD_EVENT = 'dispatch-competition-ended-discord-event',
   DISPATCH_COMPETITION_ENDING_DISCORD_EVENT = 'dispatch-competition-ending-discord-event',
