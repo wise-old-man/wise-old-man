@@ -8,6 +8,7 @@ import { CheckMissingComputedRankTablesJobHandler } from './handlers/check-missi
 import { CheckPlayerBannedJobHandler } from './handlers/check-player-banned.job';
 import { CheckPlayerRankedJobHandler } from './handlers/check-player-ranked.job';
 import { CheckProtectedPlayersSpamJobHandler } from './handlers/check-protected-players-spam.job';
+import { CheckSuspiciousGroupSizeJobHandler } from './handlers/check-suspicious-group-size.job';
 import { DispatchCompetitionCreatedDiscordEventJobHandler } from './handlers/dispatch-competition-created-discord-event.job';
 import { DispatchCompetitionEndedDiscordEventJobHandler } from './handlers/dispatch-competition-ended-discord-event.job';
 import { DispatchCompetitionEndingDiscordEventJobHandler } from './handlers/dispatch-competition-ending-discord-event.job';
@@ -62,6 +63,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.CHECK_PLAYER_BANNED]: CheckPlayerBannedJobHandler,
   [JobType.CHECK_PLAYER_RANKED]: CheckPlayerRankedJobHandler,
   [JobType.CHECK_PROTECED_PLAYERS_SPAM]: CheckProtectedPlayersSpamJobHandler,
+  [JobType.CHECK_SUSPICIOUS_GROUP_SIZE]: CheckSuspiciousGroupSizeJobHandler,
   [JobType.DISPATCH_COMPETITION_CREATED_DISCORD_EVENT]: DispatchCompetitionCreatedDiscordEventJobHandler,
   [JobType.DISPATCH_COMPETITION_ENDED_DISCORD_EVENT]: DispatchCompetitionEndedDiscordEventJobHandler,
   [JobType.DISPATCH_COMPETITION_ENDING_DISCORD_EVENT]: DispatchCompetitionEndingDiscordEventJobHandler,

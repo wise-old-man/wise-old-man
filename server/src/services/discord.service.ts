@@ -92,7 +92,7 @@ type DiscordBotEventPayloadMap = {
   };
   [DiscordBotEventType.CREATION_SPAM_WARNING]: {
     creatorIpHash: string;
-    type: 'burst-creation-spam' | 'inappropriate-content' | 'protected-players';
+    type: 'burst-creation-spam' | 'inappropriate-content' | 'protected-players' | 'suspicious-size';
     groups: Array<{
       group: GroupResponse;
       reason?: string;
