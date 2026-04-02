@@ -2,7 +2,7 @@
 slug: /league
 ---
 
-# 🎉 Raging Echoes League
+# 🎉 Demonic Pacts League
 
 If you're looking to use our League API instead, you need to modify the code examples to the League API URLs.
 
