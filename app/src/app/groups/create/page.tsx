@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { CreateGroupForm } from "~/components/groups/CreateGroupForm";
 
 export const metadata = {
@@ -5,5 +6,9 @@ export const metadata = {
 };
 
 export default function CreateGroupPage() {
-  return <CreateGroupForm />;
+  return (
+    <Suspense>
+      <CreateGroupForm />
+    </Suspense>
+  );
 }

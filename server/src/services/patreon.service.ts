@@ -5,16 +5,16 @@ import { z } from 'zod';
 import { Patron } from '../types';
 
 export const STATIC_PATRON_GROUP_IDS = [
-  139, // Exclusive Elite Club
-  201, // Ruthless (Aluminoti)
-  1169 // Hardly Iron (Geeving)
+  // 139, // Exclusive Elite Club
+  // 201, // Ruthless (Aluminoti)
+  // 1169 // Hardly Iron (Geeving)
 ];
 
 export const STATIC_PATRON_PLAYER_IDS = [
-  2, // Psikoi
-  4156, // Rro (Rorro)
-  30051, // Aluminoti
-  263152 // Geeving
+  // 2, // Psikoi
+  // 4156, // Rro (Rorro)
+  // 30051, // Aluminoti
+  // 263152 // Geeving
 ];
 
 const CAMPAIGN_ID = '4802084';
