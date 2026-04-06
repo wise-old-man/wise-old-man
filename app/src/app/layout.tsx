@@ -13,6 +13,7 @@ import { MAINTENANCE_MODE, ANNOUNCEMENT_BANNER } from "../../config";
 
 import "../globals.css";
 import { TopBanner } from "~/components/TopBanner";
+import { LeagueCountdownBanner } from "~/components/LeagueCountdownBanner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -35,6 +36,7 @@ function RootLayout(props: PropsWithChildren) {
     <html lang="en" className={inter.variable}>
       <body>
         <NavigationLoadingBar />
+        <LeagueCountdownBanner />
 
         {ANNOUNCEMENT_BANNER.enabled && ANNOUNCEMENT_BANNER.message && (
           <TopBanner

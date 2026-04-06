@@ -15,10 +15,10 @@ import {
 } from "recharts";
 import { cn } from "~/utils/styling";
 
-const GRID_STYLE = { stroke: "#1f2937" };
-const X_AXIS_TICK_LINE = { stroke: "#1f2937" };
-const AXIS_TICK_STYLE = { fill: "#6b7280", fontSize: "0.75rem" };
-const TOOLTIP_CURSOR_STYLE = { stroke: "#6b7280", strokeDasharray: "4 4" };
+const GRID_STYLE = { stroke: "hsl(0 10% 20%)" };
+const X_AXIS_TICK_LINE = { stroke: "hsl(0 10% 20%)" };
+const AXIS_TICK_STYLE = { fill: "hsl(0 10% 64%)", fontSize: "0.75rem" };
+const TOOLTIP_CURSOR_STYLE = { stroke: "hsl(0 10% 64%)", strokeDasharray: "4 4" };
 const TOOLTIP_WRAPPER_STYLE = { outline: "none" };
 
 interface LineChartDataset {
@@ -29,7 +29,7 @@ interface LineChartDataset {
   }>;
 }
 
-const COLORS = ["#3b82f6", "#f87171", "#fbbf24", "#a3e635", "#c084fc"];
+const COLORS = ["#FE8721", "#d50b15", "#3b82f6", "#fbbf24", "#a3e635", "#c084fc"];
 
 interface LineChartProps {
   datasets: Array<LineChartDataset>;
@@ -276,7 +276,7 @@ const LeftAlignedYTick = (props: { tickFormatter: (value: number, index: number)
 
   return (
     <g transform={`translate(${0},${y})`}>
-      <text x={0} y={0} textAnchor="start" fontSize="0.75rem" fill="#6b7280">
+      <text x={0} y={0} textAnchor="start" fontSize="0.75rem" fill="hsl(0 10% 64%)">
         {formattedValue}
       </text>
     </g>

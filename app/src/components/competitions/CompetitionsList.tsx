@@ -136,7 +136,7 @@ function CompetitionAttributes(props: { competition: CompetitionResponse; showHo
           <Link
             prefetch={false}
             href={`/groups/${competition.group.id}`}
-            className="font-medium text-blue-400 hover:underline"
+            className="text-primary-400 font-medium hover:underline"
           >
             {competition.group.name}
           </Link>

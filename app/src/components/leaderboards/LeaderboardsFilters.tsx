@@ -43,7 +43,6 @@ import {
   getCountryParam,
   getMetricParam,
   getPlayerBuildParam,
-  getPlayerTypeParam,
 } from "~/utils/params";
 import { MetricIconSmall, PlayerTypeIcon } from "../Icon";
 
@@ -55,13 +54,10 @@ export function LeaderboardsFilters() {
   const isEfficiencyLeaderboard = pathname.includes("efficiency");
 
   const metric = getMetricParam(searchParams.get("metric")) || Metric.OVERALL;
-  const country = getCountryParam(searchParams.get("country"));
 
-  let playerType = getPlayerTypeParam(searchParams.get("playerType"));
   let playerBuild = getPlayerBuildParam(searchParams.get("playerBuild"));
 
   if (isEfficiencyLeaderboard) {
-    if (!playerType) playerType = PlayerType.REGULAR;
     if (!playerBuild) playerBuild = PlayerBuild.MAIN;
   }
 
@@ -93,17 +89,9 @@ export function LeaderboardsFilters() {
           onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
         />
       )}
-      <PlayerTypeSelect
-        playerType={playerType}
-        onPlayerTypeSelected={(newPlayerType) => handleParamChanged("playerType", newPlayerType)}
-      />
       <PlayerBuildSelect
         playerBuild={playerBuild}
         onPlayerBuildSelected={(newPlayerBuild) => handleParamChanged("playerBuild", newPlayerBuild)}
-      />
-      <CountrySelect
-        country={country}
-        onCountrySelected={(newCountry) => handleParamChanged("country", newCountry)}
       />
     </div>
   );
@@ -240,50 +228,6 @@ function MetricSelect(props: MetricSelectProps) {
   );
 }
 
-interface PlayerTypeSelectProps {
-  playerType: PlayerType | undefined;
-  onPlayerTypeSelected: (playerType: PlayerType | undefined) => void;
-}
-
-function PlayerTypeSelect(props: PlayerTypeSelectProps) {
-  const { playerType, onPlayerTypeSelected } = props;
-
-  const [isTransitioning, startTransition] = useTransition();
-
-  return (
-    <Combobox
-      value={playerType}
-      onValueChanged={(val) => {
-        if (val === undefined || isPlayerType(val)) {
-          startTransition(() => {
-            onPlayerTypeSelected(val);
-          });
-        }
-      }}
-    >
-      <ComboboxButton className="w-full" isPending={isTransitioning}>
-        <div className={cn("flex items-center gap-x-2", !playerType && "text-gray-200")}>
-          {playerType && <PlayerTypeIcon playerType={playerType} />}
-          {playerType ? PlayerTypeProps[playerType].name : "Player Type"}
-        </div>
-      </ComboboxButton>
-      <ComboboxContent>
-        <ComboboxItemsContainer>
-          <ComboboxItemGroup label="Player Type">
-            <ComboboxItem>Any player type</ComboboxItem>
-            {PLAYER_TYPES.filter((type) => type !== PlayerType.UNKNOWN).map((t) => (
-              <ComboboxItem key={t} value={t}>
-                <PlayerTypeIcon playerType={t} />
-                {PlayerTypeProps[t].name}
-              </ComboboxItem>
-            ))}
-          </ComboboxItemGroup>
-        </ComboboxItemsContainer>
-      </ComboboxContent>
-    </Combobox>
-  );
-}
-
 interface PlayerBuildSelectProps {
   playerBuild: PlayerBuild | undefined;
   onPlayerBuildSelected: (playerBuild: PlayerBuild | undefined) => void;
@@ -324,58 +268,4 @@ function PlayerBuildSelect(props: PlayerBuildSelectProps) {
       </ComboboxContent>
     </Combobox>
   );
-}
-
-interface CountrySelectProps {
-  country: Country | undefined;
-  onCountrySelected: (country: Country | undefined) => void;
-}
-
-function CountrySelect(props: CountrySelectProps) {
-  const { country, onCountrySelected } = props;
-
-  const [isTransitioning, startTransition] = useTransition();
-
-  return (
-    <Combobox
-      value={country}
-      onValueChanged={(val) => {
-        startTransition(() => {
-          if (!val) return onCountrySelected(undefined);
-
-          const [code] = val.split("/");
-          if (code && isCountry(code)) onCountrySelected(code);
-        });
-      }}
-    >
-      <ComboboxButton isPending={isTransitioning}>
-        <div className={cn("flex items-center gap-x-2", !country && "text-gray-200")}>
-          {country && <CountryIcon country={country} />}
-          <span className="line-clamp-1 text-left">
-            {country ? CountryProps[country].name : "Country"}
-          </span>
-        </div>
-      </ComboboxButton>
-      <ComboboxContent className="w-80" align="end">
-        <ComboboxInput placeholder="Search countries..." />
-        <ComboboxEmpty>No results were found</ComboboxEmpty>
-        <ComboboxItemsContainer>
-          <ComboboxItemGroup label="Countries">
-            <ComboboxItem>Any country</ComboboxItem>
-            {COUNTRY_CODES.map((c) => (
-              <ComboboxItem key={c} value={`${c}/${CountryProps[c].name}`}>
-                <CountryIcon country={c} />
-                <span className="line-clamp-1">{CountryProps[c].name}</span>
-              </ComboboxItem>
-            ))}
-          </ComboboxItemGroup>
-        </ComboboxItemsContainer>
-      </ComboboxContent>
-    </Combobox>
-  );
-}
-
-function CountryIcon(props: { country: Country }) {
-  const { country } = props;
-  return <Image width={12} height={12} alt={country} src={`/img/flags/${country}.svg`} />;
 }

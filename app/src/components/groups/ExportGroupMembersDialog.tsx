@@ -23,7 +23,7 @@ export function ExportGroupMembersDialog(props: ExportGroupMembersDialogProps) {
   const [hasCopied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const basePath = process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/v2";
+  const basePath = process.env.NEXT_PUBLIC_BASE_LEAGUE_API_URL ?? "https://api.wiseoldman.net/league";
 
   const url = `${basePath}/groups/${groupId}/csv`;
   const importFormula = `=IMPORTDATA("${url}")`;
@@ -62,11 +62,11 @@ export function ExportGroupMembersDialog(props: ExportGroupMembersDialogProps) {
               autoFocus={false}
               value={importFormula}
               containerClassName="grow"
-              className="font-mono text-blue-300"
+              className="text-primary-300 font-mono"
             />
             <Button
               autoFocus
-              variant={hasCopied ? "default" : "blue"}
+              variant={hasCopied ? "default" : "primary"}
               onClick={() => {
                 if (inputRef.current) inputRef.current.select();
                 navigator.clipboard.writeText(importFormula);

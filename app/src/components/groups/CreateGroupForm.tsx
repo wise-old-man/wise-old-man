@@ -34,6 +34,9 @@ import { standardizeUsername } from "~/utils/strings";
 import LoadingIcon from "~/assets/loading.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
+import { Alert, AlertDescription, AlertTitle } from "../Alert";
+import { QueryLink } from "../QueryLink";
+import { CloneGroupDialog } from "./CloneGroupDialog";
 
 type FormStep = "info" | "import" | "members";
 type ImportSource = "none" | "file";
@@ -119,21 +122,37 @@ export function CreateGroupForm() {
       <Container className="mt-8" style={{ "--max-width": "42rem" }}>
         <h1 className="text-3xl font-bold">Create a new group</h1>
         <div className="mt-5 flex gap-x-2">
-          <div className="h-1 w-12 rounded-full bg-blue-500" />
+          <div className="h-1 w-12 rounded-full bg-primary-500" />
           <div
             className={cn(
               "h-1 w-12 rounded-full transition-colors duration-300",
-              step === "info" ? "bg-gray-500" : "bg-blue-500",
+              step === "info" ? "bg-gray-500" : "bg-primary-500",
             )}
           />
           <div
             className={cn(
               "h-1 w-12 rounded-full transition-colors duration-300",
-              step !== "members" ? "bg-gray-500" : "bg-blue-500",
+              step !== "members" ? "bg-gray-500" : "bg-primary-500",
             )}
           />
         </div>
         <h2 className="mt-3 text-sm text-white">{stepLabel}</h2>
+        <Alert className="my-10">
+          <AlertTitle>Wait! Already have a group in the main website?</AlertTitle>
+          <AlertDescription>
+            <p>You can easily clone that group on this League website.</p>
+            <p className="mb-5 mt-3 underline">
+              Please keep in mind that these two groups will not be linked and any changes in one will
+              not be reflected in the other.
+            </p>
+            <QueryLink
+              className="font-medium text-primary-400 hover:text-primary-300 hover:underline"
+              query={{ dialog: "clone-group" }}
+            >
+              Clone existing group
+            </QueryLink>
+          </AlertDescription>
+        </Alert>
         <div className="mt-10">
           {step === "info" && (
             <GroupInformationForm
@@ -150,7 +169,7 @@ export function CreateGroupForm() {
               }}
               formActions={(disabled) => (
                 <div className="flex justify-end">
-                  <Button variant="blue" disabled={disabled}>
+                  <Button variant="primary" disabled={disabled}>
                     Next
                   </Button>
                 </div>
@@ -164,7 +183,7 @@ export function CreateGroupForm() {
                 <div className="flex items-center justify-between text-sm">
                   <div>
                     Import selection:{" "}
-                    <span className="text-blue-400">
+                    <span className="text-primary-400">
                       {importSource === "file" && "Text file"}
                       {importSource === "none" && "None (manual)"}
                     </span>
@@ -209,6 +228,13 @@ export function CreateGroupForm() {
             setShowingEmptyGroupDialog(false);
           }}
         />
+        {!createMutation.data && (
+          <CloneGroupDialog
+            onSubmit={(payload) => {
+              createMutation.mutate(payload);
+            }}
+          />
+        )}
       </Container>
     </CreateGroupContext.Provider>
   );
@@ -348,7 +374,7 @@ function GroupMembersForm(props: GroupMembersFormProps) {
             <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
             Previous
           </Button>
-          <Button variant="blue" disabled={isPending} onClick={() => onSubmit(members)}>
+          <Button variant="primary" disabled={isPending} onClick={() => onSubmit(members)}>
             Next
             {isPending ? (
               <LoadingIcon className="-mr-1.5 h-4 w-4 animate-spin" />

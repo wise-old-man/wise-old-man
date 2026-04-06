@@ -1,35 +1,24 @@
 "use client";
 
-import { PropsWithChildren, useTransition } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { useRouter, useSearchParams } from "next/navigation";
 import {
   Activity,
   Boss,
-  ComputedMetric,
   Metric,
   MetricProps,
   MetricType,
-  PlayerBuild,
-  PlayerBuildProps,
   PlayerDetailsResponse,
   PlayerResponse,
-  PlayerType,
-  PlayerTypeProps,
   Skill,
   SnapshotResponse,
   getLevel,
 } from "@wise-old-man/utils";
+import { useRouter, useSearchParams } from "next/navigation";
+import { PropsWithChildren, useTransition } from "react";
 import { formatDatetime, timeago } from "~/utils/dates";
 import { getBuildHiddenMetrics } from "~/utils/metrics";
-import { Label } from "../Label";
 import { Button } from "../Button";
 import { Checkbox } from "../Checkbox";
-import { DataTable } from "../DataTable";
-import { MetricIconSmall } from "../Icon";
-import { FormattedNumber } from "../FormattedNumber";
-import { TableSortButton, TableTitle } from "../Table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 import {
   Combobox,
   ComboboxButton,
@@ -38,6 +27,7 @@ import {
   ComboboxItemGroup,
   ComboboxItemsContainer,
 } from "../Combobox";
+import { DataTable } from "../DataTable";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +35,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "../Dropdown";
+import { FormattedNumber } from "../FormattedNumber";
+import { MetricIconSmall } from "../Icon";
+import { Label } from "../Label";
+import { TableSortButton, TableTitle } from "../Table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 import TableCogIcon from "~/assets/table_cog.svg";
 
@@ -215,9 +210,6 @@ function getSkillColumnDefinitions(
   player: PlayerResponse,
   showVirtualLevels: boolean,
 ): ColumnDef<SkillValue>[] {
-  const hasSpecialEhp =
-    player.type !== PlayerType.REGULAR || ["f2p", "f2p_lvl3", "lvl3"].includes(player.build);
-
   return [
     {
       accessorKey: "skill",
@@ -229,14 +221,6 @@ function getSkillColumnDefinitions(
           <div className="flex items-center gap-x-2">
             <MetricIconSmall metric={row.original.metric} />
             {MetricProps[row.original.metric].name}
-            {(row.original.metric as Metric) === Metric.EHP && hasSpecialEhp && (
-              <Tooltip>
-                <TooltipTrigger>
-                  <span>(Special)</span>
-                </TooltipTrigger>
-                <TooltipContent>{getSpecialEHPRatesLabel(player)}</TooltipContent>
-              </Tooltip>
-            )}
           </div>
         );
       },
@@ -376,20 +360,10 @@ function getBossColumnDefinitions(player: PlayerResponse): ColumnDef<BossValue>[
         return <TableSortButton column={column}>Boss</TableSortButton>;
       },
       cell: ({ row }) => {
-        const isSpecialEHB = player.type !== PlayerType.REGULAR;
-
         return (
           <div className="flex items-center gap-x-2">
             <MetricIconSmall metric={row.original.metric} />
             {MetricProps[row.original.metric].name}
-            {(row.original.metric as Metric) === Metric.EHB && isSpecialEHB && (
-              <Tooltip>
-                <TooltipTrigger>
-                  <span>(Special)</span>
-                </TooltipTrigger>
-                <TooltipContent>{PlayerTypeProps[player.type].name}</TooltipContent>
-              </Tooltip>
-            )}
           </div>
         );
       },
@@ -617,7 +591,7 @@ function TableOptionsMenu(props: TableOptionsMenuProps) {
         <Button iconButton className="relative" aria-label="Open table options">
           <TableCogIcon className="h-5 w-5" />
           {showVirtualLevels && (
-            <div className="absolute -right-px -top-px h-2 w-2 rounded-full bg-blue-500" />
+            <div className="bg-primary-500 absolute -right-px -top-px h-2 w-2 rounded-full" />
           )}
         </Button>
       </DropdownMenuTrigger>
@@ -636,16 +610,4 @@ function TableOptionsMenu(props: TableOptionsMenuProps) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
-
-function getSpecialEHPRatesLabel(player: PlayerResponse) {
-  if (player.type === PlayerType.REGULAR) {
-    return PlayerBuildProps[player.build].name;
-  }
-
-  if (player.build === PlayerBuild.MAIN) {
-    return PlayerTypeProps[player.type].name;
-  }
-
-  return `${PlayerTypeProps[player.type].name}  ·  ${PlayerBuildProps[player.build].name}`;
 }

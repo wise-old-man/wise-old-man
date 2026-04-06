@@ -39,7 +39,7 @@ export function UpdatePlayerForm(props: { player: PlayerDetailsResponse }) {
         submitMutation.mutate();
       }}
     >
-      <Button variant="blue" disabled={submitMutation.isPending || isTransitioning}>
+      <Button variant="primary" disabled={submitMutation.isPending || isTransitioning}>
         {submitMutation.isPending || isTransitioning ? (
           <>
             Updating...

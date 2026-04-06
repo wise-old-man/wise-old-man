@@ -8,9 +8,10 @@ import {
   PlayerType,
   PlayerTypeProps,
   PlayerAnnotationType,
+  formatNumber,
 } from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
-import { getPlayerDetails } from "~/services/wiseoldman";
+import { getLeagueTier, getPlayerDetails } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { QueryLink } from "~/components/QueryLink";
 import { Container } from "~/components/Container";
@@ -91,8 +92,6 @@ function Header(props: PlayerDetailsResponse) {
     icon = <WarningFilledIcon className="h-6 w-6 text-orange-500 md:h-8 md:w-8" />;
   } else if (status === PlayerStatus.UNRANKED) {
     icon = <WarningFilledIcon className="h-6 w-6 text-yellow-500 md:h-8 md:w-8" />;
-  } else {
-    icon = <PlayerTypeIcon playerType={type} className="scale-150 md:scale-[2]" />;
   }
 
   return (
@@ -108,7 +107,11 @@ function Header(props: PlayerDetailsResponse) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
-                <a target="_blank" rel="noopener noreferrer" href={getHiscoresURL(displayName, type)}>
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`https://secure.runescape.com/m=hiscore_oldschool_seasonal/hiscorepersonal.ws?user1=${props.displayName}`}
+                >
                   <DropdownMenuItem>
                     Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
                   </DropdownMenuItem>
@@ -116,7 +119,6 @@ function Header(props: PlayerDetailsResponse) {
                 <QueryLink query={{ dialog: "submit-name" }}>
                   <DropdownMenuItem>Submit name change</DropdownMenuItem>
                 </QueryLink>
-                <AssertPlayerTypeForm player={props} />
               </DropdownMenuContent>
             </DropdownMenu>
           </>
@@ -280,6 +282,10 @@ function PlayerStatusAlert(props: { player: PlayerDetailsResponse }) {
 function PlayerAttributes(props: PlayerDetailsResponse) {
   const { status, type, build, latestSnapshot, patron, archive } = props;
 
+  // @ts-ignore
+  const leaguePoints = Math.max(0, props.leaguePoints);
+  const tier = getLeagueTier(leaguePoints);
+
   const elements: React.ReactNode[] = [];
 
   if (patron) {
@@ -295,6 +301,12 @@ function PlayerAttributes(props: PlayerDetailsResponse) {
     );
   }
 
+  elements.push(
+    <span>
+      {formatNumber(leaguePoints, false)} League points {tier ? `(${tier})` : ""}
+    </span>,
+  );
+
   if (status === PlayerStatus.FLAGGED) {
     elements.push(<span className="text-orange-400">Flagged</span>);
   } else if (status === PlayerStatus.UNRANKED) {
@@ -306,8 +318,6 @@ function PlayerAttributes(props: PlayerDetailsResponse) {
   if (archive) {
     elements.push(<span>Previously known as {`"${archive.previousUsername}"`}</span>);
   }
-
-  elements.push(<span>{PlayerTypeProps[type].name}</span>);
 
   if (build !== PlayerBuild.MAIN) {
     elements.push(<span>{PlayerBuildProps[build].name}</span>);
@@ -338,19 +348,6 @@ function PlayerAttributes(props: PlayerDetailsResponse) {
   );
 }
 
-function getHiscoresURL(displayName: string, playerType: PlayerType) {
-  switch (playerType) {
-    case PlayerType.HARDCORE:
-      return `https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal.ws?user1=${displayName}`;
-    case PlayerType.IRONMAN:
-      return `https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal.ws?user1=${displayName}`;
-    case PlayerType.ULTIMATE:
-      return `https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal.ws?user1=${displayName}`;
-    default:
-      return `https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${displayName}`;
-  }
-}
-
 function PlayerAnnotationsAlert(props: { player: PlayerDetailsResponse }) {
   const { annotations } = props.player;
   const annotationTypes = annotations === null ? [] : annotations.map((a) => a.type);
@@ -358,7 +355,7 @@ function PlayerAnnotationsAlert(props: { player: PlayerDetailsResponse }) {
   if (annotationTypes.includes(PlayerAnnotationType.OPT_OUT)) {
     return (
       <div className="mb-7">
-        <Alert variant="default" className="border-blue-700 bg-blue-900/10">
+        <Alert variant="default" className="bg-primary-900/10 border-primary-700">
           <AlertTitle>Opted out of tracking</AlertTitle>
           <AlertDescription>
             <p>
@@ -381,7 +378,7 @@ function PlayerAnnotationsAlert(props: { player: PlayerDetailsResponse }) {
   if (annotationTypes.includes(PlayerAnnotationType.BLOCKED)) {
     return (
       <div className="mb-7">
-        <Alert variant="warn" className="border-blue-700 bg-blue-900/10">
+        <Alert variant="warn" className="bg-primary-900/10 border-primary-700">
           <AlertTitle>Blocked</AlertTitle>
           <AlertDescription>
             <p>

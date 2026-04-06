@@ -122,7 +122,7 @@ function Header(props: CompetitionDetailsResponse) {
                 <Link
                   prefetch={false}
                   href={`/groups/${group.id}`}
-                  className="font-medium text-blue-400 hover:underline"
+                  className="text-primary-400 font-medium hover:underline"
                 >
                   {group.name}
                 </Link>
@@ -133,7 +133,7 @@ function Header(props: CompetitionDetailsResponse) {
       </div>
       <div className="flex shrink-0 items-center gap-x-2">
         <QueryLink query={{ dialog: "update-all" }}>
-          <Button variant="blue">Update all</Button>
+          <Button variant="primary">Update all</Button>
         </QueryLink>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
