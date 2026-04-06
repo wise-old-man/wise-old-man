@@ -39,7 +39,7 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
   } else if (player.status === PlayerStatus.FLAGGED || player.status === PlayerStatus.BANNED) {
     icon = <WarningFilledIcon className="h-4 w-4 text-orange-500" />;
   } else {
-    icon = <PlayerTypeIcon playerType={player.type} />;
+    icon = <PlayerTypeIcon />;
   }
 
   return (
