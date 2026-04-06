@@ -91,7 +91,7 @@ TableCell.displayName = "TableCell";
 
 function TableContainer(props: PropsWithChildren<{ className?: string }>) {
   return (
-    <div className="inline-block w-full">
+    <div className="w-full overflow-x-auto">
       <div
         className={cn("overflow-hidden rounded-lg border border-gray-500 bg-gray-800", props.className)}
       >

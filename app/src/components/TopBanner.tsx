@@ -14,7 +14,7 @@ export function TopBanner(props: TopBannerProps) {
       className={cn(
         "flex items-center gap-x-4 p-3",
         !!cta ? "justify-between" : "justify-center",
-        color === "blue" && "bg-blue-600",
+        color === "blue" && "border-b border-[#4B0602] bg-[#280702] text-primary-400",
         color === "yellow" && "bg-yellow-600",
       )}
     >

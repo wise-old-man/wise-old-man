@@ -79,7 +79,7 @@ export function CompetitionTeamsForm(props: CompetitionTeamsFormProps) {
             </p>
             <button
               type="button"
-              className="mt-5 text-sm font-medium text-blue-400 hover:underline"
+              className="text-primary-400 mt-5 text-sm font-medium hover:underline"
               onClick={() => {
                 setEditing(true);
                 setEditingTeamName(undefined);

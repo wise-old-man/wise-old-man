@@ -14,11 +14,11 @@ import {
   ReferenceArea,
 } from "recharts";
 
-const DEFAULT_BAR_COLOR = "#3b82f6";
+const DEFAULT_BAR_COLOR = "#FE8721";
 const NEGATIVE_BAR_COLOR = "#dc2626";
-const GRID_STYLE = { stroke: "#1f2937" };
-const AXIS_TICK_STYLE = { fill: "#6b7280", fontSize: "0.75rem" };
-const X_AXIS_TICK_LINE = { stroke: "#6b7280" };
+const GRID_STYLE = { stroke: "hsl(0 10% 20%)" };
+const AXIS_TICK_STYLE = { fill: "hsl(0 10% 64%)", fontSize: "0.75rem" };
+const X_AXIS_TICK_LINE = { stroke: "hsl(0 10% 64%)" };
 const TOOLTIP_CURSOR_STYLE = { fill: "rgba(255,255,255, 0.05)" };
 const TOOLTIP_WRAPPER_STYLE = { outline: "none" };
 

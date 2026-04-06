@@ -15,20 +15,27 @@ module.exports = {
         "inner-border": `inset 0px 0px 0px 1px rgba(255, 255, 255, 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.15)`,
       },
       colors: {
-        "gray-950": "hsl(220 23% 4%)",
-        "gray-900": "hsl(220 23% 8%)",
-        "gray-800": "hsl(220 23% 11%)",
-        "gray-700": "hsl(220 23% 15%)",
-        "gray-600": "hsl(220 23% 20%)",
-        "gray-500": "hsl(220 23% 25%)",
-        "gray-400": "hsl(220 23% 31%)",
-        "gray-300": "hsl(220 23% 43%)",
-        "gray-200": "hsl(220 20% 64%)",
-        "gray-100": "hsl(220 18% 83%)",
+        "gray-950": "hsl(0 15% 4%)",
+        "gray-900": "hsl(0 15% 8%)",
+        "gray-800": "hsl(0 15% 11%)",
+        "gray-700": "hsl(0 15% 15%)",
+        "gray-600": "hsl(0 15% 20%)",
+        "gray-500": "hsl(0 15% 25%)",
+        "gray-400": "hsl(0 15% 31%)",
+        "gray-300": "hsl(0 15% 43%)",
+        "gray-200": "hsl(0 10% 64%)",
+        "gray-100": "hsl(0 8% 83%)",
         "discord-blue": "#5865F2",
         "discord-blue-hover": "#4853cf",
         "patreon-orange": "#F96855",
         "patreon-orange-hover": "#c95040",
+        primary: {
+          300: "hsl(10 99% 70%)",
+          400: "hsl(10 99% 67%)",
+          500: "hsl(10 99% 65%)",
+          600: "hsl(10 99% 54%)",
+          700: "hsl(10 99% 43%)",
+        },
       },
       fontSize: {
         h1: ["2.25rem", "2.5rem"],
@@ -38,11 +45,11 @@ module.exports = {
       },
       backgroundImage: {
         "hero-gradient":
-          "radial-gradient(ellipse 100% 100% at bottom, rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0) 50%)",
+          "radial-gradient(ellipse 100% 100% at bottom, rgba(250, 155, 50, 0.1), rgba(250, 155, 50, 0) 50%)",
         "feature-gradient":
-          "radial-gradient(ellipse 100% 100% at 50% 75%, rgba(37, 99, 235, 0.07), rgba(37, 99, 235, 0) 60%)",
+          "radial-gradient(ellipse 100% 100% at 50% 75%, rgba(250, 70, 55, 0.07), rgba(250, 70, 55, 0) 60%)",
         "howto-gradient":
-          "radial-gradient(ellipse 100% 100% at center, rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0) 50%)",
+          "radial-gradient(ellipse 100% 100% at center, rgba(250, 70, 55, 0.1), rgba(250, 70, 55, 0) 50%)",
       },
       screens: {
         xs: "450px",

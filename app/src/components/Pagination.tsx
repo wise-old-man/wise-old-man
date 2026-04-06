@@ -82,7 +82,7 @@ export function Pagination(props: PaginationProps) {
             className={cn(
               "relative inline-flex w-12 items-center justify-center px-4 py-2 text-sm font-semibold tabular-nums text-gray-200 ring-1 ring-inset ring-gray-500 focus:z-20 focus:outline-offset-0",
               currentPage === number
-                ? "bg-gray-600 text-blue-400"
+                ? "text-primary-400 bg-gray-600"
                 : "hover:bg-gray-700 hover:text-white",
             )}
           >

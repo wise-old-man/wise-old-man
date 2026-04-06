@@ -46,7 +46,7 @@ export function SaveGroupVerificationCodeDialog(props: SaveGroupVerificationCode
       <DialogContent className="w-[22rem]" hideClose onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-center">Done!</DialogTitle>
-          <span className="text-center text-sm text-blue-400">
+          <span className="text-primary-400 text-center text-sm">
             Your group&apos;s verification code is:
           </span>
         </DialogHeader>
@@ -81,7 +81,7 @@ export function SaveGroupVerificationCodeDialog(props: SaveGroupVerificationCode
         </p>
         <Button
           size="lg"
-          variant="blue"
+          variant="primary"
           className="mt-4 justify-center tabular-nums"
           disabled={!hasWaited || isTransitioning}
           onClick={() => {

@@ -11,12 +11,7 @@ import { getRecordLeaderboard } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
-import {
-  getCountryParam,
-  getMetricParam,
-  getPlayerBuildParam,
-  getPlayerTypeParam,
-} from "~/utils/params";
+import { getCountryParam, getMetricParam, getPlayerBuildParam } from "~/utils/params";
 import { formatDate } from "~/utils/dates";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +20,6 @@ export const revalidate = 0;
 interface PageProps {
   searchParams: {
     metric?: string;
-    playerType?: string;
     playerBuild?: string;
     country?: string;
   };
@@ -47,7 +41,7 @@ export default async function RecordsLeaderboardsPage(props: PageProps) {
   const filters = {
     metric: getMetricParam(searchParams.metric) || Metric.OVERALL,
     country: getCountryParam(searchParams.country),
-    playerType: getPlayerTypeParam(searchParams.playerType),
+    undefined,
     playerBuild: getPlayerBuildParam(searchParams.playerBuild),
   };
 
@@ -64,7 +58,6 @@ interface RecordLeaderboardProps {
   period: Period;
   filters: {
     country?: Country;
-    playerType?: PlayerType;
     playerBuild?: PlayerBuild;
     metric: Metric;
   };
@@ -77,7 +70,7 @@ async function RecordLeaderboard(props: RecordLeaderboardProps) {
     filters.metric,
     period,
     filters.country,
-    filters.playerType,
+    undefined,
     filters.playerBuild,
   );
 

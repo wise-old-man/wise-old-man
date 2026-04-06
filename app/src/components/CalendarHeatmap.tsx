@@ -97,8 +97,10 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
                         width={SIZE}
                         height={SIZE}
                         rx={1}
-                        className="fill-blue-400"
-                        style={{ opacity: maxValue === 0 ? 0 : (cell.value || 0) / (maxValue / 3) }}
+                        style={{
+                          fill: "hsl(0, 20%, 60%)",
+                          opacity: maxValue === 0 ? 0 : (cell.value || 0) / (maxValue / 3),
+                        }}
                       />
                     </g>
                   </TooltipTrigger>

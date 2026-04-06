@@ -22,7 +22,7 @@ textarea {
 }
 
 :root {
-  scrollbar-color: hsl(220 23% 31%) transparent;
+  scrollbar-color: hsl(0 15% 31%) transparent;
   scrollbar-width: thin;
 }
 

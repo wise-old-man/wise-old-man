@@ -188,7 +188,7 @@ function ImagesSection(props: EditGroupFormProps & { verificationCode: string })
           Need some help? Check out the{" "}
           <a
             href="https://www.figma.com/file/6jj3KGb5JxUXgTMQ7JmDjD/Group-Images-Size-Guide?type=design&node-id=0%3A1&mode=design&t=HMUEQitwRc5ijMZb-1"
-            className="text-medium text-xs text-blue-400"
+            className="text-medium text-primary-400 text-xs"
           >
             official image size guide
           </a>
@@ -204,7 +204,7 @@ function ImagesSection(props: EditGroupFormProps & { verificationCode: string })
         )}
         <div className="flex grow justify-end">
           <Button
-            variant="blue"
+            variant="primary"
             onClick={() => editImagesMutation.mutate({ profileImage, bannerImage })}
             disabled={editImagesMutation.isPending || isTransitioning || !hasUnsavedChanges}
           >
@@ -363,7 +363,7 @@ function SocialLinksSection(props: EditGroupFormProps & { verificationCode: stri
           )}
           <div className="flex grow justify-end">
             <Button
-              variant="blue"
+              variant="primary"
               disabled={editSocialLinksMutation.isPending || isTransitioning || !hasUnsavedChanges}
             >
               {isTransitioning || editSocialLinksMutation.isPending ? (
@@ -546,7 +546,7 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
         )}
         <div className="flex grow justify-end">
           <Button
-            variant="blue"
+            variant="primary"
             disabled={editMembersMutation.isPending || isTransitioning || !hasUnsavedChanges}
             onClick={handleSubmit}
           >
@@ -626,7 +626,7 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
               </div>
             )}
             <Button
-              variant="blue"
+              variant="primary"
               disabled={
                 disabled || !hasUnsavedChanges || isTransitioning || editGeneralMutation.isPending
               }
@@ -692,7 +692,7 @@ function SideNavigation(props: SideNavigationProps) {
                   isSelected && "bg-gray-700 text-white",
                 )}
               >
-                {isSelected && <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />}
+                {isSelected && <div className="bg-primary-500 absolute bottom-0 left-0 top-0 w-0.5" />}
                 {s.name}
                 {!props.isPatron && (s.value === "images" || s.value === "links") && (
                   <div className="h-1.5 w-1.5 rounded-full bg-yellow-400" />
@@ -738,7 +738,7 @@ function RuneLiteSyncInfo() {
 
         <QueryLink
           query={{ dialog: "runelite-sync" }}
-          className="mt-5 block text-blue-400 hover:underline"
+          className="text-primary-400 mt-5 block hover:underline"
         >
           Find out more
         </QueryLink>
