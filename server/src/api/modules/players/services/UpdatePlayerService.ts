@@ -2,6 +2,7 @@ import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import { jobManager, JobType } from '../../../../jobs';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { fetchHiscoresJSON, HiscoresError } from '../../../../services/jagex.service';
+import { redisClient } from '../../../../services/redis.service';
 import {
   Player,
   PlayerAnnotation,
@@ -123,9 +124,16 @@ async function updatePlayer(
     currentStats
   );
 
+  const leaguePercentile = await getLeaguePercentile(currentStats.league_pointsRank);
+
+  if (leaguePercentile !== null) {
+    updatedPlayerFields.leaguePercentile = leaguePercentile;
+  }
+
   // Set the player's global computed data
   updatedPlayerFields.exp = Math.max(0, currentStats.overallExperience);
   updatedPlayerFields.leaguePoints = currentStats.league_pointsScore;
+  updatedPlayerFields.leagueRank = currentStats.league_pointsRank;
   updatedPlayerFields.ehp = computedMetrics.ehpValue;
   updatedPlayerFields.ehb = computedMetrics.ehbValue;
   updatedPlayerFields.ttm = computedMetrics.ttm;
@@ -263,3 +271,31 @@ function shouldUpdate(player: Pick<Player, 'updatedAt' | 'registeredAt' | 'lastC
 }
 
 export { updatePlayer };
+
+async function getLeaguePercentile(leagueRank: number) {
+  const lastRankValue = await redisClient.get('league_points_last_ranked');
+
+  if (lastRankValue === null) {
+    return null;
+  }
+
+  const lastRank = parseInt(lastRankValue);
+
+  const thresholds = [
+    0.001, // 0.1%
+    0.005, // 0.5%
+    0.01, // 1%
+    0.05, // 5%
+    0.1, // 10%
+    0.25, // 25%
+    0.5 // 50%
+  ];
+
+  for (const threshold of thresholds) {
+    if (leagueRank <= lastRank * threshold) {
+      return threshold;
+    }
+  }
+
+  return 1;
+}

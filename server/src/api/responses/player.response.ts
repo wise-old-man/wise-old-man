@@ -28,6 +28,9 @@ export function formatPlayerResponse(player: Player): PlayerResponse {
     'registeredAt',
     'updatedAt',
     'lastChangedAt',
-    'lastImportedAt'
+    'lastImportedAt',
+    'leaguePoints',
+    'leagueRank',
+    'leaguePercentile'
   );
 }

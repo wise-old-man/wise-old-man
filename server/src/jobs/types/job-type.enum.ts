@@ -35,6 +35,7 @@ export enum JobType {
   SCHEDULE_NAME_CHANGE_REVIEWS = 'schedule-name-change-reviews',
   SCHEDULE_PATRON_GROUP_UPDATES = 'schedule-patron-group-updates',
   SCHEDULE_PATRON_PLAYER_UPDATES = 'schedule-patron-player-updates',
+  SYNC_LAST_RANKED = 'sync-last-ranked',
   SYNC_PATRONS = 'sync-patrons',
   SYNC_PLAYER_ACHIEVEMENTS = 'sync-player-achievements',
   SYNC_PLAYER_COMPETITION_PARTICIPATIONS = 'sync-player-competition-participations',

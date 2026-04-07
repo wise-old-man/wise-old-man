@@ -22,4 +22,7 @@ export interface Player {
   lastChangedAt: Date | null;
   lastImportedAt: Date | null;
   latestSnapshotDate: Date | null;
+  leaguePoints: number;
+  leagueRank: number;
+  leaguePercentile: number;
 }
