@@ -34,6 +34,7 @@ import { ScheduleGroupScoreUpdatesJobHandler } from './handlers/schedule-group-s
 import { ScheduleNameChangeReviewsJobHandler } from './handlers/schedule-name-change-reviews.job';
 import { SchedulePatronGroupUpdatesJobHandler } from './handlers/schedule-patron-group-updates.job';
 import { SchedulePatronPlayerUpdatesJobHandler } from './handlers/schedule-patron-player-updates.job';
+import { SyncLastRankedJobHandler } from './handlers/sync-last-ranked.job';
 import { SyncPatronsJobHandler } from './handlers/sync-patrons.job';
 import { SyncPlayerAchievementsJobHandler } from './handlers/sync-player-achievements.job';
 import { SyncPlayerCompetitionParticipationsJobHandler } from './handlers/sync-player-competition-participations.job';
@@ -86,6 +87,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.SCHEDULE_NAME_CHANGE_REVIEWS]: ScheduleNameChangeReviewsJobHandler,
   [JobType.SCHEDULE_PATRON_GROUP_UPDATES]: SchedulePatronGroupUpdatesJobHandler,
   [JobType.SCHEDULE_PATRON_PLAYER_UPDATES]: SchedulePatronPlayerUpdatesJobHandler,
+  [JobType.SYNC_LAST_RANKED]: SyncLastRankedJobHandler,
   [JobType.SYNC_PATRONS]: SyncPatronsJobHandler,
   [JobType.SYNC_PLAYER_ACHIEVEMENTS]: SyncPlayerAchievementsJobHandler,
   [JobType.SYNC_PLAYER_COMPETITION_PARTICIPATIONS]: SyncPlayerCompetitionParticipationsJobHandler,
@@ -109,6 +111,8 @@ export const CRON_CONFIG = [
   // every 5 mins
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
+  // every 15 mins
+  { interval: '*/15 * * * *', type: JobType.SYNC_LAST_RANKED },
   // every 6 hours
   { interval: '0 */6 * * *', type: JobType.INVALIDATE_DELTAS },
   // everyday at 8:00 UTC

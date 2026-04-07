@@ -103,11 +103,42 @@ const COLUMN_DEFS: ColumnDef<MembershipResponse & { player: PlayerResponse }>[] 
     // @ts-ignore - Ignore for league
     accessorFn: (row) => row.player.points,
     header: ({ column }) => {
-      return <TableSortButton column={column}>League points</TableSortButton>;
+      return <TableSortButton column={column}>League pts.</TableSortButton>;
     },
     cell: ({ row }) => {
       // @ts-ignore - Ignore for league
       return <FormattedNumber value={row.original.player.leaguePoints} />;
+    },
+  },
+  {
+    id: "rank",
+    accessorFn: (row) => {
+      // @ts-ignore - Ignore for league
+      const rank = row.player.leagueRank;
+
+      if (rank <= 0) {
+        return Number.MAX_SAFE_INTEGER;
+      }
+
+      return rank;
+    },
+    header: ({ column }) => {
+      return <TableSortButton column={column}>League rank</TableSortButton>;
+    },
+    cell: ({ row }) => {
+      // @ts-ignore - Ignore for league
+      const leagueRank = row.original.player.leagueRank;
+      // @ts-ignore - Ignore for league
+      const leaguePercentile = row.original.player.leaguePercentile;
+
+      return (
+        <div>
+          <FormattedNumber value={leagueRank} />{" "}
+          {leaguePercentile < 1 && (
+            <span className="text-gray-200">(top {leaguePercentile * 100}%)</span>
+          )}
+        </div>
+      );
     },
   },
   {
