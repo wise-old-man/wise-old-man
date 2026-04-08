@@ -23,8 +23,8 @@ const inter = Inter({
 
 export const metadata = {
   title: {
-    template: "%s | Wise Old Man",
-    default: "Wise Old Man",
+    template: "%s | [League] Wise Old Man",
+    default: "[League] Wise Old Man",
   },
   description: "The Open Source Old School Runescape player progress tracker.",
 };

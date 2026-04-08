@@ -10,7 +10,7 @@ export const buttonVariants = cva(
         default: `bg-gray-700 text-white shadow-inner-border hover:bg-gray-600 active:opacity-80`,
         outline: `shadow-inner-border hover:bg-white/5`,
         primary:
-          "bg-primary-600 bg-gradient-to-t from-primary-600 to-[#F91B17] hover:bg-primary-500 text-white active:opacity-80",
+          "bg-primary-600 bg-gradient-to-t from-primary-600 to-[#F91B17] hover:bg-primary-500 text-white active:opacity-80 border border-amber-600",
         red: "bg-red-700 hover:bg-red-600 text-white active:opacity-80",
       },
       size: {

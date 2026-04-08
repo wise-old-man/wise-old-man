@@ -1,5 +1,6 @@
 import { AddPlayersToGroupCompetitionsJobHandler } from './handlers/add-players-to-group-competitions.job';
 import { BackfillCompetitionTimeEventsJobHandler } from './handlers/backfill-competition-time-events.job';
+import { BackfillInitialSnapshotJobHandler } from './handlers/backfill-initial-snapshot.job';
 import { CalculateComputedRankTablesJobHandler } from './handlers/calculate-computed-rank-tables.job';
 import { CheckCreationSpamJobHandler } from './handlers/check-creation-spam.job';
 import { CheckInappropriateContentJobHandler } from './handlers/check-inappropriate-content.job';
@@ -99,7 +100,8 @@ export const JOB_HANDLER_MAP = {
   [JobType.UPDATE_NEW_COMPETITION_PARTICIPANTS]: UpdateNewCompetitionParticipantsJobHandler,
   [JobType.UPDATE_NEW_GROUP_MEMBERS]: UpdateNewGroupMembersJobHandler,
   [JobType.UPDATE_PLAYER]: UpdatePlayerJobHandler,
-  [JobType.UPDATE_QUEUE_METRICS]: UpdateQueueMetricsJobHandler
+  [JobType.UPDATE_QUEUE_METRICS]: UpdateQueueMetricsJobHandler,
+  [JobType.BACKFILL_INITIAL_SNAPSHOT]: BackfillInitialSnapshotJobHandler
 } satisfies Record<JobType, JobHandler>;
 
 export const CRON_CONFIG = [
