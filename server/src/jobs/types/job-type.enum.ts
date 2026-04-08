@@ -47,5 +47,6 @@ export enum JobType {
   UPDATE_NEW_COMPETITION_PARTICIPANTS = 'update-new-competition-participants',
   UPDATE_NEW_GROUP_MEMBERS = 'update-new-group-members',
   UPDATE_PLAYER = 'update-player',
-  UPDATE_QUEUE_METRICS = 'update-queue-metrics'
+  UPDATE_QUEUE_METRICS = 'update-queue-metrics',
+  BACKFILL_INITIAL_SNAPSHOT = 'backfill-initial-snapshot'
 }

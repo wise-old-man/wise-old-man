@@ -33,6 +33,9 @@ export function handler({
         { priority: period === Period.YEAR ? JobPriority.LOW : JobPriority.MEDIUM }
       );
     }
+  } else {
+    // No previous snapshot, backfill initial snapshot at league start time
+    jobManager.add(JobType.BACKFILL_INITIAL_SNAPSHOT, { username });
   }
 
   if (hasChanged) {
