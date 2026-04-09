@@ -44,7 +44,7 @@ import { findPlayerNameChanges } from '../name-changes/services/FindPlayerNameCh
 import { findPlayerRecords } from '../records/services/FindPlayerRecordsService';
 import { findPlayerSnapshotTimeline } from '../snapshots/services/FindPlayerSnapshotTimelineService';
 import { findPlayerSnapshots } from '../snapshots/services/FindPlayerSnapshotsService';
-import { rollbackCollectionLog } from '../snapshots/services/RollbackCollectionLogService';
+import { rollbackSnapshotMetricValues } from '../snapshots/services/RollbackSnapshotMetricValuesService';
 import { rollbackSnapshots } from '../snapshots/services/RollbackSnapshotsService';
 import { standardizeUsername } from './player.utils';
 import { archivePlayer } from './services/ArchivePlayerService';
@@ -325,28 +325,29 @@ router.post(
 );
 
 router.post(
-  '/players/:username/rollback-col-log',
+  '/players/:username/rollback-snapshot-metric-values',
   checkAdminPermission,
   validateRequest({
     params: z.object({
       username: z.string()
+    }),
+    query: z.object({
+      metric: z.nativeEnum(Metric)
     })
   }),
   executeRequest(async (req, res) => {
     const { username } = req.params;
+    const { metric } = req.query;
 
-    const player = await prisma.player.findFirst({
-      where: { username: standardizeUsername(username) }
-    });
-
-    if (player === null) {
-      throw new NotFoundError('Player not found.');
-    }
-
-    const rollbackResult = await rollbackCollectionLog(player.id, username);
+    const rollbackResult = await rollbackSnapshotMetricValues(username, metric);
 
     if (isErrored(rollbackResult)) {
-      throw new ServerError('Failed to rollback collection log data from snapshots.');
+      switch (rollbackResult.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(rollbackResult.error);
+        default:
+          throw new ServerError('Failed to rollback snapshot metric values');
+      }
     }
 
     const updateResult = await updatePlayer(username);
@@ -358,7 +359,7 @@ router.post(
     jobManager.add(JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW, {}, { delay: 5_000 });
 
     res.status(200).json({
-      message: `Successfully rolled back collection logs for player: ${updateResult.value.player.displayName}`
+      message: `Successfully rolled back ${rollbackResult.value.count} snapshot(s) (${metric}) values`
     });
   })
 );
