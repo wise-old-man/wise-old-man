@@ -1456,10 +1456,10 @@ describe('Player API', () => {
         }
       });
 
-      const response = await api
-        .post(`/players/test123/rollback-snapshot-metric-values`)
-        .query({ metric: 'collections_logged' })
-        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+      const response = await api.post(`/players/test123/rollback-snapshot-metric-values`).send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+        metric: 'collections_logged'
+      });
 
       expect(response.status).toBe(500);
       expect(response.body.message).toBe('Failed to rollback snapshot metric values');
@@ -1505,10 +1505,10 @@ describe('Player API', () => {
         [PlayerType.HARDCORE]: { statusCode: 404 }
       });
 
-      const rollbackResponse = await api
-        .post(`/players/test123/rollback-snapshot-metric-values`)
-        .query({ metric: 'collections_logged' })
-        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+      const rollbackResponse = await api.post(`/players/test123/rollback-snapshot-metric-values`).send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+        metric: 'collections_logged'
+      });
 
       expect(rollbackResponse.status).toBe(200);
       expect(rollbackResponse.body.message).toMatch(

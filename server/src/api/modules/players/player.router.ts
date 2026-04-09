@@ -331,13 +331,13 @@ router.post(
     params: z.object({
       username: z.string()
     }),
-    query: z.object({
+    body: z.object({
       metric: z.nativeEnum(Metric)
     })
   }),
   executeRequest(async (req, res) => {
     const { username } = req.params;
-    const { metric } = req.query;
+    const { metric } = req.body;
 
     const rollbackResult = await rollbackSnapshotMetricValues(username, metric);
 
