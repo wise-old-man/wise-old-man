@@ -1437,7 +1437,7 @@ describe('Player API', () => {
       ).not.toBeDefined();
     });
 
-    it("shouldn't rollback col log (player has no snapshots)", async () => {
+    it("shouldn't rollback snapshot metric values (no values to rollback)", async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { hiscoresMetricName: 'Collections Logged', value: 100 }
       ]);
@@ -1457,14 +1457,15 @@ describe('Player API', () => {
       });
 
       const response = await api
-        .post(`/players/test123/rollback-col-log`)
+        .post(`/players/test123/rollback-snapshot-metric-values`)
+        .query({ metric: 'collections_logged' })
         .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(500);
-      expect(response.body.message).toBe('Failed to rollback collection log data from snapshots.');
+      expect(response.body.message).toBe('Failed to rollback snapshot metric values');
     });
 
-    it('should rollback col log (last snapshot)', async () => {
+    it('should rollback snapshot metric values', async () => {
       let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { hiscoresMetricName: 'Collections Logged', value: 100 }
       ]);
@@ -1505,12 +1506,13 @@ describe('Player API', () => {
       });
 
       const rollbackResponse = await api
-        .post(`/players/test123/rollback-col-log`)
+        .post(`/players/test123/rollback-snapshot-metric-values`)
+        .query({ metric: 'collections_logged' })
         .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(rollbackResponse.status).toBe(200);
       expect(rollbackResponse.body.message).toMatch(
-        'Successfully rolled back collection logs for player: test123'
+        'Successfully rolled back 1 snapshot(s) (collections_logged) values'
       );
 
       const playerSnapshotsAfter = await prisma.snapshot.findMany({

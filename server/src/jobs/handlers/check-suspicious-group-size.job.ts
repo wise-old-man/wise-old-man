@@ -41,7 +41,7 @@ export const CheckSuspiciousGroupSizeJobHandler: JobHandler<Payload> = {
         visible: false
       }
     });
-    
+
     await dispatchDiscordBotEvent(DiscordBotEventType.CREATION_SPAM_WARNING, {
       creatorIpHash: group.creatorIpHash,
       type: 'suspicious-size' as const,
