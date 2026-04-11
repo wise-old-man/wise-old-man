@@ -76,7 +76,7 @@ class RoutingHandler {
 
     // Handle errors
     this.router.use((error, req, res, _) => {
-      const { method, query, params, body, originalUrl } = req;
+      const { method, query, params, originalUrl } = req;
 
       const statusCode = error.statusCode ?? 500;
 
@@ -114,8 +114,7 @@ class RoutingHandler {
         {
           request: {
             query,
-            params,
-            body
+            params
           },
           error: {
             ...errorResponse,
