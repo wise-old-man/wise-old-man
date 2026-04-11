@@ -11,6 +11,8 @@ import {
 const BEFORE_START_OFFSETS = [360, 5, 0];
 // 12h, 2h, and 30min before end, and then on end
 const BEFORE_END_OFFSETS = [720, 120, 30, 0];
+// 1h and 24h after start
+const AFTER_START_OFFSETS = [60, 1440];
 
 export async function recalculateCompetitionTimeEvents(competitionId: number): AsyncResult<
   true,
@@ -60,6 +62,20 @@ export async function recalculateCompetitionTimeEvents(competitionId: number): A
 
     newEvents.push({
       type: CompetitionTimeEventType.BEFORE_END,
+      offsetMinutes: offset,
+      executeAt
+    });
+  }
+
+  for (const offset of AFTER_START_OFFSETS) {
+    const executeAt = new Date(competition.startsAt.getTime() + offset * 60 * 1000);
+
+    if (executeAt.getTime() <= Date.now() || executeAt.getTime() >= competition.endsAt.getTime()) {
+      continue;
+    }
+
+    newEvents.push({
+      type: CompetitionTimeEventType.AFTER_START,
       offsetMinutes: offset,
       executeAt
     });

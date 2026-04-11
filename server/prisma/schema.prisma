@@ -1386,6 +1386,7 @@ enum CompetitionTimeEventType {
   before_start
   before_end
   during
+  after_start
 
   @@map("competition_time_event_type")
 }
