@@ -4,7 +4,6 @@ import { TeamsTable } from "~/components/competitions/TeamsTable";
 import { ParticipantsTable } from "~/components/competitions/ParticipantsTable";
 import { CompetitionWidgets } from "~/components/competitions/CompetitionWidgets";
 import { CompetitionStatusWarning } from "~/components/competitions/CompetitionStatusWarning";
-import { LEAGUES } from "../../../../../config";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

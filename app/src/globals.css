@@ -53,3 +53,29 @@ textarea {
 .custom-scroll::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-500;
 }
+
+@property --shimmer-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes shimmer-rotate {
+  to {
+    --shimmer-angle: 360deg;
+  }
+}
+
+.league-shimmer-border {
+  background: conic-gradient(
+    from var(--shimmer-angle),
+    hsl(15 99% 43%),
+    hsl(10 99% 54%),
+    hsl(15 99% 65%),
+    hsl(20 99% 81%),
+    hsl(25 99% 65%),
+    hsl(20 99% 54%),
+    hsl(15 99% 43%)
+  );
+  animation: shimmer-rotate 3s linear infinite;
+}
