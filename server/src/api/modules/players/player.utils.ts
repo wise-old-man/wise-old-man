@@ -23,6 +23,7 @@ function standardizeUsername(username: string): string {
  */
 function sanitizeDisplayName(username: string): string {
   return username
+    .replace(/\s/g, ' ') // Normalize all whitespace (tabs, non-breaking spaces, etc.) to regular spaces
     .replace(/[^a-zA-Z0-9 \-_]/g, '') // Remove any character that's NOT letter, number, space, dash, or underscore
     .trim(); // Remove spaces from start and end
 }
