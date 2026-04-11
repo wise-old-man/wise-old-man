@@ -68,8 +68,16 @@ describe('recalculateCompetitionTimeEvents (integration)', () => {
       where: { competitionId: competition.id }
     });
 
-    expect(events.length).toBe(5);
+    expect(events.length).toBe(6);
     expect(events.every(e => e.executeAt > now)).toBe(true);
+
+    // Has one AFTER_START event — the 60-min one fired at exactly startsAt+1h = now, which is past the guard
+    const afterStartOffsets = events
+      .filter(e => e.type === CompetitionTimeEventType.AFTER_START)
+      .map(e => e.offsetMinutes)
+      .sort((a, b) => a - b);
+
+    expect(afterStartOffsets).toEqual([1440]);
 
     // Has one more "during" event
     expect(events.find(e => e.type === CompetitionTimeEventType.DURING)).toMatchObject({
@@ -147,8 +155,8 @@ describe('recalculateCompetitionTimeEvents (integration)', () => {
       where: { competitionId: competition.id }
     });
 
-    // Should have: 3 BEFORE_START (360, 5, 0) + 4 BEFORE_END (720, 120, 30, 0) + 1 DURING
-    expect(events.length).toBe(8);
+    // Should have: 3 BEFORE_START (360, 5, 0) + 4 BEFORE_END (720, 120, 30, 0) + 1 DURING + 2 AFTER_START (60, 1440)
+    expect(events.length).toBe(10);
 
     const beforeStartOffsets = events
       .filter(e => e.type === CompetitionTimeEventType.BEFORE_START)
@@ -168,6 +176,13 @@ describe('recalculateCompetitionTimeEvents (integration)', () => {
       .sort((a, b) => a - b);
 
     expect(beforeEndOffsets).toEqual([0, 30, 120, 720]);
+
+    const afterStartOffsets = events
+      .filter(e => e.type === CompetitionTimeEventType.AFTER_START)
+      .map(e => e.offsetMinutes)
+      .sort((a, b) => a - b);
+
+    expect(afterStartOffsets).toEqual([60, 1440]);
   });
 
   it('should not create DURING event for competition shorter than 24h', async () => {
@@ -194,6 +209,10 @@ describe('recalculateCompetitionTimeEvents (integration)', () => {
     });
 
     expect(events.filter(e => e.type === CompetitionTimeEventType.DURING).length).toBe(0);
+    // 60-min AFTER_START fires before the competition ends; 24h does not
+    expect(
+      events.filter(e => e.type === CompetitionTimeEventType.AFTER_START).map(e => e.offsetMinutes)
+    ).toEqual([60]);
   });
 
   it('should create DURING event exactly at 24h mark for long competition', async () => {
@@ -538,8 +557,9 @@ describe('recalculateCompetitionTimeEvents (integration)', () => {
       }
     });
 
-    expect(canceled.length).toBe(4);
+    expect(canceled.length).toBe(6);
     expect(canceled.filter(e => e.type === CompetitionTimeEventType.BEFORE_START).length).toBe(3);
+    expect(canceled.filter(e => e.type === CompetitionTimeEventType.AFTER_START).length).toBe(2);
     expect(canceled.filter(e => e.type === CompetitionTimeEventType.DURING).length).toBe(1);
   });
 
@@ -703,6 +723,26 @@ describe('recalculateCompetitionTimeEvents (integration)', () => {
       where: { competitionId: competition.id, type: CompetitionTimeEventType.DURING, canceledAt: null }
     });
     expect(activeDuring.length).toBe(0);
+
+    // 1440-min AFTER_START (startsAt+24h) now falls outside the new endsAt (startsAt+23h) — should be canceled
+    const canceledAfterStart = await prisma.competitionTimeEvent.findMany({
+      where: {
+        competitionId: competition.id,
+        type: CompetitionTimeEventType.AFTER_START,
+        canceledAt: { not: null }
+      }
+    });
+    expect(canceledAfterStart.map(e => e.offsetMinutes)).toEqual([1440]);
+
+    // 60-min AFTER_START still fires before the new endsAt — should remain active
+    const activeAfterStart = await prisma.competitionTimeEvent.findMany({
+      where: {
+        competitionId: competition.id,
+        type: CompetitionTimeEventType.AFTER_START,
+        canceledAt: null
+      }
+    });
+    expect(activeAfterStart.map(e => e.offsetMinutes)).toEqual([60]);
   });
 
   it('should not cancel events that have already been completed', async () => {
