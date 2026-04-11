@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { Dialog as HeadlessDialog, Transition } from "@headlessui/react";
 import { cn } from "~/utils/styling";
 import useChangelog from "~/hooks/useChangelog";
-import { LEAGUES } from "../../config";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 import Logo from "~/assets/logo.svg";
@@ -18,13 +17,12 @@ import TrophyIcon from "~/assets/trophy.svg";
 import PeopleIcon from "~/assets/people.svg";
 import GitHubIcon from "~/assets/github.svg";
 import TwitterIcon from "~/assets/twitter.svg";
-import CompassIcon from "~/assets/compass.svg";
 import DiscordIcon from "~/assets/discord.svg";
 import PatreonIcon from "~/assets/patreon.svg";
 import RuneliteIcon from "~/assets/runelite.svg";
 import NewspaperIcon from "~/assets/newspaper.svg";
 import LeaderboardsIcon from "~/assets/leaderboards.svg";
-import AnchorIcon from "~/assets/anchor.svg";
+import ExternalIcon from "~/assets/external.svg";
 
 const ROUTES = [
   { label: "Leaderboards", href: "/leaderboards", icon: LeaderboardsIcon },
@@ -197,22 +195,6 @@ function SideBar(props: SideBarProps) {
             </a>
           </li>
         ))}
-        {LEAGUES.active && (
-          <li>
-            <a
-              href="https://league.wiseoldman.net"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between px-5 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700"
-            >
-              <div className="flex items-center">
-                <CompassIcon className="mr-2 h-5 w-5" />
-                {LEAGUES.editionName} Edition
-              </div>
-              <span className="mt-px text-xs text-blue-400">New</span>
-            </a>
-          </li>
-        )}
       </ul>
       <div className="mt-auto block lg:hidden">
         <SocialLinks />
@@ -223,26 +205,39 @@ function SideBar(props: SideBarProps) {
 
 function SocialLinks() {
   return (
-    <ul className="mx-5 mb-5 flex justify-between pt-10">
-      {SOCIAL_LINKS.map((link) => (
-        <li key={link.href}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <a
-                aria-label={link.label}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block rounded-lg bg-gray-700 p-3 shadow-inner-border hover:bg-gray-600"
-              >
-                <link.icon alt={link.label} className="h-5 w-5" />
-              </a>
-            </TooltipTrigger>
-            <TooltipContent>{link.label}</TooltipContent>
-          </Tooltip>
-        </li>
-      ))}
-    </ul>
+    <div className="mx-5 mb-5 flex flex-col pt-10">
+      <div className="league-shimmer-border mb-4 rounded-md p-px">
+        <a
+          href="https://league.wiseoldman.net"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-full items-center justify-between rounded-md bg-gray-700 px-3 py-2 text-sm font-medium text-gray-100 shadow-sm hover:bg-gray-600 hover:text-white"
+        >
+          Demonic Pacts Edition
+          <ExternalIcon className="h-4 w-4" />
+        </a>
+      </div>
+      <ul className="flex justify-between">
+        {SOCIAL_LINKS.map((link) => (
+          <li key={link.href}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a
+                  aria-label={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-lg bg-gray-700 p-3 shadow-inner-border hover:bg-gray-600"
+                >
+                  <link.icon alt={link.label} className="h-5 w-5" />
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>{link.label}</TooltipContent>
+            </Tooltip>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
