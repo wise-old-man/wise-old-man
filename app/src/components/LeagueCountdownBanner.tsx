@@ -4,11 +4,10 @@ import { useTicker } from "~/hooks/useTicker";
 import { TopBanner } from "./TopBanner";
 import { durationBetween } from "~/utils/dates";
 import { useHasMounted } from "~/hooks/useHasMounted";
-
-const RELEASE_DATE_UTC = `2026-04-15T12:00:00.000Z`;
+import { LEAGUE_RELEASE_DATE_UTC } from "~/league";
 
 export function LeagueCountdownBanner() {
-  const releaseDate = new Date(RELEASE_DATE_UTC);
+  const releaseDate = new Date(LEAGUE_RELEASE_DATE_UTC);
   const hasMounted = useHasMounted();
 
   useTicker(1000, hasMounted);

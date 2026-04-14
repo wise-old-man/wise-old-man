@@ -108,12 +108,13 @@ async function StatsDisplay() {
 
   const { players, snapshots, groups, competitions } = stats;
 
-  const playerCount = players > 0 ? `${(players / 1_000).toFixed(2)}k` : 0;
-  const snapshotsCount = snapshots > 0 ? `${(snapshots / 1_000_000).toFixed(2)}m` : 0;
-  const groupsCount = groups > 0 ? `${(groups / 1_000).toFixed(1)}k`.replace(".0k", "k") : 0;
+  const playerCount = players > 1000 ? `${(players / 1_000).toFixed(2)}k` : players;
+  const snapshotsCount =
+    snapshots > 1000 ? `${(snapshots / 1_000_000).toFixed(2)}m` : Math.max(0, snapshots);
+  const groupsCount = groups > 1000 ? `${(groups / 1_000).toFixed(1)}k`.replace(".0k", "k") : groups;
 
   const competitionsCount =
-    competitions > 0 ? `${(competitions / 1_000).toFixed(1)}k`.replace(".0k", "k") : 0;
+    competitions > 1000 ? `${(competitions / 1_000).toFixed(1)}k`.replace(".0k", "k") : competitions;
 
   return (
     <div className="relative z-20 -mt-5 flex w-full items-center">
@@ -370,10 +371,10 @@ function HowItWorksSection() {
       <div className="mt-16 flex max-w-2xl flex-col md:w-full">
         <div className="flex w-full gap-x-8">
           <div className="relative mt-10">
-            <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-primary-500 bg-gray-900 text-base">
+            <div className="border-primary-500 relative z-10 flex h-9 w-9 items-center justify-center rounded-full border bg-gray-900 text-base">
               1
             </div>
-            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-primary-500" />
+            <div className="bg-primary-500 absolute left-[1.125rem] top-0 h-full w-px grow" />
           </div>
           <HowToStep
             title="You update your profile"
@@ -383,10 +384,10 @@ function HowItWorksSection() {
         </div>
         <div className="flex w-full gap-x-8">
           <div className="relative">
-            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-primary-500 bg-gray-900 text-base">
+            <div className="border-primary-500 relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border bg-gray-900 text-base">
               2
             </div>
-            <div className="absolute left-[1.125rem] top-0 h-full w-px grow bg-primary-500" />
+            <div className="bg-primary-500 absolute left-[1.125rem] top-0 h-full w-px grow" />
           </div>
           <HowToStep
             title="We save your current stats"
@@ -396,10 +397,10 @@ function HowItWorksSection() {
         </div>
         <div className="flex w-full gap-x-8">
           <div className="relative">
-            <div className="relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border border-primary-500 bg-gray-900 text-base">
+            <div className="border-primary-500 relative z-10 mt-10 flex h-9 w-9 items-center justify-center rounded-full border bg-gray-900 text-base">
               3
             </div>
-            <div className="absolute left-[1.125rem] top-0 h-12 w-px grow bg-primary-500" />
+            <div className="bg-primary-500 absolute left-[1.125rem] top-0 h-12 w-px grow" />
           </div>
           <HowToStep
             title="We calculate your progress"
