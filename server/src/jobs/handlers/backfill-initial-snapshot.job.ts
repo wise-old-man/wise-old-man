@@ -1,7 +1,7 @@
 import prisma from '../../prisma';
 import { JobHandler } from '../types/job-handler.type';
 
-const LEAGUE_START_TIME = new Date(`2026-04-15T12:00:00.000Z`);
+const LEAGUE_START_TIME = new Date(`2026-04-15T10:30:00.000Z`);
 
 interface Payload {
   username: string;
