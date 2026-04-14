@@ -1,3 +1,8 @@
+import { isComplete } from '@attio/fetchable';
+import ms from 'ms';
+import { updatePlayer } from '../../api/modules/players/services/UpdatePlayerService';
+import { buildCompoundRedisKey, redisClient } from '../../services/redis.service';
+import { assertNever } from '../../utils/assert-never.util';
 import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
@@ -15,35 +20,35 @@ export const UpdatePlayerJobHandler: JobHandler<Payload> = {
     return payload.username;
   },
 
-  async execute(_payload) {
-    // if (process.env.NODE_ENV === 'test') {
-    //   return;
-    // }
-    // const updateResult = await updatePlayer(payload.username);
-    // if (isComplete(updateResult)) {
-    //   return;
-    // }
-    // switch (updateResult.error.code) {
-    //   case 'PLAYER_IS_RATE_LIMITED':
-    //     return;
-    //   case 'PLAYER_OPTED_OUT':
-    //   case 'PLAYER_IS_FLAGGED':
-    //   case 'PLAYER_IS_BLOCKED':
-    //   case 'PLAYER_IS_ARCHIVED':
-    //   case 'INVALID_USERNAME':
-    //   case 'HISCORES_USERNAME_NOT_FOUND': {
-    //     // This player doesn't need to be auto-updated anytime soon
-    //     const cooldownKey = buildCompoundRedisKey('cooldown', 'player_update', payload.username);
-    //     await redisClient.set(cooldownKey, 'true', 'PX', ms('24 hours'));
-    //     break;
-    //   }
-    //   case 'HISCORES_UNEXPECTED_ERROR':
-    //   case 'HISCORES_SERVICE_UNAVAILABLE': {
-    //     // These can be retried later
-    //     throw updateResult.error;
-    //   }
-    //   default:
-    //     assertNever(updateResult.error);
-    // }
+  async execute(payload) {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+    const updateResult = await updatePlayer(payload.username);
+    if (isComplete(updateResult)) {
+      return;
+    }
+    switch (updateResult.error.code) {
+      case 'PLAYER_IS_RATE_LIMITED':
+        return;
+      case 'PLAYER_OPTED_OUT':
+      case 'PLAYER_IS_FLAGGED':
+      case 'PLAYER_IS_BLOCKED':
+      case 'PLAYER_IS_ARCHIVED':
+      case 'INVALID_USERNAME':
+      case 'HISCORES_USERNAME_NOT_FOUND': {
+        // This player doesn't need to be auto-updated anytime soon
+        const cooldownKey = buildCompoundRedisKey('cooldown', 'player_update', payload.username);
+        await redisClient.set(cooldownKey, 'true', 'PX', ms('24 hours'));
+        break;
+      }
+      case 'HISCORES_UNEXPECTED_ERROR':
+      case 'HISCORES_SERVICE_UNAVAILABLE': {
+        // These can be retried later
+        throw updateResult.error;
+      }
+      default:
+        assertNever(updateResult.error);
+    }
   }
 };
