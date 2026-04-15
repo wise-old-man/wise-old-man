@@ -45,6 +45,7 @@ import { fetchGroupMembersCSV } from './services/FetchMembersCSVService';
 import { removeMembers } from './services/RemoveMembersService';
 import { resetGroupCode } from './services/ResetGroupCodeService';
 import { searchGroups } from './services/SearchGroupsService';
+import { updateAllMembers } from './services/UpdateAllMembersService';
 import { verifyGroup } from './services/VerifyGroupService';
 
 const router = Router();
@@ -474,17 +475,13 @@ router.post(
     })
   }),
   executeRequest(async (req, res) => {
-    // const { id } = req.params;
+    const { id } = req.params;
 
-    // const outdatedCount = await updateAllMembers(id);
+    const outdatedCount = await updateAllMembers(id);
 
-    // res.status(200).json({
-    //   count: outdatedCount,
-    //   message: `${outdatedCount} outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.`
-    // });
-
-    res.status(400).json({
-      message: 'Currently disabled until the League starts.'
+    res.status(200).json({
+      count: outdatedCount,
+      message: `${outdatedCount} outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.`
     });
   })
 );
