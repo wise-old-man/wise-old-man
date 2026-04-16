@@ -101,7 +101,7 @@ const COLUMN_DEFS: ColumnDef<MembershipResponse & { player: PlayerResponse }>[] 
   {
     id: "points",
     // @ts-ignore - Ignore for league
-    accessorFn: (row) => row.player.points,
+    accessorFn: (row) => row.player.leaguePoints,
     header: ({ column }) => {
       return <TableSortButton column={column}>League pts.</TableSortButton>;
     },
