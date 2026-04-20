@@ -64,9 +64,16 @@ function getExcessiveGains(before: Snapshot, after: Snapshot) {
   return { ehpDiff, ehbDiff, hoursDiff };
 }
 
+// These metrics can legitimately decrease
+export const METRICS_ALLOWING_NEGATIVE_GAINS: Metric[] = [
+  Metric.EHP,
+  Metric.EHB,
+  Metric.LAST_MAN_STANDING,
+  Metric.PVP_ARENA
+];
+
 function getNegativeGains(before: Snapshot, after: Snapshot) {
-  // LMS scores, PVP ARENA scores, EHP and EHB can fluctuate overtime
-  const metricsToIgnore: Metric[] = [Metric.EHP, Metric.EHB, Metric.LAST_MAN_STANDING, Metric.PVP_ARENA];
+  const metricsToIgnore = [...METRICS_ALLOWING_NEGATIVE_GAINS];
 
   // The Bounty Hunter game update on May 24th 2023 reset people's BH scores, so if this game update happened
   // in between the two snapshots, we should also ignore BH score negative gains.
