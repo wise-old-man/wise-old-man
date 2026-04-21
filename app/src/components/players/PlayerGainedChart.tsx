@@ -50,11 +50,11 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
   const isShowingRanks = view === "ranks";
 
   const { name, measure } = MetricProps[metric];
-
+      
   const minDate =
-    "period" in timeRange
-      ? new Date(Date.now() - PeriodProps[timeRange.period].milliseconds)
-      : timeRange.startDate;
+  "period" in timeRange
+    ? new Date(Date.now() - PeriodProps[timeRange.period].milliseconds)
+    : data.find((d) => d.date > timeRange.startDate)?.date || timeRange.startDate;
 
   const maxDate = "period" in timeRange ? new Date() : timeRange.endDate;
 
@@ -74,7 +74,7 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
       maxDate={maxDate}
       xAxisLabelFormatter={(timestamp) => {
         // If the timespan is under 3 days long, show hours and minutes too
-        if (maxDate.getTime() - minDate.getTime() < 1000 * 60 * 60 * 24 * 3) {
+        if (maxDate.getTime() - (minDate).getTime() < 1000 * 60 * 60 * 24 * 3) {
           return formatDatetime(new Date(timestamp), {
             day: "numeric",
             month: "short",
