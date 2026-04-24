@@ -48,5 +48,6 @@ export enum JobType {
   UPDATE_NEW_GROUP_MEMBERS = 'update-new-group-members',
   UPDATE_PLAYER = 'update-player',
   UPDATE_QUEUE_METRICS = 'update-queue-metrics',
-  BACKFILL_INITIAL_SNAPSHOT = 'backfill-initial-snapshot'
+  BACKFILL_INITIAL_SNAPSHOT = 'backfill-initial-snapshot',
+  SCHEDULE_BACKFILL_FIX = 'schedule-backfill-fix'
 }

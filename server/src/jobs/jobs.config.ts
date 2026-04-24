@@ -27,6 +27,7 @@ import { RecalculateCompetitionTimeEventsJobHandler } from './handlers/recalcula
 import { RecalculatePlayerAchievementsJobHandler } from './handlers/recalculate-player-achievements.job';
 import { RemovePlayersFromGroupCompetitionsJobHandler } from './handlers/remove-players-from-group-competitions.job';
 import { ReviewNameChangeJobHandler } from './handlers/review-name-change.job';
+import { ScheduleBackfillFixJobHandler } from './handlers/schedule-backfill-fix.job';
 import { ScheduleBannedPlayerChecksJobHandler } from './handlers/schedule-banned-player-checks.job';
 import { ScheduleCompetitionEventsJobHandler } from './handlers/schedule-competition-events.job';
 import { ScheduleCompetitionScoreUpdatesJobHandler } from './handlers/schedule-competition-score-updates.job';
@@ -101,7 +102,8 @@ export const JOB_HANDLER_MAP = {
   [JobType.UPDATE_NEW_GROUP_MEMBERS]: UpdateNewGroupMembersJobHandler,
   [JobType.UPDATE_PLAYER]: UpdatePlayerJobHandler,
   [JobType.UPDATE_QUEUE_METRICS]: UpdateQueueMetricsJobHandler,
-  [JobType.BACKFILL_INITIAL_SNAPSHOT]: BackfillInitialSnapshotJobHandler
+  [JobType.BACKFILL_INITIAL_SNAPSHOT]: BackfillInitialSnapshotJobHandler,
+  [JobType.SCHEDULE_BACKFILL_FIX]: ScheduleBackfillFixJobHandler
 } satisfies Record<JobType, JobHandler>;
 
 export const CRON_CONFIG = [
@@ -113,6 +115,7 @@ export const CRON_CONFIG = [
   // every 5 mins
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
+  { interval: '*/5 * * * *', type: JobType.SCHEDULE_BACKFILL_FIX },
   // every 15 mins
   { interval: '*/15 * * * *', type: JobType.SYNC_LAST_RANKED },
   // every 6 hours
