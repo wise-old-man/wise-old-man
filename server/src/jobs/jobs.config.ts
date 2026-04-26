@@ -115,7 +115,6 @@ export const CRON_CONFIG = [
   // every 5 mins
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
-  { interval: '*/5 * * * *', type: JobType.SCHEDULE_BACKFILL_FIX },
   // every 15 mins
   { interval: '*/15 * * * *', type: JobType.SYNC_LAST_RANKED },
   // every 6 hours
