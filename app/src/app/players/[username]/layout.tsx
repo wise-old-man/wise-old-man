@@ -9,7 +9,8 @@ import {
   PlayerTypeProps,
   PlayerAnnotationType,
 } from "@wise-old-man/utils";
-import { formatDatetime, timeago } from "~/utils/dates";
+import { timeago } from "~/utils/dates";
+import { LocalDate } from "~/components/LocalDate";
 import { getPlayerDetails } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { QueryLink } from "~/components/QueryLink";
@@ -319,7 +320,9 @@ function PlayerAttributes(props: PlayerDetailsResponse) {
         <TooltipTrigger asChild>
           <span>Last updated {timeago.format(latestSnapshot.createdAt)}</span>
         </TooltipTrigger>
-        <TooltipContent side="bottom">{formatDatetime(latestSnapshot.createdAt)}</TooltipContent>
+        <TooltipContent side="bottom">
+          <LocalDate mode="datetime" isoDate={latestSnapshot.createdAt.toISOString()} />
+        </TooltipContent>
       </Tooltip>,
     );
   }
