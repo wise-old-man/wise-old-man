@@ -608,7 +608,7 @@ model MemberActivity {
 model Patron {
   id        String   @id
   name      String
-  email     String
+  email     String?
   discordId String?
   groupId   Int?
   playerId  Int?
