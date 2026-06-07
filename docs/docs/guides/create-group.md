@@ -1,7 +1,7 @@
 ---
 title: 'Create a Group'
 slug: /guides/how-to-create-a-group
-sidebar_position: 5
+sidebar_position: 6
 ---
 
 ### Overview

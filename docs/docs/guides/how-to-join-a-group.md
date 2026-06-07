@@ -1,7 +1,7 @@
 ---
 title: 'Join a Group'
 slug: /guides/how-to-join-a-group
-sidebar_position: 3
+sidebar_position: 4
 ---
 
 ### Overview
