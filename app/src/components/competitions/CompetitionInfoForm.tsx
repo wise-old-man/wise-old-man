@@ -13,9 +13,7 @@ import {
 } from "@wise-old-man/utils";
 import { useMemo, useState } from "react";
 import { DateValue, TimeValue } from "react-aria";
-import { cn } from "~/utils/styling";
 import { useHasMounted } from "~/hooks/useHasMounted";
-import { LEAGUES } from "../../../config";
 import {
   Combobox,
   ComboboxButton,
@@ -32,10 +30,10 @@ import { DateTimePicker, TimeField, toCalendarDate, toDate } from "../DatePicker
 import { MetricIconSmall } from "../Icon";
 import { Input } from "../Input";
 import { Label } from "../Label";
+import { Alert, AlertDescription } from "../Alert";
 
 import LoadingIcon from "~/assets/loading.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
-import { Alert, AlertDescription, AlertTitle } from "../Alert";
 
 const MAX_NAME_LENGTH = 50;
 

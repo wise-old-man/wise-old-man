@@ -4,4 +4,5 @@ import { EventType } from '../types/event-type.enum';
 
 export function handler({ groupId }: EventPayloadMap[EventType.GROUP_CREATED]) {
   jobManager.add(JobType.UPDATE_GROUP_SCORE, { groupId });
+  jobManager.add(JobType.CHECK_SUSPICIOUS_GROUP_SIZE, { groupId });
 }

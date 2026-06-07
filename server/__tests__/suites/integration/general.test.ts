@@ -131,7 +131,7 @@ describe('General API', () => {
       await sleep(100);
 
       // Make sure it's been stored in redis memory
-      expect(await redisClient.get(buildCompoundRedisKey('api-key', response.body.id))).toBe('false');
+      expect(await redisClient.get(buildCompoundRedisKey('api_key', response.body.id))).toBe('false');
     });
   });
 
@@ -224,7 +224,7 @@ describe('General API', () => {
         data: { master: true }
       });
 
-      await redisClient.set(buildCompoundRedisKey('api-key', updatedKey.id), String(updatedKey.master));
+      await redisClient.set(buildCompoundRedisKey('api_key', updatedKey.id), String(updatedKey.master));
 
       let successCount = 0;
       let rateLimitedCount = 0;

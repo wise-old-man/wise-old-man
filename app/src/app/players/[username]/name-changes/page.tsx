@@ -3,6 +3,7 @@ import { timeago } from "~/utils/dates";
 import { LocalDate } from "~/components/LocalDate";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/components/Accordion";
 import { getPlayerArchives, getPlayerDetails, getPlayerNames } from "~/services/wiseoldman";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
@@ -67,26 +68,28 @@ export default async function PlayerNameChangesPage(props: PageProps) {
         </div>
       )}
       {archives && archives.length > 0 && (
-        <>
-          <div className="mb-1 mt-10">
-            <h3 className="text-h3 font-medium text-white">Archived profiles</h3>
-            <p className="text-body text-gray-200">
-              {`Archived player profiles that once held the "${username}" username.`}
-            </p>
-          </div>
-          <ListTable className="border-spacing-y-3">
-            {archives.map((archive) => (
-              <ListTableRow key={archive.archiveUsername}>
-                <ListTableCell>
-                  <PlayerIdentity
-                    player={archive.player}
-                    caption={`Archived ${timeago.format(archive.createdAt)}`}
-                  />
-                </ListTableCell>
-              </ListTableRow>
-            ))}
-          </ListTable>
-        </>
+        <Accordion className="mt-5" type="single" collapsible>
+          <AccordionItem value="faq" className="border-0">
+            <AccordionTrigger className="rounded-md border border-gray-500 p-3 text-center text-sm text-gray-200 data-[state=open]:rounded-b-none">
+              {`There are ${archives.length} archived profile(s) that once held the "${username}" username.
+                Click to show all.`}
+            </AccordionTrigger>
+            <AccordionContent className="border border-t-0 border-gray-500 px-5 pb-0 pt-3 text-gray-200">
+              <ListTable className="border-spacing-y-3">
+                {archives.map((archive) => (
+                  <ListTableRow key={archive.archiveUsername}>
+                    <ListTableCell>
+                      <PlayerIdentity
+                        player={archive.player}
+                        caption={`Archived ${timeago.format(archive.createdAt)}`}
+                      />
+                    </ListTableCell>
+                  </ListTableRow>
+                ))}
+              </ListTable>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       )}
     </>
   );

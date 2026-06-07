@@ -59,14 +59,13 @@ class JobManager {
     }
 
     if (type === JobType.UPDATE_PLAYER) {
+      const username = (payload as JobHandlerPayloadMapper[JobType.UPDATE_PLAYER]).username;
+
       // Some players are put into the queue too often (patron group updates),
       // and result in no valid updates due to a "banned" or "unranked" status.
       // This clogs up the queue for valid players, so we need to put them on a 24h cooldown.
       const isInCooldown = await redisClient.get(
-        buildCompoundRedisKey(
-          'player-update-cooldown',
-          (payload as JobHandlerPayloadMapper[JobType.UPDATE_PLAYER]).username
-        )
+        buildCompoundRedisKey('cooldown', 'player_update', username)
       );
 
       if (isInCooldown !== null) {
@@ -122,7 +121,7 @@ class JobManager {
       endTimer({ jobName: bullJob.name, status: 0 });
       logger.error(`[v2] Failed job: ${bullJob.name}`, { ...bullJob.data, error });
 
-      if (bullJob.attemptsMade >= maxAttempts) {
+      if (bullJob.attemptsMade + 1 >= maxAttempts) {
         Sentry.captureException(error, {
           tags: {
             server_type: process.env.SERVER_TYPE
@@ -224,23 +223,25 @@ class JobManager {
     // sleep for 5 seconds to allow the workers to start up
     await new Promise(resolve => setTimeout(resolve, 5_000));
 
-    for (const queue of this.queues) {
-      const activeJobs = await queue.getRepeatableJobs();
+    if (process.env.SERVER_JOB_RUNNER_CRON_JOBS !== 'disabled') {
+      for (const queue of this.queues) {
+        const activeJobs = await queue.getRepeatableJobs();
 
-      for (const job of activeJobs) {
-        await queue.removeRepeatableByKey(job.key);
-      }
-    }
-
-    for (const { interval, type } of CRON_CONFIG) {
-      const matchingQueue = this.queues.find(q => q.name === type);
-
-      if (!matchingQueue) {
-        throw new Error(`No job implementation found for type "${type}".`);
+        for (const job of activeJobs) {
+          await queue.removeRepeatableByKey(job.key);
+        }
       }
 
-      logger.info(`[v2] Scheduling cron job`, { type, interval });
-      await matchingQueue.add(type, {}, { repeat: { pattern: interval } });
+      for (const { interval, type } of CRON_CONFIG) {
+        const matchingQueue = this.queues.find(q => q.name === type);
+
+        if (!matchingQueue) {
+          throw new Error(`No job implementation found for type "${type}".`);
+        }
+
+        logger.info(`[v2] Scheduling cron job`, { type, interval });
+        await matchingQueue.add(type, {}, { repeat: { pattern: interval } });
+      }
     }
 
     for (const jobName of STARTUP_JOBS) {

@@ -5,6 +5,8 @@ import { getThreadIndex } from '../env';
 import { getPrismaPrometheusMetrics } from '../prisma';
 
 class PrometheusService {
+  private baseLabels: Record<string, string>;
+
   private registry: Registry;
   private jobHistogram: Histogram<'jobName' | 'status'>;
   private jobQueueGauge: Gauge<'queueName' | 'state'>;
@@ -17,12 +19,19 @@ class PrometheusService {
   private pushInterval: NodeJS.Timeout | null = null;
 
   constructor() {
-    this.registry = new prometheus.Registry();
+    const threadIndex = getThreadIndex();
 
-    this.registry.setDefaultLabels({
+    this.baseLabels = {
       app: process.env.SERVER_TYPE ?? 'dev',
-      threadIndex: getThreadIndex()
-    });
+      ...(threadIndex === null
+        ? {}
+        : {
+            threadIndex: threadIndex.toString()
+          })
+    };
+
+    this.registry = new prometheus.Registry();
+    this.registry.setDefaultLabels(this.baseLabels);
 
     prometheus.collectDefaultMetrics({ register: this.registry });
 
@@ -110,7 +119,7 @@ class PrometheusService {
 
     const metricsResult = await combineAsync([
       fromPromise(this.registry.metrics()),
-      fromPromise(getPrismaPrometheusMetrics())
+      fromPromise(getPrismaPrometheusMetrics(this.baseLabels))
     ]);
 
     if (isErrored(metricsResult)) {

@@ -8,7 +8,7 @@ import { logger } from '../services/logger.service';
 import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 import prometheus from './../services/prometheus.service';
 import router from './routing';
-import { getRequestIpHash } from './util/request';
+import { getRequestIp, getRequestIpHash } from './util/request';
 import { parseUserAgent } from './util/user-agents';
 
 const RATE_LIMIT_MAX_REQUESTS = 20;
@@ -58,6 +58,36 @@ class APIInstance {
     this.express.use(express.urlencoded({ extended: true }));
     this.express.use(cors());
 
+    // Register each http request for metrics processing
+    this.express.use((req, res, next) => {
+      // Browsers block sending a custom user agent, so we're sending a custom header in our webapp
+      const userAgentHeader = req.get('X-User-Agent') || req.get('User-Agent');
+      const userAgent = parseUserAgent(userAgentHeader, req.useragent);
+
+      res.locals.userAgent = userAgent;
+
+      const endTimer = prometheus.trackHttpRequest();
+
+      res.on('finish', () => {
+        const route = req.route ? `${req.baseUrl}${req.route.path}` : '*';
+        if (route.startsWith('/metrics')) return;
+
+        const status = res.statusCode;
+        const method = req.method;
+
+        const origin = res.locals.apiKey ? `${res.locals.apiKey}-${userAgent}` : userAgent;
+
+        endTimer({
+          route,
+          status,
+          method,
+          userAgent: origin
+        });
+      });
+
+      next();
+    });
+
     // Check the API key or IP of the request origin, and consume rate limit points accordingly
     this.express.use(async (req, res, next) => {
       // Ignore rate limits while running tests
@@ -69,7 +99,7 @@ class APIInstance {
       const ipHash = getRequestIpHash(req);
 
       const isBlocked =
-        ipHash !== null && (await redisClient.get(buildCompoundRedisKey('api-blocked', ipHash)));
+        ipHash !== null && (await redisClient.get(buildCompoundRedisKey('api_blocked', ipHash)));
 
       if (isBlocked) {
         res.status(429).json({
@@ -84,7 +114,7 @@ class APIInstance {
       let isTrustedOrigin = false;
 
       if (apiKey) {
-        const activeKey = await redisClient.get(buildCompoundRedisKey('api-key', apiKey));
+        const activeKey = await redisClient.get(buildCompoundRedisKey('api_key', apiKey));
 
         if (activeKey === null) {
           return res.status(403).json({
@@ -104,7 +134,7 @@ class APIInstance {
         return next();
       }
 
-      const consumerId = apiKey ?? req.ip;
+      const consumerId = apiKey ?? getRequestIp(req);
 
       if (consumerId === undefined) {
         return res.status(403).json({
@@ -143,38 +173,6 @@ class APIInstance {
             message: 'Too Many Requests. Please check https://docs.wiseoldman.net/#rate-limits--api-keys.'
           });
         });
-    });
-
-    // Register each http request for metrics processing
-    this.express.use((req, res, next) => {
-      // Browsers block sending a custom user agent, so we're sending a custom header in our webapp
-      const userAgentHeader = req.get('X-User-Agent') || req.get('User-Agent');
-      const userAgent = parseUserAgent(userAgentHeader, req.useragent);
-
-      res.locals.userAgent = userAgent;
-
-      const endTimer = prometheus.trackHttpRequest();
-
-      res.on('finish', () => {
-        if (!req.route) return;
-
-        const route = `${req.baseUrl}${req.route.path}`;
-        if (route.startsWith('/metrics')) return;
-
-        const status = res.statusCode;
-        const method = req.method;
-
-        const origin = res.locals.apiKey ? `${res.locals.apiKey}-${userAgent}` : userAgent;
-
-        endTimer({
-          route,
-          status,
-          method,
-          userAgent: origin
-        });
-      });
-
-      next();
     });
   }
 

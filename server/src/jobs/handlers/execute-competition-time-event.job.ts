@@ -62,6 +62,7 @@ export const ExecuteCompetitionTimeEventJobHandler: JobHandler<Payload> = {
 
         break;
       }
+      case CompetitionTimeEventType.AFTER_START:
       case CompetitionTimeEventType.DURING: {
         // TODO: There are no during tasks just yet
         await completeEvent(event);
@@ -74,6 +75,7 @@ export const ExecuteCompetitionTimeEventJobHandler: JobHandler<Payload> = {
 
 async function completeEvent(event: CompetitionTimeEvent) {
   switch (event.type) {
+    case CompetitionTimeEventType.AFTER_START:
     case CompetitionTimeEventType.BEFORE_START:
     case CompetitionTimeEventType.BEFORE_END: {
       await prisma.competitionTimeEvent.update({

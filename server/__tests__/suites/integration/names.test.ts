@@ -528,6 +528,50 @@ describe('Names API', () => {
       expect(secondFetchResponse.status).toBe(200);
       expect(secondFetchResponse.body.length).toBe(2);
     });
+
+    it('should filter out name changes whose oldName matches an archive username', async () => {
+      const archivePlayer = await prisma.player.create({
+        data: {
+          username: 'archive12345',
+          displayName: 'archive12345',
+          archives: {
+            create: {
+              previousUsername: 'boyd stevens',
+              archiveUsername: 'archive12345',
+              createdAt: new Date()
+            }
+          }
+        }
+      });
+
+      await prisma.snapshot.create({
+        data: {
+          ...buildHiscoresSnapshot(
+            archivePlayer.id,
+            HiscoresDataSchema.parse(JSON.parse(globalData.hiscoresRawData))
+          ),
+          playerId: archivePlayer.id
+        }
+      });
+
+      const submitResponse = await api.post(`/names`).send({
+        oldName: 'archive12345',
+        newName: 'Boyd Stevens'
+      });
+
+      expect(submitResponse.status).toBe(201);
+
+      const approveResponse = await api
+        .post(`/names/${submitResponse.body.id}/approve`)
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+
+      expect(approveResponse.status).toBe(200);
+
+      // The name change from archive12345 -> Boyd Stevens should be filtered out
+      const fetchResponse = await api.get(`/players/Boyd Stevens/names`);
+      expect(fetchResponse.status).toBe(200);
+      expect(fetchResponse.body.find(n => n.oldName === 'archive12345')).toBeUndefined();
+    });
   });
 
   describe('5 - Denying', () => {

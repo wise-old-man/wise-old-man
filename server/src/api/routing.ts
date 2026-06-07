@@ -12,7 +12,6 @@ import nameRouter from './modules/name-changes/name-change.router';
 import patronRouter from './modules/patrons/patron.router';
 import playerRouter from './modules/players/player.router';
 import recordRouter from './modules/records/record.router';
-import sailingRouter from './modules/sailing.router';
 
 class RoutingHandler {
   router: express.Router;
@@ -44,7 +43,6 @@ class RoutingHandler {
     this.router.use(patronRouter);
     this.router.use(playerRouter);
     this.router.use(recordRouter);
-    this.router.use(sailingRouter);
   }
 
   setupFallbacks() {
@@ -78,7 +76,7 @@ class RoutingHandler {
 
     // Handle errors
     this.router.use((error, req, res, _) => {
-      const { method, query, params, body, originalUrl } = req;
+      const { method, query, params, originalUrl } = req;
 
       const statusCode = error.statusCode ?? 500;
 
@@ -116,8 +114,7 @@ class RoutingHandler {
         {
           request: {
             query,
-            params,
-            body
+            params
           },
           error: {
             ...errorResponse,

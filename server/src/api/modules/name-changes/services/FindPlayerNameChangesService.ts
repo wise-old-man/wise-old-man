@@ -4,25 +4,39 @@ import { NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 
 async function findPlayerNameChanges(username: string): Promise<NameChange[]> {
-  // Query the database for all (approved) name changes of "playerId"
-  const nameChanges = await prisma.nameChange.findMany({
-    where: {
-      player: {
-        username: standardizeUsername(username),
-        annotations: {
-          none: {
-            type: PlayerAnnotationType.OPT_OUT
+  const [nameChanges, playerArchives] = await Promise.all([
+    prisma.nameChange.findMany({
+      where: {
+        player: {
+          username: standardizeUsername(username),
+          annotations: {
+            none: {
+              type: PlayerAnnotationType.OPT_OUT
+            }
           }
-        }
+        },
+        status: NameChangeStatus.APPROVED
       },
-      status: NameChangeStatus.APPROVED
-    },
-    orderBy: {
-      resolvedAt: 'desc'
-    }
-  });
+      orderBy: {
+        resolvedAt: 'desc'
+      }
+    }),
+    prisma.playerArchive.findMany({
+      where: {
+        player: {
+          username: standardizeUsername(username)
+        }
+      }
+    })
+  ]);
 
-  if (nameChanges.length === 0) {
+  const archiveUsernames = playerArchives.map(a => a.archiveUsername);
+
+  const filteredNameChanges = nameChanges.filter(
+    nameChange => !archiveUsernames.includes(nameChange.oldName)
+  );
+
+  if (filteredNameChanges.length === 0) {
     const player = await prisma.player.findFirst({
       where: { username: standardizeUsername(username) }
     });
@@ -32,7 +46,7 @@ async function findPlayerNameChanges(username: string): Promise<NameChange[]> {
     }
   }
 
-  return nameChanges as NameChange[];
+  return filteredNameChanges as NameChange[];
 }
 
 export { findPlayerNameChanges };

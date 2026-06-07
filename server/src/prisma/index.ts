@@ -78,8 +78,8 @@ const extendedClient = prisma.$extends({
   }
 });
 
-function getPrismaPrometheusMetrics() {
-  return prisma.$metrics.prometheus();
+function getPrismaPrometheusMetrics(labels: Record<string, string>) {
+  return prisma.$metrics.prometheus({ globalLabels: labels });
 }
 
 export { getPrismaPrometheusMetrics, PrismaPromise, Prisma as PrismaTypes };

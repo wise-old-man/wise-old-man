@@ -2,13 +2,13 @@ import { AddPlayersToGroupCompetitionsJobHandler } from './handlers/add-players-
 import { AssertPlayerTypeJobHandler } from './handlers/assert-player-type.job';
 import { BackfillCompetitionTimeEventsJobHandler } from './handlers/backfill-competition-time-events.job';
 import { CalculateComputedRankTablesJobHandler } from './handlers/calculate-computed-rank-tables.job';
-import { CalculateSailingExpTrendJobHandler } from './handlers/calculate-sailing-exp-trend.job';
 import { CheckCreationSpamJobHandler } from './handlers/check-creation-spam.job';
 import { CheckInappropriateContentJobHandler } from './handlers/check-inappropriate-content.job';
 import { CheckMissingComputedRankTablesJobHandler } from './handlers/check-missing-computed-rank-tables.job';
 import { CheckPlayerBannedJobHandler } from './handlers/check-player-banned.job';
 import { CheckPlayerRankedJobHandler } from './handlers/check-player-ranked.job';
 import { CheckProtectedPlayersSpamJobHandler } from './handlers/check-protected-players-spam.job';
+import { CheckSuspiciousGroupSizeJobHandler } from './handlers/check-suspicious-group-size.job';
 import { DispatchCompetitionCreatedDiscordEventJobHandler } from './handlers/dispatch-competition-created-discord-event.job';
 import { DispatchCompetitionEndedDiscordEventJobHandler } from './handlers/dispatch-competition-ended-discord-event.job';
 import { DispatchCompetitionEndingDiscordEventJobHandler } from './handlers/dispatch-competition-ending-discord-event.job';
@@ -36,7 +36,6 @@ import { ScheduleGroupScoreUpdatesJobHandler } from './handlers/schedule-group-s
 import { ScheduleNameChangeReviewsJobHandler } from './handlers/schedule-name-change-reviews.job';
 import { SchedulePatronGroupUpdatesJobHandler } from './handlers/schedule-patron-group-updates.job';
 import { SchedulePatronPlayerUpdatesJobHandler } from './handlers/schedule-patron-player-updates.job';
-import { ScheduleTrendDatapointCalculationsJobHandler } from './handlers/schedule-trend-datapoint-calculations.job';
 import { SyncApiKeysJobHandler } from './handlers/sync-api-keys.job';
 import { SyncPatronsJobHandler } from './handlers/sync-patrons.job';
 import { SyncPlayerAchievementsJobHandler } from './handlers/sync-player-achievements.job';
@@ -58,13 +57,13 @@ export const JOB_HANDLER_MAP = {
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJobHandler,
   [JobType.BACKFILL_COMPETITION_TIME_EVENTS]: BackfillCompetitionTimeEventsJobHandler,
   [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJobHandler,
-  [JobType.CALCULATE_SAILING_EXP_TREND]: CalculateSailingExpTrendJobHandler,
   [JobType.CHECK_CREATION_SPAM]: CheckCreationSpamJobHandler,
   [JobType.CHECK_INAPPROPRIATE_CONTENT]: CheckInappropriateContentJobHandler,
   [JobType.CHECK_MISSING_COMPUTED_RANK_TABLES]: CheckMissingComputedRankTablesJobHandler,
   [JobType.CHECK_PLAYER_BANNED]: CheckPlayerBannedJobHandler,
   [JobType.CHECK_PLAYER_RANKED]: CheckPlayerRankedJobHandler,
   [JobType.CHECK_PROTECED_PLAYERS_SPAM]: CheckProtectedPlayersSpamJobHandler,
+  [JobType.CHECK_SUSPICIOUS_GROUP_SIZE]: CheckSuspiciousGroupSizeJobHandler,
   [JobType.DISPATCH_COMPETITION_CREATED_DISCORD_EVENT]: DispatchCompetitionCreatedDiscordEventJobHandler,
   [JobType.DISPATCH_COMPETITION_ENDED_DISCORD_EVENT]: DispatchCompetitionEndedDiscordEventJobHandler,
   [JobType.DISPATCH_COMPETITION_ENDING_DISCORD_EVENT]: DispatchCompetitionEndingDiscordEventJobHandler,
@@ -92,7 +91,6 @@ export const JOB_HANDLER_MAP = {
   [JobType.SCHEDULE_NAME_CHANGE_REVIEWS]: ScheduleNameChangeReviewsJobHandler,
   [JobType.SCHEDULE_PATRON_GROUP_UPDATES]: SchedulePatronGroupUpdatesJobHandler,
   [JobType.SCHEDULE_PATRON_PLAYER_UPDATES]: SchedulePatronPlayerUpdatesJobHandler,
-  [JobType.SCHEDULE_TREND_DATAPOINT_CALCULATIONS]: ScheduleTrendDatapointCalculationsJobHandler,
   [JobType.SYNC_API_KEYS]: SyncApiKeysJobHandler,
   [JobType.SYNC_PATRONS]: SyncPatronsJobHandler,
   [JobType.SYNC_PLAYER_ACHIEVEMENTS]: SyncPlayerAchievementsJobHandler,
@@ -124,7 +122,6 @@ export const CRON_CONFIG = [
   // every hour
   { interval: '0 * * * *', type: JobType.BACKFILL_COMPETITION_TIME_EVENTS },
   { interval: '0 * * * *', type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW },
-  { interval: '0 * * * *', type: JobType.SCHEDULE_TREND_DATAPOINT_CALCULATIONS },
   // every 6 hours
   { interval: '0 */6 * * *', type: JobType.INVALIDATE_DELTAS },
   // everyday at 8:00 UTC
