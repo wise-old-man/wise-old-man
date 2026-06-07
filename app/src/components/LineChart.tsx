@@ -42,6 +42,7 @@ interface LineChartProps {
   xAxisLabelFormatter?: (label: string, index: number) => string;
   tooltipLabelFormatter?: (label: string) => string;
   tooltipValueFormatter?: (value: number) => string;
+  showDelta: boolean;
 }
 
 export default function LineChart(props: LineChartProps) {
@@ -56,6 +57,7 @@ export default function LineChart(props: LineChartProps) {
     yAxisValueFormatter,
     tooltipLabelFormatter,
     tooltipValueFormatter,
+    showDelta
   } = props;
 
   const chartElementRef = useRef<HTMLDivElement>(null);
@@ -191,14 +193,14 @@ export default function LineChart(props: LineChartProps) {
 
               const { name, value, stroke } = payload[0];
               const firstDataPointValue = datasets[0].data[datasets[0].data.length-1].value
-              const delta = value - firstDataPointValue;
+              const delta = showDelta ? (value - firstDataPointValue) : undefined;
               return (
                 <ChartTooltip
                   stroke={stroke}
                   name={String(name) || "Value"}
                   value={valueFormatter(Number(value))}
                   label={labelFormatter(label)}
-                  delta={valueFormatter(delta)}
+                  delta={delta && valueFormatter(delta) || undefined}
                 />
               );
             }}
