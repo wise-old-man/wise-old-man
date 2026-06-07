@@ -1,7 +1,7 @@
 ---
 title: 'Join a Competition'
 slug: /guides/how-to-join-a-competition
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 ### Overview

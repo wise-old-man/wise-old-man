@@ -1,7 +1,7 @@
 ---
 title: 'Start Tracking'
 slug: /guides/how-to-start-tracking
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 ### Overview

@@ -1,7 +1,7 @@
 ---
 title: 'Create a Competition'
 slug: /guides/how-to-create-a-competition
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 ### Overview
