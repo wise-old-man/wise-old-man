@@ -38,7 +38,6 @@ export function CompetitionTopParticipantsChart(props: CompetitionTopParticipant
     <LineChartSSR
       datasets={datasets}
       showLegend
-      showDelta={false}
       tooltipValueFormatter={(value) => {
         if (value === 0) return "0";
         return `+${formatNumber(value, false)}`;

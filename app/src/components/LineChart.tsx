@@ -42,7 +42,7 @@ interface LineChartProps {
   xAxisLabelFormatter?: (label: string, index: number) => string;
   tooltipLabelFormatter?: (label: string) => string;
   tooltipValueFormatter?: (value: number) => string;
-  showDelta: boolean;
+  showDelta?: boolean;
 }
 
 export default function LineChart(props: LineChartProps) {
