@@ -383,7 +383,6 @@ async function updateMembers(
       );
 
       const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, members);
-      debugger;
       const memberJoinedAtUpdate = calculatePlayersNeedingUpdate(memberships, members);
 
       for (const mem of memberJoinedAtUpdate) {
