@@ -121,10 +121,11 @@ const groupRoleSchema = z.nativeEnum(GroupRole);
 export const memberSchema = z.object(
   {
     username: z.string(),
-    role: z.optional(groupRoleSchema).default(GroupRole.MEMBER) as unknown as typeof groupRoleSchema
+    role: z.optional(groupRoleSchema).default(GroupRole.MEMBER) as unknown as typeof groupRoleSchema,
+    joinedAt: z.nullable(z.string())
   },
   {
-    invalid_type_error: 'Invalid members list. Must be an array of { username: string; role?: string; }.'
+    invalid_type_error: 'Invalid members list. Must be an array of { username: string; role?: string; joinedAt?: number; }.'
   }
 );
 

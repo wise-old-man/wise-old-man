@@ -11,5 +11,5 @@ import { pick } from '../../utils/pick.util';
 export type MembershipResponse = Membership;
 
 export function formatMembershipResponse(membership: Membership): MembershipResponse {
-  return pick(membership, 'playerId', 'groupId', 'role', 'createdAt', 'updatedAt');
+  return pick(membership, 'playerId', 'groupId', 'role', 'createdAt', 'updatedAt', 'joinedAt');
 }

@@ -35,7 +35,7 @@ interface EditGroupPayload {
     twitch?: string | null;
     youtube?: string | null;
   };
-  members?: Array<{ username: string; role: GroupRole }>;
+  members?: Array<{ username: string; role: GroupRole; joinedAt: string | null }>;
   roleOrders?: Array<{ role: GroupRole; index: number }>;
 }
 
@@ -236,7 +236,10 @@ export async function editGroup(
   return complete(transactionResult.value.updatedGroup);
 }
 
-async function updateMembers(groupId: number, members: Array<{ username: string; role: GroupRole }>) {
+async function updateMembers(
+  groupId: number,
+  members: Array<{ username: string; role: GroupRole; joinedAt: string | null }>
+) {
   const memberships = await prisma.membership.findMany({
     where: { groupId },
     include: { player: true }
@@ -380,6 +383,24 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
       );
 
       const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, members);
+      debugger;
+      const memberJoinedAtUpdate = calculatePlayersNeedingUpdate(memberships, members);
+
+      for (const mem of memberJoinedAtUpdate) {
+        if (mem.joinedAt) {
+          await transaction.membership.update({
+            where: {
+              playerId_groupId: {
+                playerId: mem.playerId,
+                groupId
+              }
+            },
+            data: {
+              joinedAt: new Date(mem.joinedAt)
+            }
+          });
+        }
+      }
 
       const currentRoleMap = new Map<number, GroupRole>(
         Array.from(memberships).map(m => [m.playerId, m.role])
@@ -496,6 +517,29 @@ async function addMissingMemberships(
   });
 
   return payload;
+}
+
+function calculatePlayersNeedingUpdate(
+  currentMemberships: (Membership & { player: Player })[],
+  memberInputs: Array<{ username: string; role: GroupRole; joinedAt: string | null }>
+) {
+  const needJoinedAtUpdate = new Array<{ username: string; role: GroupRole; joinedAt: string | null, playerId: number }>();
+
+  memberInputs.forEach(m => {
+    if (m.joinedAt != null) {
+      const currentMember = currentMemberships.find(mem => mem.player.username === m.username);
+      if(!currentMember) {
+        return;
+      }
+      if(!currentMember.joinedAt) {
+        needJoinedAtUpdate.push({...m, playerId: currentMember.playerId});
+      } else if (new Date(currentMember.joinedAt.toLocaleDateString()).getTime() !== new Date(m.joinedAt).getTime()) {
+        needJoinedAtUpdate.push({...m, playerId: currentMember.playerId});
+      }
+    }
+  });
+
+  return needJoinedAtUpdate;
 }
 
 function calculateRoleChangeMaps(
