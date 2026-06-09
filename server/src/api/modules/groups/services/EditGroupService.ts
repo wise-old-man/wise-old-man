@@ -383,21 +383,26 @@ async function updateMembers(
       );
 
       const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, members);
-      const memberJoinedAtUpdate = calculatePlayersNeedingUpdate(memberships, members);
 
-      for (const mem of memberJoinedAtUpdate) {
+      // Update joinedAt if needed for existing memberships that don't have a joinedAt date yet.
+      for (const mem of members) {
         if (mem.joinedAt) {
-          await transaction.membership.update({
-            where: {
-              playerId_groupId: {
-                playerId: mem.playerId,
-                groupId
+          const currentMembership = memberships.find(
+            membership => membership.player.username === standardizeUsername(mem.username)
+          );
+          if (!!currentMembership && !currentMembership?.joinedAt) {
+            await transaction.membership.update({
+              where: {
+                playerId_groupId: {
+                  playerId: currentMembership.playerId,
+                  groupId
+                }
+              },
+              data: {
+                joinedAt: new Date(mem.joinedAt)
               }
-            },
-            data: {
-              joinedAt: new Date(mem.joinedAt)
-            }
-          });
+            });
+          }
         }
       }
 
@@ -489,15 +494,18 @@ async function addMissingMemberships(
   transaction: PrismaTypes.TransactionClient,
   groupId: number,
   missingPlayers: Player[],
-  memberInputs: Array<{ username: string; role: GroupRole }>
+  memberInputs: Array<{ username: string; role: GroupRole; joinedAt: string | null }>
 ) {
   const roleMap: { [playerId: number]: GroupRole } = {};
+  const joinedAtMap: { [playerId: number]: Date | null } = {};
 
   missingPlayers.forEach(player => {
     const role = memberInputs.find(m => standardizeUsername(m.username) === player.username)?.role;
+    const joinedAt = memberInputs.find(m => standardizeUsername(m.username) === player.username)?.joinedAt;
     if (!role) return;
 
     roleMap[player.id] = role;
+    joinedAtMap[player.id] = joinedAt ? new Date(joinedAt) : null;
   });
 
   if (Object.keys(roleMap).length !== missingPlayers.length) {
@@ -507,7 +515,8 @@ async function addMissingMemberships(
   const payload = missingPlayers.map(p => ({
     playerId: p.id,
     groupId,
-    role: roleMap[p.id]
+    role: roleMap[p.id],
+    joinedAt: joinedAtMap[p.id]
   }));
 
   await transaction.membership.createMany({
@@ -516,29 +525,6 @@ async function addMissingMemberships(
   });
 
   return payload;
-}
-
-function calculatePlayersNeedingUpdate(
-  currentMemberships: (Membership & { player: Player })[],
-  memberInputs: Array<{ username: string; role: GroupRole; joinedAt: string | null }>
-) {
-  const needJoinedAtUpdate = new Array<{ username: string; role: GroupRole; joinedAt: string | null, playerId: number }>();
-
-  memberInputs.forEach(m => {
-    if (m.joinedAt != null) {
-      const currentMember = currentMemberships.find(mem => mem.player.username === m.username);
-      if(!currentMember) {
-        return;
-      }
-      if(!currentMember.joinedAt) {
-        needJoinedAtUpdate.push({...m, playerId: currentMember.playerId});
-      } else if (new Date(currentMember.joinedAt.toLocaleDateString()).getTime() !== new Date(m.joinedAt).getTime()) {
-        needJoinedAtUpdate.push({...m, playerId: currentMember.playerId});
-      }
-    }
-  });
-
-  return needJoinedAtUpdate;
 }
 
 function calculateRoleChangeMaps(
