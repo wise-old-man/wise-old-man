@@ -35,7 +35,7 @@ interface EditGroupPayload {
     twitch?: string | null;
     youtube?: string | null;
   };
-  members?: Array<{ username: string; role: GroupRole; joinedAt: string | null }>;
+  members?: Array<{ username: string; role: GroupRole; joinedAt?: string | null }>;
   roleOrders?: Array<{ role: GroupRole; index: number }>;
 }
 
@@ -238,7 +238,7 @@ export async function editGroup(
 
 async function updateMembers(
   groupId: number,
-  members: Array<{ username: string; role: GroupRole; joinedAt: string | null }>
+  members: Array<{ username: string; role: GroupRole; joinedAt?: string | null }>
 ) {
   const memberships = await prisma.membership.findMany({
     where: { groupId },
@@ -494,7 +494,7 @@ async function addMissingMemberships(
   transaction: PrismaTypes.TransactionClient,
   groupId: number,
   missingPlayers: Player[],
-  memberInputs: Array<{ username: string; role: GroupRole; joinedAt: string | null }>
+  memberInputs: Array<{ username: string; role: GroupRole; joinedAt?: string | null }>
 ) {
   const roleMap: { [playerId: number]: GroupRole } = {};
   const joinedAtMap: { [playerId: number]: Date | null } = {};

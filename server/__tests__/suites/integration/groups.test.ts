@@ -138,7 +138,7 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(
-        'Invalid members list. Must be an array of { username: string; role?: string; }.'
+        'Invalid members list. Must be an array of { username: string; role?: string; joinedAt?: number | null; }.'
       );
 
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -481,7 +481,8 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body).toMatchObject({
         code: 'VALIDATION_ERROR',
-        message: 'Invalid members list. Must be an array of { username: string; role?: string; }.'
+        message:
+          'Invalid members list. Must be an array of { username: string; role?: string; joinedAt?: number | null; }.'
       });
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
