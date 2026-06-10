@@ -501,7 +501,9 @@ async function addMissingMemberships(
 
   missingPlayers.forEach(player => {
     const role = memberInputs.find(m => standardizeUsername(m.username) === player.username)?.role;
-    const clientSyncJoinedAt = memberInputs.find(m => standardizeUsername(m.username) === player.username)?.clientSyncJoinedAt;
+    const clientSyncJoinedAt = memberInputs.find(
+      m => standardizeUsername(m.username) === player.username
+    )?.clientSyncJoinedAt;
     if (!role) return;
 
     roleMap[player.id] = role;
