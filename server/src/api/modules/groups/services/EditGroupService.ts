@@ -35,7 +35,7 @@ interface EditGroupPayload {
     twitch?: string | null;
     youtube?: string | null;
   };
-  members?: Array<{ username: string; role: GroupRole; joinedAt?: string | null }>;
+  members?: Array<{ username: string; role: GroupRole; clientSyncJoinedAt?: string | null }>;
   roleOrders?: Array<{ role: GroupRole; index: number }>;
 }
 
@@ -238,7 +238,7 @@ export async function editGroup(
 
 async function updateMembers(
   groupId: number,
-  members: Array<{ username: string; role: GroupRole; joinedAt?: string | null }>
+  members: Array<{ username: string; role: GroupRole; clientSyncJoinedAt?: string | null }>
 ) {
   const memberships = await prisma.membership.findMany({
     where: { groupId },
@@ -384,13 +384,13 @@ async function updateMembers(
 
       const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, members);
 
-      // Update joinedAt if needed for existing memberships that don't have a joinedAt date yet.
+      // Update clientSyncJoinedAt if needed for existing memberships that don't have a clientSyncJoinedAt date yet.
       for (const mem of members) {
-        if (mem.joinedAt) {
+        if (mem.clientSyncJoinedAt) {
           const currentMembership = memberships.find(
             membership => membership.player.username === standardizeUsername(mem.username)
           );
-          if (!!currentMembership && !currentMembership?.joinedAt) {
+          if (!!currentMembership && !currentMembership?.clientSyncJoinedAt) {
             await transaction.membership.update({
               where: {
                 playerId_groupId: {
@@ -399,7 +399,7 @@ async function updateMembers(
                 }
               },
               data: {
-                joinedAt: new Date(mem.joinedAt)
+                clientSyncJoinedAt: new Date(mem.clientSyncJoinedAt)
               }
             });
           }
@@ -494,18 +494,18 @@ async function addMissingMemberships(
   transaction: PrismaTypes.TransactionClient,
   groupId: number,
   missingPlayers: Player[],
-  memberInputs: Array<{ username: string; role: GroupRole; joinedAt?: string | null }>
+  memberInputs: Array<{ username: string; role: GroupRole; clientSyncJoinedAt?: string | null }>
 ) {
   const roleMap: { [playerId: number]: GroupRole } = {};
-  const joinedAtMap: { [playerId: number]: Date | null } = {};
+  const clientSyncJoinedAtMap: { [playerId: number]: Date | null } = {};
 
   missingPlayers.forEach(player => {
     const role = memberInputs.find(m => standardizeUsername(m.username) === player.username)?.role;
-    const joinedAt = memberInputs.find(m => standardizeUsername(m.username) === player.username)?.joinedAt;
+    const clientSyncJoinedAt = memberInputs.find(m => standardizeUsername(m.username) === player.username)?.clientSyncJoinedAt;
     if (!role) return;
 
     roleMap[player.id] = role;
-    joinedAtMap[player.id] = joinedAt ? new Date(joinedAt) : null;
+    clientSyncJoinedAtMap[player.id] = clientSyncJoinedAt ? new Date(clientSyncJoinedAt) : null;
   });
 
   if (Object.keys(roleMap).length !== missingPlayers.length) {
@@ -516,7 +516,7 @@ async function addMissingMemberships(
     playerId: p.id,
     groupId,
     role: roleMap[p.id],
-    joinedAt: joinedAtMap[p.id]
+    clientSyncJoinedAt: clientSyncJoinedAtMap[p.id]
   }));
 
   await transaction.membership.createMany({

@@ -6,5 +6,5 @@ export interface Membership {
   role: GroupRole;
   createdAt: Date;
   updatedAt: Date;
-  joinedAt: Date | null;
+  clientSyncJoinedAt: Date | null;
 }
