@@ -61,22 +61,33 @@ sidebar_position: 1
 
 <br />
 
+### `(Object)` Competition Metric
+
+| Field     | Type                                               | Description                                                                |
+| :-------- | :------------------------------------------------- | :------------------------------------------------------------------------- |
+| metric    | [Metric](/api/global-type-definitions#enum-metric) | The metric.                                                                |
+| weight    | number                                             | The metric's weight towards the competition's combined `"total"` progress. |
+| createdAt | date                                               | The date at which this metric was added to the competition.                |
+
+<br />
+
 ### `(Object)` Competition
 
-| Field            | Type                                                                                    | Description                                     |
-| :--------------- | :-------------------------------------------------------------------------------------- | :---------------------------------------------- |
-| id               | integer                                                                                 | The competition's unique ID.                    |
-| title            | string                                                                                  | The competition's title.                        |
-| metric           | [Metric](/api/global-type-definitions#enum-metric)                                      | The competition's metric.                       |
-| type             | [CompetitionType](/api/competitions/competition-type-definitions#enum-competition-type) | The competition's type.                         |
-| startsAt         | date                                                                                    | The competition's start date.                   |
-| endsAt           | date                                                                                    | The competition's end date.                     |
-| groupId          | integer?                                                                                | The competition's host group ID.                |
-| score            | integer                                                                                 | The competition's global ranking score.         |
-| createdAt        | date                                                                                    | The competition's creation date.                |
-| updatedAt        | date                                                                                    | The competition's last modification date.       |
-| participantCount | number                                                                                  | The competition's total number of participants. |
-| group            | [Group](/api/groups/group-type-definitions#object-group)                                | The competition's host group.                   |
+| Field            | Type                                                                                            | Description                                                                 |
+| :--------------- | :---------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------- |
+| id               | integer                                                                                         | The competition's unique ID.                                                |
+| title            | string                                                                                          | The competition's title.                                                    |
+| metric           | [Metric](/api/global-type-definitions#enum-metric)                                              | **(⚠️ Deprecated, use `metrics` instead)** The competition's first metric.  |
+| metrics          | [CompetitionMetric](/api/competitions/competition-type-definitions#object-competition-metric)[] | The competition's metrics. (Multiple entries for multi-metric competitions) |
+| type             | [CompetitionType](/api/competitions/competition-type-definitions#enum-competition-type)         | The competition's type.                                                     |
+| startsAt         | date                                                                                            | The competition's start date.                                               |
+| endsAt           | date                                                                                            | The competition's end date.                                                 |
+| groupId          | integer?                                                                                        | The competition's host group ID.                                            |
+| score            | integer                                                                                         | The competition's global ranking score.                                     |
+| createdAt        | date                                                                                            | The competition's creation date.                                            |
+| updatedAt        | date                                                                                            | The competition's last modification date.                                   |
+| participantCount | number                                                                                          | The competition's total number of participants.                             |
+| group            | [Group](/api/groups/group-type-definitions#object-group)                                        | The competition's host group.                                               |
 
 <br />
 
