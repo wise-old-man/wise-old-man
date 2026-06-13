@@ -75,7 +75,7 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
         <CompetitionDetailsNavigation competition={competition} />
       </div>
       {/* TODO: Fix this */}
-      <CompetitionPreviewWarning trueMetric={competition.metrics[0]} />
+      <CompetitionPreviewWarning trueMetric={competition.metrics[0].metric} />
       {children}
 
       {/* Dialogs */}
@@ -83,7 +83,7 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
       <ExportCompetitionDialog competitionId={id} />
       <UpdateAllParticipantsDialog competitionId={id} />
       {/* TODO: Fix this */}
-      <PreviewMetricDialog trueMetric={competition.metrics[0]} />
+      <PreviewMetricDialog trueMetric={competition.metrics[0].metric} />
     </Container>
   );
 }
@@ -96,7 +96,12 @@ function Header(props: CompetitionDetailsResponse) {
   return (
     <div className="flex flex-col-reverse items-start justify-between gap-x-5 gap-y-7 md:flex-row">
       <div className="flex w-full grow items-center gap-x-3">
-        <MetricAvatarGroup metrics={metrics} maxCount={2} size="lg" avatarClassname="bg-gray-800" />
+        <MetricAvatarGroup
+          metrics={metrics.map((m) => m.metric)}
+          maxCount={2}
+          size="lg"
+          avatarClassname="bg-gray-800"
+        />
         <div>
           <h1 className="text-lg font-bold sm:text-2xl">{title}</h1>
           <div className="mt-1 text-xs text-gray-200 sm:mt-0 sm:text-body">
@@ -111,7 +116,7 @@ function Header(props: CompetitionDetailsResponse) {
             {metrics.length === 1 && (
               <>
                 {" · "}
-                {MetricProps[metrics[0]].name}
+                {MetricProps[metrics[0].metric].name}
               </>
             )}
             {" · "}
