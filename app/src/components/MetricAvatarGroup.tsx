@@ -1,6 +1,7 @@
-import { Metric } from "@wise-old-man/utils";
+import { Metric, MetricProps } from "@wise-old-man/utils";
 import { MetricIcon } from "./Icon";
 import { cn } from "~/utils/styling";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 export function MetricAvatarGroup({
   metrics,
@@ -25,7 +26,7 @@ export function MetricAvatarGroup({
   const width = itemCount * itemSize - (itemCount - 1) * (itemSize - itemOffset);
 
   return (
-    <div style={{ width, height: itemSize }} className="relative flex flex-row">
+    <div style={{ width, height: itemSize }} className="relative flex shrink-0 flex-row">
       {metrics.slice(0, maxCount).map((metric, index) => (
         <div
           key={metric}
@@ -44,20 +45,34 @@ export function MetricAvatarGroup({
         </div>
       ))}
       {overflowCount > 0 && (
-        <div
-          className={cn(
-            "absolute flex shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200",
-            avatarClassname,
-          )}
-          style={{
-            zIndex: itemCount - 1,
-            width: itemSize,
-            height: itemSize,
-            left: (itemCount - 1) * itemOffset,
-          }}
-        >
-          +{overflowCount}
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              className={cn(
+                "absolute flex shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200",
+                avatarClassname,
+              )}
+              style={{
+                zIndex: itemCount - 1,
+                width: itemSize,
+                height: itemSize,
+                left: (itemCount - 1) * itemOffset,
+              }}
+            >
+              +{overflowCount}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            <div className="flex flex-col gap-y-1">
+              {metrics.slice(maxCount - 1).map((metric) => (
+                <div key={metric} className="flex items-center gap-x-2">
+                  <MetricIcon metric={metric} />
+                  <span>{MetricProps[metric].name}</span>
+                </div>
+              ))}
+            </div>
+          </TooltipContent>
+        </Tooltip>
       )}
     </div>
   );
