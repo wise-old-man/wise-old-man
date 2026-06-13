@@ -142,16 +142,16 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
         )}
       >
         <Image
-          alt={featured.metrics[0]}
+          alt={featured.metrics[0].metric}
           fill
           className="pointer-events-none z-0 object-cover transition-all duration-100 group-hover:brightness-110"
-          src={`/img/backgrounds/${featured.metrics[0]}.png`}
+          src={`/img/backgrounds/${featured.metrics[0].metric}.png`}
         />
         <div className="z-1 relative">
           {featured.metrics.length === 1 ? (
-            <MetricIcon metric={featured.metrics[0]} />
+            <MetricIcon metric={featured.metrics[0].metric} />
           ) : (
-            <MetricAvatarGroup metrics={featured.metrics} maxCount={2} />
+            <MetricAvatarGroup metrics={featured.metrics.map((m) => m.metric)} maxCount={2} />
           )}
         </div>
         <div className="z-1 relative flex flex-col gap-y-1">

@@ -61,16 +61,16 @@ function CompetitionCard(props: CompetitionResponse) {
         )}
       >
         <Image
-          alt={props.metrics[0]}
+          alt={props.metrics[0].metric}
           fill
           className="pointer-events-none z-0 object-cover transition-all duration-100 group-hover:brightness-110"
-          src={`/img/backgrounds/${props.metrics[0]}.png`}
+          src={`/img/backgrounds/${props.metrics[0].metric}.png`}
         />
         <div className="z-1 relative mr-1 shrink-0">
           {props.metrics.length === 1 ? (
-            <MetricIcon metric={props.metrics[0]} />
+            <MetricIcon metric={props.metrics[0].metric} />
           ) : (
-            <MetricAvatarGroup metrics={props.metrics} maxCount={2} />
+            <MetricAvatarGroup metrics={props.metrics.map((m) => m.metric)} maxCount={2} />
           )}
         </div>
         <div className="z-1 relative flex flex-col gap-y-1">
