@@ -1,8 +1,9 @@
 import * as Sentry from '@sentry/node';
 import express from 'express';
 import { ZodError } from 'zod';
+import { PrismaTypes } from '../prisma';
 import { logger } from '../services/logger.service';
-import { BadRequestErrorZ, NotFoundErrorZ } from './errors';
+import { BadRequestErrorZ, NotFoundErrorZ, ServerErrorZ } from './errors';
 import competitionRouter from './modules/competitions/competition.router';
 import deltaRouter from './modules/deltas/delta.router';
 import efficiencyRouter from './modules/efficiency/efficiency.router';
@@ -53,6 +54,15 @@ class RoutingHandler {
 
     // Catch and convert Zod errors to (400) BadRequest errors
     this.router.use((error, _req, _res, next) => {
+      if (error instanceof PrismaTypes.PrismaClientKnownRequestError) {
+        next(
+          new ServerErrorZ({
+            code: 'UNEXPECTED_DATABASE_ERROR'
+          })
+        );
+        return;
+      }
+
       if (!error || !Array.isArray(error) || error.length === 0) {
         next(error);
         return;

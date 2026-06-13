@@ -28,8 +28,8 @@ const ErrorMessageMap = {
   NO_SNAPSHOTS_TO_DELETE: `No snapshots found to delete`,
   NOTHING_TO_UPDATE: `Nothing to update`,
   OLD_STATS_NOT_FOUND: `Old stats for this name change could not be found`,
-  OPTED_OUT_PARTICIPANTS_FOUND: `One or more participants have opted out of joining competitions`,
   OPTED_OUT_MEMBERS_FOUND: `One or more members have opted out of joining groups`,
+  OPTED_OUT_PARTICIPANTS_FOUND: `One or more participants have opted out of joining competitions`,
   PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE: `Properties "participants" and "groupId" are mutually exclusive`,
   PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE: `Properties "participants" and "teams" are mutually exclusive`,
   PLAYER_IS_ARCHIVED: `Player is archived`,
@@ -41,6 +41,7 @@ const ErrorMessageMap = {
   ROLE_ORDER_MUST_HAVE_UNIQUE_INDEXES: `Role Order must contain unique indexes for each role`,
   ROLE_ORDER_MUST_HAVE_UNIQUE_ROLES: `Role Order must contain unique roles`,
   RUNELITE_NAME_CHANGE_DETECTED: `Name change detected (RuneLite)`,
+  UNEXPECTED_DATABASE_ERROR: `An unexpected database error occurred. Please try again later.`,
   VALIDATION_ERROR: `Validation error`
 } as const;
 
