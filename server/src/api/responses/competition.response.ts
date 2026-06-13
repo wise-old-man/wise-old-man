@@ -10,7 +10,11 @@ import { formatGroupResponse, GroupResponse } from './group.response';
 
 export interface CompetitionResponse extends Omit<Competition, 'verificationHash' | 'creatorIpHash'> {
   metric: Metric;
-  metrics: Metric[];
+  metrics: Array<{
+    weight: number;
+    metric: Metric;
+    createdAt: Date;
+  }>;
   participantCount: number;
   group?: GroupResponse;
 }
@@ -19,9 +23,7 @@ export function formatCompetitionResponse(
   competition: Competition & { metrics: CompetitionMetric[]; participantCount: number },
   group: (Group & { memberCount: number }) | null
 ): CompetitionResponse {
-  const sortedMetrics = competition.metrics
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-    .map(m => m.metric);
+  const sortedMetrics = competition.metrics.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 
   return {
     ...pick(
@@ -38,8 +40,11 @@ export function formatCompetitionResponse(
       'updatedAt'
     ),
     // Include both for backward compatibility, eventually we will remove `metric` field.
-    metric: sortedMetrics[0],
-    metrics: sortedMetrics,
+    metric: sortedMetrics[0].metric,
+    metrics: sortedMetrics.map(m => ({
+      weight: 1,
+      ...pick(m, 'metric', 'createdAt')
+    })),
     participantCount: competition.participantCount,
     group: group === null ? undefined : formatGroupResponse(group, group.memberCount)
   };

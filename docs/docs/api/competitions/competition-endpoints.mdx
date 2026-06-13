@@ -70,6 +70,13 @@ const competitions = await client.competitions.searchCompetitions(
     "id": 16730,
     "title": "Skill of The Week #18",
     "metric": "hunter",
+    "metrics": [
+      {
+        "metric": "hunter",
+        "weight": 1,
+        "createdAt": "2022-10-30T11:59:20.981Z"
+      }
+    ],
     "type": "classic",
     "startsAt": "2022-10-30T13:00:00.000Z",
     "endsAt": "2022-11-06T13:00:00.000Z",
@@ -98,6 +105,13 @@ const competitions = await client.competitions.searchCompetitions(
     "id": 16607,
     "title": "Smithing Skill of the Week",
     "metric": "smithing",
+    "metrics": [
+      {
+        "metric": "smithing",
+        "weight": 1,
+        "createdAt": "2022-10-25T14:57:11.701Z"
+      }
+    ],
     "type": "classic",
     "startsAt": "2022-10-26T04:00:00.000Z",
     "endsAt": "2022-11-02T04:00:00.000Z",
@@ -186,6 +200,13 @@ const competition = await client.competitions.getCompetitionDetails(123);
   "id": 1234,
   "title": "BOTW 1 (barrows)",
   "metric": "barrows_chests",
+  "metrics": [
+    {
+      "metric": "barrows_chests",
+      "weight": 1,
+      "createdAt": "2021-01-20T20:02:38.565Z"
+    }
+  ],
   "type": "classic",
   "startsAt": "2021-01-25T05:00:00.000Z",
   "endsAt": "2021-02-01T00:00:00.000Z",
@@ -574,6 +595,13 @@ const newCompetition = await client.competitions.createCompetition({
     "id": 7,
     "title": "Smithing SOTW",
     "metric": "smithing",
+    "metrics": [
+      {
+        "metric": "smithing",
+        "weight": 1,
+        "createdAt": "2022-11-01T00:46:24.688Z"
+      }
+    ],
     "type": "classic",
     "startsAt": "2022-12-19T10:00:00.000Z",
     "endsAt": "2022-12-26T10:00:00.000Z",
@@ -750,6 +778,13 @@ const updatedCompetition = await client.competitions.editCompetition(
   "id": 7,
   "title": "🔨 Smithing SOTW",
   "metric": "smithing",
+  "metrics": [
+    {
+      "metric": "smithing",
+      "weight": 1,
+      "createdAt": "2022-11-01T00:46:24.688Z"
+    }
+  ],
   "type": "classic",
   "startsAt": "2022-12-19T10:00:00.000Z",
   "endsAt": "2022-12-30T10:00:00.000Z",

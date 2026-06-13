@@ -520,7 +520,7 @@ describe('Competition API', () => {
       expect(response.body.competition).toMatchObject({
         title: 'Wise Old-Man',
         metric: 'smithing',
-        metrics: ['smithing'],
+        metrics: [expect.objectContaining({ metric: 'smithing' })],
         startsAt: VALID_START_DATE.toISOString(),
         endsAt: VALID_END_DATE.toISOString()
       });
@@ -564,7 +564,7 @@ describe('Competition API', () => {
       expect(response.body.competition).toMatchObject({
         title: 'BOTW Zulrah #3',
         metric: 'zulrah',
-        metrics: ['zulrah'],
+        metrics: [expect.objectContaining({ metric: 'zulrah' })],
         startsAt: startDate.toISOString(),
         endsAt: endDate.toISOString(),
         participantCount: 4
@@ -636,7 +636,7 @@ describe('Competition API', () => {
       expect(response.body.competition).toMatchObject({
         title: 'SOTW Thieving 💰 #5', // test emoji support
         metric: 'thieving',
-        metrics: ['thieving'],
+        metrics: [expect.objectContaining({ metric: 'thieving' })],
         startsAt: startDate.toISOString(),
         endsAt: endDate.toISOString(),
         participantCount: 4
@@ -696,7 +696,7 @@ describe('Competition API', () => {
       expect(response.body.competition).toMatchObject({
         title: '_Soul Wars Competition',
         metric: 'soul_wars_zeal',
-        metrics: ['soul_wars_zeal'],
+        metrics: [expect.objectContaining({ metric: 'soul_wars_zeal' })],
         startsAt: startDate.toISOString(),
         endsAt: endDate.toISOString(),
         participantCount: 4
@@ -774,7 +774,7 @@ describe('Competition API', () => {
       expect(response.body.competition).toMatchObject({
         title: 'OVERALL Competition',
         metric: 'overall',
-        metrics: ['overall'],
+        metrics: [expect.objectContaining({ metric: 'overall' })],
         startsAt: startDate.toISOString(),
         endsAt: endDate.toISOString(),
         participantCount: 2
@@ -832,7 +832,7 @@ describe('Competition API', () => {
       expect(response.body.competition).toMatchObject({
         title: 'Fishing Competition',
         metric: 'fishing',
-        metrics: ['fishing'],
+        metrics: [expect.objectContaining({ metric: 'fishing' })],
         startsAt: startDate.toISOString(),
         endsAt: endDate.toISOString(),
         groupId: globalData.testGroup.id,
@@ -920,7 +920,10 @@ describe('Competition API', () => {
       expect(response.status).toBe(201);
       expect(response.body.competition).toMatchObject({
         metric: 'hunter',
-        metrics: ['hunter', 'fishing']
+        metrics: [
+          expect.objectContaining({ metric: 'hunter' }),
+          expect.objectContaining({ metric: 'fishing' })
+        ]
       });
 
       process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
@@ -1553,7 +1556,9 @@ describe('Competition API', () => {
 
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition.metric).toBe('agility');
-      expect(createResponse.body.competition.metrics).toMatchObject(['agility']);
+      expect(createResponse.body.competition.metrics).toMatchObject([
+        expect.objectContaining({ metric: 'agility' })
+      ]);
 
       const firstUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode,
@@ -1562,7 +1567,7 @@ describe('Competition API', () => {
 
       expect(firstUpdateResponse.status).toBe(200);
       expect(firstUpdateResponse.body.metric).toBe('hunter');
-      expect(firstUpdateResponse.body.metrics).toMatchObject(['hunter']);
+      expect(firstUpdateResponse.body.metrics).toMatchObject([expect.objectContaining({ metric: 'hunter' })]);
 
       const secondUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode,
@@ -1571,7 +1576,9 @@ describe('Competition API', () => {
 
       expect(secondUpdateResponse.status).toBe(200);
       expect(secondUpdateResponse.body.metric).toBe('zulrah');
-      expect(secondUpdateResponse.body.metrics).toMatchObject(['zulrah']);
+      expect(secondUpdateResponse.body.metrics).toMatchObject([
+        expect.objectContaining({ metric: 'zulrah' })
+      ]);
 
       const thirdUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode,
@@ -1580,7 +1587,9 @@ describe('Competition API', () => {
 
       expect(thirdUpdateResponse.status).toBe(200);
       expect(thirdUpdateResponse.body.metric).toBe('agility');
-      expect(thirdUpdateResponse.body.metrics).toMatchObject(['agility']);
+      expect(thirdUpdateResponse.body.metrics).toMatchObject([
+        expect.objectContaining({ metric: 'agility' })
+      ]);
 
       const metrics = await prisma.competitionMetric.findMany({
         where: {
@@ -1628,7 +1637,9 @@ describe('Competition API', () => {
 
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition.metric).toBe('agility');
-      expect(createResponse.body.competition.metrics).toMatchObject(['agility']);
+      expect(createResponse.body.competition.metrics).toMatchObject([
+        expect.objectContaining({ metric: 'agility' })
+      ]);
 
       process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
 
@@ -1639,7 +1650,10 @@ describe('Competition API', () => {
 
       expect(firstUpdateResponse.status).toBe(200);
       expect(firstUpdateResponse.body.metric).toBe('hunter');
-      expect(firstUpdateResponse.body.metrics).toMatchObject(['hunter', 'firemaking']);
+      expect(firstUpdateResponse.body.metrics).toMatchObject([
+        expect.objectContaining({ metric: 'hunter' }),
+        expect.objectContaining({ metric: 'firemaking' })
+      ]);
 
       const secondUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode,
@@ -1648,7 +1662,10 @@ describe('Competition API', () => {
 
       expect(secondUpdateResponse.status).toBe(200);
       expect(secondUpdateResponse.body.metric).toBe('zulrah');
-      expect(secondUpdateResponse.body.metrics).toMatchObject(['zulrah', 'wintertodt']);
+      expect(secondUpdateResponse.body.metrics).toMatchObject([
+        expect.objectContaining({ metric: 'zulrah' }),
+        expect.objectContaining({ metric: 'wintertodt' })
+      ]);
 
       const thirdUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode,
@@ -1657,7 +1674,10 @@ describe('Competition API', () => {
 
       expect(thirdUpdateResponse.status).toBe(200);
       expect(thirdUpdateResponse.body.metric).toBe('agility');
-      expect(thirdUpdateResponse.body.metrics).toMatchObject(['agility', 'cooking']);
+      expect(thirdUpdateResponse.body.metrics).toMatchObject([
+        expect.objectContaining({ metric: 'agility' }),
+        expect.objectContaining({ metric: 'cooking' })
+      ]);
 
       const metrics = await prisma.competitionMetric.findMany({
         where: {
@@ -3241,7 +3261,10 @@ describe('Competition API', () => {
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition).toMatchObject({
         metric: 'hunter',
-        metrics: ['hunter', 'fishing']
+        metrics: [
+          expect.objectContaining({ metric: 'hunter' }),
+          expect.objectContaining({ metric: 'fishing' })
+        ]
       });
 
       // Reset the timers to the current (REAL) time
@@ -3644,7 +3667,10 @@ describe('Competition API', () => {
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition).toMatchObject({
         metric: 'hunter',
-        metrics: ['hunter', 'fishing']
+        metrics: [
+          expect.objectContaining({ metric: 'hunter' }),
+          expect.objectContaining({ metric: 'fishing' })
+        ]
       });
 
       // Reset the timers to the current (REAL) time
@@ -4344,7 +4370,10 @@ describe('Competition API', () => {
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition).toMatchObject({
         metric: 'hunter',
-        metrics: ['hunter', 'fishing']
+        metrics: [
+          expect.objectContaining({ metric: 'hunter' }),
+          expect.objectContaining({ metric: 'fishing' })
+        ]
       });
 
       // Reset the timers to the current (REAL) time
