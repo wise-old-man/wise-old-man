@@ -148,7 +148,13 @@ Fetches the competition's full details, including all the participants and their
 
 | Field  | Type                                               | Required | Description                                                                                                                                                                                                                                        |
 | ------ | -------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| metric | [Metric](/api/global-type-definitions#enum-metric) | `false`  | An alternative metric to preview the competition's progress in. (Ex: If it's originally an `agility` competition, you can still use this param to preview what the competition would have looked like if it were a `fishing` competition instead.) |
+| metric | [Metric](/api/global-type-definitions#enum-metric) | `false`  | An alternative metric to preview the competition's progress in. (Ex: If it's originally an `agility` competition, you can still use this param to preview what the competition would have looked like if it were a `fishing` competition instead.) When set, each participation's `deltas` will include an entry for this metric, and participants will be ranked by it. |
+
+<br />
+
+:::caution
+The `progress` and `levels` fields on each participation are **deprecated** in favor of `deltas`, and will be removed in a future release. They currently mirror the entry in `deltas` that the competition is ranked by (the previewed metric's entry, the `"total"` entry for multi-metric competitions, or the single metric's entry otherwise).
+:::
 
 <br />
 
@@ -214,6 +220,21 @@ const competition = await client.competitions.getCompetitionDetails(123);
         "lastChangedAt": "2021-09-06T05:04:08.102Z",
         "lastImportedAt": null
       },
+      "deltas": [
+        {
+          "metric": "barrows_chests",
+          "values": {
+            "gained": 325,
+            "start": 485,
+            "end": 810
+          },
+          "levels": {
+            "gained": 0,
+            "start": -1,
+            "end": -1
+          }
+        }
+      ],
       "progress": {
         "gained": 325,
         "start": 485,
@@ -250,6 +271,21 @@ const competition = await client.competitions.getCompetitionDetails(123);
         "lastChangedAt": "2022-10-29T05:27:05.665Z",
         "lastImportedAt": "2022-10-26T04:15:29.869Z"
       },
+      "deltas": [
+        {
+          "metric": "barrows_chests",
+          "values": {
+            "gained": 298,
+            "start": 552,
+            "end": 850
+          },
+          "levels": {
+            "gained": 0,
+            "start": -1,
+            "end": -1
+          }
+        }
+      ],
       "progress": {
         "gained": 298,
         "start": 552,

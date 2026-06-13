@@ -32,24 +32,26 @@ export const DispatchCompetitionEndedDiscordEventJobHandler: JobHandler<Payload>
       return;
     }
 
-    const competitionDetails = await fetchCompetitionDetails(payload.competitionId);
+    const { group, metrics, participations, sortingMetricIndex } = await fetchCompetitionDetails(
+      payload.competitionId
+    );
 
     // Map the competition's end standings
-    const standings = competitionDetails.participations
-      .filter(p => p.progress.gained > 0)
+    const standings = participations
+      .filter(p => p.deltas[sortingMetricIndex].values.gained > 0)
       .map(p => ({
         displayName: p.player.displayName,
         teamName: p.participation.teamName,
-        gained: p.progress.gained
+        gained: p.deltas[sortingMetricIndex].values.gained
       }));
 
     const competitionResponse = formatCompetitionResponse(
       {
-        ...competitionDetails.competition,
-        metrics: competitionDetails.metrics,
-        participantCount: competitionDetails.participations.length
+        ...competition,
+        metrics,
+        participantCount: participations.length
       },
-      competitionDetails.group
+      group
     );
 
     const dispatchResult = await dispatchDiscordBotEvent(DiscordBotEventType.COMPETITION_ENDED, {

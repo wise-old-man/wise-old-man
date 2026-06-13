@@ -47,13 +47,16 @@ async function calculateScore(competition: Competition): Promise<number> {
     return score;
   }
 
-  const { group, metrics, participations } = await fetchCompetitionDetails(competition.id);
+  const { group, metrics, participations, sortingMetricIndex } = await fetchCompetitionDetails(
+    competition.id
+  );
 
-  const activeParticipants = participations.filter(p => p.progress.gained > 0);
+  const activeParticipants = participations.filter(p => p.deltas[sortingMetricIndex].values.gained > 0);
 
   const averageGained =
-    activeParticipants.map(a => a.progress.gained).reduce((acc, curr) => acc + curr, 0) /
-    activeParticipants.length;
+    activeParticipants
+      .map(a => a.deltas[sortingMetricIndex].values.gained)
+      .reduce((acc, curr) => acc + curr, 0) / activeParticipants.length;
 
   // If is ongoing
   if (competition.startsAt <= now && competition.endsAt >= now) {
