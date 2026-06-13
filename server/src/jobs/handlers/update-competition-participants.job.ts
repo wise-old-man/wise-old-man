@@ -16,10 +16,10 @@ export const UpdateCompetitionParticipantsJobHandler: JobHandler<Payload> = {
     }
 
     if (payload.trigger === 'competition-ending-2h') {
-      const competitionDetails = await fetchCompetitionDetails(payload.competitionId);
+      const { participations, sortingMetricIndex } = await fetchCompetitionDetails(payload.competitionId);
 
-      competitionDetails.participations
-        .filter(p => p.progress.gained > 0) // Only update players that have gained xp
+      participations
+        .filter(p => p.deltas[sortingMetricIndex].values.gained > 0) // Only update players that have gained xp
         .forEach(p => {
           context.jobManager.add(JobType.UPDATE_PLAYER, {
             username: p.player.username

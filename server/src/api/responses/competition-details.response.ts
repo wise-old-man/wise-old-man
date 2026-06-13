@@ -4,7 +4,7 @@
  * Although sometimes very similar to our database models,
  * they often include transformations, additional properties or sensitive field omissions.
  */
-import { Competition, CompetitionMetric, Group, Participation, Player } from '../../types';
+import { Competition, CompetitionMetric, Group, Metric, Participation, Player } from '../../types';
 import { MetricDelta } from '../../types/metric-delta.type';
 import { pick } from '../../utils/pick.util';
 import { CompetitionResponse, formatCompetitionResponse } from './competition.response';
@@ -15,23 +15,38 @@ export interface CompetitionDetailsResponse extends CompetitionResponse {
   participations: Array<
     ParticipationResponse & {
       player: PlayerResponse;
+      deltas: Array<{
+        metric: Metric | 'total';
+        values: MetricDelta;
+        levels: MetricDelta;
+      }>;
       progress: MetricDelta;
       levels: MetricDelta;
     }
   >;
 }
 
-export function formatCompetitionDetailsResponse(
-  competition: Competition,
-  metrics: CompetitionMetric[],
-  group: (Group & { memberCount: number }) | null,
+export function formatCompetitionDetailsResponse({
+  competition,
+  metrics,
+  group,
+  participations,
+  sortingMetricIndex
+}: {
+  competition: Competition;
+  metrics: CompetitionMetric[];
+  group: (Group & { memberCount: number }) | null;
   participations: Array<{
     participation: Participation;
     player: Player;
-    progress: MetricDelta;
-    levels: MetricDelta;
-  }>
-): CompetitionDetailsResponse {
+    deltas: Array<{
+      metric: Metric | 'total';
+      values: MetricDelta;
+      levels: MetricDelta;
+    }>;
+  }>;
+  sortingMetricIndex: number;
+}): CompetitionDetailsResponse {
   return {
     ...formatCompetitionResponse(
       {
@@ -41,11 +56,18 @@ export function formatCompetitionDetailsResponse(
       },
       group
     ),
-    participations: participations.map(p => ({
-      ...formatParticipationResponse(p.participation),
-      player: formatPlayerResponse(p.player),
-      progress: pick(p.progress, 'start', 'end', 'gained'),
-      levels: pick(p.levels, 'start', 'end', 'gained')
-    }))
+    participations: participations.map(p => {
+      const deltas = p.deltas;
+
+      return {
+        ...formatParticipationResponse(p.participation),
+        player: formatPlayerResponse(p.player),
+        deltas,
+
+        // Keep these around for backwards compatibility, but they should be removed in the future.
+        progress: pick(p.deltas[sortingMetricIndex].values, 'start', 'end', 'gained'),
+        levels: pick(p.deltas[sortingMetricIndex].levels, 'start', 'end', 'gained')
+      };
+    })
   };
 }

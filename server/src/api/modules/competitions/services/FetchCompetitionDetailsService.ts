@@ -5,7 +5,7 @@ import { calculateCompetitionDelta } from '../../../../utils/calculate-competiti
 import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
 import { NotFoundError } from '../../../errors';
 
-async function fetchCompetitionDetails(
+export async function fetchCompetitionDetails(
   id: number,
   metric?: Metric
 ): Promise<{
@@ -15,9 +15,13 @@ async function fetchCompetitionDetails(
   participations: Array<{
     participation: Participation;
     player: Player;
-    progress: MetricDelta;
-    levels: MetricDelta;
+    deltas: Array<{
+      metric: Metric | 'total';
+      values: MetricDelta;
+      levels: MetricDelta;
+    }>;
   }>;
+  sortingMetricIndex: number;
 }> {
   const competition = await prisma.competition.findFirst({
     where: {
@@ -48,8 +52,32 @@ async function fetchCompetitionDetails(
     throw new NotFoundError('Competition not found.');
   }
 
-  const selectedMetrics = metric !== undefined ? [metric] : competition.metrics.map(m => m.metric);
-  const participants = await calculateParticipantsStandings(id, selectedMetrics);
+  const competitionMetrics = competition.metrics.map(m => m.metric);
+
+  const selectedMetrics = [
+    ...competitionMetrics,
+    ...(metric === undefined || competitionMetrics.includes(metric) ? [] : [metric])
+  ];
+
+  const participants = await calculateParticipantDeltas(id, selectedMetrics);
+
+  /**
+   * For backwards compat:
+   * - If a preview metric is provided: we sort by that metric
+   * - Else if competition has multiple metrics: we sort by the "total" (which is placed on index 0)
+   * - Else: we sort by the single competition metric (which is also placed on index 0)
+   */
+  const sortingMetricIndex =
+    metric === undefined || participants.length === 0
+      ? 0
+      : participants[0].deltas.findIndex(d => d.metric === metric);
+
+  const sortedStandings = participants.sort(
+    (a, b) =>
+      b.deltas[sortingMetricIndex].values.gained - a.deltas[sortingMetricIndex].values.gained ||
+      b.deltas[sortingMetricIndex].values.start - a.deltas[sortingMetricIndex].values.start ||
+      a.player.id - b.player.id
+  );
 
   return {
     competition,
@@ -60,19 +88,23 @@ async function fetchCompetitionDetails(
           memberCount: competition.group._count.memberships
         }
       : null,
-    participations: participants
+    participations: sortedStandings,
+    sortingMetricIndex
   };
 }
 
-async function calculateParticipantsStandings(
+async function calculateParticipantDeltas(
   competitionId: number,
   metrics: Metric[]
 ): Promise<
   Array<{
     participation: Participation;
     player: Player;
-    progress: MetricDelta;
-    levels: MetricDelta;
+    deltas: Array<{
+      metric: Metric | 'total';
+      values: MetricDelta;
+      levels: MetricDelta;
+    }>;
   }>
 > {
   const requiredSnapshotFields = getRequiredSnapshotFields(metrics);
@@ -90,19 +122,33 @@ async function calculateParticipantsStandings(
     }
   });
 
-  return participations
-    .map(p => {
-      const { player, startSnapshot, endSnapshot, ...participation } = p;
+  const includeTotalDeltas = metrics.length > 1;
 
-      if (!startSnapshot || !endSnapshot) {
-        return {
-          participation,
-          player,
-          progress: { gained: 0, start: -1, end: -1 },
-          levels: { gained: 0, start: -1, end: -1 }
-        };
-      }
+  return participations.map(p => {
+    const { player, startSnapshot, endSnapshot, ...participation } = p;
 
+    if (!startSnapshot || !endSnapshot) {
+      const emptyDeltas = [...(includeTotalDeltas ? ['total' as const] : []), ...metrics].map(metric => ({
+        metric,
+        values: { gained: 0, start: -1, end: -1 },
+        levels: { gained: 0, start: -1, end: -1 }
+      }));
+
+      return {
+        participation,
+        player,
+        deltas: emptyDeltas
+      };
+    }
+
+    const deltas: Array<{
+      metric: Metric | 'total';
+      values: MetricDelta;
+      levels: MetricDelta;
+    }> = [];
+
+    if (includeTotalDeltas) {
+      // Calculate "total" deltas
       const { valuesDiff, levelsDiff } = calculateCompetitionDelta(
         metrics,
         player,
@@ -110,19 +156,33 @@ async function calculateParticipantsStandings(
         endSnapshot
       );
 
-      return {
-        participation,
-        player,
-        progress: valuesDiff,
+      deltas.push({
+        metric: 'total',
+        values: valuesDiff,
         levels: levelsDiff
-      };
-    })
-    .sort(
-      (a, b) =>
-        b.progress.gained - a.progress.gained ||
-        b.progress.start - a.progress.start ||
-        a.player.id - b.player.id
-    );
-}
+      });
+    }
 
-export { fetchCompetitionDetails };
+    // Calculate deltas for each metric separately
+    for (const metric of metrics) {
+      const { valuesDiff, levelsDiff } = calculateCompetitionDelta(
+        [metric],
+        player,
+        startSnapshot,
+        endSnapshot
+      );
+
+      deltas.push({
+        metric,
+        values: valuesDiff,
+        levels: levelsDiff
+      });
+    }
+
+    return {
+      participation,
+      player,
+      deltas
+    };
+  });
+}

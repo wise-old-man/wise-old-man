@@ -168,12 +168,7 @@ router.post(
 
     const response = {
       verificationCode: verificationCode,
-      competition: formatCompetitionDetailsResponse(
-        details.competition,
-        details.metrics,
-        details.group,
-        details.participations
-      )
+      competition: formatCompetitionDetailsResponse(details)
     };
 
     res.status(201).json(response);
@@ -274,13 +269,7 @@ router.put(
     });
 
     const details = await fetchCompetitionDetails(updateResult.value.id);
-
-    const response = formatCompetitionDetailsResponse(
-      details.competition,
-      details.metrics,
-      details.group,
-      details.participations
-    );
+    const response = formatCompetitionDetailsResponse(details);
 
     res.status(200).json(response);
   })
@@ -301,13 +290,7 @@ router.get(
     const { metric } = req.query;
 
     const details = await fetchCompetitionDetails(id, metric);
-
-    const response = formatCompetitionDetailsResponse(
-      details.competition,
-      details.metrics,
-      details.group,
-      details.participations
-    );
+    const response = formatCompetitionDetailsResponse(details);
 
     res.status(200).json(response);
   })

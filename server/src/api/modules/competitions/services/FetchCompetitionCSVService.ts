@@ -12,14 +12,8 @@ async function fetchCompetitionCSV(
   table = CompetitionCSVTableType.PARTICIPANTS,
   teamName: string | undefined
 ): Promise<string> {
-  const competitionDetails = await fetchCompetitionDetails(id, metric);
-
-  const competitionDetailsResponse = formatCompetitionDetailsResponse(
-    competitionDetails.competition,
-    competitionDetails.metrics,
-    competitionDetails.group,
-    competitionDetails.participations
-  );
+  const details = await fetchCompetitionDetails(id, metric);
+  const competitionDetailsResponse = formatCompetitionDetailsResponse(details);
 
   if (table === CompetitionCSVTableType.PARTICIPANTS) {
     return getParticipantsCSV(competitionDetailsResponse);

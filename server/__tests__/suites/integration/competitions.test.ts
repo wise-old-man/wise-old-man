@@ -3143,6 +3143,24 @@ describe('Competition API', () => {
       });
     });
 
+    it('should view details (own metric as preview)', async () => {
+      const noMetricResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(noMetricResponse.status).toBe(200);
+
+      const ownMetricResponse = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}`)
+        .query({ metric: 'zulrah' });
+
+      expect(ownMetricResponse.status).toBe(200);
+
+      // Previewing a single-metric competition's own metric should be
+      // the same as viewing the competition without specifying a metric
+      expect(ownMetricResponse.body.participations).toEqual(noMetricResponse.body.participations);
+
+      // No "total" delta, since there's only one (deduped) metric
+      expect(ownMetricResponse.body.participations[0].deltas.map(d => d.metric)).toEqual(['zulrah']);
+    });
+
     it('should view details for multiple metrics', async () => {
       /**
        * sue starts at 100k hunter, 2.4m fishing
@@ -3425,6 +3443,41 @@ describe('Competition API', () => {
           start: 1,
           end: 1,
           gained: 0
+        }
+      });
+
+      // "hunter" is already one of this competition's metrics, so previewing it
+      // shouldn't cause it to appear twice in "deltas", or skew the "total" delta
+      const hunterDetailsResponse = await api
+        .get(`/competitions/${createResponse.body.competition.id}`)
+        .query({ metric: 'hunter' });
+
+      expect(hunterDetailsResponse.status).toBe(200);
+      expect(hunterDetailsResponse.body.participations.length).toBe(4);
+
+      expect(hunterDetailsResponse.body.participations[0]).toMatchObject({
+        player: {
+          username: 'sue'
+        },
+        progress: {
+          start: 100_000, // 100k hunter
+          end: 900_000, // 900k hunter
+          gained: 800_000
+        }
+      });
+
+      expect(hunterDetailsResponse.body.participations[0].deltas.map(d => d.metric)).toEqual([
+        'total',
+        'hunter',
+        'fishing'
+      ]);
+
+      expect(hunterDetailsResponse.body.participations[0].deltas[0]).toMatchObject({
+        metric: 'total',
+        values: {
+          start: 2_500_000, // 100k hunter, 2.4m fishing
+          end: 4_000_000, // 900k hunter, 3.1m fishing
+          gained: 1_500_000
         }
       });
 
