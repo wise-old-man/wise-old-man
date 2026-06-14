@@ -32,22 +32,24 @@ import LoadingIcon from "~/assets/loading.svg";
 import { MetricIcon } from "../Icon";
 
 interface ParticipantsTableProps {
-  metric: Metric | "total";
+  focusedMetric: Metric | "total";
   competition: CompetitionDetailsResponse;
   teamName?: string;
 }
 
 export function ParticipantsTable(props: ParticipantsTableProps) {
-  const { competition, teamName, metric } = props;
+  const { competition, teamName, focusedMetric } = props;
 
   const searchParams = useSearchParams();
 
   const rows = competition.participations.filter((p) => !teamName || p.teamName === teamName);
 
   const metricType =
-    metric === "total" ? MetricProps[competition.metrics[0].metric].type : MetricProps[metric].type;
+    focusedMetric === "total"
+      ? MetricProps[competition.metrics[0].metric].type
+      : MetricProps[focusedMetric].type;
 
-  const columns = getColumnDefinitions(metric, metricType, competition);
+  const columns = getColumnDefinitions(competition, metricType, focusedMetric);
 
   const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
 
@@ -107,9 +109,9 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
 }
 
 function getColumnDefinitions(
-  metric: Metric | "total",
-  metricType: MetricType,
   competition: CompetitionDetailsResponse,
+  focusedMetricType: MetricType,
+  focusedMetric: Metric | "total",
 ) {
   const columns: ColumnDef<CompetitionDetailsResponse["participations"][number]>[] = [
     {
@@ -129,8 +131,8 @@ function getColumnDefinitions(
       cell: ({ row }) => {
         const params = new URLSearchParams();
 
-        if (metric !== "total") {
-          params.set("metric", metric);
+        if (focusedMetric !== "total") {
+          params.set("metric", focusedMetric);
         }
 
         params.set("startDate", competition.startsAt.toISOString());
@@ -157,20 +159,25 @@ function getColumnDefinitions(
     {
       id: "gained",
       accessorFn: (row) => {
-        return row.deltas.find((d) => d.metric === metric)?.values.gained ?? 0;
+        return row.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0;
       },
       header: ({ column }) => {
         return <TableSortButton column={column}>Gained</TableSortButton>;
       },
       cell: ({ row }) => {
-        const gained = row.original.deltas.find((d) => d.metric === metric)?.values.gained ?? 0;
+        const gained = row.original.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0;
 
         return (
           <FormattedNumber
             value={gained}
             colored
             tooltipContent={
-              <MetricDeltasTooltip deltas={row.original.deltas} type="values" field="gained" />
+              <MetricDeltasTooltip
+                deltas={row.original.deltas}
+                focusedMetric={focusedMetric}
+                type="values"
+                field="gained"
+              />
             }
           />
         );
@@ -179,28 +186,36 @@ function getColumnDefinitions(
     {
       id: "start",
       accessorFn: (row) => {
-        return row.deltas.find((d) => d.metric === metric)?.values.start ?? -1;
+        return row.deltas.find((d) => d.metric === focusedMetric)?.values.start ?? -1;
       },
       header: ({ column }) => {
         return <TableSortButton column={column}>Start</TableSortButton>;
       },
       cell: ({ row }) => {
         return (
-          <ParticipantStartCell metric={metric} competition={competition} participant={row.original} />
+          <ParticipantStartCell
+            focusedMetric={focusedMetric}
+            competition={competition}
+            participant={row.original}
+          />
         );
       },
     },
     {
       id: "end",
       accessorFn: (row) => {
-        return row.deltas.find((d) => d.metric === metric)?.values.end ?? -1;
+        return row.deltas.find((d) => d.metric === focusedMetric)?.values.end ?? -1;
       },
       header: ({ column }) => {
         return <TableSortButton column={column}>End</TableSortButton>;
       },
       cell: ({ row }) => {
         return (
-          <ParticipantEndCell metric={metric} competition={competition} participant={row.original} />
+          <ParticipantEndCell
+            focusedMetric={focusedMetric}
+            competition={competition}
+            participant={row.original}
+          />
         );
       },
     },
@@ -216,17 +231,17 @@ function getColumnDefinitions(
     },
   ];
 
-  if (metricType === MetricType.SKILL) {
+  if (focusedMetricType === MetricType.SKILL) {
     columns.splice(3, 0, {
       id: "levels",
       header: ({ column }) => {
         return <TableSortButton column={column}>Levels</TableSortButton>;
       },
       accessorFn: (row) => {
-        return row.deltas.find((d) => d.metric === metric)?.levels.gained ?? 0;
+        return row.deltas.find((d) => d.metric === focusedMetric)?.levels.gained ?? 0;
       },
       cell: ({ row }) => {
-        const levels = row.original.deltas.find((d) => d.metric === metric)?.levels;
+        const levels = row.original.deltas.find((d) => d.metric === focusedMetric)?.levels;
 
         if (levels === undefined) return null;
         const { start, end, gained } = levels;
@@ -241,7 +256,12 @@ function getColumnDefinitions(
                 <span>{gained}</span>
               </TooltipTrigger>
               <TooltipContent>
-                <MetricDeltasTooltip deltas={row.original.deltas} type="levels" field="gained" />
+                <MetricDeltasTooltip
+                  deltas={row.original.deltas}
+                  focusedMetric={focusedMetric}
+                  type="levels"
+                  field="gained"
+                />
               </TooltipContent>
             </Tooltip>
           </span>
@@ -254,14 +274,14 @@ function getColumnDefinitions(
 }
 
 function ParticipantStartCell(props: {
-  metric: Metric | "total";
   competition: CompetitionDetailsResponse;
   participant: CompetitionDetailsResponse["participations"][number];
+  focusedMetric: Metric | "total";
 }) {
-  const { metric, competition, participant } = props;
+  const { focusedMetric, competition, participant } = props;
   const { player, deltas } = participant;
 
-  const start = deltas.find((d) => d.metric === metric)?.values.start ?? -1;
+  const start = deltas.find((d) => d.metric === focusedMetric)?.values.start ?? -1;
   const hasStartingValue = player.updatedAt && player.updatedAt >= competition.startsAt;
 
   if (!hasStartingValue) {
@@ -285,7 +305,7 @@ function ParticipantStartCell(props: {
         </TooltipTrigger>
         <TooltipContent>
           This player started out unranked in{" "}
-          {metric === "total" ? "all metrics" : MetricProps[metric].name}.
+          {focusedMetric === "total" ? "all metrics" : MetricProps[focusedMetric].name}.
         </TooltipContent>
       </Tooltip>
     );
@@ -294,17 +314,19 @@ function ParticipantStartCell(props: {
   return (
     <FormattedNumber
       value={start}
-      tooltipContent={<MetricDeltasTooltip deltas={deltas} type="values" field="start" />}
+      tooltipContent={
+        <MetricDeltasTooltip deltas={deltas} focusedMetric={focusedMetric} type="values" field="start" />
+      }
     />
   );
 }
 
 function ParticipantEndCell(props: {
-  metric: Metric | "total";
   competition: CompetitionDetailsResponse;
   participant: CompetitionDetailsResponse["participations"][number];
+  focusedMetric: Metric | "total";
 }) {
-  const { metric, competition, participant } = props;
+  const { focusedMetric, competition, participant } = props;
 
   if (competition.startsAt > new Date()) {
     return (
@@ -319,7 +341,7 @@ function ParticipantEndCell(props: {
 
   const { player, deltas } = participant;
 
-  const end = deltas.find((d) => d.metric === metric)?.values.end ?? -1;
+  const end = deltas.find((d) => d.metric === focusedMetric)?.values.end ?? -1;
   const hasStartingValue = player.updatedAt && player.updatedAt >= competition.startsAt;
 
   if (!hasStartingValue) {
@@ -342,7 +364,8 @@ function ParticipantEndCell(props: {
           <span>---</span>
         </TooltipTrigger>
         <TooltipContent>
-          This player is unranked in {metric === "total" ? "all metrics" : MetricProps[metric].name}.
+          This player is unranked in{" "}
+          {focusedMetric === "total" ? "all metrics" : MetricProps[focusedMetric].name}.
         </TooltipContent>
       </Tooltip>
     );
@@ -351,7 +374,9 @@ function ParticipantEndCell(props: {
   return (
     <FormattedNumber
       value={end}
-      tooltipContent={<MetricDeltasTooltip deltas={deltas} type="values" field="end" />}
+      tooltipContent={
+        <MetricDeltasTooltip deltas={deltas} focusedMetric={focusedMetric} type="values" field="end" />
+      }
     />
   );
 }

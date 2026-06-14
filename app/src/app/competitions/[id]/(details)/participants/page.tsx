@@ -35,8 +35,8 @@ export default async function CompetitionOverviewPage(props: PageProps) {
   const metricParam = getMetricParam(props.searchParams.metric);
   const competition = await getCompetitionDetails(id, metricParam);
 
-  const selectedMetric =
+  const focusedMetric =
     metricParam ?? (competition.metrics.length > 1 ? "total" : competition.metrics[0].metric);
 
-  return <ParticipantsTable metric={selectedMetric} competition={competition} />;
+  return <ParticipantsTable focusedMetric={focusedMetric} competition={competition} />;
 }

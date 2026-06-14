@@ -17,7 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 import ExportIcon from "~/assets/export.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 
-function getColumnDefinitions(metric: Metric | "total"): ColumnDef<Team>[] {
+function getColumnDefinitions(focusedMetric: Metric | "total"): ColumnDef<Team>[] {
   const columns: ColumnDef<Team>[] = [
     {
       id: "rank",
@@ -45,7 +45,7 @@ function getColumnDefinitions(metric: Metric | "total"): ColumnDef<Team>[] {
       header: "Total gained",
       accessorFn: (row) => {
         return row.participations.reduce(
-          (acc, curr) => acc + (curr.deltas.find((d) => d.metric === metric)?.values.gained ?? 0),
+          (acc, curr) => acc + (curr.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0),
           0,
         );
       },
@@ -60,6 +60,7 @@ function getColumnDefinitions(metric: Metric | "total"): ColumnDef<Team>[] {
             tooltipContent={
               <MetricDeltasTooltip
                 deltas={getTeamAggregateDeltas(row.original.participations)}
+                focusedMetric={focusedMetric}
                 type="values"
                 field="gained"
               />
@@ -74,7 +75,8 @@ function getColumnDefinitions(metric: Metric | "total"): ColumnDef<Team>[] {
       accessorFn: (row) => {
         return (
           row.participations.reduce(
-            (acc, curr) => acc + (curr.deltas.find((d) => d.metric === metric)?.values.gained ?? 0),
+            (acc, curr) =>
+              acc + (curr.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0),
             0,
           ) / row.participations.length
         );
@@ -93,6 +95,7 @@ function getColumnDefinitions(metric: Metric | "total"): ColumnDef<Team>[] {
                   row.original.participations,
                   row.original.participations.length,
                 )}
+                focusedMetric={focusedMetric}
                 type="values"
                 field="gained"
               />
@@ -128,7 +131,7 @@ function getColumnDefinitions(metric: Metric | "total"): ColumnDef<Team>[] {
             </Tooltip>
             (
             <FormattedNumber
-              value={mvp.deltas.find((d) => d.metric === metric)?.values.gained ?? 0}
+              value={mvp.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0}
               colored
             />
             )
@@ -160,22 +163,26 @@ function getColumnDefinitions(metric: Metric | "total"): ColumnDef<Team>[] {
 }
 
 interface TeamsTableProps {
-  metric: Metric | "total";
+  focusedMetric: Metric | "total";
   competition: CompetitionDetailsResponse;
 }
 
 export function TeamsTable(props: TeamsTableProps) {
-  const { metric, competition } = props;
+  const { focusedMetric, competition } = props;
 
-  const teams = getTeams(competition, metric);
+  const teams = getTeams(competition, focusedMetric);
 
   return (
     <DataTable
       data={teams}
-      columns={getColumnDefinitions(metric)}
+      columns={getColumnDefinitions(focusedMetric)}
       enablePagination
       renderSubRow={(row) => (
-        <TeamDetails teamName={row.original.name} competition={competition} metric={metric} />
+        <TeamDetails
+          teamName={row.original.name}
+          competition={competition}
+          focusedMetric={focusedMetric}
+        />
       )}
       headerSlot={
         <TableTitle>
@@ -195,17 +202,17 @@ export function TeamsTable(props: TeamsTableProps) {
 }
 
 interface TeamDetailsProps {
-  metric: Metric | "total";
+  focusedMetric: Metric | "total";
   teamName: string;
   competition: CompetitionDetailsResponse;
 }
 
 function TeamDetails(props: TeamDetailsProps) {
-  const { teamName, metric, competition } = props;
+  const { teamName, focusedMetric, competition } = props;
 
   return (
     <div className="flex flex-col gap-y-4 bg-gray-800 px-5 py-4">
-      <ParticipantsTable metric={metric} competition={competition} teamName={teamName} />
+      <ParticipantsTable focusedMetric={focusedMetric} competition={competition} teamName={teamName} />
     </div>
   );
 }
@@ -215,7 +222,7 @@ interface Team {
   participations: CompetitionDetailsResponse["participations"];
 }
 
-function getTeams(competition: CompetitionDetailsResponse, metric: Metric | "total"): Team[] {
+function getTeams(competition: CompetitionDetailsResponse, focusedMetric: Metric | "total"): Team[] {
   const teamMap = new Map<string, CompetitionDetailsResponse["participations"]>();
 
   competition.participations.forEach((participation) => {
@@ -235,11 +242,11 @@ function getTeams(competition: CompetitionDetailsResponse, metric: Metric | "tot
     .sort((a, b) => {
       return (
         b.participations.reduce(
-          (acc, curr) => acc + (curr.deltas.find((d) => d.metric === metric)?.values.gained ?? 0),
+          (acc, curr) => acc + (curr.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0),
           0,
         ) -
         a.participations.reduce(
-          (acc, curr) => acc + (curr.deltas.find((d) => d.metric === metric)?.values.gained ?? 0),
+          (acc, curr) => acc + (curr.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0),
           0,
         )
       );

@@ -9,12 +9,13 @@ interface MetricDeltasTooltipProps {
     values: MetricDelta;
     levels: MetricDelta;
   }>;
+  focusedMetric: Metric | "total";
   type: "values" | "levels";
   field: "start" | "end" | "gained";
 }
 
 export function MetricDeltasTooltip(props: MetricDeltasTooltipProps) {
-  const { deltas, type, field } = props;
+  const { deltas, focusedMetric, type, field } = props;
 
   return (
     <div className="flex min-w-[10rem] flex-col gap-y-1.5 text-xs tabular-nums">
@@ -22,14 +23,15 @@ export function MetricDeltasTooltip(props: MetricDeltasTooltipProps) {
         <div
           key={delta.metric}
           className={cn(
-            "flex items-center justify-between gap-x-4 text-white",
+            "flex items-center justify-between gap-x-4",
+            delta.metric === focusedMetric ? "text-white" : "text-gray-200",
             delta.metric === "total" && "mb-1 mt-0.5 border-b border-gray-600 pb-1.5",
           )}
         >
           {delta.metric === "total" ? (
             <span>Total</span>
           ) : (
-            <div className="flex items-center gap-x-2 text-gray-200">
+            <div className="flex items-center gap-x-2">
               <MetricIconSmall metric={delta.metric} />
               <span>{MetricProps[delta.metric].name}</span>
             </div>

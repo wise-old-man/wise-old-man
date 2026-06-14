@@ -20,17 +20,17 @@ const LineChartSSR = dynamic(() => import("../LineChart"), {
 });
 
 interface CompetitionTopParticipantsChartProps {
-  metric: Metric;
+  focusedMetric: Metric;
   data: Array<ParticipantHistoryResponse>;
 }
 
 export function CompetitionTopParticipantsChart(props: CompetitionTopParticipantsChartProps) {
-  const { metric, data } = props;
+  const { focusedMetric, data } = props;
 
   const datasets = data.map((t) => {
     return {
       name: t.player.displayName,
-      data: convertToDiffTimeseries(metric, t.history),
+      data: convertToDiffTimeseries(focusedMetric, t.history),
     };
   });
 

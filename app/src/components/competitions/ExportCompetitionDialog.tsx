@@ -17,7 +17,7 @@ interface ExportCompetitionDialogProps {
 function buildExportUrl(competitionId: number, searchParams: URLSearchParams) {
   const team = searchParams.get("team");
   const table = searchParams.get("table");
-  const preview = searchParams.get("preview");
+  const metric = searchParams.get("metric");
 
   const params = new URLSearchParams();
 
@@ -30,8 +30,8 @@ function buildExportUrl(competitionId: number, searchParams: URLSearchParams) {
     params.set("table", "participants");
   }
 
-  if (!!preview && isMetric(preview)) {
-    params.set("metric", preview);
+  if (!!metric && isMetric(metric)) {
+    params.set("metric", metric);
   }
 
   const basePath = process.env.NEXT_PUBLIC_BASE_API_URL ?? "https://api.wiseoldman.net/v2";

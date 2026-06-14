@@ -38,7 +38,7 @@ export default async function CompetitionOverviewPage(props: PageProps) {
   const metricParam = getMetricParam(props.searchParams.metric);
   const competition = await getCompetitionDetails(id, metricParam);
 
-  const selectedMetric =
+  const focusedMetric =
     metricParam ?? (competition.metrics.length > 1 ? "total" : competition.metrics[0].metric);
 
   // Starting in less than 3 hours
@@ -56,12 +56,12 @@ export default async function CompetitionOverviewPage(props: PageProps) {
       {isEndingSoon && <CompetitionStatusWarning status="ending" />}
       {isStartingSoon && <CompetitionStatusWarning status="starting" />}
 
-      <CompetitionWidgets metric={selectedMetric} competition={competition} />
+      <CompetitionWidgets focusedMetric={focusedMetric} competition={competition} />
 
       {competition.type === CompetitionType.TEAM ? (
-        <TeamsTable metric={selectedMetric} competition={competition} />
+        <TeamsTable focusedMetric={focusedMetric} competition={competition} />
       ) : (
-        <ParticipantsTable metric={selectedMetric} competition={competition} />
+        <ParticipantsTable focusedMetric={focusedMetric} competition={competition} />
       )}
     </div>
   );
