@@ -10,17 +10,19 @@ interface PageProps {
     id: number;
   };
   searchParams: {
-    preview?: string;
+    metric?: string;
   };
+}
+
+function getMetricParam(metricParam: string | undefined) {
+  return metricParam && isMetric(metricParam) ? metricParam : undefined;
 }
 
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
-  const { preview } = props.searchParams;
 
-  const previewMetric = preview && isMetric(preview) ? preview : undefined;
-
-  const competition = await getCompetitionDetails(id, previewMetric);
+  const metricParam = getMetricParam(props.searchParams.metric);
+  const competition = await getCompetitionDetails(id, metricParam);
 
   return {
     title: competition.title,
@@ -29,12 +31,12 @@ export async function generateMetadata(props: PageProps) {
 
 export default async function CompetitionOverviewPage(props: PageProps) {
   const { id } = props.params;
-  const { preview } = props.searchParams;
 
-  const previewMetric = preview && isMetric(preview) ? preview : undefined;
+  const metricParam = getMetricParam(props.searchParams.metric);
+  const competition = await getCompetitionDetails(id, metricParam);
 
-  const competition = await getCompetitionDetails(id, previewMetric);
-  const metric = previewMetric || competition.metric;
+  const focusedMetric =
+    metricParam ?? (competition.metrics.length > 1 ? "total" : competition.metrics[0].metric);
 
-  return <ParticipantsTable metric={metric} competition={competition} />;
+  return <ParticipantsTable focusedMetric={focusedMetric} competition={competition} />;
 }

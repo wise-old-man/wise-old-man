@@ -21,7 +21,7 @@ export function CompetitionDetailsNavigation(props: CompetitionDetailsNavigation
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const previewMetric = searchParams.get("preview");
+  const previewMetric = searchParams.get("metric");
   const routeSegment = pathname.split("/").at(-1) || "";
 
   let selectedSegment: string;
@@ -44,7 +44,7 @@ export function CompetitionDetailsNavigation(props: CompetitionDetailsNavigation
             (t) => t.route !== "/participants" || competition.type === CompetitionType.TEAM,
           ).map((tab) => {
             let url = `/competitions/${competition.id}${tab.route}`;
-            if (previewMetric) url += `?preview=${previewMetric}`;
+            if (previewMetric) url += `?metric=${previewMetric}`;
 
             return (
               <Link prefetch={false} href={url} rel="nofollow" key={tab.route}>

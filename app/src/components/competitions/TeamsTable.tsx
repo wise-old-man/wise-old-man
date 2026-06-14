@@ -8,6 +8,7 @@ import { Button } from "../Button";
 import { DataTable } from "../DataTable";
 import { QueryLink } from "../QueryLink";
 import { FormattedNumber } from "../FormattedNumber";
+import { MetricDeltasTooltip } from "../MetricDeltasTooltip";
 import { TableTitle } from "../Table";
 import { ParticipantsTable } from "./ParticipantsTable";
 import { PlayerIdentityTooltip } from "../PlayerIdentity";
@@ -16,124 +17,172 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 import ExportIcon from "~/assets/export.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 
-const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
-  {
-    id: "rank",
-    header: "Rank",
-    accessorFn: (_, index) => {
-      return index + 1;
+function getColumnDefinitions(focusedMetric: Metric | "total"): ColumnDef<Team>[] {
+  const columns: ColumnDef<Team>[] = [
+    {
+      id: "rank",
+      header: "Rank",
+      accessorFn: (_, index) => {
+        return index + 1;
+      },
     },
-  },
-  {
-    id: "name",
-    header: "Name",
-    accessorFn: (row) => {
-      return row.name;
+    {
+      id: "name",
+      header: "Name",
+      accessorFn: (row) => {
+        return row.name;
+      },
     },
-  },
-  {
-    id: "count",
-    header: "Players",
-    accessorFn: (row) => {
-      return row.participations.length;
+    {
+      id: "count",
+      header: "Players",
+      accessorFn: (row) => {
+        return row.participations.length;
+      },
     },
-  },
-  {
-    id: "total",
-    header: "Total gained",
-    accessorFn: (row) => {
-      return row.participations.reduce((acc, curr) => acc + curr.progress.gained, 0);
-    },
-    cell: ({ row }) => {
-      const total = Number(row.getValue("total"));
-      if (total <= 0) return "0";
+    {
+      id: "total",
+      header: "Total gained",
+      accessorFn: (row) => {
+        return row.participations.reduce(
+          (acc, curr) => acc + (curr.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0),
+          0,
+        );
+      },
+      cell: ({ row }) => {
+        const total = Number(row.getValue("total"));
+        if (total <= 0) return "0";
 
-      return <FormattedNumber value={total} colored />;
+        return (
+          <FormattedNumber
+            value={total}
+            colored
+            tooltipContent={
+              <MetricDeltasTooltip
+                deltas={getTeamAggregateDeltas(row.original.participations)}
+                focusedMetric={focusedMetric}
+                type="values"
+                field="gained"
+              />
+            }
+          />
+        );
+      },
     },
-  },
-  {
-    id: "average",
-    header: "Avg. gained",
-    accessorFn: (row) => {
-      return (
-        row.participations.reduce((acc, curr) => acc + curr.progress.gained, 0) /
-        row.participations.length
-      );
-    },
-    cell: ({ row }) => {
-      const avg = parseInt(row.getValue("average"));
-      if (avg <= 0) return "0";
+    {
+      id: "average",
+      header: "Avg. gained",
+      accessorFn: (row) => {
+        return (
+          row.participations.reduce(
+            (acc, curr) =>
+              acc + (curr.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0),
+            0,
+          ) / row.participations.length
+        );
+      },
+      cell: ({ row }) => {
+        const avg = parseInt(row.getValue("average"));
+        if (avg <= 0) return "0";
 
-      return <FormattedNumber value={avg} colored />;
+        return (
+          <FormattedNumber
+            value={avg}
+            colored
+            tooltipContent={
+              <MetricDeltasTooltip
+                deltas={getTeamAggregateDeltas(
+                  row.original.participations,
+                  row.original.participations.length,
+                )}
+                focusedMetric={focusedMetric}
+                type="values"
+                field="gained"
+              />
+            }
+          />
+        );
+      },
     },
-  },
-  {
-    id: "mvp",
-    header: "MVP",
-    accessorFn: (row) => {
-      return row.participations[0];
-    },
-    cell: ({ row }) => {
-      const mvp = row.getValue("mvp") as CompetitionDetailsResponse["participations"][number];
+    {
+      id: "mvp",
+      header: "MVP",
+      accessorFn: (row) => {
+        return row.participations[0];
+      },
+      cell: ({ row }) => {
+        const mvp = row.getValue("mvp") as CompetitionDetailsResponse["participations"][number];
 
-      return (
-        <span>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                prefetch={false}
-                href={`/players/${mvp.player.username}`}
-                className="mr-1 text-gray-100 hover:text-white hover:underline"
-              >
-                {mvp.player.displayName}
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent className="min-w-[16rem] max-w-lg p-0">
-              <PlayerIdentityTooltip player={mvp.player} />
-            </TooltipContent>
-          </Tooltip>
-          (<FormattedNumber value={mvp.progress.gained} colored />)
-        </span>
-      );
-    },
-  },
-  {
-    id: "expand",
-    header: () => "",
-    cell: ({ row }) => {
-      return (
-        <div className="flex justify-end">
-          <Button size="sm" onClick={() => row.toggleExpanded()} className="px-1">
-            <ChevronDownIcon
-              className={cn(
-                "h-4 w-4 transition-transform",
-                row.getIsExpanded() ? "rotate-180" : "rotate-0",
-              )}
+        return (
+          <span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  prefetch={false}
+                  href={`/players/${mvp.player.username}`}
+                  className="mr-1 text-gray-100 hover:text-white hover:underline"
+                >
+                  {mvp.player.displayName}
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent className="min-w-[16rem] max-w-lg p-0">
+                <PlayerIdentityTooltip player={mvp.player} />
+              </TooltipContent>
+            </Tooltip>
+            (
+            <FormattedNumber
+              value={mvp.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0}
+              colored
             />
-          </Button>
-        </div>
-      );
+            )
+          </span>
+        );
+      },
     },
-  },
-];
+    {
+      id: "expand",
+      header: () => "",
+      cell: ({ row }) => {
+        return (
+          <div className="flex justify-end">
+            <Button size="sm" onClick={() => row.toggleExpanded()} className="px-1">
+              <ChevronDownIcon
+                className={cn(
+                  "h-4 w-4 transition-transform",
+                  row.getIsExpanded() ? "rotate-180" : "rotate-0",
+                )}
+              />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
+  return columns;
+}
 
 interface TeamsTableProps {
-  metric: Metric;
+  focusedMetric: Metric | "total";
   competition: CompetitionDetailsResponse;
 }
 
 export function TeamsTable(props: TeamsTableProps) {
-  const { metric, competition } = props;
+  const { focusedMetric, competition } = props;
 
-  const teams = getTeams(competition);
+  const teams = getTeams(competition, focusedMetric);
 
   return (
     <DataTable
       data={teams}
-      columns={COLUMN_DEFINITIONS}
+      columns={getColumnDefinitions(focusedMetric)}
       enablePagination
       renderSubRow={(row) => (
-        <TeamDetails teamName={row.original.name} competition={competition} metric={metric} />
+        <TeamDetails
+          teamName={row.original.name}
+          competition={competition}
+          focusedMetric={focusedMetric}
+        />
       )}
       headerSlot={
         <TableTitle>
@@ -153,17 +202,17 @@ export function TeamsTable(props: TeamsTableProps) {
 }
 
 interface TeamDetailsProps {
-  metric: Metric;
+  focusedMetric: Metric | "total";
   teamName: string;
   competition: CompetitionDetailsResponse;
 }
 
 function TeamDetails(props: TeamDetailsProps) {
-  const { teamName, metric, competition } = props;
+  const { teamName, focusedMetric, competition } = props;
 
   return (
     <div className="flex flex-col gap-y-4 bg-gray-800 px-5 py-4">
-      <ParticipantsTable metric={metric} competition={competition} teamName={teamName} />
+      <ParticipantsTable focusedMetric={focusedMetric} competition={competition} teamName={teamName} />
     </div>
   );
 }
@@ -173,7 +222,7 @@ interface Team {
   participations: CompetitionDetailsResponse["participations"];
 }
 
-function getTeams(competition: CompetitionDetailsResponse): Team[] {
+function getTeams(competition: CompetitionDetailsResponse, focusedMetric: Metric | "total"): Team[] {
   const teamMap = new Map<string, CompetitionDetailsResponse["participations"]>();
 
   competition.participations.forEach((participation) => {
@@ -192,8 +241,43 @@ function getTeams(competition: CompetitionDetailsResponse): Team[] {
     .map(([name, participations]) => ({ name, participations }))
     .sort((a, b) => {
       return (
-        b.participations.reduce((acc, curr) => acc + curr.progress.gained, 0) -
-        a.participations.reduce((acc, curr) => acc + curr.progress.gained, 0)
+        b.participations.reduce(
+          (acc, curr) => acc + (curr.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0),
+          0,
+        ) -
+        a.participations.reduce(
+          (acc, curr) => acc + (curr.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0),
+          0,
+        )
       );
     });
+}
+
+function getTeamAggregateDeltas(
+  participations: CompetitionDetailsResponse["participations"],
+  divisor = 1,
+) {
+  if (participations.length === 0) return [];
+
+  return participations[0].deltas.map((_, metricIndex) => {
+    const { metric } = participations[0].deltas[metricIndex];
+
+    return {
+      metric,
+      values: {
+        start: 0,
+        end: 0,
+        gained: Math.floor(
+          participations.reduce((acc, p) => acc + p.deltas[metricIndex].values.gained, 0) / divisor,
+        ),
+      },
+      levels: {
+        start: 0,
+        end: 0,
+        gained: Math.floor(
+          participations.reduce((acc, p) => acc + p.deltas[metricIndex].levels.gained, 0) / divisor,
+        ),
+      },
+    };
+  });
 }
