@@ -1,7 +1,6 @@
 import { isMetric } from "@wise-old-man/utils";
 import { getCompetitionDetails, getCompetitionTopHistory } from "~/services/wiseoldman";
 import { CompetitionTopParticipantsChart } from "~/components/competitions/CompetitionTopParticipantsChart";
-import { focusManager } from "@tanstack/react-query";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
