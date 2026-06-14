@@ -97,24 +97,25 @@ function TopParticipantWidget(props: TopParticipantWidgetrops) {
     );
   }
 
-  const hasGains = topParticipant.progress.gained > 0;
+  const { player, deltas } = topParticipant;
 
-  const { player, progress } = topParticipant;
+  const values = deltas.find((d) => d.metric === metric)?.values;
+  const gained = values?.gained ?? 0;
 
   return (
     <div className="flex h-24 w-full items-center overflow-hidden rounded-lg border border-gray-500 bg-gray-800 px-5 shadow-md">
       <div className="flex w-full items-end justify-between">
         <div className="flex flex-col gap-y-px">
           <span className="text-base font-medium text-white">{player.displayName}</span>
-          <span className={cn("text-sm font-medium", hasGains && "text-green-500")}>
-            {hasGains ? "+" : ""}
-            {formattedGained(progress.gained, metric)}
+          <span className={cn("text-sm font-medium", gained > 0 && "text-green-500")}>
+            {gained > 0 ? "+" : ""}
+            {formattedGained(gained, metric)}
           </span>
         </div>
-        {hasGains && (
+        {gained > 0 && (
           <Badge variant="success">
             <ArrowUpIcon className="-ml-1 h-5 w-5" />
-            {Math.floor(getPercentGained(metric, progress) * 100)}%
+            {Math.floor(getPercentGained(metric, values) * 100)}%
           </Badge>
         )}
       </div>
@@ -131,7 +132,11 @@ interface GainedWidgetProps {
 function GainedWidget(props: GainedWidgetProps) {
   const { metric, showAverage, participations } = props;
 
-  const total = participations.reduce((acc, p) => acc + p.progress.gained, 0);
+  const total = participations.reduce(
+    (acc, p) => acc + (p.deltas.find((d) => d.metric === metric)?.values.gained ?? 0),
+    0,
+  );
+
   const value = showAverage ? Math.floor(total / participations.length) : total;
 
   return (
@@ -360,7 +365,9 @@ function getTopParticipant(
   if (sorting === "by_value") return participations[0];
 
   return [...participations].sort(
-    (a, b) => getPercentGained(metric, b.progress) - getPercentGained(metric, a.progress),
+    (a, b) =>
+      getPercentGained(metric, b.deltas.find((d) => d.metric === metric)?.values) -
+      getPercentGained(metric, a.deltas.find((d) => d.metric === metric)?.values),
   )[0];
 }
 
@@ -376,8 +383,8 @@ function formattedGained(value: number, metric: Metric) {
   return formatNumber(value);
 }
 
-function getPercentGained(metric: Metric, progress: MetricDelta) {
-  if (progress.gained === 0) return 0;
+function getPercentGained(metric: Metric, progress: MetricDelta | undefined) {
+  if (progress === undefined || progress.gained === 0) return 0;
 
   let minimum = 0;
 

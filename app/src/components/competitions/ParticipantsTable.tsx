@@ -144,14 +144,18 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetailsRes
     },
     {
       id: "gained",
-      accessorFn: (row) => row.progress.gained,
+      accessorFn: (row) => {
+        return row.deltas.find((d) => d.metric === metric)?.values.gained ?? 0;
+      },
       header: ({ column }) => {
         return <TableSortButton column={column}>Gained</TableSortButton>;
       },
       cell: ({ row }) => {
+        const gained = row.original.deltas.find((d) => d.metric === metric)?.values.gained ?? 0;
+
         return (
           <FormattedNumber
-            value={row.original.progress.gained}
+            value={gained}
             colored
             tooltipContent={
               <MetricDeltasTooltip deltas={row.original.deltas} type="values" field="gained" />
@@ -162,7 +166,9 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetailsRes
     },
     {
       id: "start",
-      accessorFn: (row) => row.progress.start,
+      accessorFn: (row) => {
+        return row.deltas.find((d) => d.metric === metric)?.values.start ?? -1;
+      },
       header: ({ column }) => {
         return <TableSortButton column={column}>Start</TableSortButton>;
       },
@@ -174,7 +180,9 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetailsRes
     },
     {
       id: "end",
-      accessorFn: (row) => row.progress.end,
+      accessorFn: (row) => {
+        return row.deltas.find((d) => d.metric === metric)?.values.end ?? -1;
+      },
       header: ({ column }) => {
         return <TableSortButton column={column}>End</TableSortButton>;
       },
@@ -202,12 +210,14 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetailsRes
       header: ({ column }) => {
         return <TableSortButton column={column}>Levels</TableSortButton>;
       },
-      accessorFn: ({ levels }) => {
-        return levels?.gained;
+      accessorFn: (row) => {
+        return row.deltas.find((d) => d.metric === metric)?.levels.gained ?? 0;
       },
       cell: ({ row }) => {
-        if (!row.original.levels) return null;
-        const { start, end, gained } = row.original.levels;
+        const levels = row.original.deltas.find((d) => d.metric === metric)?.levels;
+
+        if (levels === undefined) return null;
+        const { start, end, gained } = levels;
 
         if (start === -1 || end === -1) return "---";
 
@@ -237,8 +247,9 @@ function ParticipantStartCell(props: {
   participant: CompetitionDetailsResponse["participations"][number];
 }) {
   const { metric, competition, participant } = props;
-  const { player, deltas, progress } = participant;
+  const { player, deltas } = participant;
 
+  const start = deltas.find((d) => d.metric === metric)?.values.start ?? -1;
   const hasStartingValue = player.updatedAt && player.updatedAt >= competition.startsAt;
 
   if (!hasStartingValue) {
@@ -254,7 +265,7 @@ function ParticipantStartCell(props: {
     );
   }
 
-  if (progress.start === -1) {
+  if (start === -1) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
@@ -267,7 +278,7 @@ function ParticipantStartCell(props: {
 
   return (
     <FormattedNumber
-      value={progress.start}
+      value={start}
       tooltipContent={<MetricDeltasTooltip deltas={deltas} type="values" field="start" />}
     />
   );
@@ -291,8 +302,9 @@ function ParticipantEndCell(props: {
     );
   }
 
-  const { player, deltas, progress } = participant;
+  const { player, deltas } = participant;
 
+  const end = deltas.find((d) => d.metric === metric)?.values.end ?? -1;
   const hasStartingValue = player.updatedAt && player.updatedAt >= competition.startsAt;
 
   if (!hasStartingValue) {
@@ -308,7 +320,7 @@ function ParticipantEndCell(props: {
     );
   }
 
-  if (progress.end === -1) {
+  if (end === -1) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
@@ -321,8 +333,8 @@ function ParticipantEndCell(props: {
 
   return (
     <FormattedNumber
-      value={progress.end}
-      tooltipContent={<MetricDeltasTooltip deltas={deltas} type="values" field="start" />}
+      value={end}
+      tooltipContent={<MetricDeltasTooltip deltas={deltas} type="values" field="end" />}
     />
   );
 }
