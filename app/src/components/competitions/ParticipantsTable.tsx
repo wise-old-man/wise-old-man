@@ -9,9 +9,9 @@ import {
   CompetitionType,
   Metric,
   MetricProps,
+  MetricType,
   PlayerResponse,
   PlayerStatus,
-  isSkill,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
@@ -32,7 +32,7 @@ import LoadingIcon from "~/assets/loading.svg";
 import { MetricIcon } from "../Icon";
 
 interface ParticipantsTableProps {
-  metric: Metric;
+  metric: Metric | "total";
   competition: CompetitionDetailsResponse;
   teamName?: string;
 }
@@ -43,7 +43,11 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
   const searchParams = useSearchParams();
 
   const rows = competition.participations.filter((p) => !teamName || p.teamName === teamName);
-  const columns = getColumnDefinitions(metric, competition);
+
+  const metricType =
+    metric === "total" ? MetricProps[competition.metrics[0].metric].type : MetricProps[metric].type;
+
+  const columns = getColumnDefinitions(metric, metricType, competition);
 
   const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
 
@@ -102,7 +106,11 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
   );
 }
 
-function getColumnDefinitions(metric: Metric, competition: CompetitionDetailsResponse) {
+function getColumnDefinitions(
+  metric: Metric | "total",
+  metricType: MetricType,
+  competition: CompetitionDetailsResponse,
+) {
   const columns: ColumnDef<CompetitionDetailsResponse["participations"][number]>[] = [
     {
       id: "rank",
@@ -120,7 +128,11 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetailsRes
       },
       cell: ({ row }) => {
         const params = new URLSearchParams();
-        params.set("metric", metric);
+
+        if (metric !== "total") {
+          params.set("metric", metric);
+        }
+
         params.set("startDate", competition.startsAt.toISOString());
         params.set("endDate", competition.endsAt.toISOString());
 
@@ -204,7 +216,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetailsRes
     },
   ];
 
-  if (isSkill(metric)) {
+  if (metricType === MetricType.SKILL) {
     columns.splice(3, 0, {
       id: "levels",
       header: ({ column }) => {
@@ -242,7 +254,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetailsRes
 }
 
 function ParticipantStartCell(props: {
-  metric: Metric;
+  metric: Metric | "total";
   competition: CompetitionDetailsResponse;
   participant: CompetitionDetailsResponse["participations"][number];
 }) {
@@ -271,7 +283,10 @@ function ParticipantStartCell(props: {
         <TooltipTrigger asChild>
           <span>---</span>
         </TooltipTrigger>
-        <TooltipContent>This player started out unranked in {MetricProps[metric].name}.</TooltipContent>
+        <TooltipContent>
+          This player started out unranked in{" "}
+          {metric === "total" ? "all metrics" : MetricProps[metric].name}.
+        </TooltipContent>
       </Tooltip>
     );
   }
@@ -285,7 +300,7 @@ function ParticipantStartCell(props: {
 }
 
 function ParticipantEndCell(props: {
-  metric: Metric;
+  metric: Metric | "total";
   competition: CompetitionDetailsResponse;
   participant: CompetitionDetailsResponse["participations"][number];
 }) {
@@ -326,7 +341,9 @@ function ParticipantEndCell(props: {
         <TooltipTrigger asChild>
           <span>---</span>
         </TooltipTrigger>
-        <TooltipContent>This player is unranked in {MetricProps[metric].name}.</TooltipContent>
+        <TooltipContent>
+          This player is unranked in {metric === "total" ? "all metrics" : MetricProps[metric].name}.
+        </TooltipContent>
       </Tooltip>
     );
   }

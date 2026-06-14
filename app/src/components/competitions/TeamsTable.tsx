@@ -17,7 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 import ExportIcon from "~/assets/export.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 
-function getColumnDefinitions(metric: Metric): ColumnDef<Team>[] {
+function getColumnDefinitions(metric: Metric | "total"): ColumnDef<Team>[] {
   const columns: ColumnDef<Team>[] = [
     {
       id: "rank",
@@ -160,7 +160,7 @@ function getColumnDefinitions(metric: Metric): ColumnDef<Team>[] {
 }
 
 interface TeamsTableProps {
-  metric: Metric;
+  metric: Metric | "total";
   competition: CompetitionDetailsResponse;
 }
 
@@ -195,7 +195,7 @@ export function TeamsTable(props: TeamsTableProps) {
 }
 
 interface TeamDetailsProps {
-  metric: Metric;
+  metric: Metric | "total";
   teamName: string;
   competition: CompetitionDetailsResponse;
 }
@@ -215,7 +215,7 @@ interface Team {
   participations: CompetitionDetailsResponse["participations"];
 }
 
-function getTeams(competition: CompetitionDetailsResponse, metric: Metric): Team[] {
+function getTeams(competition: CompetitionDetailsResponse, metric: Metric | "total"): Team[] {
   const teamMap = new Map<string, CompetitionDetailsResponse["participations"]>();
 
   competition.participations.forEach((participation) => {

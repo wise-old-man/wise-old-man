@@ -13,21 +13,19 @@ interface PageProps {
     id: number;
   };
   searchParams: {
-    preview?: string;
+    metric?: string;
   };
 }
 
-function getPreviewMetric(previewParam: string | undefined) {
-  return previewParam && isMetric(previewParam) ? previewParam : undefined;
+function getMetricParam(metricParam: string | undefined) {
+  return metricParam && isMetric(metricParam) ? metricParam : undefined;
 }
 
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
-  const { preview } = props.searchParams;
 
-  const previewMetric = getPreviewMetric(preview);
-
-  const competition = await getCompetitionDetails(id, previewMetric);
+  const metricParam = getMetricParam(props.searchParams.metric);
+  const competition = await getCompetitionDetails(id, metricParam);
 
   return {
     title: competition.title,
@@ -36,12 +34,12 @@ export async function generateMetadata(props: PageProps) {
 
 export default async function CompetitionOverviewPage(props: PageProps) {
   const { id } = props.params;
-  const { preview } = props.searchParams;
 
-  const previewMetric = getPreviewMetric(preview);
+  const metricParam = getMetricParam(props.searchParams.metric);
+  const competition = await getCompetitionDetails(id, metricParam);
 
-  const competition = await getCompetitionDetails(id, previewMetric);
-  const metric = previewMetric || competition.metric;
+  const selectedMetric =
+    metricParam ?? (competition.metrics.length > 1 ? "total" : competition.metrics[0].metric);
 
   // Starting in less than 3 hours
   const isStartingSoon =
@@ -58,12 +56,12 @@ export default async function CompetitionOverviewPage(props: PageProps) {
       {isEndingSoon && <CompetitionStatusWarning status="ending" />}
       {isStartingSoon && <CompetitionStatusWarning status="starting" />}
 
-      <CompetitionWidgets metric={metric} competition={competition} />
+      <CompetitionWidgets metric={selectedMetric} competition={competition} />
 
       {competition.type === CompetitionType.TEAM ? (
-        <TeamsTable metric={metric} competition={competition} />
+        <TeamsTable metric={selectedMetric} competition={competition} />
       ) : (
-        <ParticipantsTable metric={metric} competition={competition} />
+        <ParticipantsTable metric={selectedMetric} competition={competition} />
       )}
     </div>
   );
