@@ -151,7 +151,7 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
           {featured.metrics.length === 1 ? (
             <MetricIcon metric={featured.metrics[0].metric} />
           ) : (
-            <MetricAvatarGroup metrics={featured.metrics.map((m) => m.metric)} maxCount={2} />
+            <MetricAvatarGroup metrics={featured.metrics.map((m) => m.metric)} />
           )}
         </div>
         <div className="z-1 relative flex flex-col gap-y-1">

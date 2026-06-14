@@ -5,29 +5,31 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 export function MetricAvatarGroup({
   metrics,
-  maxCount,
+  maxCount = 3,
   size = "md",
   avatarClassname,
 }: {
   metrics: Metric[];
-  maxCount: number;
+  maxCount?: number;
   size?: "md" | "lg";
   avatarClassname?: string;
 }) {
-  const overflowCount = Math.max(0, metrics.length - maxCount);
+  const showOverflow = metrics.length > maxCount;
+  const displayCount = showOverflow ? maxCount - 1 : metrics.length;
+  const overflowCount = showOverflow ? metrics.length - displayCount : 0;
 
   const singleSize = size === "md" ? 48 : 56;
   const multipleSize = size === "md" ? 36 : 48;
 
   const itemOffset = size === "md" ? 24 : 32;
   const itemSize = metrics.length > 1 ? multipleSize : singleSize;
-  const itemCount = Math.min(metrics.length, maxCount + 1);
+  const itemCount = displayCount + (showOverflow ? 1 : 0);
 
   const width = itemCount * itemSize - (itemCount - 1) * (itemSize - itemOffset);
 
   return (
     <div style={{ width, height: itemSize }} className="relative flex shrink-0 flex-row">
-      {metrics.slice(0, maxCount).map((metric, index) => (
+      {metrics.slice(0, displayCount).map((metric, index) => (
         <div
           key={metric}
           className={cn(
@@ -64,7 +66,7 @@ export function MetricAvatarGroup({
           </TooltipTrigger>
           <TooltipContent side="bottom">
             <div className="flex flex-col gap-y-1">
-              {metrics.slice(maxCount - 1).map((metric) => (
+              {metrics.slice(displayCount).map((metric) => (
                 <div key={metric} className="flex items-center gap-x-2">
                   <MetricIcon metric={metric} />
                   <span>{MetricProps[metric].name}</span>

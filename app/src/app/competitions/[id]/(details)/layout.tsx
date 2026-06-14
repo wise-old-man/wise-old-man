@@ -98,7 +98,6 @@ function Header(props: CompetitionDetailsResponse) {
       <div className="flex w-full grow flex-col items-start gap-x-3 gap-y-4 sm:flex-row sm:items-center">
         <MetricAvatarGroup
           metrics={metrics.map((m) => m.metric)}
-          maxCount={2}
           size="lg"
           avatarClassname="bg-gray-800"
         />
