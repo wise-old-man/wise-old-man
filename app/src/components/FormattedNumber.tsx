@@ -7,10 +7,11 @@ interface FormattedNumberProps {
   colored?: boolean;
   lowThreshold?: number;
   className?: string;
+  tooltipContent?: React.ReactNode;
 }
 
 export function FormattedNumber(props: FormattedNumberProps) {
-  const { className, value, colored, lowThreshold } = props;
+  const { className, value, colored, lowThreshold, tooltipContent } = props;
 
   if (value === 0) {
     return <span className={className}>0</span>;
@@ -34,7 +35,7 @@ export function FormattedNumber(props: FormattedNumberProps) {
           {formatNumber(value, true)}
         </span>
       </TooltipTrigger>
-      <TooltipContent>{formatNumber(value, false)}</TooltipContent>
+      <TooltipContent>{tooltipContent ?? formatNumber(value, false)}</TooltipContent>
     </Tooltip>
   );
 }

@@ -22,12 +22,14 @@ import { DataTable } from "../DataTable";
 import { QueryLink } from "../QueryLink";
 import { PlayerIdentity } from "../PlayerIdentity";
 import { FormattedNumber } from "../FormattedNumber";
+import { MetricDeltasTooltip } from "../MetricDeltasTooltip";
 import { TableSortButton, TableTitle } from "../Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 import CheckIcon from "~/assets/check.svg";
 import ExportIcon from "~/assets/export.svg";
 import LoadingIcon from "~/assets/loading.svg";
+import { MetricIcon } from "../Icon";
 
 interface ParticipantsTableProps {
   metric: Metric;
@@ -147,7 +149,15 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetailsRes
         return <TableSortButton column={column}>Gained</TableSortButton>;
       },
       cell: ({ row }) => {
-        return <FormattedNumber value={row.original.progress.gained} colored />;
+        return (
+          <FormattedNumber
+            value={row.original.progress.gained}
+            colored
+            tooltipContent={
+              <MetricDeltasTooltip deltas={row.original.deltas} type="values" field="gained" />
+            }
+          />
+        );
       },
     },
     {
@@ -209,7 +219,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetailsRes
                 <span>{gained}</span>
               </TooltipTrigger>
               <TooltipContent>
-                Gained {gained} levels {gained > 0 ? `(from ${start} to ${end})` : ""}
+                <MetricDeltasTooltip deltas={row.original.deltas} type="levels" field="gained" />
               </TooltipContent>
             </Tooltip>
           </span>
@@ -227,7 +237,7 @@ function ParticipantStartCell(props: {
   participant: CompetitionDetailsResponse["participations"][number];
 }) {
   const { metric, competition, participant } = props;
-  const { player, progress } = participant;
+  const { player, deltas, progress } = participant;
 
   const hasStartingValue = player.updatedAt && player.updatedAt >= competition.startsAt;
 
@@ -255,7 +265,12 @@ function ParticipantStartCell(props: {
     );
   }
 
-  return <FormattedNumber value={progress.start} />;
+  return (
+    <FormattedNumber
+      value={progress.start}
+      tooltipContent={<MetricDeltasTooltip deltas={deltas} type="values" field="start" />}
+    />
+  );
 }
 
 function ParticipantEndCell(props: {
@@ -276,7 +291,7 @@ function ParticipantEndCell(props: {
     );
   }
 
-  const { player, progress } = participant;
+  const { player, deltas, progress } = participant;
 
   const hasStartingValue = player.updatedAt && player.updatedAt >= competition.startsAt;
 
@@ -304,7 +319,12 @@ function ParticipantEndCell(props: {
     );
   }
 
-  return <FormattedNumber value={progress.end} />;
+  return (
+    <FormattedNumber
+      value={progress.end}
+      tooltipContent={<MetricDeltasTooltip deltas={deltas} type="values" field="start" />}
+    />
+  );
 }
 
 function UpdateParticipantCell(props: {

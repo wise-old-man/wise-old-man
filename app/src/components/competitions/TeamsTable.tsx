@@ -8,6 +8,7 @@ import { Button } from "../Button";
 import { DataTable } from "../DataTable";
 import { QueryLink } from "../QueryLink";
 import { FormattedNumber } from "../FormattedNumber";
+import { MetricDeltasTooltip } from "../MetricDeltasTooltip";
 import { TableTitle } from "../Table";
 import { ParticipantsTable } from "./ParticipantsTable";
 import { PlayerIdentityTooltip } from "../PlayerIdentity";
@@ -48,7 +49,19 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
       const total = Number(row.getValue("total"));
       if (total <= 0) return "0";
 
-      return <FormattedNumber value={total} colored />;
+      return (
+        <FormattedNumber
+          value={total}
+          colored
+          tooltipContent={
+            <MetricDeltasTooltip
+              deltas={getTeamAggregateDeltas(row.original.participations)}
+              type="values"
+              field="gained"
+            />
+          }
+        />
+      );
     },
   },
   {
@@ -64,7 +77,22 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
       const avg = parseInt(row.getValue("average"));
       if (avg <= 0) return "0";
 
-      return <FormattedNumber value={avg} colored />;
+      return (
+        <FormattedNumber
+          value={avg}
+          colored
+          tooltipContent={
+            <MetricDeltasTooltip
+              deltas={getTeamAggregateDeltas(
+                row.original.participations,
+                row.original.participations.length,
+              )}
+              type="values"
+              field="gained"
+            />
+          }
+        />
+      );
     },
   },
   {
@@ -196,4 +224,33 @@ function getTeams(competition: CompetitionDetailsResponse): Team[] {
         a.participations.reduce((acc, curr) => acc + curr.progress.gained, 0)
       );
     });
+}
+
+function getTeamAggregateDeltas(
+  participations: CompetitionDetailsResponse["participations"],
+  divisor = 1,
+) {
+  if (participations.length === 0) return [];
+
+  return participations[0].deltas.map((_, metricIndex) => {
+    const { metric } = participations[0].deltas[metricIndex];
+
+    return {
+      metric,
+      values: {
+        start: 0,
+        end: 0,
+        gained: Math.floor(
+          participations.reduce((acc, p) => acc + p.deltas[metricIndex].values.gained, 0) / divisor,
+        ),
+      },
+      levels: {
+        start: 0,
+        end: 0,
+        gained: Math.floor(
+          participations.reduce((acc, p) => acc + p.deltas[metricIndex].levels.gained, 0) / divisor,
+        ),
+      },
+    };
+  });
 }
