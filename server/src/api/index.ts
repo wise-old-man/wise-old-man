@@ -130,7 +130,7 @@ class APIInstance {
         isTrustedOrigin = true;
       }
 
-      if (isMasterKey) {
+      if (process.env.NODE_ENV === 'development' || isMasterKey) {
         return next();
       }
 
