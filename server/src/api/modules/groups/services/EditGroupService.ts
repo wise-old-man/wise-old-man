@@ -16,6 +16,7 @@ import { assertNever } from '../../../../utils/assert-never.util';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, sanitizeDisplayName, standardizeUsername } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
+import { GroupMemberInput } from '../../../../types/group-member-input.type';
 
 // Only allow images from our Cloudflare R2 CDN, to make sure people don't
 // upload unresize, or uncompressed images. They musgt edit images on the website.
@@ -236,10 +237,7 @@ export async function editGroup(
   return complete(transactionResult.value.updatedGroup);
 }
 
-async function updateMembers(
-  groupId: number,
-  members: Array<{ username: string; role: GroupRole; clientSyncJoinedAt?: string | null }>
-) {
+async function updateMembers(groupId: number, members: Array<GroupMemberInput>) {
   const memberships = await prisma.membership.findMany({
     where: { groupId },
     include: { player: true }
@@ -384,26 +382,17 @@ async function updateMembers(
 
       const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, members);
 
-      // Update clientSyncJoinedAt if needed for existing memberships that don't have a clientSyncJoinedAt date yet.
-      for (const mem of members) {
-        if (mem.clientSyncJoinedAt) {
-          const currentMembership = memberships.find(
-            membership => membership.player.username === standardizeUsername(mem.username)
-          );
-          if (!!currentMembership && !currentMembership?.clientSyncJoinedAt) {
-            await transaction.membership.update({
-              where: {
-                playerId_groupId: {
-                  playerId: currentMembership.playerId,
-                  groupId
-                }
-              },
-              data: {
-                clientSyncJoinedAt: new Date(mem.clientSyncJoinedAt)
-              }
-            });
+      const clientSyncJoinedAtMap = calculateClientSyncJoinedAtMaps(keptPlayers, memberships, members);
+      for (const clientSyncJoinedAt of clientSyncJoinedAtMap.keys()) {
+        await transaction.membership.updateMany({
+          where: {
+            groupId,
+            playerId: { in: clientSyncJoinedAtMap.get(clientSyncJoinedAt) }
+          },
+          data: {
+            clientSyncJoinedAt: new Date(clientSyncJoinedAt)
           }
-        }
+        });
       }
 
       const currentRoleMap = new Map<number, GroupRole>(
@@ -500,10 +489,12 @@ async function addMissingMemberships(
   const clientSyncJoinedAtMap: { [playerId: number]: Date | null } = {};
 
   missingPlayers.forEach(player => {
-    const role = memberInputs.find(m => standardizeUsername(m.username) === player.username)?.role;
-    const clientSyncJoinedAt = memberInputs.find(
-      m => standardizeUsername(m.username) === player.username
-    )?.clientSyncJoinedAt;
+    const matchingInput = memberInputs.find(m => standardizeUsername(m.username) === player.username);
+
+    if (!matchingInput) return;
+
+    const { role, clientSyncJoinedAt } = matchingInput;
+    
     if (!role) return;
 
     roleMap[player.id] = role;
@@ -574,4 +565,31 @@ function calculateRoleChangeMaps(
   });
 
   return newRoleMap;
+}
+
+function calculateClientSyncJoinedAtMaps(
+  keptPlayers: Player[],
+  currentMemberships: (Membership & { player: Player })[],
+  memberInputs: Array<GroupMemberInput>
+) {
+  const newClientSyncJoinedAtMap = new Map<string, number[]>();
+
+  memberInputs.forEach(mem => {
+    if (!mem.clientSyncJoinedAt) return; // remove members that don't have a clientSyncJoinedAt
+    const currentMembership = currentMemberships.find(
+      p => standardizeUsername(p.player.username) === standardizeUsername(mem.username)
+    );
+
+    //remove members that already have a clientSyncJoinedAt, we only want to update memberships that don't have a clientSyncJoinedAt yet.
+    if (!currentMembership || currentMembership?.clientSyncJoinedAt) return;
+
+    const current = newClientSyncJoinedAtMap.get(mem.clientSyncJoinedAt);
+    if (current) {
+      current.push(currentMembership.playerId);
+    } else {
+      newClientSyncJoinedAtMap.set(mem.clientSyncJoinedAt, [currentMembership.playerId]);
+    }
+  });
+
+  return newClientSyncJoinedAtMap;
 }

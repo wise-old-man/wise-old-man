@@ -126,7 +126,7 @@ export const memberSchema = z.object(
   },
   {
     invalid_type_error:
-      'Invalid members list. Must be an array of { username: string; role?: string; clientSyncJoinedAt?: number | null; }.'
+      'Invalid members list. Must be an array of { username: string; role?: string; }.'
   }
 );
 
