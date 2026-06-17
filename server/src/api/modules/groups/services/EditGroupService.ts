@@ -36,7 +36,7 @@ interface EditGroupPayload {
     twitch?: string | null;
     youtube?: string | null;
   };
-  members?: Array<{ username: string; role: GroupRole; clientSyncJoinedAt?: string | null }>;
+  members?: Array<GroupMemberInput>;
   roleOrders?: Array<{ role: GroupRole; index: number }>;
 }
 
@@ -483,7 +483,7 @@ async function addMissingMemberships(
   transaction: PrismaTypes.TransactionClient,
   groupId: number,
   missingPlayers: Player[],
-  memberInputs: Array<{ username: string; role: GroupRole; clientSyncJoinedAt?: string | null }>
+  memberInputs: Array<GroupMemberInput>
 ) {
   const roleMap: { [playerId: number]: GroupRole } = {};
   const clientSyncJoinedAtMap: { [playerId: number]: Date | null } = {};
@@ -494,7 +494,7 @@ async function addMissingMemberships(
     if (!matchingInput) return;
 
     const { role, clientSyncJoinedAt } = matchingInput;
-    
+
     if (!role) return;
 
     roleMap[player.id] = role;
@@ -523,7 +523,7 @@ async function addMissingMemberships(
 function calculateRoleChangeMaps(
   keptPlayers: Player[],
   currentMemberships: (Membership & { player: Player })[],
-  memberInputs: Array<{ username: string; role: GroupRole }>
+  memberInputs: Array<GroupMemberInput>
 ) {
   // Note: reversing the array here to find the role that was last declared for a given username
   const reversedInputs = [...memberInputs].reverse();
