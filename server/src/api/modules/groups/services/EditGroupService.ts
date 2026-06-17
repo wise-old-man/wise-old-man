@@ -8,7 +8,8 @@ import {
   Membership,
   NameChangeStatus,
   Player,
-  PlayerAnnotationType
+  PlayerAnnotationType,
+  GroupMemberInput
 } from '../../../../types';
 import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 
@@ -16,7 +17,6 @@ import { assertNever } from '../../../../utils/assert-never.util';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, sanitizeDisplayName, standardizeUsername } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
-import { GroupMemberInput } from '../../../../types/group-member-input.type';
 
 // Only allow images from our Cloudflare R2 CDN, to make sure people don't
 // upload unresize, or uncompressed images. They musgt edit images on the website.
