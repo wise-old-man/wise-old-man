@@ -122,7 +122,7 @@ export const memberSchema = z.object(
   {
     username: z.string(),
     role: z.optional(groupRoleSchema).default(GroupRole.MEMBER) as unknown as typeof groupRoleSchema,
-    clientSyncJoinedAt: z.optional(z.string().or(z.null()))
+    clientSyncJoinedAt: z.optional(z.string())
   },
   {
     invalid_type_error:
