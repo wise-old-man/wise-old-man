@@ -382,7 +382,7 @@ async function updateMembers(groupId: number, members: Array<GroupMemberInput>) 
 
       const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, members);
 
-      const clientSyncJoinedAtMap = calculateClientSyncJoinedAtMaps(keptPlayers, memberships, members);
+      const clientSyncJoinedAtMap = calculateClientSyncJoinedAtMaps(memberships, members);
       for (const clientSyncJoinedAt of clientSyncJoinedAtMap.keys()) {
         await transaction.membership.updateMany({
           where: {
@@ -568,7 +568,6 @@ function calculateRoleChangeMaps(
 }
 
 function calculateClientSyncJoinedAtMaps(
-  keptPlayers: Player[],
   currentMemberships: (Membership & { player: Player })[],
   memberInputs: Array<GroupMemberInput>
 ) {
@@ -583,11 +582,11 @@ function calculateClientSyncJoinedAtMaps(
     //remove members that already have a clientSyncJoinedAt, we only want to update memberships that don't have a clientSyncJoinedAt yet.
     if (!currentMembership || currentMembership?.clientSyncJoinedAt) return;
 
-    const current = newClientSyncJoinedAtMap.get(mem.clientSyncJoinedAt);
+    const current = newClientSyncJoinedAtMap.get(mem.clientSyncJoinedAt.toISOString());
     if (current) {
       current.push(currentMembership.playerId);
     } else {
-      newClientSyncJoinedAtMap.set(mem.clientSyncJoinedAt, [currentMembership.playerId]);
+      newClientSyncJoinedAtMap.set(mem.clientSyncJoinedAt.toISOString(), [currentMembership.playerId]);
     }
   });
 

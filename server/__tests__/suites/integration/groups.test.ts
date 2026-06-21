@@ -933,7 +933,7 @@ describe('Group API', () => {
     });
 
     it('should allow clientSyncJoinedAt to be set', async () => {
-      const before = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
+      const before = await api.get(`/groups/${globalData.testGroupOneLeader.id}`);
       expect(before.status).toBe(200);
 
       // Removing "alt player" and "test player"
@@ -942,7 +942,7 @@ describe('Group API', () => {
         members: [
           { username: 'Psikoi', role: 'achiever', clientSyncJoinedAt: '2026-06-17' },
           { username: ' ZezIMA___', role: 'collector', clientSyncJoinedAt: '2026-05-17' },
-          { username: 'swampletics', role: 'artisan' },
+          { username: 'swampletics', role: 'artisan', clientSyncJoinedAt: '2026-05-17' },
           { username: 'alexsuperfly', role: 'leader' },
           { username: 'zezIMA', role: 'firemaker' },
           { username: 'rorro' }
@@ -952,7 +952,10 @@ describe('Group API', () => {
       expect(response.status).toBe(200);
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000);
       expect(response.body.memberCount).toBe(5);
-      expect(response.body.memberships.filter(m => m.clientSyncJoinedAt).length).toBe(2);
+      expect(response.body.memberships.filter(m => m.clientSyncJoinedAt).length).toBe(3);
+      expect(
+        response.body.memberships.filter(m => m.clientSyncJoinedAt === '2026-05-17T00:00:00.000Z').length
+      ).toBe(2);
     });
 
     it('should edit name', async () => {

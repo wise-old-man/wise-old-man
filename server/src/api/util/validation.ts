@@ -122,7 +122,7 @@ export const memberSchema = z.object(
   {
     username: z.string(),
     role: z.optional(groupRoleSchema).default(GroupRole.MEMBER) as unknown as typeof groupRoleSchema,
-    clientSyncJoinedAt: z.optional(z.string())
+    clientSyncJoinedAt: z.optional(getDateSchema('clientSyncJoinedAt'))
   },
   {
     invalid_type_error: 'Invalid members list. Must be an array of { username: string; role?: string; }.'
