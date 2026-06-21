@@ -39,8 +39,8 @@ export const CheckProtectedPlayersSpamJobHandler: JobHandler = {
     `
     ]);
 
-    const susGroups = groupResults.filter(g => g.count > 5);
-    const susCompetitions = competitionResults.filter(c => c.count > 5);
+    const susGroups = groupResults.filter(g => g.count > 1);
+    const susCompetitions = competitionResults.filter(c => c.count > 1);
 
     if (susGroups.length === 0 && susCompetitions.length === 0) {
       return;
