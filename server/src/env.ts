@@ -38,7 +38,7 @@ const envVariablesSchema = z.object({
   // Openai API Key
   SERVER_OPENAI_API_KEY: z.string().trim().min(1).startsWith('sk-'),
   // Abuse Protection Configs
-  SERVER_API_ABUSE_PROTECTED_PLAYERS_LIST: z.optional(z.string().trim()),
+  SERVER_ABUSE_PROTECTED_PLAYERS_LIST: z.string().trim(),
   // Feature Flags
   SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS: z.optional(z.string()),
   // Admin Password (For moderation operations)
@@ -73,7 +73,7 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
     'SERVER_PATREON_BEARER_TOKEN',
     'SERVER_DISCORD_PATREON_WEBHOOK_URL',
     'SERVER_OPENAI_API_KEY',
-    'SERVER_API_ABUSE_PROTECTED_PLAYERS_LIST'
+    'SERVER_ABUSE_PROTECTED_PLAYERS_LIST'
   ],
   [ServerType.BULL_BOARD]: [
     //
