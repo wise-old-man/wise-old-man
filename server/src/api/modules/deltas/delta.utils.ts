@@ -24,7 +24,7 @@ import {
   getPlayerEHP
 } from '../../modules/efficiency/efficiency.utils';
 import { PlayerDeltasMapResponse } from '../../responses';
-import { getTotalLevel } from '../snapshots/snapshot.utils';
+import { getTotalLevel, METRICS_ALLOWING_NEGATIVE_GAINS } from '../snapshots/snapshot.utils';
 
 const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 }) satisfies MetricDelta;
 
@@ -79,7 +79,8 @@ export function calculateValueDiff(metric: Metric, startSnapshot: Snapshot, endS
   const startValue = startSnapshot && startSnapshot[valueKey] ? startSnapshot[valueKey] : -1;
   const endValue = endSnapshot && endSnapshot[valueKey] ? endSnapshot[valueKey] : -1;
 
-  let gainedValue = roundNumber(Math.max(0, endValue - Math.max(startValue, 0)), 5);
+  const rawGain = roundNumber(endValue - Math.max(startValue, 0), 5);
+  let gainedValue = METRICS_ALLOWING_NEGATIVE_GAINS.includes(metric) ? rawGain : Math.max(0, rawGain);
 
   // Some players with low total level (but high exp) can sometimes fall off the hiscores
   // causing their starting exp to be -1, this would then cause the diff to think
@@ -122,7 +123,7 @@ function calculateEHPDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player
   const endEHP = endSnapshot ? getPlayerEHP(endSnapshot, player) : 0;
 
   return {
-    gained: Math.max(0, roundNumber(endEHP - startEHP, 5)),
+    gained: roundNumber(endEHP - startEHP, 5),
     start: startEHP,
     end: endEHP
   };
@@ -136,7 +137,7 @@ function calculateEHBDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player
   const endEHB = endSnapshot ? getPlayerEHB(endSnapshot, player) : 0;
 
   return {
-    gained: Math.max(0, roundNumber(endEHB - startEHB, 5)),
+    gained: roundNumber(endEHB - startEHB, 5),
     start: startEHB,
     end: endEHB
   };
