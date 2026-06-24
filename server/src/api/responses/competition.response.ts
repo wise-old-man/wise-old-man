@@ -40,7 +40,7 @@ export function formatCompetitionResponse(
       'updatedAt'
     ),
     // Include both for backward compatibility, eventually we will remove `metric` field.
-    metric: sortedMetrics[0].metric,
+    metric: sortedMetrics[0]?.metric ?? Metric.OVERALL,
     metrics: sortedMetrics.map(m => ({
       weight: 1,
       ...pick(m, 'metric', 'createdAt')
