@@ -1,15 +1,12 @@
 import prisma from '../../../../prisma';
 import { logger } from '../../../../services/logger.service';
-import { GroupRole, MemberActivityType, PlayerAnnotationType } from '../../../../types';
+import { MemberActivityType, PlayerAnnotationType, GroupMemberInput } from '../../../../types';
 import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, standardizeUsername } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 
-async function addMembers(
-  groupId: number,
-  members: Array<{ username: string; role: GroupRole }>
-): Promise<{ count: number }> {
+async function addMembers(groupId: number, members: Array<GroupMemberInput>): Promise<{ count: number }> {
   const invalidUsernames = members.map(m => m.username).filter(u => !isValidUsername(u));
 
   if (invalidUsernames.length > 0) {

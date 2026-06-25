@@ -8,7 +8,8 @@ import {
   Membership,
   NameChangeStatus,
   Player,
-  PlayerAnnotationType
+  PlayerAnnotationType,
+  GroupMemberInput
 } from '../../../../types';
 import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 
@@ -35,7 +36,7 @@ interface EditGroupPayload {
     twitch?: string | null;
     youtube?: string | null;
   };
-  members?: Array<{ username: string; role: GroupRole }>;
+  members?: Array<GroupMemberInput>;
   roleOrders?: Array<{ role: GroupRole; index: number }>;
 }
 
@@ -236,7 +237,7 @@ export async function editGroup(
   return complete(transactionResult.value.updatedGroup);
 }
 
-async function updateMembers(groupId: number, members: Array<{ username: string; role: GroupRole }>) {
+async function updateMembers(groupId: number, members: Array<GroupMemberInput>) {
   const memberships = await prisma.membership.findMany({
     where: { groupId },
     include: { player: true }
@@ -381,6 +382,19 @@ async function updateMembers(groupId: number, members: Array<{ username: string;
 
       const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, members);
 
+      const clientSyncJoinedAtMap = calculateClientSyncJoinedAtMaps(memberships, members);
+      for (const clientSyncJoinedAt of clientSyncJoinedAtMap.keys()) {
+        await transaction.membership.updateMany({
+          where: {
+            groupId,
+            playerId: { in: clientSyncJoinedAtMap.get(clientSyncJoinedAt) }
+          },
+          data: {
+            clientSyncJoinedAt: new Date(clientSyncJoinedAt)
+          }
+        });
+      }
+
       const currentRoleMap = new Map<number, GroupRole>(
         Array.from(memberships).map(m => [m.playerId, m.role])
       );
@@ -469,15 +483,22 @@ async function addMissingMemberships(
   transaction: PrismaTypes.TransactionClient,
   groupId: number,
   missingPlayers: Player[],
-  memberInputs: Array<{ username: string; role: GroupRole }>
+  memberInputs: Array<GroupMemberInput>
 ) {
   const roleMap: { [playerId: number]: GroupRole } = {};
+  const clientSyncJoinedAtMap: { [playerId: number]: Date | null } = {};
 
   missingPlayers.forEach(player => {
-    const role = memberInputs.find(m => standardizeUsername(m.username) === player.username)?.role;
+    const matchingInput = memberInputs.find(m => standardizeUsername(m.username) === player.username);
+
+    if (!matchingInput) return;
+
+    const { role, clientSyncJoinedAt } = matchingInput;
+
     if (!role) return;
 
     roleMap[player.id] = role;
+    clientSyncJoinedAtMap[player.id] = clientSyncJoinedAt ? new Date(clientSyncJoinedAt) : null;
   });
 
   if (Object.keys(roleMap).length !== missingPlayers.length) {
@@ -487,7 +508,8 @@ async function addMissingMemberships(
   const payload = missingPlayers.map(p => ({
     playerId: p.id,
     groupId,
-    role: roleMap[p.id]
+    role: roleMap[p.id],
+    clientSyncJoinedAt: clientSyncJoinedAtMap[p.id]
   }));
 
   await transaction.membership.createMany({
@@ -501,7 +523,7 @@ async function addMissingMemberships(
 function calculateRoleChangeMaps(
   keptPlayers: Player[],
   currentMemberships: (Membership & { player: Player })[],
-  memberInputs: Array<{ username: string; role: GroupRole }>
+  memberInputs: Array<GroupMemberInput>
 ) {
   // Note: reversing the array here to find the role that was last declared for a given username
   const reversedInputs = [...memberInputs].reverse();
@@ -543,4 +565,30 @@ function calculateRoleChangeMaps(
   });
 
   return newRoleMap;
+}
+
+function calculateClientSyncJoinedAtMaps(
+  currentMemberships: (Membership & { player: Player })[],
+  memberInputs: Array<GroupMemberInput>
+) {
+  const newClientSyncJoinedAtMap = new Map<string, number[]>();
+
+  memberInputs.forEach(mem => {
+    if (!mem.clientSyncJoinedAt) return; // remove members that don't have a clientSyncJoinedAt
+    const currentMembership = currentMemberships.find(
+      p => standardizeUsername(p.player.username) === standardizeUsername(mem.username)
+    );
+
+    //remove members that already have a clientSyncJoinedAt, we only want to update memberships that don't have a clientSyncJoinedAt yet.
+    if (!currentMembership || currentMembership?.clientSyncJoinedAt) return;
+
+    const current = newClientSyncJoinedAtMap.get(mem.clientSyncJoinedAt.toISOString());
+    if (current) {
+      current.push(currentMembership.playerId);
+    } else {
+      newClientSyncJoinedAtMap.set(mem.clientSyncJoinedAt.toISOString(), [currentMembership.playerId]);
+    }
+  });
+
+  return newClientSyncJoinedAtMap;
 }
