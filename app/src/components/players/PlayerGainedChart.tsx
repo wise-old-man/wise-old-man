@@ -72,6 +72,7 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
       reversed={isShowingRanks}
       minDate={minDate}
       maxDate={maxDate}
+      showDelta
       xAxisLabelFormatter={(timestamp) => {
         // If the timespan is under 3 days long, show hours and minutes too
         if (maxDate.getTime() - minDate.getTime() < 1000 * 60 * 60 * 24 * 3) {
