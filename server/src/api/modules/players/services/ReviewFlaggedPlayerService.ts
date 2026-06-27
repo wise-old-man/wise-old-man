@@ -192,13 +192,32 @@ function hasLostTooMuch(previous: SnapshotResponse, rejected: SnapshotResponse) 
       .reduce((a, b) => a + b, 0)
   );
 
-  // This seems random but a decent portion of flagged reports show a big decrease in Wintertodt kc.
-  // Because Wintertodt doesn't count towards EHB, it doesn't contribute to the lostEHB calcs.
+  // This seems random but a decent portion of flagged reports show big decreases in these metrics.
+  // These bosses/activities don't count towards EHB, so big KC/score drops would be missed otherwise.
   if (rejected.data.bosses[Metric.WINTERTODT].kills > -1) {
     const lostWintertodtKills =
       rejected.data.bosses[Metric.WINTERTODT].kills - previous.data.bosses[Metric.WINTERTODT].kills;
 
     if (lostWintertodtKills <= -50) {
+      return true;
+    }
+  }
+
+  if (rejected.data.bosses[Metric.TEMPOROSS].kills > -1) {
+    const lostTemporossKills =
+      rejected.data.bosses[Metric.TEMPOROSS].kills - previous.data.bosses[Metric.TEMPOROSS].kills;
+
+    if (lostTemporossKills <= -50) {
+      return true;
+    }
+  }
+
+  if (rejected.data.activities[Metric.GUARDIANS_OF_THE_RIFT].score > -1) {
+    const lostGotrScore =
+      rejected.data.activities[Metric.GUARDIANS_OF_THE_RIFT].score -
+      previous.data.activities[Metric.GUARDIANS_OF_THE_RIFT].score;
+
+    if (lostGotrScore <= -50) {
       return true;
     }
   }
