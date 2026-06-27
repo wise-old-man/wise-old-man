@@ -52,12 +52,16 @@ class RoutingHandler {
       next(new NotFoundErrorZ({ code: 'ENDPOINT_NOT_FOUND' }));
     });
 
-    // Catch and convert Zod errors to (400) BadRequest errors
+    // Catch and convert Prisma and Zod errors to structured error responses
     this.router.use((error, _req, _res, next) => {
-      if (error instanceof PrismaTypes.PrismaClientKnownRequestError) {
+      if (
+        error instanceof PrismaTypes.PrismaClientKnownRequestError ||
+        error instanceof PrismaTypes.PrismaClientInitializationError
+      ) {
         next(
           new ServerErrorZ({
-            code: 'UNEXPECTED_DATABASE_ERROR'
+            code: 'UNEXPECTED_DATABASE_ERROR',
+            subError: error
           })
         );
         return;
