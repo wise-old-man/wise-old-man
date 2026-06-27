@@ -192,10 +192,21 @@ function hasLostTooMuch(previous: SnapshotResponse, rejected: SnapshotResponse) 
       .reduce((a, b) => a + b, 0)
   );
 
-  // If lost over 24h of EHP and EHB, then it's probably not a rollback.
+  // This seems random but a decent portion of flagged reports show a big decrease in Wintertodt kc.
+  // Because Wintertodt doesn't count towards EHB, it doesn't contribute to the lostEHB calcs.
+  if (rejected.data.bosses[Metric.WINTERTODT].kills > -1) {
+    const lostWintertodtKills =
+      rejected.data.bosses[Metric.WINTERTODT].kills - previous.data.bosses[Metric.WINTERTODT].kills;
+
+    if (lostWintertodtKills <= -50) {
+      return true;
+    }
+  }
+
+  // If lost over 12h of EHP and EHB, then it's probably not a rollback.
   // Rollbacks are usually quickly fixed by Jagex, so it's unlikely
   // that a player gains a huge amount of EHP and EHB in a short period of time.
-  return lostEHP + lostEHB > 24;
+  return lostEHP + lostEHB > 12;
 }
 
 export { reviewFlaggedPlayer };
