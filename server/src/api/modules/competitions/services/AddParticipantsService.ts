@@ -56,7 +56,7 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
     throw new BadRequestError('All players given are already competing.');
   }
 
-  const optOuts = await prisma.playerAnnotation.findMany({
+  let optOuts = await prisma.playerAnnotation.findMany({
     where: {
       playerId: {
         in: newPlayers.map(p => p.id)
@@ -71,6 +71,27 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
       }
     }
   });
+
+  if (competition.groupId !== null) {
+    const memberships = await prisma.membership.findMany({
+      where: {
+        groupId: competition.groupId,
+        playerId: {
+          in: newPlayers.map(p => p.id)
+        }
+      }
+    });
+
+    // Players who opted out after joining the group are grandfathered in and may still participate.
+    optOuts = optOuts.filter(c => {
+      if (c.type === PlayerAnnotationType.OPT_OUT) return true;
+
+      const membership = memberships.find(m => m.playerId === c.playerId);
+      if (!membership) return true;
+
+      return c.createdAt <= membership.createdAt;
+    });
+  }
 
   if (optOuts.length > 0) {
     throw new ForbiddenError(
