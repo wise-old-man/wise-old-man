@@ -11,19 +11,26 @@ CacheHandler.onCreation(async () => {
     };
   }
 
+  if (!process.env.REDIS_HOST || !process.env.REDIS_PORT) {
+    console.warn("Missing required Redis environment variables (REDIS_HOST, REDIS_PORT).");
+    return {
+      handlers: [createLruHandler()],
+    };
+  }
+
   let client;
 
   try {
-    // Create a Redis client.
     client = createClient({
       url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
       password: process.env.REDIS_PASSWORD,
     });
 
-    // Redis won't work without error handling.
-    client.on("error", () => {});
+    client.on("error", (error) => {
+      console.warn("Redis client error:", error.message);
+    });
   } catch (error) {
-    console.warn("Failed to create Redis client:", error);
+    console.warn("Failed to create Redis client:", error.message);
   }
 
   if (client) {
