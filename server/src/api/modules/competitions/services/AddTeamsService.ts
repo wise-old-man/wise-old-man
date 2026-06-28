@@ -60,7 +60,7 @@ async function addTeams(id: number, teams: CompetitionTeam[]): Promise<{ count: 
 
   const newPlayers = await findOrCreatePlayers(newTeams.map(t => t.participants).flat());
 
-  const optOuts = await prisma.playerAnnotation.findMany({
+  let optOuts = await prisma.playerAnnotation.findMany({
     where: {
       playerId: {
         in: newPlayers.map(p => p.id)
@@ -75,6 +75,27 @@ async function addTeams(id: number, teams: CompetitionTeam[]): Promise<{ count: 
       }
     }
   });
+
+  if (competition.groupId !== null) {
+    const memberships = await prisma.membership.findMany({
+      where: {
+        groupId: competition.groupId,
+        playerId: {
+          in: newPlayers.map(p => p.id)
+        }
+      }
+    });
+
+    // Players who opted out after joining the group are grandfathered in and may still participate.
+    optOuts = optOuts.filter(o => {
+      if (o.type === PlayerAnnotationType.OPT_OUT) return true;
+
+      const membership = memberships.find(m => m.playerId === o.playerId);
+      if (!membership) return true;
+
+      return o.createdAt <= membership.createdAt;
+    });
+  }
 
   if (optOuts.length > 0) {
     throw new ForbiddenError(

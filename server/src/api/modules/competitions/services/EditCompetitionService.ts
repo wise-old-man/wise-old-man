@@ -136,6 +136,7 @@ export async function editCompetition(
 
   const updateResult = await executeUpdate(
     id,
+    competition.groupId,
     competitionUpdatePayload,
     payload.metrics,
     participationsResult.value
@@ -248,6 +249,7 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
 
 async function executeUpdate(
   competitionId: number,
+  groupId: number | null,
   competitionUpdatePayload: PrismaTypes.CompetitionUpdateInput,
   nextMetrics: Metric[] | undefined,
   nextParticipations: PartialParticipation[] | undefined
@@ -332,7 +334,7 @@ async function executeUpdate(
       );
 
       if (missingParticipations.length > 0) {
-        const optOuts = await transaction.playerAnnotation.findMany({
+        let optOuts = await transaction.playerAnnotation.findMany({
           where: {
             player: {
               username: { in: missingParticipations.map(m => m.username) }
@@ -347,6 +349,27 @@ async function executeUpdate(
             }
           }
         });
+
+        if (groupId !== null) {
+          const memberships = await transaction.membership.findMany({
+            where: {
+              groupId,
+              playerId: {
+                in: missingParticipations.map(m => m.playerId)
+              }
+            }
+          });
+
+          // Players who opted out after joining the group are grandfathered in and may still participate.
+          optOuts = optOuts.filter(o => {
+            if (o.type === PlayerAnnotationType.OPT_OUT) return true;
+
+            const membership = memberships.find(m => m.playerId === o.playerId);
+            if (!membership) return true;
+
+            return o.createdAt <= membership.createdAt;
+          });
+        }
 
         if (optOuts.length > 0) {
           // Throw here to rollback the transaction
