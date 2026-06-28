@@ -50,6 +50,11 @@ const nextConfig = withBundleAnalyzer(
           permanent: true,
         },
         {
+          source: "/runelite",
+          destination: "https://runelite.net/plugin-hub/show/wom-utils",
+          permanent: true,
+        },
+        {
           source: "/flags",
           destination: `https://github.com/wise-old-man/wise-old-man/wiki/User-Guide:-How-to-setup-countries-flags`,
           permanent: true,
