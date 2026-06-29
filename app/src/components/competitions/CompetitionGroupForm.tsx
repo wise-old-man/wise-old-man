@@ -50,6 +50,13 @@ export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
         // If it failed with 400 (Bad Request), that means it got through the code validation checks
         // and just failed due to an empty payload (as expected)
         if (error.statusCode === 400) return groupVerificationCode;
+
+        // If it failed with 403, it might be a competition code (which can't edit the group
+        // but can still create competitions). Accept it and let creation validate it.
+        // Note: this also passes through completely invalid codes, but those will fail
+        // with a clear error at the competition creation step.
+        if (error.statusCode === 403) return groupVerificationCode;
+
         throw error;
       }
     },
@@ -123,6 +130,9 @@ export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
             value={groupVerificationCode}
             onChange={(e) => setGroupVerificationCode(e.target.value)}
           />
+          <p className="mt-2 text-xs text-gray-200">
+            You can use either the group&apos;s main verification code or a competition code.
+          </p>
         </div>
       </div>
 

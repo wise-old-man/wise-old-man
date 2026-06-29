@@ -43,6 +43,7 @@ import { EmptyGroupDialog } from "./EmptyGroupDialog";
 import { Input } from "../Input";
 import { BannerImageUpload, ProfileImageUpload } from "../ImageUpload";
 import { GroupVerificationCodeCheckDialog } from "./GroupVerificationCodeCheckDialog";
+import { CompetitionCodeSection } from "./CompetitionCodeSection";
 
 import WebIcon from "~/assets/web.svg";
 import TwitchIcon from "~/assets/twitch.svg";
@@ -108,6 +109,13 @@ export function EditGroupForm(props: EditGroupFormProps) {
           {section === "links" && (
             <SocialLinksSection
               {...props}
+              key={group.updatedAt.toString()}
+              verificationCode={verificationCode || ""}
+            />
+          )}
+          {section === "competition-code" && (
+            <CompetitionCodeSection
+              group={group}
               key={group.updatedAt.toString()}
               verificationCode={verificationCode || ""}
             />
@@ -660,6 +668,7 @@ function SideNavigation(props: SideNavigationProps) {
     { name: "Members", value: "members" },
     { name: "Profile images", value: "images" },
     { name: "Social links", value: "links" },
+    { name: "Competition code", value: "competition-code" },
   ];
 
   return (
