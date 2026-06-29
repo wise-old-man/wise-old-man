@@ -172,20 +172,33 @@ async function validateGroupVerification(
 
   const group = await prisma.group.findFirst({
     where: { id: groupId },
-    select: { verificationHash: true }
+    select: { verificationHash: true, competitionVerificationHash: true }
   });
 
   if (group === null) {
     return errored({ code: 'GROUP_NOT_FOUND' });
   }
 
-  const verificationResult = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
+  // Try the main group verification code first
+  const mainVerificationResult = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
 
-  if (isErrored(verificationResult)) {
-    return errored({ code: 'INCORRECT_GROUP_VERIFICATION_CODE' });
+  if (!isErrored(mainVerificationResult)) {
+    return complete(true);
   }
 
-  return complete(true);
+  // If the main code didn't match, try the competition-specific code
+  if (group.competitionVerificationHash) {
+    const competitionVerificationResult = await cryptService.verifyCode(
+      group.competitionVerificationHash,
+      groupVerificationCode
+    );
+
+    if (!isErrored(competitionVerificationResult)) {
+      return complete(true);
+    }
+  }
+
+  return errored({ code: 'INCORRECT_GROUP_VERIFICATION_CODE' });
 }
 
 async function getValidatedParticipations({

@@ -11,6 +11,7 @@ export interface Group {
   bannerImage: string | null;
   score: number;
   verificationHash: string;
+  competitionVerificationHash: string | null;
   createdAt: Date;
   updatedAt: Date;
   creatorIpHash: string | null;

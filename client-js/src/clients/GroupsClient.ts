@@ -220,4 +220,28 @@ export default class GroupsClient extends BaseAPIClient {
   getMembersCSV(id: number) {
     return this.getText(`/groups/${id}/csv`);
   }
+
+  /**
+   * Generates or resets the competition code for a group.
+   * This code allows creating group competitions without full group admin access.
+   * Requires the main group verification code.
+   * @returns The newly generated competition code.
+   */
+  generateCompetitionCode(id: number, verificationCode: string) {
+    return this.putRequest<{ competitionCode: string }>(`/groups/${id}/competition-code`, {
+      verificationCode
+    });
+  }
+
+  /**
+   * Deletes the competition code for a group.
+   * After deletion, only the main verification code can be used to create group competitions.
+   * Requires the main group verification code.
+   * @returns A confirmation message.
+   */
+  deleteCompetitionCode(id: number, verificationCode: string) {
+    return this.deleteRequest<GenericMessageResponse>(`/groups/${id}/competition-code`, {
+      verificationCode
+    });
+  }
 }

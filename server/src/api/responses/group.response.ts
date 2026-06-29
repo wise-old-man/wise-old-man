@@ -7,8 +7,10 @@
 import { Group } from '../../types';
 import { pick } from '../../utils/pick.util';
 
-export interface GroupResponse extends Omit<Group, 'verificationHash' | 'creatorIpHash'> {
+export interface GroupResponse
+  extends Omit<Group, 'verificationHash' | 'competitionVerificationHash' | 'creatorIpHash'> {
   memberCount: number;
+  hasCompetitionCode: boolean;
 }
 
 export function formatGroupResponse(group: Group, memberCount: number): GroupResponse {
@@ -29,6 +31,7 @@ export function formatGroupResponse(group: Group, memberCount: number): GroupRes
       'createdAt',
       'updatedAt'
     ),
-    memberCount
+    memberCount,
+    hasCompetitionCode: group.competitionVerificationHash !== null
   };
 }
