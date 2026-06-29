@@ -23,6 +23,7 @@ export const CheckProtectedPlayersSpamJobHandler: JobHandler = {
         JOIN public.players p ON p."id" = m."playerId"
         WHERE p."username" IN (${PrismaTypes.join(protectedPlayers)})
         AND g."visible" = true
+        AND g."verified" = false
       `,
       prisma.$queryRaw<Array<Competition>>`
         SELECT DISTINCT c.*
