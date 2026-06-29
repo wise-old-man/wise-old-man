@@ -52,6 +52,7 @@ sidebar_position: 1
 | createdAt    | date    | The group's creation date.                                |
 | updatedAt    | date    | The group's last modification date.                       |
 | memberCount  | integer | The group's total number of members.                      |
+| hasCompetitionCode | boolean | Whether the group has a competition code set.      |
 
 <br />
 

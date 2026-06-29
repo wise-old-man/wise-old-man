@@ -44,6 +44,7 @@ import { fetchGroupStatistics } from './services/FetchGroupStatisticsService';
 import { fetchGroupMembersCSV } from './services/FetchMembersCSVService';
 import { removeMembers } from './services/RemoveMembersService';
 import { resetGroupCode } from './services/ResetGroupCodeService';
+import { generateCompetitionCode, deleteCompetitionCode } from './services/ManageCompetitionCodeService';
 import { searchGroups } from './services/SearchGroupsService';
 import { updateAllMembers } from './services/UpdateAllMembersService';
 import { verifyGroup } from './services/VerifyGroupService';
@@ -517,6 +518,38 @@ router.put(
     const response = formatGroupResponse(group, memberCount);
 
     res.status(200).json(response);
+  })
+);
+
+router.put(
+  '/groups/:id/competition-code',
+  checkGroupVerificationCode,
+  validateRequest({
+    params: z.object({
+      id: z.coerce.number().int().positive()
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const { id } = req.params;
+
+    const result = await generateCompetitionCode(id);
+    res.status(200).json(result);
+  })
+);
+
+router.delete(
+  '/groups/:id/competition-code',
+  checkGroupVerificationCode,
+  validateRequest({
+    params: z.object({
+      id: z.coerce.number().int().positive()
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const { id } = req.params;
+
+    const result = await deleteCompetitionCode(id);
+    res.status(200).json(result);
   })
 );
 

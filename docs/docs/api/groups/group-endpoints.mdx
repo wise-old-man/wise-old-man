@@ -2010,3 +2010,131 @@ Alexsuperfly,short_green_guy,286211980,11-26-2023 07:40,11-27-2023 12:40
 ```
 
 ---
+
+## Generate Competition Code
+
+<Endpoint verb="PUT" path="/groups/:id/competition-code" />
+<br />
+
+Generates or resets a competition code for a group. This code allows trusted members to create group competitions without having full access to manage the group (edit, delete, add/remove members).
+
+Requires the group's main verification code.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type   | Required | Description                    |
+| ---------------- | ------ | -------- | ------------------------------ |
+| verificationCode | string | `true`   | The group's verification code. |
+
+:::info
+If a competition code already exists, calling this endpoint will generate a new one and invalidate the previous code.
+:::
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X PUT https://api.wiseoldman.net/v2/groups/123/competition-code \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892"
+}'
+```
+
+```javascript
+const { WOMClient } = require('@wise-old-man/utils');
+
+const client = new WOMClient();
+
+const result = await client.groups.generateCompetitionCode(123, '759-236-892');
+// { competitionCode: "247-582-408" }
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "competitionCode": "247-582-408"
+}
+```
+
+---
+
+## Delete Competition Code
+
+<Endpoint verb="DELETE" path="/groups/:id/competition-code" />
+<br />
+
+Removes the competition code for a group. After deletion, only the main verification code can be used to create group competitions.
+
+Requires the group's main verification code.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type   | Required | Description                    |
+| ---------------- | ------ | -------- | ------------------------------ |
+| verificationCode | string | `true`   | The group's verification code. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X DELETE https://api.wiseoldman.net/v2/groups/123/competition-code \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892"
+}'
+```
+
+```javascript
+const { WOMClient } = require('@wise-old-man/utils');
+
+const client = new WOMClient();
+
+const result = await client.groups.deleteCompetitionCode(123, '759-236-892');
+// { message: "Successfully deleted the competition code." }
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "message": "Successfully deleted the competition code."
+}
+```
+
+---
