@@ -32,7 +32,8 @@ async function updateAllMembers(groupId: number): Promise<number> {
  * A member is considered outdated 24 hours after their last update.
  */
 async function getOutdatedMembers(groupId: number): Promise<Pick<Player, 'username'>[]> {
-  const dayAgo = new Date(Date.now() - PeriodProps[Period.DAY].milliseconds);
+  const gracePeriod = 3_600_000; // 1 hour
+  const dayAgo = new Date(Date.now() - PeriodProps[Period.DAY].milliseconds + gracePeriod);
 
   const outdatedMembers = await prisma.membership.findMany({
     where: {
