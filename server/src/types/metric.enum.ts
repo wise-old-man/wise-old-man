@@ -79,6 +79,7 @@ export const Boss = {
   KREEARRA: 'kreearra',
   KRIL_TSUTSAROTH: 'kril_tsutsaroth',
   LUNAR_CHESTS: 'lunar_chests',
+  MAGGOT_KING: 'maggot_king',
   MIMIC: 'mimic',
   NEX: 'nex',
   NIGHTMARE: 'nightmare',

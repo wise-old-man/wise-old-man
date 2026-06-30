@@ -104,6 +104,7 @@ export const BossProps: Record<
     [Boss.KREEARRA]: { name: "Kree'Arra" },
     [Boss.KRIL_TSUTSAROTH]: { name: "K'ril Tsutsaroth" },
     [Boss.LUNAR_CHESTS]: { name: 'Lunar Chests' },
+    [Boss.MAGGOT_KING]: { name: 'Maggot King' },
     [Boss.MIMIC]: { name: 'Mimic', minimumValue: 1 },
     [Boss.NEX]: { name: 'Nex' },
     [Boss.NIGHTMARE]: { name: 'Nightmare' },

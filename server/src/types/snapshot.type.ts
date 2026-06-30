@@ -226,6 +226,9 @@ export interface Snapshot {
   lunar_chestsRank: number;
   lunar_chestsKills: number;
 
+  maggot_kingRank: number;
+  maggot_kingKills: number;
+
   mimicRank: number;
   mimicKills: number;
 
