@@ -95,7 +95,35 @@ Alternatively, you can add a user agent header to your requests, which would hel
 If you do not provide us with a user agent that we can use to potentially contact you if you are found to be abusing our API, we have no other choice but to IP ban you.
 :::
 
-Examples:
+### Rate Limit Response Headers
+
+Every API response includes headers to help you track your current rate limit usage:
+
+| Header              | Description                                              |
+| ------------------- | -------------------------------------------------------- |
+| `RateLimit-Limit`     | The maximum number of requests allowed in the current window |
+| `RateLimit-Remaining` | The number of requests remaining in the current window   |
+| `RateLimit-Reset`     | The number of seconds until the current window resets    |
+
+When you exceed the rate limit and receive a `429` response, an additional header is included:
+
+| Header        | Description                                     |
+| ------------- | ----------------------------------------------- |
+| `Retry-After` | The number of seconds to wait before retrying   |
+
+You can use these headers to implement backoff logic in your application and avoid hitting the rate limit.
+
+**Example response headers:**
+
+```
+RateLimit-Limit: 20
+RateLimit-Remaining: 15
+RateLimit-Reset: 45
+```
+
+<br />
+
+### Examples
 
 **Adding API Key and User Agent to cURL request**
 
