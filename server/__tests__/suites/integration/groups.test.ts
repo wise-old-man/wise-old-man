@@ -2610,7 +2610,84 @@ describe('Group API', () => {
     });
   });
 
-  describe('12 - View Group Activity', () => {
+  describe('12 - View Bulk Hiscores', () => {
+    it('should not view bulk hiscores (invalid group id)', async () => {
+      const response = await api.get(`/groups/abc/bulk-hiscores`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'id' is not a valid number.");
+    });
+
+    it('should not view bulk hiscores (group not found)', async () => {
+      const response = await api.get(`/groups/100000/bulk-hiscores`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Group not found');
+    });
+
+    it('should view bulk hiscores (empty group)', async () => {
+      const response = await api.get(`/groups/${globalData.testGroupNoMembers.id}/bulk-hiscores`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual([]);
+    });
+
+    it('should view bulk hiscores', async () => {
+      const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}/bulk-hiscores`);
+
+      expect(response.status).toBe(200);
+
+      // Only members with a tracked snapshot (alexsuperfly, psikoi, zezima) should show up,
+      // members without one (swampletics, rorro) should be filtered out.
+      expect(response.body.length).toBe(3);
+
+      const alexEntry = response.body.find(e => e.player.username === 'alexsuperfly');
+      const psikoiEntry = response.body.find(e => e.player.username === 'psikoi');
+      const zezimaEntry = response.body.find(e => e.player.username === 'zezima');
+
+      expect(alexEntry).toBeDefined();
+      expect(psikoiEntry).toBeDefined();
+      expect(zezimaEntry).toBeDefined();
+
+      // Make sure latestSnapshot isn't leaking on the player object
+      expect(alexEntry.player.latestSnapshot).not.toBeDefined();
+      expect(psikoiEntry.player.latestSnapshot).not.toBeDefined();
+      expect(zezimaEntry.player.latestSnapshot).not.toBeDefined();
+
+      expect(alexEntry.data.data.skills.magic).toMatchObject({
+        metric: 'magic',
+        experience: 200_000_000,
+        level: 99
+      });
+
+      expect(psikoiEntry.data.data.skills.magic).toMatchObject({
+        metric: 'magic',
+        experience: 19_288_604,
+        level: 99
+      });
+
+      expect(zezimaEntry.data.data.skills.magic).toMatchObject({
+        metric: 'magic',
+        experience: 5_500_000,
+        level: 90
+      });
+
+      // Zezima's raw hiscores data was modified to have 100 zulrah kills
+      expect(zezimaEntry.data.data.bosses.zulrah).toMatchObject({
+        metric: 'zulrah',
+        kills: 100
+      });
+
+      // Sanity check that activities and computed metrics (ehp/ehb) are also included
+      expect(psikoiEntry.data.data.activities.clue_scrolls_all.rank).toBeDefined();
+      expect(psikoiEntry.data.data.activities.clue_scrolls_all.score).toBeDefined();
+
+      expect(psikoiEntry.data.data.computed.ehp.value).toBeDefined();
+      expect(psikoiEntry.data.data.computed.ehb.value).toBeDefined();
+    });
+  });
+
+  describe('13 - View Group Activity', () => {
     it('should not view group activity (group not found)', async () => {
       const response = await api.get(`/groups/100000/activity`);
 
@@ -2700,7 +2777,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('13 - View Statistics', () => {
+  describe('14 - View Statistics', () => {
     it('should not view statistics (group not found)', async () => {
       const response = await api.get(`/groups/100000/statistics`);
 
@@ -2792,7 +2869,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('14 - Update All', () => {
+  describe('15 - Update All', () => {
     it('should not update all (invalid verification code)', async () => {
       const response = await api.post(`/groups/123456789/update-all`);
 
@@ -2888,7 +2965,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('15 - Reset Verification Code', () => {
+  describe('16 - Reset Verification Code', () => {
     it('should not reset code (invalid admin password)', async () => {
       const response = await api.put(`/groups/100000/reset-code`);
 
@@ -2942,7 +3019,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('16 - Verify', () => {
+  describe('17 - Verify', () => {
     it('should not verify group (invalid admin password)', async () => {
       const response = await api.put(`/groups/100000/verify`);
 
