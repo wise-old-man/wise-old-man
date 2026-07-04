@@ -101,17 +101,13 @@ export const getGroupDetails = cache((id: number) => {
   return handleNotFound(apiClient.groups.getGroupDetails(id));
 });
 
-export const getGroupGainsByPeriod = cache(
-  (id: number, metric: Metric, period: Period, limit: number, offset: number) => {
-    return handleNotFound(apiClient.groups.getGroupGains(id, { period, metric }, { limit, offset }));
-  },
-);
+export const getGroupGainsByPeriod = cache((id: number, metric: Metric, period: Period) => {
+  return handleNotFound(apiClient.groups.getGroupGains(id, { period, metric }));
+});
 
 export const getGroupGainsByDates = cache(
-  (id: number, metric: Metric, startDate: Date, endDate: Date, limit: number, offset: number) => {
-    return handleNotFound(
-      apiClient.groups.getGroupGains(id, { startDate, endDate, metric }, { limit, offset }),
-    );
+  (id: number, metric: Metric, startDate: Date, endDate: Date) => {
+    return handleNotFound(apiClient.groups.getGroupGains(id, { startDate, endDate, metric }));
   },
 );
 

@@ -30,7 +30,6 @@ import { FormattedNumber } from "../FormattedNumber";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 import { formatDatetime, timeago } from "~/utils/dates";
 import { TimeRangeFilter } from "~/services/wiseoldman";
-import { getPageParam } from "~/utils/params";
 import {
   Combobox,
   ComboboxButton,
@@ -63,14 +62,10 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const page = getPageParam(searchParams.get("page")) || 1;
-  const columns = getColumnDefinitions(page, metric);
+  const columns = getColumnDefinitions(metric);
 
   function handleMetricChanged(metric: Metric) {
     const nextParams = new URLSearchParams(searchParams);
-
-    // Reset pagination if params change
-    nextParams.delete("page");
 
     if (metric) {
       nextParams.set("metric", metric);
@@ -83,9 +78,6 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
 
   function handlePeriodChanged(newPeriod: Period | "custom") {
     const nextParams = new URLSearchParams(searchParams);
-
-    // Reset pagination if params change
-    nextParams.delete("page");
 
     if (newPeriod === "custom") {
       nextParams.set("dialog", "custom_period");
@@ -134,8 +126,6 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
                       </Tooltip>
                     </>
                   )}
-                  &nbsp;
-                  {page > 1 ? `(page ${page})` : ""}
                 </p>
               </div>
               <div className="flex items-center gap-x-3">
@@ -153,7 +143,7 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
   );
 }
 
-function getColumnDefinitions(page: number, metric: Metric) {
+function getColumnDefinitions(metric: Metric) {
   const columns: ColumnDef<{
     player: PlayerResponse;
     startDate: Date;
@@ -164,7 +154,7 @@ function getColumnDefinitions(page: number, metric: Metric) {
       id: "rank",
       header: "Rank",
       accessorFn: (_, index) => {
-        return index + 1 + (page - 1) * 20;
+        return index + 1;
       },
     },
     {
