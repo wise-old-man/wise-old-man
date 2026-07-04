@@ -111,8 +111,8 @@ export const getGroupGainsByDates = cache(
   },
 );
 
-export const getGroupHiscores = cache((id: number, metric: Metric, limit: number, offset: number) => {
-  return handleNotFound(apiClient.groups.getGroupHiscores(id, metric, { limit, offset }));
+export const getGroupHiscores = cache((id: number, metric: Metric) => {
+  return handleNotFound(apiClient.groups.getGroupHiscores(id, metric));
 });
 
 export const getGroupNameChanges = cache((id: number, limit: number, offset: number) => {

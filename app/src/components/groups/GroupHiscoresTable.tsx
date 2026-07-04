@@ -24,7 +24,6 @@ import { MetricIconSmall } from "../Icon";
 import { PlayerIdentity } from "../PlayerIdentity";
 import { FormattedNumber } from "../FormattedNumber";
 import { timeago } from "~/utils/dates";
-import { getPageParam } from "~/utils/params";
 import {
   Combobox,
   ComboboxButton,
@@ -54,14 +53,10 @@ export function GroupHiscoresTable(props: GroupHiscoresTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const page = getPageParam(searchParams.get("page")) || 1;
-  const columns = getColumnDefinitions(page, metric);
+  const columns = getColumnDefinitions(metric);
 
   function handleMetricChanged(metric: Metric) {
     const nextParams = new URLSearchParams(searchParams);
-
-    // Reset pagination if params change
-    nextParams.delete("page");
 
     if (metric) {
       nextParams.set("metric", metric);
@@ -84,8 +79,7 @@ export function GroupHiscoresTable(props: GroupHiscoresTableProps) {
               <div>
                 <h3 className="text-h3 font-medium text-white">Hiscores</h3>
                 <p className="text-body text-gray-200">
-                  {MetricProps[metric].name} hiscores for {group.name} members{" "}
-                  {page > 1 ? `(page ${page})` : ""}
+                  {MetricProps[metric].name} hiscores for {group.name} members
                 </p>
               </div>
               <MetricSelect metric={metric} onMetricSelected={handleMetricChanged} />
@@ -97,14 +91,12 @@ export function GroupHiscoresTable(props: GroupHiscoresTableProps) {
   );
 }
 
-function getColumnDefinitions(page: number, metric: Metric) {
+function getColumnDefinitions(metric: Metric) {
   const columns: ColumnDef<GroupHiscoresEntryResponse>[] = [
     {
       id: "rank",
       header: "Rank",
-      accessorFn: (_, index) => {
-        return index + 1 + (page - 1) * 20;
-      },
+      accessorFn: (_, index) => index + 1,
     },
     {
       accessorKey: "player",

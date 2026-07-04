@@ -1558,15 +1558,9 @@ Fetches a group's hiscores for a specific metric. Returns an array of [GroupHisc
 
 **Query Params**
 
-| Field  | Type                                               | Required | Description                                           |
-| ------ | -------------------------------------------------- | -------- | ----------------------------------------------------- |
-| metric | [Metric](/api/global-type-definitions#enum-metric) | `true`   | The hiscores' metric.                                 |
-| limit  | integer                                            | `false`  | The pagination limit. See [Pagination](/#pagination)  |
-| offset | integer                                            | `false`  | The pagination offset. See [Pagination](/#pagination) |
-
-:::info
-Unlike most other endpoints, this one does not have a maximum result limit.
-:::
+| Field  | Type                                               | Required | Description            |
+| ------ | -------------------------------------------------- | -------- | ----------------------- |
+| metric | [Metric](/api/global-type-definitions#enum-metric) | `true`   | The hiscores' metric.  |
 
 <br />
 
@@ -1575,7 +1569,7 @@ Unlike most other endpoints, this one does not have a maximum result limit.
 <TabbedCodeBlock>
 
 ```curl
-curl -X GET https://api.wiseoldman.net/v2/groups/123/hiscores?metric=agility&limit=5 \
+curl -X GET https://api.wiseoldman.net/v2/groups/123/hiscores?metric=agility \
  -H "Content-type: application/json"
 ```
 
@@ -1584,7 +1578,7 @@ const { WOMClient, Metric } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
-const hiscores = await client.groups.getGroupHiscores(123, Metric.AGILITY, { limit: 5 });
+const hiscores = await client.groups.getGroupHiscores(123, Metric.AGILITY);
 ```
 
 </TabbedCodeBlock>
