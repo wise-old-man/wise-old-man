@@ -558,7 +558,20 @@ router.post(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const outdatedCount = await updateAllMembers(id);
+    const result = await updateAllMembers(id);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'NO_OUTDATED_MEMBERS':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const outdatedCount = result.value;
 
     res.status(200).json({
       count: outdatedCount,

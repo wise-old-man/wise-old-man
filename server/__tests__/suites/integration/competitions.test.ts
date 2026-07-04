@@ -4627,9 +4627,8 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe(
-        'This competition has no outdated participants (updated over 24h ago).'
-      );
+      expect(response.body.message).toBe('This competition has no outdated participants');
+      expect(response.body.data).toMatchObject({ cooldownDuration: 24 });
     });
 
     it('should not update all (no outdated participants, near start)', async () => {
@@ -4646,9 +4645,8 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe(
-        'This competition has no outdated participants (updated over 1h ago).'
-      );
+      expect(response.body.message).toBe('This competition has no outdated participants');
+      expect(response.body.data).toMatchObject({ cooldownDuration: 1 });
     });
 
     it('should not update all (competition has ended)', async () => {
