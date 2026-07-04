@@ -18,6 +18,7 @@ import type {
   Period,
   PlayerResponse,
   RecordResponse,
+  SnapshotResponse,
   TimeRangeFilter
 } from '../api-types';
 import { PaginationOptions } from '../utils';
@@ -193,11 +194,18 @@ export default class GroupsClient extends BaseAPIClient {
    * Fetches a group's hiscores for a specific metric.
    * @returns A list of hiscores entries (value, rank), including their respective players.
    */
-  getGroupHiscores(id: number, metric: Metric, pagination?: PaginationOptions) {
-    return this.getRequest<Array<GroupHiscoresEntryResponse>>(`/groups/${id}/hiscores`, {
-      ...pagination,
-      metric
-    });
+  getGroupHiscores(id: number, metric: Metric) {
+    return this.getRequest<Array<GroupHiscoresEntryResponse>>(`/groups/${id}/hiscores`, { metric });
+  }
+
+  /**
+   * Fetches every group member's stats in a single request.
+   * @returns A list of players and their latest snapshot data.
+   */
+  getGroupBulkHiscores(id: number) {
+    return this.getRequest<Array<{ player: PlayerResponse; data: SnapshotResponse }>>(
+      `/groups/${id}/bulk-hiscores`
+    );
   }
 
   /**

@@ -15,7 +15,8 @@ import {
   formatMembershipResponse,
   formatNameChangeResponse,
   formatPlayerResponse,
-  formatRecordResponse
+  formatRecordResponse,
+  formatSnapshotResponse
 } from '../../responses';
 import { checkAdminPermission, checkGroupVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
@@ -31,6 +32,7 @@ import { findGroupAchievements } from '../achievements/services/FindGroupAchieve
 import { findGroupCompetitions } from '../competitions/services/FindGroupCompetitionsService';
 import { findBulkGroupDeltas } from '../deltas/services/FindBulkGroupDeltasService';
 import { findGroupDeltas } from '../deltas/services/FindGroupDeltasService';
+import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
 import { findGroupNameChanges } from '../name-changes/services/FindGroupNameChangesService';
 import { findGroupRecords } from '../records/services/FindGroupRecordsService';
 import { addMembers } from './services/AddMembersService';
@@ -38,6 +40,7 @@ import { changeMemberRole } from './services/ChangeMemberRoleService';
 import { createGroup } from './services/CreateGroupService';
 import { deleteGroup } from './services/DeleteGroupService';
 import { editGroup } from './services/EditGroupService';
+import { fetchBulkGroupHiscores } from './services/FetchBulkGroupHiscoresService';
 import { fetchGroupActivity } from './services/FetchGroupActivityService';
 import { fetchGroupDetails } from './services/FetchGroupDetailsService';
 import { fetchGroupHiscores } from './services/FetchGroupHiscoresService';
@@ -289,18 +292,58 @@ router.get(
     params: z.object({
       id: z.coerce.number().int().positive()
     }),
-    query: z
-      .object({
-        metric: z.nativeEnum(Metric)
-      })
-      .merge(getPaginationSchema(100_000)) // unlimited "max" limit
+    query: z.object({
+      metric: z.nativeEnum(Metric)
+    })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric, limit, offset } = req.query;
+    const { metric } = req.query;
 
-    const hiscores = await fetchGroupHiscores(id, metric, { limit, offset });
-    const response = hiscores.map(entry => formatGroupHiscoresEntryResponse(entry.player, entry.data));
+    const hiscoresResult = await fetchGroupHiscores(id, metric);
+
+    if (isErrored(hiscoresResult)) {
+      switch (hiscoresResult.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(hiscoresResult.error);
+        default:
+          assertNever(hiscoresResult.error.code);
+      }
+    }
+
+    const response = hiscoresResult.value.map(entry =>
+      formatGroupHiscoresEntryResponse(entry.player, entry.data)
+    );
+
+    res.status(200).json(response);
+  })
+);
+
+router.get(
+  '/groups/:id/bulk-hiscores',
+  validateRequest({
+    params: z.object({
+      id: z.coerce.number().int().positive()
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const { id } = req.params;
+
+    const result = await fetchBulkGroupHiscores(id);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(({ player, snapshot }) => ({
+      player: formatPlayerResponse(player),
+      data: formatSnapshotResponse(snapshot, getPlayerEfficiencyMap(snapshot, player))
+    }));
 
     res.status(200).json(response);
   })
