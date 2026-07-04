@@ -289,18 +289,28 @@ router.get(
     params: z.object({
       id: z.coerce.number().int().positive()
     }),
-    query: z
-      .object({
-        metric: z.nativeEnum(Metric)
-      })
-      .merge(getPaginationSchema(100_000)) // unlimited "max" limit
+    query: z.object({
+      metric: z.nativeEnum(Metric)
+    })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric, limit, offset } = req.query;
+    const { metric } = req.query;
 
-    const hiscores = await fetchGroupHiscores(id, metric, { limit, offset });
-    const response = hiscores.map(entry => formatGroupHiscoresEntryResponse(entry.player, entry.data));
+    const hiscoresResult = await fetchGroupHiscores(id, metric);
+
+    if (isErrored(hiscoresResult)) {
+      switch (hiscoresResult.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(hiscoresResult.error);
+        default:
+          assertNever(hiscoresResult.error.code);
+      }
+    }
+
+    const response = hiscoresResult.value.map(entry =>
+      formatGroupHiscoresEntryResponse(entry.player, entry.data)
+    );
 
     res.status(200).json(response);
   })

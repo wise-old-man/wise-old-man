@@ -1,10 +1,9 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Metric, MetricMeasure, Player } from '../../../../types';
 import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { getLevel, MetricProps } from '../../../../utils/shared';
-import { NotFoundError } from '../../../errors';
-import { PaginationOptions } from '../../../util/validation';
 import { getTotalLevel } from '../../snapshots/snapshot.utils';
 
 type EntryType =
@@ -30,11 +29,10 @@ type EntryType =
       value: number;
     };
 
-async function fetchGroupHiscores(
+export async function fetchGroupHiscores(
   groupId: number,
-  metric: Metric,
-  pagination: PaginationOptions
-): Promise<Array<{ player: Player; data: EntryType }>> {
+  metric: Metric
+): AsyncResult<Array<{ player: Player; data: EntryType }>, { code: 'GROUP_NOT_FOUND' }> {
   const memberships = await prisma.membership.findMany({
     where: { groupId },
     include: {
@@ -46,23 +44,23 @@ async function fetchGroupHiscores(
     }
   });
 
-  if (!memberships || memberships.length === 0) {
+  if (memberships.length === 0) {
     const group = await prisma.group.findFirst({
       where: { id: groupId }
     });
 
-    if (!group) {
-      throw new NotFoundError('Group not found.');
+    if (group === null) {
+      return errored({ code: 'GROUP_NOT_FOUND' });
     }
 
-    return [];
+    return complete([]);
   }
 
   const measure = MetricProps[metric].measure;
   const rankKey = getMetricRankKey(metric);
   const valueKey = getMetricValueKey(metric);
 
-  return memberships
+  const entries = memberships
     .filter(m => !!m.player.latestSnapshot)
     .map(({ player }) => {
       const snapshot = player.latestSnapshot!;
@@ -103,8 +101,7 @@ async function fetchGroupHiscores(
       }
 
       return b.data[measure]! - a.data[measure]!;
-    })
-    .slice(pagination.offset, pagination.offset + pagination.limit);
-}
+    });
 
-export { fetchGroupHiscores };
+  return complete(entries);
+}

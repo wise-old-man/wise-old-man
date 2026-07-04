@@ -2498,7 +2498,7 @@ describe('Group API', () => {
       const response = await api.get(`/groups/100000/hiscores`).query({ metric: 'ranged' });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should not view hiscores (invalid metric)', async () => {
@@ -2607,44 +2607,6 @@ describe('Group API', () => {
       expect(computedMetricsHiscoresResponse.body[0].data.value).toBeDefined();
       expect(computedMetricsHiscoresResponse.body[0].data.rank).toBeDefined();
       expect(computedMetricsHiscoresResponse.body[0].data.type).toBe('computed');
-    });
-
-    it('should view hiscores (w/ limit & offset)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
-        .query({ metric: 'zulrah', limit: 1, offset: 1 });
-
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
-
-      expect(response.body[0]).toMatchObject({
-        player: { username: 'zezima' },
-        data: {
-          type: 'boss',
-          kills: 100
-        }
-      });
-
-      // Make sure latestSnapshot isn't leaking
-      expect(response.body[0].player.latestSnapshot).not.toBeDefined();
-    });
-
-    it('should not view hiscores (negative offset)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
-        .query({ metric: 'magic', offset: -5 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
-    });
-
-    it('should not view hiscores (negative limit)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
-        .query({ metric: 'magic', limit: -5 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
   });
 
