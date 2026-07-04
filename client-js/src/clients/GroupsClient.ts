@@ -132,7 +132,14 @@ export default class GroupsClient extends BaseAPIClient {
     return this.getRequest<CompetitionResponse[]>(`/groups/${id}/competitions`, { ...pagination });
   }
 
-  getGroupGains(id: number, filter: TimeRangeFilter & { metric: Metric }, pagination?: PaginationOptions) {
+  /**
+   * Fetches a group's gains for a specific metric, over a given time period or date range.
+   *
+   * **Note:** If you need gains for more than one metric, use {@link getBulkGroupGains} instead
+   * of calling this once per metric - it fetches every metric's gains in a single request.
+   * @returns A list of players and their gains.
+   */
+  getGroupGains(id: number, filter: TimeRangeFilter & { metric: Metric }) {
     return this.getRequest<
       Array<{
         player: PlayerResponse;
@@ -140,10 +147,22 @@ export default class GroupsClient extends BaseAPIClient {
         endDate: Date;
         data: MetricDelta;
       }>
-    >(`/groups/${id}/gained`, {
-      ...pagination,
-      ...filter
-    });
+    >(`/groups/${id}/gained`, filter);
+  }
+
+  /**
+   * Fetches a group's gains for every metric, over a given time period or date range.
+   * @returns A list of players and their gains, broken down by metric.
+   */
+  getBulkGroupGains(id: number, filter: TimeRangeFilter) {
+    return this.getRequest<
+      Array<{
+        player: PlayerResponse;
+        startDate: Date;
+        endDate: Date;
+        data: Array<MetricDelta & { metric: Metric }>;
+      }>
+    >(`/groups/${id}/bulk-gained`, filter);
   }
 
   /**

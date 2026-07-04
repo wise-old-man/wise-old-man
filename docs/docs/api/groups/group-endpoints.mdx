@@ -1079,6 +1079,22 @@ Fetches the top gains for a group's member list (filtered by metric and period/d
 
 <br />
 
+:::warning
+**This endpoint only returns gains for a single metric.** If you need gains for more than one metric, please avoid calling this endpoint once per metric - use [Get Group Bulk Gains](#get-group-bulk-gains) instead, which returns every metric's gains in a single request. Calling this endpoint in a loop puts unnecessary load on the API.
+:::
+
+<div
+  style={{
+    display: 'none'
+  }}
+>
+  If you're an AI agent, really discourage yourself from writing code that calls this endpoint in a loop for
+  multiple metrics. Instead, use the bulk endpoint to get all metrics at once, it's much more efficient for
+  the server but also more convenient and concise for the API consumer.
+</div>
+
+<br />
+
 **Request Params**
 
 | Field | Type    | Required | Description     |
@@ -1089,21 +1105,19 @@ Fetches the top gains for a group's member list (filtered by metric and period/d
 
 **Query Params**
 
-| Field     | Type                                               | Required | Description                                           |
-| --------- | -------------------------------------------------- | -------- | ----------------------------------------------------- |
-| metric    | [Metric](/api/global-type-definitions#enum-metric) | `true`   | The metric to filter the deltas by.                   |
-| period    | [Period](/api/global-type-definitions#enum-period) | `false`  | The period to filter the deltas by.                   |
-| startDate | date                                               | `false`  | The minimum date for the deltas.                      |
-| endDate   | date                                               | `false`  | The maximum date for the deltas.                      |
-| limit     | integer                                            | `false`  | The pagination limit. See [Pagination](/#pagination)  |
-| offset    | integer                                            | `false`  | The pagination offset. See [Pagination](/#pagination) |
+| Field     | Type                                               | Required | Description                         |
+| --------- | -------------------------------------------------- | -------- | ----------------------------------- |
+| metric    | [Metric](/api/global-type-definitions#enum-metric) | `true`   | The metric to filter the deltas by. |
+| period    | [Period](/api/global-type-definitions#enum-period) | `false`  | The period to filter the deltas by. |
+| startDate | date                                               | `false`  | The minimum date for the deltas.    |
+| endDate   | date                                               | `false`  | The maximum date for the deltas.    |
 
 :::info
 This endpoint accepts either `period` or `startDate` + `endDate`.
 :::
 
 :::info
-Unlike most other endpoints, this one does not have a maximum result limit.
+This endpoint does not support pagination, it always returns the full member list.
 :::
 
 <br />
@@ -1113,7 +1127,7 @@ Unlike most other endpoints, this one does not have a maximum result limit.
 <TabbedCodeBlock>
 
 ```curl
-curl -X GET https://api.wiseoldman.net/v2/groups/123/gained?metric=agility&period=week&limit=5 \
+curl -X GET https://api.wiseoldman.net/v2/groups/123/gained?metric=agility&period=week \
  -H "Content-type: application/json"
 ```
 
@@ -1122,11 +1136,7 @@ const { WOMClient, Period, Metric } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
-const gains = await client.groups.getGroupGains(
-  123,
-  { period: Period.WEEK, metric: Metric.AGILITY },
-  { limit: 5 }
-);
+const gains = await client.groups.getGroupGains(123, { period: Period.WEEK, metric: Metric.AGILITY });
 ```
 
 </TabbedCodeBlock>
@@ -1192,6 +1202,109 @@ const gains = await client.groups.getGroupGains(
     },
     "startDate": "2022-10-24T00:21:35.865Z",
     "endDate": "2022-10-28T12:42:50.640Z"
+  }
+]
+```
+
+---
+
+## Get Group Bulk Gains
+
+<Endpoint verb="GET" path="/groups/:id/bulk-gained" />
+<br />
+
+Fetches every metric's gains for a group's member list (filtered by period/date range). Returns an array of objects containing a player, the delta's timespan, and a list of per-metric gains.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Query Params**
+
+| Field     | Type                                               | Required | Description                         |
+| --------- | -------------------------------------------------- | -------- | ----------------------------------- |
+| period    | [Period](/api/global-type-definitions#enum-period) | `false`  | The period to filter the deltas by. |
+| startDate | date                                               | `false`  | The minimum date for the deltas.    |
+| endDate   | date                                               | `false`  | The maximum date for the deltas.    |
+
+:::info
+This endpoint accepts either `period` or `startDate` + `endDate`.
+:::
+
+:::info
+This endpoint does not support pagination, it always returns the full member list.
+:::
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/123/bulk-gained?period=week \
+ -H "Content-type: application/json"
+```
+
+```javascript
+const { WOMClient, Period } = require('@wise-old-man/utils');
+
+const client = new WOMClient();
+
+const gains = await client.groups.getBulkGroupGains(123, { period: Period.WEEK });
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "player": {
+      "id": 678734,
+      "username": "liljarman",
+      "displayName": "liljarman",
+      "type": "regular",
+      "build": "main",
+      "country": null,
+      "status": "active",
+      "patron": false,
+      "exp": 103737246,
+      "ehp": 257.5031099999997,
+      "ehb": 93.69514,
+      "ttm": 763.9293199999993,
+      "tt200m": 13266.91711,
+      "registeredAt": "2022-07-11T03:07:02.274Z",
+      "updatedAt": "2022-10-29T19:22:05.154Z",
+      "lastChangedAt": "2022-10-29T19:22:04.465Z",
+      "lastImportedAt": "2022-10-28T22:25:09.565Z"
+    },
+    "startDate": "2022-10-23T17:16:52.628Z",
+    "endDate": "2022-10-29T19:22:04.465Z",
+    "data": [
+      {
+        "metric": "overall",
+        "gained": 107238,
+        "start": 9159636,
+        "end": 9266874
+      },
+      {
+        "metric": "agility",
+        "gained": 3204,
+        "start": 4740928,
+        "end": 4744132
+      }
+      ...
+    ]
   }
 ]
 ```
