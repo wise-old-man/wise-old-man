@@ -2463,9 +2463,9 @@ describe('Group API', () => {
       });
 
       // Check the table header
-      expect(rows[0]).toBe('Player,Role,Experience,Last progressed,Last updated');
+      expect(rows[0]).toBe('Player,Role,Experience,Last progressed,Last updated,Joined at (Client Sync)');
 
-      expect(rows[0].split(',').length).toBe(5);
+      expect(rows[0].split(',').length).toBe(6);
 
       expect(rows[1].split(',').at(-1)).toBe(''); // Alexsuperfly has null updatedAt, should be returned as empty string
       expect(rows[1].split(',').at(-2)).toBe(''); // Alexsuperfly has null lastChangedAt, should be returned as empty string
