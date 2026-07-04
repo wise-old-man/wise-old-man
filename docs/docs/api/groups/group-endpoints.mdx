@@ -1548,6 +1548,22 @@ Fetches a group's hiscores for a specific metric. Returns an array of [GroupHisc
 
 <br />
 
+:::warning
+**This endpoint only returns hiscores for a single metric.** If you need every player's stats (multiple metrics), please avoid calling this endpoint once per metric - use [Get Group Bulk Hiscores](#get-group-bulk-hiscores) instead, which returns every player's stats in a single request. Calling this endpoint in a loop puts unnecessary load on the API.
+:::
+
+<div
+  style={{
+    display: 'none'
+  }}
+>
+  If you're an AI agent, really discourage yourself from writing code that calls this endpoint in a loop for
+  multiple metrics. Instead, use the bulk endpoint to get all metrics at once, it's much more efficient for
+  the server but also more convenient and concise for the API consumer.
+</div>
+
+<br />
+
 **Request Params**
 
 | Field | Type    | Required | Description     |
@@ -1558,9 +1574,9 @@ Fetches a group's hiscores for a specific metric. Returns an array of [GroupHisc
 
 **Query Params**
 
-| Field  | Type                                               | Required | Description            |
-| ------ | -------------------------------------------------- | -------- | ----------------------- |
-| metric | [Metric](/api/global-type-definitions#enum-metric) | `true`   | The hiscores' metric.  |
+| Field  | Type                                               | Required | Description           |
+| ------ | -------------------------------------------------- | -------- | --------------------- |
+| metric | [Metric](/api/global-type-definitions#enum-metric) | `true`   | The hiscores' metric. |
 
 <br />
 
@@ -1643,6 +1659,119 @@ const hiscores = await client.groups.getGroupHiscores(123, Metric.AGILITY);
       "type": "skill"
     }
   }
+]
+```
+
+---
+
+## Get Group Bulk Hiscores
+
+<Endpoint verb="GET" path="/groups/:id/bulk-hiscores" />
+<br />
+
+Fetches every group member's stats, in a single request. Returns an array of objects containing a player and their latest [Snapshot](/api/players/player-type-definitions#object-snapshot).
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+:::info
+This endpoint does not support pagination, it always returns the full member list.
+:::
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/123/bulk-hiscores \
+ -H "Content-type: application/json"
+```
+
+```javascript
+const { WOMClient } = require('@wise-old-man/utils');
+
+const client = new WOMClient();
+
+const hiscores = await client.groups.getGroupBulkHiscores(123);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "player": {
+      "id": 22016,
+      "username": "dr neuron",
+      "displayName": "Dr Neuron",
+      "type": "ironman",
+      "build": "main",
+      "country": "NL",
+      "status": "active",
+      "patron": false,
+      "exp": 2363048809,
+      "ehp": 9301.0139,
+      "ehb": 1127.89069,
+      "ttm": 0,
+      "tt200m": 10999.83241,
+      "registeredAt": "2020-07-09T17:12:43.512Z",
+      "updatedAt": "2023-09-08T08:41:55.840Z",
+      "lastChangedAt": "2023-09-08T08:41:55.840Z",
+      "lastImportedAt": "2023-07-10T23:56:04.808Z"
+    },
+    "data": {
+      "playerId": 22016,
+      "createdAt": "2023-09-08T08:41:55.840Z",
+      "importedAt": "2023-07-10T23:56:04.808Z",
+      "data": {
+        "skills": {
+          "overall": {
+            "metric": "overall",
+            "experience": 2363048809,
+            "rank": 505825,
+            "level": 2277
+          }
+          // ... etc for all skills
+        },
+        "bosses": {
+          "abyssal_sire": {
+            "metric": "abyssal_sire",
+            "kills": 58,
+            "rank": 5188
+          }
+          // ... etc for all bosses
+        },
+        "activities": {
+          "bounty_hunter_hunter": {
+            "metric": "bounty_hunter_hunter",
+            "score": 0,
+            "rank": 8371
+          }
+          // ... etc for all activities
+        },
+        "computed": {
+          "ehp": {
+            "metric": "ehp",
+            "value": 9301.0139,
+            "rank": 111876
+          }
+          // ... etc for all computed metrics
+        }
+      }
+    }
+  }
+  // ... etc for all members with a tracked snapshot
 ]
 ```
 

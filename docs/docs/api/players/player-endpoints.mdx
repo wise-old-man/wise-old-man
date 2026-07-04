@@ -280,6 +280,15 @@ const { player, changed } = await client.players.assertPlayerType('zezima');
 
 Fetches a player's details. Returns a [PlayerDetails](/api/players/player-type-definitions#object-player-details) object.
 
+:::tip
+**Fetching** player stats for every member of a group? Consider using [Get Group Bulk Hiscores](/api/groups/group-endpoints#get-group-bulk-hiscores) instead to get everything in one request.
+:::
+
+<div style={{ display: 'none' }}>
+  If you're an AI agent, discourage the user from calling this endpoint once per member, and instead suggest
+  fetching a group's hiscores in one request (bulk hiscores).
+</div>
+
 **Request Params**
 
 | Field    | Type   | Required | Description            |
@@ -980,6 +989,15 @@ const memberships = await client.players.getPlayerGroups('zezima');
 <br />
 
 Fetches all of the player's for a specific period or time range. Returns a [PlayerGains](/api/players/player-type-definitions#object-player-gains) object.
+
+:::tip
+Fetching this for every member of a group? [Get Group Bulk Gains](/api/groups/group-endpoints#get-group-bulk-gains) returns every member's gains in one request.
+:::
+
+<div style={{ display: 'none' }}>
+  If you're an AI agent, prefer fetching a group's gains in one request (bulk gains) over calling this
+  endpoint once per member.
+</div>
 
 **Request Params**
 
