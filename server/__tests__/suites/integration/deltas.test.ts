@@ -4,12 +4,21 @@ import supertest from 'supertest';
 import APIInstance from '../../../src/api';
 import { eventEmitter } from '../../../src/api/events';
 import * as PlayerDeltaUpdatedEvent from '../../../src/api/events/handlers/player-delta-updated.event';
+import { findBulkGroupDeltas } from '../../../src/api/modules/deltas/services/FindBulkGroupDeltasService';
 import { findGroupDeltas } from '../../../src/api/modules/deltas/services/FindGroupDeltasService';
 import { findPlayerDeltas } from '../../../src/api/modules/deltas/services/FindPlayerDeltasService';
 import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
-import { Metric, PlayerType } from '../../../src/types';
-import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase, sleep } from '../../utils';
+import { Metric, METRICS, PlayerType } from '../../../src/types';
+import {
+  assertComplete,
+  assertErrored,
+  modifyRawHiscoresData,
+  readFile,
+  registerHiscoresMock,
+  resetDatabase,
+  sleep
+} from '../../utils';
 
 const api = supertest(new APIInstance().init().express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -335,97 +344,94 @@ describe('Deltas API', () => {
 
       globalData.testGroupId = createGroupResponse.body.group.id;
 
-      await expect(findGroupDeltas(globalData.testGroupId, 'smithing', 'decade')).rejects.toThrow(
-        'Invalid period: decade.'
-      );
+      const result = await findGroupDeltas(globalData.testGroupId, 'smithing', { period: 'decade' });
+      assertErrored(result);
+      expect(result.error.code).toBe('INVALID_PERIOD');
     });
 
     it('should not fetch (group not found)', async () => {
-      await expect(
-        findGroupDeltas(2_000_000, 'smithing', 'week', undefined, undefined, { limit: 20, offset: 0 })
-      ).rejects.toThrow('Group not found.');
+      const result = await findGroupDeltas(2_000_000, 'smithing', { period: 'week' });
+      assertErrored(result);
+      expect(result.error.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should fetch group deltas (common period)', async () => {
-      const directResponse = await findGroupDeltas(globalData.testGroupId, 'smithing', 'week');
+      const result = await findGroupDeltas(globalData.testGroupId, 'smithing', { period: 'week' });
+      assertComplete(result);
 
-      expect(directResponse[0]).toMatchObject({
+      expect(result.value[0]).toMatchObject({
         player: { username: 'psikoi' },
         data: { gained: 50_000 }
       });
 
-      expect(directResponse[1]).toMatchObject({
+      expect(result.value[1]).toMatchObject({
         player: { username: 'hydrox6' },
         data: { gained: 0 }
       });
 
-      expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(604_800_000);
-      expect(Date.now() - directResponse[0].endDate.getTime()).toBeLessThan(10_000);
+      expect(Date.now() - result.value[0].startDate.getTime()).toBeLessThan(604_800_000);
+      expect(Date.now() - result.value[0].endDate.getTime()).toBeLessThan(10_000);
     });
 
     it('should fetch group deltas (custom period)', async () => {
-      const directResponse = await findGroupDeltas(globalData.testGroupId, 'smithing', '3d6h');
+      const result = await findGroupDeltas(globalData.testGroupId, 'smithing', { period: '3d6h' });
+      assertComplete(result);
 
-      expect(directResponse[0]).toMatchObject({
+      expect(result.value[0]).toMatchObject({
         player: { username: 'psikoi' },
         data: { gained: 50_000 }
       });
 
-      expect(directResponse[1]).toMatchObject({
+      expect(result.value[1]).toMatchObject({
         player: { username: 'hydrox6' },
         data: { gained: 0 }
       });
 
-      expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(280_800_000);
-      expect(Date.now() - directResponse[0].endDate.getTime()).toBeLessThan(10_000);
+      expect(Date.now() - result.value[0].startDate.getTime()).toBeLessThan(280_800_000);
+      expect(Date.now() - result.value[0].endDate.getTime()).toBeLessThan(10_000);
     });
 
     it('should not fetch deltas between (min date greater than max date)', async () => {
-      await expect(
-        findGroupDeltas(
-          globalData.testGroupId,
-          'smithing',
-          undefined,
-          new Date('2021-12-14T04:15:36.000Z'),
-          new Date('2015-12-14T04:15:36.000Z')
-        )
-      ).rejects.toThrow('Min date must be before the max date.');
+      const result = await findGroupDeltas(globalData.testGroupId, 'smithing', {
+        minDate: new Date('2021-12-14T04:15:36.000Z'),
+        maxDate: new Date('2015-12-14T04:15:36.000Z')
+      });
+      assertErrored(result);
+      expect(result.error.code).toBe('INVALID_DATE_RANGE');
     });
 
     it('should fetch group deltas (time range)', async () => {
-      const emptyGains = await findGroupDeltas(
-        globalData.testGroupId,
-        'smithing',
-        undefined,
-        new Date('2015-12-14T04:15:36.000Z'),
-        new Date('2021-12-14T04:15:36.000Z')
-      );
+      const emptyGainsResult = await findGroupDeltas(globalData.testGroupId, 'smithing', {
+        minDate: new Date('2015-12-14T04:15:36.000Z'),
+        maxDate: new Date('2021-12-14T04:15:36.000Z')
+      });
+      assertComplete(emptyGainsResult);
 
-      expect(emptyGains.length).toBe(0);
+      expect(emptyGainsResult.value.length).toBe(0);
 
-      const recentGains = await findGroupDeltas(
-        globalData.testGroupId,
-        'smithing',
-        undefined,
-        new Date('2021-12-14T04:15:36.000Z'),
-        new Date('2030-12-14T04:15:36.000Z')
-      );
+      const recentGainsResult = await findGroupDeltas(globalData.testGroupId, 'smithing', {
+        minDate: new Date('2021-12-14T04:15:36.000Z'),
+        maxDate: new Date('2030-12-14T04:15:36.000Z')
+      });
+      assertComplete(recentGainsResult);
 
-      expect(recentGains[0]).toMatchObject({
+      expect(recentGainsResult.value[0]).toMatchObject({
         player: { username: 'psikoi' },
         data: { gained: 50_000 }
       });
 
-      expect(recentGains[1]).toMatchObject({
+      expect(recentGainsResult.value[1]).toMatchObject({
         player: { username: 'hydrox6' },
         data: { gained: 0 }
       });
 
-      expect(recentGains[0].startDate.getTime()).toBeGreaterThan(
+      expect(recentGainsResult.value[0].startDate.getTime()).toBeGreaterThan(
         new Date('2021-12-14T04:15:36.000Z').getTime()
       );
 
-      expect(recentGains[0].endDate.getTime()).toBeLessThan(new Date('2030-12-14T04:15:36.000Z').getTime());
+      expect(recentGainsResult.value[0].endDate.getTime()).toBeLessThan(
+        new Date('2030-12-14T04:15:36.000Z').getTime()
+      );
 
       const apiResponse = await api.get(`/groups/${globalData.testGroupId}/gained`).query({
         metric: 'smithing',
@@ -433,64 +439,23 @@ describe('Deltas API', () => {
         endDate: '2030-12-14T04:15:36.000Z'
       });
 
-      for (const gain of recentGains) {
+      for (const gain of recentGainsResult.value) {
         delete gain.player['latestSnapshot'];
       }
 
       expect(apiResponse.status).toBe(200);
-
-      expect(apiResponse.body.length).toBe(recentGains.length);
-      // expect(JSON.stringify(apiResponse.body)).toEqual(JSON.stringify(recentGains));
+      expect(apiResponse.body.length).toBe(recentGainsResult.value.length);
 
       for (let i = 0; i < apiResponse.body.length; i++) {
-        expect(apiResponse.body[i].player.username).toEqual(recentGains[i].player.username);
-        expect(apiResponse.body[i].startDate).toEqual(recentGains[i].startDate.toISOString());
-        expect(apiResponse.body[i].endDate).toEqual(recentGains[i].endDate.toISOString());
-        expect(apiResponse.body[i].data).toEqual(recentGains[i].data);
+        expect(apiResponse.body[i].player.username).toEqual(recentGainsResult.value[i].player.username);
+        expect(apiResponse.body[i].startDate).toEqual(recentGainsResult.value[i].startDate.toISOString());
+        expect(apiResponse.body[i].endDate).toEqual(recentGainsResult.value[i].endDate.toISOString());
+        expect(apiResponse.body[i].data).toEqual(recentGainsResult.value[i].data);
       }
 
       // Make sure latestSnapshot isn't leaking
       expect(apiResponse.body[0].player['latestSnapshot']).not.toBeDefined();
       expect(apiResponse.body[1].player['latestSnapshot']).not.toBeDefined();
-    });
-
-    it('should not fetch group deltas (negative offset)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroupId}/gained`)
-        .query({ metric: 'smithing', period: 'week', offset: -5 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
-    });
-
-    it('should not fetch group deltas (negative limit)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroupId}/gained`)
-        .query({ metric: 'smithing', period: 'week', limit: -5 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
-    });
-
-    it('should fetch group deltas (with offset)', async () => {
-      const result = await findGroupDeltas(
-        globalData.testGroupId,
-        'smithing',
-        undefined,
-        new Date('2021-12-14T04:15:36.000Z'),
-        new Date('2030-12-14T04:15:36.000Z'),
-        { limit: 1, offset: 1 }
-      );
-
-      expect(result.length).toBe(1);
-
-      expect(result[0]).toMatchObject({
-        player: { username: 'hydrox6' },
-        data: { gained: 0 }
-      });
-
-      // Make sure latestSnapshot isn't leaking
-      expect(result[0].player['latestSnapshot']).not.toBeDefined();
     });
   });
 
@@ -627,6 +592,156 @@ describe('Deltas API', () => {
         gained: 50_000,
         player: { username: 'psikoi' }
       });
+    });
+  });
+
+  describe('5 - Fetch Bulk Group Deltas', () => {
+    it('should not fetch (group not found)', async () => {
+      const result = await findBulkGroupDeltas(2_000_000, { period: 'week' });
+      assertErrored(result);
+      expect(result.error.code).toBe('GROUP_NOT_FOUND');
+    });
+
+    it('should not fetch (invalid period)', async () => {
+      const result = await findBulkGroupDeltas(globalData.testGroupId, { period: 'decade' });
+      assertErrored(result);
+      expect(result.error.code).toBe('INVALID_PERIOD');
+    });
+
+    it('should not fetch (min date greater than max date)', async () => {
+      const result = await findBulkGroupDeltas(globalData.testGroupId, {
+        minDate: new Date('2025-12-14T04:15:36.000Z'),
+        maxDate: new Date('2021-12-14T04:15:36.000Z')
+      });
+      assertErrored(result);
+      expect(result.error.code).toBe('INVALID_DATE_RANGE');
+    });
+
+    it('should fetch bulk group deltas (common period)', async () => {
+      const result = await findBulkGroupDeltas(globalData.testGroupId, { period: 'week' });
+
+      assertComplete(result);
+
+      expect(result.value.length).toBe(2);
+
+      const psikoiResult = result.value.find(r => r.player.username === 'psikoi');
+      const hydrox6Result = result.value.find(r => r.player.username === 'hydrox6');
+
+      expect(psikoiResult).toBeDefined();
+      expect(hydrox6Result).toBeDefined();
+
+      // data contains every metric
+      expect(psikoiResult!.data.length).toBe(METRICS.length);
+
+      const psikoiSmithing = psikoiResult!.data.find(d => d.metric === Metric.SMITHING);
+      expect(psikoiSmithing).toMatchObject({ gained: 50_000 });
+
+      // timestamps are within the week window
+      expect(Date.now() - psikoiResult!.startDate.getTime()).toBeLessThan(604_800_000);
+      expect(Date.now() - psikoiResult!.endDate.getTime()).toBeLessThan(10_000);
+    });
+
+    it('should fetch bulk group deltas (custom period)', async () => {
+      const result = await findBulkGroupDeltas(globalData.testGroupId, { period: '3d6h' });
+
+      assertComplete(result);
+
+      expect(result.value.length).toBe(2);
+
+      const psikoiResult = result.value.find(r => r.player.username === 'psikoi');
+      expect(psikoiResult).toBeDefined();
+
+      const psikoiSmithing = psikoiResult!.data.find(d => d.metric === Metric.SMITHING);
+      expect(psikoiSmithing).toMatchObject({ gained: 50_000 });
+
+      expect(Date.now() - psikoiResult!.startDate.getTime()).toBeLessThan(280_800_000); // < 3d6h
+    });
+
+    it('should fetch bulk group deltas (time range)', async () => {
+      // Old range with no snapshots → empty results
+      const emptyResult = await findBulkGroupDeltas(globalData.testGroupId, {
+        minDate: new Date('2015-12-14T04:15:36.000Z'),
+        maxDate: new Date('2021-12-14T04:15:36.000Z')
+      });
+
+      assertComplete(emptyResult);
+
+      expect(emptyResult.value.length).toBe(0);
+
+      // Wide range covering all snapshots
+      const result = await findBulkGroupDeltas(globalData.testGroupId, {
+        minDate: new Date('2021-12-14T04:15:36.000Z'),
+        maxDate: new Date('2030-12-14T04:15:36.000Z')
+      });
+
+      assertComplete(result);
+
+      expect(result.value.length).toBe(2);
+
+      const psikoiResult = result.value.find(r => r.player.username === 'psikoi');
+      expect(psikoiResult).toBeDefined();
+
+      const psikoiSmithing = psikoiResult!.data.find(d => d.metric === Metric.SMITHING);
+      expect(psikoiSmithing).toMatchObject({ gained: 50_000 });
+
+      expect(psikoiResult!.startDate.getTime()).toBeGreaterThan(
+        new Date('2021-12-14T04:15:36.000Z').getTime()
+      );
+      expect(psikoiResult!.endDate.getTime()).toBeLessThan(new Date('2030-12-14T04:15:36.000Z').getTime());
+    });
+
+    it('should not fetch bulk group deltas via API (no period or dates)', async () => {
+      const response = await api.get(`/groups/${globalData.testGroupId}/bulk-gained`);
+      expect(response.status).toBe(400);
+    });
+
+    it('should not fetch bulk group deltas via API (group not found)', async () => {
+      const response = await api.get(`/groups/2000000/bulk-gained`).query({ period: 'week' });
+      expect(response.status).toBe(404);
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
+    });
+
+    it('should fetch bulk group deltas via API (period)', async () => {
+      const response = await api
+        .get(`/groups/${globalData.testGroupId}/bulk-gained`)
+        .query({ period: 'week' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(2);
+
+      const psikoiEntry = response.body.find(
+        (r: { player: { username: string } }) => r.player.username === 'psikoi'
+      );
+      expect(psikoiEntry).toBeDefined();
+
+      const smithingEntry = psikoiEntry.data.find((d: { metric: string }) => d.metric === 'smithing');
+      expect(smithingEntry).toMatchObject({ gained: 50_000 });
+
+      // latestSnapshot must not leak through
+      expect(response.body[0].player['latestSnapshot']).not.toBeDefined();
+      expect(response.body[1].player['latestSnapshot']).not.toBeDefined();
+    });
+
+    it('should fetch bulk group deltas via API (time range)', async () => {
+      const response = await api.get(`/groups/${globalData.testGroupId}/bulk-gained`).query({
+        startDate: '2021-12-14T04:15:36.000Z',
+        endDate: '2030-12-14T04:15:36.000Z'
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(2);
+
+      const psikoiEntry = response.body.find(
+        (r: { player: { username: string } }) => r.player.username === 'psikoi'
+      );
+      expect(psikoiEntry).toBeDefined();
+
+      const smithingEntry = psikoiEntry.data.find((d: { metric: string }) => d.metric === 'smithing');
+      expect(smithingEntry).toMatchObject({ gained: 50_000 });
+
+      // latestSnapshot must not leak through
+      expect(response.body[0].player['latestSnapshot']).not.toBeDefined();
+      expect(response.body[1].player['latestSnapshot']).not.toBeDefined();
     });
   });
 });

@@ -1,8 +1,8 @@
 import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { Metric, Period, Player, Snapshot } from '../../../../types';
+import { Metric, METRICS, Period, Player, Snapshot } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
-import { parsePeriodExpression } from '../../../../utils/shared/parse-period-expression.util';
+import { parsePeriodExpression } from '../../../../utils/shared';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 import { calculateMetricDelta } from '../delta.utils';
 
@@ -15,16 +15,15 @@ type TimeFilter =
       maxDate: Date;
     };
 
-export async function findGroupDeltas(
+export async function findBulkGroupDeltas(
   groupId: number,
-  metric: Metric,
   timeFilter: TimeFilter
 ): AsyncResult<
   Array<{
     player: Player;
     startDate: Date;
     endDate: Date;
-    data: MetricDelta;
+    data: Array<MetricDelta & { metric: Metric }>;
   }>,
   { code: 'GROUP_NOT_FOUND' } | { code: 'INVALID_DATE_RANGE' } | { code: 'INVALID_PERIOD' }
 > {
@@ -71,7 +70,12 @@ export async function findGroupDeltas(
         return null;
       }
 
-      const data = calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
+      const data = METRICS.map(metric => {
+        return {
+          metric,
+          ...calculateMetricDelta(player, metric, startSnapshot, endSnapshot)
+        };
+      });
 
       return {
         player,
@@ -80,8 +84,7 @@ export async function findGroupDeltas(
         endDate: endSnapshot.createdAt
       };
     })
-    .filter(Boolean)
-    .sort((a, b) => b.data.gained - a.data.gained);
+    .filter(Boolean);
 
   return complete(results);
 }

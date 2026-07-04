@@ -29,6 +29,7 @@ import {
 } from '../../util/validation';
 import { findGroupAchievements } from '../achievements/services/FindGroupAchievementsService';
 import { findGroupCompetitions } from '../competitions/services/FindGroupCompetitionsService';
+import { findBulkGroupDeltas } from '../deltas/services/FindBulkGroupDeltasService';
 import { findGroupDeltas } from '../deltas/services/FindGroupDeltasService';
 import { findGroupNameChanges } from '../name-changes/services/FindGroupNameChangesService';
 import { findGroupRecords } from '../records/services/FindGroupRecordsService';
@@ -368,20 +369,100 @@ router.get(
     }),
     query: z
       .object({
-        metric: z.nativeEnum(Metric),
-        period: z.optional(z.nativeEnum(Period).or(z.string())),
-        startDate: z.optional(getDateSchema('startDate')),
-        endDate: z.optional(getDateSchema('endDate'))
+        metric: z.nativeEnum(Metric)
       })
-      .merge(getPaginationSchema(100_000))
+      .and(
+        z.union([
+          z.object({
+            period: z.nativeEnum(Period).or(z.string())
+          }),
+          z.object({
+            startDate: getDateSchema('startDate'),
+            endDate: getDateSchema('endDate')
+          })
+        ])
+      )
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric, period, startDate, endDate, limit, offset } = req.query;
+    const { metric } = req.query;
 
-    const results = await findGroupDeltas(id, metric, period, startDate, endDate, { limit, offset });
+    const result = await findGroupDeltas(
+      id,
+      metric,
+      'period' in req.query
+        ? req.query
+        : {
+            minDate: req.query.startDate,
+            maxDate: req.query.endDate
+          }
+    );
 
-    const response = results.map(r => ({
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'INVALID_PERIOD':
+        case 'INVALID_DATE_RANGE':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const response = result.value.map(r => ({
+      player: formatPlayerResponse(r.player),
+      startDate: r.startDate,
+      endDate: r.endDate,
+      data: r.data
+    }));
+
+    res.status(200).json(response);
+  })
+);
+
+router.get(
+  '/groups/:id/bulk-gained',
+  validateRequest({
+    params: z.object({
+      id: z.coerce.number().int().positive()
+    }),
+    query: z.union([
+      z.object({
+        period: z.nativeEnum(Period).or(z.string())
+      }),
+      z.object({
+        startDate: getDateSchema('startDate'),
+        endDate: getDateSchema('endDate')
+      })
+    ])
+  }),
+  executeRequest(async (req, res) => {
+    const { id } = req.params;
+
+    const result = await findBulkGroupDeltas(
+      id,
+      'period' in req.query
+        ? req.query
+        : {
+            minDate: req.query.startDate,
+            maxDate: req.query.endDate
+          }
+    );
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'INVALID_PERIOD':
+        case 'INVALID_DATE_RANGE':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const response = result.value.map(r => ({
       player: formatPlayerResponse(r.player),
       startDate: r.startDate,
       endDate: r.endDate,

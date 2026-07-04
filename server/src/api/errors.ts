@@ -18,6 +18,8 @@ const ErrorMessageMap = {
   INCORRECT_ADMIN_PASSWORD: `Incorrect admin password`,
   INCORRECT_GROUP_VERIFICATION_CODE: `Incorrect group verification code`,
   INCORRECT_VERIFICATION_CODE: `Incorrect verification code`,
+  INVALID_PERIOD: `Invalid period`,
+  INVALID_DATE_RANGE: `Invalid date range`,
   INVALID_USERNAME: `Invalid username`,
   INVALID_USERNAMES_FOUND: `Invalid player usernames found`,
   METRICS_MUST_BE_OF_SAME_TYPE: `All metrics must be of the same type`,
