@@ -2884,11 +2884,12 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('This group has no outdated members (updated over 24h ago).');
+      expect(response.body.message).toBe('This group has no outdated members (updated over 24h ago)');
     });
 
     it('should update all', async () => {
-      const dayOldDate = new Date(Date.now() - 1000 - 24 * 60 * 60 * 1000);
+      const dayOldDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const withinCooldown = new Date(Date.now() - 22 * 60 * 60 * 1000);
 
       // Force this player's last update timestamp to be a day ago
       await prisma.player.update({
@@ -2905,7 +2906,7 @@ describe('Group API', () => {
       // Force these players last update timestamps to be recent
       await prisma.player.update({
         where: { username: 'swampletics' },
-        data: { updatedAt: new Date() }
+        data: { updatedAt: withinCooldown }
       });
       await prisma.player.update({
         where: { username: 'rorro' },

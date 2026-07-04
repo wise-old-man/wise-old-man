@@ -1,7 +1,8 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
+import ms from 'ms';
 import { JobType, jobManager } from '../../../../jobs';
 import prisma from '../../../../prisma';
 import { Player } from '../../../../types';
-import { BadRequestError, NotFoundError } from '../../../errors';
 
 // The first and last 6h of a competition are considered a priority period
 const PRIORITY_PERIOD = 6;
@@ -12,22 +13,27 @@ const PRIORITY_COOLDOWN = 1;
 // By default, players are considered outdated 24h after their last update
 const DEFAULT_COOLDOWN = 24;
 
-type UpdateAllParticipantsResult = { outdatedCount: number; cooldownDuration: number };
+const GRACE_PERIOD = ms('30 min');
 
-async function updateAllParticipants(
+export async function updateAllParticipants(
   id: number,
   forceUpdate?: boolean
-): Promise<UpdateAllParticipantsResult> {
+): AsyncResult<
+  { outdatedCount: number; cooldownDuration: number },
+  | { code: 'COMPETITION_NOT_FOUND' }
+  | { code: 'COMPETITION_ENDED' }
+  | { code: 'NO_OUTDATED_PARTICIPANTS'; data: { cooldownDuration: number } }
+> {
   const competition = await prisma.competition.findFirst({
     where: { id }
   });
 
-  if (!competition) {
-    throw new NotFoundError('Competition not found.');
+  if (competition === null) {
+    return errored({ code: 'COMPETITION_NOT_FOUND' });
   }
 
   if (competition.endsAt.getTime() < Date.now()) {
-    throw new BadRequestError('This competition has ended. Cannot update all.');
+    return errored({ code: 'COMPETITION_ENDED' });
   }
 
   const hoursTillEnd = Math.max(0, (competition.endsAt.getTime() - Date.now()) / 1000 / 60 / 60);
@@ -40,10 +46,11 @@ async function updateAllParticipants(
 
   const outdatedPlayers = await getOutdatedParticipants(id, forceUpdate ? 0 : cooldownDuration);
 
-  if (!outdatedPlayers || outdatedPlayers.length === 0) {
-    throw new BadRequestError(
-      `This competition has no outdated participants (updated over ${cooldownDuration}h ago).`
-    );
+  if (outdatedPlayers.length === 0) {
+    return errored({
+      code: 'NO_OUTDATED_PARTICIPANTS',
+      data: { cooldownDuration }
+    });
   }
 
   // Schedule an update job for every participant
@@ -51,14 +58,17 @@ async function updateAllParticipants(
     jobManager.add(JobType.UPDATE_PLAYER, { username: player.username });
   }
 
-  return { outdatedCount: outdatedPlayers.length, cooldownDuration };
+  return complete({
+    outdatedCount: outdatedPlayers.length,
+    cooldownDuration
+  });
 }
 
 async function getOutdatedParticipants(
   competitionId: number,
   cooldownDuration: number
 ): Promise<Pick<Player, 'username'>[]> {
-  const cooldownExpiration = new Date(Date.now() - cooldownDuration * 60 * 60 * 1000);
+  const cooldownExpiration = new Date(Date.now() - cooldownDuration * ms('1 hour') + GRACE_PERIOD);
 
   const outdatedParticipants = await prisma.participation.findMany({
     where: {
@@ -74,5 +84,3 @@ async function getOutdatedParticipants(
 
   return outdatedParticipants.map(o => o.player);
 }
-
-export { updateAllParticipants };

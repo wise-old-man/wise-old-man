@@ -464,7 +464,21 @@ router.post(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const { outdatedCount, cooldownDuration } = await updateAllParticipants(id);
+    const result = await updateAllParticipants(id);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'COMPETITION_ENDED':
+        case 'NO_OUTDATED_PARTICIPANTS':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const { outdatedCount, cooldownDuration } = result.value;
 
     res.status(200).json({
       count: outdatedCount,
