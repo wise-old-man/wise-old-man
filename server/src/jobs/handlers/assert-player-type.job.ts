@@ -1,5 +1,4 @@
 import { isErrored } from '@attio/fetchable';
-import { NotFoundError } from '../../api/errors';
 import { standardizeUsername } from '../../api/modules/players/player.utils';
 import { assertPlayerType } from '../../api/modules/players/services/AssertPlayerTypeService';
 import prisma from '../../prisma';
@@ -29,8 +28,8 @@ export const AssertPlayerTypeJobHandler: JobHandler<Payload> = {
       where: { username: standardizeUsername(payload.username) }
     });
 
-    if (!player) {
-      throw new NotFoundError('Player not found.');
+    if (player === null) {
+      return;
     }
 
     const assertionResult = await assertPlayerType(player);

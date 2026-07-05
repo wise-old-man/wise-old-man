@@ -534,9 +534,18 @@ router.get(
     const { username } = req.params;
     const { status } = req.query;
 
-    const participations = await findPlayerParticipations(username, status);
+    const result = await findPlayerParticipations(username, status);
 
-    const response = participations.map(p => ({
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(p => ({
       ...formatParticipationResponse(p.participation),
       competition: formatCompetitionResponse(p.competition, p.group)
     }));
@@ -646,8 +655,18 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const achievements = await findPlayerAchievements(username);
-    const response = achievements.map(formatAchievementResponse);
+    const result = await findPlayerAchievements(username);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(formatAchievementResponse);
 
     res.status(200).json(response);
   })
@@ -663,8 +682,18 @@ router.get(
   executeRequest(async (req, res) => {
     const { username } = req.params;
 
-    const achievements = await findPlayerAchievementProgress(username);
-    const response = achievements.map(formatAchievementProgressResponse);
+    const result = await findPlayerAchievementProgress(username);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(formatAchievementProgressResponse);
 
     res.status(200).json(response);
   })

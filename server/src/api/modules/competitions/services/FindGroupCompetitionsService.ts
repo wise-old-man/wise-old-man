@@ -1,12 +1,13 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Competition, CompetitionMetric, Group } from '../../../../types';
-import { NotFoundError } from '../../../errors';
 
-async function findGroupCompetitions(groupId: number): Promise<
+async function findGroupCompetitions(groupId: number): AsyncResult<
   Array<{
     competition: Competition & { metrics: CompetitionMetric[]; participantCount: number };
     group: Group & { memberCount: number };
-  }>
+  }>,
+  { code: 'GROUP_NOT_FOUND' }
 > {
   const group = await prisma.group.findFirst({
     where: { id: groupId },
@@ -19,8 +20,8 @@ async function findGroupCompetitions(groupId: number): Promise<
     }
   });
 
-  if (!group) {
-    throw new NotFoundError('Group not found.');
+  if (group === null) {
+    return errored({ code: 'GROUP_NOT_FOUND' });
   }
 
   const competitions = await prisma.competition.findMany({
@@ -51,7 +52,7 @@ async function findGroupCompetitions(groupId: number): Promise<
 
   const participantCountsMap = new Map(participantCounts.map(p => [p.competitionId, p._count]));
 
-  return sortCompetitions(
+  const sortedCompetitions = sortCompetitions(
     competitions.map(c => {
       return {
         competition: {
@@ -65,6 +66,8 @@ async function findGroupCompetitions(groupId: number): Promise<
       };
     })
   );
+
+  return complete(sortedCompetitions);
 }
 
 function sortCompetitions<T extends { competition: Pick<Competition, 'startsAt' | 'endsAt'> }>(

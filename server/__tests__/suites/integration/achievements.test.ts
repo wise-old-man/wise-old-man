@@ -61,11 +61,11 @@ describe('Achievements API', () => {
     test('Fetch Achievement from unknown player', async () => {
       const firstResponse = await api.get(`/players/idk/achievements`);
       expect(firstResponse.status).toBe(404);
-      expect(firstResponse.body.message).toBe('Player not found.');
+      expect(firstResponse.body.code).toBe('PLAYER_NOT_FOUND');
 
       const secondResponse = await api.get(`/players/idk/achievements/progress`);
       expect(secondResponse.status).toBe(404);
-      expect(secondResponse.body.message).toBe('Player not found.');
+      expect(secondResponse.body.code).toBe('PLAYER_NOT_FOUND');
     });
 
     test('Track Player (first time, all achievements (unknown dates))', async () => {
@@ -226,7 +226,7 @@ describe('Achievements API', () => {
 
       const failedFetchResponse = await api.get(`/groups/200000000/achievements`);
       expect(failedFetchResponse.status).toBe(404);
-      expect(failedFetchResponse.body.message).toBe('Group not found.');
+      expect(failedFetchResponse.body.code).toBe('GROUP_NOT_FOUND');
 
       let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataB, [
         { hiscoresMetricName: 'Rifts closed', value: 50 }

@@ -2,6 +2,7 @@ const ErrorMessageMap = {
   ALL_PLAYERS_ALREADY_COMPETING: `All players are already competing in this competition`,
   CANNOT_ADD_PARTICIPANTS_TO_TEAM_COMPETITION: `Cannot add participants to a team competition`,
   CANNOT_ADD_TEAMS_TO_CLASSIC_COMPETITION: `Cannot add teams to a classic competition`,
+  CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION: `Cannot view team/teams table on a classic competition`,
   CLAN_CHAT_HAS_INVALID_CHARACTERS: `Invalid 'clanChat'. Cannot contain special characters`,
   COMPETITION_DATES_IN_THE_PAST: `Start and end dates must be in the future`,
   COMPETITION_ENDED: `This competition has ended. Cannot update all.`,
@@ -34,6 +35,7 @@ const ErrorMessageMap = {
   NO_OUTDATED_MEMBERS: `This group has no outdated members (updated over 24h ago)`,
   NO_OUTDATED_PARTICIPANTS: `This competition has no outdated participants`,
   NO_SNAPSHOTS_TO_DELETE: `No snapshots found to delete`,
+  NO_VALID_PARTICIPANTS: `No valid participants were found`,
   NOTHING_TO_UPDATE: `Nothing to update`,
   OLD_STATS_NOT_FOUND: `Old stats for this name change could not be found`,
   OPTED_OUT_MEMBERS_FOUND: `One or more members have opted out of joining groups`,
@@ -49,6 +51,7 @@ const ErrorMessageMap = {
   ROLE_ORDER_MUST_HAVE_UNIQUE_INDEXES: `Role Order must contain unique indexes for each role`,
   ROLE_ORDER_MUST_HAVE_UNIQUE_ROLES: `Role Order must contain unique roles`,
   RUNELITE_NAME_CHANGE_DETECTED: `Name change detected (RuneLite)`,
+  TEAM_NAME_IS_REQUIRED: `Team name is a required parameter for the table type of "team"`,
   UNEXPECTED_DATABASE_ERROR: `An unexpected database error occurred. Please try again later.`,
   VALIDATION_ERROR: `Validation error`
 } as const;

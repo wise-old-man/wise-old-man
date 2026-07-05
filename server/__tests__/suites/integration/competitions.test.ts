@@ -2731,7 +2731,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('No valid tracked players were given.');
+      expect(response.body.code).toBe('NO_VALID_PARTICIPANTS');
     });
 
     it('should not remove participants (no participants found)', async () => {
@@ -2743,7 +2743,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('None of the players given were competing.');
+      expect(response.body.code).toBe('NO_VALID_PARTICIPANTS');
     });
 
     it('should remove participants (team competition)', async () => {
@@ -4299,9 +4299,7 @@ describe('Competition API', () => {
         .query({ table: 'team' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Team name is a required parameter for the table type of "team".'
-      );
+      expect(response.body.code).toBe('TEAM_NAME_IS_REQUIRED');
     });
 
     it('should not view CSV export (team/teams table on a classic competition)', async () => {
@@ -4310,7 +4308,7 @@ describe('Competition API', () => {
         .query({ table: 'teams' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot view team/teams table on a classic competition.');
+      expect(response.body.code).toBe('CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION');
     });
 
     it('should view CSV export (participants)', async () => {
@@ -5006,7 +5004,7 @@ describe('Competition API', () => {
       const usernameResponse = await api.get(`/groups/1000000/competitions`);
 
       expect(usernameResponse.status).toBe(404);
-      expect(usernameResponse.body.message).toMatch('Group not found.');
+      expect(usernameResponse.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should list group competitions', async () => {
@@ -5320,7 +5318,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should not delete (invalid verification code)', async () => {
