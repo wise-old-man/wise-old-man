@@ -350,7 +350,7 @@ async function executeUpdate(
           }
         });
 
-        if (groupId !== null) {
+        if (groupId !== null && optOuts.length > 0) {
           const memberships = await transaction.membership.findMany({
             where: {
               groupId,

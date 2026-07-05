@@ -74,7 +74,7 @@ async function addTeams(
     }
   });
 
-  if (competition.groupId !== null) {
+  if (competition.groupId !== null && optOuts.length > 0) {
     const memberships = await prisma.membership.findMany({
       where: {
         groupId: competition.groupId,
