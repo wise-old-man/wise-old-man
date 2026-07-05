@@ -83,13 +83,13 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
     });
 
     // Players who opted out after joining the group are grandfathered in and may still participate.
-    optOuts = optOuts.filter(c => {
-      if (c.type === PlayerAnnotationType.OPT_OUT) return true;
+    optOuts = optOuts.filter(o => {
+      if (o.type === PlayerAnnotationType.OPT_OUT) return true;
 
-      const membership = memberships.find(m => m.playerId === c.playerId);
+      const membership = memberships.find(m => m.playerId === o.playerId);
       if (!membership) return true;
 
-      return c.createdAt <= membership.createdAt;
+      return o.createdAt <= membership.createdAt;
     });
   }
 
