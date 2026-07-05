@@ -7,6 +7,7 @@ import { CompetitionStatus, Metric, Period, PlayerAnnotationType } from '../../.
 import { assertNever } from '../../../utils/assert-never.util';
 import {
   BadRequestErrorZ,
+  ConflictErrorZ,
   ForbiddenErrorZ,
   NotFoundError,
   NotFoundErrorZ,
@@ -714,8 +715,20 @@ router.post(
     const { username } = req.params;
     const { annotationType } = req.body;
 
-    const createdAnnotation = await createPlayerAnnotation(username, annotationType);
-    const response = formatPlayerAnnotationResponse(createdAnnotation);
+    const result = await createPlayerAnnotation(username, annotationType);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'DUPLICATE_PALYER_ANNOTATION':
+          throw new ConflictErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const response = formatPlayerAnnotationResponse(result.value);
 
     res.status(201).json(response);
   })
@@ -736,9 +749,19 @@ router.delete(
     const { username } = req.params;
     const { annotationType } = req.body;
 
-    const deletedAnnotation = await deletePlayerAnnotation(username, annotationType);
+    const result = await deletePlayerAnnotation(username, annotationType);
 
-    res.status(200).json(`Annotation ${deletedAnnotation.type} deleted for player ${username}`);
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'PLAYER_NOT_FOUND':
+        case 'PLAYER_ANNOTATION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    res.status(200).json(`Annotation ${result.value.type} deleted for player ${username}`);
   })
 );
 

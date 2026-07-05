@@ -1,31 +1,31 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { PlayerAnnotation, PlayerAnnotationType } from '../../../../types';
-import { ConflictRequestError, NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../player.utils';
 
-async function createPlayerAnnotation(
+export async function createPlayerAnnotation(
   username: string,
   annotationType: PlayerAnnotationType
-): Promise<PlayerAnnotation> {
+): AsyncResult<PlayerAnnotation, { code: 'PLAYER_NOT_FOUND' } | { code: 'DUPLICATE_PALYER_ANNOTATION' }> {
   const player = await prisma.player.findUnique({
     where: { username: standardizeUsername(username) },
     include: { annotations: true }
   });
 
-  if (!player) {
-    throw new NotFoundError(`Player: ${username} not found`);
+  if (player === null) {
+    return errored({ code: 'PLAYER_NOT_FOUND' });
   }
 
   if (player.annotations.some(a => a.type === annotationType)) {
-    throw new ConflictRequestError(`The annotation ${annotationType} already exists for ${username}`);
+    return errored({ code: 'DUPLICATE_PALYER_ANNOTATION' });
   }
 
-  return prisma.playerAnnotation.create({
+  const result = await prisma.playerAnnotation.create({
     data: {
       playerId: player.id,
       type: annotationType
     }
   });
-}
 
-export { createPlayerAnnotation };
+  return complete(result);
+}
