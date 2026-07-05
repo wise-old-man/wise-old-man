@@ -2369,7 +2369,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
+      expect(response.body.code).toBe('INVALID_USERNAMES_FOUND');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2383,7 +2383,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
+      expect(response.body.code).toBe('INVALID_USERNAMES_FOUND');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2397,7 +2397,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body.code).toBe('DUPLICATE_USERNAMES_FOUND');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2411,7 +2411,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All players given are already competing.');
+      expect(response.body.code).toBe('ALL_PLAYERS_ALREADY_COMPETING');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2425,7 +2425,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot add participants to a team competition.');
+      expect(response.body.code).toBe('CANNOT_ADD_PARTICIPANTS_TO_TEAM_COMPETITION');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2468,7 +2468,7 @@ describe('Competition API', () => {
         });
 
       expect(addParticipantsResponse.status).toBe(403);
-      expect(addParticipantsResponse.body.message).toMatch('One or more players have opted out');
+      expect(addParticipantsResponse.body.code).toBe('OPTED_OUT_PARTICIPANTS_FOUND');
       expect(addParticipantsResponse.body.data).toEqual(['Katharina', 'Franziska']);
 
       const deleteResponse = await api
@@ -2626,7 +2626,7 @@ describe('Competition API', () => {
       });
 
       expect(addResponse.status).toBe(403);
-      expect(addResponse.body.message).toMatch('One or more players have opted out');
+      expect(addResponse.body.code).toBe('OPTED_OUT_PARTICIPANTS_FOUND');
       expect(addResponse.body.data).toContain('marcy');
 
       await api.delete(`/competitions/${competitionId}`).send({
@@ -2978,7 +2978,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
+      expect(response.body.code).toBe('INVALID_USERNAMES_FOUND');
       expect(response.body.data).toContain('reallylongusername');
     });
 
@@ -3036,7 +3036,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names');
+      expect(response.body.code).toBe('DUPLICATE_TEAM_NAMES_FOUND');
     });
 
     it('should not add teams (duplicate team names in database)', async () => {
@@ -3049,7 +3049,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names');
+      expect(response.body.code).toBe('DUPLICATE_TEAM_NAMES_FOUND');
     });
 
     it('should not add teams (duplicate team players in response)', async () => {
@@ -3062,7 +3062,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body.code).toBe('DUPLICATE_USERNAMES_FOUND');
     });
 
     it('should not add teams (duplicate team players in database)', async () => {
@@ -3072,7 +3072,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body.code).toBe('DUPLICATE_USERNAMES_FOUND');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -3087,7 +3087,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot add teams to a classic competition.');
+      expect(response.body.code).toBe('CANNOT_ADD_TEAMS_TO_CLASSIC_COMPETITION');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -3131,7 +3131,7 @@ describe('Competition API', () => {
         });
 
       expect(addTeamsResponse.status).toBe(403);
-      expect(addTeamsResponse.body.message).toMatch('One or more players have opted out');
+      expect(addTeamsResponse.body.code).toBe('OPTED_OUT_PARTICIPANTS_FOUND');
       expect(addTeamsResponse.body.data).toEqual(['Magnus', 'Egon']);
 
       const deleteResponse = await api
@@ -3289,7 +3289,7 @@ describe('Competition API', () => {
       });
 
       expect(addTeamsResponse.status).toBe(403);
-      expect(addTeamsResponse.body.message).toMatch('One or more players have opted out');
+      expect(addTeamsResponse.body.code).toBe('OPTED_OUT_PARTICIPANTS_FOUND');
       expect(addTeamsResponse.body.data).toContain('Cho');
 
       await api.delete(`/competitions/${competitionId}`).send({

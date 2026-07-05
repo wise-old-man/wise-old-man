@@ -372,7 +372,25 @@ router.post(
     const { id } = req.params;
     const { participants } = req.body;
 
-    const { count } = await addParticipants(id, participants);
+    const result = await addParticipants(id, participants);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'ALL_PLAYERS_ALREADY_COMPETING':
+        case 'CANNOT_ADD_PARTICIPANTS_TO_TEAM_COMPETITION':
+        case 'DUPLICATE_USERNAMES_FOUND':
+        case 'INVALID_USERNAMES_FOUND':
+          throw new BadRequestErrorZ(result.error);
+        case 'OPTED_OUT_PARTICIPANTS_FOUND':
+          throw new ForbiddenErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const { count } = result.value;
 
     res.status(200).json({
       count,
@@ -420,7 +438,26 @@ router.post(
     const { id } = req.params;
     const { teams } = req.body;
 
-    const { count } = await addTeams(id, teams);
+    const result = await addTeams(id, teams);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'ALL_PLAYERS_ALREADY_COMPETING':
+        case 'CANNOT_ADD_TEAMS_TO_CLASSIC_COMPETITION':
+        case 'DUPLICATE_USERNAMES_FOUND':
+        case 'DUPLICATE_TEAM_NAMES_FOUND':
+        case 'INVALID_USERNAMES_FOUND':
+          throw new BadRequestErrorZ(result.error);
+        case 'OPTED_OUT_PARTICIPANTS_FOUND':
+          throw new ForbiddenErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const { count } = result.value;
 
     res.status(200).json({
       count,

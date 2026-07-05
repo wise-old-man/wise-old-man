@@ -1,8 +1,6 @@
-import { combine, isErrored } from '@attio/fetchable';
+import { AsyncResult, combine, complete, errored, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { CompetitionTeam, CompetitionType, PlayerAnnotationType } from '../../../../types';
-import { assertNever } from '../../../../utils/assert-never.util';
-import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import {
@@ -12,17 +10,29 @@ import {
   validateTeamDuplicates
 } from '../competition.utils';
 
-async function addTeams(id: number, teams: CompetitionTeam[]): Promise<{ count: number }> {
+async function addTeams(
+  id: number,
+  teams: CompetitionTeam[]
+): AsyncResult<
+  { count: number },
+  | { code: 'COMPETITION_NOT_FOUND' }
+  | { code: 'CANNOT_ADD_TEAMS_TO_CLASSIC_COMPETITION' }
+  | { code: 'ALL_PLAYERS_ALREADY_COMPETING' }
+  | { code: 'OPTED_OUT_PARTICIPANTS_FOUND'; data: string[] }
+  | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+  | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] }
+  | { code: 'DUPLICATE_TEAM_NAMES_FOUND'; data: string[] }
+> {
   const competition = await prisma.competition.findFirst({
     where: { id }
   });
 
-  if (!competition) {
-    throw new NotFoundError('Competition not found.');
+  if (competition === null) {
+    return errored({ code: 'COMPETITION_NOT_FOUND' });
   }
 
   if (competition.type === CompetitionType.CLASSIC) {
-    throw new BadRequestError('Cannot add teams to a classic competition.');
+    return errored({ code: 'CANNOT_ADD_TEAMS_TO_CLASSIC_COMPETITION' });
   }
 
   // ensures every team name is sanitized, and every username is standardized
@@ -43,19 +53,7 @@ async function addTeams(id: number, teams: CompetitionTeam[]): Promise<{ count: 
   ]);
 
   if (isErrored(teamValidationResult)) {
-    switch (teamValidationResult.error.code) {
-      case 'INVALID_USERNAMES_FOUND':
-        throw new BadRequestError(
-          `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
-          teamValidationResult.error.data
-        );
-      case 'DUPLICATE_USERNAMES_FOUND':
-        throw new BadRequestError(`Found repeated usernames.`, teamValidationResult.error.data);
-      case 'DUPLICATE_TEAM_NAMES_FOUND':
-        throw new BadRequestError(`Found repeated team names.`, teamValidationResult.error.data);
-      default:
-        return assertNever(teamValidationResult.error);
-    }
+    return teamValidationResult;
   }
 
   const newPlayers = await findOrCreatePlayers(newTeams.map(t => t.participants).flat());
@@ -98,10 +96,10 @@ async function addTeams(id: number, teams: CompetitionTeam[]): Promise<{ count: 
   }
 
   if (optOuts.length > 0) {
-    throw new ForbiddenError(
-      'One or more players have opted out of joining competitions, so they cannot be added as participants.',
-      optOuts.map(o => o.player.displayName)
-    );
+    return errored({
+      code: 'OPTED_OUT_PARTICIPANTS_FOUND',
+      data: optOuts.map(o => o.player.displayName)
+    });
   }
 
   // Map player usernames into IDs, for O(1) checks below
@@ -129,7 +127,7 @@ async function addTeams(id: number, teams: CompetitionTeam[]): Promise<{ count: 
     data: { updatedAt: new Date() }
   });
 
-  return { count };
+  return complete({ count });
 }
 
 async function fetchCurrentTeams(id: number): Promise<CompetitionTeam[]> {
