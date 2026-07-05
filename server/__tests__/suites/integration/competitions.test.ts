@@ -932,6 +932,105 @@ describe('Competition API', () => {
         where: { id: response.body.competition.id }
       });
     });
+
+    it('should create group competition (member with opt-out after joining group is grandfathered)', async () => {
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Grandfathered',
+        members: [{ username: 'lucy' }, { username: 'ghoul' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const lateOpter = await prisma.player.findFirstOrThrow({
+        where: {
+          username: 'ghoul'
+        }
+      });
+
+      const membership = await prisma.membership.findFirstOrThrow({
+        where: {
+          groupId,
+          playerId: lateOpter.id
+        }
+      });
+
+      // Opt-out was created AFTER joining the group, so the player is grandfathered in
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: lateOpter.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date(membership.createdAt.getTime() + 1_000)
+        }
+      });
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Grandfathered Test Competition',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+      expect(createCompetitionResponse.body.competition.participantCount).toBe(2);
+      expect(createCompetitionResponse.body.competition.participations.map(p => p.player.username)).toContain(
+        'ghoul'
+      );
+
+      await api.delete(`/competitions/${createCompetitionResponse.body.competition.id}`).send({
+        verificationCode: createCompetitionResponse.body.verificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
+    });
+
+    it('should not create group competition (member with opt-out before joining group is blocked)', async () => {
+      const earlyOpter = await prisma.player.create({
+        data: { username: 'maclean', displayName: 'MacLean' }
+      });
+
+      // Opt-out was created BEFORE joining the group, so the player is blocked
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: earlyOpter.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date('2020-01-01')
+        }
+      });
+
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Blocked',
+        members: [{ username: 'ghoul' }, { username: 'maclean' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Blocked Test Competition',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode
+      });
+
+      expect(createCompetitionResponse.status).toBe(403);
+      expect(createCompetitionResponse.body).toMatchObject({ code: 'OPTED_OUT_PARTICIPANTS_FOUND' });
+      expect(createCompetitionResponse.body.data).toContain('MacLean');
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
+    });
   });
 
   describe('2 - Edit', () => {
@@ -1810,6 +1909,133 @@ describe('Competition API', () => {
 
       expect(deleteResponse.status).toBe(200);
     });
+
+    it('should edit group competition (member with opt-out after joining group is grandfathered)', async () => {
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Grandfathered Edit',
+        members: [{ username: 'betty' }, { username: 'maximus' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const maximus = await prisma.player.findFirstOrThrow({
+        where: { username: 'maximus' }
+      });
+
+      const membership = await prisma.membership.findFirstOrThrow({
+        where: { groupId, playerId: maximus.id }
+      });
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Grandfathered Edit Competition',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+      expect(createCompetitionResponse.body.competition.participantCount).toBe(2);
+
+      const competitionId = createCompetitionResponse.body.competition.id;
+
+      // Remove maximus from the competition so the edit can re-add them
+      await api.delete(`/competitions/${competitionId}/participants`).send({
+        verificationCode: groupVerificationCode,
+        participants: ['maximus']
+      });
+
+      // Opt-out was created AFTER joining the group, so the player is grandfathered in
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: maximus.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date(membership.createdAt.getTime() + 1_000)
+        }
+      });
+
+      const editResponse = await api.put(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode,
+        participants: ['betty', 'maximus']
+      });
+
+      expect(editResponse.status).toBe(200);
+      expect(editResponse.body.participantCount).toBe(2);
+      expect(editResponse.body.participations.map(p => p.player.username)).toContain('maximus');
+
+      await api.delete(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
+    });
+
+    it('should not edit group competition (member with opt-out before joining group is blocked)', async () => {
+      const moldaver = await prisma.player.create({
+        data: { username: 'moldaver', displayName: 'Moldaver' }
+      });
+
+      // Opt-out was created BEFORE joining the group, so the player is blocked
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: moldaver.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date('2020-01-01')
+        }
+      });
+
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Blocked Edit',
+        members: [{ username: 'betty' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Blocked Edit Competition',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+
+      const competitionId = createCompetitionResponse.body.competition.id;
+
+      // Add moldaver to the group (membership created NOW, after the 2020 opt-out)
+      await api.post(`/groups/${groupId}/members`).send({
+        verificationCode: groupVerificationCode,
+        members: [{ username: 'moldaver' }]
+      });
+
+      const editResponse = await api.put(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode,
+        participants: ['betty', 'moldaver']
+      });
+
+      expect(editResponse.status).toBe(403);
+      expect(editResponse.body).toMatchObject({ code: 'OPTED_OUT_PARTICIPANTS_FOUND' });
+      expect(editResponse.body.data).toContain('Moldaver');
+
+      await api.delete(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
+    });
   });
 
   describe('3 - Search', () => {
@@ -2143,7 +2369,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
+      expect(response.body.code).toBe('INVALID_USERNAMES_FOUND');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2157,7 +2383,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
+      expect(response.body.code).toBe('INVALID_USERNAMES_FOUND');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2171,7 +2397,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body.code).toBe('DUPLICATE_USERNAMES_FOUND');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2185,7 +2411,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All players given are already competing.');
+      expect(response.body.code).toBe('ALL_PLAYERS_ALREADY_COMPETING');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2199,7 +2425,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot add participants to a team competition.');
+      expect(response.body.code).toBe('CANNOT_ADD_PARTICIPANTS_TO_TEAM_COMPETITION');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2242,7 +2468,7 @@ describe('Competition API', () => {
         });
 
       expect(addParticipantsResponse.status).toBe(403);
-      expect(addParticipantsResponse.body.message).toMatch('One or more players have opted out');
+      expect(addParticipantsResponse.body.code).toBe('OPTED_OUT_PARTICIPANTS_FOUND');
       expect(addParticipantsResponse.body.data).toEqual(['Katharina', 'Franziska']);
 
       const deleteResponse = await api
@@ -2286,6 +2512,130 @@ describe('Competition API', () => {
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
         new Date(before.body.updatedAt).getTime()
       );
+    });
+
+    it('should add participants to group competition (member with opt-out after joining group is grandfathered)', async () => {
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Grandfathered Add',
+        members: [{ username: 'mailer' }, { username: 'mclaren' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const mclaren = await prisma.player.findFirstOrThrow({ where: { username: 'mclaren' } });
+
+      const membership = await prisma.membership.findFirstOrThrow({
+        where: { groupId, playerId: mclaren.id }
+      });
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Grandfathered Add Participants',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+      expect(createCompetitionResponse.body.competition.participantCount).toBe(2);
+
+      const competitionId = createCompetitionResponse.body.competition.id;
+
+      // Remove mclaren from the competition so we can re-add them
+      await api.delete(`/competitions/${competitionId}/participants`).send({
+        verificationCode: groupVerificationCode,
+        participants: ['mclaren']
+      });
+
+      // Opt-out was created AFTER joining the group, so the player is grandfathered in
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: mclaren.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date(membership.createdAt.getTime() + 1_000)
+        }
+      });
+
+      const addResponse = await api.post(`/competitions/${competitionId}/participants`).send({
+        verificationCode: groupVerificationCode,
+        participants: ['mclaren']
+      });
+
+      expect(addResponse.status).toBe(200);
+      expect(addResponse.body.count).toBe(1);
+
+      await api.delete(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
+    });
+
+    it('should not add participants to group competition (member with opt-out before joining group is blocked)', async () => {
+      const marcy = await prisma.player.create({
+        data: { username: 'marcy', displayName: 'marcy' }
+      });
+
+      // Opt-out was created BEFORE joining the group, so the player is blocked
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: marcy.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date('2020-01-01')
+        }
+      });
+
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Blocked Add',
+        members: [{ username: 'mailer' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Blocked Add Participants',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+
+      const competitionId = createCompetitionResponse.body.competition.id;
+
+      // Add marcy to the group (membership created NOW, after the 2020 opt-out)
+      await api.post(`/groups/${groupId}/members`).send({
+        verificationCode: groupVerificationCode,
+        members: [{ username: 'marcy' }]
+      });
+
+      const addResponse = await api.post(`/competitions/${competitionId}/participants`).send({
+        verificationCode: groupVerificationCode,
+        participants: ['marcy']
+      });
+
+      expect(addResponse.status).toBe(403);
+      expect(addResponse.body.code).toBe('OPTED_OUT_PARTICIPANTS_FOUND');
+      expect(addResponse.body.data).toContain('marcy');
+
+      await api.delete(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
     });
   });
 
@@ -2628,7 +2978,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
+      expect(response.body.code).toBe('INVALID_USERNAMES_FOUND');
       expect(response.body.data).toContain('reallylongusername');
     });
 
@@ -2686,7 +3036,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names');
+      expect(response.body.code).toBe('DUPLICATE_TEAM_NAMES_FOUND');
     });
 
     it('should not add teams (duplicate team names in database)', async () => {
@@ -2699,7 +3049,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names');
+      expect(response.body.code).toBe('DUPLICATE_TEAM_NAMES_FOUND');
     });
 
     it('should not add teams (duplicate team players in response)', async () => {
@@ -2712,7 +3062,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body.code).toBe('DUPLICATE_USERNAMES_FOUND');
     });
 
     it('should not add teams (duplicate team players in database)', async () => {
@@ -2722,7 +3072,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body.code).toBe('DUPLICATE_USERNAMES_FOUND');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2737,7 +3087,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot add teams to a classic competition.');
+      expect(response.body.code).toBe('CANNOT_ADD_TEAMS_TO_CLASSIC_COMPETITION');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2781,7 +3131,7 @@ describe('Competition API', () => {
         });
 
       expect(addTeamsResponse.status).toBe(403);
-      expect(addTeamsResponse.body.message).toMatch('One or more players have opted out');
+      expect(addTeamsResponse.body.code).toBe('OPTED_OUT_PARTICIPANTS_FOUND');
       expect(addTeamsResponse.body.data).toEqual(['Magnus', 'Egon']);
 
       const deleteResponse = await api
@@ -2827,6 +3177,128 @@ describe('Competition API', () => {
           participants: expect.objectContaining({ length: 7 })
         })
       );
+    });
+
+    it('should add teams to group competition (member with opt-out after joining group is grandfathered)', async () => {
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Grandfathered Teams',
+        members: [{ username: 'jane' }, { username: 'lisbon' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const lisbon = await prisma.player.findFirstOrThrow({
+        where: { username: 'lisbon' }
+      });
+
+      const membership = await prisma.membership.findFirstOrThrow({
+        where: { groupId, playerId: lisbon.id }
+      });
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Grandfathered Add Teams',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode,
+        teams: [{ name: 'Team A', participants: ['jane'] }]
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+      expect(createCompetitionResponse.body.competition.participantCount).toBe(1);
+
+      const competitionId = createCompetitionResponse.body.competition.id;
+
+      // Opt-out was created AFTER joining the group, so the player is grandfathered in
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: lisbon.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date(membership.createdAt.getTime() + 1_000)
+        }
+      });
+
+      const addTeamsResponse = await api.post(`/competitions/${competitionId}/teams`).send({
+        verificationCode: groupVerificationCode,
+        teams: [{ name: 'Team B', participants: ['lisbon'] }]
+      });
+
+      expect(addTeamsResponse.status).toBe(200);
+      expect(addTeamsResponse.body.count).toBe(1);
+
+      await api.delete(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
+    });
+
+    it('should not add teams to group competition (member with opt-out before joining group is blocked)', async () => {
+      const cho = await prisma.player.create({
+        data: { username: 'cho', displayName: 'Cho' }
+      });
+
+      // Opt-out was created BEFORE joining the group, so the player is blocked
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: cho.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date('2020-01-01')
+        }
+      });
+
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Blocked Teams',
+        members: [{ username: 'jane' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Blocked Add Teams',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode,
+        teams: [{ name: 'Team A', participants: ['jane'] }]
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+
+      const competitionId = createCompetitionResponse.body.competition.id;
+
+      // Add cho to the group (membership created NOW, after the 2020 opt-out)
+      await api.post(`/groups/${groupId}/members`).send({
+        verificationCode: groupVerificationCode,
+        members: [{ username: 'cho' }]
+      });
+
+      const addTeamsResponse = await api.post(`/competitions/${competitionId}/teams`).send({
+        verificationCode: groupVerificationCode,
+        teams: [{ name: 'Team B', participants: ['cho'] }]
+      });
+
+      expect(addTeamsResponse.status).toBe(403);
+      expect(addTeamsResponse.body.code).toBe('OPTED_OUT_PARTICIPANTS_FOUND');
+      expect(addTeamsResponse.body.data).toContain('Cho');
+
+      await api.delete(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
     });
   });
 

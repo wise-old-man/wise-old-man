@@ -1,4 +1,7 @@
 const ErrorMessageMap = {
+  ALL_PLAYERS_ALREADY_COMPETING: `All players are already competing in this competition`,
+  CANNOT_ADD_PARTICIPANTS_TO_TEAM_COMPETITION: `Cannot add participants to a team competition`,
+  CANNOT_ADD_TEAMS_TO_CLASSIC_COMPETITION: `Cannot add teams to a classic competition`,
   CLAN_CHAT_HAS_INVALID_CHARACTERS: `Invalid 'clanChat'. Cannot contain special characters`,
   COMPETITION_DATES_IN_THE_PAST: `Start and end dates must be in the future`,
   COMPETITION_ENDED: `This competition has ended. Cannot update all.`,

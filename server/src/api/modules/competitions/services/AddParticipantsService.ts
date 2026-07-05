@@ -1,23 +1,32 @@
-import { combine, isErrored } from '@attio/fetchable';
+import { AsyncResult, combine, complete, errored, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { CompetitionType, PlayerAnnotationType } from '../../../../types';
-import { assertNever } from '../../../../utils/assert-never.util';
-import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import { validateInvalidParticipants, validateParticipantDuplicates } from '../competition.utils';
 
-async function addParticipants(id: number, participants: string[]): Promise<{ count: number }> {
+export async function addParticipants(
+  id: number,
+  participants: string[]
+): AsyncResult<
+  { count: number },
+  | { code: 'COMPETITION_NOT_FOUND' }
+  | { code: 'CANNOT_ADD_PARTICIPANTS_TO_TEAM_COMPETITION' }
+  | { code: 'ALL_PLAYERS_ALREADY_COMPETING' }
+  | { code: 'OPTED_OUT_PARTICIPANTS_FOUND'; data: string[] }
+  | { code: 'INVALID_USERNAMES_FOUND'; data: string[] }
+  | { code: 'DUPLICATE_USERNAMES_FOUND'; data: string[] }
+> {
   const competition = await prisma.competition.findFirst({
     where: { id }
   });
 
-  if (!competition) {
-    throw new NotFoundError('Competition not found.');
+  if (competition === null) {
+    return errored({ code: 'COMPETITION_NOT_FOUND' });
   }
 
   if (competition.type === CompetitionType.TEAM) {
-    throw new BadRequestError('Cannot add participants to a team competition.');
+    return errored({ code: 'CANNOT_ADD_PARTICIPANTS_TO_TEAM_COMPETITION' });
   }
 
   const validationResult = combine([
@@ -26,17 +35,7 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
   ]);
 
   if (isErrored(validationResult)) {
-    switch (validationResult.error.code) {
-      case 'INVALID_USERNAMES_FOUND':
-        throw new BadRequestError(
-          `Found invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space at the beginning or end of the name.`,
-          validationResult.error.data
-        );
-      case 'DUPLICATE_USERNAMES_FOUND':
-        throw new BadRequestError(`Found repeated usernames.`, validationResult.error.data);
-      default:
-        return assertNever(validationResult.error);
-    }
+    return validationResult;
   }
 
   // Find all existing participants' ids
@@ -52,11 +51,11 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
 
   const newPlayers = existingIds.length === 0 ? players : players.filter(p => !existingIds.includes(p.id));
 
-  if (!newPlayers || !newPlayers.length) {
-    throw new BadRequestError('All players given are already competing.');
+  if (newPlayers.length === 0) {
+    return errored({ code: 'ALL_PLAYERS_ALREADY_COMPETING' });
   }
 
-  const optOuts = await prisma.playerAnnotation.findMany({
+  let optOuts = await prisma.playerAnnotation.findMany({
     where: {
       playerId: {
         in: newPlayers.map(p => p.id)
@@ -72,11 +71,32 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
     }
   });
 
+  if (competition.groupId !== null && optOuts.length > 0) {
+    const memberships = await prisma.membership.findMany({
+      where: {
+        groupId: competition.groupId,
+        playerId: {
+          in: newPlayers.map(p => p.id)
+        }
+      }
+    });
+
+    // Players who opted out after joining the group are grandfathered in and may still participate.
+    optOuts = optOuts.filter(o => {
+      if (o.type === PlayerAnnotationType.OPT_OUT) return true;
+
+      const membership = memberships.find(m => m.playerId === o.playerId);
+      if (!membership) return true;
+
+      return o.createdAt <= membership.createdAt;
+    });
+  }
+
   if (optOuts.length > 0) {
-    throw new ForbiddenError(
-      'One or more players have opted out of joining competitions, so they cannot be added as participants.',
-      optOuts.map(o => o.player.displayName)
-    );
+    return errored({
+      code: 'OPTED_OUT_PARTICIPANTS_FOUND',
+      data: optOuts.map(o => o.player.displayName)
+    });
   }
 
   const newParticipations = newPlayers.map(p => ({ playerId: p.id, competitionId: id }));
@@ -99,7 +119,5 @@ async function addParticipants(id: number, participants: string[]): Promise<{ co
     data: { updatedAt: new Date() }
   });
 
-  return { count };
+  return complete({ count });
 }
-
-export { addParticipants };

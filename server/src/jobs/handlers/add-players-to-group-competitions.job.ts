@@ -1,6 +1,6 @@
 import { eventEmitter, EventType } from '../../api/events';
 import prisma from '../../prisma';
-import { CompetitionType, Participation } from '../../types';
+import { CompetitionType, Participation, PlayerAnnotationType } from '../../types';
 import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
@@ -23,10 +23,38 @@ export const AddPlayersToGroupCompetitionsJobHandler: JobHandler<Payload> = {
       }
     });
 
+    const [optOuts, memberships] = await Promise.all([
+      prisma.playerAnnotation.findMany({
+        where: {
+          playerId: { in: payload.playerIds },
+          type: { in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS] }
+        }
+      }),
+      prisma.membership.findMany({
+        where: { groupId: payload.groupId, playerId: { in: payload.playerIds } }
+      })
+    ]);
+
+    // Players who opted out after joining the group are grandfathered in and may still participate.
+    const blockedPlayerIds = new Set(
+      optOuts
+        .filter(o => {
+          if (o.type === PlayerAnnotationType.OPT_OUT) return true;
+
+          const membership = memberships.find(m => m.playerId === o.playerId);
+          if (!membership) return true;
+
+          return o.createdAt <= membership.createdAt;
+        })
+        .map(o => o.playerId)
+    );
+
+    const allowedPlayerIds = payload.playerIds.filter(id => !blockedPlayerIds.has(id));
+
     const newParticipations: Pick<Participation, 'playerId' | 'competitionId'>[] = [];
 
     groupCompetitions.forEach(gc => {
-      payload.playerIds.forEach(playerId => {
+      allowedPlayerIds.forEach(playerId => {
         newParticipations.push({ playerId, competitionId: gc.id });
       });
     });

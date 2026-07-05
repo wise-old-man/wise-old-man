@@ -278,7 +278,7 @@ async function getValidatedParticipations({
   }
 
   if (participations.length > 0) {
-    const optOuts = await prisma.playerAnnotation.findMany({
+    let optOuts = await prisma.playerAnnotation.findMany({
       where: {
         playerId: {
           in: participations.map(p => p.playerId)
@@ -293,6 +293,25 @@ async function getValidatedParticipations({
         }
       }
     });
+
+    if (groupId !== undefined && optOuts.length > 0) {
+      const memberships = await prisma.membership.findMany({
+        where: {
+          groupId,
+          playerId: { in: participations.map(p => p.playerId) }
+        }
+      });
+
+      // Players who opted out after joining the group are grandfathered in and may still participate.
+      optOuts = optOuts.filter(o => {
+        if (o.type === PlayerAnnotationType.OPT_OUT) return true;
+
+        const membership = memberships.find(m => m.playerId === o.playerId);
+        if (!membership) return true;
+
+        return o.createdAt <= membership.createdAt;
+      });
+    }
 
     if (optOuts.length > 0) {
       return errored({
@@ -314,9 +333,37 @@ async function getValidatedParticipations({
 
     if (!isTeamCompetition) {
       const memberships = await prisma.membership.findMany({
-        where: { groupId },
-        select: { playerId: true }
+        where: { groupId }
       });
+
+      const optOuts = await prisma.playerAnnotation.findMany({
+        where: {
+          playerId: { in: memberships.map(m => m.playerId) },
+          type: { in: [PlayerAnnotationType.OPT_OUT, PlayerAnnotationType.OPT_OUT_COMPETITIONS] }
+        },
+        include: {
+          player: {
+            select: { displayName: true }
+          }
+        }
+      });
+
+      // Players who opted out after joining the group are grandfathered in and may still participate.
+      const validOptOuts = optOuts.filter(o => {
+        if (o.type === PlayerAnnotationType.OPT_OUT) return true;
+
+        const membership = memberships.find(m => m.playerId === o.playerId);
+        if (!membership) return true;
+
+        return o.createdAt <= membership.createdAt;
+      });
+
+      if (validOptOuts.length > 0) {
+        return errored({
+          code: 'OPTED_OUT_PARTICIPANTS_FOUND',
+          data: validOptOuts.map(o => o.player.displayName)
+        });
+      }
 
       participations = memberships.map(m => ({ playerId: m.playerId, teamName: null }));
     }
