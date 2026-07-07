@@ -6,7 +6,7 @@ import { standardizeUsername } from '../player.utils';
 export async function createPlayerAnnotation(
   username: string,
   annotationType: PlayerAnnotationType
-): AsyncResult<PlayerAnnotation, { code: 'PLAYER_NOT_FOUND' } | { code: 'DUPLICATE_PALYER_ANNOTATION' }> {
+): AsyncResult<PlayerAnnotation, { code: 'PLAYER_NOT_FOUND' } | { code: 'DUPLICATE_PLAYER_ANNOTATION' }> {
   const player = await prisma.player.findUnique({
     where: { username: standardizeUsername(username) },
     include: { annotations: true }
@@ -17,7 +17,7 @@ export async function createPlayerAnnotation(
   }
 
   if (player.annotations.some(a => a.type === annotationType)) {
-    return errored({ code: 'DUPLICATE_PALYER_ANNOTATION' });
+    return errored({ code: 'DUPLICATE_PLAYER_ANNOTATION' });
   }
 
   const result = await prisma.playerAnnotation.create({

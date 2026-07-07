@@ -721,7 +721,7 @@ router.post(
       switch (result.error.code) {
         case 'PLAYER_NOT_FOUND':
           throw new NotFoundErrorZ(result.error);
-        case 'DUPLICATE_PALYER_ANNOTATION':
+        case 'DUPLICATE_PLAYER_ANNOTATION':
           throw new ConflictErrorZ(result.error);
         default:
           assertNever(result.error);

@@ -11,7 +11,7 @@ const ErrorMessageMap = {
   COMPETITION_TYPE_CANNOT_BE_CHANGED: `The competition type cannot be changed`,
   DUPLICATE_TEAM_NAMES_FOUND: `Duplicate team names found`,
   DUPLICATE_USERNAMES_FOUND: `Duplicate usernames found`,
-  DUPLICATE_PALYER_ANNOTATION: `Cannot add duplicate player annotations`,
+  DUPLICATE_PLAYER_ANNOTATION: `Cannot add duplicate player annotations`,
   ENDPOINT_NOT_FOUND: `Endpoint not found`,
   FAILED_TO_LOAD_HISCORES: `Failed to load the hiscores`,
   GROUP_NAME_ALREADY_EXISTS: `Group name already exists`,
