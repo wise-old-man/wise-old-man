@@ -40,7 +40,7 @@ This documentation website will provide examples for each request using **cURL**
 | Library  | Language | Maintainer   | Links                                                                                            |
 | -------- | -------- | ------------ | ------------------------------------------------------------------------------------------------ |
 | `wom.py` | Python3  | `@jonxslays` | [Docs](https://jonxslays.github.io/wom.py/stable) \| [Repo](https://github.com/jonxslays/wom.py) |
-| `wom-php` (🚧 WIP) | PHP | `@xgerhard` | [Repo](https://github.com/xgerhard/wom-php) |
+| `wom-php` (🚧 WIP) | PHP | `@xgerhard` | [Docs](https://github.com/xgerhard/wom-php/blob/main/docs/index.md) \| [Repo](https://github.com/xgerhard/wom-php) |
 
 
 :::caution
