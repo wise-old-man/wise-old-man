@@ -313,7 +313,18 @@ router.get(
     const { metric, table, teamName } = req.query;
 
     const result = await fetchCompetitionCSV(id, metric, table, teamName);
-    res.end(result);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION':
+        case 'TEAM_NAME_IS_REQUIRED':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    res.end(result.value);
   })
 );
 
@@ -351,8 +362,19 @@ router.delete(
 
     const result = await deleteCompetition(id);
 
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'FAILED_TO_DELETE_COMPETITION':
+          throw result.error;
+        default:
+          assertNever(result.error);
+      }
+    }
+
     res.status(200).json({
-      message: `Successfully deleted competition: ${result.title}`
+      message: `Successfully deleted competition: ${result.value.title}`
     });
   })
 );
@@ -414,7 +436,20 @@ router.delete(
     const { id } = req.params;
     const { participants } = req.body;
 
-    const { count } = await removeParticipants(id, participants);
+    const result = await removeParticipants(id, participants);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'NO_VALID_PARTICIPANTS':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const { count } = result.value;
 
     res.status(200).json({
       count,

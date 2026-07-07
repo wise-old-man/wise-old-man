@@ -1,27 +1,27 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Achievement, Player } from '../../../../types';
-import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 
-async function findGroupAchievements(
+export async function findGroupAchievements(
   groupId: number,
   pagination: PaginationOptions
-): Promise<Array<{ achievement: Achievement; player: Player }>> {
+): AsyncResult<Array<{ achievement: Achievement; player: Player }>, { code: 'GROUP_NOT_FOUND' }> {
   // Fetch this group and all of its memberships
   const groupAndMemberships = await prisma.group.findFirst({
     where: { id: groupId },
     include: { memberships: { select: { playerId: true } } }
   });
 
-  if (!groupAndMemberships) {
-    throw new NotFoundError('Group not found.');
+  if (groupAndMemberships === null) {
+    return errored({ code: 'GROUP_NOT_FOUND' });
   }
 
   // Convert the memberships to an array of player IDs
   const playerIds = groupAndMemberships.memberships.map(m => m.playerId);
 
   if (playerIds.length === 0) {
-    return [];
+    return complete([]);
   }
 
   // Fetch all achievements for these player IDs
@@ -33,7 +33,10 @@ async function findGroupAchievements(
     skip: pagination.offset
   });
 
-  return achievements.map(({ player, ...achievement }) => ({ achievement, player }));
+  return complete(
+    achievements.map(({ player, ...achievement }) => ({
+      achievement,
+      player
+    }))
+  );
 }
-
-export { findGroupAchievements };

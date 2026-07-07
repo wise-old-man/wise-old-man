@@ -1,14 +1,17 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { BadRequestError, NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 
-async function removeParticipants(id: number, participants: string[]): Promise<{ count: number }> {
+export async function removeParticipants(
+  id: number,
+  participants: string[]
+): AsyncResult<{ count: number }, { code: 'COMPETITION_NOT_FOUND' } | { code: 'NO_VALID_PARTICIPANTS' }> {
   const competition = await prisma.competition.findFirst({
     where: { id }
   });
 
-  if (!competition) {
-    throw new NotFoundError('Competition not found.');
+  if (competition === null) {
+    return errored({ code: 'COMPETITION_NOT_FOUND' });
   }
 
   const playersToRemove = await prisma.player.findMany({
@@ -23,33 +26,19 @@ async function removeParticipants(id: number, participants: string[]): Promise<{
     }
   });
 
-  if (!playersToRemove || playersToRemove.length === 0) {
-    throw new BadRequestError('No valid tracked players were given.');
+  if (playersToRemove.length === 0) {
+    return errored({ code: 'NO_VALID_PARTICIPANTS' });
   }
 
-  const count = await prisma.$transaction(async transaction => {
-    const { count: removedCount } = await transaction.participation.deleteMany({
-      where: {
-        competitionId: id,
-        playerId: { in: playersToRemove.map(p => p.id) }
-      }
-    });
-
-    const newParticipantCount = await transaction.participation.count({
-      where: {
-        competitionId: id
-      }
-    });
-
-    if (newParticipantCount === 0) {
-      throw new BadRequestError('You cannot remove all competition participants.');
+  const deletionResult = await prisma.participation.deleteMany({
+    where: {
+      competitionId: id,
+      playerId: { in: playersToRemove.map(p => p.id) }
     }
-
-    return removedCount;
   });
 
-  if (count === 0) {
-    throw new BadRequestError('None of the players given were competing.');
+  if (deletionResult.count === 0) {
+    return errored({ code: 'NO_VALID_PARTICIPANTS' });
   }
 
   await prisma.competition.update({
@@ -57,7 +46,5 @@ async function removeParticipants(id: number, participants: string[]): Promise<{
     data: { updatedAt: new Date() }
   });
 
-  return { count };
+  return complete(deletionResult);
 }
-
-export { removeParticipants };

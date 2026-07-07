@@ -690,9 +690,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe(
-        'Cannot upload images from external sources - Please upload an image via the website'
-      );
+      expect(response.body.code).toBe('IMAGES_MUST_BE_INTERNALLY_HOSTED');
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -716,9 +714,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe(
-        'Cannot upload images from external sources - Please upload an image via the website'
-      );
+      expect(response.body.code).toBe('IMAGES_MUST_BE_INTERNALLY_HOSTED');
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -1522,7 +1518,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
 
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1760,7 +1756,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
 
       expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
@@ -2012,7 +2008,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
@@ -2228,7 +2224,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should not delete (group not found with admin perms)', async () => {
@@ -2622,7 +2618,7 @@ describe('Group API', () => {
       const response = await api.get(`/groups/100000/bulk-hiscores`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should view bulk hiscores (empty group)', async () => {
@@ -2883,7 +2879,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should not update all (incorrect verification code)', async () => {
@@ -2923,7 +2919,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('This group has no outdated members (updated over 24h ago)');
+      expect(response.body.code).toBe('NO_OUTDATED_MEMBERS');
     });
 
     it('should update all', async () => {

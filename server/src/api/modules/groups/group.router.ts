@@ -398,7 +398,17 @@ router.get(
     const { id } = req.params;
 
     const result = await findGroupCompetitions(id);
-    const response = result.map(c => formatCompetitionResponse(c.competition, c.group));
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(c => formatCompetitionResponse(c.competition, c.group));
 
     res.status(200).json(response);
   })
@@ -558,7 +568,16 @@ router.get(
 
     const result = await findGroupAchievements(id, { limit, offset });
 
-    const response = result.map(a => ({
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(a => ({
       ...formatAchievementResponse(a.achievement),
       player: formatPlayerResponse(a.player)
     }));

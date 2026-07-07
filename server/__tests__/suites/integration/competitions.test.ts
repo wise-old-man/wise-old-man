@@ -2731,7 +2731,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('No valid tracked players were given.');
+      expect(response.body.code).toBe('NO_VALID_PARTICIPANTS');
     });
 
     it('should not remove participants (no participants found)', async () => {
@@ -2743,7 +2743,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('None of the players given were competing.');
+      expect(response.body.code).toBe('NO_VALID_PARTICIPANTS');
     });
 
     it('should remove participants (team competition)', async () => {
@@ -2771,25 +2771,15 @@ describe('Competition API', () => {
       expect(createCompetitionResponse.status).toBe(201);
       expect(createCompetitionResponse.body.competition.participantCount).toBe(6);
 
-      const firstResponse = await api
-        .delete(`/competitions/${createCompetitionResponse.body.competition.id}/participants`)
-        .send({
-          participants: ['nandor', 'guillermo', 'laszlo', 'nadja', 'colin', 'the guide'],
-          verificationCode: createCompetitionResponse.body.verificationCode
-        });
-
-      expect(firstResponse.status).toBe(400);
-      expect(firstResponse.body.message).toBe('You cannot remove all competition participants.');
-
-      const secondResponse = await api
+      const response = await api
         .delete(`/competitions/${createCompetitionResponse.body.competition.id}/participants`)
         .send({
           participants: ['nandor', 'nadja', 'colin', 'the guide'],
           verificationCode: createCompetitionResponse.body.verificationCode
         });
 
-      expect(secondResponse.status).toBe(200);
-      expect(secondResponse.body.message).toBe('Successfully removed 4 participants.');
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Successfully removed 4 participants.');
 
       const teamCheckResponse = await api.get(
         `/competitions/${createCompetitionResponse.body.competition.id}`
@@ -4299,9 +4289,7 @@ describe('Competition API', () => {
         .query({ table: 'team' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Team name is a required parameter for the table type of "team".'
-      );
+      expect(response.body.code).toBe('TEAM_NAME_IS_REQUIRED');
     });
 
     it('should not view CSV export (team/teams table on a classic competition)', async () => {
@@ -4310,7 +4298,7 @@ describe('Competition API', () => {
         .query({ table: 'teams' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot view team/teams table on a classic competition.');
+      expect(response.body.code).toBe('CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION');
     });
 
     it('should view CSV export (participants)', async () => {
@@ -4418,7 +4406,7 @@ describe('Competition API', () => {
       const usernameResponse = await api.get(`/players/raaandooom/competitions`);
 
       expect(usernameResponse.status).toBe(404);
-      expect(usernameResponse.body.message).toMatch('Player not found.');
+      expect(usernameResponse.body.code).toBe('PLAYER_NOT_FOUND');
     });
 
     it('should list player competitions', async () => {
@@ -5006,7 +4994,7 @@ describe('Competition API', () => {
       const usernameResponse = await api.get(`/groups/1000000/competitions`);
 
       expect(usernameResponse.status).toBe(404);
-      expect(usernameResponse.body.message).toMatch('Group not found.');
+      expect(usernameResponse.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should list group competitions', async () => {
@@ -5099,7 +5087,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('This competition has no outdated participants');
+      expect(response.body.code).toBe('NO_OUTDATED_PARTICIPANTS');
       expect(response.body.data).toMatchObject({ cooldownDuration: 24 });
     });
 
@@ -5117,7 +5105,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('This competition has no outdated participants');
+      expect(response.body.code).toBe('NO_OUTDATED_PARTICIPANTS');
       expect(response.body.data).toMatchObject({ cooldownDuration: 1 });
     });
 
@@ -5127,7 +5115,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('This competition has ended. Cannot update all.');
+      expect(response.body.code).toBe('COMPETITION_ENDED');
     });
 
     it('should update all', async () => {
@@ -5320,7 +5308,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should not delete (invalid verification code)', async () => {

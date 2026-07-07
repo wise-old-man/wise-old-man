@@ -1,7 +1,6 @@
-import { findGroupCompetitions } from '../../api/modules/competitions/services/FindGroupCompetitionsService';
 import { fetchGroupDetails } from '../../api/modules/groups/services/FetchGroupDetailsService';
 import prisma from '../../prisma';
-import { Group, Membership, Player } from '../../types';
+import { Competition, Group, Membership, Player } from '../../types';
 import { PRIVILEGED_GROUP_ROLES } from '../../utils/shared';
 import { JobHandler } from '../types/job-handler.type';
 
@@ -22,7 +21,14 @@ export const UpdateGroupScoreJobHandler: JobHandler<Payload> = {
     const { group, memberships } = await fetchGroupDetails(payload.groupId);
 
     const currentScore = group.score;
-    const newScore = await calculateScore(group, memberships);
+
+    const competitions = await prisma.competition.findMany({
+      where: {
+        groupId: group.id
+      }
+    });
+
+    const newScore = await calculateScore(group, competitions, memberships);
 
     if (newScore === currentScore) return;
 
@@ -35,6 +41,7 @@ export const UpdateGroupScoreJobHandler: JobHandler<Payload> = {
 
 async function calculateScore(
   group: Group,
+  competitions: Array<Competition>,
   memberships: Array<{ membership: Membership; player: Player }>
 ): Promise<number> {
   let score = 0;
@@ -45,7 +52,6 @@ async function calculateScore(
     return score;
   }
 
-  const competitions = await findGroupCompetitions(group.id);
   const averageOverallExp = memberships.reduce((acc, cur) => acc + cur.player.exp, 0) / memberships.length;
 
   // If has atleast one leader
@@ -107,12 +113,12 @@ async function calculateScore(
   }
 
   // If has atleast one ongoing competition
-  if (competitions.filter(c => c.competition.startsAt <= now && c.competition.endsAt >= now).length >= 1) {
+  if (competitions.filter(c => c.startsAt <= now && c.endsAt >= now).length >= 1) {
     score += 50;
   }
 
   // If has atleast one upcoming competition
-  if (competitions.filter(c => c.competition.startsAt >= now).length >= 1) {
+  if (competitions.filter(c => c.startsAt >= now).length >= 1) {
     score += 30;
   }
 
