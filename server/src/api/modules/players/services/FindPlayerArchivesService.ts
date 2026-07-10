@@ -28,6 +28,9 @@ export async function findPlayerArchives(
     where: {
       previousUsername: standardizeUsername(username),
       restoredAt: null
+    },
+    orderBy: {
+      createdAt: 'desc'
     }
   });
 
