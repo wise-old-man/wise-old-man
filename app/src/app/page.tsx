@@ -70,6 +70,7 @@ function HeroSection() {
             <span className="text-xs">Hi, meet the</span>
             <h1 className="my-0.5 bg-gradient-to-t from-blue-700 to-blue-500 bg-clip-text text-4xl font-bold uppercase text-transparent md:my-1 lg:text-3xl xl:text-5xl">
               Wise Old Man
+              <span className="sr-only"> — The Open Source Old School RuneScape Progress Tracker</span>
             </h1>
             <p className="relative mt-2 text-body text-gray-100">
               The <span className="text-blue-400">open source</span> Old School Runescape
