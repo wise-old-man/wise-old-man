@@ -1,4 +1,5 @@
 import { PropsWithChildren } from "react";
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import { Footer } from "~/components/Footer";
@@ -8,11 +9,11 @@ import { ToastManager } from "~/components/ToastManager";
 import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { ReactQueryProvider } from "~/components/ReactQueryProvider";
 import { NavigationLoadingBar } from "~/components/NavigationLoadingBar";
+import { TopBanner } from "~/components/TopBanner";
 
 import { MAINTENANCE_MODE, ANNOUNCEMENT_BANNER } from "../../config";
 
 import "../globals.css";
-import { TopBanner } from "~/components/TopBanner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -20,12 +21,20 @@ const inter = Inter({
   display: "swap",
 });
 
-export const metadata = {
+export const metadata: Metadata = {
+  metadataBase: new URL("https://wiseoldman.net"),
   title: {
     template: "%s | Wise Old Man",
-    default: "Wise Old Man",
+    default: "Wise Old Man — OSRS Progress Tracker",
   },
-  description: "The Open Source Old School Runescape player progress tracker.",
+  description:
+    "Track your Old School RuneScape progress: XP gains, achievements, clan affiliations and competitions. Open source and free.",
+  openGraph: {
+    type: "website",
+    siteName: "Wise Old Man",
+    url: "https://wiseoldman.net",
+  },
+  alternates: { canonical: "./" },
 };
 
 function RootLayout(props: PropsWithChildren) {
