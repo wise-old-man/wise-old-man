@@ -1,4 +1,4 @@
-import { isErrored } from '@attio/fetchable';
+import { errored, isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
 import { JobType, jobManager } from '../../../jobs';
@@ -438,20 +438,20 @@ router.get(
     const { username } = req.params;
     const { period, startDate, endDate, ...pagination } = req.query;
 
-    const player = await prisma.player.findFirst({
-      where: { username: standardizeUsername(username) },
-      include: { annotations: true }
-    });
+    const results = await findPlayerSnapshots(username, period, startDate, endDate, pagination);
 
-    if (!player) {
-      throw new NotFoundError('Player not found.');
+    if (isErrored(results)) {
+      switch (results.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(results.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(results.error);
+        default:
+          assertNever(results.error);
+      }
     }
 
-    if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
-      throw new ForbiddenError('Player as opted out');
-    }
-
-    const snapshots = await findPlayerSnapshots(player.id, period, startDate, endDate, pagination);
+    const { snapshots, player } = results.value;
 
     const response = snapshots.map(snapshot =>
       formatSnapshotResponse(snapshot, getPlayerEfficiencyMap(snapshot, player))
