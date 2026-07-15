@@ -1,4 +1,4 @@
-import { errored, isErrored } from '@attio/fetchable';
+import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
 import { JobType, jobManager } from '../../../jobs';
@@ -8,7 +8,6 @@ import { assertNever } from '../../../utils/assert-never.util';
 import {
   BadRequestErrorZ,
   ConflictErrorZ,
-  ForbiddenError,
   ForbiddenErrorZ,
   NotFoundError,
   NotFoundErrorZ,
