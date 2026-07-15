@@ -1,11 +1,13 @@
 import { Suspense } from "react";
-<<<<<<< HEAD
 import type { Metadata } from "next";
-import { MetricType, PlayerType, PlayerTypeProps, formatNumber } from "@wise-old-man/utils";
+import {
+  MetricType,
+  PlayerAnnotationType,
+  PlayerType,
+  PlayerTypeProps,
+  formatNumber,
+} from "@wise-old-man/utils";
 import { buildPlayerMetadata } from "~/utils/metadata";
-=======
-import { MetricType, PlayerAnnotationType } from "@wise-old-man/utils";
->>>>>>> bd37c2c6 (Don't return data from the API for opted out players)
 import { getPlayerDetails } from "~/services/wiseoldman";
 import { PlayerStatsTable } from "~/components/players/PlayerStatsTable";
 import { PlayerOverviewWidgets } from "~/components/players/PlayerOverviewWidgets";
