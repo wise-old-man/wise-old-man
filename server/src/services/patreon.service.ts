@@ -43,7 +43,7 @@ const tierSchema = z.object({
 const memberDataSchema = z.array(
   z.object({
     attributes: z.object({
-      email: z.string().or(z.null()),
+      email: z.string().nullable().optional(),
       last_charge_date: z.null().or(z.string().refine(d => dayjs(d).isValid())),
       patron_status: z.enum(['declined_patron', 'former_patron', 'active_patron']).or(z.null()),
       pledge_relationship_start: z.string().refine(d => dayjs(d).isValid())
@@ -134,7 +134,7 @@ export async function getPatrons(): AsyncResult<
       patron: {
         id: user.data.id,
         name: full_name,
-        email: email,
+        email: email ?? null,
         discordId: discordId ?? null,
         tier: isTier2 ? 2 : 1,
         createdAt: new Date(pledge_relationship_start),
