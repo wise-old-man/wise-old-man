@@ -1,34 +1,34 @@
-import prisma, { PrismaTypes } from '../../../../prisma';
-import { Metric, Period, Record } from '../../../../types';
-import { NotFoundError } from '../../../errors';
+import { AsyncResult, complete, errored } from '@attio/fetchable';
+import prisma from '../../../../prisma';
+import { Metric, Period, PlayerAnnotationType, Record } from '../../../../types';
 import { standardizeUsername } from '../../players/player.utils';
 
-async function findPlayerRecords(username: string, period?: Period, metric?: Metric): Promise<Record[]> {
-  const query: PrismaTypes.RecordWhereInput = {
-    player: {
-      username: standardizeUsername(username)
+export async function findPlayerRecords(
+  username: string,
+  period?: Period,
+  metric?: Metric
+): AsyncResult<Record[], { code: 'PLAYER_NOT_FOUND' } | { code: 'PLAYER_OPTED_OUT' }> {
+  const player = await prisma.player.findFirst({
+    where: { username: standardizeUsername(username) },
+    include: {
+      records: {
+        where: {
+          ...(period && { period }),
+          ...(metric && { metric })
+        },
+        orderBy: { updatedAt: 'desc' }
+      },
+      annotations: true
     }
-  };
-
-  if (period) query.period = period;
-  if (metric) query.metric = metric;
-
-  const records = await prisma.record.findMany({
-    where: { ...query },
-    orderBy: { updatedAt: 'desc' }
   });
 
-  if (records.length === 0) {
-    const player = await prisma.player.findFirst({
-      where: { username: standardizeUsername(username) }
-    });
-
-    if (!player) {
-      throw new NotFoundError('Player not found.');
-    }
+  if (!player) {
+    return errored({ code: 'PLAYER_NOT_FOUND' });
   }
 
-  return records;
-}
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    return errored({ code: 'PLAYER_OPTED_OUT' });
+  }
 
-export { findPlayerRecords };
+  return complete(player.records);
+}

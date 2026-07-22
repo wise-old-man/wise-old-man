@@ -54,6 +54,7 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
     // This child will be the Error boundary defined in error.tsx.
     return <Container>{children}</Container>;
   }
+  const hasOptedOut = player.annotations?.some((a) => a.type === PlayerAnnotationType.OPT_OUT);
 
   return (
     <Container className="relative">
@@ -62,14 +63,21 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
           <PlayerStatusAlert player={player} />
         </div>
       )}
-      {player.annotations !== null && player.annotations.length > 0 && (
+      {!hasOptedOut && player.annotations !== null && player.annotations.length > 0 && (
         <PlayerAnnotationsAlert player={player} />
       )}
       <Header {...player} />
-      <div className="mt-7">
-        <PlayerNavigation username={username} />
-      </div>
-      {children}
+      {!hasOptedOut && (
+        <>
+          <div className="mt-7">
+            <PlayerNavigation username={username} />
+          </div>
+
+          {children}
+        </>
+      )}
+
+      <PlayerAnnotationsAlert player={player} />
 
       {/* Dialogs */}
       <PlayerGainedCustomPeriodDialog username={username} />
@@ -82,7 +90,7 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
 }
 
 function Header(props: PlayerDetailsResponse) {
-  const { status, type, country, displayName } = props;
+  const { status, type, country, displayName, annotations } = props;
 
   let icon: React.ReactNode;
 
@@ -96,10 +104,12 @@ function Header(props: PlayerDetailsResponse) {
     icon = <PlayerTypeIcon playerType={type} className="scale-150 md:scale-[2]" />;
   }
 
+  const hasOptedOut = annotations?.some((a) => a.type === PlayerAnnotationType.OPT_OUT);
+
   return (
     <div className="flex flex-col justify-between gap-y-7 md:flex-row-reverse md:items-end">
       <div className="flex shrink-0 items-center gap-x-2">
-        {status !== PlayerStatus.ARCHIVED && (
+        {status !== PlayerStatus.ARCHIVED && !hasOptedOut && (
           <>
             <UpdatePlayerForm player={props} />
             <DropdownMenu>
@@ -125,7 +135,7 @@ function Header(props: PlayerDetailsResponse) {
       </div>
       <div className="flex items-center gap-x-5">
         <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50 md:h-16 md:w-16">
-          {country && (
+          {country && !hasOptedOut && (
             <div className="absolute -right-2 bottom-0 md:-right-1 md:bottom-1">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -360,22 +370,30 @@ function PlayerAnnotationsAlert(props: { player: PlayerDetailsResponse }) {
 
   if (annotationTypes.includes(PlayerAnnotationType.OPT_OUT)) {
     return (
-      <div className="mb-7">
-        <Alert variant="default" className="border-blue-700 bg-blue-900/10">
-          <AlertTitle>Opted out of tracking</AlertTitle>
-          <AlertDescription>
-            <p>
-              This player has requested to be excluded from tracking. For help or more information{" "}
+      <div className="mb-7 mt-7">
+        <Alert variant="default" className="border-gray-600 bg-gray-900">
+          <div className="flex w-full flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+            <div className="min-w-0">
+              <AlertTitle>Opted out of tracking</AlertTitle>
+              <AlertDescription>
+                <p>
+                  This player has requested to be excluded from tracking. For help or more information
+                  contact us on Discord.
+                </p>
+              </AlertDescription>
+            </div>
+
+            <div className="flex-shrink-0">
               <a
                 target="_blank"
                 rel="noopener noreferrer"
                 href="https://wiseoldman.net/discord"
-                className="text-white underline"
+                className="inline-flex items-center rounded-md border border-gray-600 bg-gray-900 px-3 py-1.5 text-sm text-white hover:bg-gray-700"
               >
-                contact us on Discord
+                Contact us on Discord
               </a>
-            </p>
-          </AlertDescription>
+            </div>
+          </div>
         </Alert>
       </div>
     );

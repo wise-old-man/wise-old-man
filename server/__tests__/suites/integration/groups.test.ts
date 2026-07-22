@@ -1919,7 +1919,7 @@ describe('Group API', () => {
       const usernameResponse = await api.get(`/players/raaandooom/groups`);
 
       expect(usernameResponse.status).toBe(404);
-      expect(usernameResponse.body.message).toMatch('Player not found.');
+      expect(usernameResponse.body.message).toMatch('Player not found');
     });
 
     it('should not list player groups (negative offset)', async () => {

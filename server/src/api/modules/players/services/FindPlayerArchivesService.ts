@@ -1,35 +1,43 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { Player, PlayerArchive } from '../../../../types';
-import { NotFoundError } from '../../../errors';
+import { Player, PlayerAnnotationType, PlayerArchive } from '../../../../types';
 import { standardizeUsername } from '../player.utils';
 
-async function findPlayerArchives(
+export async function findPlayerArchives(
   username: string
-): Promise<Array<{ archive: PlayerArchive; player: Player }>> {
+): AsyncResult<
+  Array<{ archive: PlayerArchive; player: Player }>,
+  { code: 'PLAYER_NOT_FOUND' } | { code: 'PLAYER_OPTED_OUT' }
+> {
+  const player = await prisma.player.findFirst({
+    where: { username: standardizeUsername(username) },
+    include: {
+      annotations: true
+    }
+  });
+
+  if (!player) {
+    return errored({ code: 'PLAYER_NOT_FOUND' });
+  }
+
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    return errored({ code: 'PLAYER_OPTED_OUT' });
+  }
+
   const archives = await prisma.playerArchive.findMany({
     where: {
       previousUsername: standardizeUsername(username),
       restoredAt: null
     },
-    include: {
-      player: true
-    },
-    orderBy: { createdAt: 'desc' }
+    orderBy: {
+      createdAt: 'desc'
+    }
   });
 
-  if (archives.length === 0) {
-    const player = await prisma.player.findFirst({
-      where: {
-        username: standardizeUsername(username)
-      }
-    });
-
-    if (!player) {
-      throw new NotFoundError('Player not found.');
-    }
-  }
-
-  return archives.map(({ player, ...archive }) => ({ archive, player }));
+  return complete(
+    archives.map(archive => ({
+      archive,
+      player
+    }))
+  );
 }
-
-export { findPlayerArchives };

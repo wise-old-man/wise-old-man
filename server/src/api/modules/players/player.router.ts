@@ -437,15 +437,20 @@ router.get(
     const { username } = req.params;
     const { period, startDate, endDate, ...pagination } = req.query;
 
-    const player = await prisma.player.findFirst({
-      where: { username: standardizeUsername(username) }
-    });
+    const results = await findPlayerSnapshots(username, period, startDate, endDate, pagination);
 
-    if (!player) {
-      throw new NotFoundError('Player not found.');
+    if (isErrored(results)) {
+      switch (results.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(results.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(results.error);
+        default:
+          assertNever(results.error);
+      }
     }
 
-    const snapshots = await findPlayerSnapshots(player.id, period, startDate, endDate, pagination);
+    const { snapshots, player } = results.value;
 
     const response = snapshots.map(snapshot =>
       formatSnapshotResponse(snapshot, getPlayerEfficiencyMap(snapshot, player))
@@ -473,6 +478,18 @@ router.get(
     const { metric, period, startDate, endDate } = req.query;
 
     const results = await findPlayerSnapshotTimeline(username, metric, period, startDate, endDate);
+
+    if (isErrored(results)) {
+      switch (results.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(results.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(results.error);
+        default:
+          assertNever(results.error);
+      }
+    }
+
     res.status(200).json(results);
   })
 );
@@ -489,7 +506,18 @@ router.get(
 
     const result = await findPlayerArchives(username);
 
-    const response = result.map(a => ({
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const response = result.value.map(a => ({
       ...formatPlayerArchiveResponse(a.archive),
       player: formatPlayerResponse(a.player)
     }));
@@ -512,7 +540,18 @@ router.get(
 
     const memberships = await findPlayerMemberships(username, { limit, offset });
 
-    const response = memberships.map(m => ({
+    if (isErrored(memberships)) {
+      switch (memberships.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(memberships.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(memberships.error);
+        default:
+          assertNever(memberships.error);
+      }
+    }
+
+    const response = memberships.value.map(m => ({
       ...formatMembershipResponse(m.membership),
       group: formatGroupResponse(m.group, m.group.memberCount)
     }));
@@ -541,8 +580,10 @@ router.get(
       switch (result.error.code) {
         case 'PLAYER_NOT_FOUND':
           throw new NotFoundErrorZ(result.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(result.error);
         default:
-          assertNever(result.error.code);
+          assertNever(result.error);
       }
     }
 
@@ -571,7 +612,18 @@ router.get(
 
     const standings = await findPlayerParticipationsStandings(username, status);
 
-    const response = standings.map(s =>
+    if (isErrored(standings)) {
+      switch (standings.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(standings.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(standings.error);
+        default:
+          assertNever(standings.error);
+      }
+    }
+
+    const response = standings.value.map(s =>
       formatPlayerCompetitionStandingResponse(
         s.participation,
         s.competition,
@@ -597,7 +649,19 @@ router.get(
     const { username } = req.params;
 
     const nameChanges = await findPlayerNameChanges(username);
-    const response = nameChanges.map(formatNameChangeResponse);
+
+    if (isErrored(nameChanges)) {
+      switch (nameChanges.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(nameChanges.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(nameChanges.error);
+        default:
+          assertNever(nameChanges.error);
+      }
+    }
+
+    const response = nameChanges.value.map(formatNameChangeResponse);
 
     res.status(200).json(response);
   })
@@ -620,6 +684,18 @@ router.get(
     const { period, startDate, endDate } = req.query;
 
     const results = await findPlayerDeltas(username, period, startDate, endDate);
+
+    if (isErrored(results)) {
+      switch (results.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(results.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(results.error);
+        default:
+          assertNever(results.error);
+      }
+    }
+
     res.status(200).json(results);
   })
 );
@@ -640,7 +716,19 @@ router.get(
     const { metric, period } = req.query;
 
     const records = await findPlayerRecords(username, period, metric);
-    const response = records.map(formatRecordResponse);
+
+    if (isErrored(records)) {
+      switch (records.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(records.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(records.error);
+        default:
+          assertNever(records.error);
+      }
+    }
+
+    const response = records.value.map(formatRecordResponse);
 
     res.status(200).json(response);
   })
@@ -662,8 +750,10 @@ router.get(
       switch (result.error.code) {
         case 'PLAYER_NOT_FOUND':
           throw new NotFoundErrorZ(result.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(result.error);
         default:
-          assertNever(result.error.code);
+          assertNever(result.error);
       }
     }
 
@@ -689,8 +779,10 @@ router.get(
       switch (result.error.code) {
         case 'PLAYER_NOT_FOUND':
           throw new NotFoundErrorZ(result.error);
+        case 'PLAYER_OPTED_OUT':
+          throw new ForbiddenErrorZ(result.error);
         default:
-          assertNever(result.error.code);
+          assertNever(result.error);
       }
     }
 

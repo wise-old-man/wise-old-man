@@ -4599,7 +4599,7 @@ describe('Competition API', () => {
         .query({ status: 'ongoing' });
 
       expect(usernameResponse.status).toBe(404);
-      expect(usernameResponse.body.message).toMatch('Player not found.');
+      expect(usernameResponse.body.message).toMatch('Player not found');
     });
 
     it('should not list player competition standings (undefined competition status)', async () => {
