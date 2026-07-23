@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { buildPlayerMetadata } from "~/utils/metadata";
 import { getPlayerDetails, getPlayerGroups } from "~/services/wiseoldman";
 import { MembershipListItem } from "~/components/groups/MembershipListItem";
 
@@ -10,11 +12,13 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const player = await getPlayerDetails(decodeURI(props.params.username));
 
   return {
-    title: `Groups: ${player.displayName}`,
+    ...buildPlayerMetadata(player, "/groups"),
+    title: `${player.displayName}'s Groups`,
+    description: `Every OSRS clan and group ${player.displayName} is a member of, and the role they hold in each`,
   };
 }
 

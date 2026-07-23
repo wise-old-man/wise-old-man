@@ -1,5 +1,7 @@
 import { Suspense } from "react";
-import { MetricType } from "@wise-old-man/utils";
+import type { Metadata } from "next";
+import { MetricType, PlayerType, PlayerTypeProps, formatNumber } from "@wise-old-man/utils";
+import { buildPlayerMetadata } from "~/utils/metadata";
 import { getPlayerDetails } from "~/services/wiseoldman";
 import { PlayerStatsTable } from "~/components/players/PlayerStatsTable";
 import { PlayerOverviewWidgets } from "~/components/players/PlayerOverviewWidgets";
@@ -20,14 +22,27 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { params } = props;
 
   const username = decodeURI(params.username);
   const player = await getPlayerDetails(username);
 
+  const accountType =
+    player.type === PlayerType.REGULAR || player.type === PlayerType.UNKNOWN
+      ? "player"
+      : `(${PlayerTypeProps[player.type].name}) player`;
+
+  const stats = [
+    `${formatNumber(player.exp, true)} overall exp`,
+    `${formatNumber(Math.round(player.ehp), true)} EHP`,
+    `${formatNumber(Math.round(player.ehb), true)} EHB`,
+  ].join(", ");
+
   return {
+    ...buildPlayerMetadata(player),
     title: player.displayName,
+    description: `${player.displayName} is an OSRS ${accountType} with ${stats} - Track their hiscores, gains, records and achievements`,
   };
 }
 
