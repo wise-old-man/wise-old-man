@@ -25,10 +25,9 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://wiseoldman.net"),
   title: {
     template: "%s | Wise Old Man",
-    default: "Wise Old Man — OSRS Progress Tracker",
+    default: "Wise Old Man - OSRS Progress Tracker",
   },
-  description:
-    "Track your Old School RuneScape progress: XP gains, achievements, clan affiliations and competitions. Open source and free.",
+  description: `Track your Old School RuneScape progress: XP gains, achievements, clan affiliations and competitions - Open source and free`,
   openGraph: {
     type: "website",
     siteName: "Wise Old Man",

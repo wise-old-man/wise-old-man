@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { CompetitionStatus } from "@wise-old-man/utils";
 import { Label } from "~/components/Label";
 import { CompetitionsList } from "~/components/competitions/CompetitionsList";
@@ -12,14 +13,17 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = props.params;
 
   const group = await getGroupDetails(id);
 
   return {
-    title: `Competitions: ${group.name}`,
-    description: group.description,
+    title: `${group.name} Competitions`,
+    description: `Every competition hosted by ${group.name}`,
+    alternates: {
+      canonical: `/groups/${id}/competitions`,
+    },
   };
 }
 

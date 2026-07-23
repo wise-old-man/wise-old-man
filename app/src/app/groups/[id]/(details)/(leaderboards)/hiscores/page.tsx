@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Metric } from "@wise-old-man/utils";
 import { GroupHiscoresTable } from "~/components/groups/GroupHiscoresTable";
 import { GroupLeaderboardsNavigation } from "~/components/groups/GroupLeaderboardsNavigation";
@@ -16,14 +17,17 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = props.params;
 
   const group = await getGroupDetails(id);
 
   return {
-    title: `Hiscores: ${group.name}`,
-    description: group.description,
+    title: `${group.name} Hiscores`,
+    description: `${group.name}'s hiscores, ranked across every OSRS skill, boss and activity`,
+    alternates: {
+      canonical: `/groups/${id}/hiscores`,
+    },
   };
 }
 

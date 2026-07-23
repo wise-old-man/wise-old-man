@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { GroupAverageStatsTable } from "~/components/groups/GroupAverageStatsTable";
 import { getGroupDetails, getGroupStatistics } from "~/services/wiseoldman";
 
@@ -10,14 +11,17 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = props.params;
 
   const group = await getGroupDetails(id);
 
   return {
-    title: `Statistics: ${group.name}`,
-    description: group.description,
+    title: `${group.name} Statistics`,
+    description: `${group.name}'s average member stats and other statistics`,
+    alternates: {
+      canonical: `/groups/${id}/statistics`,
+    },
   };
 }
 
