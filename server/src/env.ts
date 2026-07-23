@@ -21,8 +21,10 @@ const envVariablesSchema = z.object({
   REDIS_HOST: z.string().trim().min(1),
   REDIS_PASSWORD: z.string().trim().min(1),
   REDIS_PORT: z.coerce.number().positive().int(),
-  // Prisma Database URL
+  // Prisma Database URL (routed through PgBouncer)
   LEAGUE_SERVER_DATABASE_URL: z.string().trim().min(1),
+  // Prisma Direct Database URL (bypasses PgBouncer, used for migrations)
+  LEAGUE_SERVER_DATABASE_DIRECT_URL: z.string().trim().min(1),
   // Port for the API to run on
   LEAGUE_SERVER_API_PORT: z.optional(z.coerce.number().positive().int()),
   // Sentry (for error tracking)
@@ -53,6 +55,7 @@ type EnvKey = keyof typeof envVariablesSchema.shape;
 const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
   [ServerType.API]: [
     'LEAGUE_SERVER_DATABASE_URL',
+    'LEAGUE_SERVER_DATABASE_DIRECT_URL',
     'LEAGUE_SERVER_API_PORT',
     'REDIS_HOST',
     'REDIS_PORT',
@@ -64,6 +67,7 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
   ],
   [ServerType.JOB_RUNNER]: [
     'LEAGUE_SERVER_DATABASE_URL',
+    'LEAGUE_SERVER_DATABASE_DIRECT_URL',
     'REDIS_PORT',
     'REDIS_HOST',
     'REDIS_PASSWORD',
@@ -83,6 +87,7 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
   [ServerType.DEV]: [
     //
     'LEAGUE_SERVER_DATABASE_URL',
+    'LEAGUE_SERVER_DATABASE_DIRECT_URL',
     'REDIS_PORT',
     'REDIS_HOST',
     'REDIS_PASSWORD',
