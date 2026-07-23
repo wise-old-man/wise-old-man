@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Metric } from "@wise-old-man/utils";
 import { GroupGainedCustomPeriodDialog } from "~/components/groups/GroupGainedCustomPeriodDialog";
 import { GroupGainedTable } from "~/components/groups/GroupGainedTable";
@@ -18,14 +19,17 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = props.params;
 
   const group = await getGroupDetails(id);
 
   return {
-    title: `Gained Leaderboards: ${group.name}`,
-    description: group.description,
+    title: `${group.name} Gains Leaderboard`,
+    description: `${group.name}'s current gain leaderboards for every skill, boss and activity`,
+    alternates: {
+      canonical: `/groups/${id}/gained`,
+    },
   };
 }
 

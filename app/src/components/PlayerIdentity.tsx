@@ -61,6 +61,7 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
           <TooltipTrigger asChild>
             <Link
               prefetch={false}
+              rel={href?.includes("gained") ? "nofollow" : undefined}
               href={href || `/players/${player.username}`}
               className={cn(
                 "line-clamp-1 text-sm font-medium hover:underline",
