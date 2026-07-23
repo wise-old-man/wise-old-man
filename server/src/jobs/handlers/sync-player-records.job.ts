@@ -111,31 +111,30 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
       return;
     }
 
-    await prisma.$transaction(async tx => {
-      if (toUpdate.length > 0) {
-        await tx.record.deleteMany({
-          where: {
+    await prisma.$transaction([
+      ...(toUpdate.length > 0
+        ? [
+            prisma.record.deleteMany({
+              where: {
+                playerId,
+                period: payload.period,
+                metric: { in: toUpdate.map(u => u.metric) }
+              }
+            })
+          ]
+        : []),
+      prisma.record.createMany({
+        data: [
+          ...toCreate,
+          ...toUpdate.map(u => ({
             playerId,
             period: payload.period,
-            metric: { in: toUpdate.map(u => u.metric) }
-          }
-        });
-      }
-
-      if (toCreate.length > 0 || toUpdate.length > 0) {
-        await tx.record.createMany({
-          data: [
-            ...toCreate,
-            ...toUpdate.map(u => ({
-              playerId,
-              period: payload.period,
-              metric: u.metric,
-              value: u.newValue
-            }))
-          ],
-          skipDuplicates: true
-        });
-      }
-    });
+            metric: u.metric,
+            value: u.newValue
+          }))
+        ],
+        skipDuplicates: true
+      })
+    ]);
   }
 };

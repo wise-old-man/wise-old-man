@@ -138,18 +138,17 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
 
     const newCachedDeltas = Array.from(newCachedDeltasMap.values());
 
-    await prisma.$transaction(async transaction => {
-      await transaction.cachedDelta.deleteMany({
+    await prisma.$transaction([
+      prisma.cachedDelta.deleteMany({
         where: {
           playerId: player.id,
           period
         }
-      });
-
-      await transaction.cachedDelta.createMany({
+      }),
+      prisma.cachedDelta.createMany({
         data: newCachedDeltas
-      });
-    });
+      })
+    ]);
 
     eventEmitter.emit(EventType.PLAYER_DELTA_UPDATED, {
       username,
