@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   METRICS,
   Metric,
@@ -11,6 +12,7 @@ import {
   isComputedMetric,
 } from "@wise-old-man/utils";
 import { formatDatetime } from "~/utils/dates";
+import { buildPlayerMetadata } from "~/utils/metadata";
 import { getPlayerDetails, getPlayerRecords } from "~/services/wiseoldman";
 import { MetricIcon } from "~/components/Icon";
 import { LocalDate } from "~/components/LocalDate";
@@ -31,11 +33,13 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const player = await getPlayerDetails(decodeURI(props.params.username));
 
   return {
-    title: `Records: ${player.displayName}`,
+    ...buildPlayerMetadata(player, "/records"),
+    title: `${player.displayName}'s Personal Records`,
+    description: `${player.displayName}'s best ever OSRS gains - their 5 min, daily, weekly, monthly and yearly records in every skill, boss and activity`,
   };
 }
 
