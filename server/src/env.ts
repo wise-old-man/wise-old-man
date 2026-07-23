@@ -23,8 +23,10 @@ const envVariablesSchema = z.object({
   REDIS_HOST: z.string().trim().min(1),
   REDIS_PASSWORD: z.string().trim().min(1),
   REDIS_PORT: z.coerce.number().positive().int(),
-  // Prisma Database URL
+  // Prisma Database URL (routed through PgBouncer)
   SERVER_CORE_DATABASE_URL: z.string().trim().min(1),
+  // Prisma Direct Database URL (bypasses PgBouncer, used for migrations)
+  SERVER_CORE_DATABASE_DIRECT_URL: z.string().trim().min(1),
   // Port for the API to run on
   SERVER_API_PORT: z.optional(z.coerce.number().positive().int()),
   // Sentry (for error tracking)
@@ -55,6 +57,7 @@ type EnvKey = keyof typeof envVariablesSchema.shape;
 const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
   [ServerType.API]: [
     'SERVER_CORE_DATABASE_URL',
+    'SERVER_CORE_DATABASE_DIRECT_URL',
     'REDIS_HOST',
     'REDIS_PORT',
     'REDIS_PASSWORD',
@@ -65,6 +68,7 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
   ],
   [ServerType.JOB_RUNNER]: [
     'SERVER_CORE_DATABASE_URL',
+    'SERVER_CORE_DATABASE_DIRECT_URL',
     'REDIS_PORT',
     'REDIS_HOST',
     'REDIS_PASSWORD',
@@ -84,6 +88,7 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
   [ServerType.DEV]: [
     //
     'SERVER_CORE_DATABASE_URL',
+    'SERVER_CORE_DATABASE_DIRECT_URL',
     'REDIS_PORT',
     'REDIS_HOST',
     'REDIS_PASSWORD',
