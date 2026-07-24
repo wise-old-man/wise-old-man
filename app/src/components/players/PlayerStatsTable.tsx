@@ -302,11 +302,14 @@ function getSkillColumnDefinitions(
         return <TableSortButton column={column}>Rank</TableSortButton>;
       },
       cell: ({ row }) => {
-        if (row.original.experience === -1 && (row.original.metric as Metric) !== Metric.EHP) {
+        if (
+          (row.original.experience === -1 || row.original.rank === -1) &&
+          (row.original.metric as Metric) !== Metric.EHP
+        ) {
           return (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span>---</span>
+                <span className="text-gray-300">---</span>
               </TooltipTrigger>
               <TooltipContent>
                 This player is unranked in {MetricProps[row.original.metric].name}.
@@ -429,7 +432,10 @@ function getBossColumnDefinitions(player: PlayerResponse): ColumnDef<BossValue>[
         return <TableSortButton column={column}>Rank</TableSortButton>;
       },
       cell: ({ row }) => {
-        if (row.original.kills === -1 && (row.original.metric as Metric) !== Metric.EHB) {
+        if (
+          (row.original.kills === -1 || row.original.rank === -1) &&
+          (row.original.metric as Metric) !== Metric.EHB
+        ) {
           return (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -542,11 +548,11 @@ const ACTIVITY_COLUMN_DEFINITIONS: ColumnDef<ActivityValue>[] = [
       return <TableSortButton column={column}>Rank</TableSortButton>;
     },
     cell: ({ row }) => {
-      if (row.original.score === -1) {
+      if (row.original.score === -1 || row.original.rank === -1) {
         return (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span>---</span>
+              <span className="text-gray-300">---</span>
             </TooltipTrigger>
             <TooltipContent>
               This player is unranked in {MetricProps[row.original.metric].name}.
