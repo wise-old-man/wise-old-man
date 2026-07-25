@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node';
-import * as Tracing from '@sentry/tracing';
 import cors from 'cors';
 import express, { Express } from 'express';
 import userAgent from 'express-useragent';
@@ -37,10 +36,6 @@ class APIInstance {
   }
 
   init() {
-    if (process.env.NODE_ENV !== 'test') {
-      this.setupServices();
-    }
-
     this.setupMiddlewares();
     this.setupRouting();
 
@@ -178,17 +173,6 @@ class APIInstance {
 
   private setupRouting() {
     this.express.use('/', router);
-  }
-
-  private setupServices() {
-    Sentry.init({
-      dsn: process.env.SERVER_SENTRY_DSN,
-      tracesSampleRate: 0.01,
-      integrations: [
-        new Sentry.Integrations.Http({ tracing: true }),
-        new Tracing.Integrations.Express({ app: this.express })
-      ]
-    });
   }
 }
 
