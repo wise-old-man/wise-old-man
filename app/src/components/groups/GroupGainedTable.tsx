@@ -209,7 +209,7 @@ function getColumnDefinitions(metric: Metric) {
         const percent = getPercentGained(metric, start, end, gained);
 
         if (percent <= 0) {
-          return "---";
+          return <span className="text-gray-300">---</span>;
         }
 
         return (
