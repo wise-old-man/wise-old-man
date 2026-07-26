@@ -1,4 +1,4 @@
-import prisma, { PrismaTypes } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { Snapshot } from '../../../../types';
 
 async function findGroupSnapshots(
@@ -22,16 +22,16 @@ async function findGroupSnapshots(
  * Gets the last snapshot (before maxDate) for each playerId
  */
 async function getLastSnapshot(playerIds: number[], maxDate: Date): Promise<Snapshot[]> {
-  const formattedPlayerIds = PrismaTypes.join(playerIds, ',');
-
   const snapshots = await prisma.$queryRaw<Snapshot[]>`
-      SELECT s.*, s."playerId", s."createdAt"
-      FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
-            FROM public.snapshots q
-            WHERE q."playerId" IN (${formattedPlayerIds}) AND q."createdAt" < ${maxDate}
-            GROUP BY q."playerId"
-          ) r
-      JOIN public.snapshots s ON s."playerId" = r."playerId" AND s."createdAt" = r.max_date`;
+    SELECT s.*
+    FROM unnest(${playerIds}::int[]) AS p(id)
+    CROSS JOIN LATERAL (
+      SELECT * FROM public.snapshots
+      WHERE "playerId" = p.id AND "createdAt" < ${maxDate}
+      ORDER BY "createdAt" DESC
+      LIMIT 1
+    ) s
+`;
 
   // For some reason, the raw query returns dates as strings
   return snapshots.map(s => ({
@@ -46,16 +46,16 @@ async function getLastSnapshot(playerIds: number[], maxDate: Date): Promise<Snap
  * Gets the first snapshot (after minDate) for each playerId
  */
 async function getFirstSnapshot(playerIds: number[], minDate: Date): Promise<Snapshot[]> {
-  const formattedPlayerIds = PrismaTypes.join(playerIds, ',');
-
   const snapshots = await prisma.$queryRaw<Snapshot[]>`
-      SELECT s.*, s."playerId", s."createdAt"
-      FROM (SELECT q."playerId", MIN(q."createdAt") AS min_date
-            FROM public.snapshots q
-            WHERE q."playerId" IN (${formattedPlayerIds}) AND q."createdAt" > ${minDate}
-            GROUP BY q."playerId"
-          ) r
-      JOIN public.snapshots s ON s."playerId" = r."playerId" AND s."createdAt" = r.min_date`;
+      SELECT s.*
+      FROM unnest(${playerIds}::int[]) AS p(id)
+      CROSS JOIN LATERAL (
+        SELECT * FROM public.snapshots
+        WHERE "playerId" = p.id AND "createdAt" > ${minDate}
+        ORDER BY "createdAt" ASC
+        LIMIT 1
+      ) s
+  `;
 
   // For some reason, the raw query returns dates as strings
   return snapshots.map(s => ({
