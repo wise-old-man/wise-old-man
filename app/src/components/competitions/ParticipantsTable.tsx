@@ -246,7 +246,7 @@ function getColumnDefinitions(
         if (levels === undefined) return null;
         const { start, end, gained } = levels;
 
-        if (start === -1 || end === -1) return "---";
+        if (start === -1 || end === -1) return <span className="text-gray-300">---</span>;
 
         return (
           <span className={cn(gained > 0 && "text-green-500")}>
@@ -279,8 +279,19 @@ function ParticipantStartCell(props: {
   focusedMetric: Metric | "total";
 }) {
   const { focusedMetric, competition, participant } = props;
-  const { player, deltas } = participant;
 
+  if (competition.startsAt > new Date()) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="text-gray-300">---</span>
+        </TooltipTrigger>
+        <TooltipContent>This competition hasn&apos;t started yet.</TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  const { player, deltas } = participant;
   const start = deltas.find((d) => d.metric === focusedMetric)?.values.start ?? -1;
   const hasStartingValue = player.updatedAt && player.updatedAt >= competition.startsAt;
 
@@ -288,7 +299,7 @@ function ParticipantStartCell(props: {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <span>---</span>
+          <span className="text-gray-300">---</span>
         </TooltipTrigger>
         <TooltipContent>
           This player hasn&apos;t yet been updated since the competition started.
@@ -301,7 +312,7 @@ function ParticipantStartCell(props: {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <span>---</span>
+          <span className="text-gray-300">---</span>
         </TooltipTrigger>
         <TooltipContent>
           This player started out unranked in{" "}
@@ -332,7 +343,7 @@ function ParticipantEndCell(props: {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <span>---</span>
+          <span className="text-gray-300">---</span>
         </TooltipTrigger>
         <TooltipContent>This competition hasn&apos;t started yet.</TooltipContent>
       </Tooltip>
@@ -348,7 +359,7 @@ function ParticipantEndCell(props: {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <span>---</span>
+          <span className="text-gray-300">---</span>
         </TooltipTrigger>
         <TooltipContent>
           This player hasn&apos;t yet been updated since the competition started.
@@ -361,7 +372,7 @@ function ParticipantEndCell(props: {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <span>---</span>
+          <span className="text-gray-300">---</span>
         </TooltipTrigger>
         <TooltipContent>
           This player is unranked in{" "}
