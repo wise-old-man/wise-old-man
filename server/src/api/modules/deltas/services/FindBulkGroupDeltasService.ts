@@ -2,6 +2,7 @@ import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Metric, METRICS, Period, Player, Snapshot } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
+import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
 import { parsePeriodExpression } from '../../../../utils/shared';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 import { calculateMetricDelta } from '../delta.utils';
@@ -98,6 +99,8 @@ async function buildPlayerSnapshotMap(
   let startSnapshots: Snapshot[];
   let endSnapshots: Snapshot[];
 
+  const requiredSnapshotFields = getRequiredSnapshotFields(METRICS);
+
   if ('period' in timeFilter) {
     const parsedPeriod = parsePeriodExpression(timeFilter.period);
 
@@ -106,14 +109,25 @@ async function buildPlayerSnapshotMap(
     }
 
     startSnapshots = await findGroupSnapshots(playerIds, {
-      minDate: new Date(Date.now() - parsedPeriod.durationMs)
+      pick: 'first',
+      select: requiredSnapshotFields,
+      minDate: new Date(Date.now() - parsedPeriod.durationMs),
+      maxDate: new Date()
     });
 
     endSnapshots = players.map(p => p.latestSnapshot).filter(Boolean);
   } else {
     const [start, end] = await Promise.all([
-      findGroupSnapshots(playerIds, { minDate: timeFilter.minDate }),
-      findGroupSnapshots(playerIds, { maxDate: timeFilter.maxDate })
+      findGroupSnapshots(playerIds, {
+        pick: 'first',
+        select: requiredSnapshotFields,
+        ...timeFilter
+      }),
+      findGroupSnapshots(playerIds, {
+        pick: 'last',
+        select: requiredSnapshotFields,
+        ...timeFilter
+      })
     ]);
 
     startSnapshots = start;

@@ -7,23 +7,44 @@ import { getMetricValueKey } from './get-metric-value-key.util';
  *
  * Most metrics only require their own value, but some metrics require
  * other metrics to be calculated. For example, Overall and EHP requires all skills.
+ *
+ * "playerId" and "createdAt" are always included, callers rely on them to map
+ * snapshots back to their players, and to read the snapshot's date.
  */
-export function getRequiredSnapshotFields(metrics: Metric[]): Partial<Record<keyof Snapshot, true>> {
-  const requiredSnapshotFields: Partial<Record<keyof Snapshot, true>> = {};
+export function getRequiredSnapshotFields(metrics: Metric[]) {
+  const fields: ['playerId', 'createdAt'] & Array<keyof Snapshot> = ['playerId', 'createdAt'];
 
   for (const metric of metrics) {
     if (metric === Metric.OVERALL || metric === Metric.EHP) {
       SKILLS.forEach(skill => {
-        requiredSnapshotFields[getMetricValueKey(skill)] = true;
+        fields.push(getMetricValueKey(skill));
       });
     } else if (metric === Metric.EHB) {
       BOSSES.forEach(boss => {
-        requiredSnapshotFields[getMetricValueKey(boss)] = true;
+        fields.push(getMetricValueKey(boss));
       });
     } else {
-      requiredSnapshotFields[getMetricValueKey(metric)] = true;
+      fields.push(getMetricValueKey(metric));
     }
   }
 
-  return requiredSnapshotFields;
+  return Array.from(new Set(fields)); // dedupe
+}
+
+/**
+ * Same as "getRequiredSnapshotFields", but shaped as a Prisma "select" object.
+ */
+export function selectRequiredSnapshotFields(metrics: Metric[]) {
+  const map: { playerId: true; createdAt: true } & Partial<Record<keyof Snapshot, true>> = {
+    playerId: true,
+    createdAt: true
+  };
+
+  const requiredFields = getRequiredSnapshotFields(metrics);
+
+  for (const field of requiredFields) {
+    map[field] = true;
+  }
+
+  return map;
 }

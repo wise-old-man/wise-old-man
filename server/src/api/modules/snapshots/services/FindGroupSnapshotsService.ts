@@ -1,69 +1,52 @@
-import prisma from '../../../../prisma';
+import prisma, { PrismaTypes } from '../../../../prisma';
 import { Snapshot } from '../../../../types';
 
-async function findGroupSnapshots(
+export async function findGroupSnapshots(
   playerIds: number[],
-  query: { minDate: Date } | { maxDate: Date }
+  query: {
+    pick: 'first' | 'last';
+    select?: Array<keyof Snapshot>;
+    minDate: Date;
+    maxDate: Date;
+  }
 ): Promise<Snapshot[]> {
   if (playerIds.length === 0) {
     return [];
   }
 
-  if ('minDate' in query) {
-    // Get the first snapshot AFTER min date (for each player id)
-    return await getFirstSnapshot(playerIds, query.minDate);
-  }
+  const columns = buildColumnList(query.select);
 
-  // Get the last snapshot BEFORE max date (for each player id)
-  return await getLastSnapshot(playerIds, query.maxDate);
-}
-
-/**
- * Gets the last snapshot (before maxDate) for each playerId
- */
-async function getLastSnapshot(playerIds: number[], maxDate: Date): Promise<Snapshot[]> {
-  const snapshots = await prisma.$queryRaw<Snapshot[]>`
+  const rawSnapshots = await prisma.$queryRaw<Snapshot[]>`
     SELECT s.*
     FROM unnest(${playerIds}::int[]) AS p(id)
     CROSS JOIN LATERAL (
-      SELECT * FROM public.snapshots
-      WHERE "playerId" = p.id AND "createdAt" < ${maxDate}
-      ORDER BY "createdAt" DESC
+      SELECT ${columns} FROM public.snapshots
+      WHERE "playerId" = p.id AND "createdAt" BETWEEN ${query.minDate} AND ${query.maxDate}
+      ORDER BY "createdAt" ${PrismaTypes.raw(query.pick === 'first' ? 'ASC' : 'DESC')}
       LIMIT 1
     ) s
-`;
-
-  // For some reason, the raw query returns dates as strings
-  return snapshots.map(s => ({
-    ...s,
-    overallExperience: Number(s.overallExperience),
-    createdAt: new Date(s.createdAt),
-    importedAt: s.importedAt ? new Date(s.importedAt) : null
-  }));
-}
-
-/**
- * Gets the first snapshot (after minDate) for each playerId
- */
-async function getFirstSnapshot(playerIds: number[], minDate: Date): Promise<Snapshot[]> {
-  const snapshots = await prisma.$queryRaw<Snapshot[]>`
-      SELECT s.*
-      FROM unnest(${playerIds}::int[]) AS p(id)
-      CROSS JOIN LATERAL (
-        SELECT * FROM public.snapshots
-        WHERE "playerId" = p.id AND "createdAt" > ${minDate}
-        ORDER BY "createdAt" ASC
-        LIMIT 1
-      ) s
   `;
 
   // For some reason, the raw query returns dates as strings
-  return snapshots.map(s => ({
-    ...s,
-    overallExperience: Number(s.overallExperience),
-    createdAt: new Date(s.createdAt),
-    importedAt: s.importedAt ? new Date(s.importedAt) : null
+  return rawSnapshots.map(snapshot => ({
+    ...snapshot,
+    ...('overallExperience' in snapshot && {
+      overallExperience: Number(snapshot.overallExperience)
+    }),
+    ...('importedAt' in snapshot && {
+      importedAt: snapshot.importedAt ? new Date(snapshot.importedAt) : null
+    }),
+    createdAt: new Date(snapshot.createdAt)
   }));
 }
 
-export { findGroupSnapshots };
+function buildColumnList(select: Array<keyof Snapshot> | undefined) {
+  if (select === undefined) {
+    return PrismaTypes.raw('*');
+  }
+
+  // Ensure these primary keys are always included in the query, even if not explicitly requested
+  const columns = new Set<keyof Snapshot>(['playerId', 'createdAt', ...select]);
+
+  return PrismaTypes.raw(Array.from(columns, column => `"${column}"`).join(', '));
+}
