@@ -103,14 +103,16 @@ async function buildPlayerSnapshotMap(
     }
 
     startSnapshots = await findGroupSnapshots(playerIds, {
-      minDate: new Date(Date.now() - parsedPeriod.durationMs)
+      pick: 'first',
+      minDate: new Date(Date.now() - parsedPeriod.durationMs),
+      maxDate: new Date()
     });
 
     endSnapshots = players.map(p => p.latestSnapshot).filter(Boolean);
   } else {
     const [start, end] = await Promise.all([
-      findGroupSnapshots(playerIds, { minDate: timeFilter.minDate }),
-      findGroupSnapshots(playerIds, { maxDate: timeFilter.maxDate })
+      findGroupSnapshots(playerIds, { pick: 'first', ...timeFilter }),
+      findGroupSnapshots(playerIds, { pick: 'last', ...timeFilter })
     ]);
 
     startSnapshots = start;
