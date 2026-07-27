@@ -2,6 +2,7 @@ import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Metric, Period, Player, Snapshot } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
+import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
 import { parsePeriodExpression } from '../../../../utils/shared/parse-period-expression.util';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 import { calculateMetricDelta } from '../delta.utils';
@@ -55,6 +56,7 @@ export async function findGroupDeltas(
   }
 
   const playerSnapshotMapResult = await buildPlayerSnapshotMap(
+    metric,
     groupAndMemberships.memberships.map(m => m.player),
     timeFilter
   );
@@ -87,6 +89,7 @@ export async function findGroupDeltas(
 }
 
 async function buildPlayerSnapshotMap(
+  metric: Metric,
   players: Array<Player & { latestSnapshot: Snapshot | null }>,
   timeFilter: TimeFilter
 ) {
@@ -94,6 +97,8 @@ async function buildPlayerSnapshotMap(
 
   let startSnapshots: Snapshot[];
   let endSnapshots: Snapshot[];
+
+  const requiredSnapshotFields = getRequiredSnapshotFields([metric]);
 
   if ('period' in timeFilter) {
     const parsedPeriod = parsePeriodExpression(timeFilter.period);
@@ -104,6 +109,7 @@ async function buildPlayerSnapshotMap(
 
     startSnapshots = await findGroupSnapshots(playerIds, {
       pick: 'first',
+      select: requiredSnapshotFields,
       minDate: new Date(Date.now() - parsedPeriod.durationMs),
       maxDate: new Date()
     });
@@ -111,8 +117,16 @@ async function buildPlayerSnapshotMap(
     endSnapshots = players.map(p => p.latestSnapshot).filter(Boolean);
   } else {
     const [start, end] = await Promise.all([
-      findGroupSnapshots(playerIds, { pick: 'first', ...timeFilter }),
-      findGroupSnapshots(playerIds, { pick: 'last', ...timeFilter })
+      findGroupSnapshots(playerIds, {
+        pick: 'first',
+        select: requiredSnapshotFields,
+        ...timeFilter
+      }),
+      findGroupSnapshots(playerIds, {
+        pick: 'last',
+        select: requiredSnapshotFields,
+        ...timeFilter
+      })
     ]);
 
     startSnapshots = start;

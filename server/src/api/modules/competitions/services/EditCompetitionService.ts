@@ -207,6 +207,7 @@ async function recalculateParticipationsStart(competitionId: number, startDate: 
   // Find everyone's first snapshot AFTER the new start date
   const playerSnapshots = await findGroupSnapshots(playerIds, {
     pick: 'first',
+    select: ['playerId', 'createdAt'], // Index only scan
     minDate: startDate,
     maxDate: endDate
   });
@@ -239,6 +240,7 @@ async function recalculateParticipationsEnd(competitionId: number, startDate: Da
   // Find everyone's last snapshot BEFORE the new end date
   const playerSnapshots = await findGroupSnapshots(playerIds, {
     pick: 'last',
+    select: ['playerId', 'createdAt'], // Index only scan
     minDate: startDate,
     maxDate: endDate
   });

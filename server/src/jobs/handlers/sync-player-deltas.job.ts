@@ -2,7 +2,7 @@ import { eventEmitter, EventType } from '../../api/events';
 import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
 import prisma from '../../prisma';
 import { CachedDelta, Metric, METRICS, Period } from '../../types';
-import { getRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
+import { selectRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
 import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
 import { isActivity, isBoss, isComputedMetric, isSkill, PeriodProps } from '../../utils/shared';
 import { JobHandler } from '../types/job-handler.type';
@@ -28,11 +28,7 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
       },
       include: {
         latestSnapshot: {
-          select: {
-            playerId: true,
-            createdAt: true,
-            ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
-          }
+          select: selectRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
         }
       }
     });
@@ -51,11 +47,7 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
         }
       }),
       prisma.snapshot.findFirst({
-        select: {
-          playerId: true,
-          createdAt: true,
-          ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
-        },
+        select: selectRequiredSnapshotFields(METRICS), // Only select value fields, not ranks
         where: {
           playerId: player.id,
           createdAt: { gte: new Date(latestSnapshot.createdAt.getTime() - PeriodProps[period].milliseconds) }

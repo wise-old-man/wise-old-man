@@ -7,7 +7,7 @@ import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snap
 import prisma from '../../prisma';
 import { METRICS } from '../../types';
 import { getMetricValueKey } from '../../utils/get-metric-value-key.util';
-import { getRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
+import { selectRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
 import { JobHandler } from '../types/job-handler.type';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
@@ -34,11 +34,7 @@ export const SyncPlayerAchievementsJobHandler: JobHandler<Payload> = {
       },
       include: {
         latestSnapshot: {
-          select: {
-            playerId: true,
-            createdAt: true,
-            ...getRequiredSnapshotFields(METRICS)
-          }
+          select: selectRequiredSnapshotFields(METRICS)
         }
       }
     });
@@ -86,11 +82,7 @@ export const SyncPlayerAchievementsJobHandler: JobHandler<Payload> = {
     }
 
     const previousSnapshot = await prisma.snapshot.findFirst({
-      select: {
-        playerId: true,
-        createdAt: true,
-        ...getRequiredSnapshotFields(METRICS)
-      },
+      select: selectRequiredSnapshotFields(METRICS),
       where: {
         playerId,
         createdAt: payload.previousSnapshotDate

@@ -2,7 +2,7 @@ import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snap
 import prisma, { PrismaTypes } from '../../prisma';
 import { Metric, METRICS, Period } from '../../types';
 import { getMetricValueKey } from '../../utils/get-metric-value-key.util';
-import { getRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
+import { selectRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
 import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
 import { JobHandler } from '../types/job-handler.type';
 
@@ -44,11 +44,7 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
         }
       }),
       prisma.snapshot.findFirst({
-        select: {
-          playerId: true,
-          createdAt: true,
-          ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
-        },
+        select: selectRequiredSnapshotFields(METRICS), // Only select value fields, not ranks
         where: {
           playerId,
           createdAt: currentDeltas[0].startedAt

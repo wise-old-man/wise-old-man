@@ -2,7 +2,7 @@ import prisma from '../../../../prisma';
 import { Competition, CompetitionMetric, Group, Metric, Participation, Player } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
 import { calculateCompetitionDelta } from '../../../../utils/calculate-competition-delta.util';
-import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
+import { selectRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
 import { NotFoundError } from '../../../errors';
 
 export async function fetchCompetitionDetails(
@@ -107,17 +107,17 @@ async function calculateParticipantDeltas(
     }>;
   }>
 > {
-  const requiredSnapshotFields = getRequiredSnapshotFields(metrics);
+  const selectedSnapshotFields = selectRequiredSnapshotFields(metrics);
 
   const participations = await prisma.participation.findMany({
     where: { competitionId },
     include: {
       player: true,
       startSnapshot: {
-        select: requiredSnapshotFields
+        select: selectedSnapshotFields
       },
       endSnapshot: {
-        select: requiredSnapshotFields
+        select: selectedSnapshotFields
       }
     }
   });
