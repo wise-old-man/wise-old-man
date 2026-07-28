@@ -283,6 +283,9 @@ export interface Snapshot {
   the_leviathanRank: number;
   the_leviathanKills: number;
 
+  the_mad_angelRank: number;
+  the_mad_angelKills: number;
+
   the_royal_titansRank: number;
   the_royal_titansKills: number;
 

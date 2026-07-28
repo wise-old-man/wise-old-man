@@ -98,6 +98,7 @@ export const Boss = {
   THE_CORRUPTED_GAUNTLET: 'the_corrupted_gauntlet',
   THE_HUEYCOATL: 'the_hueycoatl',
   THE_LEVIATHAN: 'the_leviathan',
+  THE_MAD_ANGEL: 'the_mad_angel',
   THE_ROYAL_TITANS: 'the_royal_titans',
   THE_WHISPERER: 'the_whisperer',
   THEATRE_OF_BLOOD: 'theatre_of_blood',

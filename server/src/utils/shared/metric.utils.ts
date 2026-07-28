@@ -122,6 +122,7 @@ export const BossProps: Record<
     [Boss.THE_GAUNTLET]: { name: 'The Gauntlet' },
     [Boss.THE_CORRUPTED_GAUNTLET]: { name: 'The Corrupted Gauntlet' },
     [Boss.THE_LEVIATHAN]: { name: 'The Leviathan' },
+    [Boss.THE_MAD_ANGEL]: { name: 'The Mad Angel' },
     [Boss.THE_ROYAL_TITANS]: { name: 'The Royal Titans' },
     [Boss.THE_WHISPERER]: { name: 'The Whisperer' },
     [Boss.THEATRE_OF_BLOOD]: { name: 'Theatre Of Blood' },

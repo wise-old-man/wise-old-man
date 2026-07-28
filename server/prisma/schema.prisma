@@ -524,6 +524,8 @@ model Snapshot {
   the_hueycoatlKills                    Int       @default(-1)
   the_leviathanRank                     Int       @default(-1)
   the_leviathanKills                    Int       @default(-1)
+  the_mad_angelRank                     Int       @default(-1)
+  the_mad_angelKills                    Int       @default(-1)
   the_royal_titansRank                  Int       @default(-1)
   the_royal_titansKills                 Int       @default(-1)
   the_whispererRank                     Int       @default(-1)
@@ -1350,6 +1352,7 @@ enum Metric {
   the_hueycoatl
   the_corrupted_gauntlet
   the_leviathan
+  the_mad_angel
   the_royal_titans
   the_whisperer
   theatre_of_blood
