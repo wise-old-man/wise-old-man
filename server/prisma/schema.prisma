@@ -492,6 +492,8 @@ model Snapshot {
   kril_tsutsarothKills                  Int       @default(-1)
   lunar_chestsRank                      Int       @default(-1)
   lunar_chestsKills                     Int       @default(-1)
+  mad_angelRank                         Int       @default(-1)
+  mad_angelKills                        Int       @default(-1)
   maggot_kingRank                       Int       @default(-1)
   maggot_kingKills                      Int       @default(-1)
   mimicRank                             Int       @default(-1)
@@ -524,8 +526,6 @@ model Snapshot {
   the_hueycoatlKills                    Int       @default(-1)
   the_leviathanRank                     Int       @default(-1)
   the_leviathanKills                    Int       @default(-1)
-  the_mad_angelRank                     Int       @default(-1)
-  the_mad_angelKills                    Int       @default(-1)
   the_royal_titansRank                  Int       @default(-1)
   the_royal_titansKills                 Int       @default(-1)
   the_whispererRank                     Int       @default(-1)
@@ -1335,6 +1335,7 @@ enum Metric {
   kreearra
   kril_tsutsaroth
   lunar_chests
+  mad_angel
   maggot_king
   mimic
   nex
@@ -1352,7 +1353,6 @@ enum Metric {
   the_hueycoatl
   the_corrupted_gauntlet
   the_leviathan
-  the_mad_angel
   the_royal_titans
   the_whisperer
   theatre_of_blood

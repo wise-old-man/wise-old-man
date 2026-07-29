@@ -226,6 +226,9 @@ export interface Snapshot {
   lunar_chestsRank: number;
   lunar_chestsKills: number;
 
+  mad_angelRank: number;
+  mad_angelKills: number;
+
   maggot_kingRank: number;
   maggot_kingKills: number;
 
@@ -282,9 +285,6 @@ export interface Snapshot {
 
   the_leviathanRank: number;
   the_leviathanKills: number;
-
-  the_mad_angelRank: number;
-  the_mad_angelKills: number;
 
   the_royal_titansRank: number;
   the_royal_titansKills: number;
