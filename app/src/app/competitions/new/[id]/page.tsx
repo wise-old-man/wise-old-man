@@ -1,9 +1,8 @@
 import {
   CompetitionDetailsResponse,
-  CompetitionResponse,
   CompetitionStatus,
   CompetitionStatusProps,
-  isMetric,
+  Metric,
 } from "@wise-old-man/utils";
 import Link from "next/link";
 import { Button } from "~/components/Button";
@@ -18,10 +17,12 @@ import { MetricAvatarGroup } from "~/components/MetricAvatarGroup";
 import { QueryLink } from "~/components/QueryLink";
 import { CompetitionValueDistribution } from "~/components/competitions/CompetitionValueDistribution";
 import { getCompetitionDetails, getCompetitionStatus } from "~/services/wiseoldman";
+import { getMetricParam } from "~/utils/params";
 import { cn } from "~/utils/styling";
 
 import OverflowIcon from "~/assets/overflow.svg";
 import { CompetitionMetricTabs } from "~/components/competitions/CompetitionMetricTabs";
+import { CompetitionPageProvider } from "~/components/competitions/CompetitionPageContext";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -32,18 +33,19 @@ interface PageProps {
   };
   searchParams: {
     metric?: string;
+    preview?: string;
   };
 }
 
-function getMetricParam(metricParam: string | undefined) {
-  return metricParam && isMetric(metricParam) ? metricParam : undefined;
+function getPreviewMetric(param: string | undefined, competitionMetrics: Array<Metric>) {
+  const metric = getMetricParam(param);
+  return metric && !competitionMetrics.includes(metric) ? metric : undefined;
 }
 
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
 
-  const metric = getMetricParam(props.searchParams.metric);
-  const competition = await getCompetitionDetails(id, metric);
+  const competition = await getCompetitionDetails(id, getMetricParam(props.searchParams.preview));
 
   return {
     title: competition.title,
@@ -53,32 +55,34 @@ export async function generateMetadata(props: PageProps) {
 export default async function CompetitionPage(props: PageProps) {
   const { id } = props.params;
 
-  const metric = getMetricParam(props.searchParams.metric);
-  const competitionDetails = await getCompetitionDetails(id, metric);
+  const competition = await getCompetitionDetails(id, getMetricParam(props.searchParams.preview));
+
+  const previewMetric = getPreviewMetric(
+    props.searchParams.preview,
+    competition.metrics.map((m) => m.metric),
+  );
 
   return (
-    <Container>
-      <div className="flex flex-col gap-y-10 border-b border-gray-600 pb-8">
-        <Header competitionDetails={competitionDetails} />
-      </div>
-      <div className="mt-6 flex flex-col gap-6 md:flex-row">
-        <div className="flex w-full flex-col gap-y-5 border md:w-[360px]">
-          <div>Time range picker</div>
-          <div>Countdown & active count</div>
-          <CompetitionValueDistribution competitionDetails={competitionDetails} />
-          <div>Momentum</div>
+    <CompetitionPageProvider competition={competition} previewMetric={previewMetric}>
+      <Container>
+        <div className="flex flex-col gap-y-10 border-b border-gray-600 pb-8">
+          <Header competitionDetails={competition} />
         </div>
-        <div className="flex grow flex-col gap-y-5 border">
-          <CompetitionMetricTabs
-            metrics={competitionDetails.metrics.map((m) => m.metric)}
-            selectedMetric={competitionDetails.metric}
-            onMetricSelected={() => {}}
-          />
-          <div>Total & chart</div>
-          <div>Table</div>
+        <div className="mt-6 flex flex-col gap-6 md:flex-row">
+          <div className="flex w-full flex-col gap-y-5 md:w-[360px]">
+            <div>Time range picker</div>
+            <div>Countdown & active count</div>
+            <CompetitionValueDistribution competitionDetails={competition} />
+            <div>Momentum</div>
+          </div>
+          <div className="flex grow flex-col gap-y-5">
+            <CompetitionMetricTabs />
+            <div>Total & chart</div>
+            <div>Table</div>
+          </div>
         </div>
-      </div>
-    </Container>
+      </Container>
+    </CompetitionPageProvider>
   );
 }
 
