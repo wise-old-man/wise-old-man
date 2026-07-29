@@ -492,6 +492,8 @@ model Snapshot {
   kril_tsutsarothKills                  Int       @default(-1)
   lunar_chestsRank                      Int       @default(-1)
   lunar_chestsKills                     Int       @default(-1)
+  mad_angelRank                         Int       @default(-1)
+  mad_angelKills                        Int       @default(-1)
   maggot_kingRank                       Int       @default(-1)
   maggot_kingKills                      Int       @default(-1)
   mimicRank                             Int       @default(-1)
@@ -1333,6 +1335,7 @@ enum Metric {
   kreearra
   kril_tsutsaroth
   lunar_chests
+  mad_angel
   maggot_king
   mimic
   nex
