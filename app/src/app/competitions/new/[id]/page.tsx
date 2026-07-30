@@ -20,11 +20,13 @@ import { getCompetitionDetails, getCompetitionStatus } from "~/services/wiseoldm
 import { getMetricParam } from "~/utils/params";
 import { cn } from "~/utils/styling";
 
-import OverflowIcon from "~/assets/overflow.svg";
+import { CompetitionActivePlayers } from "~/components/competitions/CompetitionActivePlayers";
+import { CompetitionCountdown } from "~/components/competitions/CompetitionCountdown";
 import { CompetitionMetricTabs } from "~/components/competitions/CompetitionMetricTabs";
 import { CompetitionPageProvider } from "~/components/competitions/CompetitionPageContext";
-import { CompetitionCountdown } from "~/components/competitions/CompetitionCountdown";
-import { CompetitionActivePlayers } from "~/components/competitions/CompetitionActivePlayers";
+import { CompetitionTimeRangePicker } from "~/components/competitions/CompetitionTimeRangePicker";
+
+import OverflowIcon from "~/assets/overflow.svg";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -72,7 +74,7 @@ export default async function CompetitionPage(props: PageProps) {
         </div>
         <div className="mt-6 flex flex-col gap-6 md:flex-row">
           <div className="flex w-full flex-col gap-y-5 md:w-[360px]">
-            <div className="rounded-md border px-3 py-1">Time range picker</div>
+            <CompetitionTimeRangePicker />
             <div className="flex gap-x-4">
               <CompetitionCountdown />
               <div>
