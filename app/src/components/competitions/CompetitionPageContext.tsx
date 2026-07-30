@@ -27,7 +27,13 @@ export function CompetitionPageProvider(props: CompetitionPageProviderProps) {
   const metrics = [...competitionMetrics, ...(previewMetric ? [previewMetric] : [])];
 
   const metricParam = getMetricParam(searchParams.get("metric"));
-  const selectedMetric = metricParam && metrics.includes(metricParam) ? metricParam : undefined;
+
+  const selectedMetric =
+    metricParam && metrics.includes(metricParam)
+      ? metricParam
+      : competition.metrics.length > 1
+        ? undefined
+        : competition.metrics[0].metric;
 
   return (
     <CompetitionPageContext.Provider value={{ competition, previewMetric, selectedMetric }}>

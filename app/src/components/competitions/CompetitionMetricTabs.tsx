@@ -36,9 +36,11 @@ export function CompetitionMetricTabs() {
 
   return (
     <div ref={containerRef} className="flex flex-row gap-x-2">
-      <MetricTab asChild isSelected={selectedMetric === undefined} className="shrink-0">
-        <QueryLink query={{ metric: null }}>Total</QueryLink>
-      </MetricTab>
+      {competition.metrics.length > 1 && (
+        <MetricTab asChild isSelected={selectedMetric === undefined} className="shrink-0">
+          <QueryLink query={{ metric: null }}>Total</QueryLink>
+        </MetricTab>
+      )}
       {visibleMetrics.map((metric) =>
         metric === previewMetric ? (
           <MetricTab

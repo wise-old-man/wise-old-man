@@ -1,26 +1,23 @@
 "use client";
 
-import {
-  CompetitionDetailsResponse,
-  formatNumber,
-  Metric,
-  MetricProps,
-  MetricType,
-} from "@wise-old-man/utils";
+import { formatNumber, Metric, MetricProps, MetricType } from "@wise-old-man/utils";
 import { MetricIconSmall } from "~/components/Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
+import { useCompetitionPageContext } from "./CompetitionPageContext";
 
-interface CompetitionValueDistributionProps {
-  competitionDetails: CompetitionDetailsResponse;
-}
+export function CompetitionValueDistribution() {
+  const { competition } = useCompetitionPageContext();
 
-export function CompetitionValueDistribution({ competitionDetails }: CompetitionValueDistributionProps) {
-  const metricType = MetricProps[competitionDetails.metrics[0].metric].type;
+  if (competition.metrics.length === 1) {
+    return null;
+  }
+
+  const metricType = MetricProps[competition.metrics[0].metric].type;
 
   let total = 0;
   const aggregates = new Map<Metric, number>();
 
-  for (const participant of competitionDetails.participations) {
+  for (const participant of competition.participations) {
     for (const delta of participant.deltas) {
       const gained = delta.values.gained;
 

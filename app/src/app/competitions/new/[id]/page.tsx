@@ -23,6 +23,8 @@ import { cn } from "~/utils/styling";
 import OverflowIcon from "~/assets/overflow.svg";
 import { CompetitionMetricTabs } from "~/components/competitions/CompetitionMetricTabs";
 import { CompetitionPageProvider } from "~/components/competitions/CompetitionPageContext";
+import { CompetitionCountdown } from "~/components/competitions/CompetitionCountdown";
+import { CompetitionActivePlayers } from "~/components/competitions/CompetitionActivePlayers";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -70,15 +72,20 @@ export default async function CompetitionPage(props: PageProps) {
         </div>
         <div className="mt-6 flex flex-col gap-6 md:flex-row">
           <div className="flex w-full flex-col gap-y-5 md:w-[360px]">
-            <div>Time range picker</div>
-            <div>Countdown & active count</div>
-            <CompetitionValueDistribution competitionDetails={competition} />
-            <div>Momentum</div>
+            <div className="rounded-md border px-3 py-1">Time range picker</div>
+            <div className="flex gap-x-4">
+              <CompetitionCountdown />
+              <div>
+                <CompetitionActivePlayers />
+              </div>
+            </div>
+            <CompetitionValueDistribution />
+            <div className="rounded-md border px-3 py-1">Momentum</div>
           </div>
           <div className="flex grow flex-col gap-y-5">
             <CompetitionMetricTabs />
-            <div>Total & chart</div>
-            <div>Table</div>
+            <div className="rounded-md border px-3 py-1">Total & chart</div>
+            <div className="rounded-md border px-3 py-1">Table</div>
           </div>
         </div>
       </Container>
