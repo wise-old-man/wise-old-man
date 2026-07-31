@@ -24,10 +24,11 @@ import { CompetitionActivePlayers } from "~/components/competitions/CompetitionA
 import { CompetitionCountdown } from "~/components/competitions/CompetitionCountdown";
 import { CompetitionMetricTabs } from "~/components/competitions/CompetitionMetricTabs";
 import { CompetitionPageProvider } from "~/components/competitions/CompetitionPageContext";
+import { CompetitionPreviewMetricDialog } from "~/components/competitions/CompetitionPreviewMetricDialog";
 import { CompetitionTimeRangePicker } from "~/components/competitions/CompetitionTimeRangePicker";
+import { CompetitionTopHistoryChartDialog } from "~/components/competitions/CompetitionTopHistoryChartDialog";
 import { CompetitionTopParticipantsSparklineChart } from "~/components/competitions/CompetitionTopParticipantsSparklineChart";
 import { CompetitionTotalGained } from "~/components/competitions/CompetitionTotalGained";
-import { CompetitionPreviewMetricDialog } from "~/components/competitions/CompetitionPreviewMetricDialog";
 
 import OverflowIcon from "~/assets/overflow.svg";
 
@@ -99,6 +100,7 @@ export default async function CompetitionPage(props: PageProps) {
       </Container>
 
       {/* Dialogs */}
+      <CompetitionTopHistoryChartDialog />
       <CompetitionPreviewMetricDialog />
     </CompetitionPageProvider>
   );

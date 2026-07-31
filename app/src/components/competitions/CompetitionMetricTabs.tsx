@@ -90,7 +90,7 @@ export function CompetitionMetricTabs() {
               </button>
             </MetricTab>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuContent align="end">
             {overflowMetrics.map((metric) => (
               <QueryLink key={metric} query={{ metric }}>
                 <DropdownMenuItem className="gap-x-2">

@@ -1,17 +1,15 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  isActivity,
-  isBoss,
-  Metric,
-  MetricProps,
-  ParticipantHistoryResponse,
-} from "@wise-old-man/utils";
 import { PropsWithChildren } from "react";
 import { useWOMClient } from "~/hooks/useWOMClient";
+import { convertToDiffTimeseries } from "~/utils/calcs";
 import SparklineChart from "../SparklineChart";
 import { useCompetitionPageContext } from "./CompetitionPageContext";
+import { Button } from "../Button";
+import { QueryLink } from "../QueryLink";
+
+import ExpandIcon from "~/assets/expand.svg";
 
 function Chart() {
   const { selectedMetric, competition } = useCompetitionPageContext();
@@ -58,11 +56,19 @@ function Chart() {
   );
 }
 
-function Card(props: PropsWithChildren) {
+function Card(props: PropsWithChildren<{ expandable?: boolean }>) {
   return (
-    <div className="flex h-20 flex-col gap-y-1 overflow-hidden rounded-lg border border-gray-500 bg-gray-800 px-3 py-2 shadow-md">
-      <span className="text-sm font-medium text-white">Top participant history</span>
+    <div className="relative flex h-20 flex-col gap-y-1 overflow-hidden rounded-lg border border-gray-500 bg-gray-800 px-3 py-2 shadow-md">
+      <span className="line-clamp-2 pr-4 text-sm font-medium text-white">Top participant history</span>
       {props.children}
+
+      <div className="absolute right-2 top-2">
+        <QueryLink query={{ dialog: "history" }}>
+          <Button iconButton className="flex h-5 w-5 items-center justify-center p-0">
+            <ExpandIcon className="h-3 w-3 text-gray-200" />
+          </Button>
+        </QueryLink>
+      </div>
     </div>
   );
 }
@@ -83,41 +89,4 @@ export function CompetitionTopParticipantsSparklineChart() {
   }
 
   return <Chart />;
-}
-
-function convertToDiffTimeseries(
-  metric: Metric | undefined,
-  history: ParticipantHistoryResponse["history"],
-) {
-  if (history.length === 0) return [];
-
-  // The API returns -1 when the player was unranked in the metric (or in all of them, for "total").
-  // For boss/activity metrics we approximate it as "just below the minimum", everything else uses 0.
-  const unrankedValue =
-    metric && (isBoss(metric) || isActivity(metric)) ? MetricProps[metric].minimumValue - 1 : 0;
-
-  const sanitizedPoints = [...history]
-    .sort((a, b) => a.date.getTime() - b.date.getTime())
-    .map((p) => {
-      return { time: p.date, value: p.value === -1 ? unrankedValue : p.value };
-    });
-
-  const diffPoints = sanitizedPoints.map((p) => ({
-    time: p.time.getTime(),
-    value: p.value - sanitizedPoints[0].value,
-  }));
-
-  return [...dedupeByValue(diffPoints.slice(0, -1)), diffPoints[diffPoints.length - 1]];
-}
-
-function dedupeByValue(points: Array<{ value: number; time: number }>) {
-  const map = new Map<number, (typeof points)[number]>();
-
-  points.forEach((p) => {
-    if (!map.has(p.value)) {
-      map.set(p.value, p);
-    }
-  });
-
-  return Array.from(map.values());
 }
