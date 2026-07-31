@@ -113,13 +113,7 @@ export function CompetitionMetricTabs() {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
-            <QueryLink
-              shallow={false}
-              query={{
-                preview: Metric.THIEVING,
-                metric: Metric.THIEVING,
-              }}
-            >
+            <QueryLink shallow={false} query={{ dialog: "preview" }}>
               <DropdownMenuItem>Preview metric</DropdownMenuItem>
             </QueryLink>
           </DropdownMenuContent>

@@ -27,6 +27,7 @@ import { CompetitionPageProvider } from "~/components/competitions/CompetitionPa
 import { CompetitionTimeRangePicker } from "~/components/competitions/CompetitionTimeRangePicker";
 import { CompetitionTopParticipantsSparklineChart } from "~/components/competitions/CompetitionTopParticipantsSparklineChart";
 import { CompetitionTotalGained } from "~/components/competitions/CompetitionTotalGained";
+import { CompetitionPreviewMetricDialog } from "~/components/competitions/CompetitionPreviewMetricDialog";
 
 import OverflowIcon from "~/assets/overflow.svg";
 
@@ -96,6 +97,9 @@ export default async function CompetitionPage(props: PageProps) {
           </div>
         </div>
       </Container>
+
+      {/* Dialogs */}
+      <CompetitionPreviewMetricDialog />
     </CompetitionPageProvider>
   );
 }
