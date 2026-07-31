@@ -26,6 +26,7 @@ import { CompetitionMetricTabs } from "~/components/competitions/CompetitionMetr
 import { CompetitionPageProvider } from "~/components/competitions/CompetitionPageContext";
 import { CompetitionTimeRangePicker } from "~/components/competitions/CompetitionTimeRangePicker";
 import { CompetitionTopParticipantsSparklineChart } from "~/components/competitions/CompetitionTopParticipantsSparklineChart";
+import { CompetitionTotalGained } from "~/components/competitions/CompetitionTotalGained";
 
 import OverflowIcon from "~/assets/overflow.svg";
 
@@ -88,7 +89,7 @@ export default async function CompetitionPage(props: PageProps) {
           <div className="flex grow flex-col gap-y-5">
             <CompetitionMetricTabs />
             <div className="grid grid-cols-2 gap-x-4">
-              <div className="rounded-md border px-3 py-1">Widget!</div>
+              <CompetitionTotalGained />
               <CompetitionTopParticipantsSparklineChart />
             </div>
             <div className="rounded-md border px-3 py-1">Table</div>
