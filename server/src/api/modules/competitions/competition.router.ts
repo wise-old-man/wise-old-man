@@ -335,14 +335,15 @@ router.get(
       id: z.coerce.number().int().positive()
     }),
     query: z.object({
-      metric: z.optional(z.nativeEnum(Metric))
+      metric: z.optional(z.nativeEnum(Metric)),
+      limit: z.optional(z.coerce.number().int().positive().max(5))
     })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric } = req.query;
+    const { metric, limit } = req.query;
 
-    const results = await fetchCompetitionTopHistory(id, metric);
+    const results = await fetchCompetitionTopHistory(id, metric, limit ?? 5);
     const response = results.map(({ player, history }) => formatParticipantHistoryResponse(player, history));
 
     res.status(200).json(response);
