@@ -21,8 +21,8 @@ function Chart() {
     isPending,
     isError,
   } = useQuery({
-    queryKey: ["competition-top-history", competition.id, selectedMetric ?? "total"],
-    queryFn: () => client.competitions.getCompetitionTopHistory(competition.id, selectedMetric),
+    queryKey: ["competition-top-history", competition.id, selectedMetric ?? "total", 3],
+    queryFn: () => client.competitions.getCompetitionTopHistory(competition.id, selectedMetric, 3),
     staleTime: 60_000,
   });
 
@@ -38,7 +38,7 @@ function Chart() {
     return <Message>Failed to load history</Message>;
   }
 
-  const datasets = topHistory.slice(0, 3).map((p) => ({
+  const datasets = topHistory.map((p) => ({
     name: p.player.displayName,
     data: convertToDiffTimeseries(selectedMetric, p.history),
   }));

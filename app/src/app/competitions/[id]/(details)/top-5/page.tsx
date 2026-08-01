@@ -24,7 +24,7 @@ export default async function TopParticipants(props: PageProps) {
   const metricParam = getMetricParam(props.searchParams.metric);
 
   const competition = await getCompetitionDetails(id, metricParam);
-  const top5Participants = await getCompetitionTopHistory(id, metricParam);
+  const top5Participants = await getCompetitionTopHistory(id, metricParam, 5);
 
   let focusedMetric =
     metricParam ?? (competition.metrics.length > 1 ? ("total" as const) : competition.metrics[0].metric);
