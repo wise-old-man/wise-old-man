@@ -45,13 +45,13 @@ export function CompetitionTopHistoryChartDialog() {
             competition&apos;s top participants.
           </DialogDescription>
         </DialogHeader>
-        <Chart />
+        <Chart enabled={isOpen} />
       </DialogContent>
     </Dialog>
   );
 }
 
-function Chart() {
+function Chart({ enabled }: { enabled: boolean }) {
   const { competition, selectedMetric } = useCompetitionPageContext();
 
   const client = useWOMClient();
@@ -61,9 +61,10 @@ function Chart() {
     isPending,
     isError,
   } = useQuery({
-    queryKey: ["competition-top-history", competition.id, selectedMetric ?? "total"],
-    queryFn: () => client.competitions.getCompetitionTopHistory(competition.id, selectedMetric),
+    queryKey: ["competition-top-history", competition.id, selectedMetric ?? "total", 5],
+    queryFn: () => client.competitions.getCompetitionTopHistory(competition.id, selectedMetric, 5),
     staleTime: 60_000,
+    enabled,
   });
 
   if (isPending) {

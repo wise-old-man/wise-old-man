@@ -57,9 +57,11 @@ export const getCompetitionDetails = cache((id: number, metric?: Metric) => {
   return handleNotFound(apiClient.competitions.getCompetitionDetails(id, metric));
 });
 
-export const getCompetitionTopHistory = cache((id: number, metric?: Metric) => {
-  return handleNotFound(apiClient.competitions.getCompetitionTopHistory(id, metric));
-});
+export const getCompetitionTopHistory = cache(
+  (id: number, metric?: Metric | undefined, limit?: number) => {
+    return handleNotFound(apiClient.competitions.getCompetitionTopHistory(id, metric, limit));
+  },
+);
 
 export const getDeltaLeaderboard = cache(
   (
