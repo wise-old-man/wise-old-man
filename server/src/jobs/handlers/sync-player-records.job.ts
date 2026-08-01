@@ -96,8 +96,6 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
       return;
     }
 
-    // A single upsert statement, rather than a delete + insert pair, to keep the number of
-    // mutations (and the transaction) down on what is one of the most churned tables we have.
     await prisma.$executeRaw`
       INSERT INTO public.records ("playerId", "period", "metric", "value", "updatedAt")
       SELECT ${playerId}, ${payload.period}::period, r.metric, r.value, NOW()
