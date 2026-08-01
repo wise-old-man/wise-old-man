@@ -52,17 +52,18 @@ export default class CompetitionsClient extends BaseAPIClient {
       table?: CompetitionCSVTableType;
     }
   ) {
-    return this.getText(`/competitions/${id}/csv`, { metric: params.previewMetric, ...params });
+    return this.getText(`/competitions/${id}/csv`, { metric: params?.previewMetric, ...params });
   }
 
   /**
    * Fetches all the values (exp, kc, etc) in chronological order within the bounds
-   * of the competition, for the top 5 participants.
+   * of the competition, for the top participants.
    * @returns A list of competition progress objects, including the player and their value history over time.
    */
-  getCompetitionTopHistory(id: number, previewMetric?: Metric) {
+  getCompetitionTopHistory(id: number, previewMetric?: Metric | undefined, limit?: number) {
     return this.getRequest<Array<ParticipantHistoryResponse>>(`/competitions/${id}/top-history`, {
-      metric: previewMetric
+      metric: previewMetric,
+      limit
     });
   }
 
