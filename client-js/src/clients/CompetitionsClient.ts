@@ -60,7 +60,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * of the competition, for the top participants.
    * @returns A list of competition progress objects, including the player and their value history over time.
    */
-  getCompetitionTopHistory(id: number, previewMetric: Metric | undefined, limit?: number) {
+  getCompetitionTopHistory(id: number, previewMetric?: Metric | undefined, limit?: number) {
     return this.getRequest<Array<ParticipantHistoryResponse>>(`/competitions/${id}/top-history`, {
       metric: previewMetric,
       limit
