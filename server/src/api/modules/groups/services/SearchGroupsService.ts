@@ -16,7 +16,8 @@ async function searchGroups(
       name: {
         contains: name ? name.trim() : name,
         mode: 'insensitive'
-      }
+      },
+      deletedAt: null
     },
     include: {
       _count: {
