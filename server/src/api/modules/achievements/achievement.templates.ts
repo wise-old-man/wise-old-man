@@ -344,6 +344,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [100, 250, 500, 1000]
   },
   {
+    name: '{threshold} Mad Angel kills',
+    metric: Metric.MAD_ANGEL,
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
     name: '{threshold} Maggot King kills',
     metric: Metric.MAGGOT_KING,
     thresholds: [500, 1000, 5000, 10_000]
