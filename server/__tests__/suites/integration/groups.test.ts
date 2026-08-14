@@ -2314,6 +2314,14 @@ describe('Group API', () => {
       expect(response.body.message).toMatch('Group not found');
     });
 
+    it('should not view details (id out of integer range)', async () => {
+      // Ids larger than the max int4 value must be rejected with a 400, rather
+      // than reaching the database and causing an out-of-range 500 error.
+      const response = await api.get('/groups/2147483648');
+
+      expect(response.status).toBe(400);
+    });
+
     it('should view details (empty group)', async () => {
       const response = await api.get(`/groups/${globalData.testGroupNoMembers.id}`);
 

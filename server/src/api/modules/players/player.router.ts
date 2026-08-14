@@ -33,7 +33,7 @@ import {
 } from '../../responses';
 import { checkAdminPermission, detectRuneLiteNameChange } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
-import { getDateSchema, getPaginationSchema } from '../../util/validation';
+import { getDateSchema, getPaginationSchema, idSchema } from '../../util/validation';
 import { findPlayerAchievementProgress } from '../achievements/services/FindPlayerAchievementProgressService';
 import { findPlayerAchievements } from '../achievements/services/FindPlayerAchievementsService';
 import { findPlayerParticipations } from '../competitions/services/FindPlayerParticipationsService';
@@ -182,7 +182,7 @@ router.get(
   '/players/id/:id',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
