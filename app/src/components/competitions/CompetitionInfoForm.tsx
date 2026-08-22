@@ -5,6 +5,7 @@ import {
   ACTIVITIES,
   BOSSES,
   COMPUTED_METRICS,
+  CreateCompetitionPayload,
   Metric,
   MetricProps,
   MetricType,
@@ -47,12 +48,10 @@ const METRIC_GROUPS: Array<{ type: MetricType; label: string; metrics: Metric[] 
 ];
 
 type TimezoneOption = "utc" | "local";
-type Payload = {
-  title: string;
-  metrics: Metric[];
-  startsAt: Date;
-  endsAt: Date;
-};
+// `metrics` is optional on CreateCompetitionPayload (the deprecated `metric` alias is kept for
+// backwards compatibility), but the form always works with a concrete list, so require it here.
+type Payload = Pick<CreateCompetitionPayload, "title" | "startsAt" | "endsAt"> &
+  Required<Pick<CreateCompetitionPayload, "metrics">>;
 
 interface CompetitionInfoFormProps {
   mode: "create" | "edit";
