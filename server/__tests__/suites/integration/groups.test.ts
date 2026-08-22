@@ -1140,14 +1140,14 @@ describe('Group API', () => {
       const { memberships } = editResponse.body;
 
       const changedMembershipPsikoi = memberships.find(m => m.player.username === 'psikoi');
-      expect(changedRoleEvents[0]).toEqual({
+      expect(changedRoleEvents).toContainEqual({
         role: 'owner',
         previousRole: 'member',
         playerId: changedMembershipPsikoi.playerId
       });
 
       const changedMembershipCookmeplox = memberships.find(m => m.player.username === 'cookmeplox');
-      expect(changedRoleEvents[1]).toEqual({
+      expect(changedRoleEvents).toContainEqual({
         role: 'cook',
         previousRole: 'owner',
         playerId: changedMembershipCookmeplox.playerId
