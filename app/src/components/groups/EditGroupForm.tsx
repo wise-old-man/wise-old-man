@@ -657,9 +657,7 @@ function DangerZoneSection(props: EditGroupFormProps) {
       <Alert variant="error">
         <AlertTitle>Delete group</AlertTitle>
         <AlertDescription className="mt-3">
-          <p>
-            This action cannot be undone. This will permanently delete this group and all its data.
-          </p>
+          <p>This action cannot be undone. This will permanently delete this group and all its data.</p>
 
           <div className="mt-5">
             <QueryLink query={{ dialog: "delete" }}>
