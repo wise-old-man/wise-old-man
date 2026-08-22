@@ -8,7 +8,6 @@ import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { QueryLink } from "~/components/QueryLink";
 import { Container } from "~/components/Container";
-import { DeleteGroupDialog } from "~/components/groups/DeleteGroupDialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { UpdateAllMembersDialog } from "~/components/groups/UpdateAllMembersDialog";
 import { GroupDetailsNavigation } from "~/components/groups/GroupDetailsNavigation";
@@ -114,7 +113,6 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
       </div>
       {children}
       {/* Dialogs */}
-      <DeleteGroupDialog groupId={id} />
       <UpdateAllMembersDialog groupId={id} />
       <ExportGroupMembersDialog groupId={id} />
     </Container>
@@ -171,9 +169,6 @@ function Header(props: GroupDetailsResponse) {
               <Link prefetch={false} href={`/groups/${id}/edit`} rel="nofollow">
                 <DropdownMenuItem>Edit</DropdownMenuItem>
               </Link>
-              <QueryLink query={{ dialog: "delete" }}>
-                <DropdownMenuItem>Delete</DropdownMenuItem>
-              </QueryLink>
               <Link prefetch={false} href={`/competitions/create?groupId=${id}`} rel="nofollow">
                 <DropdownMenuItem>Create group competition</DropdownMenuItem>
               </Link>
