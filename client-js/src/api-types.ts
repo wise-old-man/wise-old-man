@@ -70,7 +70,12 @@ export type EditGroupPayload = Partial<CreateGroupPayload> & {
 
 export type CreateCompetitionPayload = {
   title: string;
-  metric: Metric;
+  /**
+   * @deprecated Use `metrics` instead. Kept for backwards compatibility and will be removed in a
+   * future version. When both are provided, `metrics` takes precedence. Equivalent to `metrics[0]`.
+   */
+  metric?: Metric;
+  metrics?: Metric[];
   startsAt: Date;
   endsAt: Date;
   groupId?: number;
@@ -86,7 +91,12 @@ export type CreateCompetitionPayload = {
 
 export type EditCompetitionPayload = {
   title?: string;
+  /**
+   * @deprecated Use `metrics` instead. Kept for backwards compatibility and will be removed in a
+   * future version. When both are provided, `metrics` takes precedence. Equivalent to `metrics[0]`.
+   */
   metric?: Metric;
+  metrics?: Metric[];
   startsAt?: Date;
   endsAt?: Date;
   participants?: string[];

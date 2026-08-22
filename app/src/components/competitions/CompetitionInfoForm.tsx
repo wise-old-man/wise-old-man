@@ -5,13 +5,13 @@ import {
   ACTIVITIES,
   BOSSES,
   COMPUTED_METRICS,
-  CreateCompetitionPayload,
   Metric,
   MetricProps,
+  MetricType,
   SKILLS,
   isMetric,
 } from "@wise-old-man/utils";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { DateValue, TimeValue } from "react-aria";
 import { useHasMounted } from "~/hooks/useHasMounted";
 import {
@@ -31,14 +31,28 @@ import { MetricIconSmall } from "../Icon";
 import { Input } from "../Input";
 import { Label } from "../Label";
 import { Alert, AlertDescription } from "../Alert";
+import { Badge } from "../Badge";
 
 import LoadingIcon from "~/assets/loading.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
+import CloseIcon from "~/assets/close.svg";
 
 const MAX_NAME_LENGTH = 50;
 
+const METRIC_GROUPS: Array<{ type: MetricType; label: string; metrics: Metric[] }> = [
+  { type: MetricType.SKILL, label: "Skills", metrics: SKILLS },
+  { type: MetricType.BOSS, label: "Bosses", metrics: BOSSES },
+  { type: MetricType.ACTIVITY, label: "Activities", metrics: ACTIVITIES },
+  { type: MetricType.COMPUTED, label: "Computed", metrics: COMPUTED_METRICS },
+];
+
 type TimezoneOption = "utc" | "local";
-type Payload = Pick<CreateCompetitionPayload, "title" | "metric" | "startsAt" | "endsAt">;
+type Payload = {
+  title: string;
+  metrics: Metric[];
+  startsAt: Date;
+  endsAt: Date;
+};
 
 interface CompetitionInfoFormProps {
   mode: "create" | "edit";
@@ -58,7 +72,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
   const hasMounted = useHasMounted();
 
   const [title, setTitle] = useState(competition.title);
-  const [metric, setMetric] = useState(competition.metric);
+  const [metrics, setMetrics] = useState(competition.metrics);
 
   const timezoneOffset = useMemo(() => {
     return timezone === "utc" ? new Date().getTimezoneOffset() * 60_000 : 0;
@@ -81,7 +95,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
 
   const hasUnsavedChanges = checkUnsavedChanges(
     competition,
-    { title, metric, startsAt: toDate(startDate, startTime), endsAt: toDate(endDate, endTime) },
+    { title, metrics, startsAt: toDate(startDate, startTime), endsAt: toDate(endDate, endTime) },
     timezone,
   );
 
@@ -95,7 +109,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
     const startsAt = new Date(toDate(startDate, startTime).getTime() + timezoneOffset);
     const endsAt = new Date(toDate(endDate, endTime).getTime() + timezoneOffset);
 
-    onCompetitionChanged({ ...competition, title, metric, startsAt, endsAt });
+    onCompetitionChanged({ ...competition, title, metrics, startsAt, endsAt });
   }
 
   if (!hasMounted) {
@@ -134,9 +148,13 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
       </div>
       <div>
         <Label htmlFor="title" className="mb-2 block text-xs text-gray-200">
-          Metric
+          Metrics
         </Label>
-        <MetricSelect metric={metric} onMetricSelected={setMetric} />
+        <MetricSelect metrics={metrics} onMetricsChanged={setMetrics} />
+        <p className="mt-2 text-xs text-gray-200">
+          All metrics in a competition must be of the same type. To switch to a different type, remove
+          your currently selected metrics first.
+        </p>
       </div>
       <div className="overflow-hidden rounded-md border border-gray-500 bg-gray-800">
         <div className="border-b border-gray-500 p-4">
@@ -193,6 +211,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
       {/* Allow the parent pages to render what they need on the actions slot (Previous/Next or Save) */}
       {props.formActions(
         title.length === 0 ||
+          metrics.length === 0 ||
           !isEndDateAfterStartDate ||
           (mode === "create" && (hasPastStartDate || hasPastEndDate)),
         hasUnsavedChanges,
@@ -235,73 +254,100 @@ function TimezoneSelector(props: TimezoneSelectorProps) {
 }
 
 interface MetricSelectProps {
-  metric: Metric;
-  onMetricSelected: (metric: Metric) => void;
+  metrics: Metric[];
+  onMetricsChanged: (metrics: Metric[]) => void;
 }
 
 function MetricSelect(props: MetricSelectProps) {
-  const { metric, onMetricSelected } = props;
+  const { metrics, onMetricsChanged } = props;
+
+  const selectedType = metrics.length > 0 ? MetricProps[metrics[0]].type : undefined;
+  const selectedSet = new Set(metrics);
+
+  // Once a metric is selected, only metrics of that same type can be added. To switch to a
+  // different type, the user must first remove all of their currently selected metrics.
+  const availableGroups =
+    selectedType === undefined
+      ? METRIC_GROUPS
+      : METRIC_GROUPS.filter((group) => group.type === selectedType);
+
+  function handleSelect(metric: Metric) {
+    if (selectedSet.has(metric)) {
+      handleRemove(metric);
+    } else {
+      onMetricsChanged([...metrics, metric]);
+    }
+  }
+
+  function handleRemove(metric: Metric) {
+    onMetricsChanged(metrics.filter((m) => m !== metric));
+  }
 
   return (
-    <>
+    <div className="flex flex-col gap-y-3">
       <Combobox
-        value={metric}
+        value={undefined}
         onValueChanged={(val) => {
-          if (val === undefined) {
-            onMetricSelected(Metric.OVERALL);
-          } else if (isMetric(val)) {
-            onMetricSelected(val);
+          if (val !== undefined && isMetric(val)) {
+            handleSelect(val);
           }
         }}
       >
         <ComboboxButton className="w-full bg-gray-800 hover:bg-gray-700">
-          <div className="flex items-center gap-x-2">
-            <MetricIconSmall metric={metric} />
-            <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
-          </div>
+          <span className="line-clamp-1 text-left text-gray-100">
+            {metrics.length === 0 ? "Select a metric..." : "Add another metric..."}
+          </span>
         </ComboboxButton>
-        <ComboboxContent className="max-h-64">
+        <ComboboxContent>
           <ComboboxInput placeholder="Search metrics..." />
           <ComboboxEmpty>No results were found</ComboboxEmpty>
           <ComboboxItemsContainer>
-            <ComboboxItemGroup label="Skills">
-              {SKILLS.map((skill) => (
-                <ComboboxItem key={skill} value={skill}>
-                  <MetricIconSmall metric={skill} />
-                  {MetricProps[skill].name}
-                </ComboboxItem>
-              ))}
-            </ComboboxItemGroup>
-            <ComboboxSeparator />
-            <ComboboxItemGroup label="Bosses">
-              {BOSSES.map((boss) => (
-                <ComboboxItem key={boss} value={boss}>
-                  <MetricIconSmall metric={boss} />
-                  {MetricProps[boss].name}
-                </ComboboxItem>
-              ))}
-            </ComboboxItemGroup>
-            <ComboboxSeparator />
-            <ComboboxItemGroup label="Activities">
-              {ACTIVITIES.map((activity) => (
-                <ComboboxItem key={activity} value={activity}>
-                  <MetricIconSmall metric={activity} />
-                  {MetricProps[activity].name}
-                </ComboboxItem>
-              ))}
-            </ComboboxItemGroup>
-            <ComboboxItemGroup label="Computed">
-              {COMPUTED_METRICS.map((computed) => (
-                <ComboboxItem key={computed} value={computed}>
-                  <MetricIconSmall metric={computed} />
-                  {MetricProps[computed].name}
-                </ComboboxItem>
-              ))}
-            </ComboboxItemGroup>
+            {availableGroups.map((group, index) => {
+              const options = group.metrics.filter((metric) => !selectedSet.has(metric));
+
+              if (options.length === 0) return null;
+
+              return (
+                <Fragment key={group.type}>
+                  {index > 0 && <ComboboxSeparator />}
+                  <ComboboxItemGroup label={group.label}>
+                    {options.map((metric) => (
+                      <ComboboxItem key={metric} value={metric}>
+                        <MetricIconSmall metric={metric} />
+                        {MetricProps[metric].name}
+                      </ComboboxItem>
+                    ))}
+                  </ComboboxItemGroup>
+                </Fragment>
+              );
+            })}
           </ComboboxItemsContainer>
         </ComboboxContent>
       </Combobox>
-    </>
+
+      {metrics.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {metrics.map((metric) => (
+            <Badge
+              key={metric}
+              variant="outline"
+              className="flex items-center gap-x-1.5 py-1 pl-1.5 pr-1"
+            >
+              <MetricIconSmall metric={metric} />
+              <span className="text-xs font-medium text-white">{MetricProps[metric].name}</span>
+              <button
+                type="button"
+                aria-label={`Remove ${MetricProps[metric].name}`}
+                onClick={() => handleRemove(metric)}
+                className="rounded-full p-0.5 text-gray-200 transition-colors hover:bg-gray-500 hover:text-white"
+              >
+                <CloseIcon className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -327,8 +373,15 @@ function checkUnsavedChanges(previous: Payload, next: Payload, timezone: Timezon
 
   return (
     previous.title !== next.title ||
-    previous.metric !== next.metric ||
+    !haveSameMetrics(previous.metrics, next.metrics) ||
     previous.startsAt.getTime() !== startsAt.getTime() ||
     previous.endsAt.getTime() !== endsAt.getTime()
   );
+}
+
+function haveSameMetrics(previous: Metric[], next: Metric[]) {
+  if (previous.length !== next.length) return false;
+
+  const nextSet = new Set(next);
+  return previous.every((metric) => nextSet.has(metric));
 }

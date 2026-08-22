@@ -8,7 +8,6 @@ import {
   CreateCompetitionPayload,
   GroupDetailsResponse,
   GroupResponse,
-  Metric,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { useToast } from "~/hooks/useToast";
@@ -48,7 +47,7 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
 
   const [competition, setCompetition] = useState<CreateCompetitionPayload>({
     title: "",
-    metric: Metric.OVERALL,
+    metrics: [],
     startsAt: getDefaultStartDate(),
     endsAt: getDefaultEndDate(),
     participants: [],
@@ -115,7 +114,12 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
           <CompetitionInfoForm
             mode="create"
             timezone={timezone}
-            competition={competition}
+            competition={{
+              title: competition.title,
+              metrics: competition.metrics ?? [],
+              startsAt: competition.startsAt,
+              endsAt: competition.endsAt,
+            }}
             onTimezoneChanged={(tz) => {
               setTimezone(tz);
             }}
