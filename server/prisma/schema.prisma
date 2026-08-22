@@ -613,7 +613,7 @@ model MemberActivity {
 
 model Patron {
   id        String   @id
-  name      String
+  name      String?
   email     String?
   discordId String?
   groupId   Int?
