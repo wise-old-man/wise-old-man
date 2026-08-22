@@ -18,13 +18,14 @@ import { cn } from "~/utils/styling";
 import { Button } from "../Button";
 import { Container } from "../Container";
 import { QueryLink } from "../QueryLink";
-import { Alert, AlertDescription } from "../Alert";
+import { Alert, AlertDescription, AlertTitle } from "../Alert";
 import { Tabs, TabsList, TabsTrigger } from "../Tabs";
 import { CompetitionInfoForm } from "./CompetitionInfoForm";
 import { CompetitionTeamsForm } from "./CompetitionTeamsForm";
 import { CompetitionParticipantsForm } from "./CompetitionParticipantsForm";
 import { GroupVerificationCodeCheckDialog } from "../groups/GroupVerificationCodeCheckDialog";
 import { CompetitionVerificationCodeCheckDialog } from "./CompetitionVerificationCodeCheckDialog";
+import { DeleteCompetitionDialog } from "./DeleteCompetitionDialog";
 
 import LoadingIcon from "~/assets/loading.svg";
 import WarningIcon from "~/assets/warning.svg";
@@ -62,14 +63,12 @@ export function EditCompetitionForm(props: EditCompetitionFormProps) {
         <div className="col-span-7 flex pt-7">
           {section === "teams" ? (
             <TeamsSection {...props} verificationCode={verificationCode ?? ""} />
+          ) : section === "participants" ? (
+            <ParticipantsSection {...props} verificationCode={verificationCode ?? ""} />
+          ) : section === "danger" ? (
+            <DangerZoneSection {...props} />
           ) : (
-            <>
-              {section === "participants" ? (
-                <ParticipantsSection {...props} verificationCode={verificationCode ?? ""} />
-              ) : (
-                <GeneralSection {...props} verificationCode={verificationCode ?? ""} />
-              )}
-            </>
+            <GeneralSection {...props} verificationCode={verificationCode ?? ""} />
           )}
         </div>
       </div>
@@ -114,6 +113,11 @@ function SideNavigation(props: { type: CompetitionType }) {
                 <TabsTrigger value="teams">Teams</TabsTrigger>
               </QueryLink>
             )}
+            <QueryLink query={{ section: "danger" }}>
+              <TabsTrigger value="danger" className="text-red-500 data-[state=active]:text-red-500">
+                Danger zone
+              </TabsTrigger>
+            </QueryLink>
           </TabsList>
         </Tabs>
       </div>
@@ -160,6 +164,17 @@ function SideNavigation(props: { type: CompetitionType }) {
             </li>
           </QueryLink>
         )}
+        <QueryLink query={{ section: "danger" }}>
+          <li
+            className={cn(
+              "relative overflow-hidden rounded px-4 py-3 text-sm text-red-500 hover:bg-gray-800 active:bg-gray-600",
+              section === "danger" && "bg-gray-700",
+            )}
+          >
+            {section === "danger" && <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-red-500" />}
+            Danger zone
+          </li>
+        </QueryLink>
       </ul>
     </>
   );
@@ -233,6 +248,32 @@ function GeneralSection(props: EditCompetitionFormProps & { verificationCode: st
           </div>
         )}
       />
+    </div>
+  );
+}
+
+function DangerZoneSection(props: EditCompetitionFormProps) {
+  const { competition } = props;
+
+  return (
+    <div className="flex w-full flex-col">
+      <Alert variant="error">
+        <AlertTitle>Delete competition</AlertTitle>
+        <AlertDescription className="mt-3">
+          <p>
+            This action cannot be undone. This will permanently delete this competition and all its data.
+          </p>
+
+          <div className="mt-5">
+            <QueryLink query={{ dialog: "delete" }}>
+              <Button variant="red">Delete competition</Button>
+            </QueryLink>
+          </div>
+        </AlertDescription>
+      </Alert>
+
+      {/* Dialogs */}
+      <DeleteCompetitionDialog competitionId={competition.id} />
     </div>
   );
 }

@@ -11,7 +11,6 @@ import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import { Button } from "~/components/Button";
 import { CompetitionDetailsNavigation } from "~/components/competitions/CompetitionDetailsNavigation";
 import { CompetitionPreviewWarning } from "~/components/competitions/CompetitionPreviewWarning";
-import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
 import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
 import { PreviewMetricDialog } from "~/components/competitions/PreviewMetricDialog";
 import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAllParticipantsDialog";
@@ -79,7 +78,6 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
       {children}
 
       {/* Dialogs */}
-      <DeleteCompetitionDialog competitionId={id} />
       <ExportCompetitionDialog competitionId={id} />
       <UpdateAllParticipantsDialog competitionId={id} />
       {/* TODO: Fix this */}
@@ -149,9 +147,6 @@ function Header(props: CompetitionDetailsResponse) {
             <Link prefetch={false} href={`/competitions/${id}/edit`} rel="nofollow">
               <DropdownMenuItem>Edit</DropdownMenuItem>
             </Link>
-            <QueryLink query={{ dialog: "delete" }}>
-              <DropdownMenuItem>Delete</DropdownMenuItem>
-            </QueryLink>
             <QueryLink query={{ dialog: "preview" }}>
               <DropdownMenuItem>Preview as...</DropdownMenuItem>
             </QueryLink>
