@@ -26,7 +26,7 @@ const userSchema = z.object({
   id: z.string(),
   type: z.literal('user'),
   attributes: z.object({
-    full_name: z.string(),
+    full_name: z.string().nullable().optional(),
     social_connections: z.optional(
       z.object({
         discord: z.object({ user_id: z.string() }).or(z.null())
@@ -133,7 +133,7 @@ export async function getPatrons(): AsyncResult<
     return {
       patron: {
         id: user.data.id,
-        name: full_name,
+        name: full_name ?? null,
         email: email ?? null,
         discordId: discordId ?? null,
         tier: isTier2 ? 2 : 1,
