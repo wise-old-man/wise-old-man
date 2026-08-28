@@ -97,7 +97,7 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
         newCachedDeltasMap.set(metric, {
           ...commonProps,
           metric,
-          value: prepareDecimalValue(metric, Math.min(value, 2147483647))
+          value
         });
       }
     }
@@ -139,7 +139,10 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
         }
       }),
       prisma.cachedDelta.createMany({
-        data: newCachedDeltas
+        data: Array.from(newCachedDeltasMap.values()).map(c => ({
+          ...c,
+          value: prepareDecimalValue(c.metric, Math.min(c.value, 2147483647))
+        }))
       })
     ]);
 
