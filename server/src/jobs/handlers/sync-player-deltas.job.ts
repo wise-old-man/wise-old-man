@@ -97,8 +97,10 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
       }
     }
 
+    const shouldPersist = SUPPORTED_CACHED_DELTA_PERIODS.includes(period);
+
     if (newDeltaValueMap.size === 0) {
-      if (!SUPPORTED_CACHED_DELTA_PERIODS.includes(period)) {
+      if (!shouldPersist) {
         return;
       }
 
@@ -113,8 +115,8 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
       return;
     }
 
-    if (SUPPORTED_CACHED_DELTA_PERIODS.includes(period)) {
-      const newCachedDeltas = Array.from(newDeltaValueMap.entries()).map(([metric, value]) => ({
+    if (shouldPersist) {
+      const newCachedDeltas = Array.from(newDeltaValueMap, ([metric, value]) => ({
         playerId: player.id,
         period,
         startedAt: startSnapshot.createdAt,
@@ -157,7 +159,7 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
         username,
         period,
         startSnapshotDate: startSnapshot.createdAt,
-        deltas: Array.from(newDeltaValueMap.entries().map(([metric, value]) => ({ metric, value })))
+        deltas: Array.from(newDeltaValueMap, ([metric, value]) => ({ metric, value }))
       });
     }
   }
