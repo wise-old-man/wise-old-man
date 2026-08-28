@@ -1,4 +1,4 @@
-import { GroupRole, Metric, Period, PlayerType } from '../../../types';
+import { GroupRole, Metric, PlayerType } from '../../../types';
 import { FlaggedPlayerReviewContextResponse } from '../../responses';
 import { EventType } from './event-type.enum';
 
@@ -69,11 +69,6 @@ export type EventPayloadMap = {
   [EventType.PLAYER_ARCHIVED]: {
     username: string;
     previousUsername: string;
-  };
-  [EventType.PLAYER_DELTA_UPDATED]: {
-    username: string;
-    period: Period;
-    isPotentialRecord: boolean;
   };
   [EventType.PLAYER_FLAGGED]: {
     username: string;

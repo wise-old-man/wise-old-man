@@ -1,11 +1,12 @@
-import { eventEmitter, EventType } from '../../api/events';
 import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
 import prisma from '../../prisma';
 import { CachedDelta, Metric, METRICS, Period } from '../../types';
 import { selectRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
+import { pick } from '../../utils/pick.util';
 import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
 import { isActivity, isBoss, isComputedMetric, isSkill, PeriodProps } from '../../utils/shared';
-import { JobHandler } from '../types/job-handler.type';
+import { JobHandler, JobHandlerContext } from '../types/job-handler.type';
+import { JobType } from '../types/job-type.enum';
 
 interface Payload {
   username: string;
@@ -21,7 +22,7 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
     return [payload.username, payload.period].join('_');
   },
 
-  async execute({ username, period }: Payload) {
+  async execute({ username, period }: Payload, context: JobHandlerContext) {
     const data = await prisma.player.findFirst({
       where: {
         username
@@ -142,10 +143,13 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
       })
     ]);
 
-    eventEmitter.emit(EventType.PLAYER_DELTA_UPDATED, {
-      username,
-      period,
-      isPotentialRecord: previousDeltas.length === 0 || hasImprovements
-    });
+    if (previousDeltas.length === 0 || hasImprovements) {
+      context.jobManager.add(JobType.SYNC_PLAYER_RECORDS, {
+        username,
+        period,
+        startSnapshotDate: startSnapshot.createdAt,
+        deltas: newCachedDeltas.map(c => pick(c, 'metric', 'value'))
+      });
+    }
   }
 };
