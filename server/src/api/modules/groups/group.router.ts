@@ -22,9 +22,11 @@ import { checkAdminPermission, checkGroupVerificationCode } from '../../util/mid
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
 import {
+  MAX_INT_4,
   getDateSchema,
   getPaginationSchema,
   groupRoleOrderSchema,
+  idSchema,
   memberSchema,
   socialLinksSchema
 } from '../../util/validation';
@@ -79,7 +81,7 @@ router.post(
     body: z.object({
       name: z.string().min(1).max(30),
       clanChat: z.optional(z.string().min(1).max(12)),
-      homeworld: z.optional(z.number().int().positive()),
+      homeworld: z.optional(z.number().int().positive().max(MAX_INT_4)),
       description: z.optional(z.string().min(1).max(100)),
       members: z.array(memberSchema)
     })
@@ -110,12 +112,12 @@ router.put(
   checkGroupVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       name: z.optional(z.string().min(1).max(30)),
       clanChat: z.optional(z.string().min(1).max(12)),
-      homeworld: z.optional(z.number().int().positive()),
+      homeworld: z.optional(z.number().int().positive().max(MAX_INT_4)),
       description: z.optional(z.string().min(1).max(100)),
       bannerImage: z.optional(z.string().max(255).url()),
       profileImage: z.optional(z.string().max(255).url()),
@@ -167,7 +169,7 @@ router.get(
   '/groups/:id',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -185,7 +187,7 @@ router.delete(
   checkGroupVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -201,7 +203,7 @@ router.post(
   checkGroupVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       members: z.array(memberSchema).nonempty()
@@ -225,7 +227,7 @@ router.delete(
   checkGroupVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       members: z.array(z.coerce.string()).nonempty()
@@ -249,7 +251,7 @@ router.put(
   checkGroupVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       username: z.string(),
@@ -275,7 +277,7 @@ router.get(
   '/groups/:id/csv',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -290,7 +292,7 @@ router.get(
   '/groups/:id/hiscores',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: z.object({
       metric: z.nativeEnum(Metric)
@@ -323,7 +325,7 @@ router.get(
   '/groups/:id/bulk-hiscores',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -353,7 +355,7 @@ router.get(
   '/groups/:id/activity',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: getPaginationSchema()
   }),
@@ -376,7 +378,7 @@ router.get(
   '/groups/:id/statistics',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -391,7 +393,7 @@ router.get(
   '/groups/:id/competitions',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -418,7 +420,7 @@ router.get(
   '/groups/:id/gained',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: z
       .object({
@@ -478,7 +480,7 @@ router.get(
   '/groups/:id/bulk-gained',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: z.union([
       z.object({
@@ -530,7 +532,7 @@ router.get(
   '/groups/:id/records',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: z
       .object({
@@ -558,7 +560,7 @@ router.get(
   '/groups/:id/achievements',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: getPaginationSchema()
   }),
@@ -590,7 +592,7 @@ router.get(
   '/groups/:id/name-changes',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: getPaginationSchema()
   }),
@@ -614,7 +616,7 @@ router.post(
   checkGroupVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -647,7 +649,7 @@ router.put(
   checkAdminPermission,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -663,7 +665,7 @@ router.put(
   checkAdminPermission,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {

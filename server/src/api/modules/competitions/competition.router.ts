@@ -13,7 +13,7 @@ import {
 import { checkAdminPermission, checkCompetitionVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
-import { getDateSchema, getPaginationSchema, teamSchema } from '../../util/validation';
+import { getDateSchema, getPaginationSchema, idSchema, teamSchema } from '../../util/validation';
 import { addParticipants } from './services/AddParticipantsService';
 import { addTeams } from './services/AddTeamsService';
 import { createCompetition } from './services/CreateCompetitionService';
@@ -90,7 +90,7 @@ router.post(
       metrics: z.array(z.nativeEnum(Metric)).min(1),
       startsAt: getDateSchema('startsAt'),
       endsAt: getDateSchema('endsAt'),
-      groupId: z.optional(z.number().int().positive()),
+      groupId: z.optional(idSchema),
       groupVerificationCode: z.optional(z.string()),
       participants: z.optional(z.array(z.string())),
       teams: z.optional(z.array(teamSchema))
@@ -201,7 +201,7 @@ router.put(
   },
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       title: z.optional(z.string().min(1).max(50)),
@@ -279,7 +279,7 @@ router.get(
   '/competitions/:id',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: z.object({
       metric: z.optional(z.nativeEnum(Metric))
@@ -300,7 +300,7 @@ router.get(
   '/competitions/:id/csv',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: z.object({
       metric: z.optional(z.nativeEnum(Metric)),
@@ -332,7 +332,7 @@ router.get(
   '/competitions/:id/top-history',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: z.object({
       metric: z.optional(z.nativeEnum(Metric)),
@@ -355,7 +355,7 @@ router.delete(
   checkCompetitionVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -385,7 +385,7 @@ router.post(
   checkCompetitionVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       participants: z.array(z.coerce.string()).nonempty()
@@ -427,7 +427,7 @@ router.delete(
   checkCompetitionVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       participants: z.array(z.coerce.string()).nonempty()
@@ -464,7 +464,7 @@ router.post(
   checkCompetitionVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       teams: z.array(teamSchema).nonempty()
@@ -507,7 +507,7 @@ router.delete(
   checkCompetitionVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       teamNames: z.array(z.coerce.string()).nonempty()
@@ -531,7 +531,7 @@ router.post(
   checkCompetitionVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -565,7 +565,7 @@ router.put(
   checkAdminPermission,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {

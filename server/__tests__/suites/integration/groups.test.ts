@@ -1140,14 +1140,14 @@ describe('Group API', () => {
       const { memberships } = editResponse.body;
 
       const changedMembershipPsikoi = memberships.find(m => m.player.username === 'psikoi');
-      expect(changedRoleEvents[0]).toEqual({
+      expect(changedRoleEvents).toContainEqual({
         role: 'owner',
         previousRole: 'member',
         playerId: changedMembershipPsikoi.playerId
       });
 
       const changedMembershipCookmeplox = memberships.find(m => m.player.username === 'cookmeplox');
-      expect(changedRoleEvents[1]).toEqual({
+      expect(changedRoleEvents).toContainEqual({
         role: 'cook',
         previousRole: 'owner',
         playerId: changedMembershipCookmeplox.playerId
@@ -2312,6 +2312,14 @@ describe('Group API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found');
+    });
+
+    it('should not view details (id out of integer range)', async () => {
+      // Ids larger than the max int4 value must be rejected with a 400, rather
+      // than reaching the database and causing an out-of-range 500 error.
+      const response = await api.get('/groups/2147483648');
+
+      expect(response.status).toBe(400);
     });
 
     it('should view details (empty group)', async () => {

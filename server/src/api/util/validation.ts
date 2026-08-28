@@ -70,6 +70,20 @@ z.setErrorMap((baseIssue, ctx) => {
   return { message: ctx.defaultError };
 });
 
+// The maximum value for a PostgreSQL `integer` (int4) column. Resource ids and
+// other int4-backed fields must not exceed this, otherwise the query throws a
+// "value out of range for type integer" error at the database layer (500).
+export const MAX_INT_4 = 2147483647;
+
+// Shared schema for validating resource ids (and other int4-backed numeric
+// fields). Coerces strings from path/query params, and enforces the int4 upper
+// bound so out-of-range values are rejected as 400s instead of crashing.
+export const idSchema = z.coerce
+  .number()
+  .int()
+  .positive()
+  .max(MAX_INT_4, `Parameter 'id' must be a valid integer.`);
+
 export type PaginationOptions = {
   limit: number;
   offset: number;
