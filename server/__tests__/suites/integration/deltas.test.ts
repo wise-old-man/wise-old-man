@@ -174,17 +174,19 @@ describe('Deltas API', () => {
         where: { playerId: firstTrackResponse.body.id }
       });
 
-      expect(secondCachedDeltas.length).toBe(12);
-      expect(secondCachedDeltas.filter(c => c.metric === Metric.EHP && c.value > 0.1).length).toBe(3);
-      expect(secondCachedDeltas.filter(c => c.metric === Metric.EHB && c.value > 0.1).length).toBe(3);
-      expect(secondCachedDeltas.filter(c => c.metric === Metric.NEX && c.value === 53).length).toBe(3);
+      /**
+       * Note, although 3 periods were synced, only 2 (week & day) were persisted into CacheDeltas
+       */
+      expect(secondCachedDeltas.length).toBe(8);
+      expect(secondCachedDeltas.filter(c => c.metric === Metric.EHP && c.value > 0.1).length).toBe(2);
+      expect(secondCachedDeltas.filter(c => c.metric === Metric.EHB && c.value > 0.1).length).toBe(2);
+      expect(secondCachedDeltas.filter(c => c.metric === Metric.NEX && c.value === 53).length).toBe(2);
 
       const smithingCachedDeltas = secondCachedDeltas.filter(c => c.metric === Metric.SMITHING);
-      expect(smithingCachedDeltas.length).toBe(3);
-      expect(smithingCachedDeltas.filter(c => c.value === 50_000).length).toBe(3);
+      expect(smithingCachedDeltas.length).toBe(2);
+      expect(smithingCachedDeltas.filter(c => c.value === 50_000).length).toBe(2);
       expect(smithingCachedDeltas.map(c => c.period)).toContain('week');
       expect(smithingCachedDeltas.map(c => c.period)).toContain('month');
-      expect(smithingCachedDeltas.map(c => c.period)).toContain('year');
 
       // All deltas' end snapshot is the latest one
       expect(secondCachedDeltas.filter(d => Date.now() - d.endedAt.getTime() > 10_000).length).toBe(0);

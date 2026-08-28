@@ -10,10 +10,9 @@ interface Payload {
   username: string;
   period: Period;
 
-  // TODO: make required soon!
-  startSnapshotDate?: Date;
+  startSnapshotDate: Date;
 
-  deltas?: Array<{
+  deltas: Array<{
     metric: Metric;
     value: number;
   }>;
@@ -29,33 +28,31 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
   },
 
   async execute(payload: Payload) {
-    const currentDeltas = await prisma.cachedDelta.findMany({
-      where: {
-        player: {
-          username: payload.username
-        },
-        period: payload.period
-      }
+    const player = await prisma.player.findFirst({
+      where: { username: payload.username },
+      select: { id: true }
     });
 
-    if (currentDeltas.length === 0) {
+    if (player === null) {
       return;
     }
 
-    const playerId = currentDeltas[0].playerId;
-
     const [currentRecords, previousSnapshot] = await Promise.all([
       prisma.record.findMany({
+        select: {
+          metric: true,
+          value: true
+        },
         where: {
-          playerId,
+          playerId: player.id,
           period: payload.period
         }
       }),
       prisma.snapshot.findFirst({
         select: selectRequiredSnapshotFields(METRICS), // Only select value fields, not ranks
         where: {
-          playerId,
-          createdAt: currentDeltas[0].startedAt
+          playerId: player.id,
+          createdAt: payload.startSnapshotDate
         }
       })
     ]);
@@ -64,7 +61,7 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
       return;
     }
 
-    const currentDeltasMap = new Map(currentDeltas.map(d => [d.metric, d]));
+    const currentDeltasMap = new Map(payload.deltas.map(d => [d.metric, d]));
     const currentRecordsMap = new Map(currentRecords.map(r => [r.metric, r]));
 
     const toUpsert: { metric: Metric; value: number }[] = [];
@@ -106,7 +103,7 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
 
     await prisma.$executeRaw`
       INSERT INTO public.records ("playerId", "period", "metric", "value", "updatedAt")
-      SELECT ${playerId}, ${payload.period}::period, r.metric, r.value, NOW()
+      SELECT ${player.id}, ${payload.period}::period, r.metric, r.value, NOW()
       FROM UNNEST(
         ${toUpsert.map(u => u.metric)}::metric[],
         ${toUpsert.map(u => u.value)}::bigint[]

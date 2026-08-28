@@ -1,12 +1,18 @@
 import { calculatePlayerDeltas } from '../../api/modules/deltas/delta.utils';
 import prisma from '../../prisma';
-import { CachedDelta, Metric, METRICS, Period } from '../../types';
+import { Metric, METRICS, Period } from '../../types';
 import { selectRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
-import { pick } from '../../utils/pick.util';
 import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
 import { isActivity, isBoss, isComputedMetric, isSkill, PeriodProps } from '../../utils/shared';
 import { JobHandler, JobHandlerContext } from '../types/job-handler.type';
 import { JobType } from '../types/job-type.enum';
+
+/**
+ * Previously, we were persiting deltas for all periods, but we actually only showed 3 of them on the website.
+ * Considering yearly cached deltas accounted for 63% of disk usage and Postgres churn, it's best to
+ * only persist the deltas that are actually used on the website.
+ */
+const SUPPORTED_CACHED_DELTA_PERIODS = [Period.DAY, Period.WEEK, Period.MONTH];
 
 interface Payload {
   username: string;
@@ -42,6 +48,10 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
 
     const [previousDeltas, startSnapshot] = await Promise.all([
       prisma.cachedDelta.findMany({
+        select: {
+          metric: true,
+          value: true
+        },
         where: {
           playerId: player.id,
           period
@@ -64,21 +74,10 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
       return;
     }
 
-    const previousCachedDeltasMap = new Map<Metric, CachedDelta>(
-      previousDeltas.map(cachedDelta => [cachedDelta.metric, cachedDelta])
-    );
-
-    const newCachedDeltasMap = new Map<Metric, CachedDelta>();
+    const previousDeltaValueMap = new Map(previousDeltas.map(c => [c.metric, c.value]));
+    const newDeltaValueMap = new Map<Metric, number>();
 
     const periodDiffs = calculatePlayerDeltas(startSnapshot, latestSnapshot, player);
-
-    const commonProps = {
-      playerId: player.id,
-      period,
-      startedAt: startSnapshot.createdAt,
-      endedAt: latestSnapshot.createdAt,
-      updatedAt: new Date()
-    };
 
     for (const metric of METRICS) {
       let value = 0;
@@ -94,16 +93,18 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
       }
 
       if (value > 0) {
-        newCachedDeltasMap.set(metric, {
-          ...commonProps,
-          metric,
-          value
-        });
+        newDeltaValueMap.set(metric, value);
       }
     }
 
-    // If has no gains in any metric, clear all deltas for this period and return early
-    if (newCachedDeltasMap.size === 0) {
+    const shouldPersist = SUPPORTED_CACHED_DELTA_PERIODS.includes(period);
+
+    if (newDeltaValueMap.size === 0) {
+      if (!shouldPersist) {
+        return;
+      }
+
+      // If has no gains in any metric, clear all deltas for this period and return early
       await prisma.cachedDelta.deleteMany({
         where: {
           playerId: player.id,
@@ -114,13 +115,37 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
       return;
     }
 
-    // if any metric has improved since the last delta sync, it is a potential record
+    if (shouldPersist) {
+      const newCachedDeltas = Array.from(newDeltaValueMap, ([metric, value]) => ({
+        playerId: player.id,
+        period,
+        startedAt: startSnapshot.createdAt,
+        endedAt: latestSnapshot.createdAt,
+        updatedAt: new Date(),
+        metric,
+        value: prepareDecimalValue(metric, Math.min(value, 2147483647))
+      }));
+
+      await prisma.$transaction([
+        prisma.cachedDelta.deleteMany({
+          where: {
+            playerId: player.id,
+            period
+          }
+        }),
+        prisma.cachedDelta.createMany({
+          data: newCachedDeltas
+        })
+      ]);
+    }
+
+    // If any metric has improved since the last delta sync, it is a potential record
     // and we should also check for new records in this period
     const hasImprovements =
       previousDeltas.length !== 0 &&
       METRICS.some(metric => {
-        const previousValue = previousCachedDeltasMap.get(metric)?.value;
-        const newValue = newCachedDeltasMap.get(metric)?.value;
+        const previousValue = previousDeltaValueMap.get(metric);
+        const newValue = newDeltaValueMap.get(metric);
 
         if (newValue === undefined) {
           return false;
@@ -129,29 +154,12 @@ export const SyncPlayerDeltasJobHandler: JobHandler<Payload> = {
         return previousValue === undefined || newValue > previousValue;
       });
 
-    const newCachedDeltas = Array.from(newCachedDeltasMap.values());
-
-    await prisma.$transaction([
-      prisma.cachedDelta.deleteMany({
-        where: {
-          playerId: player.id,
-          period
-        }
-      }),
-      prisma.cachedDelta.createMany({
-        data: Array.from(newCachedDeltasMap.values()).map(c => ({
-          ...c,
-          value: prepareDecimalValue(c.metric, Math.min(c.value, 2147483647))
-        }))
-      })
-    ]);
-
     if (previousDeltas.length === 0 || hasImprovements) {
       context.jobManager.add(JobType.SYNC_PLAYER_RECORDS, {
         username,
         period,
         startSnapshotDate: startSnapshot.createdAt,
-        deltas: newCachedDeltas.map(c => pick(c, 'metric', 'value'))
+        deltas: Array.from(newDeltaValueMap, ([metric, value]) => ({ metric, value }))
       });
     }
   }
