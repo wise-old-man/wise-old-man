@@ -9,6 +9,14 @@ import { JobHandler } from '../types/job-handler.type';
 interface Payload {
   username: string;
   period: Period;
+
+  // TODO: make required soon!
+  startSnapshotDate?: Date;
+
+  deltas?: Array<{
+    metric: Metric;
+    value: number;
+  }>;
 }
 
 export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {

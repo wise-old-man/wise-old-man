@@ -16,7 +16,6 @@ import * as GroupUpdated from './handlers/group-updated.event';
 import * as NameChangeCreated from './handlers/name-change-created.event';
 import * as PlayerAchievementsCreated from './handlers/player-achievements-created.event';
 import * as PlayerArchived from './handlers/player-archived.event';
-import * as PlayerDeltaUpdated from './handlers/player-delta-updated.event';
 import * as PlayerFlagged from './handlers/player-flagged.event';
 import * as PlayerNameChanged from './handlers/player-name-changed.event';
 import * as PlayerTypeChanged from './handlers/player-type-changed.event';
@@ -53,7 +52,6 @@ export class TypedEventEmitter extends EventEmitter {
     this.on(EventType.NAME_CHANGE_CREATED, NameChangeCreated.handler);
     this.on(EventType.PLAYER_ACHIEVEMENTS_CREATED, PlayerAchievementsCreated.handler);
     this.on(EventType.PLAYER_ARCHIVED, PlayerArchived.handler);
-    this.on(EventType.PLAYER_DELTA_UPDATED, PlayerDeltaUpdated.handler);
     this.on(EventType.PLAYER_FLAGGED, PlayerFlagged.handler);
     this.on(EventType.PLAYER_NAME_CHANGED, PlayerNameChanged.handler);
     this.on(EventType.PLAYER_TYPE_CHANGED, PlayerTypeChanged.handler);

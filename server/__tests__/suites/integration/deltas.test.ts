@@ -3,10 +3,10 @@ import MockAdapter from 'axios-mock-adapter';
 import supertest from 'supertest';
 import APIInstance from '../../../src/api';
 import { eventEmitter } from '../../../src/api/events';
-import * as PlayerDeltaUpdatedEvent from '../../../src/api/events/handlers/player-delta-updated.event';
 import { findBulkGroupDeltas } from '../../../src/api/modules/deltas/services/FindBulkGroupDeltasService';
 import { findGroupDeltas } from '../../../src/api/modules/deltas/services/FindGroupDeltasService';
 import { findPlayerDeltas } from '../../../src/api/modules/deltas/services/FindPlayerDeltasService';
+import { jobManager, JobType } from '../../../src/jobs';
 import prisma from '../../../src/prisma';
 import { redisClient } from '../../../src/services/redis.service';
 import { Metric, METRICS, PlayerType } from '../../../src/types';
@@ -23,7 +23,7 @@ import {
 const api = supertest(new APIInstance().init().express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const playerDeltaUpdatedEvent = jest.spyOn(PlayerDeltaUpdatedEvent, 'handler');
+let jobManagerAddSpy: jest.SpyInstance;
 
 const globalData = {
   hiscoresRawData: '',
@@ -33,7 +33,10 @@ const globalData = {
 };
 
 beforeEach(() => {
+  // jest.resetAllMocks() strips the pass-through behavior from spies, so restore before resetting
+  jobManagerAddSpy?.mockRestore();
   jest.resetAllMocks();
+  jobManagerAddSpy = jest.spyOn(jobManager, 'add');
 
   // re-init the event emitter to re-attach the mocked event handlers
   eventEmitter.init();
@@ -68,7 +71,9 @@ describe('Deltas API', () => {
       // Wait for the deltas to update
       await sleep(100);
 
-      expect(playerDeltaUpdatedEvent).not.toHaveBeenCalled();
+      expect(
+        jobManagerAddSpy.mock.calls.filter(call => call[0] === JobType.SYNC_PLAYER_RECORDS)
+      ).toHaveLength(0);
 
       const firstCachedDeltas = await prisma.cachedDelta.findMany({
         where: { playerId: firstTrackResponse.body.id }
@@ -83,7 +88,9 @@ describe('Deltas API', () => {
       // Wait for the deltas to update
       await sleep(100);
 
-      expect(playerDeltaUpdatedEvent).not.toHaveBeenCalled();
+      expect(
+        jobManagerAddSpy.mock.calls.filter(call => call[0] === JobType.SYNC_PLAYER_RECORDS)
+      ).toHaveLength(0);
 
       const secondCachedDeltas = await prisma.cachedDelta.findMany({
         where: { playerId: secondTrackResponse.body.id }
@@ -110,7 +117,9 @@ describe('Deltas API', () => {
       // Wait for the deltas to update
       await sleep(100);
 
-      expect(playerDeltaUpdatedEvent).not.toHaveBeenCalled();
+      expect(
+        jobManagerAddSpy.mock.calls.filter(call => call[0] === JobType.SYNC_PLAYER_RECORDS)
+      ).toHaveLength(0);
 
       const firstCachedDeltas = await prisma.cachedDelta.findMany({
         where: { playerId: firstTrackResponse.body.id }
@@ -142,19 +151,24 @@ describe('Deltas API', () => {
       await sleep(100);
 
       // Only week, month and year deltas were updated, since the previous update was 3 days ago (> day & five_min)
-      expect(playerDeltaUpdatedEvent).toHaveBeenCalledTimes(3);
+      expect(
+        jobManagerAddSpy.mock.calls.filter(call => call[0] === JobType.SYNC_PLAYER_RECORDS)
+      ).toHaveLength(3);
       // On a player's first update, all their deltas are potential records
-      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'week', isPotentialRecord: true })
+      expect(jobManagerAddSpy).toHaveBeenCalledWith(
+        JobType.SYNC_PLAYER_RECORDS,
+        expect.objectContaining({ period: 'week' })
       );
-      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'month', isPotentialRecord: true })
+      expect(jobManagerAddSpy).toHaveBeenCalledWith(
+        JobType.SYNC_PLAYER_RECORDS,
+        expect.objectContaining({ period: 'month' })
       );
-      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'year', isPotentialRecord: true })
+      expect(jobManagerAddSpy).toHaveBeenCalledWith(
+        JobType.SYNC_PLAYER_RECORDS,
+        expect.objectContaining({ period: 'year' })
       );
 
-      playerDeltaUpdatedEvent.mockClear();
+      jobManagerAddSpy.mockClear();
 
       const secondCachedDeltas = await prisma.cachedDelta.findMany({
         where: { playerId: firstTrackResponse.body.id }
@@ -199,25 +213,32 @@ describe('Deltas API', () => {
       await sleep(100);
 
       // All (5) new deltas are an improvement over the previous, so they should be considered for record checks
-      expect(playerDeltaUpdatedEvent).toHaveBeenCalledTimes(5);
+      expect(
+        jobManagerAddSpy.mock.calls.filter(call => call[0] === JobType.SYNC_PLAYER_RECORDS)
+      ).toHaveLength(5);
       // The player has now been updated within seconds of the last update, so their day and five_min deltas should update
-      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'five_min', isPotentialRecord: true })
+      expect(jobManagerAddSpy).toHaveBeenCalledWith(
+        JobType.SYNC_PLAYER_RECORDS,
+        expect.objectContaining({ period: 'five_min' })
       );
-      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'day', isPotentialRecord: true })
+      expect(jobManagerAddSpy).toHaveBeenCalledWith(
+        JobType.SYNC_PLAYER_RECORDS,
+        expect.objectContaining({ period: 'day' })
       );
-      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'week', isPotentialRecord: true })
+      expect(jobManagerAddSpy).toHaveBeenCalledWith(
+        JobType.SYNC_PLAYER_RECORDS,
+        expect.objectContaining({ period: 'week' })
       );
-      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'month', isPotentialRecord: true })
+      expect(jobManagerAddSpy).toHaveBeenCalledWith(
+        JobType.SYNC_PLAYER_RECORDS,
+        expect.objectContaining({ period: 'month' })
       );
-      expect(playerDeltaUpdatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ period: 'year', isPotentialRecord: true })
+      expect(jobManagerAddSpy).toHaveBeenCalledWith(
+        JobType.SYNC_PLAYER_RECORDS,
+        expect.objectContaining({ period: 'year' })
       );
 
-      playerDeltaUpdatedEvent.mockClear();
+      jobManagerAddSpy.mockClear();
 
       const dayCachedDeltas = (await prisma.cachedDelta.findMany({
         where: { playerId: firstTrackResponse.body.id, period: 'day' }
