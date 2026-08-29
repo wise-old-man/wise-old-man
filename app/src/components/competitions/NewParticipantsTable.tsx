@@ -52,7 +52,7 @@ export function NewParticipantsTable({ teamName }: { teamName?: string }) {
       columns={columns}
       data={showOnlyOutdated ? outdatedParticipants : rows}
       enablePagination
-      defaultPageSize={20}
+      defaultPageSize={teamName === undefined ? 20 : 100_000}
       headerSlot={
         <TableTitle className="flex-col p-0">
           <div className="flex w-full items-center justify-between px-5 py-4">
