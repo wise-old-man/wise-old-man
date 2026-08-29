@@ -19,6 +19,7 @@ setup() {
     export NODE_ENV=test
     export SERVER_TYPE=dev
     export TZ=UTC;
+    export PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=yes
     prisma migrate reset --force;
 }
 

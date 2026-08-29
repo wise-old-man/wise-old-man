@@ -47,9 +47,9 @@ async function calculateScore(competition: Competition): Promise<number> {
     return score;
   }
 
-  const { group, metrics, participations, sortingMetricIndex } = await fetchCompetitionDetails(
-    competition.id
-  );
+  const { group, metrics, participations, sortingMetricIndex } = await fetchCompetitionDetails({
+    id: competition.id
+  });
 
   const activeParticipants = participations.filter(p => p.deltas[sortingMetricIndex].values.gained > 0);
 

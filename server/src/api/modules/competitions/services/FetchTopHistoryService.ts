@@ -16,7 +16,7 @@ export async function fetchCompetitionTopHistory(
     }>;
   }>
 > {
-  const { competition, metrics, participations } = await fetchCompetitionDetails(id, metric);
+  const { competition, metrics, participations } = await fetchCompetitionDetails({ id, metric });
 
   const topPlayers = participations.slice(0, limit).map(p => p.player);
 

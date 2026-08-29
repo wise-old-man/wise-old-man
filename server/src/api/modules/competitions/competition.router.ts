@@ -13,7 +13,13 @@ import {
 import { checkAdminPermission, checkCompetitionVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
-import { getDateSchema, getPaginationSchema, idSchema, teamSchema } from '../../util/validation';
+import {
+  getDateSchema,
+  getPaginationSchema,
+  idSchema,
+  queryParamStringArray,
+  teamSchema
+} from '../../util/validation';
 import { addParticipants } from './services/AddParticipantsService';
 import { addTeams } from './services/AddTeamsService';
 import { createCompetition } from './services/CreateCompetitionService';
@@ -164,7 +170,7 @@ router.post(
       ipHash
     });
 
-    const details = await fetchCompetitionDetails(competition.id);
+    const details = await fetchCompetitionDetails({ id: competition.id });
 
     const response = {
       verificationCode: verificationCode,
@@ -268,7 +274,7 @@ router.put(
       ipHash: getRequestIpHash(req)
     });
 
-    const details = await fetchCompetitionDetails(updateResult.value.id);
+    const details = await fetchCompetitionDetails({ id: updateResult.value.id });
     const response = formatCompetitionDetailsResponse(details);
 
     res.status(200).json(response);
@@ -282,14 +288,22 @@ router.get(
       id: idSchema
     }),
     query: z.object({
-      metric: z.optional(z.nativeEnum(Metric))
+      metric: z.optional(z.nativeEnum(Metric)),
+      filter: z.optional(
+        z.object({
+          usernames: queryParamStringArray,
+          startDate: getDateSchema('startDate'),
+          endDate: getDateSchema('endDate')
+        })
+      )
     })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric } = req.query;
+    const { metric, filter } = req.query;
 
-    const details = await fetchCompetitionDetails(id, metric);
+    const details = await fetchCompetitionDetails({ id, metric, filter });
+
     const response = formatCompetitionDetailsResponse(details);
 
     res.status(200).json(response);

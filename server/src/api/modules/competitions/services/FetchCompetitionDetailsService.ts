@@ -1,14 +1,38 @@
 import prisma from '../../../../prisma';
-import { Competition, CompetitionMetric, Group, Metric, Participation, Player } from '../../../../types';
+import {
+  Competition,
+  CompetitionMetric,
+  Group,
+  Metric,
+  Participation,
+  Player,
+  Snapshot
+} from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
 import { calculateCompetitionDelta } from '../../../../utils/calculate-competition-delta.util';
-import { selectRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
-import { NotFoundError } from '../../../errors';
+import {
+  getRequiredSnapshotFields,
+  selectRequiredSnapshotFields
+} from '../../../../utils/get-required-snapshot-fields.util';
+import { BadRequestError, NotFoundError } from '../../../errors';
+import { standardizeUsername } from '../../players/player.utils';
+import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 
-export async function fetchCompetitionDetails(
-  id: number,
-  metric?: Metric
-): Promise<{
+type Filter = {
+  usernames: string[];
+  startDate: Date;
+  endDate: Date;
+};
+
+export async function fetchCompetitionDetails({
+  id,
+  metric,
+  filter
+}: {
+  id: number;
+  metric?: Metric;
+  filter?: Filter;
+}): Promise<{
   competition: Competition;
   metrics: CompetitionMetric[];
   group: (Group & { memberCount: number }) | null;
@@ -23,6 +47,10 @@ export async function fetchCompetitionDetails(
   }>;
   sortingMetricIndex: number;
 }> {
+  if (filter && filter.startDate >= filter.endDate) {
+    throw new BadRequestError('Min date must be before the max date.');
+  }
+
   const competition = await prisma.competition.findFirst({
     where: {
       id
@@ -59,7 +87,10 @@ export async function fetchCompetitionDetails(
     ...(metric === undefined || competitionMetrics.includes(metric) ? [] : [metric])
   ];
 
-  const participants = await calculateParticipantDeltas(id, selectedMetrics);
+  const participants = calculateParticipantDeltas(
+    await fetchParticipantData(id, selectedMetrics, filter),
+    selectedMetrics
+  );
 
   /**
    * For backwards compat:
@@ -93,38 +124,93 @@ export async function fetchCompetitionDetails(
   };
 }
 
-async function calculateParticipantDeltas(
+async function fetchParticipantData(
   competitionId: number,
-  metrics: Metric[]
+  metrics: Metric[],
+  filter?: Filter
 ): Promise<
-  Array<{
-    participation: Participation;
-    player: Player;
-    deltas: Array<{
-      metric: Metric | 'total';
-      values: MetricDelta;
-      levels: MetricDelta;
-    }>;
-  }>
+  Array<
+    Participation & {
+      player: Player;
+      startSnapshot: Snapshot | null;
+      endSnapshot: Snapshot | null;
+    }
+  >
 > {
-  const selectedSnapshotFields = selectRequiredSnapshotFields(metrics);
+  if (filter === undefined) {
+    const selectedSnapshotFields = selectRequiredSnapshotFields(metrics);
 
-  const participations = await prisma.participation.findMany({
-    where: { competitionId },
-    include: {
-      player: true,
-      startSnapshot: {
-        select: selectedSnapshotFields
+    return prisma.participation.findMany({
+      where: {
+        competitionId
       },
-      endSnapshot: {
-        select: selectedSnapshotFields
+      include: {
+        player: true,
+        startSnapshot: {
+          select: selectedSnapshotFields
+        },
+        endSnapshot: {
+          select: selectedSnapshotFields
+        }
       }
+    });
+  }
+
+  const participants = await prisma.participation.findMany({
+    where: {
+      competitionId,
+      player: {
+        username: {
+          in: filter.usernames.map(standardizeUsername)
+        }
+      }
+    },
+    include: {
+      player: true
     }
   });
 
+  const snapshotFields = getRequiredSnapshotFields(metrics);
+  const playerIds = participants.map(p => p.playerId);
+
+  const [startSnapshots, endSnapshots] = await Promise.all([
+    findGroupSnapshots(playerIds, {
+      pick: 'first',
+      select: snapshotFields,
+      minDate: filter.startDate,
+      maxDate: filter.endDate
+    }),
+    findGroupSnapshots(playerIds, {
+      pick: 'last',
+      select: snapshotFields,
+      minDate: filter.startDate,
+      maxDate: filter.endDate
+    })
+  ]);
+
+  const startSnapshotMap = new Map(startSnapshots.map(s => [s.playerId, s]));
+  const endSnapshotMap = new Map(endSnapshots.map(s => [s.playerId, s]));
+
+  return participants.map(p => ({
+    ...p,
+    startSnapshot: startSnapshotMap.get(p.playerId) ?? null,
+    endSnapshot: endSnapshotMap.get(p.playerId) ?? null
+  }));
+}
+
+function calculateParticipantDeltas(
+  participants: Array<
+    Participation & {
+      player: Player;
+      startSnapshot: Snapshot | null;
+      endSnapshot: Snapshot | null;
+    }
+  >,
+  metrics: Metric[]
+) {
   const includeTotalDeltas = metrics.length > 1;
 
-  return participations.map(p => {
+  return participants.map(p => {
     const { player, startSnapshot, endSnapshot, ...participation } = p;
 
     if (!startSnapshot || !endSnapshot) {
