@@ -16,7 +16,7 @@ function Navigation(props: PropsWithChildren) {
         <div className="shrink-0">
           <SideNavigation isSidebarOpen={isSidebarOpen} onSidebarClosed={() => setSidebarOpen(false)} />
         </div>
-        <main className="grow overflow-x-clip">{children}</main>
+        <main className="min-w-0 grow overflow-x-clip">{children}</main>
       </div>
     </div>
   );

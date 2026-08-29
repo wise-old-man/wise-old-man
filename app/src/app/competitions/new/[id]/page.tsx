@@ -2,6 +2,7 @@ import {
   CompetitionDetailsResponse,
   CompetitionStatus,
   CompetitionStatusProps,
+  CompetitionType,
   Metric,
 } from "@wise-old-man/utils";
 import Link from "next/link";
@@ -29,8 +30,12 @@ import { CompetitionTimeRangePicker } from "~/components/competitions/Competitio
 import { CompetitionTopHistoryChartDialog } from "~/components/competitions/CompetitionTopHistoryChartDialog";
 import { CompetitionTopParticipantsSparklineChart } from "~/components/competitions/CompetitionTopParticipantsSparklineChart";
 import { CompetitionTotalGained } from "~/components/competitions/CompetitionTotalGained";
+import { NewParticipantsTable } from "~/components/competitions/NewParticipantsTable";
+import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
 
 import OverflowIcon from "~/assets/overflow.svg";
+import { NewTeamsTable } from "~/components/competitions/NewTeamsTable";
+import { CompetitionStandings } from "~/components/competitions/CompetitionStandings";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -88,13 +93,13 @@ export default async function CompetitionPage(props: PageProps) {
             <CompetitionValueDistribution />
             <div className="rounded-md border px-3 py-1">Momentum</div>
           </div>
-          <div className="flex grow flex-col gap-y-5">
+          <div className="flex min-w-0 grow flex-col gap-y-5">
             <CompetitionMetricTabs />
             <div className="grid grid-cols-2 gap-x-4">
               <CompetitionTotalGained />
               <CompetitionTopParticipantsSparklineChart />
             </div>
-            <div className="rounded-md border px-3 py-1">Table</div>
+            <CompetitionStandings />
           </div>
         </div>
       </Container>
@@ -102,6 +107,7 @@ export default async function CompetitionPage(props: PageProps) {
       {/* Dialogs */}
       <CompetitionTopHistoryChartDialog />
       <CompetitionPreviewMetricDialog />
+      <ExportCompetitionDialog competitionId={id} />
     </CompetitionPageProvider>
   );
 }
@@ -135,6 +141,9 @@ function Header({ competitionDetails }: { competitionDetails: CompetitionDetails
                   {competitionDetails.group.name}
                 </Link>
               </>
+            )}
+            {competitionDetails.type === CompetitionType.TEAM && (
+              <span>{` · ${new Set(competitionDetails.participations.map((p) => p.teamName)).size} teams `}</span>
             )}
             <span>{` · ${competitionDetails.participantCount} participants `}</span>
           </div>
