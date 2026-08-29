@@ -32,9 +32,9 @@ export const DispatchCompetitionEndedDiscordEventJobHandler: JobHandler<Payload>
       return;
     }
 
-    const { group, metrics, participations, sortingMetricIndex } = await fetchCompetitionDetails(
-      payload.competitionId
-    );
+    const { group, metrics, participations, sortingMetricIndex } = await fetchCompetitionDetails({
+      id: payload.competitionId
+    });
 
     // Map the competition's end standings
     const standings = participations

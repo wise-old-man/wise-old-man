@@ -3970,6 +3970,153 @@ describe('Competition API', () => {
         where: { id: createResponse.body.competition.id }
       });
     });
+
+    it('should not view details (invalid filter)', async () => {
+      // The filter is all-or-nothing: usernames, startDate and endDate must all be
+      // provided together, or none of them at all.
+      const onlyUsernames = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        filter: { usernames: ['rorro'] }
+      });
+
+      expect(onlyUsernames.status).toBe(400);
+
+      const missingEndDate = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        filter: {
+          usernames: ['rorro'],
+          startDate: new Date(Date.now() - 10_000).toISOString()
+        }
+      });
+
+      expect(missingEndDate.status).toBe(400);
+
+      const onlyDates = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        filter: {
+          startDate: new Date(Date.now() - 10_000).toISOString(),
+          endDate: new Date(Date.now() + 10_000).toISOString()
+        }
+      });
+
+      expect(onlyDates.status).toBe(400);
+    });
+
+    it('should not view details (invalid date range)', async () => {
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        filter: {
+          usernames: ['rorro'],
+          startDate: new Date(Date.now() + 10_000).toISOString(),
+          endDate: new Date(Date.now() - 10_000).toISOString()
+        }
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Min date must be before the max date.');
+    });
+
+    it('should view details filtered by usernames and date range (ignores usernames not competing)', async () => {
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        filter: {
+          usernames: ['rorro', 'not_a_real_player', 'zulu'],
+          startDate: unfilteredResponse.body.startsAt,
+          endDate: unfilteredResponse.body.endsAt
+        }
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations.length).toBe(2);
+      expect(response.body.participations.map(p => p.player.username).sort()).toEqual(['rorro', 'zulu']);
+    });
+
+    it('should view details filtered by usernames and date range (no matches)', async () => {
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        filter: {
+          usernames: ['not_a_real_player', 'also_not_real'],
+          startDate: unfilteredResponse.body.startsAt,
+          endDate: unfilteredResponse.body.endsAt
+        }
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations.length).toBe(0);
+    });
+
+    it('should view details filtered by usernames and date range (narrows the deltas)', async () => {
+      // Reuse rorro's two existing snapshots from the "should view details" test above
+      // (500 -> 557 zulrah kc), and insert a third one (520) chronologically between them,
+      // so we end up with three ordered snapshots: 500, 520, 557.
+      const rorro = await prisma.player.findFirstOrThrow({
+        where: { username: 'rorro' }
+      });
+
+      const existingSnapshots = await prisma.snapshot.findMany({
+        where: { playerId: rorro.id },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      expect(existingSnapshots.length).toBe(2);
+
+      const [snapshot500, snapshot557] = existingSnapshots;
+      const midpoint = new Date((snapshot500.createdAt.getTime() + snapshot557.createdAt.getTime()) / 2);
+
+      // Insert the 520 snapshot at the midpoint between the existing two.
+      await prisma.snapshot.create({
+        data: {
+          ...snapshot557,
+          createdAt: midpoint,
+          zulrahKills: 520,
+          hunterExperience: 105_000
+        }
+      });
+
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      // Unfiltered still resolves to the overall first (500) and last (557) snapshots
+      expect(unfilteredResponse.body.participations.find(p => p.player.username === 'rorro')).toMatchObject({
+        progress: { start: 500, end: 557, gained: 57 }
+      });
+
+      // startDate sits before the 500 snapshot, endDate sits right after the 520 snapshot,
+      // so the range picks 500 (closest at-or-after startDate) and 520 (closest at-or-before endDate)
+      const firstAndSecondSnapshot = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}`)
+        .query({
+          filter: {
+            usernames: ['rorro'],
+            startDate: unfilteredResponse.body.startsAt,
+            endDate: new Date(midpoint.getTime() + 1).toISOString()
+          }
+        });
+
+      expect(firstAndSecondSnapshot.status).toBe(200);
+      expect(firstAndSecondSnapshot.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: 500, end: 520, gained: 20 }
+      });
+
+      // startDate sits right after the 500 snapshot, endDate sits after the 557 snapshot,
+      // so the range picks 520 (closest at-or-after startDate) and 557 (closest at-or-before endDate)
+      const secondAndThirdSnapshot = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}`)
+        .query({
+          filter: {
+            usernames: ['rorro'],
+            startDate: new Date(snapshot500.createdAt.getTime() + 1).toISOString(),
+            endDate: unfilteredResponse.body.endsAt
+          }
+        });
+
+      expect(secondAndThirdSnapshot.status).toBe(200);
+      expect(secondAndThirdSnapshot.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: 520, end: 557, gained: 37 }
+      });
+    });
   });
 
   describe('9 - View Top 5 Snapshots', () => {
@@ -4001,9 +4148,10 @@ describe('Competition API', () => {
       expect(response.body[0].history[1].value).toBe(-1);
 
       expect(response.body[1].player.username).toBe('rorro');
-      expect(response.body[1].history.length).toBe(2);
+      expect(response.body[1].history.length).toBe(3);
       expect(response.body[1].history[0].value).toBe(557);
-      expect(response.body[1].history[1].value).toBe(500);
+      expect(response.body[1].history[1].value).toBe(520);
+      expect(response.body[1].history[2].value).toBe(500);
 
       expect(response.body[2].player.username).toBe('lynx titan');
       expect(response.body[2].history.length).toBe(1);
@@ -4032,9 +4180,10 @@ describe('Competition API', () => {
       expect(response.body[0].history[1].value).toBe(500_000);
 
       expect(response.body[1].player.username).toBe('rorro');
-      expect(response.body[1].history.length).toBe(2);
+      expect(response.body[1].history.length).toBe(3);
       expect(response.body[1].history[0].value).toBe(110_000);
-      expect(response.body[1].history[1].value).toBe(100_000);
+      expect(response.body[1].history[1].value).toBe(105_000);
+      expect(response.body[1].history[2].value).toBe(100_000);
 
       expect(response.body[2].player.username).toBe('lynx titan');
       expect(response.body[2].history.length).toBe(1);

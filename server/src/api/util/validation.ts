@@ -156,6 +156,11 @@ export const socialLinksSchema = z.object({
   youtube: z.optional(urlSchema)
 });
 
+export const queryParamStringArray = z.preprocess(
+  val => (typeof val === 'string' ? [val] : val),
+  z.array(z.string()).nonempty()
+) as unknown as z.ZodType<string[]>;
+
 export function getDateSchema(propName: string) {
   return z
     .any()

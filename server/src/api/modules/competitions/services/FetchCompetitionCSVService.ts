@@ -15,7 +15,7 @@ async function fetchCompetitionCSV(
   string,
   { code: 'TEAM_NAME_IS_REQUIRED' } | { code: 'CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION' }
 > {
-  const details = await fetchCompetitionDetails(id, metric);
+  const details = await fetchCompetitionDetails({ id, metric });
   const competitionDetailsResponse = formatCompetitionDetailsResponse(details);
 
   if (table === CompetitionCSVTableType.PARTICIPANTS) {
