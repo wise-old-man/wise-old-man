@@ -30,6 +30,7 @@ import { CompetitionTopHistoryChartDialog } from "~/components/competitions/Comp
 import { CompetitionTopParticipantsSparklineChart } from "~/components/competitions/CompetitionTopParticipantsSparklineChart";
 import { CompetitionTotalGained } from "~/components/competitions/CompetitionTotalGained";
 import { NewParticipantsTable } from "~/components/competitions/NewParticipantsTable";
+import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
 
 import OverflowIcon from "~/assets/overflow.svg";
 
@@ -103,6 +104,7 @@ export default async function CompetitionPage(props: PageProps) {
       {/* Dialogs */}
       <CompetitionTopHistoryChartDialog />
       <CompetitionPreviewMetricDialog />
+      <ExportCompetitionDialog competitionId={id} />
     </CompetitionPageProvider>
   );
 }

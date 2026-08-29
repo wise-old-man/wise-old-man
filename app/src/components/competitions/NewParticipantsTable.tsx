@@ -26,6 +26,7 @@ import { Button } from "../Button";
 import { timeago } from "~/utils/dates";
 
 import CheckIcon from "~/assets/check.svg";
+import ExportIcon from "~/assets/export.svg";
 import LoadingIcon from "~/assets/loading.svg";
 import { DataTable } from "../DataTable";
 import { QueryLink } from "../QueryLink";
@@ -56,6 +57,12 @@ export function NewParticipantsTable() {
         <TableTitle className="flex-col p-0">
           <div className="flex w-full items-center justify-between px-5 py-4">
             <h3 className="text-h3 font-medium text-white">Participants</h3>
+            <QueryLink query={{ dialog: "export" }}>
+              <Button>
+                <ExportIcon className="-ml-1 h-4 w-4" />
+                Export table
+              </Button>
+            </QueryLink>
           </div>
           {showOnlyOutdated ? (
             <div className="flex w-full gap-x-1 border-t border-gray-500 px-5 py-3">
