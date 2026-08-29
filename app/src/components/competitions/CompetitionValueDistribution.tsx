@@ -4,6 +4,7 @@ import { formatNumber, Metric, MetricProps, MetricType } from "@wise-old-man/uti
 import { MetricIconSmall } from "~/components/Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { useCompetitionPageContext } from "./CompetitionPageContext";
+import { METRIC_COLOR_MAP } from "~/utils/metrics";
 
 export function CompetitionValueDistribution() {
   const { competition } = useCompetitionPageContext();
@@ -49,7 +50,7 @@ export function CompetitionValueDistribution() {
               <div
                 key={e.metric}
                 style={{
-                  background: getMetricPrimaryColor(e.metric),
+                  background: METRIC_COLOR_MAP[e.metric],
                   height: `100%`,
                   width: `${e.percent}%`,
                 }}
@@ -71,7 +72,11 @@ export function CompetitionValueDistribution() {
                 <span className="shrink-0 text-xs font-medium tabular-nums text-white">
                   {formatNumber(e.value, true)}
                   <span className="ml-1.5 font-normal text-gray-200">
-                    ({((e.value / total) * 100).toFixed(1)}%)
+                    ({((e.value / total) * 100).toFixed(1)}%
+                    <span className="mx-1 text-base" style={{ color: METRIC_COLOR_MAP[e.metric] }}>
+                      ●
+                    </span>
+                    )
                   </span>
                 </span>
               </div>
@@ -109,25 +114,5 @@ function getLabels(metricType: MetricType) {
         title: "Value distribution",
         description: "Which metrics the gains came from.",
       };
-  }
-}
-
-/**
- * We need to expand this and move it somewhere else?
- */
-function getMetricPrimaryColor(metric: Metric) {
-  switch (metric) {
-    case Metric.HERBLORE:
-      return "#00FF00";
-    case Metric.WOODCUTTING:
-      return "#AAFF00";
-    case Metric.AGILITY:
-      return "#AA00FF";
-    case Metric.MAGIC:
-      return "#0000FF";
-    case Metric.FIREMAKING:
-      return "#FFAA00";
-    default:
-      return "#FFFFF";
   }
 }
