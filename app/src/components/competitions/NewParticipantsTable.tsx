@@ -31,12 +31,12 @@ import LoadingIcon from "~/assets/loading.svg";
 import { DataTable } from "../DataTable";
 import { QueryLink } from "../QueryLink";
 
-export function NewParticipantsTable() {
+export function NewParticipantsTable({ teamName }: { teamName?: string }) {
   const { competition, selectedMetric } = useCompetitionPageContext();
 
   const searchParams = useSearchParams();
 
-  const rows = competition.participations;
+  const rows = competition.participations.filter((p) => !teamName || p.teamName === teamName);
   const columns = getColumnDefinition(competition, selectedMetric);
 
   const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
@@ -56,8 +56,18 @@ export function NewParticipantsTable() {
       headerSlot={
         <TableTitle className="flex-col p-0">
           <div className="flex w-full items-center justify-between px-5 py-4">
-            <h3 className="text-h3 font-medium text-white">Participants</h3>
-            <QueryLink query={{ dialog: "export" }}>
+            {teamName ? (
+              <TeamHeader teamName={teamName} selectedMetric={selectedMetric} participants={rows} />
+            ) : (
+              <h3 className="text-h3 font-medium text-white">Participants</h3>
+            )}
+
+            <QueryLink
+              query={{
+                dialog: "export",
+                team: teamName ? encodeURI(teamName) : undefined,
+              }}
+            >
               <Button>
                 <ExportIcon className="-ml-1 h-4 w-4" />
                 Export table
@@ -93,6 +103,43 @@ export function NewParticipantsTable() {
         </TableTitle>
       }
     />
+  );
+}
+
+function TeamHeader({
+  teamName,
+  selectedMetric,
+  participants,
+}: {
+  teamName: string;
+  selectedMetric?: Metric;
+  participants: CompetitionDetailsResponse["participations"];
+}) {
+  const totalGained = participants.reduce(
+    (acc, curr) =>
+      acc + (curr.deltas.find((d) => d.metric === (selectedMetric ?? "total"))?.values.gained ?? 0),
+    0,
+  );
+
+  const avgGained = Math.floor(totalGained / participants.length);
+
+  return (
+    <div>
+      <h3 className="mb-1 text-h3 font-medium text-white">{teamName}</h3>
+      <span className="text-sm text-gray-200">
+        <span>
+          {participants.length} {participants.length === 1 ? "player" : "players"}
+        </span>
+        <span className="px-3">|</span>
+        <span>
+          Total: <FormattedNumber colored value={totalGained} />
+        </span>
+        <span className="px-3">|</span>
+        <span>
+          Avg: <FormattedNumber colored value={avgGained} />
+        </span>
+      </span>
+    </div>
   );
 }
 

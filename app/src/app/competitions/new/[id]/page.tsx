@@ -2,6 +2,7 @@ import {
   CompetitionDetailsResponse,
   CompetitionStatus,
   CompetitionStatusProps,
+  CompetitionType,
   Metric,
 } from "@wise-old-man/utils";
 import Link from "next/link";
@@ -33,6 +34,8 @@ import { NewParticipantsTable } from "~/components/competitions/NewParticipantsT
 import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
 
 import OverflowIcon from "~/assets/overflow.svg";
+import { NewTeamsTable } from "~/components/competitions/NewTeamsTable";
+import { CompetitionStandings } from "~/components/competitions/CompetitionStandings";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -96,7 +99,7 @@ export default async function CompetitionPage(props: PageProps) {
               <CompetitionTotalGained />
               <CompetitionTopParticipantsSparklineChart />
             </div>
-            <NewParticipantsTable />
+            <CompetitionStandings />
           </div>
         </div>
       </Container>
@@ -138,6 +141,9 @@ function Header({ competitionDetails }: { competitionDetails: CompetitionDetails
                   {competitionDetails.group.name}
                 </Link>
               </>
+            )}
+            {competitionDetails.type === CompetitionType.TEAM && (
+              <span>{` · ${new Set(competitionDetails.participations.map((p) => p.teamName)).size} teams `}</span>
             )}
             <span>{` · ${competitionDetails.participantCount} participants `}</span>
           </div>
