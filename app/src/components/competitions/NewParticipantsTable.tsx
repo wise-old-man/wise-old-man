@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
 import { TableSortButton, TableTitle } from "../Table";
 import { useCompetitionPageContext } from "./CompetitionPageContext";
@@ -32,13 +33,23 @@ import { QueryLink } from "../QueryLink";
 export function NewParticipantsTable() {
   const { competition, selectedMetric } = useCompetitionPageContext();
 
+  const searchParams = useSearchParams();
+
   const rows = competition.participations;
   const columns = getColumnDefinition(competition, selectedMetric);
+
+  const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
+
+  const outdatedParticipants = rows.filter(
+    (p) => !p.player.updatedAt || p.player.updatedAt < competition.startsAt,
+  );
+
+  const showOnlyOutdated = searchParams.get("filter") === "outdated";
 
   return (
     <DataTable
       columns={columns}
-      data={rows}
+      data={showOnlyOutdated ? outdatedParticipants : rows}
       enablePagination
       defaultPageSize={20}
       headerSlot={
@@ -46,6 +57,32 @@ export function NewParticipantsTable() {
           <div className="flex w-full items-center justify-between px-5 py-4">
             <h3 className="text-h3 font-medium text-white">Participants</h3>
           </div>
+          {showOnlyOutdated ? (
+            <div className="flex w-full gap-x-1 border-t border-gray-500 px-5 py-3">
+              <span className="text-xs text-gray-200">
+                Showing only outdated or invalid participants.
+              </span>
+              <QueryLink
+                query={{ filter: null }}
+                className="text-xs font-medium text-white hover:underline"
+              >
+                Show all
+              </QueryLink>
+            </div>
+          ) : (
+            <>
+              {isOngoing && outdatedParticipants && outdatedParticipants.length > 0 && (
+                <div className="flex w-full border-t border-gray-500 px-5 py-3">
+                  <QueryLink
+                    query={{ filter: "outdated" }}
+                    className="text-xs font-medium text-gray-200 hover:underline"
+                  >
+                    {outdatedParticipants.length} outdated or invalid participants.
+                  </QueryLink>
+                </div>
+              )}
+            </>
+          )}
         </TableTitle>
       }
     />
