@@ -90,7 +90,7 @@ export default async function CompetitionPage(props: PageProps) {
             <CompetitionValueDistribution />
             <div className="rounded-md border px-3 py-1">Momentum</div>
           </div>
-          <div className="flex grow flex-col gap-y-5">
+          <div className="flex min-w-0 grow flex-col gap-y-5">
             <CompetitionMetricTabs />
             <div className="grid grid-cols-2 gap-x-4">
               <CompetitionTotalGained />
