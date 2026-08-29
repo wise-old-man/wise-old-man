@@ -289,21 +289,27 @@ router.get(
     }),
     query: z.object({
       metric: z.optional(z.nativeEnum(Metric)),
-      filter: z.optional(
-        z.object({
-          usernames: queryParamStringArray,
-          startDate: getDateSchema('startDate'),
-          endDate: getDateSchema('endDate')
-        })
-      )
+
+      // Experimental - do NOT use for real applications
+      usernames: z.optional(queryParamStringArray),
+      startDate: z.optional(getDateSchema('startDate')),
+      endDate: z.optional(getDateSchema('endDate'))
     })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric, filter } = req.query;
+    const { metric, usernames, startDate, endDate } = req.query;
+
+    const filter =
+      usernames && startDate && endDate
+        ? {
+            usernames,
+            startDate,
+            endDate
+          }
+        : undefined;
 
     const details = await fetchCompetitionDetails({ id, metric, filter });
-
     const response = formatCompetitionDetailsResponse(details);
 
     res.status(200).json(response);

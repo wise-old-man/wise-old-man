@@ -3971,41 +3971,11 @@ describe('Competition API', () => {
       });
     });
 
-    it('should not view details (invalid filter)', async () => {
-      // The filter is all-or-nothing: usernames, startDate and endDate must all be
-      // provided together, or none of them at all.
-      const onlyUsernames = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
-        filter: { usernames: ['rorro'] }
-      });
-
-      expect(onlyUsernames.status).toBe(400);
-
-      const missingEndDate = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
-        filter: {
-          usernames: ['rorro'],
-          startDate: new Date(Date.now() - 10_000).toISOString()
-        }
-      });
-
-      expect(missingEndDate.status).toBe(400);
-
-      const onlyDates = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
-        filter: {
-          startDate: new Date(Date.now() - 10_000).toISOString(),
-          endDate: new Date(Date.now() + 10_000).toISOString()
-        }
-      });
-
-      expect(onlyDates.status).toBe(400);
-    });
-
     it('should not view details (invalid date range)', async () => {
       const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
-        filter: {
-          usernames: ['rorro'],
-          startDate: new Date(Date.now() + 10_000).toISOString(),
-          endDate: new Date(Date.now() - 10_000).toISOString()
-        }
+        usernames: ['rorro'],
+        startDate: new Date(Date.now() + 10_000).toISOString(),
+        endDate: new Date(Date.now() - 10_000).toISOString()
       });
 
       expect(response.status).toBe(400);
@@ -4017,11 +3987,9 @@ describe('Competition API', () => {
       expect(unfilteredResponse.status).toBe(200);
 
       const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
-        filter: {
-          usernames: ['rorro', 'not_a_real_player', 'zulu'],
-          startDate: unfilteredResponse.body.startsAt,
-          endDate: unfilteredResponse.body.endsAt
-        }
+        usernames: ['rorro', 'not_a_real_player', 'zulu'],
+        startDate: unfilteredResponse.body.startsAt,
+        endDate: unfilteredResponse.body.endsAt
       });
 
       expect(response.status).toBe(200);
@@ -4034,11 +4002,9 @@ describe('Competition API', () => {
       expect(unfilteredResponse.status).toBe(200);
 
       const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
-        filter: {
-          usernames: ['not_a_real_player', 'also_not_real'],
-          startDate: unfilteredResponse.body.startsAt,
-          endDate: unfilteredResponse.body.endsAt
-        }
+        usernames: ['not_a_real_player', 'also_not_real'],
+        startDate: unfilteredResponse.body.startsAt,
+        endDate: unfilteredResponse.body.endsAt
       });
 
       expect(response.status).toBe(200);
@@ -4086,11 +4052,9 @@ describe('Competition API', () => {
       const firstAndSecondSnapshot = await api
         .get(`/competitions/${globalData.testCompetitionStarted.id}`)
         .query({
-          filter: {
-            usernames: ['rorro'],
-            startDate: unfilteredResponse.body.startsAt,
-            endDate: new Date(midpoint.getTime() + 1).toISOString()
-          }
+          usernames: ['rorro'],
+          startDate: unfilteredResponse.body.startsAt,
+          endDate: new Date(midpoint.getTime() + 1).toISOString()
         });
 
       expect(firstAndSecondSnapshot.status).toBe(200);
@@ -4104,11 +4068,9 @@ describe('Competition API', () => {
       const secondAndThirdSnapshot = await api
         .get(`/competitions/${globalData.testCompetitionStarted.id}`)
         .query({
-          filter: {
-            usernames: ['rorro'],
-            startDate: new Date(snapshot500.createdAt.getTime() + 1).toISOString(),
-            endDate: unfilteredResponse.body.endsAt
-          }
+          usernames: ['rorro'],
+          startDate: new Date(snapshot500.createdAt.getTime() + 1).toISOString(),
+          endDate: unfilteredResponse.body.endsAt
         });
 
       expect(secondAndThirdSnapshot.status).toBe(200);
