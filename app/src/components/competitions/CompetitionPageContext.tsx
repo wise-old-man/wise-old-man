@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, PropsWithChildren, useContext } from "react";
+import { createContext, PropsWithChildren, useContext, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { CompetitionDetailsResponse, Metric } from "@wise-old-man/utils";
 import { getMetricParam } from "~/utils/params";
@@ -22,9 +22,11 @@ export function CompetitionPageProvider(props: CompetitionPageProviderProps) {
   const { competition, previewMetric, children } = props;
 
   const searchParams = useSearchParams();
-  const competitionMetrics = competition.metrics.map((m) => m.metric);
 
-  const metrics = [...competitionMetrics, ...(previewMetric ? [previewMetric] : [])];
+  const metrics = useMemo(() => {
+    const competitionMetrics = competition.metrics.map((m) => m.metric);
+    return [...competitionMetrics, ...(previewMetric ? [previewMetric] : [])];
+  }, [competition.metrics, previewMetric]);
 
   const metricParam = getMetricParam(searchParams.get("metric"));
 
