@@ -273,7 +273,7 @@ function DangerZoneSection(props: EditCompetitionFormProps) {
       </Alert>
 
       {/* Dialogs */}
-      <DeleteCompetitionDialog competitionId={competition.id} />
+      <DeleteCompetitionDialog competitionId={competition.id} competitionTitle={competition.title} />
     </div>
   );
 }

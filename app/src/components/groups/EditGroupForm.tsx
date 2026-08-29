@@ -668,7 +668,7 @@ function DangerZoneSection(props: EditGroupFormProps) {
       </Alert>
 
       {/* Dialogs */}
-      <DeleteGroupDialog groupId={group.id} />
+      <DeleteGroupDialog groupId={group.id} groupName={group.name} />
     </div>
   );
 }
