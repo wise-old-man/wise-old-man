@@ -29,6 +29,7 @@ import { CompetitionTimeRangePicker } from "~/components/competitions/Competitio
 import { CompetitionTopHistoryChartDialog } from "~/components/competitions/CompetitionTopHistoryChartDialog";
 import { CompetitionTopParticipantsSparklineChart } from "~/components/competitions/CompetitionTopParticipantsSparklineChart";
 import { CompetitionTotalGained } from "~/components/competitions/CompetitionTotalGained";
+import { NewParticipantsTable } from "~/components/competitions/NewParticipantsTable";
 
 import OverflowIcon from "~/assets/overflow.svg";
 
@@ -94,7 +95,7 @@ export default async function CompetitionPage(props: PageProps) {
               <CompetitionTotalGained />
               <CompetitionTopParticipantsSparklineChart />
             </div>
-            <div className="rounded-md border px-3 py-1">Table</div>
+            <NewParticipantsTable />
           </div>
         </div>
       </Container>
