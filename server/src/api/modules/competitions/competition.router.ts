@@ -292,24 +292,24 @@ router.get(
 
       // Experimental - do NOT use for real applications
       usernames: z.optional(queryParamStringArray),
-      startDate: z.optional(getDateSchema('startDate')),
-      endDate: z.optional(getDateSchema('endDate'))
+      minDate: z.optional(getDateSchema('minDate')),
+      maxDate: z.optional(getDateSchema('maxDate'))
     })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric, usernames, startDate, endDate } = req.query;
+    const { metric, usernames, minDate, maxDate } = req.query;
 
-    const filter =
-      usernames && startDate && endDate
-        ? {
-            usernames,
-            startDate,
-            endDate
-          }
-        : undefined;
+    const details = await fetchCompetitionDetails({
+      id,
+      metric,
+      filter: {
+        usernames,
+        minDate,
+        maxDate
+      }
+    });
 
-    const details = await fetchCompetitionDetails({ id, metric, filter });
     const response = formatCompetitionDetailsResponse(details);
 
     res.status(200).json(response);
