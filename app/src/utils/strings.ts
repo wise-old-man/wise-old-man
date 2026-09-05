@@ -25,3 +25,13 @@ export function sanitizeDisplayName(username: string): string {
     .replace(/[^a-zA-Z0-9 \-_]/g, "") // Remove any character that's NOT letter, number, space, dash, or underscore
     .trim(); // Remove spaces from start and end
 }
+
+/**
+ * Prefix a word with a count, and add an "s" to the word if the count is not 1.
+ *
+ * (1, "team") -> "1 team",
+ * (3, "participant") -> "3 participants"
+ */
+export function naivePluralize(count: number, word: string): string {
+  return count === 1 ? `${count} ${word}` : `${count} ${word}s`;
+}

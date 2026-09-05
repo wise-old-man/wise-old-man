@@ -19,6 +19,7 @@ import { QueryLink } from "~/components/QueryLink";
 import { CompetitionValueDistribution } from "~/components/competitions/CompetitionValueDistribution";
 import { getCompetitionDetails, getCompetitionStatus } from "~/services/wiseoldman";
 import { getMetricParam } from "~/utils/params";
+import { naivePluralize } from "~/utils/strings";
 import { cn } from "~/utils/styling";
 
 import { CompetitionActivePlayers } from "~/components/competitions/CompetitionActivePlayers";
@@ -113,13 +114,14 @@ export default async function CompetitionPage(props: PageProps) {
 
 function Header({ competitionDetails }: { competitionDetails: CompetitionDetailsResponse }) {
   const status = getCompetitionStatus(competitionDetails);
+  const teamCount = new Set(competitionDetails.participations.map((p) => p.teamName)).size;
 
   return (
     <div className="flex flex-grow flex-col items-end justify-between gap-y-5 sm:flex-row">
       <div className="flex w-full flex-col gap-3 sm:flex-row">
         <MetricAvatarGroup size="lg" metrics={competitionDetails.metrics.map((m) => m.metric)} />
         <div className="flex flex-col">
-          <span className="line-clamp-1 text-lg font-medium text-white">{competitionDetails.title}</span>
+          <h1 className="line-clamp-1 text-lg font-medium text-white">{competitionDetails.title}</h1>
           <div className="line-clamp-1 text-xs text-gray-200">
             <div
               className={cn("mb-px mr-1.5 inline-block h-2 w-2 rounded-full border", {
@@ -142,9 +144,9 @@ function Header({ competitionDetails }: { competitionDetails: CompetitionDetails
               </>
             )}
             {competitionDetails.type === CompetitionType.TEAM && (
-              <span>{` · ${new Set(competitionDetails.participations.map((p) => p.teamName)).size} teams `}</span>
+              <span>{` · ${naivePluralize(teamCount, "team")} `}</span>
             )}
-            <span>{` · ${competitionDetails.participantCount} participants `}</span>
+            <span>{` · ${naivePluralize(competitionDetails.participantCount, "participant")} `}</span>
           </div>
         </div>
       </div>
