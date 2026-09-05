@@ -6,6 +6,7 @@ import {
   Metric,
 } from "@wise-old-man/utils";
 import Link from "next/link";
+import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import { Button } from "~/components/Button";
 import { Container } from "~/components/Container";
 import {
@@ -19,6 +20,7 @@ import { QueryLink } from "~/components/QueryLink";
 import { CompetitionValueDistribution } from "~/components/competitions/CompetitionValueDistribution";
 import { getCompetitionDetails, getCompetitionStatus } from "~/services/wiseoldman";
 import { getMetricParam } from "~/utils/params";
+import { naivePluralize } from "~/utils/strings";
 import { cn } from "~/utils/styling";
 
 import { CompetitionActivePlayers } from "~/components/competitions/CompetitionActivePlayers";
@@ -28,11 +30,14 @@ import { CompetitionMomentum } from "~/components/competitions/CompetitionMoment
 import { CompetitionPageProvider } from "~/components/competitions/CompetitionPageContext";
 import { CompetitionPreviewMetricDialog } from "~/components/competitions/CompetitionPreviewMetricDialog";
 import { CompetitionStandings } from "~/components/competitions/CompetitionStandings";
+import { CompetitionStatusWarning } from "~/components/competitions/CompetitionStatusWarning";
 import { CompetitionTimeRangePicker } from "~/components/competitions/CompetitionTimeRangePicker";
 import { CompetitionTopHistoryChartDialog } from "~/components/competitions/CompetitionTopHistoryChartDialog";
 import { CompetitionTopParticipantsSparklineChart } from "~/components/competitions/CompetitionTopParticipantsSparklineChart";
 import { CompetitionTotalGained } from "~/components/competitions/CompetitionTotalGained";
+import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
 import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
+import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAllParticipantsDialog";
 
 import OverflowIcon from "~/assets/overflow.svg";
 
@@ -74,10 +79,31 @@ export default async function CompetitionPage(props: PageProps) {
     competition.metrics.map((m) => m.metric),
   );
 
+  // Starting in less than 3 hours
+  const isStartingSoon =
+    competition.startsAt.getTime() > Date.now() &&
+    competition.startsAt.getTime() < Date.now() + 1000 * 60 * 60 * 3;
+
+  // Ending in less than 3 hours
+  const isEndingSoon =
+    competition.endsAt.getTime() > Date.now() &&
+    competition.endsAt.getTime() < Date.now() + 1000 * 60 * 60 * 3;
+
   return (
     <CompetitionPageProvider competition={competition} previewMetric={previewMetric}>
       <Container>
-        <div className="flex flex-col gap-y-10 border-b border-gray-600 pb-8">
+        {!competition.visible && <LimitedVisibilityAlert />}
+        {isEndingSoon && (
+          <div className="mb-7">
+            <CompetitionStatusWarning status="ending" />
+          </div>
+        )}
+        {isStartingSoon && (
+          <div className="mb-7">
+            <CompetitionStatusWarning status="starting" />
+          </div>
+        )}
+        <div className="flex flex-col gap-y-10 border-b border-gray-600 pb-6">
           <Header competitionDetails={competition} />
         </div>
         <div className="mt-6 flex flex-col gap-6 md:flex-row">
@@ -106,20 +132,25 @@ export default async function CompetitionPage(props: PageProps) {
       {/* Dialogs */}
       <CompetitionTopHistoryChartDialog />
       <CompetitionPreviewMetricDialog />
+      <DeleteCompetitionDialog competitionId={id} />
       <ExportCompetitionDialog competitionId={id} />
+      <UpdateAllParticipantsDialog competitionId={id} />
     </CompetitionPageProvider>
   );
 }
 
 function Header({ competitionDetails }: { competitionDetails: CompetitionDetailsResponse }) {
   const status = getCompetitionStatus(competitionDetails);
+  const teamCount = new Set(competitionDetails.participations.map((p) => p.teamName)).size;
 
   return (
-    <div className="flex flex-grow flex-col items-end justify-between gap-y-5 sm:flex-row">
-      <div className="flex w-full flex-col gap-3 sm:flex-row">
+    <div className="flex flex-grow flex-col items-center justify-between gap-y-5 sm:flex-row">
+      <div className="flex w-full flex-col items-center gap-3 sm:flex-row">
         <MetricAvatarGroup size="lg" metrics={competitionDetails.metrics.map((m) => m.metric)} />
-        <div className="flex flex-col">
-          <span className="line-clamp-1 text-lg font-medium text-white">{competitionDetails.title}</span>
+        <div className="flex flex-col gap-y-0.5">
+          <h1 className="line-clamp-1 text-xl font-semibold text-white xl:text-2xl">
+            {competitionDetails.title}
+          </h1>
           <div className="line-clamp-1 text-xs text-gray-200">
             <div
               className={cn("mb-px mr-1.5 inline-block h-2 w-2 rounded-full border", {
@@ -142,9 +173,9 @@ function Header({ competitionDetails }: { competitionDetails: CompetitionDetails
               </>
             )}
             {competitionDetails.type === CompetitionType.TEAM && (
-              <span>{` · ${new Set(competitionDetails.participations.map((p) => p.teamName)).size} teams `}</span>
+              <span>{` · ${naivePluralize(teamCount, "team")} `}</span>
             )}
-            <span>{` · ${competitionDetails.participantCount} participants `}</span>
+            <span>{` · ${naivePluralize(competitionDetails.participantCount, "participant")} `}</span>
           </div>
         </div>
       </div>
@@ -165,12 +196,34 @@ function Header({ competitionDetails }: { competitionDetails: CompetitionDetails
             <QueryLink query={{ dialog: "delete" }}>
               <DropdownMenuItem>Delete</DropdownMenuItem>
             </QueryLink>
-            <QueryLink query={{ dialog: "preview" }}>
-              <DropdownMenuItem>Preview as...</DropdownMenuItem>
-            </QueryLink>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </div>
+  );
+}
+
+function LimitedVisibilityAlert() {
+  return (
+    <Alert variant="warn" className="mb-7 border-orange-700 bg-orange-900/10">
+      <div>
+        <AlertTitle className="mb-0">This page has limited visibility</AlertTitle>
+        <AlertDescription>
+          <p>
+            This competition has been hidden due to suspicious activity. Progress gained in it will still
+            be tracked.{" "}
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://wiseoldman.net/discord"
+              className="text-white underline"
+            >
+              Contact us on Discord
+            </a>
+            {" for help."}
+          </p>
+        </AlertDescription>
+      </div>
+    </Alert>
   );
 }

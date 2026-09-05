@@ -107,7 +107,7 @@ export function CompetitionMetricTabs() {
           <DropdownMenuTrigger asChild>
             <button
               aria-label="Add preview metric"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-dashed border-gray-500 text-gray-200 outline-none hover:border-gray-300 hover:text-gray-100"
+              className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-md border border-dashed border-gray-500 text-gray-200 outline-none hover:border-gray-300 hover:text-gray-100"
             >
               <PlusIcon className="h-4 w-4" />
             </button>
@@ -219,7 +219,7 @@ const MetricTab = forwardRef<HTMLElement, MetricTabProps>(function MetricTab(
   ref,
 ) {
   const tabClassName = cn(
-    "inline-flex h-8 min-w-0 items-center justify-between gap-x-2 whitespace-nowrap rounded-md border border-gray-500 bg-gray-800 px-3 text-sm font-medium transition-colors duration-75",
+    "inline-flex h-[38px] min-w-0 items-center justify-between gap-x-2 whitespace-nowrap rounded-md border border-gray-500 bg-gray-800 px-3.5 text-sm font-medium transition-colors duration-75",
     isSelected ? "border-gray-400 bg-gray-600 text-white" : "text-gray-100 hover:bg-gray-700",
     className,
   );

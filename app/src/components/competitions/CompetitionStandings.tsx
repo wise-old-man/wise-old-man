@@ -4,7 +4,6 @@ import { CompetitionType } from "@wise-old-man/utils";
 import { useCompetitionPageContext } from "./CompetitionPageContext";
 import { NewParticipantsTable } from "./NewParticipantsTable";
 import { NewTeamsTable } from "./NewTeamsTable";
-import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 import { QueryLink } from "../QueryLink";
@@ -23,8 +22,6 @@ export function CompetitionStandings() {
 
   const selectedTeam =
     selectedTeamParam && uniqueTeamNames.has(selectedTeamParam) ? selectedTeamParam : null;
-
-  console.log(selectedTeamParam, selectedTeam);
 
   if (selectedTeam === null) {
     return <NewTeamsTable />;

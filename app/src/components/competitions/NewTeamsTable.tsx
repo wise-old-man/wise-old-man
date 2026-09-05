@@ -68,11 +68,13 @@ function getTeams(competition: CompetitionDetailsResponse, focusedMetric: Metric
     .sort((a, b) => {
       return (
         b.participations.reduce(
-          (acc, curr) => acc + (curr.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0),
+          (acc, curr) =>
+            acc + (curr.deltas.find((d) => d.metric === (focusedMetric ?? "total"))?.values.gained ?? 0),
           0,
         ) -
         a.participations.reduce(
-          (acc, curr) => acc + (curr.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0),
+          (acc, curr) =>
+            acc + (curr.deltas.find((d) => d.metric === (focusedMetric ?? "total"))?.values.gained ?? 0),
           0,
         )
       );

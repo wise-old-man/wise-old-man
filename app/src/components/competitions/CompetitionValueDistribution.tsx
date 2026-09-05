@@ -67,7 +67,7 @@ export function CompetitionValueDistribution() {
               >
                 <div className="flex min-w-0 flex-row items-center gap-x-1.5">
                   <MetricIconSmall metric={e.metric} />
-                  <span className="truncate text-xs text-gray-100">{MetricProps[e.metric].name}</span>
+                  <span className="truncate text-xs text-white">{MetricProps[e.metric].name}</span>
                 </div>
                 <span className="shrink-0 text-xs font-medium tabular-nums text-white">
                   {formatNumber(e.value, true)}
@@ -83,7 +83,7 @@ export function CompetitionValueDistribution() {
             ))}
           </div>
           <div className="flex h-9 flex-row items-center justify-between gap-x-6 border-t border-gray-500 px-3.5 text-xs">
-            <span className="text-gray-200">Total</span>
+            <span className="text-white">Total</span>
             <span className="font-medium tabular-nums text-white">{formatNumber(total, true)}</span>
           </div>
         </TooltipContent>
