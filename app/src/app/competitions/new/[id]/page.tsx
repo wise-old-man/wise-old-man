@@ -103,10 +103,10 @@ export default async function CompetitionPage(props: PageProps) {
             <CompetitionStatusWarning status="starting" />
           </div>
         )}
-        <div className="flex flex-col gap-y-10 border-b border-gray-600 pb-8">
+        <div className="flex flex-col gap-y-10 border-b border-gray-600 pb-6">
           <Header competitionDetails={competition} />
         </div>
-        <div className="mt-8 flex flex-col gap-6 md:flex-row">
+        <div className="mt-6 flex flex-col gap-6 md:flex-row">
           <div className="flex w-full shrink-0 flex-col gap-y-5 md:w-[320px]">
             <CompetitionTimeRangePicker />
             <div className="flex gap-x-4">
