@@ -1,51 +1,50 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { TableSortButton, TableTitle } from "../Table";
-import { useCompetitionPageContext } from "./CompetitionPageContext";
 import {
   CompetitionDetailsResponse,
-  CompetitionType,
   Metric,
   MetricProps,
   MetricType,
   PlayerResponse,
   PlayerStatus,
 } from "@wise-old-man/utils";
-import { PlayerIdentity } from "../PlayerIdentity";
-import { FormattedNumber } from "../FormattedNumber";
-import { MetricDeltasTooltip } from "../MetricDeltasTooltip";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { useToast } from "~/hooks/useToast";
 import { useWOMClient } from "~/hooks/useWOMClient";
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { cn } from "~/utils/styling";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
-import { Button } from "../Button";
 import { timeago } from "~/utils/dates";
+import { cn } from "~/utils/styling";
+import { Button } from "../Button";
+import { FormattedNumber } from "../FormattedNumber";
+import { MetricDeltasTooltip } from "../MetricDeltasTooltip";
+import { PlayerIdentity } from "../PlayerIdentity";
+import { TableSortButton, TableTitle } from "../Table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
+import { useCompetitionPageContext } from "./CompetitionPageContext";
+import ArrowUpIcon from "~/assets/arrow_up.svg";
 
 import CheckIcon from "~/assets/check.svg";
 import ExportIcon from "~/assets/export.svg";
 import LoadingIcon from "~/assets/loading.svg";
 import { DataTable } from "../DataTable";
 import { QueryLink } from "../QueryLink";
+import { useCompetitionTimeMachine } from "~/hooks/useCompetitionTimeMachine";
 
 export function NewParticipantsTable({ teamName }: { teamName?: string }) {
   const { competition, selectedMetric } = useCompetitionPageContext();
 
   const searchParams = useSearchParams();
+  const columns = useColumnDefinition();
 
   const rows = competition.participations.filter((p) => !teamName || p.teamName === teamName);
-  const columns = getColumnDefinition(competition, selectedMetric);
-
   const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
+  const showOnlyOutdated = searchParams.get("filter") === "outdated";
 
   const outdatedParticipants = rows.filter(
     (p) => !p.player.updatedAt || p.player.updatedAt < competition.startsAt,
   );
-
-  const showOnlyOutdated = searchParams.get("filter") === "outdated";
 
   return (
     <DataTable
@@ -143,10 +142,10 @@ function TeamHeader({
   );
 }
 
-function getColumnDefinition(
-  competition: CompetitionDetailsResponse,
-  selectedMetric: Metric | undefined,
-) {
+function useColumnDefinition() {
+  const { competition, selectedMetric } = useCompetitionPageContext();
+  const { getPlayerStandings, isLoading } = useCompetitionTimeMachine();
+
   const columns: ColumnDef<CompetitionDetailsResponse["participations"][number]>[] = [
     {
       id: "rank",
@@ -155,6 +154,26 @@ function getColumnDefinition(
       },
       accessorFn: (_, index) => {
         return index + 1;
+      },
+      cell: ({ row }) => {
+        const standings = getPlayerStandings(row.original.player.username, selectedMetric ?? "total");
+
+        const diffElement = isLoading ? (
+          <div className="h-3 w-8 animate-pulse rounded-full bg-gray-700" />
+        ) : (
+          <>
+            {standings.current && standings.previous && (
+              <RankDiff diff={standings.previous.rank - standings.current.rank} />
+            )}
+          </>
+        );
+
+        return (
+          <div className="flex items-center gap-x-2 tabular-nums">
+            {row.getValue("rank")}
+            {diffElement}
+          </div>
+        );
       },
     },
     {
@@ -334,5 +353,52 @@ function UpdateParticipantCell(props: {
         </>
       )}
     </div>
+  );
+}
+
+function RankDiff({ diff }: { diff: number }) {
+  if (diff === 0) {
+    return (
+      <Tooltip>
+        <TooltipTrigger className="flex text-gray-300">
+          <span>(--)</span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <div>Mantained their rank in the past 24h.</div>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  const absDiff = Math.abs(diff);
+
+  if (diff > 0) {
+    return (
+      <Tooltip>
+        <TooltipTrigger className="flex text-gray-200">
+          {"("}
+          <ArrowUpIcon className={"-mx-0.5 h-4 w-4 text-green-500"} />
+          {absDiff}
+          {")"}
+        </TooltipTrigger>
+        <TooltipContent>
+          <div>{`Gained ${absDiff} ${absDiff === 1 ? "rank" : "ranks"} in the past 24h.`}</div>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger className="flex">
+        {"("}
+        <ArrowUpIcon className={"-mx-0.5 h-4 w-4 rotate-180 text-red-500"} />
+        <span className="text-gray-200">{absDiff}</span>
+        {")"}
+      </TooltipTrigger>
+      <TooltipContent>
+        <div>{`Lost ${absDiff} ${absDiff === 1 ? "rank" : "ranks"} in the past 24h.`}</div>
+      </TooltipContent>
+    </Tooltip>
   );
 }
