@@ -3974,8 +3974,8 @@ describe('Competition API', () => {
     it('should not view details (invalid date range)', async () => {
       const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
         usernames: ['rorro'],
-        startDate: new Date(Date.now() + 10_000).toISOString(),
-        endDate: new Date(Date.now() - 10_000).toISOString()
+        minDate: new Date(Date.now() + 10_000).toISOString(),
+        maxDate: new Date(Date.now() - 10_000).toISOString()
       });
 
       expect(response.status).toBe(400);
@@ -3988,8 +3988,8 @@ describe('Competition API', () => {
 
       const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
         usernames: ['rorro', 'not_a_real_player', 'zulu'],
-        startDate: unfilteredResponse.body.startsAt,
-        endDate: unfilteredResponse.body.endsAt
+        minDate: unfilteredResponse.body.startsAt,
+        maxDate: unfilteredResponse.body.endsAt
       });
 
       expect(response.status).toBe(200);
@@ -4003,8 +4003,8 @@ describe('Competition API', () => {
 
       const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
         usernames: ['not_a_real_player', 'also_not_real'],
-        startDate: unfilteredResponse.body.startsAt,
-        endDate: unfilteredResponse.body.endsAt
+        minDate: unfilteredResponse.body.startsAt,
+        maxDate: unfilteredResponse.body.endsAt
       });
 
       expect(response.status).toBe(200);
@@ -4047,14 +4047,14 @@ describe('Competition API', () => {
         progress: { start: 500, end: 557, gained: 57 }
       });
 
-      // startDate sits before the 500 snapshot, endDate sits right after the 520 snapshot,
-      // so the range picks 500 (closest at-or-after startDate) and 520 (closest at-or-before endDate)
+      // minDate sits before the 500 snapshot, maxDate sits right after the 520 snapshot,
+      // so the range picks 500 (closest at-or-after minDate) and 520 (closest at-or-before maxDate)
       const firstAndSecondSnapshot = await api
         .get(`/competitions/${globalData.testCompetitionStarted.id}`)
         .query({
           usernames: ['rorro'],
-          startDate: unfilteredResponse.body.startsAt,
-          endDate: new Date(midpoint.getTime() + 1).toISOString()
+          minDate: unfilteredResponse.body.startsAt,
+          maxDate: new Date(midpoint.getTime() + 1).toISOString()
         });
 
       expect(firstAndSecondSnapshot.status).toBe(200);
@@ -4063,20 +4063,275 @@ describe('Competition API', () => {
         progress: { start: 500, end: 520, gained: 20 }
       });
 
-      // startDate sits right after the 500 snapshot, endDate sits after the 557 snapshot,
-      // so the range picks 520 (closest at-or-after startDate) and 557 (closest at-or-before endDate)
+      // minDate sits right after the 500 snapshot, maxDate sits after the 557 snapshot,
+      // so the range picks 520 (closest at-or-after minDate) and 557 (closest at-or-before maxDate)
       const secondAndThirdSnapshot = await api
         .get(`/competitions/${globalData.testCompetitionStarted.id}`)
         .query({
           usernames: ['rorro'],
-          startDate: new Date(snapshot500.createdAt.getTime() + 1).toISOString(),
-          endDate: unfilteredResponse.body.endsAt
+          minDate: new Date(snapshot500.createdAt.getTime() + 1).toISOString(),
+          maxDate: unfilteredResponse.body.endsAt
         });
 
       expect(secondAndThirdSnapshot.status).toBe(200);
       expect(secondAndThirdSnapshot.body.participations[0]).toMatchObject({
         player: { username: 'rorro' },
         progress: { start: 520, end: 557, gained: 37 }
+      });
+    });
+
+    it('should view details filtered by usernames only (no date range)', async () => {
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['rorro']
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations.length).toBe(1);
+
+      // Without any date range, the deltas should still span the competition's full period
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: 500, end: 557, gained: 57 }
+      });
+    });
+
+    it('should view details filtered by minDate only', async () => {
+      const rorro = await prisma.player.findFirstOrThrow({
+        where: { username: 'rorro' }
+      });
+
+      // Three ordered snapshots (500, 520, 557), inserted by the test above
+      const [snapshot500] = await prisma.snapshot.findMany({
+        where: { playerId: rorro.id },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      // minDate sits right after the 500 snapshot, and there's no maxDate, so the range picks
+      // 520 (closest at-or-after minDate) and the competition's own end snapshot (557)
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['rorro'],
+        minDate: new Date(snapshot500.createdAt.getTime() + 1).toISOString()
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: 520, end: 557, gained: 37 }
+      });
+    });
+
+    it('should view details filtered by maxDate only', async () => {
+      const rorro = await prisma.player.findFirstOrThrow({
+        where: { username: 'rorro' }
+      });
+
+      const [, snapshot520] = await prisma.snapshot.findMany({
+        where: { playerId: rorro.id },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      // maxDate sits right after the 520 snapshot, and there's no minDate, so the range picks
+      // the competition's own start snapshot (500) and 520 (closest at-or-before maxDate)
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['rorro'],
+        maxDate: new Date(snapshot520.createdAt.getTime() + 1).toISOString()
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: 500, end: 520, gained: 20 }
+      });
+    });
+
+    it('should view details filtered by date range only (no usernames)', async () => {
+      const rorro = await prisma.player.findFirstOrThrow({
+        where: { username: 'rorro' }
+      });
+
+      const [snapshot500] = await prisma.snapshot.findMany({
+        where: { playerId: rorro.id },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        minDate: new Date(snapshot500.createdAt.getTime() + 1).toISOString()
+      });
+
+      expect(response.status).toBe(200);
+
+      // Without usernames, every participant should still be included
+      expect(response.body.participations.length).toBe(unfilteredResponse.body.participations.length);
+
+      expect(response.body.participations.find(p => p.player.username === 'rorro')).toMatchObject({
+        progress: { start: 520, end: 557, gained: 37 }
+      });
+    });
+
+    it('should view details filtered by a date range wider than the competition', async () => {
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      // Both dates fall outside the competition's own period, so this should resolve
+      // to the same deltas as an unfiltered request
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        minDate: new Date(new Date(unfilteredResponse.body.startsAt).getTime() - 10_000).toISOString(),
+        maxDate: new Date(new Date(unfilteredResponse.body.endsAt).getTime() + 10_000).toISOString()
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations).toEqual(unfilteredResponse.body.participations);
+    });
+
+    it('should not view details (date range sits entirely after the competition)', async () => {
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const endsAt = new Date(unfilteredResponse.body.endsAt);
+
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        minDate: new Date(endsAt.getTime() + 3_600_000).toISOString(),
+        maxDate: new Date(endsAt.getTime() + 7_200_000).toISOString()
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        "The given date range does not overlap with the competition's period."
+      );
+    });
+
+    it('should not view details (date range sits entirely before the competition)', async () => {
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const startsAt = new Date(unfilteredResponse.body.startsAt);
+
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        minDate: new Date(startsAt.getTime() - 7_200_000).toISOString(),
+        maxDate: new Date(startsAt.getTime() - 3_600_000).toISOString()
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        "The given date range does not overlap with the competition's period."
+      );
+    });
+
+    it('should not view details (minDate sits on the competition end)', async () => {
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      // A minDate of exactly endsAt would clamp into a zero-length range, so it's rejected too
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        minDate: unfilteredResponse.body.endsAt
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        "The given date range does not overlap with the competition's period."
+      );
+    });
+
+    it('should view details filtered by a maxDate that goes past the competition end', async () => {
+      const rorro = await prisma.player.findFirstOrThrow({
+        where: { username: 'rorro' }
+      });
+
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const endsAt = new Date(unfilteredResponse.body.endsAt);
+
+      const snapshots = await prisma.snapshot.findMany({
+        where: { playerId: rorro.id },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      const lastSnapshot = snapshots[snapshots.length - 1];
+
+      // Insert a snapshot from after the competition has ended
+      const outOfRangeSnapshot = await prisma.snapshot.create({
+        data: {
+          ...lastSnapshot,
+          createdAt: new Date(endsAt.getTime() + 60_000),
+          zulrahKills: 900
+        }
+      });
+
+      // maxDate reaches past the competition's end, so it gets clamped back down to it.
+      // minDate sits after the last in-period snapshot, so there's nothing left to pick
+      // as a start snapshot, and the out-of-period 900 snapshot must not be used instead.
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['rorro'],
+        minDate: new Date(lastSnapshot.createdAt.getTime() + 1).toISOString(),
+        maxDate: new Date(endsAt.getTime() + 3_600_000).toISOString()
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: -1, end: -1, gained: 0 }
+      });
+
+      await prisma.snapshot.delete({
+        where: {
+          playerId_createdAt: {
+            playerId: rorro.id,
+            createdAt: outOfRangeSnapshot.createdAt
+          }
+        }
+      });
+    });
+
+    it('should view details filtered by a minDate that goes before the competition start', async () => {
+      const rorro = await prisma.player.findFirstOrThrow({
+        where: { username: 'rorro' }
+      });
+
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const startsAt = new Date(unfilteredResponse.body.startsAt);
+
+      const [firstSnapshot] = await prisma.snapshot.findMany({
+        where: { playerId: rorro.id },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      // Insert a snapshot from before the competition started
+      const outOfRangeSnapshot = await prisma.snapshot.create({
+        data: {
+          ...firstSnapshot,
+          createdAt: new Date(startsAt.getTime() - 60_000),
+          zulrahKills: 100
+        }
+      });
+
+      // minDate goes before the competition's start, so it gets clamped back up to it.
+      // maxDate sits before the first in-period snapshot, so there's nothing left to pick
+      // as an end snapshot, and the out-of-period 100 snapshot must not be used instead.
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['rorro'],
+        minDate: new Date(startsAt.getTime() - 3_600_000).toISOString(),
+        maxDate: new Date(firstSnapshot.createdAt.getTime() - 1).toISOString()
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: -1, end: -1, gained: 0 }
+      });
+
+      await prisma.snapshot.delete({
+        where: {
+          playerId_createdAt: {
+            playerId: rorro.id,
+            createdAt: outOfRangeSnapshot.createdAt
+          }
+        }
       });
     });
   });

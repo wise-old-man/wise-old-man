@@ -19,15 +19,15 @@ import { standardizeUsername } from '../../players/player.utils';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 
 type Filter = {
-  usernames: string[];
-  startDate: Date;
-  endDate: Date;
+  usernames?: string[];
+  minDate?: Date;
+  maxDate?: Date;
 };
 
 export async function fetchCompetitionDetails({
   id,
   metric,
-  filter
+  filter = {}
 }: {
   id: number;
   metric?: Metric;
@@ -47,7 +47,7 @@ export async function fetchCompetitionDetails({
   }>;
   sortingMetricIndex: number;
 }> {
-  if (filter && filter.startDate >= filter.endDate) {
+  if (filter.minDate && filter.maxDate && filter.minDate >= filter.maxDate) {
     throw new BadRequestError('Min date must be before the max date.');
   }
 
@@ -80,6 +80,15 @@ export async function fetchCompetitionDetails({
     throw new NotFoundError('Competition not found.');
   }
 
+  // Deltas can only be calculated from within the competition's own period, so a filter
+  // range that doesn't overlap with it has nothing to offer.
+  if (
+    (filter.minDate && filter.minDate >= competition.endsAt) ||
+    (filter.maxDate && filter.maxDate <= competition.startsAt)
+  ) {
+    throw new BadRequestError("The given date range does not overlap with the competition's period.");
+  }
+
   const competitionMetrics = competition.metrics.map(m => m.metric);
 
   const selectedMetrics = [
@@ -88,7 +97,7 @@ export async function fetchCompetitionDetails({
   ];
 
   const participants = calculateParticipantDeltas(
-    await fetchParticipantData(id, selectedMetrics, filter),
+    await fetchParticipantData(competition, selectedMetrics, filter),
     selectedMetrics
   );
 
@@ -125,9 +134,9 @@ export async function fetchCompetitionDetails({
 }
 
 async function fetchParticipantData(
-  competitionId: number,
+  competition: Competition,
   metrics: Metric[],
-  filter?: Filter
+  filter: Filter
 ): Promise<
   Array<
     Participation & {
@@ -137,65 +146,107 @@ async function fetchParticipantData(
     }
   >
 > {
-  if (filter === undefined) {
-    const selectedSnapshotFields = selectRequiredSnapshotFields(metrics);
+  // Deltas are always bound to the competition's own period, so any filter dates
+  // that reach outside of it get clamped into it. The range is guaranteed to overlap
+  // with the period, so clamping can never collapse it into a single instant.
+  const rangeStart = clampToPeriod(filter.minDate ?? competition.startsAt, competition);
+  const rangeEnd = clampToPeriod(filter.maxDate ?? competition.endsAt, competition);
 
-    return prisma.participation.findMany({
-      where: {
-        competitionId
-      },
-      include: {
-        player: true,
-        startSnapshot: {
-          select: selectedSnapshotFields
-        },
-        endSnapshot: {
-          select: selectedSnapshotFields
-        }
-      }
-    });
-  }
+  // If the clamped range still covers the competition's own period, then the participations'
+  // cached start/end snapshots already hold the answer, and we can skip querying for them.
+  const useCachedStartSnapshots = rangeStart.getTime() === competition.startsAt.getTime();
+  const useCachedEndSnapshots = rangeEnd.getTime() === competition.endsAt.getTime();
+
+  const selectedSnapshotFields = selectRequiredSnapshotFields(metrics);
 
   const participants = await prisma.participation.findMany({
     where: {
-      competitionId,
-      player: {
-        username: {
-          in: filter.usernames.map(standardizeUsername)
+      competitionId: competition.id,
+      ...(filter.usernames && {
+        player: {
+          username: {
+            in: filter.usernames.map(standardizeUsername)
+          }
         }
-      }
+      })
     },
     include: {
-      player: true
+      player: true,
+      ...(useCachedStartSnapshots && {
+        startSnapshot: {
+          select: selectedSnapshotFields
+        }
+      }),
+      ...(useCachedEndSnapshots && {
+        endSnapshot: {
+          select: selectedSnapshotFields
+        }
+      })
     }
   });
+
+  const startSnapshotMap = new Map<number, Snapshot>();
+  const endSnapshotMap = new Map<number, Snapshot>();
+
+  // Prisma types these relations as always present, but they're only fetched when
+  // the flags above are true, so these checks are required.
+  for (const p of participants) {
+    if (p.startSnapshot) {
+      startSnapshotMap.set(p.playerId, p.startSnapshot);
+    }
+
+    if (p.endSnapshot) {
+      endSnapshotMap.set(p.playerId, p.endSnapshot);
+    }
+  }
 
   const snapshotFields = getRequiredSnapshotFields(metrics);
   const playerIds = participants.map(p => p.playerId);
 
   const [startSnapshots, endSnapshots] = await Promise.all([
-    findGroupSnapshots(playerIds, {
-      pick: 'first',
-      select: snapshotFields,
-      minDate: filter.startDate,
-      maxDate: filter.endDate
-    }),
-    findGroupSnapshots(playerIds, {
-      pick: 'last',
-      select: snapshotFields,
-      minDate: filter.startDate,
-      maxDate: filter.endDate
-    })
+    useCachedStartSnapshots
+      ? []
+      : findGroupSnapshots(playerIds, {
+          pick: 'first',
+          select: snapshotFields,
+          minDate: rangeStart,
+          maxDate: rangeEnd
+        }),
+    useCachedEndSnapshots
+      ? []
+      : findGroupSnapshots(playerIds, {
+          pick: 'last',
+          select: snapshotFields,
+          minDate: rangeStart,
+          maxDate: rangeEnd
+        })
   ]);
 
-  const startSnapshotMap = new Map(startSnapshots.map(s => [s.playerId, s]));
-  const endSnapshotMap = new Map(endSnapshots.map(s => [s.playerId, s]));
+  for (const snapshot of startSnapshots) {
+    startSnapshotMap.set(snapshot.playerId, snapshot);
+  }
+
+  for (const snapshot of endSnapshots) {
+    endSnapshotMap.set(snapshot.playerId, snapshot);
+  }
 
   return participants.map(p => ({
     ...p,
     startSnapshot: startSnapshotMap.get(p.playerId) ?? null,
     endSnapshot: endSnapshotMap.get(p.playerId) ?? null
   }));
+}
+
+function clampToPeriod(date: Date, competition: Competition) {
+  if (date.getTime() < competition.startsAt.getTime()) {
+    return competition.startsAt;
+  }
+
+  if (date.getTime() > competition.endsAt.getTime()) {
+    return competition.endsAt;
+  }
+
+  return date;
 }
 
 function calculateParticipantDeltas(
