@@ -51,23 +51,17 @@ function useCompetitionDetails24hAgo(competition: CompetitionDetailsResponse, pr
       .map((p) => p.player.username);
   }, [competition]);
 
-  const startDate = competition.startsAt;
-  const endDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
-
   const competitionDuration = competition.endsAt.getTime() - competition.startsAt.getTime();
 
   const isEnabled =
-    activeParticipantUsernames.length > 0 &&
-    startDate < endDate &&
-    competitionDuration <= 30 * 24 * 60 * 60 * 1000;
+    activeParticipantUsernames.length > 0 && competitionDuration <= 30 * 24 * 60 * 60 * 1000;
 
   return useQuery({
     queryKey: ["competition-time-machine", competition.id, previewMetric],
     queryFn: async () => {
       const params = new URLSearchParams();
 
-      params.set("startDate", startDate.toISOString());
-      params.set("endDate", endDate.toISOString());
+      params.set("maxDate", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
 
       for (const username of activeParticipantUsernames.slice(0, 50)) {
         params.append("usernames", username);
