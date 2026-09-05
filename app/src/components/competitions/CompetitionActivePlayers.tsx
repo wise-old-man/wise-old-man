@@ -14,7 +14,7 @@ export function CompetitionActivePlayers() {
   const ratio = activePlayerCount / competition.participations.length;
 
   return (
-    <div className="relative flex h-20 w-full items-center justify-center rounded-lg border border-gray-500 bg-gray-800 px-4 shadow-md">
+    <div className="relative flex h-20 w-full items-center justify-center rounded-lg border border-gray-500 bg-gray-800 px-3 shadow-md">
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="relative h-[64px] w-[64px]">

@@ -24,18 +24,17 @@ import { cn } from "~/utils/styling";
 import { CompetitionActivePlayers } from "~/components/competitions/CompetitionActivePlayers";
 import { CompetitionCountdown } from "~/components/competitions/CompetitionCountdown";
 import { CompetitionMetricTabs } from "~/components/competitions/CompetitionMetricTabs";
+import { CompetitionMomentum } from "~/components/competitions/CompetitionMomentum";
 import { CompetitionPageProvider } from "~/components/competitions/CompetitionPageContext";
 import { CompetitionPreviewMetricDialog } from "~/components/competitions/CompetitionPreviewMetricDialog";
+import { CompetitionStandings } from "~/components/competitions/CompetitionStandings";
 import { CompetitionTimeRangePicker } from "~/components/competitions/CompetitionTimeRangePicker";
 import { CompetitionTopHistoryChartDialog } from "~/components/competitions/CompetitionTopHistoryChartDialog";
 import { CompetitionTopParticipantsSparklineChart } from "~/components/competitions/CompetitionTopParticipantsSparklineChart";
 import { CompetitionTotalGained } from "~/components/competitions/CompetitionTotalGained";
-import { NewParticipantsTable } from "~/components/competitions/NewParticipantsTable";
 import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
 
 import OverflowIcon from "~/assets/overflow.svg";
-import { NewTeamsTable } from "~/components/competitions/NewTeamsTable";
-import { CompetitionStandings } from "~/components/competitions/CompetitionStandings";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -82,7 +81,7 @@ export default async function CompetitionPage(props: PageProps) {
           <Header competitionDetails={competition} />
         </div>
         <div className="mt-6 flex flex-col gap-6 md:flex-row">
-          <div className="flex w-full shrink-0 flex-col gap-y-5 md:w-[360px]">
+          <div className="flex w-full shrink-0 flex-col gap-y-5 md:w-[320px]">
             <CompetitionTimeRangePicker />
             <div className="flex gap-x-4">
               <CompetitionCountdown />
@@ -91,7 +90,7 @@ export default async function CompetitionPage(props: PageProps) {
               </div>
             </div>
             <CompetitionValueDistribution />
-            <div className="rounded-md border px-3 py-1">Momentum</div>
+            <CompetitionMomentum />
           </div>
           <div className="flex min-w-0 grow flex-col gap-y-5">
             <CompetitionMetricTabs />

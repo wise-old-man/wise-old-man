@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { CompetitionDetailsResponse, Metric } from "@wise-old-man/utils";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useCompetitionPageContext } from "~/components/competitions/CompetitionPageContext";
 import { useWOMClient } from "./useWOMClient";
 
@@ -18,12 +18,12 @@ export function useCompetitionTimeMachine() {
     return [...competitionMetrics, ...(previewMetric ? [previewMetric] : [])];
   }, [competition.metrics, previewMetric]);
 
-  const currentStandingsCache = useMemo(
+  const currentStandings = useMemo(
     () => buildStandingsCache(metrics, competition),
     [metrics, competition],
   );
 
-  const previousStandingsCache = useMemo(() => {
+  const previousStandings = useMemo(() => {
     if (!competitionDetails24hAgo.isSuccess) {
       return undefined;
     }
@@ -31,14 +31,22 @@ export function useCompetitionTimeMachine() {
     return buildStandingsCache(metrics, competitionDetails24hAgo.data);
   }, [metrics, competitionDetails24hAgo]);
 
-  return {
-    isLoading: competitionDetails24hAgo.isLoading,
-    getPlayerStandings: (username: string, metric: Metric | "total") => {
+  const getPlayerStandings = useCallback(
+    (username: string, metric: Metric | "total") => {
       return {
-        current: currentStandingsCache.get(metric)?.get(username),
-        previous: previousStandingsCache?.get(metric)?.get(username),
+        current: currentStandings.get(metric)?.get(username),
+        previous: previousStandings?.get(metric)?.get(username),
       };
     },
+    [currentStandings, previousStandings],
+  );
+
+  return {
+    isLoading: competitionDetails24hAgo.isLoading,
+    isError: competitionDetails24hAgo.isError,
+    getPlayerStandings,
+    currentStandings,
+    previousStandings,
   };
 }
 

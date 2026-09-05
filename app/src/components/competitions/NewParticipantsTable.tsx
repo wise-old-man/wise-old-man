@@ -358,7 +358,16 @@ function UpdateParticipantCell(props: {
 
 function RankDiff({ diff }: { diff: number }) {
   if (diff === 0) {
-    return null;
+    return (
+      <Tooltip>
+        <TooltipTrigger className="flex text-gray-300">
+          <span>(--)</span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <div>Mantained their rank in the past 24h.</div>
+        </TooltipContent>
+      </Tooltip>
+    );
   }
 
   const absDiff = Math.abs(diff);
@@ -366,10 +375,10 @@ function RankDiff({ diff }: { diff: number }) {
   if (diff > 0) {
     return (
       <Tooltip>
-        <TooltipTrigger className="flex">
+        <TooltipTrigger className="flex text-gray-200">
           {"("}
           <ArrowUpIcon className={"-mx-0.5 h-4 w-4 text-green-500"} />
-          <span className="text-gray-200">{absDiff}</span>
+          {absDiff}
           {")"}
         </TooltipTrigger>
         <TooltipContent>
