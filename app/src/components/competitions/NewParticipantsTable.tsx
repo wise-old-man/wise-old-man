@@ -11,7 +11,7 @@ import {
   PlayerStatus,
 } from "@wise-old-man/utils";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useToast } from "~/hooks/useToast";
 import { useWOMClient } from "~/hooks/useWOMClient";
 import { timeago } from "~/utils/dates";
@@ -38,7 +38,25 @@ export function NewParticipantsTable({ teamName }: { teamName?: string }) {
   const searchParams = useSearchParams();
   const columns = useColumnDefinition();
 
-  const rows = competition.participations.filter((p) => !teamName || p.teamName === teamName);
+  // The API only sorts the standings by one metric (the competition's "total", or the previewed metric).
+  // Switching metric tabs doesn't refetch, so the rows have to be re-sorted client-side.
+  const rows = useMemo(() => {
+    const metric = selectedMetric ?? "total";
+
+    const getValues = (p: CompetitionDetailsResponse["participations"][number]) => {
+      return p.deltas.find((d) => d.metric === metric)?.values;
+    };
+
+    return competition.participations
+      .filter((p) => !teamName || p.teamName === teamName)
+      .sort(
+        (a, b) =>
+          (getValues(b)?.gained ?? 0) - (getValues(a)?.gained ?? 0) ||
+          (getValues(b)?.start ?? 0) - (getValues(a)?.start ?? 0) ||
+          a.player.id - b.player.id,
+      );
+  }, [competition.participations, teamName, selectedMetric]);
+
   const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
   const showOnlyOutdated = searchParams.get("filter") === "outdated";
 

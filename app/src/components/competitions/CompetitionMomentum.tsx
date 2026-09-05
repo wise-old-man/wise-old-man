@@ -1,8 +1,14 @@
 "use client";
 
-import { formatNumber, PlayerResponse } from "@wise-old-man/utils";
+import {
+  CompetitionDetailsResponse,
+  formatNumber,
+  MetricDelta,
+  PlayerResponse,
+} from "@wise-old-man/utils";
 import { useCompetitionTimeMachine } from "~/hooks/useCompetitionTimeMachine";
 import { FormattedNumber } from "../FormattedNumber";
+import { MetricDeltasTooltip } from "../MetricDeltasTooltip";
 import { PlayerIdentity } from "../PlayerIdentity";
 import { useCompetitionPageContext } from "./CompetitionPageContext";
 
@@ -13,6 +19,8 @@ const MAX_ENTRIES = 5;
 interface MomentumEntry {
   player: PlayerResponse;
   gained: number;
+  // The gains of the past 24h, for every metric, so they can be shown as a tooltip breakdown.
+  deltas: CompetitionDetailsResponse["participations"][number]["deltas"];
   currentStanding: number;
   currentGap: number;
   previousGap: number;
@@ -79,6 +87,14 @@ export function CompetitionMomentum() {
                         value={entry.gained}
                         colored
                         className="text-xs font-semibold tabular-nums"
+                        tooltipContent={
+                          <MetricDeltasTooltip
+                            deltas={entry.deltas}
+                            focusedMetric={selectedMetric ?? "total"}
+                            type="values"
+                            field="gained"
+                          />
+                        }
                       />
                     </li>
                   ))}
@@ -114,6 +130,9 @@ function calculateMomentumEntries(
     competition.participations.map((p) => [p.player.username, p.player]),
   );
 
+  // Every participation holds the same metrics, in the same order (with "total" first, if present).
+  const metrics = competition.participations[0]?.deltas.map((d) => d.metric) ?? [];
+
   return Array.from(currentMap.entries())
     .flatMap(([username, current]) => {
       const previous = previousMap.get(username);
@@ -128,6 +147,25 @@ function calculateMomentumEntries(
       if (gained <= 0) {
         return [];
       }
+
+      const deltas = metrics.flatMap((metricKey) => {
+        const metricCurrent = currentStandings.get(metricKey)?.get(username);
+        const metricPrevious = previousStandings?.get(metricKey)?.get(username);
+
+        if (!metricCurrent || !metricPrevious) {
+          return [];
+        }
+
+        // Both snapshots hold gains since the start of the competition, so the gains of the
+        // past 24h are the difference between them.
+        return [
+          {
+            metric: metricKey,
+            values: buildPastDayDelta(metricPrevious.delta.values, metricCurrent.delta.values),
+            levels: buildPastDayDelta(metricPrevious.delta.levels, metricCurrent.delta.levels),
+          },
+        ];
+      });
 
       // Everyone measures themselves against 1st place, except 1st place themselves,
       // who measure their lead over 2nd.
@@ -145,6 +183,7 @@ function calculateMomentumEntries(
         {
           player,
           gained,
+          deltas,
           currentStanding: current.rank,
           currentGap,
           previousGap,
@@ -153,6 +192,14 @@ function calculateMomentumEntries(
     })
     .sort((a, b) => b.gained - a.gained)
     .slice(0, MAX_ENTRIES);
+}
+
+function buildPastDayDelta(previous: MetricDelta, current: MetricDelta): MetricDelta {
+  return {
+    start: previous.gained,
+    end: current.gained,
+    gained: current.gained - previous.gained,
+  };
 }
 
 function getGapCaption(entry: MomentumEntry) {

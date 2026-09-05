@@ -3,7 +3,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { CompetitionDetailsResponse, Metric } from "@wise-old-man/utils";
 import Link from "next/link";
-import { cn } from "~/utils/styling";
 import { Button } from "../Button";
 import { DataTable } from "../DataTable";
 import { FormattedNumber } from "../FormattedNumber";
@@ -169,7 +168,8 @@ function getColumnDefinitions(focusedMetric: Metric | undefined): ColumnDef<Team
         return (
           row.participations.reduce(
             (acc, curr) =>
-              acc + (curr.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0),
+              acc +
+              (curr.deltas.find((d) => d.metric === (focusedMetric ?? "total"))?.values.gained ?? 0),
             0,
           ) / row.participations.length
         );

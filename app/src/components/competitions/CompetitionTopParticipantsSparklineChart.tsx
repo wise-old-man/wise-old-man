@@ -75,8 +75,10 @@ function Card(props: PropsWithChildren<{ expandable?: boolean }>) {
 
 function Message(props: PropsWithChildren) {
   return (
-    <div className="flex h-20 items-center justify-center overflow-hidden rounded-lg border border-dashed border-gray-500 px-8">
-      <span className="line-clamp-3 text-center text-sm text-gray-200">{props.children}</span>
+    <div className="flex h-20 items-center justify-center overflow-hidden rounded-lg border border-dashed border-gray-500 px-4">
+      <span className="max-w-[16rem] text-center text-sm text-gray-200 [text-wrap:balance]">
+        {props.children}
+      </span>
     </div>
   );
 }
