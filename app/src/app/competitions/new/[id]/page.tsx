@@ -196,9 +196,6 @@ function Header({ competitionDetails }: { competitionDetails: CompetitionDetails
             <QueryLink query={{ dialog: "delete" }}>
               <DropdownMenuItem>Delete</DropdownMenuItem>
             </QueryLink>
-            <QueryLink query={{ dialog: "preview" }}>
-              <DropdownMenuItem>Preview as...</DropdownMenuItem>
-            </QueryLink>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
