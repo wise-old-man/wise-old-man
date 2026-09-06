@@ -92,7 +92,7 @@ export default async function CompetitionPage(props: PageProps) {
   return (
     <CompetitionPageProvider competition={competition} previewMetric={previewMetric}>
       <Container>
-        {competition.visible && (
+        {!competition.visible && (
           <div className="mb-7">
             <CompetitionLimitedVisibilityAlert />
           </div>
