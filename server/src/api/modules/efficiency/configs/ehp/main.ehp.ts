@@ -579,12 +579,12 @@ export default [
         description: 'Hallowed Sepulchre'
       },
       {
-        startExp: 2_421_087,
+        startExp: 1_475_581,
         rate: 79_700,
         description: 'Hallowed Sepulchre'
       },
       {
-        startExp: 6_517_253,
+        startExp: 3_972_294,
         rate: 102_000,
         description: 'Hallowed Sepulchre with ancient & forgotten brews'
       }
