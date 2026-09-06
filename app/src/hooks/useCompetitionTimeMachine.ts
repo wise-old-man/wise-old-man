@@ -59,6 +59,8 @@ function useCompetitionDetails24hAgo(competition: CompetitionDetailsResponse, pr
       .map((p) => p.player.username);
   }, [competition]);
 
+  const isEnabled = activeParticipantUsernames.length > 0;
+
   return useQuery({
     queryKey: ["competition-time-machine", competition.id, previewMetric],
     queryFn: async () => {
@@ -78,7 +80,7 @@ function useCompetitionDetails24hAgo(competition: CompetitionDetailsResponse, pr
         `/competitions/${competition.id}?${params.toString()}`,
       );
     },
-    enabled: activeParticipantUsernames.length > 0,
+    enabled: isEnabled,
     staleTime: 3600_000,
   });
 }

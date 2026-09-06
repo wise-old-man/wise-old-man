@@ -164,6 +164,8 @@ function useColumnDefinition() {
   const { competition, selectedMetric } = useCompetitionPageContext();
   const { getPlayerStandings, isLoading } = useCompetitionTimeMachine();
 
+  const hasEnded = competition.endsAt.getTime() <= new Date().getTime();
+
   const columns: ColumnDef<CompetitionDetailsResponse["participations"][number]>[] = [
     {
       id: "rank",
@@ -176,20 +178,22 @@ function useColumnDefinition() {
       cell: ({ row }) => {
         const standings = getPlayerStandings(row.original.player.username, selectedMetric ?? "total");
 
-        const diffElement = isLoading ? (
-          <div className="h-3 w-8 animate-pulse rounded-full bg-gray-700" />
-        ) : (
-          <>
-            {standings.current && standings.previous && (
-              <RankDiff diff={standings.previous.rank - standings.current.rank} />
-            )}
-          </>
-        );
-
         return (
           <div className="flex items-center gap-x-2 tabular-nums">
             {row.getValue("rank")}
-            {diffElement}
+            {!hasEnded && (
+              <>
+                {isLoading ? (
+                  <div className="h-3 w-8 animate-pulse rounded-full bg-gray-700" />
+                ) : (
+                  <>
+                    {standings.current && standings.previous && (
+                      <RankDiff diff={standings.previous.rank - standings.current.rank} />
+                    )}
+                  </>
+                )}
+              </>
+            )}
           </div>
         );
       },
