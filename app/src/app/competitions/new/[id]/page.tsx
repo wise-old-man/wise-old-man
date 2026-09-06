@@ -22,6 +22,7 @@ import { getMetricParam } from "~/utils/params";
 import { naivePluralize } from "~/utils/strings";
 import { cn } from "~/utils/styling";
 
+import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import { CompetitionActivePlayers } from "~/components/competitions/CompetitionActivePlayers";
 import { CompetitionCountdown } from "~/components/competitions/CompetitionCountdown";
 import { CompetitionLimitedVisibilityAlert } from "~/components/competitions/CompetitionLimitedVisibilityAlert";
@@ -92,6 +93,24 @@ export default async function CompetitionPage(props: PageProps) {
   return (
     <CompetitionPageProvider competition={competition} previewMetric={previewMetric}>
       <Container>
+        <div className="mb-8">
+          <Alert className="border-blue-700 bg-blue-900/10 px-4 py-3">
+            <AlertTitle className="mb-0">
+              You&apos;re looking at a half-baked new competition page!
+            </AlertTitle>
+            <AlertDescription>
+              Still a work in progress, please share any feedback and bugs you find with us on{" "}
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://wiseoldman.net/discord"
+                className="text-white underline"
+              >
+                our Discord
+              </a>
+            </AlertDescription>
+          </Alert>
+        </div>
         {!competition.visible && (
           <div className="mb-7">
             <CompetitionLimitedVisibilityAlert />
