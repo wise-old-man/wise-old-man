@@ -99,15 +99,30 @@ export default async function CompetitionPage(props: PageProps) {
               You&apos;re looking at a half-baked new competition page!
             </AlertTitle>
             <AlertDescription>
-              Still a work in progress, please share any feedback and bugs you find with us on{" "}
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://wiseoldman.net/discord"
-                className="text-white underline"
-              >
-                our Discord
-              </a>
+              <p>
+                Along with other smaller features, this new page layout will allow for &quot;multiple
+                metric&quot; competitions{" "}
+                {parseInt(String(id)) !== 104505 && (
+                  <Link
+                    rel="nofollow"
+                    href={`/competitions/new/104505`}
+                    className="text-white underline"
+                  >
+                    (example here)
+                  </Link>
+                )}{" "}
+                which has been a highly requested feature for a long time - Still a work in progress,
+                please share any feedback and bugs you find with us on{" "}
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://wiseoldman.net/discord"
+                  className="text-white underline"
+                >
+                  our Discord
+                </a>
+                {". "}
+              </p>
             </AlertDescription>
           </Alert>
         </div>
