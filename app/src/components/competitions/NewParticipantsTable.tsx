@@ -184,7 +184,7 @@ function useColumnDefinition() {
             {!hasEnded && (
               <>
                 {isLoading ? (
-                  <div className="h-3 w-8 animate-pulse rounded-full bg-gray-700" />
+                  <div className="h-3 w-9 animate-pulse rounded-full bg-gray-700" />
                 ) : (
                   <>
                     {standings.current && standings.previous && (
