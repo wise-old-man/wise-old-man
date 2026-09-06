@@ -6,7 +6,6 @@ import {
   Metric,
 } from "@wise-old-man/utils";
 import Link from "next/link";
-import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import { Button } from "~/components/Button";
 import { Container } from "~/components/Container";
 import {
@@ -25,6 +24,7 @@ import { cn } from "~/utils/styling";
 
 import { CompetitionActivePlayers } from "~/components/competitions/CompetitionActivePlayers";
 import { CompetitionCountdown } from "~/components/competitions/CompetitionCountdown";
+import { CompetitionLimitedVisibilityAlert } from "~/components/competitions/CompetitionLimitedVisibilityAlert";
 import { CompetitionMetricTabs } from "~/components/competitions/CompetitionMetricTabs";
 import { CompetitionMomentum } from "~/components/competitions/CompetitionMomentum";
 import { CompetitionPageProvider } from "~/components/competitions/CompetitionPageContext";
@@ -92,7 +92,11 @@ export default async function CompetitionPage(props: PageProps) {
   return (
     <CompetitionPageProvider competition={competition} previewMetric={previewMetric}>
       <Container>
-        {!competition.visible && <LimitedVisibilityAlert />}
+        {competition.visible && (
+          <div className="mb-7">
+            <CompetitionLimitedVisibilityAlert />
+          </div>
+        )}
         {isEndingSoon && (
           <div className="mb-7">
             <CompetitionStatusWarning status="ending" />
@@ -200,30 +204,5 @@ function Header({ competitionDetails }: { competitionDetails: CompetitionDetails
         </DropdownMenu>
       </div>
     </div>
-  );
-}
-
-function LimitedVisibilityAlert() {
-  return (
-    <Alert variant="warn" className="mb-7 border-orange-700 bg-orange-900/10">
-      <div>
-        <AlertTitle className="mb-0">This page has limited visibility</AlertTitle>
-        <AlertDescription>
-          <p>
-            This competition has been hidden due to suspicious activity. Progress gained in it will still
-            be tracked.{" "}
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://wiseoldman.net/discord"
-              className="text-white underline"
-            >
-              Contact us on Discord
-            </a>
-            {" for help."}
-          </p>
-        </AlertDescription>
-      </div>
-    </Alert>
   );
 }
