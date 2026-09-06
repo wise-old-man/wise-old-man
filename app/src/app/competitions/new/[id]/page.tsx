@@ -168,7 +168,7 @@ function Header({ competitionDetails }: { competitionDetails: CompetitionDetails
 
   return (
     <div className="flex flex-grow flex-col items-center justify-between gap-y-5 sm:flex-row">
-      <div className="flex w-full flex-col items-center gap-3 sm:flex-row">
+      <div className="flex w-full flex-row items-center gap-3">
         <MetricAvatarGroup size="lg" metrics={competitionDetails.metrics.map((m) => m.metric)} />
         <div className="flex flex-col gap-y-0.5">
           <h1 className="line-clamp-1 text-xl font-semibold text-white xl:text-2xl">
