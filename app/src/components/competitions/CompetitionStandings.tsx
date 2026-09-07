@@ -9,7 +9,7 @@ import ArrowRightIcon from "~/assets/arrow_right.svg";
 import { QueryLink } from "../QueryLink";
 
 export function CompetitionStandings() {
-  const { competition, selectedMetric } = useCompetitionPageContext();
+  const { competition } = useCompetitionPageContext();
 
   const searchParams = useSearchParams();
 
