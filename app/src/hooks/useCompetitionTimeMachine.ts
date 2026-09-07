@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { CompetitionDetailsResponse, Metric } from "@wise-old-man/utils";
 import { useCallback, useMemo } from "react";
 import { useCompetitionPageContext } from "~/components/competitions/CompetitionPageContext";
+import { sortParticipations } from "~/utils/competitions";
 import { useWOMClient } from "./useWOMClient";
 
 interface PlayerStanding {
@@ -31,6 +32,49 @@ export function useCompetitionTimeMachine() {
     return buildStandingsCache(metrics, competitionDetails24hAgo.data);
   }, [metrics, competitionDetails24hAgo]);
 
+  // The 24h-ago snapshot only covers a subset of the participants, so rank movement has to be
+  // measured within that subset. Comparing a rank among 50 players against a rank among all of
+  // them would invent movement that never happened.
+  const rankDiffs = useMemo(() => {
+    if (previousStandings === undefined) {
+      return undefined;
+    }
+
+    const map = new Map<Metric | "total", Map<string, number>>();
+
+    for (const [metric, previousMap] of previousStandings) {
+      const currentMap = currentStandings.get(metric);
+
+      if (currentMap === undefined) {
+        continue;
+      }
+
+      const currentSubsetRanks = buildSubsetRanks(currentMap, previousMap);
+      const previousSubsetRanks = buildSubsetRanks(previousMap, currentMap);
+
+      const diffs = new Map<string, number>();
+
+      for (const [username, currentRank] of currentSubsetRanks) {
+        const previousRank = previousSubsetRanks.get(username);
+
+        if (previousRank !== undefined) {
+          diffs.set(username, previousRank - currentRank);
+        }
+      }
+
+      map.set(metric, diffs);
+    }
+
+    return map;
+  }, [currentStandings, previousStandings]);
+
+  const getPlayerRankDiff = useCallback(
+    (username: string, metric: Metric | "total") => {
+      return rankDiffs?.get(metric)?.get(username);
+    },
+    [rankDiffs],
+  );
+
   const getPlayerStandings = useCallback(
     (username: string, metric: Metric | "total") => {
       return {
@@ -45,6 +89,7 @@ export function useCompetitionTimeMachine() {
     isLoading: competitionDetails24hAgo.isLoading,
     isError: competitionDetails24hAgo.isError,
     getPlayerStandings,
+    getPlayerRankDiff,
     currentStandings,
     previousStandings,
   };
@@ -58,6 +103,12 @@ function useCompetitionDetails24hAgo(competition: CompetitionDetailsResponse, pr
       .filter((p) => p.deltas[0].values.gained > 0)
       .map((p) => p.player.username);
   }, [competition]);
+
+  // A competition that is younger than 24h has gained nothing in that window, so its
+  // current data is also its 24h-ago snapshot. There is nothing to compare against.
+  const startedWithinLast24h = Date.now() - competition.startsAt.getTime() < 24 * 60 * 60 * 1000;
+
+  const isEnabled = !startedWithinLast24h && activeParticipantUsernames.length > 0;
 
   return useQuery({
     queryKey: ["competition-time-machine", competition.id, previewMetric],
@@ -78,9 +129,27 @@ function useCompetitionDetails24hAgo(competition: CompetitionDetailsResponse, pr
         `/competitions/${competition.id}?${params.toString()}`,
       );
     },
-    enabled: activeParticipantUsernames.length > 0,
-    staleTime: 3600_000,
+    enabled: isEnabled,
+    staleTime: 300_000,
   });
+}
+
+/**
+ * Ranks the players that both snapshots hold, in the order of the first one.
+ *
+ * Both maps are built in rank order, so keeping only the shared usernames and re-numbering
+ * them gives each player their rank within the group that can actually be compared.
+ */
+function buildSubsetRanks(source: Map<string, PlayerStanding>, restrictTo: Map<string, PlayerStanding>) {
+  const ranks = new Map<string, number>();
+
+  for (const username of source.keys()) {
+    if (restrictTo.has(username)) {
+      ranks.set(username, ranks.size + 1);
+    }
+  }
+
+  return ranks;
 }
 
 /**
@@ -90,13 +159,12 @@ function buildStandingsCache(metrics: Metric[], competition: CompetitionDetailsR
   const map = new Map<Metric | "total", Map<string, PlayerStanding>>();
 
   for (const metric of [...metrics, "total" as const]) {
-    const standings = competition.participations
+    const standings = sortParticipations(competition.participations, metric)
       .map((p) => ({
         username: p.player.username,
         delta: p.deltas.find((d) => d.metric === metric),
       }))
-      .filter((s) => s.delta !== undefined)
-      .sort((a, b) => b.delta!.values.gained - a.delta!.values.gained);
+      .filter((s) => s.delta !== undefined);
 
     map.set(
       metric,

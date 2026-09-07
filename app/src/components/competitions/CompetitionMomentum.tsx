@@ -26,9 +26,39 @@ interface MomentumEntry {
   previousGap: number;
 }
 
-export function CompetitionMomentum() {
+export function Inner() {
   const { competition, selectedMetric } = useCompetitionPageContext();
   const { currentStandings, previousStandings, isLoading, isError } = useCompetitionTimeMachine();
+
+  if (isError) {
+    return (
+      <div className="mx-3 mb-3 flex h-20 items-center justify-center rounded-lg border border-dashed border-gray-500 px-6 text-center text-sm text-gray-200">
+        Failed to load momentum data. Please try again later.
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <ul>
+        {Array.from({ length: MAX_ENTRIES }).map((_, index) => (
+          <li
+            key={index}
+            className="flex items-center justify-between border-t border-gray-700 px-4 py-3 shadow-none"
+          >
+            <div className="flex gap-x-3">
+              <div className="h-8 w-8 animate-pulse rounded-full bg-gray-600" />
+              <div className="flex flex-col justify-center gap-y-2">
+                <div className="h-4 w-24 animate-pulse rounded bg-gray-600" />
+                <div className="h-3 w-36 animate-pulse rounded bg-gray-600" />
+              </div>
+            </div>
+            <div className="h-3 w-10 animate-pulse rounded bg-gray-600" />
+          </li>
+        ))}
+      </ul>
+    );
+  }
 
   const entries = calculateMomentumEntries(
     competition,
@@ -37,6 +67,42 @@ export function CompetitionMomentum() {
     previousStandings,
   );
 
+  if (entries.length === 0) {
+    return (
+      <div className="mx-3 mb-3 flex h-20 items-center justify-center rounded-lg border border-dashed border-gray-500 px-6 text-center text-sm text-gray-200">
+        No gains to show.
+      </div>
+    );
+  }
+
+  return (
+    <ul>
+      {entries.map((entry) => (
+        <li
+          key={entry.player.id}
+          className="flex items-center justify-between border-t border-gray-700 px-4 py-3 shadow-none"
+        >
+          <PlayerIdentity player={entry.player} caption={getGapCaption(entry)} />
+          <FormattedNumber
+            value={entry.gained}
+            colored
+            className="text-xs font-semibold tabular-nums"
+            tooltipContent={
+              <MetricDeltasTooltip
+                deltas={entry.deltas}
+                focusedMetric={selectedMetric ?? "total"}
+                type="values"
+                field="gained"
+              />
+            }
+          />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function CompetitionMomentum() {
   return (
     <div className="rounded-lg border border-gray-600 bg-gray-800">
       <div className="flex flex-col gap-x-1 px-4 py-3">
@@ -45,65 +111,7 @@ export function CompetitionMomentum() {
           Highest gains in the <span className="text-white">past 24h</span>
         </span>
       </div>
-      {isError ? (
-        <div className="mx-3 mb-3 flex h-20 items-center justify-center rounded-lg border border-dashed border-gray-500 px-6 text-center text-sm text-gray-200">
-          Failed to load momentum data. Please try again later.
-        </div>
-      ) : (
-        <>
-          {isLoading ? (
-            <ul>
-              {Array.from({ length: MAX_ENTRIES }).map((_, index) => (
-                <li
-                  key={index}
-                  className="flex items-center justify-between border-t border-gray-700 px-4 py-3 shadow-none"
-                >
-                  <div className="flex gap-x-3">
-                    <div className="h-8 w-8 animate-pulse rounded-full bg-gray-600" />
-                    <div className="flex flex-col justify-center gap-y-2">
-                      <div className="h-4 w-24 animate-pulse rounded bg-gray-600" />
-                      <div className="h-3 w-36 animate-pulse rounded bg-gray-600" />
-                    </div>
-                  </div>
-                  <div className="h-3 w-10 animate-pulse rounded bg-gray-600" />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <>
-              {entries.length === 0 ? (
-                <div className="mx-3 mb-3 flex h-20 items-center justify-center rounded-lg border border-dashed border-gray-500 px-6 text-center text-sm text-gray-200">
-                  No gains yet.
-                </div>
-              ) : (
-                <ul>
-                  {entries.map((entry) => (
-                    <li
-                      key={entry.player.id}
-                      className="flex items-center justify-between border-t border-gray-700 px-4 py-3 shadow-none"
-                    >
-                      <PlayerIdentity player={entry.player} caption={getGapCaption(entry)} />
-                      <FormattedNumber
-                        value={entry.gained}
-                        colored
-                        className="text-xs font-semibold tabular-nums"
-                        tooltipContent={
-                          <MetricDeltasTooltip
-                            deltas={entry.deltas}
-                            focusedMetric={selectedMetric ?? "total"}
-                            type="values"
-                            field="gained"
-                          />
-                        }
-                      />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </>
-          )}
-        </>
-      )}
+      <Inner />
     </div>
   );
 }

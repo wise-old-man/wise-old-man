@@ -14,6 +14,7 @@ import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useToast } from "~/hooks/useToast";
 import { useWOMClient } from "~/hooks/useWOMClient";
+import { sortParticipations } from "~/utils/competitions";
 import { timeago } from "~/utils/dates";
 import { cn } from "~/utils/styling";
 import { Button } from "../Button";
@@ -36,26 +37,25 @@ export function NewParticipantsTable({ teamName }: { teamName?: string }) {
   const { competition, selectedMetric } = useCompetitionPageContext();
 
   const searchParams = useSearchParams();
-  const columns = useColumnDefinition();
 
   // The API only sorts the standings by one metric (the competition's "total", or the previewed metric).
   // Switching metric tabs doesn't refetch, so the rows have to be re-sorted client-side.
+  const sortedParticipations = useMemo(() => {
+    return sortParticipations(competition.participations, selectedMetric ?? "total");
+  }, [competition.participations, selectedMetric]);
+
+  // Ranks are always relative to the whole competition, even when the table is filtered
+  // down to a single team (or to the outdated participants).
+  const ranks = useMemo(() => {
+    return new Map(sortedParticipations.map((p, index) => [p.player.id, index + 1]));
+  }, [sortedParticipations]);
+
+  const columns = useColumnDefinition(ranks);
+
   const rows = useMemo(() => {
-    const metric = selectedMetric ?? "total";
-
-    const getValues = (p: CompetitionDetailsResponse["participations"][number]) => {
-      return p.deltas.find((d) => d.metric === metric)?.values;
-    };
-
-    return competition.participations
-      .filter((p) => !teamName || p.teamName === teamName)
-      .sort(
-        (a, b) =>
-          (getValues(b)?.gained ?? 0) - (getValues(a)?.gained ?? 0) ||
-          (getValues(b)?.start ?? 0) - (getValues(a)?.start ?? 0) ||
-          a.player.id - b.player.id,
-      );
-  }, [competition.participations, teamName, selectedMetric]);
+    if (!teamName) return sortedParticipations;
+    return sortedParticipations.filter((p) => p.teamName === teamName);
+  }, [sortedParticipations, teamName]);
 
   const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
   const showOnlyOutdated = searchParams.get("filter") === "outdated";
@@ -160,9 +160,11 @@ function TeamHeader({
   );
 }
 
-function useColumnDefinition() {
+function useColumnDefinition(ranks: Map<number, number>) {
   const { competition, selectedMetric } = useCompetitionPageContext();
-  const { getPlayerStandings, isLoading } = useCompetitionTimeMachine();
+  const { getPlayerRankDiff, isLoading } = useCompetitionTimeMachine();
+
+  const hasEnded = competition.endsAt.getTime() <= new Date().getTime();
 
   const columns: ColumnDef<CompetitionDetailsResponse["participations"][number]>[] = [
     {
@@ -170,26 +172,24 @@ function useColumnDefinition() {
       header: ({ column }) => {
         return <TableSortButton column={column}>Rank</TableSortButton>;
       },
-      accessorFn: (_, index) => {
-        return index + 1;
+      accessorFn: (row) => {
+        return ranks.get(row.player.id) ?? Infinity;
       },
       cell: ({ row }) => {
-        const standings = getPlayerStandings(row.original.player.username, selectedMetric ?? "total");
-
-        const diffElement = isLoading ? (
-          <div className="h-3 w-8 animate-pulse rounded-full bg-gray-700" />
-        ) : (
-          <>
-            {standings.current && standings.previous && (
-              <RankDiff diff={standings.previous.rank - standings.current.rank} />
-            )}
-          </>
-        );
+        const rankDiff = getPlayerRankDiff(row.original.player.username, selectedMetric ?? "total");
 
         return (
           <div className="flex items-center gap-x-2 tabular-nums">
             {row.getValue("rank")}
-            {diffElement}
+            {!hasEnded && (
+              <>
+                {isLoading ? (
+                  <div className="h-3 w-9 animate-pulse rounded-full bg-gray-700" />
+                ) : (
+                  <>{rankDiff !== undefined && <RankDiff diff={rankDiff} />}</>
+                )}
+              </>
+            )}
           </div>
         );
       },

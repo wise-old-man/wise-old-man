@@ -54,6 +54,16 @@ export function CompetitionDetailsNavigation(props: CompetitionDetailsNavigation
           })}
         </TabsList>
       </Tabs>
+      <div className="absolute bottom-5 right-0">
+        <Link
+          prefetch={false}
+          rel="nofollow"
+          href={`/competitions/new/${competition.id}`}
+          className="text-sm text-gray-100 hover:text-white hover:underline"
+        >
+          💡 Check out the beta page!
+        </Link>
+      </div>
     </div>
   );
 }
