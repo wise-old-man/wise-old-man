@@ -43,6 +43,7 @@ import { EmptyGroupDialog } from "./EmptyGroupDialog";
 import { Input } from "../Input";
 import { BannerImageUpload, ProfileImageUpload } from "../ImageUpload";
 import { GroupVerificationCodeCheckDialog } from "./GroupVerificationCodeCheckDialog";
+import { DeleteGroupDialog } from "./DeleteGroupDialog";
 
 import WebIcon from "~/assets/web.svg";
 import TwitchIcon from "~/assets/twitch.svg";
@@ -112,6 +113,7 @@ export function EditGroupForm(props: EditGroupFormProps) {
               verificationCode={verificationCode || ""}
             />
           )}
+          {section === "danger" && <DangerZoneSection {...props} key={group.updatedAt.toString()} />}
         </div>
       </div>
 
@@ -647,6 +649,30 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
   );
 }
 
+function DangerZoneSection(props: EditGroupFormProps) {
+  const { group } = props;
+
+  return (
+    <div className="flex w-full flex-col">
+      <Alert variant="error">
+        <AlertTitle>Delete group</AlertTitle>
+        <AlertDescription className="mt-3">
+          <p>This action cannot be undone. This will permanently delete this group and all its data.</p>
+
+          <div className="mt-5">
+            <QueryLink query={{ dialog: "delete" }}>
+              <Button variant="red">Delete group</Button>
+            </QueryLink>
+          </div>
+        </AlertDescription>
+      </Alert>
+
+      {/* Dialogs */}
+      <DeleteGroupDialog groupId={group.id} groupName={group.name} />
+    </div>
+  );
+}
+
 interface SideNavigationProps {
   isPatron: boolean;
 }
@@ -660,6 +686,7 @@ function SideNavigation(props: SideNavigationProps) {
     { name: "Members", value: "members" },
     { name: "Profile images", value: "images" },
     { name: "Social links", value: "links" },
+    { name: "Danger zone", value: "danger" },
   ];
 
   return (
@@ -669,7 +696,10 @@ function SideNavigation(props: SideNavigationProps) {
           <TabsList>
             {sections.map((s) => (
               <QueryLink key={s.value} query={{ section: s.value }}>
-                <TabsTrigger value={s.value}>
+                <TabsTrigger
+                  value={s.value}
+                  className={cn(s.value === "danger" && "text-red-500 data-[state=active]:text-red-500")}
+                >
                   {s.name}
                   {!props.isPatron && (s.value === "images" || s.value === "links") && (
                     <div className="ml-2 h-1.5 w-1.5 rounded-full bg-yellow-400" />
@@ -689,10 +719,19 @@ function SideNavigation(props: SideNavigationProps) {
               <li
                 className={cn(
                   "relative flex items-center justify-between overflow-hidden rounded px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 active:bg-gray-600",
+                  s.value === "danger" && "text-red-500",
                   isSelected && "bg-gray-700 text-white",
+                  isSelected && s.value === "danger" && "text-red-500",
                 )}
               >
-                {isSelected && <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500" />}
+                {isSelected && (
+                  <div
+                    className={cn(
+                      "absolute bottom-0 left-0 top-0 w-0.5 bg-blue-500",
+                      s.value === "danger" && "bg-red-500",
+                    )}
+                  />
+                )}
                 {s.name}
                 {!props.isPatron && (s.value === "images" || s.value === "links") && (
                   <div className="h-1.5 w-1.5 rounded-full bg-yellow-400" />
