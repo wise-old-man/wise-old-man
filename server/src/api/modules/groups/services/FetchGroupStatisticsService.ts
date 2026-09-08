@@ -29,19 +29,19 @@ import {
 } from '../../snapshots/snapshot.utils';
 
 async function fetchGroupStatistics(groupId: number): Promise<GroupStatisticsResponse> {
+  const group = await prisma.group.findFirst({
+    where: { id: groupId, deletedAt: null }
+  });
+
+  if (!group) {
+    throw new NotFoundError('Group not found.');
+  }
+
   const memberships = await prisma.membership.findMany({
     where: { groupId }
   });
 
   if (!memberships || memberships.length === 0) {
-    const group = await prisma.group.findFirst({
-      where: { id: groupId }
-    });
-
-    if (!group) {
-      throw new NotFoundError('Group not found.');
-    }
-
     throw new BadRequestError("Couldn't find any stats for this group.");
   }
 

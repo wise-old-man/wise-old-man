@@ -132,21 +132,22 @@ model CachedDelta {
 }
 
 model Group {
-  id               Int      @id @default(autoincrement())
-  name             String   @db.VarChar(30)
-  clanChat         String?  @db.VarChar(12)
-  description      String?  @db.VarChar(100)
+  id               Int       @id @default(autoincrement())
+  name             String    @db.VarChar(30)
+  clanChat         String?   @db.VarChar(12)
+  description      String?   @db.VarChar(100)
   homeworld        Int?
-  verified         Boolean  @default(false)
-  patron           Boolean  @default(false)
-  visible          Boolean  @default(true)
-  profileImage     String?  @db.VarChar(255)
-  bannerImage      String?  @db.VarChar(255)
-  score            Int      @default(0)
-  verificationHash String   @db.VarChar(255)
-  createdAt        DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt        DateTime @updatedAt @db.Timestamptz(6)
-  creatorIpHash    String?  @db.VarChar(255)
+  verified         Boolean   @default(false)
+  patron           Boolean   @default(false)
+  visible          Boolean   @default(true)
+  profileImage     String?   @db.VarChar(255)
+  bannerImage      String?   @db.VarChar(255)
+  score            Int       @default(0)
+  verificationHash String    @db.VarChar(255)
+  createdAt        DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @db.Timestamptz(6)
+  deletedAt        DateTime? @db.Timestamptz(6)
+  creatorIpHash    String?   @db.VarChar(255)
 
   // Relations
   competitions   Competition[]
@@ -160,6 +161,7 @@ model Group {
   @@unique([name], map: "groups_name_key")
   @@index([patron], map: "groups_patron")
   @@index([creatorIpHash], map: "groups_creator_ip_hash")
+  @@index([deletedAt], map: "groups_deleted_at")
   // Map
   @@map("groups")
 }
