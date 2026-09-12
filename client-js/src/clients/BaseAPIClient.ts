@@ -14,7 +14,17 @@ export default class BaseAPIClient {
 
     Object.keys(params)
       .filter(k => params[k] !== undefined)
-      .forEach(k => builder.set(k, params[k]));
+      .forEach(k => {
+        const value = params[k];
+
+        // Array params are repeated (ex: "?preview=magic&preview=ranged"),
+        // which is the format the API expects for them.
+        if (Array.isArray(value)) {
+          value.forEach(v => builder.append(k, v));
+        } else {
+          builder.set(k, value);
+        }
+      });
 
     const query = builder.toString();
     return query ? `?${query}` : '';

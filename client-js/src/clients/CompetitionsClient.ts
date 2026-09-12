@@ -36,8 +36,10 @@ export default class CompetitionsClient extends BaseAPIClient {
    * Fetches the competition's full details, including all the participants and their progress.
    * @returns A competition with a list of participants.
    */
-  getCompetitionDetails(id: number, previewMetric?: Metric) {
-    return this.getRequest<CompetitionDetailsResponse>(`/competitions/${id}`, { metric: previewMetric });
+  getCompetitionDetails(id: number, previewMetrics?: Metric[]) {
+    return this.getRequest<CompetitionDetailsResponse>(`/competitions/${id}`, {
+      preview: previewMetrics
+    });
   }
 
   /**
@@ -47,12 +49,16 @@ export default class CompetitionsClient extends BaseAPIClient {
   getCompetitionDetailsCSV(
     id: number,
     params?: {
-      previewMetric?: Metric;
+      previewMetrics?: Metric[];
       teamName?: string;
       table?: CompetitionCSVTableType;
     }
   ) {
-    return this.getText(`/competitions/${id}/csv`, { metric: params?.previewMetric, ...params });
+    return this.getText(`/competitions/${id}/csv`, {
+      preview: params?.previewMetrics,
+      teamName: params?.teamName,
+      table: params?.table
+    });
   }
 
   /**
@@ -60,9 +66,9 @@ export default class CompetitionsClient extends BaseAPIClient {
    * of the competition, for the top participants.
    * @returns A list of competition progress objects, including the player and their value history over time.
    */
-  getCompetitionTopHistory(id: number, previewMetric?: Metric | undefined, limit?: number) {
+  getCompetitionTopHistory(id: number, previewMetrics?: Metric[], limit?: number) {
     return this.getRequest<Array<ParticipantHistoryResponse>>(`/competitions/${id}/top-history`, {
-      metric: previewMetric,
+      preview: previewMetrics,
       limit
     });
   }
