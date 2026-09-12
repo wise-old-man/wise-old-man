@@ -6,25 +6,11 @@ export type EventPayloadMap = {
   [EventType.COMPETITION_CREATED]: {
     competitionId: number;
   };
-  [EventType.COMPETITION_ENDED]: {
-    competitionId: number;
-  };
-  [EventType.COMPETITION_ENDING]: {
-    competitionId: number;
-    minutesLeft: number;
-  };
   [EventType.COMPETITION_PARTICIPANTS_JOINED]: {
     competitionId: number;
     participants: Array<{
       playerId: number;
     }>;
-  };
-  [EventType.COMPETITION_STARTED]: {
-    competitionId: number;
-  };
-  [EventType.COMPETITION_STARTING]: {
-    competitionId: number;
-    minutesLeft: number;
   };
   [EventType.COMPETITION_UPDATED]: {
     competitionId: number;
