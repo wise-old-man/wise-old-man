@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { z } from 'zod';
-import { GroupRole } from '../../types';
+import { GroupRole, Metric } from '../../types';
 
 function enumErrorMap(path: Array<string | number>, options: Array<string | number>) {
   if (path.length === 1 && path[0] === 'country') {
@@ -160,6 +160,11 @@ export const queryParamStringArray = z.preprocess(
   val => (typeof val === 'string' ? [val] : val),
   z.array(z.string()).nonempty()
 ) as unknown as z.ZodType<string[]>;
+
+export const queryParamMetricsArray = z.preprocess(
+  v => (typeof v === 'string' ? [v] : v),
+  z.array(z.nativeEnum(Metric)).nonempty()
+) as unknown as z.ZodArray<z.ZodNativeEnum<typeof Metric>>;
 
 export function getDateSchema(propName: string) {
   return z

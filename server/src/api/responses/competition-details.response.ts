@@ -30,8 +30,7 @@ export function formatCompetitionDetailsResponse({
   competition,
   metrics,
   group,
-  participations,
-  sortingMetricIndex
+  participations
 }: {
   competition: Competition;
   metrics: CompetitionMetric[];
@@ -45,7 +44,6 @@ export function formatCompetitionDetailsResponse({
       levels: MetricDelta;
     }>;
   }>;
-  sortingMetricIndex: number;
 }): CompetitionDetailsResponse {
   return {
     ...formatCompetitionResponse(
@@ -65,8 +63,8 @@ export function formatCompetitionDetailsResponse({
         deltas,
 
         // Keep these around for backwards compatibility, but they should be removed in the future.
-        progress: pick(p.deltas[sortingMetricIndex].values, 'start', 'end', 'gained'),
-        levels: pick(p.deltas[sortingMetricIndex].levels, 'start', 'end', 'gained')
+        progress: pick(p.deltas[0].values, 'start', 'end', 'gained'),
+        levels: pick(p.deltas[0].levels, 'start', 'end', 'gained')
       };
     })
   };
