@@ -3,11 +3,17 @@ import { Metric, Player, Snapshot } from '../../../../types';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 
-export async function fetchCompetitionTopHistory(
-  id: number,
-  metric: Metric | undefined,
-  limit: number
-): Promise<
+export async function fetchCompetitionTopHistory({
+  id,
+  metric,
+  previewMetrics,
+  limit
+}: {
+  id: number;
+  metric?: Metric;
+  previewMetrics: Metric[];
+  limit: number;
+}): Promise<
   Array<{
     player: Player;
     history: Array<{
@@ -16,11 +22,19 @@ export async function fetchCompetitionTopHistory(
     }>;
   }>
 > {
-  const { competition, metrics, participations } = await fetchCompetitionDetails({ id, metric });
+  const { competition, metrics, participations } = await fetchCompetitionDetails({
+    id,
+    metric,
+    previewMetrics
+  });
 
   const topPlayers = participations.slice(0, limit).map(p => p.player);
 
-  const selectedMetrics = metric !== undefined ? [metric] : metrics.map(m => m.metric);
+  const selectedMetrics =
+    metric !== undefined
+      ? [metric]
+      : Array.from(new Set([...metrics.map(m => m.metric), ...(previewMetrics ?? [])]));
+
   const metricValueKeys = selectedMetrics.map(getMetricValueKey);
 
   const snapshots = (await prisma.snapshot.findMany({

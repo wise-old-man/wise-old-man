@@ -17,6 +17,7 @@ import {
   getDateSchema,
   getPaginationSchema,
   idSchema,
+  queryParamMetricsArray,
   queryParamStringArray,
   teamSchema
 } from '../../util/validation';
@@ -288,7 +289,11 @@ router.get(
       id: idSchema
     }),
     query: z.object({
+      /**
+       * @deprecated Use `preview` instead
+       */
       metric: z.optional(z.nativeEnum(Metric)),
+      preview: z.optional(queryParamMetricsArray),
 
       // Experimental - do NOT use for real applications
       usernames: z.optional(queryParamStringArray),
@@ -298,11 +303,12 @@ router.get(
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric, usernames, minDate, maxDate } = req.query;
+    const { metric, preview, usernames, minDate, maxDate } = req.query;
 
     const details = await fetchCompetitionDetails({
       id,
       metric,
+      previewMetrics: preview ?? [],
       filter: {
         usernames,
         minDate,
@@ -323,16 +329,26 @@ router.get(
       id: idSchema
     }),
     query: z.object({
+      /**
+       * @deprecated Use `preview` instead
+       */
       metric: z.optional(z.nativeEnum(Metric)),
+      preview: z.optional(queryParamMetricsArray),
       teamName: z.optional(z.string()),
       table: z.optional(z.nativeEnum(CompetitionCSVTableType))
     })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric, table, teamName } = req.query;
+    const { metric, preview, table, teamName } = req.query;
 
-    const result = await fetchCompetitionCSV(id, metric, table, teamName);
+    const result = await fetchCompetitionCSV({
+      id,
+      metric,
+      previewMetrics: preview ?? [],
+      table,
+      teamName
+    });
 
     if (isErrored(result)) {
       switch (result.error.code) {
@@ -355,15 +371,25 @@ router.get(
       id: idSchema
     }),
     query: z.object({
+      /**
+       * @deprecated Use `preview` instead
+       */
       metric: z.optional(z.nativeEnum(Metric)),
+      preview: z.optional(queryParamMetricsArray),
       limit: z.optional(z.coerce.number().int().positive().max(5))
     })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric, limit } = req.query;
+    const { metric, preview, limit } = req.query;
 
-    const results = await fetchCompetitionTopHistory(id, metric, limit ?? 5);
+    const results = await fetchCompetitionTopHistory({
+      id,
+      metric,
+      previewMetrics: preview ?? [],
+      limit: limit ?? 5
+    });
+
     const response = results.map(({ player, history }) => formatParticipantHistoryResponse(player, history));
 
     res.status(200).json(response);

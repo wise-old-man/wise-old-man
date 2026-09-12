@@ -27,10 +27,12 @@ type Filter = {
 export async function fetchCompetitionDetails({
   id,
   metric,
+  previewMetrics,
   filter = {}
 }: {
   id: number;
   metric?: Metric;
+  previewMetrics?: Metric[];
   filter?: Filter;
 }): Promise<{
   competition: Competition;
@@ -45,7 +47,6 @@ export async function fetchCompetitionDetails({
       levels: MetricDelta;
     }>;
   }>;
-  sortingMetricIndex: number;
 }> {
   if (filter.minDate && filter.maxDate && filter.minDate >= filter.maxDate) {
     throw new BadRequestError('Min date must be before the max date.');
@@ -91,31 +92,18 @@ export async function fetchCompetitionDetails({
 
   const competitionMetrics = competition.metrics.map(m => m.metric);
 
-  const selectedMetrics = [
-    ...competitionMetrics,
-    ...(metric === undefined || competitionMetrics.includes(metric) ? [] : [metric])
-  ];
+  const selectedMetrics =
+    metric !== undefined ? [metric] : Array.from(new Set([...competitionMetrics, ...(previewMetrics ?? [])]));
 
   const participants = calculateParticipantDeltas(
     await fetchParticipantData(competition, selectedMetrics, filter),
     selectedMetrics
   );
 
-  /**
-   * For backwards compat:
-   * - If a preview metric is provided: we sort by that metric
-   * - Else if competition has multiple metrics: we sort by the "total" (which is placed on index 0)
-   * - Else: we sort by the single competition metric (which is also placed on index 0)
-   */
-  const sortingMetricIndex =
-    metric === undefined || participants.length === 0
-      ? 0
-      : participants[0].deltas.findIndex(d => d.metric === metric);
-
   const sortedStandings = participants.sort(
     (a, b) =>
-      b.deltas[sortingMetricIndex].values.gained - a.deltas[sortingMetricIndex].values.gained ||
-      b.deltas[sortingMetricIndex].values.start - a.deltas[sortingMetricIndex].values.start ||
+      b.deltas[0].values.gained - a.deltas[0].values.gained ||
+      b.deltas[0].values.start - a.deltas[0].values.start ||
       a.player.id - b.player.id
   );
 
@@ -128,8 +116,7 @@ export async function fetchCompetitionDetails({
           memberCount: competition.group._count.memberships
         }
       : null,
-    participations: sortedStandings,
-    sortingMetricIndex
+    participations: sortedStandings
   };
 }
 

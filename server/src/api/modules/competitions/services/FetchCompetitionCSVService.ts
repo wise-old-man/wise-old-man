@@ -6,16 +6,23 @@ import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 
 type Participant = CompetitionDetailsResponse['participations'][number];
 
-async function fetchCompetitionCSV(
-  id: number,
-  metric: Metric | undefined,
+async function fetchCompetitionCSV({
+  id,
   table = CompetitionCSVTableType.PARTICIPANTS,
-  teamName: string | undefined
-): AsyncResult<
+  metric,
+  previewMetrics,
+  teamName
+}: {
+  id: number;
+  table?: CompetitionCSVTableType;
+  metric?: Metric;
+  previewMetrics: Metric[];
+  teamName?: string;
+}): AsyncResult<
   string,
   { code: 'TEAM_NAME_IS_REQUIRED' } | { code: 'CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION' }
 > {
-  const details = await fetchCompetitionDetails({ id, metric });
+  const details = await fetchCompetitionDetails({ id, metric, previewMetrics });
   const competitionDetailsResponse = formatCompetitionDetailsResponse(details);
 
   if (table === CompetitionCSVTableType.PARTICIPANTS) {

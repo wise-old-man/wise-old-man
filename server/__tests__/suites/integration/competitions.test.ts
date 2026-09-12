@@ -3643,6 +3643,128 @@ describe('Competition API', () => {
       expect(ownMetricResponse.body.participations[0].deltas.map(d => d.metric)).toEqual(['zulrah']);
     });
 
+    it('should not view details (invalid preview metric)', async () => {
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        preview: 'dungeoneering'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid enum value');
+    });
+
+    it('should view details (preview metric)', async () => {
+      // "hunter" is not one of this competition's metrics, so previewing it should add it
+      // to "deltas", and include it in the "total" delta (and therefore in the standings)
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        preview: 'hunter'
+      });
+
+      expect(response.status).toBe(200);
+
+      // Preview metrics are not added to the competition itself
+      expect(response.body.metrics).toMatchObject([expect.objectContaining({ metric: 'zulrah' })]);
+
+      expect(response.body.participations.length).toBe(5);
+
+      expect(response.body.participations.map(p => p.player.username)).toEqual([
+        'psikoi',
+        'rorro',
+        'usbc',
+        'lynx titan',
+        'zulu'
+      ]);
+
+      expect(response.body.participations[0].deltas.map(d => d.metric)).toEqual([
+        'total',
+        'zulrah',
+        'hunter'
+      ]);
+
+      // psikoi: 1000 zulrah (unchanged), 500k -> 750k hunter
+      expect(response.body.participations[0]).toMatchObject({
+        progress: { start: 501_000, end: 751_000, gained: 250_000 },
+        levels: { start: 66, end: 70, gained: 4 } // only "hunter" has levels, "zulrah" is a boss
+      });
+
+      expect(response.body.participations[0].deltas[1]).toMatchObject({
+        metric: 'zulrah',
+        values: { start: 1000, end: 1000, gained: 0 }
+      });
+
+      expect(response.body.participations[0].deltas[2]).toMatchObject({
+        metric: 'hunter',
+        values: { start: 500_000, end: 750_000, gained: 250_000 }
+      });
+
+      // rorro: 500 -> 557 zulrah, 100k -> 110k hunter
+      expect(response.body.participations[1]).toMatchObject({
+        progress: { start: 100_500, end: 110_557, gained: 10_057 }
+      });
+
+      // usbc: unranked -> 60 zulrah, 50k hunter (unchanged)
+      expect(response.body.participations[2]).toMatchObject({
+        progress: { start: 50_000, end: 50_060, gained: 60 }
+      });
+
+      // lynx titan: 1646 zulrah (unchanged), 5.34m hunter (unchanged)
+      expect(response.body.participations[3]).toMatchObject({
+        progress: { start: 5_348_325, end: 5_348_325, gained: 0 }
+      });
+
+      // zulu: unranked in both metrics
+      expect(response.body.participations[4]).toMatchObject({
+        progress: { start: -1, end: -1, gained: 0 }
+      });
+    });
+
+    it('should view details (multiple preview metrics)', async () => {
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}`)
+        .query('preview=hunter&preview=fishing');
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations.length).toBe(5);
+
+      const [psikoi] = response.body.participations;
+
+      expect(psikoi.deltas.map(d => d.metric)).toEqual(['total', 'zulrah', 'hunter', 'fishing']);
+
+      expect(psikoi.deltas[2]).toMatchObject({
+        metric: 'hunter',
+        values: { start: 500_000, end: 750_000, gained: 250_000 }
+      });
+
+      // fishing was never modified during the competition
+      expect(psikoi.deltas[3]).toMatchObject({ metric: 'fishing', values: { gained: 0 } });
+
+      // the "total" delta must add up every metric, preview metrics included
+      const [total, ...metricDeltas] = psikoi.deltas;
+
+      expect(total.values.gained).toBe(
+        metricDeltas.map(d => Math.max(0, d.values.gained)).reduce((a, c) => a + c, 0)
+      );
+
+      expect(total.values.end).toBe(
+        metricDeltas.map(d => Math.max(0, d.values.end)).reduce((a, c) => a + c, 0)
+      );
+    });
+
+    it('should view details (legacy metric param takes priority over preview)', async () => {
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}`)
+        .query('metric=hunter&preview=fishing');
+
+      expect(response.status).toBe(200);
+
+      // The legacy "metric" param replaces the metric list, so "preview" is ignored
+      expect(response.body.participations[0].deltas.map(d => d.metric)).toEqual(['hunter']);
+
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'psikoi' },
+        progress: { start: 500_000, end: 750_000, gained: 250_000 }
+      });
+    });
+
     it('should view details for multiple metrics', async () => {
       /**
        * sue starts at 100k hunter, 2.4m fishing
@@ -3935,21 +4057,10 @@ describe('Competition API', () => {
       // shouldn't cause it to appear twice in "deltas", or skew the "total" delta
       const hunterDetailsResponse = await api
         .get(`/competitions/${createResponse.body.competition.id}`)
-        .query({ metric: 'hunter' });
+        .query({ preview: 'hunter' });
 
       expect(hunterDetailsResponse.status).toBe(200);
       expect(hunterDetailsResponse.body.participations.length).toBe(4);
-
-      expect(hunterDetailsResponse.body.participations[0]).toMatchObject({
-        player: {
-          username: 'sue'
-        },
-        progress: {
-          start: 100_000, // 100k hunter
-          end: 900_000, // 900k hunter
-          gained: 800_000
-        }
-      });
 
       expect(hunterDetailsResponse.body.participations[0].deltas.map(d => d.metric)).toEqual([
         'total',
@@ -3957,12 +4068,50 @@ describe('Competition API', () => {
         'fishing'
       ]);
 
+      expect(hunterDetailsResponse.body.participations[0]).toMatchObject({
+        player: {
+          username: 'sue'
+        }
+      });
+
       expect(hunterDetailsResponse.body.participations[0].deltas[0]).toMatchObject({
         metric: 'total',
         values: {
           start: 2_500_000, // 100k hunter, 2.4m fishing
           end: 4_000_000, // 900k hunter, 3.1m fishing
           gained: 1_500_000
+        }
+      });
+
+      // testing the legacy "metric" query param, which should replace the competition's only metric
+      const hunterLegacyDetailsResponse = await api
+        .get(`/competitions/${createResponse.body.competition.id}`)
+        .query({ metric: 'hunter' });
+
+      expect(hunterLegacyDetailsResponse.status).toBe(200);
+      expect(hunterLegacyDetailsResponse.body.participations.length).toBe(4);
+
+      expect(hunterLegacyDetailsResponse.body.participations[0].deltas.map(d => d.metric)).toEqual([
+        'hunter'
+      ]);
+
+      expect(hunterLegacyDetailsResponse.body.participations[0]).toMatchObject({
+        player: {
+          username: 'sue'
+        },
+        progress: {
+          start: 100_000,
+          end: 900_000,
+          gained: 800_000
+        }
+      });
+
+      expect(hunterLegacyDetailsResponse.body.participations[0].deltas[0]).toMatchObject({
+        metric: 'hunter',
+        values: {
+          start: 100_000,
+          end: 900_000,
+          gained: 800_000
         }
       });
 
@@ -4353,6 +4502,15 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
     });
 
+    it('should not view top 5 snapshots (invalid preview metric)', async () => {
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}/top-history`)
+        .query({ preview: 'dungeoneering' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid enum value');
+    });
+
     it('should view top 5 snapshots', async () => {
       const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}/top-history`);
 
@@ -4412,6 +4570,47 @@ describe('Competition API', () => {
       expect(response.body[3].history[1].value).toBe(50_000);
 
       expect(response.body[4].player.username).toBe('zulu');
+      expect(response.body[4].history.length).toBe(0);
+    });
+
+    it('should view top 5 snapshots (preview metric)', async () => {
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}/top-history`)
+        .query({ preview: 'hunter' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(5);
+
+      // The players are ranked by the "total" of zulrah + hunter, and the history
+      // values must be the sum of those same two metrics
+      expect(response.body.map(r => r.player.username)).toEqual([
+        'psikoi',
+        'rorro',
+        'usbc',
+        'lynx titan',
+        'zulu'
+      ]);
+
+      expect(response.body[0].history.map(h => h.value)).toEqual([
+        751_000, // 1000 zulrah + 750k hunter
+        501_000 // 1000 zulrah + 500k hunter
+      ]);
+
+      expect(response.body[1].history.map(h => h.value)).toEqual([
+        110_557, // 557 zulrah + 110k hunter
+        105_520, // 520 zulrah + 105k hunter
+        100_500 // 500 zulrah + 100k hunter
+      ]);
+
+      expect(response.body[2].history.map(h => h.value)).toEqual([
+        50_060, // 60 zulrah + 50k hunter
+        50_000 // unranked zulrah + 50k hunter
+      ]);
+
+      expect(response.body[3].history.map(h => h.value)).toEqual([
+        5_348_325 // 1646 zulrah + 5.34m hunter
+      ]);
+
       expect(response.body[4].history.length).toBe(0);
     });
 
@@ -4640,6 +4839,15 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
     });
 
+    it('should not view CSV export (invalid preview metric)', async () => {
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}/csv`)
+        .query({ preview: 'dungeoneering' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid enum value');
+    });
+
     it('should not view CSV export (invalid table)', async () => {
       const response = await api
         .get(`/competitions/${globalData.testCompetitionStarted.id}/csv`)
@@ -4707,6 +4915,28 @@ describe('Competition API', () => {
       expect(rows[2]).toMatch('2,rorro,100000,110000,10000,');
       expect(rows[3]).toMatch('3,LYNX TITAN_,5346679,5346679,');
       expect(rows[4]).toMatch('4,usbc,50000,50000,0,');
+      expect(rows[5]).toMatch('5,__ZULU,-1,-1,0,');
+    });
+
+    it('should view CSV export (participants & preview metric)', async () => {
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}/csv`).query({
+        preview: 'hunter'
+      });
+
+      expect(response.status).toBe(200);
+
+      const rows = response.text.split('\n');
+
+      expect(rows.length).toBe(6);
+
+      // Check the table header
+      expect(rows[0]).toBe('Rank,Username,Start,End,Gained,Last Updated');
+
+      // Check the table body, the values should be the "total" of zulrah + hunter
+      expect(rows[1]).toMatch('1,Psikoi,501000,751000,250000,');
+      expect(rows[2]).toMatch('2,rorro,100500,110557,10057,');
+      expect(rows[3]).toMatch('3,usbc,50000,50060,60,');
+      expect(rows[4]).toMatch('4,LYNX TITAN_,5348325,5348325,0,');
       expect(rows[5]).toMatch('5,__ZULU,-1,-1,0,');
     });
 
