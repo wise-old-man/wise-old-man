@@ -6,13 +6,13 @@ import sharp from "sharp";
 const PROFILE_IMAGE_WIDTH = 120;
 const PROFILE_IMAGE_HEIGHT = 120;
 
-const BANNER_IMAGE_WIDTH = 1184;
-const BANNER_IMAGE_HEIGHT = 144;
+const BANNER_IMAGE_WIDTH = 2368;
+const BANNER_IMAGE_HEIGHT = 288;
 
 const CLOUDFLARE_R2_BUCKET = "wiseoldman";
 const CLOUDFLARE_R2_ENDPOINT = "https://13b21f75511ce31dd03fe199ab998062.r2.cloudflarestorage.com";
 
-const COMPRESSION_QUALITY = 80;
+const COMPRESSION_QUALITY = 90;
 
 async function processImage(file: File, width: number, height: number) {
   if (!file.type.startsWith("image/")) throw new Error("File type not accepted.");

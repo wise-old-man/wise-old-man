@@ -61,7 +61,7 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
                 className="absolute inset-0 object-cover object-center"
                 fill
               />
-              <div className="absolute inset-0 bg-gradient-to-tl from-black/50 to-black/0" />
+              <div className="absolute bottom-0 right-0 h-24 w-48 bg-gradient-to-tl from-black/50 to-black/0" />
               {group.socialLinks && hasSocialLinks && (
                 <div className="absolute bottom-3 right-3 z-10">
                   <GroupSocialLinks {...group.socialLinks} />
