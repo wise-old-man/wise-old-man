@@ -60,8 +60,9 @@ function getPreviewMetrics(param: string | Array<string> | undefined) {
 
   const metrics = (Array.isArray(param) ? param : [param])
     .map(getMetricParam)
-    .filter((m): m is Metric => m !== undefined);
-  return metrics.length > 0 ? metrics : undefined;
+    .filter((m) => m !== undefined);
+
+  return metrics.length > 0 ? Array.from(new Set(metrics)) : undefined;
 }
 
 export async function generateMetadata(props: PageProps) {

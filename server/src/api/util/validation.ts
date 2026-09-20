@@ -163,7 +163,10 @@ export const queryParamStringArray = z.preprocess(
 
 export const queryParamMetricsArray = z.preprocess(
   v => (typeof v === 'string' ? [v] : v),
-  z.array(z.nativeEnum(Metric)).nonempty()
+  z
+    .array(z.nativeEnum(Metric))
+    .nonempty()
+    .transform(metrics => Array.from(new Set(metrics)))
 ) as unknown as z.ZodArray<z.ZodNativeEnum<typeof Metric>>;
 
 export function getDateSchema(propName: string) {

@@ -54,7 +54,7 @@ export function CompetitionPreviewMetricDialog() {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.delete("preview");
 
-    for (const metric of [...effectiveMetrics, selectedMetric]) {
+    for (const metric of new Set([...effectiveMetrics, selectedMetric])) {
       nextParams.append("preview", metric);
     }
 
