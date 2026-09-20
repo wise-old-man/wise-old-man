@@ -37,12 +37,22 @@ export function CompetitionMetricTabs() {
 
   const overflowMetrics = effectiveMetrics.filter((m) => !visibleMetrics.includes(m));
 
-  // The "preview" param spells out the full metric list, so removing one tab means rewriting it.
-  // Once no previewed metrics are left, the list is just the competition's own metrics again,
-  // and the param can be dropped instead of repeating them.
+  // Without a "preview" param the page shows the competition's own metrics, so any list that
+  // matches them is the default and doesn't need spelling out in the URL.
+  function isDefaultMetricSet(metrics: Array<Metric>) {
+    return metrics.length === ownMetrics.size && metrics.every((m) => ownMetrics.has(m));
+  }
+
+  // Removing the last tab drops the param, which brings the own metrics back. That's the state
+  // already on screen when the default is a single metric, so the button would do nothing.
+  const canRemoveMetrics = effectiveMetrics.length > 1 || !isDefaultMetricSet(effectiveMetrics);
+
+  // The "preview" param spells out the full metric list, so removing one tab means rewriting it -
+  // unless what's left is the default, or nothing at all, in which case the param can just go.
   function getPreviewQueryWithout(removedMetric: Metric) {
     const nextMetrics = effectiveMetrics.filter((m) => m !== removedMetric);
-    return nextMetrics.some((m) => !ownMetrics.has(m)) ? nextMetrics : null;
+
+    return nextMetrics.length === 0 || isDefaultMetricSet(nextMetrics) ? null : nextMetrics;
   }
 
   return (
@@ -52,42 +62,43 @@ export function CompetitionMetricTabs() {
           <QueryLink query={{ metric: null }}>Total</QueryLink>
         </MetricTab>
       )}
-      {visibleMetrics.map((metric) =>
-        ownMetrics.has(metric) ? (
-          <MetricTab key={metric} asChild isSelected={selectedMetric === metric}>
-            <QueryLink query={{ metric }} data-metric-tab={metric}>
-              <div className="-ml-0.5 shrink-0">
-                <MetricIconSmall metric={metric} />
-              </div>
-              <span className="truncate">{MetricProps[metric].name}</span>
-            </QueryLink>
-          </MetricTab>
-        ) : (
-          <MetricTab
-            key={metric}
-            data-metric-tab={metric}
-            isSelected={selectedMetric === metric}
-            className={cn("border-dashed pr-1", selectedMetric === metric && "border-gray-300")}
+      {visibleMetrics.map((metric) => (
+        <MetricTab
+          key={metric}
+          data-metric-tab={metric}
+          isSelected={selectedMetric === metric}
+          className={cn(
+            "gap-x-0 px-0",
+            canRemoveMetrics && "pr-1",
+            !ownMetrics.has(metric) && "border-dashed border-gray-300",
+          )}
+        >
+          <QueryLink
+            query={{ metric }}
+            className={cn(
+              "flex h-full min-w-0 items-center gap-x-2 pl-3.5",
+              canRemoveMetrics ? "pr-2" : "pr-3.5",
+            )}
           >
-            <QueryLink query={{ metric }} className="flex min-w-0 items-center gap-x-2">
-              <div className="-ml-0.5 shrink-0">
-                <MetricIconSmall metric={metric} />
-              </div>
-              <span className="truncate">{MetricProps[metric].name}</span>
-            </QueryLink>
+            <div className="-ml-0.5 shrink-0">
+              <MetricIconSmall metric={metric} />
+            </div>
+            <span className="truncate">{MetricProps[metric].name}</span>
+          </QueryLink>
+          {canRemoveMetrics && (
             <QueryLink
               shallow={false}
               query={{
                 preview: getPreviewQueryWithout(metric),
                 metric: selectedMetric === metric ? null : undefined,
               }}
-              aria-label="Stop previewing metric"
+              aria-label={`Stop showing ${MetricProps[metric].name}`}
             >
               <CloseIcon className="-ml-1 h-5 w-5 rounded p-1 text-gray-200 hover:bg-gray-500" />
             </QueryLink>
-          </MetricTab>
-        ),
-      )}
+          )}
+        </MetricTab>
+      ))}
       {overflowMetrics.length > 0 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
