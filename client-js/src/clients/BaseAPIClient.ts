@@ -21,6 +21,8 @@ export default class BaseAPIClient {
         // which is the format the API expects for them.
         if (Array.isArray(value)) {
           value.forEach(v => builder.append(k, v));
+        } else if (value instanceof Date) {
+          builder.set(k, value.toISOString());
         } else {
           builder.set(k, value);
         }
@@ -67,13 +69,12 @@ export default class BaseAPIClient {
     params?: unknown;
   }): Promise<T> {
     const res = await this.fetch({ method, path, body, params });
-    const data = await res.json();
 
     if (res.ok) {
-      return transformDates(data) as T;
+      return transformDates(await res.json()) as T;
     }
 
-    handleError(res.status, path, data);
+    handleError(res.status, path, await res.json().catch(() => undefined));
   }
 
   private async requestText({
@@ -94,7 +95,15 @@ export default class BaseAPIClient {
       return text;
     }
 
-    handleError(res.status, path, JSON.parse(text));
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch {
+      // Non-JSON error bodies (ex: proxy HTML pages) fall back to a generic error.
+    }
+
+    handleError(res.status, path, data);
   }
 
   async postRequest<T>(path: string, body?: unknown) {

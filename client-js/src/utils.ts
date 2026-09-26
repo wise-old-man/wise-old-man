@@ -33,27 +33,25 @@ export function transformDates(input: unknown) {
   return traverseTransform(input, val => (isValidISODate(val) ? new Date(val as string) : val));
 }
 
-export function handleError(status: number, path: string, data?: APIErrorData) {
-  if (!data) return;
+export function handleError(status: number, path: string, data?: APIErrorData): never {
+  // Error responses without a valid JSON body still throw, with a generic message.
+  const message = data?.message ?? 'Unexpected error';
 
-  if (status === 400) {
-    throw new BadRequestError(path, data.message, data.data);
-  }
-
-  if (status === 403) {
-    throw new ForbiddenError(path, data.message, data.data);
-  }
-
-  if (status === 404) {
-    throw new NotFoundError(path, data.message);
-  }
-
-  if (status === 429) {
-    throw new RateLimitError(path, data.message);
-  }
-
-  if (status === 500) {
-    throw new InternalServerError(path, data.message);
+  switch (status) {
+    case 400:
+      throw new BadRequestError(path, message, data?.data);
+    case 403:
+      throw new ForbiddenError(path, message, data?.data);
+    case 404:
+      throw new NotFoundError(path, message);
+    case 409:
+      throw new ConflictError(path, message, data?.data);
+    case 429:
+      throw new RateLimitError(path, message);
+    case 503:
+      throw new ServiceUnavailableError(path, message);
+    default:
+      throw new InternalServerError(path, message);
   }
 }
 
@@ -69,6 +67,34 @@ class BadRequestError extends Error {
     this.resource = resource;
     this.statusCode = 400;
     this.data = data;
+  }
+}
+
+class ConflictError extends Error {
+  name: string;
+  resource: string;
+  statusCode: number;
+  data?: unknown;
+
+  constructor(resource: string, message: string, data?: unknown) {
+    super(message);
+    this.name = 'ConflictError';
+    this.resource = resource;
+    this.statusCode = 409;
+    this.data = data;
+  }
+}
+
+class ServiceUnavailableError extends Error {
+  name: string;
+  resource: string;
+  statusCode: number;
+
+  constructor(resource: string, message: string) {
+    super(message);
+    this.name = 'ServiceUnavailableError';
+    this.resource = resource;
+    this.statusCode = 503;
   }
 }
 
