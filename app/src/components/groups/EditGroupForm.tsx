@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useToast } from "~/hooks/useToast";
+import { BANNER_IMAGE_SIZE, HIGH_DPI_SCALE, PROFILE_IMAGE_SIZE } from "~/utils/images";
 import { standardizeUsername } from "~/utils/strings";
 import { cn } from "~/utils/styling";
 import { useWOMClient } from "~/hooks/useWOMClient";
@@ -171,15 +172,21 @@ function ImagesSection(props: EditGroupFormProps & { verificationCode: string })
   return (
     <div className="flex w-full flex-col gap-y-7">
       <div>
-        <Label className="text-xs text-gray-200">Banner Image (1184x144)</Label>
+        <Label className="text-xs text-gray-200">
+          {`Banner Image (${BANNER_IMAGE_SIZE.width * HIGH_DPI_SCALE}x${BANNER_IMAGE_SIZE.height * HIGH_DPI_SCALE})`}
+        </Label>
         <span className="mb-3 mt-2 block text-xs text-gray-100">
-          Note: The actual banner size that will be displayed on the group page is 1184x144. This is a
-          smaller preview, but still maintains the same aspect ratio.
+          Note: The actual banner size that will be displayed on the group page is{" "}
+          {`${BANNER_IMAGE_SIZE.width}x${BANNER_IMAGE_SIZE.height}`} (or{" "}
+          {`${BANNER_IMAGE_SIZE.width * HIGH_DPI_SCALE}x${BANNER_IMAGE_SIZE.height * HIGH_DPI_SCALE}`} in
+          high DPI displays). This is a smaller preview, but still maintains the same aspect ratio.
         </span>
         <BannerImageUpload bannerImage={bannerImage ?? undefined} onImageUploaded={setBannerImage} />
       </div>
       <div>
-        <Label className="mb-2 block text-xs text-gray-200">Profile Image (120x120)</Label>
+        <Label className="mb-2 block text-xs text-gray-200">
+          {`Profile Image (${PROFILE_IMAGE_SIZE.width * HIGH_DPI_SCALE}x${PROFILE_IMAGE_SIZE.height * HIGH_DPI_SCALE})`}
+        </Label>
         <ProfileImageUpload profileImage={profileImage ?? undefined} onImageUploaded={setProfileImage} />
       </div>
 

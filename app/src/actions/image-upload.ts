@@ -2,22 +2,28 @@
 
 import { PutObjectCommand, S3 } from "@aws-sdk/client-s3";
 import sharp from "sharp";
-
-const PROFILE_IMAGE_WIDTH = 120;
-const PROFILE_IMAGE_HEIGHT = 120;
-
-const BANNER_IMAGE_WIDTH = 1184;
-const BANNER_IMAGE_HEIGHT = 144;
+import { BANNER_IMAGE_SIZE, HIGH_DPI_SCALE, PROFILE_IMAGE_SIZE } from "~/utils/images";
 
 const CLOUDFLARE_R2_BUCKET = "wiseoldman";
 const CLOUDFLARE_R2_ENDPOINT = "https://13b21f75511ce31dd03fe199ab998062.r2.cloudflarestorage.com";
 
-const COMPRESSION_QUALITY = 80;
+const COMPRESSION_QUALITY = 90;
 
-async function processImage(file: File, width: number, height: number) {
+async function processImage(file: File, size: { width: number; height: number }) {
   if (!file.type.startsWith("image/")) throw new Error("File type not accepted.");
 
   const imageBuffer = await file.arrayBuffer();
+
+  // Only store at high-DPI scale if the source can fill it, to avoid upscaling small images
+  const metadata = await sharp(imageBuffer).metadata();
+
+  const canFillHighDpi =
+    (metadata.width ?? 0) >= size.width * HIGH_DPI_SCALE &&
+    (metadata.height ?? 0) >= size.height * HIGH_DPI_SCALE;
+
+  const scale = canFillHighDpi ? HIGH_DPI_SCALE : 1;
+  const width = size.width * scale;
+  const height = size.height * scale;
 
   if (file.type === "image/gif" || file.type === "image/webp") {
     return {
@@ -80,7 +86,7 @@ export async function uploadProfileImage(formData: FormData) {
 
   if (!file) throw new Error("No file provided");
 
-  const { type, buffer } = await processImage(file, PROFILE_IMAGE_WIDTH, PROFILE_IMAGE_HEIGHT);
+  const { type, buffer } = await processImage(file, PROFILE_IMAGE_SIZE);
 
   return await uploadToS3(`images/${Date.now().toString()}.${type}`, buffer);
 }
@@ -90,7 +96,7 @@ export async function uploadBannerImage(formData: FormData) {
 
   if (!file) throw new Error("No file provided");
 
-  const { type, buffer } = await processImage(file, BANNER_IMAGE_WIDTH, BANNER_IMAGE_HEIGHT);
+  const { type, buffer } = await processImage(file, BANNER_IMAGE_SIZE);
 
   return await uploadToS3(`images/${Date.now().toString()}.${type}`, buffer);
 }
