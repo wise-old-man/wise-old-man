@@ -388,7 +388,7 @@ export function ColumnsSelector(props: {
       </ComboboxTrigger>
       <ComboboxContent align="end" className="min-w-[11rem]">
         <ComboboxItemsContainer>
-          <ComboboxItemGroup>
+          <ComboboxItemGroup label="Visible table columns">
             {options.map(({ key, label }) => (
               <ComboboxItem key={key} value={key}>
                 {label}
