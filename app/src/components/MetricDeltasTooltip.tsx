@@ -17,24 +17,49 @@ export function MetricDeltasTooltip(props: MetricDeltasTooltipProps) {
   const { deltas, type, field } = props;
 
   return (
+    <MetricBreakdownTooltip
+      items={deltas.map((delta) => ({
+        metric: delta.metric,
+        value: <FormattedNumber value={delta[type][field]} colored={field === "gained"} />,
+      }))}
+    />
+  );
+}
+
+interface MetricBreakdownTooltipProps {
+  items: Array<{
+    metric: Metric | "total";
+    value: React.ReactNode;
+  }>;
+  title?: React.ReactNode;
+}
+
+/*
+ * Lists one value per metric (with "total" first, as a header row).
+ */
+export function MetricBreakdownTooltip(props: MetricBreakdownTooltipProps) {
+  const { items, title } = props;
+
+  return (
     <div className="flex min-w-[10rem] flex-col gap-y-1.5 text-xs tabular-nums">
-      {deltas.map((delta) => (
+      {title && <span className="mb-1 border-b border-gray-600 pb-2 text-gray-200">{title}</span>}
+      {items.map((item) => (
         <div
-          key={delta.metric}
+          key={item.metric}
           className={cn(
             "flex items-center justify-between gap-x-4 text-white",
-            delta.metric === "total" && "mb-1 mt-0.5 border-b border-gray-600 pb-1.5",
+            item.metric === "total" && "mb-1 border-b border-gray-600 pb-1.5",
           )}
         >
-          {delta.metric === "total" ? (
+          {item.metric === "total" ? (
             <span>Total</span>
           ) : (
             <div className="flex items-center gap-x-2">
-              <MetricIconSmall metric={delta.metric} />
-              <span>{MetricProps[delta.metric].name}</span>
+              <MetricIconSmall metric={item.metric} />
+              <span>{MetricProps[item.metric].name}</span>
             </div>
           )}
-          <FormattedNumber value={delta[type][field]} colored={field === "gained"} />
+          {item.value}
         </div>
       ))}
     </div>
