@@ -62,7 +62,7 @@ export function CompetitionPreviewMetricDialog() {
     nextParams.delete("dialog");
 
     startTransition(() => {
-      router.push(`${pathname}?${nextParams.toString()}`);
+      router.push(`${pathname}?${nextParams.toString()}`, { scroll: false });
     });
   }
 
@@ -70,7 +70,7 @@ export function CompetitionPreviewMetricDialog() {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.delete("dialog");
 
-    router.replace(`${pathname}?${nextParams.toString()}`);
+    router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false });
   }
 
   return (

@@ -11,7 +11,16 @@ import { cn } from "~/utils/styling";
 import { MetricIconSmall } from "../Icon";
 import { QueryLink } from "../QueryLink";
 import { useCompetitionPageContext } from "./CompetitionPageContext";
-import { Children, cloneElement, forwardRef, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  Children,
+  cloneElement,
+  forwardRef,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import PlusIcon from "~/assets/plus.svg";
 import CloseIcon from "~/assets/close.svg";
@@ -21,6 +30,9 @@ const TAB_GAP = 8;
 
 // Only used until the overflow tab has rendered once and can be measured.
 const ESTIMATED_OVERFLOW_TAB_WIDTH = 44;
+
+// Matches Tailwind's "md" breakpoint. Below it, every tab is shown in a horizontally scrollable row.
+const DESKTOP_MEDIA_QUERY = "(min-width: 768px)";
 
 export function CompetitionMetricTabs() {
   const { competition, effectiveMetrics, selectedMetric } = useCompetitionPageContext();
@@ -56,7 +68,14 @@ export function CompetitionMetricTabs() {
   }
 
   return (
-    <div ref={containerRef} className="flex flex-row gap-x-2">
+    <div
+      ref={containerRef}
+      className={cn(
+        "relative flex min-w-0 flex-row gap-x-2 overflow-x-auto pr-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "[mask-image:linear-gradient(to_right,black_calc(100%-1.5rem),transparent)]",
+        "md:overflow-visible md:pr-0 md:[mask-image:none]",
+      )}
+    >
       {effectiveMetrics.length > 1 && (
         <MetricTab asChild isSelected={selectedMetric === "total"} className="shrink-0">
           <QueryLink query={{ metric: null }}>Total</QueryLink>
@@ -68,7 +87,7 @@ export function CompetitionMetricTabs() {
           data-metric-tab={metric}
           isSelected={selectedMetric === metric}
           className={cn(
-            "gap-x-0 px-0",
+            "shrink-0 gap-x-0 px-0 md:shrink",
             canRemoveMetrics && "pr-1",
             !ownMetrics.has(metric) && "border-dashed border-gray-300",
           )}
@@ -88,6 +107,7 @@ export function CompetitionMetricTabs() {
           {canRemoveMetrics && (
             <QueryLink
               shallow={false}
+              scroll={false}
               query={{
                 preview: getPreviewQueryWithout(metric),
                 metric: selectedMetric === metric ? null : undefined,
@@ -137,7 +157,7 @@ export function CompetitionMetricTabs() {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-40">
-          <QueryLink shallow={false} query={{ dialog: "preview" }}>
+          <QueryLink shallow={false} scroll={false} query={{ dialog: "preview" }}>
             <DropdownMenuItem>Preview metric</DropdownMenuItem>
           </QueryLink>
         </DropdownMenuContent>
@@ -177,6 +197,12 @@ function useVisibleMetricTabs(metrics: Array<Metric>, selectedMetric: Metric | u
       if (!container) return;
 
       const { metrics, selectedMetric } = propsRef.current;
+
+      // On mobile the row scrolls, so there's nothing to hide.
+      if (!window.matchMedia(DESKTOP_MEDIA_QUERY).matches) {
+        setVisibleMetrics((prev) => (prev.join(",") === metrics.join(",") ? prev : metrics));
+        return;
+      }
 
       const available = container.clientWidth;
 
@@ -252,6 +278,34 @@ function useVisibleMetricTabs(metrics: Array<Metric>, selectedMetric: Metric | u
       observer.disconnect();
     };
   }, [metricsKey, selectedMetric]);
+
+  // On mobile the selected tab can sit outside the scrolled view, so bring it in.
+  // Only the row scrolls, not the page - scrollIntoView would also move the page vertically.
+  useEffect(() => {
+    const scroller = containerRef.current;
+    if (!scroller || window.matchMedia(DESKTOP_MEDIA_QUERY).matches) return;
+
+    const tab = selectedMetric
+      ? scroller.querySelector<HTMLElement>(`[data-metric-tab="${selectedMetric}"]`)
+      : null;
+
+    if (!tab) {
+      scroller.scrollTo({ left: 0, behavior: "smooth" });
+      return;
+    }
+
+    const tabStart = tab.offsetLeft;
+    const tabEnd = tabStart + tab.offsetWidth;
+    // Keep the tab clear of the faded right edge.
+    const visibleEnd =
+      scroller.scrollLeft + scroller.clientWidth - parseFloat(getComputedStyle(scroller).paddingRight);
+
+    if (tabStart < scroller.scrollLeft) {
+      scroller.scrollTo({ left: tabStart, behavior: "smooth" });
+    } else if (tabEnd > visibleEnd) {
+      scroller.scrollTo({ left: scroller.scrollLeft + (tabEnd - visibleEnd), behavior: "smooth" });
+    }
+  }, [selectedMetric, metricsKey]);
 
   return { containerRef, visibleMetrics };
 }

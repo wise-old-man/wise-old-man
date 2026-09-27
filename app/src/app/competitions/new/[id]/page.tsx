@@ -160,7 +160,7 @@ export default async function CompetitionPage(props: PageProps) {
           </div>
           <div className="flex min-w-0 grow flex-col gap-y-5">
             <CompetitionMetricTabs />
-            <div className="grid grid-cols-2 gap-x-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <CompetitionTotalGained />
               <CompetitionTopParticipantsSparklineChart />
             </div>
@@ -185,7 +185,7 @@ function Header({ competitionDetails }: { competitionDetails: CompetitionDetails
 
   return (
     <div className="flex flex-grow flex-col items-center justify-between gap-y-5 sm:flex-row">
-      <div className="flex w-full flex-row items-center gap-3">
+      <div className="flex w-full flex-col items-start gap-3 md:flex-row md:items-center">
         <MetricAvatarGroup size="lg" metrics={competitionDetails.metrics.map((m) => m.metric)} />
         <div className="flex flex-col gap-y-0.5">
           <h1 className="line-clamp-1 text-xl font-semibold text-white xl:text-2xl">

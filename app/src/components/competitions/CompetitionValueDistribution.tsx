@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { formatNumber, Metric, MetricProps, MetricType } from "@wise-old-man/utils";
 import { MetricIconSmall } from "~/components/Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
@@ -8,6 +9,7 @@ import { METRIC_COLOR_MAP } from "~/utils/metrics";
 
 export function CompetitionValueDistribution() {
   const { competition, effectiveMetrics } = useCompetitionPageContext();
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
 
   if (effectiveMetrics.length < 2) {
     return null;
@@ -43,8 +45,15 @@ export function CompetitionValueDistribution() {
   return (
     <div className="relative flex w-full flex-col gap-3 rounded-lg border border-gray-500 bg-gray-800 p-3 shadow-md">
       <span className="text-sm font-medium text-white">{labels.title}</span>
-      <Tooltip>
-        <TooltipTrigger className="-my-1 w-full py-1">
+      <Tooltip open={isTooltipOpen} onOpenChange={setIsTooltipOpen}>
+        <TooltipTrigger
+          className="-my-1 w-full py-1"
+          onClick={(e) => {
+            // Radix closes tooltips on click by default, open it instead so touch devices can see it
+            e.preventDefault();
+            setIsTooltipOpen(true);
+          }}
+        >
           <div className="flex h-1.5 w-full gap-x-0.5 overflow-hidden rounded bg-gray-500">
             {mappedEntries.map((e) => (
               <div
@@ -58,7 +67,7 @@ export function CompetitionValueDistribution() {
             ))}
           </div>
         </TooltipTrigger>
-        <TooltipContent align="start" className="min-w-[15rem] p-0">
+        <TooltipContent align="start" className="min-w-[15rem] border border-gray-500 p-0">
           <div className="flex flex-col p-2">
             {mappedEntries.map((e) => (
               <div
