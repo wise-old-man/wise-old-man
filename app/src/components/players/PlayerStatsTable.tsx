@@ -621,7 +621,7 @@ function TableOptionsMenu(props: TableOptionsMenuProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button iconButton className="relative" aria-label="Open table options">
-          <TableCogIcon className="h-5 w-5" />
+          <TableCogIcon className="h-5 w-5 text-gray-200" />
           {showVirtualLevels && (
             <div className="absolute -right-px -top-px h-2 w-2 rounded-full bg-blue-500" />
           )}

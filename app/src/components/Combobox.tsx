@@ -103,26 +103,30 @@ const CommandItem = forwardRef<
   React.ElementRef<typeof CommandPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>
 >(({ className, children, onSelect, ...props }, ref) => {
-  const { selectedValue, onItemSelected } = useContext(ComboboxContext);
+  const { isSelected, isMultiple, onItemSelected } = useContext(ComboboxContext);
+
+  const selected = isSelected(props.value);
 
   return (
     <CommandPrimitive.Item
       ref={ref}
       onSelect={() => {
-        if (selectedValue !== props.value) {
+        // In multi-select mode, selecting a selected item toggles it off
+        if (isMultiple || !selected) {
           onItemSelected(props.value);
         }
       }}
       className={cn(
         "relative flex cursor-pointer select-none items-center gap-x-2 rounded p-2 text-sm text-gray-100 outline-none aria-selected:bg-gray-600 aria-selected:text-white",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        selectedValue === props.value && "!bg-gray-800 font-medium !text-white",
+        // In multi-select mode, the check icon is enough to show the selection
+        selected && !isMultiple && "!bg-gray-800 font-medium !text-white",
         className,
       )}
       {...props}
     >
       {children}
-      {selectedValue === props.value && (
+      {selected && (
         <div className="flex grow justify-end">
           <CheckIcon className="h-4 w-4" />
         </div>
@@ -140,23 +144,59 @@ const CommandSeparator = forwardRef<
 ));
 CommandSeparator.displayName = CommandPrimitive.Separator.displayName;
 
-const ComboboxContext = createContext<{
-  selectedValue: string | undefined;
+interface ComboboxContextValue {
+  isMultiple: boolean;
+  isSelected: (value: string | undefined) => boolean;
   onItemSelected: (value: string | undefined) => void;
-}>({
-  selectedValue: undefined,
+}
+
+const ComboboxContext = createContext<ComboboxContextValue>({
+  isMultiple: false,
+  isSelected: () => false,
   onItemSelected: () => {},
 });
 
-interface ComboboxProps extends PopoverPrimitive.PopoverProps, PropsWithChildren {
-  value?: string;
-  onValueChanged?: (value: string | undefined) => void;
-}
+type ComboboxProps = PopoverPrimitive.PopoverProps &
+  PropsWithChildren &
+  (
+    | {
+        multiple?: false;
+        value?: string;
+        onValueChanged?: (value: string | undefined) => void;
+      }
+    | {
+        // Multi-select mode: items toggle, and the popover stays open
+        multiple: true;
+        value: string[];
+        onValueChanged: (value: string[]) => void;
+      }
+  );
 
 export function Combobox(props: ComboboxProps) {
-  const { value, onValueChanged, onOpenChange, ...otherProps } = props;
+  const { multiple, value, onValueChanged, onOpenChange, ...otherProps } = props;
 
   const [open, setOpen] = useState(false);
+
+  // Built from "props" (not the destructured values) so that TS can narrow on "multiple"
+  const context: ComboboxContextValue = props.multiple
+    ? {
+        isMultiple: true,
+        isSelected: (val) => val !== undefined && props.value.includes(val),
+        onItemSelected: (val) => {
+          if (val === undefined) return;
+          props.onValueChanged(
+            props.value.includes(val) ? props.value.filter((v) => v !== val) : [...props.value, val],
+          );
+        },
+      }
+    : {
+        isMultiple: false,
+        isSelected: (val) => val === props.value,
+        onItemSelected: (val) => {
+          setOpen(false);
+          if (props.onValueChanged) props.onValueChanged(val);
+        },
+      };
 
   return (
     <Popover
@@ -167,17 +207,7 @@ export function Combobox(props: ComboboxProps) {
       }}
       {...otherProps}
     >
-      <ComboboxContext.Provider
-        value={{
-          selectedValue: value,
-          onItemSelected: (val) => {
-            setOpen(false);
-            if (onValueChanged) onValueChanged(val);
-          },
-        }}
-      >
-        {props.children}
-      </ComboboxContext.Provider>
+      <ComboboxContext.Provider value={context}>{props.children}</ComboboxContext.Provider>
     </Popover>
   );
 }

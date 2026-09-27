@@ -2,36 +2,34 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  CompetitionDetailsResponse,
-  Metric,
-  MetricProps,
-  MetricType,
-  PlayerResponse,
-  PlayerStatus,
-} from "@wise-old-man/utils";
+import { CompetitionDetailsResponse, Metric, PlayerResponse, PlayerStatus } from "@wise-old-man/utils";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
+import ArrowUpIcon from "~/assets/arrow_up.svg";
+import { useCompetitionTimeMachine } from "~/hooks/useCompetitionTimeMachine";
 import { useToast } from "~/hooks/useToast";
 import { useWOMClient } from "~/hooks/useWOMClient";
 import { sortParticipations } from "~/utils/competitions";
 import { timeago } from "~/utils/dates";
 import { cn } from "~/utils/styling";
 import { Button } from "../Button";
+import { DataTable } from "../DataTable";
 import { FormattedNumber } from "../FormattedNumber";
-import { MetricDeltasTooltip } from "../MetricDeltasTooltip";
 import { PlayerIdentity } from "../PlayerIdentity";
+import { QueryLink } from "../QueryLink";
 import { TableSortButton, TableTitle } from "../Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 import { useCompetitionPageContext } from "./CompetitionPageContext";
-import ArrowUpIcon from "~/assets/arrow_up.svg";
-import { DataTable } from "../DataTable";
-import { QueryLink } from "../QueryLink";
-import { useCompetitionTimeMachine } from "~/hooks/useCompetitionTimeMachine";
+import {
+  ColumnsSelector,
+  EMPTY_CELL,
+  ParticipantView,
+  useParticipantTableViews,
+} from "./useParticipantTableViews";
 
-import SyncIcon from "~/assets/sync.svg";
 import ExportIcon from "~/assets/export.svg";
 import LoadingIcon from "~/assets/loading.svg";
+import SyncIcon from "~/assets/sync.svg";
 
 export function NewParticipantsTable({ teamName }: { teamName?: string }) {
   const { competition, selectedMetric } = useCompetitionPageContext();
@@ -51,7 +49,9 @@ export function NewParticipantsTable({ teamName }: { teamName?: string }) {
     return new Map(sortedParticipations.map((p, index) => [p.player.id, index + 1]));
   }, [sortedParticipations]);
 
-  const columns = useColumnDefinition(ranks);
+  const { views, options } = useParticipantTableViews();
+
+  const columns = useColumnDefinition(ranks, views);
 
   const rows = useMemo(() => {
     if (!teamName) return sortedParticipations;
@@ -71,6 +71,8 @@ export function NewParticipantsTable({ teamName }: { teamName?: string }) {
       data={showOnlyOutdated ? outdatedParticipants : rows}
       enablePagination
       defaultPageSize={teamName === undefined ? 20 : 100_000}
+      // The default columns are shown or hidden based on the table's width
+      containerClassName="@container"
       headerSlot={
         <TableTitle className="flex-col p-0">
           <div className="flex w-full items-center justify-between px-5 py-4">
@@ -80,17 +82,20 @@ export function NewParticipantsTable({ teamName }: { teamName?: string }) {
               <h3 className="text-h3 font-medium text-white">Participants</h3>
             )}
 
-            <QueryLink
-              query={{
-                dialog: "export",
-                team: teamName ? encodeURI(teamName) : undefined,
-              }}
-            >
-              <Button>
-                <ExportIcon className="-ml-1 h-4 w-4" />
-                Export table
-              </Button>
-            </QueryLink>
+            <div className="flex items-center gap-x-2">
+              <QueryLink
+                query={{
+                  dialog: "export",
+                  team: teamName ? encodeURI(teamName) : undefined,
+                }}
+              >
+                <Button className="text-gray-100">
+                  <ExportIcon className="-ml-1 h-4 w-4" />
+                  Export
+                </Button>
+              </QueryLink>
+              <ColumnsSelector options={options} />
+            </div>
           </div>
           {showOnlyOutdated ? (
             <div className="flex w-full gap-x-1 border-t border-gray-500 px-5 py-3">
@@ -160,13 +165,15 @@ function TeamHeader({
   );
 }
 
-function useColumnDefinition(ranks: Map<number, number>) {
+type Participation = CompetitionDetailsResponse["participations"][number];
+
+function useColumnDefinition(ranks: Map<number, number>, views: ParticipantView[]) {
   const { competition, selectedMetric } = useCompetitionPageContext();
   const { getPlayerRankDiff, isLoading } = useCompetitionTimeMachine();
 
   const hasEnded = competition.endsAt.getTime() <= new Date().getTime();
 
-  const columns: ColumnDef<CompetitionDetailsResponse["participations"][number]>[] = [
+  const columns: ColumnDef<Participation>[] = [
     {
       id: "rank",
       header: ({ column }) => {
@@ -220,28 +227,23 @@ function useColumnDefinition(ranks: Map<number, number>) {
         return rowA.original.player.displayName.localeCompare(rowB.original.player.displayName);
       },
     },
-    {
-      id: "gained",
-      accessorFn: (row) => {
-        return row.deltas.find((d) => d.metric === selectedMetric)?.values.gained ?? 0;
-      },
-      header: ({ column }) => {
-        return <TableSortButton column={column}>Gained</TableSortButton>;
-      },
-      cell: ({ row }) => {
-        const gained = row.original.deltas.find((d) => d.metric === selectedMetric)?.values.gained ?? 0;
-
-        return (
-          <FormattedNumber
-            value={gained}
-            colored
-            tooltipContent={
-              <MetricDeltasTooltip deltas={row.original.deltas} type="values" field="gained" />
-            }
-          />
-        );
-      },
-    },
+    ...views.map(
+      (view): ColumnDef<Participation> => ({
+        id: view.key,
+        accessorFn: view.accessorFn,
+        sortUndefined: 1,
+        meta: {
+          className: view.className,
+        },
+        header: ({ column }) => {
+          return <TableSortButton column={column}>{view.label}</TableSortButton>;
+        },
+        cell: ({ row, getValue }) => {
+          const value = getValue() as number | undefined;
+          return value === undefined ? EMPTY_CELL : view.cell(row.original, value);
+        },
+      }),
+    ),
     {
       id: "updatedAt",
       accessorFn: (row) => row.player.updatedAt,
@@ -253,40 +255,6 @@ function useColumnDefinition(ranks: Map<number, number>) {
       },
     },
   ];
-
-  if (MetricProps[competition.metrics[0].metric].type === MetricType.SKILL) {
-    columns.splice(3, 0, {
-      id: "levels",
-      header: ({ column }) => {
-        return <TableSortButton column={column}>Levels</TableSortButton>;
-      },
-      accessorFn: (row) => {
-        return row.deltas.find((d) => d.metric === selectedMetric)?.levels.gained ?? 0;
-      },
-      cell: ({ row }) => {
-        const levels = row.original.deltas.find((d) => d.metric === selectedMetric)?.levels;
-
-        if (levels === undefined) return null;
-        const { start, end, gained } = levels;
-
-        if (start === -1 || end === -1) return <span className="text-gray-300">---</span>;
-
-        return (
-          <span className={cn(gained > 0 && "text-green-500")}>
-            {gained > 0 ? "+" : ""}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span>{gained}</span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <MetricDeltasTooltip deltas={row.original.deltas} type="levels" field="gained" />
-              </TooltipContent>
-            </Tooltip>
-          </span>
-        );
-      },
-    });
-  }
 
   return columns;
 }

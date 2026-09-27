@@ -10,6 +10,7 @@ import {
   getPaginationRowModel,
   useReactTable,
   Row,
+  RowData,
 } from "@tanstack/react-table";
 import { cn } from "~/utils/styling";
 import { Button } from "./Button";
@@ -24,6 +25,13 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, Ta
 
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 import ChevronFirstIcon from "~/assets/chevron_first.svg";
+
+declare module "@tanstack/react-table" {
+  interface ColumnMeta<TData extends RowData, TValue> {
+    // Applied to the column's header and body cells (e.g. for responsive visibility)
+    className?: string;
+  }
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -117,7 +125,11 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      data-column-id={header.column.id}
+                      className={header.column.columnDef.meta?.className}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -142,7 +154,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
                     )}
                   >
                     {row.getVisibleCells().map((cell, idx) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className={cell.column.columnDef.meta?.className}>
                         {row.id === props.selectedRowId && idx === 0 && (
                           <div className="absolute bottom-0 left-0 top-0 h-full w-0.5 bg-blue-500" />
                         )}
