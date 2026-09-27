@@ -25,13 +25,13 @@ import { TableSortButton, TableTitle } from "../Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 import { useCompetitionPageContext } from "./CompetitionPageContext";
 import ArrowUpIcon from "~/assets/arrow_up.svg";
-
-import CheckIcon from "~/assets/check.svg";
-import ExportIcon from "~/assets/export.svg";
-import LoadingIcon from "~/assets/loading.svg";
 import { DataTable } from "../DataTable";
 import { QueryLink } from "../QueryLink";
 import { useCompetitionTimeMachine } from "~/hooks/useCompetitionTimeMachine";
+
+import SyncIcon from "~/assets/sync.svg";
+import ExportIcon from "~/assets/export.svg";
+import LoadingIcon from "~/assets/loading.svg";
 
 export function NewParticipantsTable({ teamName }: { teamName?: string }) {
   const { competition, selectedMetric } = useCompetitionPageContext();
@@ -331,30 +331,33 @@ function UpdateParticipantCell(props: {
   return (
     <div
       className={cn(
-        "flex w-full items-center justify-between gap-x-3",
+        "flex w-full items-center justify-between gap-x-2",
         !hasUpdated && !hasStartingValue && hasStarted && "text-red-500",
       )}
     >
       {!hasEnded && hasUpdated ? (
-        <>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>Refresh to apply</span>
-            </TooltipTrigger>
-            <TooltipContent>Refresh the page to view the updated data.</TooltipContent>
-          </Tooltip>
-          <Button size="sm" disabled>
-            <CheckIcon className="h-3 w-3" />
-            Updated
-          </Button>
-        </>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="text-gray-200">Refresh to apply</span>
+          </TooltipTrigger>
+          <TooltipContent>Refresh the page to view the updated data.</TooltipContent>
+        </Tooltip>
       ) : (
         <>
           {player.updatedAt ? timeago.format(player.updatedAt) : "---"}
           {!hasEnded && player.status !== PlayerStatus.ARCHIVED && (
-            <Button size="sm" disabled={isUpdating} onClick={() => updateMutation.mutate()}>
-              {isUpdating && <LoadingIcon className="h-3 w-3 animate-spin" />}
-              {isUpdating ? "Updating..." : "Update"}
+            <Button
+              size="sm"
+              iconButton
+              className="h-6 p-1"
+              disabled={isUpdating}
+              onClick={() => updateMutation.mutate()}
+            >
+              {isUpdating ? (
+                <LoadingIcon className="h-4 w-4 animate-spin text-gray-200" />
+              ) : (
+                <SyncIcon className="h-4 w-4 text-gray-200" />
+              )}
             </Button>
           )}
         </>
