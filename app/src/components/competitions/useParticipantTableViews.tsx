@@ -8,7 +8,7 @@ import {
   MetricType,
 } from "@wise-old-man/utils";
 import { useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 import { sortParticipations } from "~/utils/competitions";
 import { cn } from "~/utils/styling";
 import { Button } from "../Button";
@@ -55,11 +55,18 @@ export function useParticipantTableViews() {
   const definitions = getViewDefinitions(selectedMetric, competition, stats);
 
   const availableViews = VIEW_KEYS.filter((v) => v !== "levels" || isSkillingCompetition);
-  const selectedViews = resolveViews(searchParams.getAll("view"), availableViews);
+  const requestedViews = availableViews.filter((v) => searchParams.getAll("view").includes(v));
+
+  // With no views in the URL, the default views are shown, as many as the table's width allows
+  const views: ParticipantView[] =
+    requestedViews.length > 0
+      ? requestedViews.map((key) => ({ key, ...definitions[key] }))
+      : availableViews
+          .filter((key) => key in DEFAULT_VIEWS)
+          .map((key) => ({ key, ...definitions[key], className: DEFAULT_VIEWS[key] }));
 
   return {
-    selectedViews,
-    views: selectedViews.map((key): ParticipantView => ({ key, ...definitions[key] })),
+    views,
     options: availableViews.map((key) => ({ key, label: definitions[key].label })),
   };
 }
@@ -76,7 +83,11 @@ interface ViewDefinition {
   cell: (row: Participation, value: number) => React.ReactNode;
 }
 
-export type ParticipantView = ViewDefinition & { key: ViewKey };
+export type ParticipantView = ViewDefinition & {
+  key: ViewKey;
+  // Container query classes that hide the column on narrow tables
+  className?: string;
+};
 
 export const EMPTY_CELL = <span className="text-gray-300">---</span>;
 
@@ -312,53 +323,66 @@ function getViewDefinitions(
   };
 }
 
-const DEFAULT_VIEWS: ViewKey[] = ["gained"];
-
-// Columns are always rendered in the registry order, regardless of the order in the URL
-function resolveViews(requestedViews: string[], availableViews: ViewKey[]): ViewKey[] {
-  const selected = availableViews.filter((v) => requestedViews.includes(v));
-  return selected.length > 0 ? selected : DEFAULT_VIEWS;
-}
+// Default views, and the (literal, for Tailwind) classes that hide them on narrow tables.
+// The table's container needs the "@container" class. Rendered in the registry order.
+const DEFAULT_VIEWS: Partial<Record<ViewKey, string>> = {
+  gained: undefined,
+  levels: undefined,
+  gap: "hidden @2xl:table-cell",
+  projected: "hidden @3xl:table-cell",
+  performance: "hidden @4xl:table-cell",
+  start: "hidden @5xl:table-cell",
+  end: "hidden @6xl:table-cell",
+};
 
 export function ColumnsSelector(props: {
-  selectedViews: ViewKey[];
   options: Array<{
     key: ViewKey;
     label: string;
   }>;
 }) {
-  const { selectedViews, options } = props;
+  const { options } = props;
 
   const searchParams = useSearchParams();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  // The visible columns depend on the table's width, so they're read from the DOM when opened
+  const [visibleViews, setVisibleViews] = useState<ViewKey[]>([]);
+
+  function readVisibleViews() {
+    const headers = triggerRef.current?.closest(".\\@container")?.querySelectorAll("th[data-column-id]");
+
+    return Array.from(headers ?? [])
+      .filter((th) => getComputedStyle(th).display !== "none")
+      .map((th) => th.getAttribute("data-column-id") ?? "")
+      .filter(isViewKey);
+  }
 
   function handleViewsChanged(views: ViewKey[]) {
     // At least one column must stay visible
     if (views.length === 0) return;
 
+    setVisibleViews(views);
+
     const nextParams = new URLSearchParams(searchParams);
     nextParams.delete("view");
-
-    // The default doesn't need to be in the URL
-    const isDefault =
-      views.length === DEFAULT_VIEWS.length && views.every((v) => DEFAULT_VIEWS.includes(v));
-
-    if (!isDefault) {
-      views.forEach((v) => nextParams.append("view", v));
-    }
+    views.forEach((v) => nextParams.append("view", v));
 
     // Shallow update: the columns are computed client-side, so there's no need to refetch the page
-    const query = nextParams.toString();
-    window.history.replaceState(null, "", query ? `?${query}` : window.location.pathname);
+    window.history.replaceState(null, "", `?${nextParams.toString()}`);
   }
 
   return (
     <Combobox
       multiple
-      value={selectedViews}
+      value={visibleViews}
       onValueChanged={(values) => handleViewsChanged(values.filter(isViewKey))}
+      onOpenChange={(open) => {
+        if (open) setVisibleViews(readVisibleViews());
+      }}
     >
       <ComboboxTrigger asChild>
-        <Button iconButton>
+        <Button iconButton ref={triggerRef}>
           <TableCogIcon className="h-5 w-5 pl-px pt-px text-gray-100" />
         </Button>
       </ComboboxTrigger>

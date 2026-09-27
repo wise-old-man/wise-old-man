@@ -49,7 +49,7 @@ export function NewParticipantsTable({ teamName }: { teamName?: string }) {
     return new Map(sortedParticipations.map((p, index) => [p.player.id, index + 1]));
   }, [sortedParticipations]);
 
-  const { views, options, selectedViews } = useParticipantTableViews();
+  const { views, options } = useParticipantTableViews();
 
   const columns = useColumnDefinition(ranks, views);
 
@@ -71,6 +71,8 @@ export function NewParticipantsTable({ teamName }: { teamName?: string }) {
       data={showOnlyOutdated ? outdatedParticipants : rows}
       enablePagination
       defaultPageSize={teamName === undefined ? 20 : 100_000}
+      // The default columns are shown or hidden based on the table's width
+      containerClassName="@container"
       headerSlot={
         <TableTitle className="flex-col p-0">
           <div className="flex w-full items-center justify-between px-5 py-4">
@@ -92,7 +94,7 @@ export function NewParticipantsTable({ teamName }: { teamName?: string }) {
                   Export
                 </Button>
               </QueryLink>
-              <ColumnsSelector selectedViews={selectedViews} options={options} />
+              <ColumnsSelector options={options} />
             </div>
           </div>
           {showOnlyOutdated ? (
@@ -230,6 +232,9 @@ function useColumnDefinition(ranks: Map<number, number>, views: ParticipantView[
         id: view.key,
         accessorFn: view.accessorFn,
         sortUndefined: 1,
+        meta: {
+          className: view.className,
+        },
         header: ({ column }) => {
           return <TableSortButton column={column}>{view.label}</TableSortButton>;
         },
