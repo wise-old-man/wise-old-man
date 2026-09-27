@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 
 import { Footer } from "~/components/Footer";
@@ -10,6 +10,7 @@ import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { ReactQueryProvider } from "~/components/ReactQueryProvider";
 import { NavigationLoadingBar } from "~/components/NavigationLoadingBar";
 import { TopBanner } from "~/components/TopBanner";
+import { ServiceWorkerRegistration } from "~/components/ServiceWorkerRegistration";
 
 import { MAINTENANCE_MODE, ANNOUNCEMENT_BANNER } from "../../config";
 
@@ -34,6 +35,21 @@ export const metadata: Metadata = {
     url: "https://wiseoldman.net",
   },
   alternates: { canonical: "./" },
+  applicationName: "Wise Old Man",
+  appleWebApp: {
+    capable: true,
+    title: "Wise Old Man",
+    statusBarStyle: "black",
+  },
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#101319",
 };
 
 function RootLayout(props: PropsWithChildren) {
@@ -42,6 +58,7 @@ function RootLayout(props: PropsWithChildren) {
   return (
     <html lang="en" className={inter.variable}>
       <body>
+        <ServiceWorkerRegistration />
         <NavigationLoadingBar />
 
         {ANNOUNCEMENT_BANNER.enabled && ANNOUNCEMENT_BANNER.message && (
