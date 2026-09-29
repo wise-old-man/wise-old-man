@@ -137,7 +137,8 @@ export function DateField(props: AriaDatePickerProps<DateValue> & { isSegmented?
 }
 
 export function TimeField(props: AriaTimeFieldProps<TimeValue>) {
-  const { locale } = useLocale();
+  // const { locale } = useLocale();
+  const locale = "en-GB";
   const state = useTimeFieldState({ ...props, locale });
 
   const ref = useRef(null);
