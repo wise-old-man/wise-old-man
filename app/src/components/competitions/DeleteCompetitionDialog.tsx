@@ -15,6 +15,7 @@ import InfoIcon from "~/assets/info.svg";
 
 interface DeleteCompetitionDialogProps {
   competitionId: number;
+  competitionTitle: string;
 }
 
 export function DeleteCompetitionDialog(props: DeleteCompetitionDialogProps) {
@@ -49,6 +50,7 @@ export function DeleteCompetitionDialog(props: DeleteCompetitionDialogProps) {
         </DialogHeader>
         <DeleteCompetitionForm
           competitionId={props.competitionId}
+          competitionTitle={props.competitionTitle}
           onQuit={handleClose}
           onSubmitted={() => router.push("/competitions")}
         />
@@ -63,12 +65,15 @@ interface DeleteCompetitionFormProps extends DeleteCompetitionDialogProps {
 }
 
 function DeleteCompetitionForm(props: DeleteCompetitionFormProps) {
-  const { competitionId, onQuit, onSubmitted } = props;
+  const { competitionId, competitionTitle, onQuit, onSubmitted } = props;
 
   const toast = useToast();
   const client = useWOMClient();
 
   const [verificationCode, setVerificationCode] = useState("");
+  const [confirmedTitle, setConfirmedTitle] = useState("");
+
+  const hasConfirmedTitle = confirmedTitle.trim() === competitionTitle.trim();
 
   const deleteMutation = useMutation({
     mutationFn: () => {
@@ -87,12 +92,27 @@ function DeleteCompetitionForm(props: DeleteCompetitionFormProps) {
 
   return (
     <form
-      className="mt-2 flex flex-col gap-y-2"
+      className="mt-2 flex flex-col gap-y-5"
       onSubmit={(e) => {
         e.preventDefault();
+        if (!hasConfirmedTitle) return;
         deleteMutation.mutate();
       }}
     >
+      <div className="flex flex-col">
+        <Label className="mb-2 text-xs font-normal text-gray-200" htmlFor="confirmedTitle">
+          Type <span className="font-medium text-white">{competitionTitle}</span> to confirm
+        </Label>
+        <Input
+          id="confirmedTitle"
+          autoFocus
+          name="confirmedTitle"
+          autoComplete="off"
+          placeholder="Enter the competition title"
+          value={confirmedTitle}
+          onChange={(e) => setConfirmedTitle(e.target.value)}
+        />
+      </div>
       <div className="flex flex-col">
         <div className="mb-2 flex items-center">
           <Label className="text-xs font-normal text-gray-200" htmlFor="verificationCode">
@@ -119,7 +139,6 @@ function DeleteCompetitionForm(props: DeleteCompetitionFormProps) {
         </div>
         <Input
           id="verificationCode"
-          autoFocus
           type="password"
           name="verificationCode"
           autoComplete="verificationCode"
@@ -134,7 +153,7 @@ function DeleteCompetitionForm(props: DeleteCompetitionFormProps) {
           <Button
             variant="red"
             type="submit"
-            disabled={verificationCode.length === 0 || deleteMutation.isPending}
+            disabled={!hasConfirmedTitle || verificationCode.length === 0 || deleteMutation.isPending}
           >
             {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>
