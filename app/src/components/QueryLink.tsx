@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 interface QueryLinkProps extends Omit<React.ComponentPropsWithoutRef<typeof Link>, "href"> {
   query: {
-    [key: string]: string | undefined | null;
+    [key: string]: string | Array<string> | undefined | null;
   };
   shallow?: boolean;
 }
@@ -22,6 +22,9 @@ export function QueryLink(props: QueryLinkProps) {
   for (const [key, value] of Object.entries(props.query)) {
     if (value === null) {
       nextParams.delete(key);
+    } else if (Array.isArray(value)) {
+      nextParams.delete(key);
+      value.forEach((v) => nextParams.append(key, v));
     } else if (value !== undefined) {
       nextParams.set(key, value);
     }

@@ -1,3 +1,52 @@
+import {
+  Metric,
+  MetricProps,
+  ParticipantHistoryResponse,
+  isActivity,
+  isBoss,
+} from "@wise-old-man/utils";
+
+/**
+ * Converts a participant's value history into a timeseries of gains, relative to their
+ * value at the start of the competition.
+ */
+export function convertToDiffTimeseries(
+  metric: Metric | undefined,
+  history: ParticipantHistoryResponse["history"],
+) {
+  if (history.length === 0) return [];
+
+  // The API returns -1 when the player was unranked in the metric (or in all of them, for "total").
+  // For boss/activity metrics we approximate it as "just below the minimum", everything else uses 0.
+  const unrankedValue =
+    metric && (isBoss(metric) || isActivity(metric)) ? MetricProps[metric].minimumValue - 1 : 0;
+
+  const sanitizedPoints = [...history]
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
+    .map((p) => {
+      return { time: p.date, value: p.value === -1 ? unrankedValue : p.value };
+    });
+
+  const diffPoints = sanitizedPoints.map((p) => ({
+    time: p.time.getTime(),
+    value: p.value - sanitizedPoints[0].value,
+  }));
+
+  return [...dedupeByValue(diffPoints.slice(0, -1)), diffPoints[diffPoints.length - 1]];
+}
+
+function dedupeByValue(points: Array<{ value: number; time: number }>) {
+  const map = new Map<number, (typeof points)[number]>();
+
+  points.forEach((p) => {
+    if (!map.has(p.value)) {
+      map.set(p.value, p);
+    }
+  });
+
+  return Array.from(map.values());
+}
+
 export function calculateGainBuckets(
   data: Array<{ value: number; date: Date }>,
   minDate: Date,

@@ -1,22 +1,26 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
+import ms from 'ms';
 import { jobManager, JobType } from '../../../../jobs';
 import prisma from '../../../../prisma';
-import { Period, Player } from '../../../../types';
-import { PeriodProps } from '../../../../utils/shared';
-import { BadRequestError, NotFoundError } from '../../../errors';
+import { Player } from '../../../../types';
 
-async function updateAllMembers(groupId: number): Promise<number> {
+const GRACE_PERIOD = ms('30 min');
+
+export async function updateAllMembers(
+  groupId: number
+): AsyncResult<number, { code: 'GROUP_NOT_FOUND' } | { code: 'NO_OUTDATED_MEMBERS' }> {
   const outdatedPlayers = await getOutdatedMembers(groupId);
 
-  if (!outdatedPlayers || outdatedPlayers.length === 0) {
+  if (outdatedPlayers.length === 0) {
     const group = await prisma.group.findFirst({
       where: { id: groupId }
     });
 
-    if (!group) {
-      throw new NotFoundError('Group not found.');
+    if (group === null) {
+      return errored({ code: 'GROUP_NOT_FOUND' });
     }
 
-    throw new BadRequestError('This group has no outdated members (updated over 24h ago).');
+    return errored({ code: 'NO_OUTDATED_MEMBERS' });
   }
 
   // Schedule an update job for every member
@@ -24,7 +28,7 @@ async function updateAllMembers(groupId: number): Promise<number> {
     jobManager.add(JobType.UPDATE_PLAYER, { username: player.username });
   }
 
-  return outdatedPlayers.length;
+  return complete(outdatedPlayers.length);
 }
 
 /**
@@ -32,13 +36,13 @@ async function updateAllMembers(groupId: number): Promise<number> {
  * A member is considered outdated 24 hours after their last update.
  */
 async function getOutdatedMembers(groupId: number): Promise<Pick<Player, 'username'>[]> {
-  const dayAgo = new Date(Date.now() - PeriodProps[Period.DAY].milliseconds);
+  const threshold = new Date(Date.now() - ms('1 day') + GRACE_PERIOD);
 
   const outdatedMembers = await prisma.membership.findMany({
     where: {
       groupId,
       player: {
-        OR: [{ updatedAt: { lt: dayAgo } }, { updatedAt: null }]
+        OR: [{ updatedAt: { lt: threshold } }, { updatedAt: null }]
       }
     },
     include: {
@@ -48,5 +52,3 @@ async function getOutdatedMembers(groupId: number): Promise<Pick<Player, 'userna
 
   return outdatedMembers.map(o => o.player);
 }
-
-export { updateAllMembers };

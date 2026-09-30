@@ -6,16 +6,19 @@ import {
   Boss,
   ComputedMetric,
   GroupStatisticsResponse,
+  Metric,
   MetricProps,
   Skill,
   SnapshotResponse,
   isActivity,
   isBoss,
+  isComputedMetric,
   isSkill,
 } from "@wise-old-man/utils";
 import { DataTable } from "../DataTable";
 import { MetricIconSmall } from "../Icon";
 import { FormattedNumber } from "../FormattedNumber";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 type SkillValue = SnapshotResponse["data"]["skills"][Skill];
 type BossValue = SnapshotResponse["data"]["bosses"][Boss];
@@ -67,22 +70,41 @@ const COLUMN_DEFS: ColumnDef<SkillValue | BossValue | ActivityValue | ComputedMe
     accessorKey: "value",
     header: "Value",
     cell: ({ row }) => {
-      if (isSkill(row.original.metric)) {
-        return <FormattedNumber value={(row.original as SkillValue).experience} />;
-      } else if (isBoss(row.original.metric)) {
-        return <FormattedNumber value={(row.original as BossValue).kills} />;
-      } else if (isActivity(row.original.metric)) {
-        return <FormattedNumber value={(row.original as ActivityValue).score} />;
+      let value = -1;
+
+      if (isSkill(row.original.metric) && "experience" in row.original) {
+        value = row.original.experience;
+      } else if (isBoss(row.original.metric) && "kills" in row.original) {
+        value = row.original.kills;
+      } else if (isActivity(row.original.metric) && "score" in row.original) {
+        value = row.original.score;
+      } else if (isComputedMetric(row.original.metric) && "value" in row.original) {
+        value = row.original.value;
       }
 
-      return <FormattedNumber value={(row.original as ComputedMetricValue).value} />;
+      return value === -1 ? tooltip(row.original.metric) : <FormattedNumber value={value} />;
     },
   },
   {
     accessorKey: "rank",
     header: "Global Rank",
     cell: ({ row }) => {
-      return <FormattedNumber value={row.original.rank} />;
+      const rank = row.original.rank;
+      if (rank === -1) {
+        return tooltip(row.original.metric);
+      }
+      return <FormattedNumber value={rank} />;
     },
   },
 ];
+
+function tooltip(metric: Metric) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="text-gray-300">---</span>
+      </TooltipTrigger>
+      <TooltipContent>This group is unranked in {MetricProps[metric].name}.</TooltipContent>
+    </Tooltip>
+  );
+}

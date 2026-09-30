@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Metric, Period } from "@wise-old-man/utils";
 import { Pagination } from "~/components/Pagination";
 import { GroupLeaderboardsNavigation } from "~/components/groups/GroupLeaderboardsNavigation";
@@ -19,14 +20,17 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = props.params;
 
   const group = await getGroupDetails(id);
 
   return {
-    title: `Record Leaderboards: ${group.name}`,
-    description: group.description,
+    title: `${group.name} Records Leaderboard`,
+    description: `${group.name}'s skill, boss and activity records`,
+    alternates: {
+      canonical: `/groups/${id}/records`,
+    },
   };
 }
 

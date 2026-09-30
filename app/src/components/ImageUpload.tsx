@@ -8,6 +8,7 @@ import { uploadBannerImage, uploadProfileImage } from "~/actions/image-upload";
 
 import ImageIcon from "~/assets/image.svg";
 import LoadingIcon from "~/assets/loading.svg";
+import { BANNER_IMAGE_SIZE, HIGH_DPI_SCALE, PROFILE_IMAGE_SIZE } from "~/utils/images";
 import { cn } from "~/utils/styling";
 
 interface ProfileImageUploadProps {
@@ -68,7 +69,12 @@ function ProfileImageUploadTrigger(props: ProfileImageUploadTriggerProps) {
       className="group relative h-[7.5rem] w-[7.5rem] overflow-hidden rounded-full border border-gray-400 bg-gray-950 hover:border-gray-400"
     >
       {previewImageURL && (
-        <Image width={120} height={120} src={previewImageURL} alt="Preview profile image" />
+        <Image
+          width={PROFILE_IMAGE_SIZE.width}
+          height={PROFILE_IMAGE_SIZE.height}
+          src={previewImageURL}
+          alt="Preview profile image"
+        />
       )}
       {!pending ? (
         <div
@@ -80,7 +86,7 @@ function ProfileImageUploadTrigger(props: ProfileImageUploadTriggerProps) {
           <ImageIcon className="h-5 w-5 text-white" />
           <span className="mt-1 text-xs font-medium text-white">
             Click to upload image <br />
-            (120x120)
+            {`(${PROFILE_IMAGE_SIZE.width * HIGH_DPI_SCALE}x${PROFILE_IMAGE_SIZE.height * HIGH_DPI_SCALE})`}
           </span>
         </div>
       ) : (
@@ -148,10 +154,15 @@ function BannerImageUploadTrigger(props: BannerImageUploadTriggerProps) {
       type="button"
       onClick={onClick}
       className="group relative w-full overflow-hidden rounded border border-gray-500 bg-gray-950 hover:border-gray-400"
-      style={{ aspectRatio: 1184 / 144 }}
+      style={{ aspectRatio: BANNER_IMAGE_SIZE.width / BANNER_IMAGE_SIZE.height }}
     >
       {previewImageURL && (
-        <Image width={1184} height={144} src={previewImageURL} alt="Preview banner image" />
+        <Image
+          width={BANNER_IMAGE_SIZE.width}
+          height={BANNER_IMAGE_SIZE.height}
+          src={previewImageURL}
+          alt="Preview banner image"
+        />
       )}
       {!pending ? (
         <div
@@ -161,7 +172,9 @@ function BannerImageUploadTrigger(props: BannerImageUploadTriggerProps) {
           )}
         >
           <ImageIcon className="h-5 w-5 text-white" />
-          <span className="mt-1 text-xs font-medium text-white">Upload image (1184x144)</span>
+          <span className="mt-1 text-xs font-medium text-white">
+            {`Upload image (${BANNER_IMAGE_SIZE.width * HIGH_DPI_SCALE}x${BANNER_IMAGE_SIZE.height * HIGH_DPI_SCALE})`}
+          </span>
         </div>
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80">

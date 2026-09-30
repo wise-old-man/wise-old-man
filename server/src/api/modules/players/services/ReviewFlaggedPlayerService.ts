@@ -192,10 +192,40 @@ function hasLostTooMuch(previous: SnapshotResponse, rejected: SnapshotResponse) 
       .reduce((a, b) => a + b, 0)
   );
 
-  // If lost over 24h of EHP and EHB, then it's probably not a rollback.
+  // This seems random but a decent portion of flagged reports show big decreases in these metrics.
+  // These bosses/activities don't count towards EHB, so big KC/score drops would be missed otherwise.
+  if (rejected.data.bosses[Metric.WINTERTODT].kills > -1) {
+    const lostWintertodtKills =
+      rejected.data.bosses[Metric.WINTERTODT].kills - previous.data.bosses[Metric.WINTERTODT].kills;
+
+    if (lostWintertodtKills <= -50) {
+      return true;
+    }
+  }
+
+  if (rejected.data.bosses[Metric.TEMPOROSS].kills > -1) {
+    const lostTemporossKills =
+      rejected.data.bosses[Metric.TEMPOROSS].kills - previous.data.bosses[Metric.TEMPOROSS].kills;
+
+    if (lostTemporossKills <= -50) {
+      return true;
+    }
+  }
+
+  if (rejected.data.activities[Metric.GUARDIANS_OF_THE_RIFT].score > -1) {
+    const lostGotrScore =
+      rejected.data.activities[Metric.GUARDIANS_OF_THE_RIFT].score -
+      previous.data.activities[Metric.GUARDIANS_OF_THE_RIFT].score;
+
+    if (lostGotrScore <= -50) {
+      return true;
+    }
+  }
+
+  // If lost over 12h of EHP and EHB, then it's probably not a rollback.
   // Rollbacks are usually quickly fixed by Jagex, so it's unlikely
   // that a player gains a huge amount of EHP and EHB in a short period of time.
-  return lostEHP + lostEHB > 24;
+  return lostEHP + lostEHB > 12;
 }
 
 export { reviewFlaggedPlayer };

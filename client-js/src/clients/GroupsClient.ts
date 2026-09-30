@@ -18,6 +18,7 @@ import type {
   Period,
   PlayerResponse,
   RecordResponse,
+  SnapshotResponse,
   TimeRangeFilter
 } from '../api-types';
 import { PaginationOptions } from '../utils';
@@ -132,7 +133,14 @@ export default class GroupsClient extends BaseAPIClient {
     return this.getRequest<CompetitionResponse[]>(`/groups/${id}/competitions`, { ...pagination });
   }
 
-  getGroupGains(id: number, filter: TimeRangeFilter & { metric: Metric }, pagination?: PaginationOptions) {
+  /**
+   * Fetches a group's gains for a specific metric, over a given time period or date range.
+   *
+   * **Note:** If you need gains for more than one metric, use {@link getBulkGroupGains} instead
+   * of calling this once per metric - it fetches every metric's gains in a single request.
+   * @returns A list of players and their gains.
+   */
+  getGroupGains(id: number, filter: TimeRangeFilter & { metric: Metric }) {
     return this.getRequest<
       Array<{
         player: PlayerResponse;
@@ -140,10 +148,22 @@ export default class GroupsClient extends BaseAPIClient {
         endDate: Date;
         data: MetricDelta;
       }>
-    >(`/groups/${id}/gained`, {
-      ...pagination,
-      ...filter
-    });
+    >(`/groups/${id}/gained`, filter);
+  }
+
+  /**
+   * Fetches a group's gains for every metric, over a given time period or date range.
+   * @returns A list of players and their gains, broken down by metric.
+   */
+  getBulkGroupGains(id: number, filter: TimeRangeFilter) {
+    return this.getRequest<
+      Array<{
+        player: PlayerResponse;
+        startDate: Date;
+        endDate: Date;
+        data: Array<MetricDelta & { metric: Metric }>;
+      }>
+    >(`/groups/${id}/bulk-gained`, filter);
   }
 
   /**
@@ -174,11 +194,18 @@ export default class GroupsClient extends BaseAPIClient {
    * Fetches a group's hiscores for a specific metric.
    * @returns A list of hiscores entries (value, rank), including their respective players.
    */
-  getGroupHiscores(id: number, metric: Metric, pagination?: PaginationOptions) {
-    return this.getRequest<Array<GroupHiscoresEntryResponse>>(`/groups/${id}/hiscores`, {
-      ...pagination,
-      metric
-    });
+  getGroupHiscores(id: number, metric: Metric) {
+    return this.getRequest<Array<GroupHiscoresEntryResponse>>(`/groups/${id}/hiscores`, { metric });
+  }
+
+  /**
+   * Fetches every group member's stats in a single request.
+   * @returns A list of players and their latest snapshot data.
+   */
+  getGroupBulkHiscores(id: number) {
+    return this.getRequest<Array<{ player: PlayerResponse; data: SnapshotResponse }>>(
+      `/groups/${id}/bulk-hiscores`
+    );
   }
 
   /**

@@ -2,7 +2,7 @@ import prisma from '../../../../prisma';
 import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
 import { calculateCompetitionDelta } from '../../../../utils/calculate-competition-delta.util';
-import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
+import { selectRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
 import { uniqueBy } from '../../../../utils/unique-by.util';
 import { NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
@@ -99,7 +99,7 @@ async function findPlayerParticipationsStandings(
   const dedupedPlayerIds = new Set(allParticipations.map(p => p.playerId).filter(Boolean));
   const dedupedGroupIds = new Set(playerParticipations.map(p => p.competition.groupId).filter(Boolean));
 
-  const requiredSnapshotFields = getRequiredSnapshotFields(
+  const selectedSnapshotFields = selectRequiredSnapshotFields(
     playerParticipations.map(p => p.competition.metrics.map(m => m.metric)).flat()
   );
 
@@ -110,11 +110,7 @@ async function findPlayerParticipationsStandings(
         createdAt: p.startSnapshotDate!
       }))
     },
-    select: {
-      playerId: true,
-      createdAt: true,
-      ...requiredSnapshotFields
-    }
+    select: selectedSnapshotFields
   });
 
   const allEndSnapshots = await prisma.snapshot.findMany({
@@ -124,11 +120,7 @@ async function findPlayerParticipationsStandings(
         createdAt: p.endSnapshotDate!
       }))
     },
-    select: {
-      playerId: true,
-      createdAt: true,
-      ...requiredSnapshotFields
-    }
+    select: selectedSnapshotFields
   });
 
   const allPlayers = await prisma.player.findMany({

@@ -690,9 +690,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe(
-        'Cannot upload images from external sources - Please upload an image via the website'
-      );
+      expect(response.body.code).toBe('IMAGES_MUST_BE_INTERNALLY_HOSTED');
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -716,9 +714,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe(
-        'Cannot upload images from external sources - Please upload an image via the website'
-      );
+      expect(response.body.code).toBe('IMAGES_MUST_BE_INTERNALLY_HOSTED');
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
@@ -932,6 +928,32 @@ describe('Group API', () => {
       });
     });
 
+    it('should allow clientSyncJoinedAt to be set', async () => {
+      const before = await api.get(`/groups/${globalData.testGroupOneLeader.id}`);
+      expect(before.status).toBe(200);
+
+      // Removing "alt player" and "test player"
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        verificationCode: globalData.testGroupOneLeader.verificationCode,
+        members: [
+          { username: 'Psikoi', role: 'achiever', clientSyncJoinedAt: '2026-06-17' },
+          { username: ' ZezIMA___', role: 'collector', clientSyncJoinedAt: '2026-05-17' },
+          { username: 'swampletics', role: 'artisan', clientSyncJoinedAt: '2026-05-17' },
+          { username: 'alexsuperfly', role: 'leader' },
+          { username: 'zezIMA', role: 'firemaker' },
+          { username: 'rorro' }
+        ]
+      });
+
+      expect(response.status).toBe(200);
+      expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000);
+      expect(response.body.memberCount).toBe(5);
+      expect(response.body.memberships.filter(m => m.clientSyncJoinedAt).length).toBe(3);
+      expect(
+        response.body.memberships.filter(m => m.clientSyncJoinedAt === '2026-05-17T00:00:00.000Z').length
+      ).toBe(2);
+    });
+
     it('should edit name', async () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
@@ -1118,14 +1140,14 @@ describe('Group API', () => {
       const { memberships } = editResponse.body;
 
       const changedMembershipPsikoi = memberships.find(m => m.player.username === 'psikoi');
-      expect(changedRoleEvents[0]).toEqual({
+      expect(changedRoleEvents).toContainEqual({
         role: 'owner',
         previousRole: 'member',
         playerId: changedMembershipPsikoi.playerId
       });
 
       const changedMembershipCookmeplox = memberships.find(m => m.player.username === 'cookmeplox');
-      expect(changedRoleEvents[1]).toEqual({
+      expect(changedRoleEvents).toContainEqual({
         role: 'cook',
         previousRole: 'owner',
         playerId: changedMembershipCookmeplox.playerId
@@ -1496,7 +1518,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
 
       expect(groupMembersJoinedEvent).not.toHaveBeenCalled();
     });
@@ -1734,7 +1756,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
 
       expect(groupMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
@@ -1986,7 +2008,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
 
       expect(groupMembersLeftEvent).not.toHaveBeenCalled();
     });
@@ -2202,7 +2224,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should not delete (group not found with admin perms)', async () => {
@@ -2290,6 +2312,14 @@ describe('Group API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found');
+    });
+
+    it('should not view details (id out of integer range)', async () => {
+      // Ids larger than the max int4 value must be rejected with a 400, rather
+      // than reaching the database and causing an out-of-range 500 error.
+      const response = await api.get('/groups/2147483648');
+
+      expect(response.status).toBe(400);
     });
 
     it('should view details (empty group)', async () => {
@@ -2437,9 +2467,9 @@ describe('Group API', () => {
       });
 
       // Check the table header
-      expect(rows[0]).toBe('Player,Role,Experience,Last progressed,Last updated');
+      expect(rows[0]).toBe('Player,Role,Experience,Last progressed,Last updated,Joined at (Client Sync)');
 
-      expect(rows[0].split(',').length).toBe(5);
+      expect(rows[0].split(',').length).toBe(6);
 
       expect(rows[1].split(',').at(-1)).toBe(''); // Alexsuperfly has null updatedAt, should be returned as empty string
       expect(rows[1].split(',').at(-2)).toBe(''); // Alexsuperfly has null lastChangedAt, should be returned as empty string
@@ -2472,7 +2502,7 @@ describe('Group API', () => {
       const response = await api.get(`/groups/100000/hiscores`).query({ metric: 'ranged' });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should not view hiscores (invalid metric)', async () => {
@@ -2582,47 +2612,86 @@ describe('Group API', () => {
       expect(computedMetricsHiscoresResponse.body[0].data.rank).toBeDefined();
       expect(computedMetricsHiscoresResponse.body[0].data.type).toBe('computed');
     });
+  });
 
-    it('should view hiscores (w/ limit & offset)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
-        .query({ metric: 'zulrah', limit: 1, offset: 1 });
+  describe('12 - View Bulk Hiscores', () => {
+    it('should not view bulk hiscores (invalid group id)', async () => {
+      const response = await api.get(`/groups/abc/bulk-hiscores`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'id' is not a valid number.");
+    });
+
+    it('should not view bulk hiscores (group not found)', async () => {
+      const response = await api.get(`/groups/100000/bulk-hiscores`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
+    });
+
+    it('should view bulk hiscores (empty group)', async () => {
+      const response = await api.get(`/groups/${globalData.testGroupNoMembers.id}/bulk-hiscores`);
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
+      expect(response.body).toEqual([]);
+    });
 
-      expect(response.body[0]).toMatchObject({
-        player: { username: 'zezima' },
-        data: {
-          type: 'boss',
-          kills: 100
-        }
+    it('should view bulk hiscores', async () => {
+      const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}/bulk-hiscores`);
+
+      expect(response.status).toBe(200);
+
+      // Only members with a tracked snapshot (alexsuperfly, psikoi, zezima) should show up,
+      // members without one (swampletics, rorro) should be filtered out.
+      expect(response.body.length).toBe(3);
+
+      const alexEntry = response.body.find(e => e.player.username === 'alexsuperfly');
+      const psikoiEntry = response.body.find(e => e.player.username === 'psikoi');
+      const zezimaEntry = response.body.find(e => e.player.username === 'zezima');
+
+      expect(alexEntry).toBeDefined();
+      expect(psikoiEntry).toBeDefined();
+      expect(zezimaEntry).toBeDefined();
+
+      // Make sure latestSnapshot isn't leaking on the player object
+      expect(alexEntry.player.latestSnapshot).not.toBeDefined();
+      expect(psikoiEntry.player.latestSnapshot).not.toBeDefined();
+      expect(zezimaEntry.player.latestSnapshot).not.toBeDefined();
+
+      expect(alexEntry.data.data.skills.magic).toMatchObject({
+        metric: 'magic',
+        experience: 200_000_000,
+        level: 99
       });
 
-      // Make sure latestSnapshot isn't leaking
-      expect(response.body[0].player.latestSnapshot).not.toBeDefined();
-    });
+      expect(psikoiEntry.data.data.skills.magic).toMatchObject({
+        metric: 'magic',
+        experience: 19_288_604,
+        level: 99
+      });
 
-    it('should not view hiscores (negative offset)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
-        .query({ metric: 'magic', offset: -5 });
+      expect(zezimaEntry.data.data.skills.magic).toMatchObject({
+        metric: 'magic',
+        experience: 5_500_000,
+        level: 90
+      });
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
-    });
+      // Zezima's raw hiscores data was modified to have 100 zulrah kills
+      expect(zezimaEntry.data.data.bosses.zulrah).toMatchObject({
+        metric: 'zulrah',
+        kills: 100
+      });
 
-    it('should not view hiscores (negative limit)', async () => {
-      const response = await api
-        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
-        .query({ metric: 'magic', limit: -5 });
+      // Sanity check that activities and computed metrics (ehp/ehb) are also included
+      expect(psikoiEntry.data.data.activities.clue_scrolls_all.rank).toBeDefined();
+      expect(psikoiEntry.data.data.activities.clue_scrolls_all.score).toBeDefined();
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
+      expect(psikoiEntry.data.data.computed.ehp.value).toBeDefined();
+      expect(psikoiEntry.data.data.computed.ehb.value).toBeDefined();
     });
   });
 
-  describe('12 - View Group Activity', () => {
+  describe('13 - View Group Activity', () => {
     it('should not view group activity (group not found)', async () => {
       const response = await api.get(`/groups/100000/activity`);
 
@@ -2712,7 +2781,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('13 - View Statistics', () => {
+  describe('14 - View Statistics', () => {
     it('should not view statistics (group not found)', async () => {
       const response = await api.get(`/groups/100000/statistics`);
 
@@ -2804,7 +2873,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('14 - Update All', () => {
+  describe('15 - Update All', () => {
     it('should not update all (invalid verification code)', async () => {
       const response = await api.post(`/groups/123456789/update-all`);
 
@@ -2818,7 +2887,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should not update all (incorrect verification code)', async () => {
@@ -2858,11 +2927,12 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('This group has no outdated members (updated over 24h ago).');
+      expect(response.body.code).toBe('NO_OUTDATED_MEMBERS');
     });
 
     it('should update all', async () => {
-      const dayOldDate = new Date(Date.now() - 1000 - 24 * 60 * 60 * 1000);
+      const dayOldDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const withinCooldown = new Date(Date.now() - 22 * 60 * 60 * 1000);
 
       // Force this player's last update timestamp to be a day ago
       await prisma.player.update({
@@ -2879,7 +2949,7 @@ describe('Group API', () => {
       // Force these players last update timestamps to be recent
       await prisma.player.update({
         where: { username: 'swampletics' },
-        data: { updatedAt: new Date() }
+        data: { updatedAt: withinCooldown }
       });
       await prisma.player.update({
         where: { username: 'rorro' },
@@ -2899,7 +2969,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('15 - Reset Verification Code', () => {
+  describe('16 - Reset Verification Code', () => {
     it('should not reset code (invalid admin password)', async () => {
       const response = await api.put(`/groups/100000/reset-code`);
 
@@ -2953,7 +3023,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('16 - Verify', () => {
+  describe('17 - Verify', () => {
     it('should not verify group (invalid admin password)', async () => {
       const response = await api.put(`/groups/100000/verify`);
 

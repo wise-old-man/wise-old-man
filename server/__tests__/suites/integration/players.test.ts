@@ -2487,7 +2487,7 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe(`${PlayerAnnotationType.OPT_OUT} does not exist for psikoi.`);
+      expect(response.body.message).toBe('Player annotation not found');
     });
 
     it('should throw conflit error 409 to create', async () => {
@@ -2503,7 +2503,7 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(409);
-      expect(response.body.message).toBe('The annotation opt_out already exists for psikoi');
+      expect(response.body.message).toBe('Cannot add duplicate player annotations');
     });
   });
 

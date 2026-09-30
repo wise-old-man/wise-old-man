@@ -1,4 +1,4 @@
-import { GroupRole, Metric, Period, PlayerType } from '../../../types';
+import { GroupRole, Metric, PlayerType } from '../../../types';
 import { FlaggedPlayerReviewContextResponse } from '../../responses';
 import { EventType } from './event-type.enum';
 
@@ -6,25 +6,11 @@ export type EventPayloadMap = {
   [EventType.COMPETITION_CREATED]: {
     competitionId: number;
   };
-  [EventType.COMPETITION_ENDED]: {
-    competitionId: number;
-  };
-  [EventType.COMPETITION_ENDING]: {
-    competitionId: number;
-    minutesLeft: number;
-  };
   [EventType.COMPETITION_PARTICIPANTS_JOINED]: {
     competitionId: number;
     participants: Array<{
       playerId: number;
     }>;
-  };
-  [EventType.COMPETITION_STARTED]: {
-    competitionId: number;
-  };
-  [EventType.COMPETITION_STARTING]: {
-    competitionId: number;
-    minutesLeft: number;
   };
   [EventType.COMPETITION_UPDATED]: {
     competitionId: number;
@@ -69,11 +55,6 @@ export type EventPayloadMap = {
   [EventType.PLAYER_ARCHIVED]: {
     username: string;
     previousUsername: string;
-  };
-  [EventType.PLAYER_DELTA_UPDATED]: {
-    username: string;
-    period: Period;
-    isPotentialRecord: boolean;
   };
   [EventType.PLAYER_FLAGGED]: {
     username: string;

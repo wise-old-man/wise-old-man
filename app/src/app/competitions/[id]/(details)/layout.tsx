@@ -95,16 +95,15 @@ function Header(props: CompetitionDetailsResponse) {
 
   return (
     <div className="flex flex-col-reverse items-start justify-between gap-x-5 gap-y-7 md:flex-row">
-      <div className="flex w-full grow items-center gap-x-3">
+      <div className="flex w-full grow flex-col items-start gap-x-3 gap-y-4 sm:flex-row sm:items-center">
         <MetricAvatarGroup
           metrics={metrics.map((m) => m.metric)}
-          maxCount={2}
           size="lg"
           avatarClassname="bg-gray-800"
         />
         <div>
-          <h1 className="text-lg font-bold sm:text-2xl">{title}</h1>
-          <div className="mt-1 text-xs text-gray-200 sm:mt-0 sm:text-body">
+          <h1 className="line-clamp-1 text-lg font-bold sm:text-2xl">{title}</h1>
+          <div className="mt-1 line-clamp-1 text-xs text-gray-200 sm:mt-0 sm:text-body">
             <div
               className={cn("mb-px mr-1.5 inline-block h-2 w-2 rounded-full border", {
                 "border-red-500 bg-red-600": status === CompetitionStatus.FINISHED,

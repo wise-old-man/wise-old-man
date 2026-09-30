@@ -1,17 +1,18 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation } from '../../../../types';
-import { NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 
-async function findPlayerParticipations(
+export async function findPlayerParticipations(
   username: string,
   status?: CompetitionStatus
-): Promise<
+): AsyncResult<
   Array<{
     participation: Participation;
     competition: Competition & { metrics: CompetitionMetric[]; participantCount: number };
     group: (Group & { memberCount: number }) | null;
-  }>
+  }>,
+  { code: 'PLAYER_NOT_FOUND' }
 > {
   const competitionQuery: PrismaTypes.CompetitionWhereInput = {
     visible: true
@@ -22,8 +23,8 @@ async function findPlayerParticipations(
     select: { id: true }
   });
 
-  if (!player) {
-    throw new NotFoundError('Player not found.');
+  if (player === null) {
+    return errored({ code: 'PLAYER_NOT_FOUND' });
   }
 
   if (status) {
@@ -90,7 +91,7 @@ async function findPlayerParticipations(
   const groupsMap = new Map(groups.map(g => [g.id, g]));
   const participantCountsMap = new Map(participantCounts.map(p => [p.competitionId, p._count]));
 
-  return sortCompetitions(
+  const sortedCompetitions = sortCompetitions(
     participations
       .map(participation => {
         const group = participation.competition.groupId
@@ -119,6 +120,8 @@ async function findPlayerParticipations(
       })
       .filter(Boolean)
   );
+
+  return complete(sortedCompetitions);
 }
 
 function sortCompetitions<T extends { competition: Pick<Competition, 'startsAt' | 'endsAt'> }>(
@@ -150,5 +153,3 @@ function sortCompetitions<T extends { competition: Pick<Competition, 'startsAt' 
     })
   ];
 }
-
-export { findPlayerParticipations };

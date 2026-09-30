@@ -1,5 +1,7 @@
 import { Fragment } from "react";
+import type { Metadata } from "next";
 import { timeago } from "~/utils/dates";
+import { buildPlayerMetadata } from "~/utils/metadata";
 import { LocalDate } from "~/components/LocalDate";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
@@ -17,11 +19,13 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const player = await getPlayerDetails(decodeURI(props.params.username));
 
   return {
-    title: `Name Changes: ${player.displayName}`,
+    ...buildPlayerMetadata(player, "/name-changes"),
+    title: `${player.displayName}'s Name Change History`,
+    description: `Every (known) previous OSRS username ${player.displayName} used to hold, and when each name change happened`,
   };
 }
 

@@ -932,6 +932,105 @@ describe('Competition API', () => {
         where: { id: response.body.competition.id }
       });
     });
+
+    it('should create group competition (member with opt-out after joining group is grandfathered)', async () => {
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Grandfathered',
+        members: [{ username: 'lucy' }, { username: 'ghoul' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const lateOpter = await prisma.player.findFirstOrThrow({
+        where: {
+          username: 'ghoul'
+        }
+      });
+
+      const membership = await prisma.membership.findFirstOrThrow({
+        where: {
+          groupId,
+          playerId: lateOpter.id
+        }
+      });
+
+      // Opt-out was created AFTER joining the group, so the player is grandfathered in
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: lateOpter.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date(membership.createdAt.getTime() + 1_000)
+        }
+      });
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Grandfathered Test Competition',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+      expect(createCompetitionResponse.body.competition.participantCount).toBe(2);
+      expect(createCompetitionResponse.body.competition.participations.map(p => p.player.username)).toContain(
+        'ghoul'
+      );
+
+      await api.delete(`/competitions/${createCompetitionResponse.body.competition.id}`).send({
+        verificationCode: createCompetitionResponse.body.verificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
+    });
+
+    it('should not create group competition (member with opt-out before joining group is blocked)', async () => {
+      const earlyOpter = await prisma.player.create({
+        data: { username: 'maclean', displayName: 'MacLean' }
+      });
+
+      // Opt-out was created BEFORE joining the group, so the player is blocked
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: earlyOpter.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date('2020-01-01')
+        }
+      });
+
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Blocked',
+        members: [{ username: 'ghoul' }, { username: 'maclean' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Blocked Test Competition',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode
+      });
+
+      expect(createCompetitionResponse.status).toBe(403);
+      expect(createCompetitionResponse.body).toMatchObject({ code: 'OPTED_OUT_PARTICIPANTS_FOUND' });
+      expect(createCompetitionResponse.body.data).toContain('MacLean');
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
+    });
   });
 
   describe('2 - Edit', () => {
@@ -1810,6 +1909,133 @@ describe('Competition API', () => {
 
       expect(deleteResponse.status).toBe(200);
     });
+
+    it('should edit group competition (member with opt-out after joining group is grandfathered)', async () => {
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Grandfathered Edit',
+        members: [{ username: 'betty' }, { username: 'maximus' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const maximus = await prisma.player.findFirstOrThrow({
+        where: { username: 'maximus' }
+      });
+
+      const membership = await prisma.membership.findFirstOrThrow({
+        where: { groupId, playerId: maximus.id }
+      });
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Grandfathered Edit Competition',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+      expect(createCompetitionResponse.body.competition.participantCount).toBe(2);
+
+      const competitionId = createCompetitionResponse.body.competition.id;
+
+      // Remove maximus from the competition so the edit can re-add them
+      await api.delete(`/competitions/${competitionId}/participants`).send({
+        verificationCode: groupVerificationCode,
+        participants: ['maximus']
+      });
+
+      // Opt-out was created AFTER joining the group, so the player is grandfathered in
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: maximus.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date(membership.createdAt.getTime() + 1_000)
+        }
+      });
+
+      const editResponse = await api.put(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode,
+        participants: ['betty', 'maximus']
+      });
+
+      expect(editResponse.status).toBe(200);
+      expect(editResponse.body.participantCount).toBe(2);
+      expect(editResponse.body.participations.map(p => p.player.username)).toContain('maximus');
+
+      await api.delete(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
+    });
+
+    it('should not edit group competition (member with opt-out before joining group is blocked)', async () => {
+      const moldaver = await prisma.player.create({
+        data: { username: 'moldaver', displayName: 'Moldaver' }
+      });
+
+      // Opt-out was created BEFORE joining the group, so the player is blocked
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: moldaver.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date('2020-01-01')
+        }
+      });
+
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Blocked Edit',
+        members: [{ username: 'betty' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Blocked Edit Competition',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+
+      const competitionId = createCompetitionResponse.body.competition.id;
+
+      // Add moldaver to the group (membership created NOW, after the 2020 opt-out)
+      await api.post(`/groups/${groupId}/members`).send({
+        verificationCode: groupVerificationCode,
+        members: [{ username: 'moldaver' }]
+      });
+
+      const editResponse = await api.put(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode,
+        participants: ['betty', 'moldaver']
+      });
+
+      expect(editResponse.status).toBe(403);
+      expect(editResponse.body).toMatchObject({ code: 'OPTED_OUT_PARTICIPANTS_FOUND' });
+      expect(editResponse.body.data).toContain('Moldaver');
+
+      await api.delete(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
+    });
   });
 
   describe('3 - Search', () => {
@@ -2143,7 +2369,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
+      expect(response.body.code).toBe('INVALID_USERNAMES_FOUND');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2157,7 +2383,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
+      expect(response.body.code).toBe('INVALID_USERNAMES_FOUND');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2171,7 +2397,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body.code).toBe('DUPLICATE_USERNAMES_FOUND');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2185,7 +2411,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All players given are already competing.');
+      expect(response.body.code).toBe('ALL_PLAYERS_ALREADY_COMPETING');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2199,7 +2425,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot add participants to a team competition.');
+      expect(response.body.code).toBe('CANNOT_ADD_PARTICIPANTS_TO_TEAM_COMPETITION');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2242,7 +2468,7 @@ describe('Competition API', () => {
         });
 
       expect(addParticipantsResponse.status).toBe(403);
-      expect(addParticipantsResponse.body.message).toMatch('One or more players have opted out');
+      expect(addParticipantsResponse.body.code).toBe('OPTED_OUT_PARTICIPANTS_FOUND');
       expect(addParticipantsResponse.body.data).toEqual(['Katharina', 'Franziska']);
 
       const deleteResponse = await api
@@ -2286,6 +2512,130 @@ describe('Competition API', () => {
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
         new Date(before.body.updatedAt).getTime()
       );
+    });
+
+    it('should add participants to group competition (member with opt-out after joining group is grandfathered)', async () => {
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Grandfathered Add',
+        members: [{ username: 'mailer' }, { username: 'mclaren' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const mclaren = await prisma.player.findFirstOrThrow({ where: { username: 'mclaren' } });
+
+      const membership = await prisma.membership.findFirstOrThrow({
+        where: { groupId, playerId: mclaren.id }
+      });
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Grandfathered Add Participants',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+      expect(createCompetitionResponse.body.competition.participantCount).toBe(2);
+
+      const competitionId = createCompetitionResponse.body.competition.id;
+
+      // Remove mclaren from the competition so we can re-add them
+      await api.delete(`/competitions/${competitionId}/participants`).send({
+        verificationCode: groupVerificationCode,
+        participants: ['mclaren']
+      });
+
+      // Opt-out was created AFTER joining the group, so the player is grandfathered in
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: mclaren.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date(membership.createdAt.getTime() + 1_000)
+        }
+      });
+
+      const addResponse = await api.post(`/competitions/${competitionId}/participants`).send({
+        verificationCode: groupVerificationCode,
+        participants: ['mclaren']
+      });
+
+      expect(addResponse.status).toBe(200);
+      expect(addResponse.body.count).toBe(1);
+
+      await api.delete(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
+    });
+
+    it('should not add participants to group competition (member with opt-out before joining group is blocked)', async () => {
+      const marcy = await prisma.player.create({
+        data: { username: 'marcy', displayName: 'marcy' }
+      });
+
+      // Opt-out was created BEFORE joining the group, so the player is blocked
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: marcy.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date('2020-01-01')
+        }
+      });
+
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Blocked Add',
+        members: [{ username: 'mailer' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Blocked Add Participants',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+
+      const competitionId = createCompetitionResponse.body.competition.id;
+
+      // Add marcy to the group (membership created NOW, after the 2020 opt-out)
+      await api.post(`/groups/${groupId}/members`).send({
+        verificationCode: groupVerificationCode,
+        members: [{ username: 'marcy' }]
+      });
+
+      const addResponse = await api.post(`/competitions/${competitionId}/participants`).send({
+        verificationCode: groupVerificationCode,
+        participants: ['marcy']
+      });
+
+      expect(addResponse.status).toBe(403);
+      expect(addResponse.body.code).toBe('OPTED_OUT_PARTICIPANTS_FOUND');
+      expect(addResponse.body.data).toContain('marcy');
+
+      await api.delete(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
     });
   });
 
@@ -2381,7 +2731,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('No valid tracked players were given.');
+      expect(response.body.code).toBe('NO_VALID_PARTICIPANTS');
     });
 
     it('should not remove participants (no participants found)', async () => {
@@ -2393,7 +2743,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('None of the players given were competing.');
+      expect(response.body.code).toBe('NO_VALID_PARTICIPANTS');
     });
 
     it('should remove participants (team competition)', async () => {
@@ -2421,25 +2771,15 @@ describe('Competition API', () => {
       expect(createCompetitionResponse.status).toBe(201);
       expect(createCompetitionResponse.body.competition.participantCount).toBe(6);
 
-      const firstResponse = await api
-        .delete(`/competitions/${createCompetitionResponse.body.competition.id}/participants`)
-        .send({
-          participants: ['nandor', 'guillermo', 'laszlo', 'nadja', 'colin', 'the guide'],
-          verificationCode: createCompetitionResponse.body.verificationCode
-        });
-
-      expect(firstResponse.status).toBe(400);
-      expect(firstResponse.body.message).toBe('You cannot remove all competition participants.');
-
-      const secondResponse = await api
+      const response = await api
         .delete(`/competitions/${createCompetitionResponse.body.competition.id}/participants`)
         .send({
           participants: ['nandor', 'nadja', 'colin', 'the guide'],
           verificationCode: createCompetitionResponse.body.verificationCode
         });
 
-      expect(secondResponse.status).toBe(200);
-      expect(secondResponse.body.message).toBe('Successfully removed 4 participants.');
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Successfully removed 4 participants.');
 
       const teamCheckResponse = await api.get(
         `/competitions/${createCompetitionResponse.body.competition.id}`
@@ -2628,7 +2968,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found invalid usernames:');
+      expect(response.body.code).toBe('INVALID_USERNAMES_FOUND');
       expect(response.body.data).toContain('reallylongusername');
     });
 
@@ -2686,7 +3026,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names');
+      expect(response.body.code).toBe('DUPLICATE_TEAM_NAMES_FOUND');
     });
 
     it('should not add teams (duplicate team names in database)', async () => {
@@ -2699,7 +3039,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names');
+      expect(response.body.code).toBe('DUPLICATE_TEAM_NAMES_FOUND');
     });
 
     it('should not add teams (duplicate team players in response)', async () => {
@@ -2712,7 +3052,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body.code).toBe('DUPLICATE_USERNAMES_FOUND');
     });
 
     it('should not add teams (duplicate team players in database)', async () => {
@@ -2722,7 +3062,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated usernames');
+      expect(response.body.code).toBe('DUPLICATE_USERNAMES_FOUND');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2737,7 +3077,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot add teams to a classic competition.');
+      expect(response.body.code).toBe('CANNOT_ADD_TEAMS_TO_CLASSIC_COMPETITION');
 
       expect(participantsJoinedEvent).not.toHaveBeenCalled();
     });
@@ -2781,7 +3121,7 @@ describe('Competition API', () => {
         });
 
       expect(addTeamsResponse.status).toBe(403);
-      expect(addTeamsResponse.body.message).toMatch('One or more players have opted out');
+      expect(addTeamsResponse.body.code).toBe('OPTED_OUT_PARTICIPANTS_FOUND');
       expect(addTeamsResponse.body.data).toEqual(['Magnus', 'Egon']);
 
       const deleteResponse = await api
@@ -2827,6 +3167,128 @@ describe('Competition API', () => {
           participants: expect.objectContaining({ length: 7 })
         })
       );
+    });
+
+    it('should add teams to group competition (member with opt-out after joining group is grandfathered)', async () => {
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Grandfathered Teams',
+        members: [{ username: 'jane' }, { username: 'lisbon' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const lisbon = await prisma.player.findFirstOrThrow({
+        where: { username: 'lisbon' }
+      });
+
+      const membership = await prisma.membership.findFirstOrThrow({
+        where: { groupId, playerId: lisbon.id }
+      });
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Grandfathered Add Teams',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode,
+        teams: [{ name: 'Team A', participants: ['jane'] }]
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+      expect(createCompetitionResponse.body.competition.participantCount).toBe(1);
+
+      const competitionId = createCompetitionResponse.body.competition.id;
+
+      // Opt-out was created AFTER joining the group, so the player is grandfathered in
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: lisbon.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date(membership.createdAt.getTime() + 1_000)
+        }
+      });
+
+      const addTeamsResponse = await api.post(`/competitions/${competitionId}/teams`).send({
+        verificationCode: groupVerificationCode,
+        teams: [{ name: 'Team B', participants: ['lisbon'] }]
+      });
+
+      expect(addTeamsResponse.status).toBe(200);
+      expect(addTeamsResponse.body.count).toBe(1);
+
+      await api.delete(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
+    });
+
+    it('should not add teams to group competition (member with opt-out before joining group is blocked)', async () => {
+      const cho = await prisma.player.create({
+        data: { username: 'cho', displayName: 'Cho' }
+      });
+
+      // Opt-out was created BEFORE joining the group, so the player is blocked
+      await prisma.playerAnnotation.create({
+        data: {
+          playerId: cho.id,
+          type: PlayerAnnotationType.OPT_OUT_COMPETITIONS,
+          createdAt: new Date('2020-01-01')
+        }
+      });
+
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test Group Blocked Teams',
+        members: [{ username: 'jane' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const groupId = createGroupResponse.body.group.id;
+      const groupVerificationCode = createGroupResponse.body.verificationCode;
+
+      const createCompetitionResponse = await api.post('/competitions').send({
+        title: 'Blocked Add Teams',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 2_400_000),
+        groupId,
+        groupVerificationCode,
+        teams: [{ name: 'Team A', participants: ['jane'] }]
+      });
+
+      expect(createCompetitionResponse.status).toBe(201);
+
+      const competitionId = createCompetitionResponse.body.competition.id;
+
+      // Add cho to the group (membership created NOW, after the 2020 opt-out)
+      await api.post(`/groups/${groupId}/members`).send({
+        verificationCode: groupVerificationCode,
+        members: [{ username: 'cho' }]
+      });
+
+      const addTeamsResponse = await api.post(`/competitions/${competitionId}/teams`).send({
+        verificationCode: groupVerificationCode,
+        teams: [{ name: 'Team B', participants: ['cho'] }]
+      });
+
+      expect(addTeamsResponse.status).toBe(403);
+      expect(addTeamsResponse.body.code).toBe('OPTED_OUT_PARTICIPANTS_FOUND');
+      expect(addTeamsResponse.body.data).toContain('Cho');
+
+      await api.delete(`/competitions/${competitionId}`).send({
+        verificationCode: groupVerificationCode
+      });
+
+      await api.delete(`/groups/${groupId}`).send({
+        verificationCode: groupVerificationCode
+      });
     });
   });
 
@@ -3163,7 +3625,7 @@ describe('Competition API', () => {
       });
     });
 
-    it('should view details (own metric as preview)', async () => {
+    it('should view details (legacy metric param, own metric)', async () => {
       const noMetricResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
       expect(noMetricResponse.status).toBe(200);
 
@@ -3173,12 +3635,180 @@ describe('Competition API', () => {
 
       expect(ownMetricResponse.status).toBe(200);
 
-      // Previewing a single-metric competition's own metric should be
-      // the same as viewing the competition without specifying a metric
+      // Selecting a single-metric competition's own metric should be
+      // the same as viewing the competition without selecting any metrics
       expect(ownMetricResponse.body.participations).toEqual(noMetricResponse.body.participations);
 
-      // No "total" delta, since there's only one (deduped) metric
+      // No "total" delta, since there's only one metric
       expect(ownMetricResponse.body.participations[0].deltas.map(d => d.metric)).toEqual(['zulrah']);
+    });
+
+    it('should view details (own metric)', async () => {
+      const noMetricResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(noMetricResponse.status).toBe(200);
+
+      const ownMetricResponse = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}`)
+        .query({ metrics: 'zulrah' });
+
+      expect(ownMetricResponse.status).toBe(200);
+
+      // Selecting a single-metric competition's own metric should be
+      // the same as viewing the competition without selecting any metrics
+      expect(ownMetricResponse.body.participations).toEqual(noMetricResponse.body.participations);
+
+      // No "total" delta, since there's only one metric
+      expect(ownMetricResponse.body.participations[0].deltas.map(d => d.metric)).toEqual(['zulrah']);
+    });
+
+    it('should not view details (invalid metrics)', async () => {
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        metrics: 'dungeoneering'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid enum value');
+    });
+
+    it('should view details (metrics replace the competition metrics)', async () => {
+      // "metrics" replaces the competition's own metrics, it doesn't add to them
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        metrics: 'hunter'
+      });
+
+      expect(response.status).toBe(200);
+
+      // The selected metrics are not added to the competition itself
+      expect(response.body.metrics).toMatchObject([expect.objectContaining({ metric: 'zulrah' })]);
+
+      // Only "hunter" was selected, so there's no "zulrah" delta, and no "total" delta
+      expect(response.body.participations[0].deltas.map(d => d.metric)).toEqual(['hunter']);
+
+      expect(response.body.participations.map(p => p.player.username)).toEqual([
+        'psikoi',
+        'rorro',
+        'lynx titan',
+        'usbc',
+        'zulu'
+      ]);
+
+      expect(response.body.participations[0]).toMatchObject({
+        progress: { start: 500_000, end: 750_000, gained: 250_000 },
+        levels: { start: 66, end: 70, gained: 4 }
+      });
+    });
+
+    it('should view details (own metric + extra metric)', async () => {
+      // "hunter" is not one of this competition's metrics, but it can be selected alongside
+      // "zulrah", which adds it to "deltas" and to the "total" delta (and to the standings)
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}`)
+        .query('metrics=zulrah&metrics=hunter');
+
+      expect(response.status).toBe(200);
+
+      // The selected metrics are not added to the competition itself
+      expect(response.body.metrics).toMatchObject([expect.objectContaining({ metric: 'zulrah' })]);
+
+      expect(response.body.participations.length).toBe(5);
+
+      expect(response.body.participations.map(p => p.player.username)).toEqual([
+        'psikoi',
+        'rorro',
+        'usbc',
+        'lynx titan',
+        'zulu'
+      ]);
+
+      expect(response.body.participations[0].deltas.map(d => d.metric)).toEqual([
+        'total',
+        'zulrah',
+        'hunter'
+      ]);
+
+      // psikoi: 1000 zulrah (unchanged), 500k -> 750k hunter
+      expect(response.body.participations[0]).toMatchObject({
+        progress: { start: 501_000, end: 751_000, gained: 250_000 },
+        levels: { start: 66, end: 70, gained: 4 } // only "hunter" has levels, "zulrah" is a boss
+      });
+
+      expect(response.body.participations[0].deltas[1]).toMatchObject({
+        metric: 'zulrah',
+        values: { start: 1000, end: 1000, gained: 0 }
+      });
+
+      expect(response.body.participations[0].deltas[2]).toMatchObject({
+        metric: 'hunter',
+        values: { start: 500_000, end: 750_000, gained: 250_000 }
+      });
+
+      // rorro: 500 -> 557 zulrah, 100k -> 110k hunter
+      expect(response.body.participations[1]).toMatchObject({
+        progress: { start: 100_500, end: 110_557, gained: 10_057 }
+      });
+
+      // usbc: unranked -> 60 zulrah, 50k hunter (unchanged)
+      expect(response.body.participations[2]).toMatchObject({
+        progress: { start: 50_000, end: 50_060, gained: 60 }
+      });
+
+      // lynx titan: 1646 zulrah (unchanged), 5.34m hunter (unchanged)
+      expect(response.body.participations[3]).toMatchObject({
+        progress: { start: 5_348_325, end: 5_348_325, gained: 0 }
+      });
+
+      // zulu: unranked in both metrics
+      expect(response.body.participations[4]).toMatchObject({
+        progress: { start: -1, end: -1, gained: 0 }
+      });
+    });
+
+    it('should view details (own metric + multiple extra metrics)', async () => {
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}`)
+        .query('metrics=zulrah&metrics=hunter&metrics=fishing');
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations.length).toBe(5);
+
+      const [psikoi] = response.body.participations;
+
+      expect(psikoi.deltas.map(d => d.metric)).toEqual(['total', 'zulrah', 'hunter', 'fishing']);
+
+      expect(psikoi.deltas[2]).toMatchObject({
+        metric: 'hunter',
+        values: { start: 500_000, end: 750_000, gained: 250_000 }
+      });
+
+      // fishing was never modified during the competition
+      expect(psikoi.deltas[3]).toMatchObject({ metric: 'fishing', values: { gained: 0 } });
+
+      // the "total" delta must add up every selected metric
+      const [total, ...metricDeltas] = psikoi.deltas;
+
+      expect(total.values.gained).toBe(
+        metricDeltas.map(d => Math.max(0, d.values.gained)).reduce((a, c) => a + c, 0)
+      );
+
+      expect(total.values.end).toBe(
+        metricDeltas.map(d => Math.max(0, d.values.end)).reduce((a, c) => a + c, 0)
+      );
+    });
+
+    it('should view details (legacy metric param takes priority over metrics)', async () => {
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}`)
+        .query('metric=hunter&metrics=fishing');
+
+      expect(response.status).toBe(200);
+
+      // The legacy "metric" param replaces the metric list, so "metrics" is ignored
+      expect(response.body.participations[0].deltas.map(d => d.metric)).toEqual(['hunter']);
+
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'psikoi' },
+        progress: { start: 500_000, end: 750_000, gained: 250_000 }
+      });
     });
 
     it('should view details for multiple metrics', async () => {
@@ -3469,33 +4099,40 @@ describe('Competition API', () => {
         }
       });
 
-      // "hunter" is already one of this competition's metrics, so previewing it
-      // shouldn't cause it to appear twice in "deltas", or skew the "total" delta
-      const hunterDetailsResponse = await api
+      // "metrics" can select a sub-set of the competition's own metrics
+      const fishingOnlyResponse = await api
         .get(`/competitions/${createResponse.body.competition.id}`)
-        .query({ metric: 'hunter' });
+        .query({ metrics: 'fishing' });
 
-      expect(hunterDetailsResponse.status).toBe(200);
-      expect(hunterDetailsResponse.body.participations.length).toBe(4);
+      expect(fishingOnlyResponse.status).toBe(200);
 
-      expect(hunterDetailsResponse.body.participations[0]).toMatchObject({
-        player: {
-          username: 'sue'
-        },
-        progress: {
-          start: 100_000, // 100k hunter
-          end: 900_000, // 900k hunter
-          gained: 800_000
-        }
-      });
+      // Only "fishing" was selected, so there's no "hunter" delta, and no "total" delta
+      expect(fishingOnlyResponse.body.participations[0].deltas.map(d => d.metric)).toEqual(['fishing']);
 
-      expect(hunterDetailsResponse.body.participations[0].deltas.map(d => d.metric)).toEqual([
+      // Selecting only "fishing" must match the legacy "metric=fishing" request
+      expect(fishingOnlyResponse.body.participations).toEqual(fishingDetailsResponse.body.participations);
+
+      // Selecting this competition's own metrics should be the same as selecting none
+      const ownMetricsDetailsResponse = await api
+        .get(`/competitions/${createResponse.body.competition.id}`)
+        .query('metrics=hunter&metrics=fishing');
+
+      expect(ownMetricsDetailsResponse.status).toBe(200);
+      expect(ownMetricsDetailsResponse.body.participations.length).toBe(4);
+
+      expect(ownMetricsDetailsResponse.body.participations[0].deltas.map(d => d.metric)).toEqual([
         'total',
         'hunter',
         'fishing'
       ]);
 
-      expect(hunterDetailsResponse.body.participations[0].deltas[0]).toMatchObject({
+      expect(ownMetricsDetailsResponse.body.participations[0]).toMatchObject({
+        player: {
+          username: 'sue'
+        }
+      });
+
+      expect(ownMetricsDetailsResponse.body.participations[0].deltas[0]).toMatchObject({
         metric: 'total',
         values: {
           start: 2_500_000, // 100k hunter, 2.4m fishing
@@ -3504,8 +4141,404 @@ describe('Competition API', () => {
         }
       });
 
+      // testing the legacy "metric" query param, which should replace the competition's only metric
+      const hunterLegacyDetailsResponse = await api
+        .get(`/competitions/${createResponse.body.competition.id}`)
+        .query({ metric: 'hunter' });
+
+      expect(hunterLegacyDetailsResponse.status).toBe(200);
+      expect(hunterLegacyDetailsResponse.body.participations.length).toBe(4);
+
+      expect(hunterLegacyDetailsResponse.body.participations[0].deltas.map(d => d.metric)).toEqual([
+        'hunter'
+      ]);
+
+      expect(hunterLegacyDetailsResponse.body.participations[0]).toMatchObject({
+        player: {
+          username: 'sue'
+        },
+        progress: {
+          start: 100_000,
+          end: 900_000,
+          gained: 800_000
+        }
+      });
+
+      expect(hunterLegacyDetailsResponse.body.participations[0].deltas[0]).toMatchObject({
+        metric: 'hunter',
+        values: {
+          start: 100_000,
+          end: 900_000,
+          gained: 800_000
+        }
+      });
+
       await prisma.competition.delete({
         where: { id: createResponse.body.competition.id }
+      });
+    });
+
+    it('should not view details (invalid date range)', async () => {
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['rorro'],
+        minDate: new Date(Date.now() + 10_000).toISOString(),
+        maxDate: new Date(Date.now() - 10_000).toISOString()
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Min date must be before the max date.');
+    });
+
+    it('should view details filtered by usernames and date range (ignores usernames not competing)', async () => {
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['rorro', 'not_a_real_player', 'zulu'],
+        minDate: unfilteredResponse.body.startsAt,
+        maxDate: unfilteredResponse.body.endsAt
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations.length).toBe(2);
+      expect(response.body.participations.map(p => p.player.username).sort()).toEqual(['rorro', 'zulu']);
+    });
+
+    it('should view details filtered by usernames and date range (no matches)', async () => {
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['not_a_real_player', 'also_not_real'],
+        minDate: unfilteredResponse.body.startsAt,
+        maxDate: unfilteredResponse.body.endsAt
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations.length).toBe(0);
+    });
+
+    it('should view details filtered by usernames and date range (narrows the deltas)', async () => {
+      // Reuse rorro's two existing snapshots from the "should view details" test above
+      // (500 -> 557 zulrah kc), and insert a third one (520) chronologically between them,
+      // so we end up with three ordered snapshots: 500, 520, 557.
+      const rorro = await prisma.player.findFirstOrThrow({
+        where: { username: 'rorro' }
+      });
+
+      const existingSnapshots = await prisma.snapshot.findMany({
+        where: { playerId: rorro.id },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      expect(existingSnapshots.length).toBe(2);
+
+      const [snapshot500, snapshot557] = existingSnapshots;
+      const midpoint = new Date((snapshot500.createdAt.getTime() + snapshot557.createdAt.getTime()) / 2);
+
+      // Insert the 520 snapshot at the midpoint between the existing two.
+      await prisma.snapshot.create({
+        data: {
+          ...snapshot557,
+          createdAt: midpoint,
+          zulrahKills: 520,
+          hunterExperience: 105_000
+        }
+      });
+
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      // Unfiltered still resolves to the overall first (500) and last (557) snapshots
+      expect(unfilteredResponse.body.participations.find(p => p.player.username === 'rorro')).toMatchObject({
+        progress: { start: 500, end: 557, gained: 57 }
+      });
+
+      // minDate sits before the 500 snapshot, maxDate sits right after the 520 snapshot,
+      // so the range picks 500 (closest at-or-after minDate) and 520 (closest at-or-before maxDate)
+      const firstAndSecondSnapshot = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}`)
+        .query({
+          usernames: ['rorro'],
+          minDate: unfilteredResponse.body.startsAt,
+          maxDate: new Date(midpoint.getTime() + 1).toISOString()
+        });
+
+      expect(firstAndSecondSnapshot.status).toBe(200);
+      expect(firstAndSecondSnapshot.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: 500, end: 520, gained: 20 }
+      });
+
+      // minDate sits right after the 500 snapshot, maxDate sits after the 557 snapshot,
+      // so the range picks 520 (closest at-or-after minDate) and 557 (closest at-or-before maxDate)
+      const secondAndThirdSnapshot = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}`)
+        .query({
+          usernames: ['rorro'],
+          minDate: new Date(snapshot500.createdAt.getTime() + 1).toISOString(),
+          maxDate: unfilteredResponse.body.endsAt
+        });
+
+      expect(secondAndThirdSnapshot.status).toBe(200);
+      expect(secondAndThirdSnapshot.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: 520, end: 557, gained: 37 }
+      });
+    });
+
+    it('should view details filtered by usernames only (no date range)', async () => {
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['rorro']
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations.length).toBe(1);
+
+      // Without any date range, the deltas should still span the competition's full period
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: 500, end: 557, gained: 57 }
+      });
+    });
+
+    it('should view details filtered by minDate only', async () => {
+      const rorro = await prisma.player.findFirstOrThrow({
+        where: { username: 'rorro' }
+      });
+
+      // Three ordered snapshots (500, 520, 557), inserted by the test above
+      const [snapshot500] = await prisma.snapshot.findMany({
+        where: { playerId: rorro.id },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      // minDate sits right after the 500 snapshot, and there's no maxDate, so the range picks
+      // 520 (closest at-or-after minDate) and the competition's own end snapshot (557)
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['rorro'],
+        minDate: new Date(snapshot500.createdAt.getTime() + 1).toISOString()
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: 520, end: 557, gained: 37 }
+      });
+    });
+
+    it('should view details filtered by maxDate only', async () => {
+      const rorro = await prisma.player.findFirstOrThrow({
+        where: { username: 'rorro' }
+      });
+
+      const [, snapshot520] = await prisma.snapshot.findMany({
+        where: { playerId: rorro.id },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      // maxDate sits right after the 520 snapshot, and there's no minDate, so the range picks
+      // the competition's own start snapshot (500) and 520 (closest at-or-before maxDate)
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['rorro'],
+        maxDate: new Date(snapshot520.createdAt.getTime() + 1).toISOString()
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: 500, end: 520, gained: 20 }
+      });
+    });
+
+    it('should view details filtered by date range only (no usernames)', async () => {
+      const rorro = await prisma.player.findFirstOrThrow({
+        where: { username: 'rorro' }
+      });
+
+      const [snapshot500] = await prisma.snapshot.findMany({
+        where: { playerId: rorro.id },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        minDate: new Date(snapshot500.createdAt.getTime() + 1).toISOString()
+      });
+
+      expect(response.status).toBe(200);
+
+      // Without usernames, every participant should still be included
+      expect(response.body.participations.length).toBe(unfilteredResponse.body.participations.length);
+
+      expect(response.body.participations.find(p => p.player.username === 'rorro')).toMatchObject({
+        progress: { start: 520, end: 557, gained: 37 }
+      });
+    });
+
+    it('should view details filtered by a date range wider than the competition', async () => {
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      // Both dates fall outside the competition's own period, so this should resolve
+      // to the same deltas as an unfiltered request
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        minDate: new Date(new Date(unfilteredResponse.body.startsAt).getTime() - 10_000).toISOString(),
+        maxDate: new Date(new Date(unfilteredResponse.body.endsAt).getTime() + 10_000).toISOString()
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations).toEqual(unfilteredResponse.body.participations);
+    });
+
+    it('should not view details (date range sits entirely after the competition)', async () => {
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const endsAt = new Date(unfilteredResponse.body.endsAt);
+
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        minDate: new Date(endsAt.getTime() + 3_600_000).toISOString(),
+        maxDate: new Date(endsAt.getTime() + 7_200_000).toISOString()
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        "The given date range does not overlap with the competition's period."
+      );
+    });
+
+    it('should not view details (date range sits entirely before the competition)', async () => {
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const startsAt = new Date(unfilteredResponse.body.startsAt);
+
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        minDate: new Date(startsAt.getTime() - 7_200_000).toISOString(),
+        maxDate: new Date(startsAt.getTime() - 3_600_000).toISOString()
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        "The given date range does not overlap with the competition's period."
+      );
+    });
+
+    it('should not view details (minDate sits on the competition end)', async () => {
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      // A minDate of exactly endsAt would clamp into a zero-length range, so it's rejected too
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        minDate: unfilteredResponse.body.endsAt
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        "The given date range does not overlap with the competition's period."
+      );
+    });
+
+    it('should view details filtered by a maxDate that goes past the competition end', async () => {
+      const rorro = await prisma.player.findFirstOrThrow({
+        where: { username: 'rorro' }
+      });
+
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const endsAt = new Date(unfilteredResponse.body.endsAt);
+
+      const snapshots = await prisma.snapshot.findMany({
+        where: { playerId: rorro.id },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      const lastSnapshot = snapshots[snapshots.length - 1];
+
+      // Insert a snapshot from after the competition has ended
+      const outOfRangeSnapshot = await prisma.snapshot.create({
+        data: {
+          ...lastSnapshot,
+          createdAt: new Date(endsAt.getTime() + 60_000),
+          zulrahKills: 900
+        }
+      });
+
+      // maxDate reaches past the competition's end, so it gets clamped back down to it.
+      // minDate sits after the last in-period snapshot, so there's nothing left to pick
+      // as a start snapshot, and the out-of-period 900 snapshot must not be used instead.
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['rorro'],
+        minDate: new Date(lastSnapshot.createdAt.getTime() + 1).toISOString(),
+        maxDate: new Date(endsAt.getTime() + 3_600_000).toISOString()
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: -1, end: -1, gained: 0 }
+      });
+
+      await prisma.snapshot.delete({
+        where: {
+          playerId_createdAt: {
+            playerId: rorro.id,
+            createdAt: outOfRangeSnapshot.createdAt
+          }
+        }
+      });
+    });
+
+    it('should view details filtered by a minDate that goes before the competition start', async () => {
+      const rorro = await prisma.player.findFirstOrThrow({
+        where: { username: 'rorro' }
+      });
+
+      const unfilteredResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(unfilteredResponse.status).toBe(200);
+
+      const startsAt = new Date(unfilteredResponse.body.startsAt);
+
+      const [firstSnapshot] = await prisma.snapshot.findMany({
+        where: { playerId: rorro.id },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      // Insert a snapshot from before the competition started
+      const outOfRangeSnapshot = await prisma.snapshot.create({
+        data: {
+          ...firstSnapshot,
+          createdAt: new Date(startsAt.getTime() - 60_000),
+          zulrahKills: 100
+        }
+      });
+
+      // minDate goes before the competition's start, so it gets clamped back up to it.
+      // maxDate sits before the first in-period snapshot, so there's nothing left to pick
+      // as an end snapshot, and the out-of-period 100 snapshot must not be used instead.
+      const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`).query({
+        usernames: ['rorro'],
+        minDate: new Date(startsAt.getTime() - 3_600_000).toISOString(),
+        maxDate: new Date(firstSnapshot.createdAt.getTime() - 1).toISOString()
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
+        progress: { start: -1, end: -1, gained: 0 }
+      });
+
+      await prisma.snapshot.delete({
+        where: {
+          playerId_createdAt: {
+            playerId: rorro.id,
+            createdAt: outOfRangeSnapshot.createdAt
+          }
+        }
       });
     });
   });
@@ -3527,6 +4560,15 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
     });
 
+    it('should not view top 5 snapshots (invalid metrics)', async () => {
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}/top-history`)
+        .query({ metrics: 'dungeoneering' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid enum value');
+    });
+
     it('should view top 5 snapshots', async () => {
       const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}/top-history`);
 
@@ -3539,9 +4581,10 @@ describe('Competition API', () => {
       expect(response.body[0].history[1].value).toBe(-1);
 
       expect(response.body[1].player.username).toBe('rorro');
-      expect(response.body[1].history.length).toBe(2);
+      expect(response.body[1].history.length).toBe(3);
       expect(response.body[1].history[0].value).toBe(557);
-      expect(response.body[1].history[1].value).toBe(500);
+      expect(response.body[1].history[1].value).toBe(520);
+      expect(response.body[1].history[2].value).toBe(500);
 
       expect(response.body[2].player.username).toBe('lynx titan');
       expect(response.body[2].history.length).toBe(1);
@@ -3570,9 +4613,10 @@ describe('Competition API', () => {
       expect(response.body[0].history[1].value).toBe(500_000);
 
       expect(response.body[1].player.username).toBe('rorro');
-      expect(response.body[1].history.length).toBe(2);
+      expect(response.body[1].history.length).toBe(3);
       expect(response.body[1].history[0].value).toBe(110_000);
-      expect(response.body[1].history[1].value).toBe(100_000);
+      expect(response.body[1].history[1].value).toBe(105_000);
+      expect(response.body[1].history[2].value).toBe(100_000);
 
       expect(response.body[2].player.username).toBe('lynx titan');
       expect(response.body[2].history.length).toBe(1);
@@ -3584,6 +4628,62 @@ describe('Competition API', () => {
       expect(response.body[3].history[1].value).toBe(50_000);
 
       expect(response.body[4].player.username).toBe('zulu');
+      expect(response.body[4].history.length).toBe(0);
+    });
+
+    it('should view top 5 snapshots (metrics param)', async () => {
+      const legacyResponse = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}/top-history`)
+        .query({ metric: 'hunter' });
+
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}/top-history`)
+        .query({ metrics: 'hunter' });
+
+      expect(response.status).toBe(200);
+
+      // "metrics=hunter" selects the same metric list as the legacy "metric=hunter"
+      expect(response.body).toEqual(legacyResponse.body);
+    });
+
+    it('should view top 5 snapshots (own metric + extra metric)', async () => {
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}/top-history`)
+        .query('metrics=zulrah&metrics=hunter');
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(5);
+
+      // The players are ranked by the "total" of zulrah + hunter, and the history
+      // values must be the sum of those same two metrics
+      expect(response.body.map(r => r.player.username)).toEqual([
+        'psikoi',
+        'rorro',
+        'usbc',
+        'lynx titan',
+        'zulu'
+      ]);
+
+      expect(response.body[0].history.map(h => h.value)).toEqual([
+        751_000, // 1000 zulrah + 750k hunter
+        501_000 // 1000 zulrah + 500k hunter
+      ]);
+
+      expect(response.body[1].history.map(h => h.value)).toEqual([
+        110_557, // 557 zulrah + 110k hunter
+        105_520, // 520 zulrah + 105k hunter
+        100_500 // 500 zulrah + 100k hunter
+      ]);
+
+      expect(response.body[2].history.map(h => h.value)).toEqual([
+        50_060, // 60 zulrah + 50k hunter
+        50_000 // unranked zulrah + 50k hunter
+      ]);
+
+      expect(response.body[3].history.map(h => h.value)).toEqual([
+        5_348_325 // 1646 zulrah + 5.34m hunter
+      ]);
+
       expect(response.body[4].history.length).toBe(0);
     });
 
@@ -3812,6 +4912,15 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
     });
 
+    it('should not view CSV export (invalid metrics)', async () => {
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}/csv`)
+        .query({ metrics: 'dungeoneering' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid enum value');
+    });
+
     it('should not view CSV export (invalid table)', async () => {
       const response = await api
         .get(`/competitions/${globalData.testCompetitionStarted.id}/csv`)
@@ -3827,9 +4936,7 @@ describe('Competition API', () => {
         .query({ table: 'team' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Team name is a required parameter for the table type of "team".'
-      );
+      expect(response.body.code).toBe('TEAM_NAME_IS_REQUIRED');
     });
 
     it('should not view CSV export (team/teams table on a classic competition)', async () => {
@@ -3838,7 +4945,7 @@ describe('Competition API', () => {
         .query({ table: 'teams' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot view team/teams table on a classic competition.');
+      expect(response.body.code).toBe('CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION');
     });
 
     it('should view CSV export (participants)', async () => {
@@ -3881,6 +4988,43 @@ describe('Competition API', () => {
       expect(rows[2]).toMatch('2,rorro,100000,110000,10000,');
       expect(rows[3]).toMatch('3,LYNX TITAN_,5346679,5346679,');
       expect(rows[4]).toMatch('4,usbc,50000,50000,0,');
+      expect(rows[5]).toMatch('5,__ZULU,-1,-1,0,');
+    });
+
+    it('should view CSV export (participants & metrics param)', async () => {
+      const legacyResponse = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}/csv`)
+        .query({ metric: 'hunter' });
+
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}/csv`)
+        .query({ metrics: 'hunter' });
+
+      expect(response.status).toBe(200);
+
+      // "metrics=hunter" selects the same metric list as the legacy "metric=hunter"
+      expect(response.text).toBe(legacyResponse.text);
+    });
+
+    it('should view CSV export (participants & own metric + extra metric)', async () => {
+      const response = await api
+        .get(`/competitions/${globalData.testCompetitionStarted.id}/csv`)
+        .query('metrics=zulrah&metrics=hunter');
+
+      expect(response.status).toBe(200);
+
+      const rows = response.text.split('\n');
+
+      expect(rows.length).toBe(6);
+
+      // Check the table header
+      expect(rows[0]).toBe('Rank,Username,Start,End,Gained,Last Updated');
+
+      // Check the table body, the values should be the "total" of zulrah + hunter
+      expect(rows[1]).toMatch('1,Psikoi,501000,751000,250000,');
+      expect(rows[2]).toMatch('2,rorro,100500,110557,10057,');
+      expect(rows[3]).toMatch('3,usbc,50000,50060,60,');
+      expect(rows[4]).toMatch('4,LYNX TITAN_,5348325,5348325,0,');
       expect(rows[5]).toMatch('5,__ZULU,-1,-1,0,');
     });
 
@@ -3946,7 +5090,7 @@ describe('Competition API', () => {
       const usernameResponse = await api.get(`/players/raaandooom/competitions`);
 
       expect(usernameResponse.status).toBe(404);
-      expect(usernameResponse.body.message).toMatch('Player not found.');
+      expect(usernameResponse.body.code).toBe('PLAYER_NOT_FOUND');
     });
 
     it('should list player competitions', async () => {
@@ -4534,7 +5678,7 @@ describe('Competition API', () => {
       const usernameResponse = await api.get(`/groups/1000000/competitions`);
 
       expect(usernameResponse.status).toBe(404);
-      expect(usernameResponse.body.message).toMatch('Group not found.');
+      expect(usernameResponse.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should list group competitions', async () => {
@@ -4627,9 +5771,8 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe(
-        'This competition has no outdated participants (updated over 24h ago).'
-      );
+      expect(response.body.code).toBe('NO_OUTDATED_PARTICIPANTS');
+      expect(response.body.data).toMatchObject({ cooldownDuration: 24 });
     });
 
     it('should not update all (no outdated participants, near start)', async () => {
@@ -4646,9 +5789,8 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe(
-        'This competition has no outdated participants (updated over 1h ago).'
-      );
+      expect(response.body.code).toBe('NO_OUTDATED_PARTICIPANTS');
+      expect(response.body.data).toMatchObject({ cooldownDuration: 1 });
     });
 
     it('should not update all (competition has ended)', async () => {
@@ -4657,7 +5799,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('This competition has ended. Cannot update all.');
+      expect(response.body.code).toBe('COMPETITION_ENDED');
     });
 
     it('should update all', async () => {
@@ -4850,7 +5992,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should not delete (invalid verification code)', async () => {

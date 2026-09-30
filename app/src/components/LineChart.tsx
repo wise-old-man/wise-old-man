@@ -21,7 +21,7 @@ const AXIS_TICK_STYLE = { fill: "#6b7280", fontSize: "0.75rem" };
 const TOOLTIP_CURSOR_STYLE = { stroke: "#6b7280", strokeDasharray: "4 4" };
 const TOOLTIP_WRAPPER_STYLE = { outline: "none" };
 
-interface LineChartDataset {
+export interface LineChartDataset {
   name: string;
   data: Array<{
     time: number;
@@ -29,7 +29,7 @@ interface LineChartDataset {
   }>;
 }
 
-const COLORS = ["#3b82f6", "#f87171", "#fbbf24", "#a3e635", "#c084fc"];
+export const COLORS = ["#3b82f6", "#f87171", "#fbbf24", "#a3e635", "#c084fc"];
 
 interface LineChartProps {
   datasets: Array<LineChartDataset>;

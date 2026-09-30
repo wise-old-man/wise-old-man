@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { MemberActivityResponse, PlayerResponse } from "@wise-old-man/utils";
 import { getGroupActivity, getGroupDetails } from "~/services/wiseoldman";
 import { QueryLink } from "~/components/QueryLink";
@@ -20,14 +21,27 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = props.params;
 
   const group = await getGroupDetails(id);
 
+  const description =
+    group.description && group.description.trim().length > 0
+      ? group.description
+      : `${group.name} is an OSRS group with ${group.memberCount} members - Track their hiscores, gains, records and competitions`;
+
   return {
-    title: group.name,
-    description: group.description,
+    title: `${group.name} - OSRS Clan Stats & Leaderboards`,
+    description,
+    alternates: {
+      canonical: `/groups/${id}`,
+    },
+    openGraph: {
+      title: `${group.name} | Wise Old Man`,
+      description,
+      url: `/groups/${id}`,
+    },
   };
 }
 

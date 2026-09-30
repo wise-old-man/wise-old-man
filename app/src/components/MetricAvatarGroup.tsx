@@ -1,32 +1,35 @@
-import { Metric } from "@wise-old-man/utils";
+import { Metric, MetricProps } from "@wise-old-man/utils";
 import { MetricIcon } from "./Icon";
 import { cn } from "~/utils/styling";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 export function MetricAvatarGroup({
   metrics,
-  maxCount,
+  maxCount = 3,
   size = "md",
   avatarClassname,
 }: {
   metrics: Metric[];
-  maxCount: number;
+  maxCount?: number;
   size?: "md" | "lg";
   avatarClassname?: string;
 }) {
-  const overflowCount = Math.max(0, metrics.length - maxCount);
+  const showOverflow = metrics.length > maxCount;
+  const displayCount = showOverflow ? maxCount - 1 : metrics.length;
+  const overflowCount = showOverflow ? metrics.length - displayCount : 0;
 
   const singleSize = size === "md" ? 48 : 56;
   const multipleSize = size === "md" ? 36 : 48;
 
   const itemOffset = size === "md" ? 24 : 32;
   const itemSize = metrics.length > 1 ? multipleSize : singleSize;
-  const itemCount = Math.min(metrics.length, maxCount + 1);
+  const itemCount = displayCount + (showOverflow ? 1 : 0);
 
   const width = itemCount * itemSize - (itemCount - 1) * (itemSize - itemOffset);
 
   return (
-    <div style={{ width, height: itemSize }} className="relative flex flex-row">
-      {metrics.slice(0, maxCount).map((metric, index) => (
+    <div style={{ width, height: itemSize }} className="relative flex shrink-0 flex-row">
+      {metrics.slice(0, displayCount).map((metric, index) => (
         <div
           key={metric}
           className={cn(
@@ -44,20 +47,34 @@ export function MetricAvatarGroup({
         </div>
       ))}
       {overflowCount > 0 && (
-        <div
-          className={cn(
-            "absolute flex shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200",
-            avatarClassname,
-          )}
-          style={{
-            zIndex: itemCount - 1,
-            width: itemSize,
-            height: itemSize,
-            left: (itemCount - 1) * itemOffset,
-          }}
-        >
-          +{overflowCount}
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              className={cn(
+                "absolute flex shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200",
+                avatarClassname,
+              )}
+              style={{
+                zIndex: itemCount - 1,
+                width: itemSize,
+                height: itemSize,
+                left: (itemCount - 1) * itemOffset,
+              }}
+            >
+              +{overflowCount}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            <div className="flex flex-col gap-y-1">
+              {metrics.slice(displayCount).map((metric) => (
+                <div key={metric} className="flex items-center gap-x-2">
+                  <MetricIcon metric={metric} />
+                  <span>{MetricProps[metric].name}</span>
+                </div>
+              ))}
+            </div>
+          </TooltipContent>
+        </Tooltip>
       )}
     </div>
   );

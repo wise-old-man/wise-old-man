@@ -1,37 +1,45 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import dayjs from 'dayjs';
 import { CompetitionCSVTableType, CompetitionType, Metric } from '../../../../types';
-import { BadRequestError } from '../../../errors';
 import { CompetitionDetailsResponse, formatCompetitionDetailsResponse } from '../../../responses';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 
 type Participant = CompetitionDetailsResponse['participations'][number];
 
-async function fetchCompetitionCSV(
-  id: number,
-  metric: Metric | undefined,
+async function fetchCompetitionCSV({
+  id,
   table = CompetitionCSVTableType.PARTICIPANTS,
-  teamName: string | undefined
-): Promise<string> {
-  const details = await fetchCompetitionDetails(id, metric);
+  metrics,
+  teamName
+}: {
+  id: number;
+  table?: CompetitionCSVTableType;
+  metrics?: Metric[];
+  teamName?: string;
+}): AsyncResult<
+  string,
+  { code: 'TEAM_NAME_IS_REQUIRED' } | { code: 'CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION' }
+> {
+  const details = await fetchCompetitionDetails({ id, metrics });
   const competitionDetailsResponse = formatCompetitionDetailsResponse(details);
 
   if (table === CompetitionCSVTableType.PARTICIPANTS) {
-    return getParticipantsCSV(competitionDetailsResponse);
+    return complete(getParticipantsCSV(competitionDetailsResponse));
   }
 
-  if (table === CompetitionCSVTableType.TEAM && !teamName) {
-    throw new BadRequestError('Team name is a required parameter for the table type of "team".');
+  if (table === CompetitionCSVTableType.TEAM && teamName === undefined) {
+    return errored({ code: 'TEAM_NAME_IS_REQUIRED' });
   }
 
   if (competitionDetailsResponse.type === CompetitionType.CLASSIC) {
-    throw new BadRequestError('Cannot view team/teams table on a classic competition.');
+    return errored({ code: 'CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION' });
   }
 
   if (table === CompetitionCSVTableType.TEAMS) {
-    return getTeamsCSV(competitionDetailsResponse);
+    return complete(getTeamsCSV(competitionDetailsResponse));
   }
 
-  return getParticipantsCSV(competitionDetailsResponse, teamName!);
+  return complete(getParticipantsCSV(competitionDetailsResponse, teamName!));
 }
 
 function getParticipantsCSV(competitionDetails: CompetitionDetailsResponse, teamName?: string): string {

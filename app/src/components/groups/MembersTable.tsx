@@ -8,7 +8,7 @@ import {
   PlayerResponse,
   PlayerStatus,
 } from "@wise-old-man/utils";
-import { formatDatetime, timeago } from "~/utils/dates";
+import { formatDate, formatDatetime, timeago } from "~/utils/dates";
 import { GroupRoleIcon } from "../Icon";
 import { DataTable } from "../DataTable";
 import { MembersFilter } from "./MembersFilter";
@@ -99,10 +99,54 @@ const COLUMN_DEFS: ColumnDef<MembershipResponse & { player: PlayerResponse }>[] 
     },
   },
   {
+    id: "joiendAt",
+    accessorFn: (row) => row.clientSyncJoinedAt,
+    header: ({ column }) => {
+      return <TableSortButton column={column}>Joined</TableSortButton>;
+    },
+    cell: ({ row }) => {
+      if (!row.original.clientSyncJoinedAt)
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>---</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <span className="text-sm text-white">Synced from RuneLite</span>
+              <p className="mt-1 text-xs text-gray-200">
+                This field is synced from the RuneLite plugin, but this group hasn&apos;t been synced
+                since it was introduced.
+                <br />
+                <br />
+                Learn more at{" "}
+                <a href="https://wiseoldman.net/runelite" className="text-white hover:underline">
+                  wiseoldman.net/runelite
+                </a>
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        );
+
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span>{formatDate(row.original.clientSyncJoinedAt)}</span>
+          </TooltipTrigger>
+          <TooltipContent className="text-gray-200">
+            Synced from the{" "}
+            <a href="https://wiseoldman.net/runelite" className="text-white hover:underline">
+              WOM RuneLite Plugin
+            </a>
+          </TooltipContent>
+        </Tooltip>
+      );
+    },
+  },
+  {
     id: "exp",
     accessorFn: (row) => row.player.exp,
     header: ({ column }) => {
-      return <TableSortButton column={column}>Experience</TableSortButton>;
+      return <TableSortButton column={column}>Exp.</TableSortButton>;
     },
     cell: ({ row }) => {
       return <FormattedNumber value={row.original.player.exp} />;

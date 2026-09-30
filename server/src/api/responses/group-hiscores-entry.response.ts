@@ -2,12 +2,6 @@ import { Player } from '../../types';
 import { pick } from '../../utils/pick.util';
 import { formatPlayerResponse, PlayerResponse } from './player.response';
 
-/**
- * Response types are used to format the data returned by the API.
- *
- * Although sometimes very similar to our database models,
- * they often include transformations, additional properties or sensitive field omissions.
- */
 export interface GroupHiscoresEntryResponse {
   player: PlayerResponse;
   data:

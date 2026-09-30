@@ -70,7 +70,7 @@ function CompetitionCard(props: CompetitionResponse) {
           {props.metrics.length === 1 ? (
             <MetricIcon metric={props.metrics[0].metric} />
           ) : (
-            <MetricAvatarGroup metrics={props.metrics.map((m) => m.metric)} maxCount={2} />
+            <MetricAvatarGroup metrics={props.metrics.map((m) => m.metric)} />
           )}
         </div>
         <div className="z-1 relative flex flex-col gap-y-1">

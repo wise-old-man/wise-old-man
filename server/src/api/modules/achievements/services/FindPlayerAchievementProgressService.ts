@@ -1,23 +1,24 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Achievement, AchievementDefinition, Metric, MetricMeasure } from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
 import { pick } from '../../../../utils/pick.util';
 import { roundNumber } from '../../../../utils/shared/round-number.util';
-import { NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 import { LEGACY_TEMPLATE_NAMES } from '../achievement.templates';
 import { getAchievementDefinitions } from '../achievement.utils';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
 
-async function findPlayerAchievementProgress(username: string): Promise<
+export async function findPlayerAchievementProgress(username: string): AsyncResult<
   Array<{
     achievement: Omit<Achievement, 'createdAt'>;
     createdAt: Date | null;
     currentValue: number;
     absoluteProgress: number;
     relativeProgress: number;
-  }>
+  }>,
+  { code: 'PLAYER_NOT_FOUND' }
 > {
   const player = await prisma.player.findFirst({
     where: {
@@ -28,8 +29,8 @@ async function findPlayerAchievementProgress(username: string): Promise<
     }
   });
 
-  if (!player) {
-    throw new NotFoundError('Player not found.');
+  if (player === null) {
+    return errored({ code: 'PLAYER_NOT_FOUND' });
   }
 
   let latestSnapshot = player.latestSnapshot;
@@ -59,7 +60,7 @@ async function findPlayerAchievementProgress(username: string): Promise<
   // Achievements that were once given, but are no longer valid (such as Base X stats Pre-Sailing)
   const legacyAchievements = achievements.filter(d => LEGACY_TEMPLATE_NAMES.includes(d.name));
 
-  return [
+  return complete([
     ...definitions.map((d, i) => {
       const prevDef = definitions[i - 1];
       const isFirstInCluster = i === 0 || prevDef.metric !== d.metric || prevDef.measure !== d.measure;
@@ -97,7 +98,7 @@ async function findPlayerAchievementProgress(username: string): Promise<
       absoluteProgress: 1,
       relativeProgress: 1
     }))
-  ];
+  ]);
 }
 
 function getAchievementStartValue(definition: AchievementDefinition) {
@@ -119,5 +120,3 @@ function clusterDefinitions(definitions: AchievementDefinition[]) {
 function clamp(val: number) {
   return roundNumber(Math.min(Math.max(val, 0), 1), 4);
 }
-
-export { findPlayerAchievementProgress };

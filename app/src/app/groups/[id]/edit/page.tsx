@@ -16,7 +16,7 @@ export async function generateMetadata(props: PageProps) {
   const group = await getGroupDetails(id);
 
   return {
-    title: `Edit - ${group.name}`,
+    title: `Edit group - ${group.name}`,
     description: group.description,
   };
 }

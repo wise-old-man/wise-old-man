@@ -37,10 +37,9 @@ export function LocalDate(props: LocalDateProps) {
       : date.toLocaleString(locale, formatOptions || DEFAULT_DATETIME_FORMATTING);
 
   return (
-    <div className="relative inline-block min-w-[10ch]">
-      {hasMounted ? <span>{formattedDate}</span> : null}
+    <div className="relative inline-block min-w-[9ch]">
       {/* Add a space here just to ensure that the component keeps its vertical height before being fully rendered  */}
-      &nbsp;
+      {hasMounted ? <span>{formattedDate}</span> : <>&nbsp;</>}
       <div
         className={cn(
           "absolute inset-0 bottom-[0.2em] top-[0.2em] animate-pulse rounded-full bg-gray-600",

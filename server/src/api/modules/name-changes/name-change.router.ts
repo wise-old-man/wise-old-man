@@ -8,7 +8,7 @@ import { formatNameChangeResponse } from '../../responses';
 import { checkAdminPermission } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
-import { getPaginationSchema } from '../../util/validation';
+import { getPaginationSchema, idSchema } from '../../util/validation';
 import { approveNameChange } from './services/ApproveNameChangeService';
 import { bulkSubmitNameChanges } from './services/BulkSubmitNameChangesService';
 import { clearNameChangeHistory } from './services/ClearNameChangeHistoryService';
@@ -88,7 +88,7 @@ router.get(
   '/names/:id',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -115,7 +115,7 @@ router.post(
   checkAdminPermission,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -133,7 +133,7 @@ router.post(
   checkAdminPermission,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {

@@ -1,33 +1,36 @@
+import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Metric, Period, Player, Snapshot } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
+import { getRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
 import { parsePeriodExpression } from '../../../../utils/shared/parse-period-expression.util';
-import { BadRequestError, NotFoundError } from '../../../errors';
-import { PaginationOptions } from '../../../util/validation';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 import { calculateMetricDelta } from '../delta.utils';
 
-async function findGroupDeltas(
+type TimeFilter =
+  | {
+      period: Period | string;
+    }
+  | {
+      minDate: Date;
+      maxDate: Date;
+    };
+
+export async function findGroupDeltas(
   groupId: number,
   metric: Metric,
-  period?: Period | string,
-  minDate?: Date,
-  maxDate?: Date,
-  pagination?: PaginationOptions
-): Promise<
+  timeFilter: TimeFilter
+): AsyncResult<
   Array<{
     player: Player;
     startDate: Date;
     endDate: Date;
     data: MetricDelta;
-  }>
+  }>,
+  { code: 'GROUP_NOT_FOUND' } | { code: 'INVALID_DATE_RANGE' } | { code: 'INVALID_PERIOD' }
 > {
-  if (!period && (!minDate || !maxDate)) {
-    throw new BadRequestError('Invalid period and start/end dates.');
-  }
-
-  if (minDate && maxDate && minDate >= maxDate) {
-    throw new BadRequestError('Min date must be before the max date.');
+  if (!('period' in timeFilter) && timeFilter.minDate >= timeFilter.maxDate) {
+    return errored({ code: 'INVALID_DATE_RANGE' });
   }
 
   // Fetch this group and all of its memberships
@@ -40,7 +43,7 @@ async function findGroupDeltas(
             include: {
               // If fetching by period (not custom time range), the "end" snapshots will always be
               // the player's latest snapshots. So it's cheaper to just pull them from the "latestSnapshot" relation
-              latestSnapshot: !!period
+              latestSnapshot: 'period' in timeFilter
             }
           }
         }
@@ -48,20 +51,23 @@ async function findGroupDeltas(
     }
   });
 
-  if (!groupAndMemberships) {
-    throw new NotFoundError('Group not found.');
+  if (groupAndMemberships === null) {
+    return errored({ code: 'GROUP_NOT_FOUND' });
   }
 
-  const playerSnapshotMap = await buildPlayerSnapshotMap(
+  const playerSnapshotMapResult = await buildPlayerSnapshotMap(
+    metric,
     groupAndMemberships.memberships.map(m => m.player),
-    period,
-    minDate,
-    maxDate
+    timeFilter
   );
 
-  const results = Array.from(playerSnapshotMap.keys())
+  if (isErrored(playerSnapshotMapResult)) {
+    return playerSnapshotMapResult;
+  }
+
+  const results = Array.from(playerSnapshotMapResult.value.keys())
     .map(playerId => {
-      const { player, startSnapshot, endSnapshot } = playerSnapshotMap.get(playerId)!;
+      const { player, startSnapshot, endSnapshot } = playerSnapshotMapResult.value.get(playerId)!;
 
       if (!player || !startSnapshot || !endSnapshot) {
         return null;
@@ -79,29 +85,50 @@ async function findGroupDeltas(
     .filter(Boolean)
     .sort((a, b) => b.data.gained - a.data.gained);
 
-  if (pagination) {
-    return results.slice(pagination.offset, pagination.offset + pagination.limit);
-  }
-
-  return results;
+  return complete(results);
 }
 
 async function buildPlayerSnapshotMap(
+  metric: Metric,
   players: Array<Player & { latestSnapshot: Snapshot | null }>,
-  period?: Period | string,
-  minDate?: Date,
-  maxDate?: Date
+  timeFilter: TimeFilter
 ) {
   const playerIds = players.map(p => p.id);
 
   let startSnapshots: Snapshot[];
   let endSnapshots: Snapshot[];
 
-  if (period) {
-    startSnapshots = await findStartingSnapshots(playerIds, period);
+  const requiredSnapshotFields = getRequiredSnapshotFields([metric]);
+
+  if ('period' in timeFilter) {
+    const parsedPeriod = parsePeriodExpression(timeFilter.period);
+
+    if (!parsedPeriod) {
+      return errored({ code: 'INVALID_PERIOD' as const });
+    }
+
+    startSnapshots = await findGroupSnapshots(playerIds, {
+      pick: 'first',
+      select: requiredSnapshotFields,
+      minDate: new Date(Date.now() - parsedPeriod.durationMs),
+      maxDate: new Date()
+    });
+
     endSnapshots = players.map(p => p.latestSnapshot).filter(Boolean);
   } else {
-    const [start, end] = await findEdgeSnapshots(playerIds, minDate!, maxDate!);
+    const [start, end] = await Promise.all([
+      findGroupSnapshots(playerIds, {
+        pick: 'first',
+        select: requiredSnapshotFields,
+        ...timeFilter
+      }),
+      findGroupSnapshots(playerIds, {
+        pick: 'last',
+        select: requiredSnapshotFields,
+        ...timeFilter
+      })
+    ]);
+
     startSnapshots = start;
     endSnapshots = end;
   }
@@ -129,26 +156,5 @@ async function buildPlayerSnapshotMap(
     if (current) current.endSnapshot = s;
   });
 
-  return playerMap;
+  return complete(playerMap);
 }
-
-async function findEdgeSnapshots(playerIds: number[], minDate: Date, maxDate: Date) {
-  return await Promise.all([
-    findGroupSnapshots(playerIds, { minDate }),
-    findGroupSnapshots(playerIds, { maxDate })
-  ]);
-}
-
-async function findStartingSnapshots(playerIds: number[], period: string) {
-  const parsedPeriod = parsePeriodExpression(period);
-
-  if (!parsedPeriod) {
-    throw new BadRequestError(`Invalid period: ${period}.`);
-  }
-
-  return await findGroupSnapshots(playerIds, {
-    minDate: new Date(Date.now() - parsedPeriod.durationMs)
-  });
-}
-
-export { findGroupDeltas };

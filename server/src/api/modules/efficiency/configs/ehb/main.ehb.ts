@@ -35,6 +35,8 @@ export default [
   { boss: Boss.KREEARRA, rate: 40 },
   { boss: Boss.KRIL_TSUTSAROTH, rate: 65 },
   { boss: Boss.LUNAR_CHESTS, rate: 18 },
+  { boss: Boss.MAD_ANGEL, rate: 60 },
+  { boss: Boss.MAGGOT_KING, rate: 30 },
   { boss: Boss.MIMIC, rate: 60 },
   { boss: Boss.NEX, rate: 23.5 },
   { boss: Boss.NIGHTMARE, rate: 14 },

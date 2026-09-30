@@ -13,7 +13,14 @@ import {
 import { checkAdminPermission, checkCompetitionVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
-import { getDateSchema, getPaginationSchema, teamSchema } from '../../util/validation';
+import {
+  getDateSchema,
+  getPaginationSchema,
+  idSchema,
+  queryParamMetricsArray,
+  queryParamStringArray,
+  teamSchema
+} from '../../util/validation';
 import { addParticipants } from './services/AddParticipantsService';
 import { addTeams } from './services/AddTeamsService';
 import { createCompetition } from './services/CreateCompetitionService';
@@ -90,7 +97,7 @@ router.post(
       metrics: z.array(z.nativeEnum(Metric)).min(1),
       startsAt: getDateSchema('startsAt'),
       endsAt: getDateSchema('endsAt'),
-      groupId: z.optional(z.number().int().positive()),
+      groupId: z.optional(idSchema),
       groupVerificationCode: z.optional(z.string()),
       participants: z.optional(z.array(z.string())),
       teams: z.optional(z.array(teamSchema))
@@ -164,7 +171,7 @@ router.post(
       ipHash
     });
 
-    const details = await fetchCompetitionDetails(competition.id);
+    const details = await fetchCompetitionDetails({ id: competition.id });
 
     const response = {
       verificationCode: verificationCode,
@@ -201,7 +208,7 @@ router.put(
   },
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       title: z.optional(z.string().min(1).max(50)),
@@ -268,7 +275,7 @@ router.put(
       ipHash: getRequestIpHash(req)
     });
 
-    const details = await fetchCompetitionDetails(updateResult.value.id);
+    const details = await fetchCompetitionDetails({ id: updateResult.value.id });
     const response = formatCompetitionDetailsResponse(details);
 
     res.status(200).json(response);
@@ -279,17 +286,35 @@ router.get(
   '/competitions/:id',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: z.object({
-      metric: z.optional(z.nativeEnum(Metric))
+      /**
+       * @deprecated Use `metrics` instead
+       */
+      metric: z.optional(z.nativeEnum(Metric)),
+      metrics: z.optional(queryParamMetricsArray),
+
+      // Experimental - do NOT use for real applications
+      usernames: z.optional(queryParamStringArray),
+      minDate: z.optional(getDateSchema('minDate')),
+      maxDate: z.optional(getDateSchema('maxDate'))
     })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric } = req.query;
+    const { metric, metrics, usernames, minDate, maxDate } = req.query;
 
-    const details = await fetchCompetitionDetails(id, metric);
+    const details = await fetchCompetitionDetails({
+      id,
+      metrics: metric ? [metric] : metrics,
+      filter: {
+        usernames,
+        minDate,
+        maxDate
+      }
+    });
+
     const response = formatCompetitionDetailsResponse(details);
 
     res.status(200).json(response);
@@ -300,20 +325,40 @@ router.get(
   '/competitions/:id/csv',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: z.object({
+      /**
+       * @deprecated Use `metrics` instead
+       */
       metric: z.optional(z.nativeEnum(Metric)),
+      metrics: z.optional(queryParamMetricsArray),
       teamName: z.optional(z.string()),
       table: z.optional(z.nativeEnum(CompetitionCSVTableType))
     })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric, table, teamName } = req.query;
+    const { metric, metrics, table, teamName } = req.query;
 
-    const result = await fetchCompetitionCSV(id, metric, table, teamName);
-    res.end(result);
+    const result = await fetchCompetitionCSV({
+      id,
+      metrics: metric ? [metric] : metrics,
+      table,
+      teamName
+    });
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION':
+        case 'TEAM_NAME_IS_REQUIRED':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    res.end(result.value);
   })
 );
 
@@ -321,17 +366,27 @@ router.get(
   '/competitions/:id/top-history',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: z.object({
-      metric: z.optional(z.nativeEnum(Metric))
+      /**
+       * @deprecated Use `metrics` instead
+       */
+      metric: z.optional(z.nativeEnum(Metric)),
+      metrics: z.optional(queryParamMetricsArray),
+      limit: z.optional(z.coerce.number().int().positive().max(5))
     })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric } = req.query;
+    const { metric, metrics, limit } = req.query;
 
-    const results = await fetchCompetitionTopHistory(id, metric);
+    const results = await fetchCompetitionTopHistory({
+      id,
+      metrics: metric ? [metric] : metrics,
+      limit: limit ?? 5
+    });
+
     const response = results.map(({ player, history }) => formatParticipantHistoryResponse(player, history));
 
     res.status(200).json(response);
@@ -343,7 +398,7 @@ router.delete(
   checkCompetitionVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -351,8 +406,19 @@ router.delete(
 
     const result = await deleteCompetition(id);
 
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'FAILED_TO_DELETE_COMPETITION':
+          throw result.error;
+        default:
+          assertNever(result.error);
+      }
+    }
+
     res.status(200).json({
-      message: `Successfully deleted competition: ${result.title}`
+      message: `Successfully deleted competition: ${result.value.title}`
     });
   })
 );
@@ -362,7 +428,7 @@ router.post(
   checkCompetitionVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       participants: z.array(z.coerce.string()).nonempty()
@@ -372,7 +438,25 @@ router.post(
     const { id } = req.params;
     const { participants } = req.body;
 
-    const { count } = await addParticipants(id, participants);
+    const result = await addParticipants(id, participants);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'ALL_PLAYERS_ALREADY_COMPETING':
+        case 'CANNOT_ADD_PARTICIPANTS_TO_TEAM_COMPETITION':
+        case 'DUPLICATE_USERNAMES_FOUND':
+        case 'INVALID_USERNAMES_FOUND':
+          throw new BadRequestErrorZ(result.error);
+        case 'OPTED_OUT_PARTICIPANTS_FOUND':
+          throw new ForbiddenErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const { count } = result.value;
 
     res.status(200).json({
       count,
@@ -386,7 +470,7 @@ router.delete(
   checkCompetitionVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       participants: z.array(z.coerce.string()).nonempty()
@@ -396,7 +480,20 @@ router.delete(
     const { id } = req.params;
     const { participants } = req.body;
 
-    const { count } = await removeParticipants(id, participants);
+    const result = await removeParticipants(id, participants);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'NO_VALID_PARTICIPANTS':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const { count } = result.value;
 
     res.status(200).json({
       count,
@@ -410,7 +507,7 @@ router.post(
   checkCompetitionVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       teams: z.array(teamSchema).nonempty()
@@ -420,7 +517,26 @@ router.post(
     const { id } = req.params;
     const { teams } = req.body;
 
-    const { count } = await addTeams(id, teams);
+    const result = await addTeams(id, teams);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'ALL_PLAYERS_ALREADY_COMPETING':
+        case 'CANNOT_ADD_TEAMS_TO_CLASSIC_COMPETITION':
+        case 'DUPLICATE_USERNAMES_FOUND':
+        case 'DUPLICATE_TEAM_NAMES_FOUND':
+        case 'INVALID_USERNAMES_FOUND':
+          throw new BadRequestErrorZ(result.error);
+        case 'OPTED_OUT_PARTICIPANTS_FOUND':
+          throw new ForbiddenErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const { count } = result.value;
 
     res.status(200).json({
       count,
@@ -434,7 +550,7 @@ router.delete(
   checkCompetitionVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       teamNames: z.array(z.coerce.string()).nonempty()
@@ -458,13 +574,27 @@ router.post(
   checkCompetitionVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const { outdatedCount, cooldownDuration } = await updateAllParticipants(id);
+    const result = await updateAllParticipants(id);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'COMPETITION_ENDED':
+        case 'NO_OUTDATED_PARTICIPANTS':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const { outdatedCount, cooldownDuration } = result.value;
 
     res.status(200).json({
       count: outdatedCount,
@@ -478,7 +608,7 @@ router.put(
   checkAdminPermission,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {

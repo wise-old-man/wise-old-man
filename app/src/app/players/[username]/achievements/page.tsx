@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   AchievementResponse,
   AchievementProgressResponse,
@@ -16,6 +17,7 @@ import {
   getExpForLevel,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
+import { buildPlayerMetadata } from "~/utils/metadata";
 import { getPlayerAchievementProgress, getPlayerDetails } from "~/services/wiseoldman";
 import { AchievementListItem } from "~/components/AchievementListItem";
 import { Label } from "~/components/Label";
@@ -37,11 +39,13 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const player = await getPlayerDetails(decodeURI(props.params.username));
 
   return {
-    title: `Achievements: ${player.displayName}`,
+    ...buildPlayerMetadata(player, "/achievements"),
+    title: `${player.displayName}'s Achievements`,
+    description: `Every OSRS achievement ${player.displayName} has reached, and how close they are to their next skill, boss and activity achievements`,
   };
 }
 

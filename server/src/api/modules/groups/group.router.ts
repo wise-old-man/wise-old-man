@@ -15,21 +15,26 @@ import {
   formatMembershipResponse,
   formatNameChangeResponse,
   formatPlayerResponse,
-  formatRecordResponse
+  formatRecordResponse,
+  formatSnapshotResponse
 } from '../../responses';
 import { checkAdminPermission, checkGroupVerificationCode } from '../../util/middlewares';
 import { getRequestIpHash } from '../../util/request';
 import { executeRequest, validateRequest } from '../../util/routing';
 import {
+  MAX_INT_4,
   getDateSchema,
   getPaginationSchema,
   groupRoleOrderSchema,
+  idSchema,
   memberSchema,
   socialLinksSchema
 } from '../../util/validation';
 import { findGroupAchievements } from '../achievements/services/FindGroupAchievementsService';
 import { findGroupCompetitions } from '../competitions/services/FindGroupCompetitionsService';
+import { findBulkGroupDeltas } from '../deltas/services/FindBulkGroupDeltasService';
 import { findGroupDeltas } from '../deltas/services/FindGroupDeltasService';
+import { getPlayerEfficiencyMap } from '../efficiency/efficiency.utils';
 import { findGroupNameChanges } from '../name-changes/services/FindGroupNameChangesService';
 import { findGroupRecords } from '../records/services/FindGroupRecordsService';
 import { addMembers } from './services/AddMembersService';
@@ -37,6 +42,7 @@ import { changeMemberRole } from './services/ChangeMemberRoleService';
 import { createGroup } from './services/CreateGroupService';
 import { deleteGroup } from './services/DeleteGroupService';
 import { editGroup } from './services/EditGroupService';
+import { fetchBulkGroupHiscores } from './services/FetchBulkGroupHiscoresService';
 import { fetchGroupActivity } from './services/FetchGroupActivityService';
 import { fetchGroupDetails } from './services/FetchGroupDetailsService';
 import { fetchGroupHiscores } from './services/FetchGroupHiscoresService';
@@ -75,7 +81,7 @@ router.post(
     body: z.object({
       name: z.string().min(1).max(30),
       clanChat: z.optional(z.string().min(1).max(12)),
-      homeworld: z.optional(z.number().int().positive()),
+      homeworld: z.optional(z.number().int().positive().max(MAX_INT_4)),
       description: z.optional(z.string().min(1).max(100)),
       members: z.array(memberSchema)
     })
@@ -106,12 +112,12 @@ router.put(
   checkGroupVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       name: z.optional(z.string().min(1).max(30)),
       clanChat: z.optional(z.string().min(1).max(12)),
-      homeworld: z.optional(z.number().int().positive()),
+      homeworld: z.optional(z.number().int().positive().max(MAX_INT_4)),
       description: z.optional(z.string().min(1).max(100)),
       bannerImage: z.optional(z.string().max(255).url()),
       profileImage: z.optional(z.string().max(255).url()),
@@ -163,7 +169,7 @@ router.get(
   '/groups/:id',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -181,7 +187,7 @@ router.delete(
   checkGroupVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -197,7 +203,7 @@ router.post(
   checkGroupVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       members: z.array(memberSchema).nonempty()
@@ -221,7 +227,7 @@ router.delete(
   checkGroupVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       members: z.array(z.coerce.string()).nonempty()
@@ -245,7 +251,7 @@ router.put(
   checkGroupVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     body: z.object({
       username: z.string(),
@@ -271,7 +277,7 @@ router.get(
   '/groups/:id/csv',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -286,20 +292,60 @@ router.get(
   '/groups/:id/hiscores',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
-    query: z
-      .object({
-        metric: z.nativeEnum(Metric)
-      })
-      .merge(getPaginationSchema(100_000)) // unlimited "max" limit
+    query: z.object({
+      metric: z.nativeEnum(Metric)
+    })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric, limit, offset } = req.query;
+    const { metric } = req.query;
 
-    const hiscores = await fetchGroupHiscores(id, metric, { limit, offset });
-    const response = hiscores.map(entry => formatGroupHiscoresEntryResponse(entry.player, entry.data));
+    const hiscoresResult = await fetchGroupHiscores(id, metric);
+
+    if (isErrored(hiscoresResult)) {
+      switch (hiscoresResult.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(hiscoresResult.error);
+        default:
+          assertNever(hiscoresResult.error.code);
+      }
+    }
+
+    const response = hiscoresResult.value.map(entry =>
+      formatGroupHiscoresEntryResponse(entry.player, entry.data)
+    );
+
+    res.status(200).json(response);
+  })
+);
+
+router.get(
+  '/groups/:id/bulk-hiscores',
+  validateRequest({
+    params: z.object({
+      id: idSchema
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const { id } = req.params;
+
+    const result = await fetchBulkGroupHiscores(id);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(({ player, snapshot }) => ({
+      player: formatPlayerResponse(player),
+      data: formatSnapshotResponse(snapshot, getPlayerEfficiencyMap(snapshot, player))
+    }));
 
     res.status(200).json(response);
   })
@@ -309,7 +355,7 @@ router.get(
   '/groups/:id/activity',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: getPaginationSchema()
   }),
@@ -332,7 +378,7 @@ router.get(
   '/groups/:id/statistics',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -347,14 +393,24 @@ router.get(
   '/groups/:id/competitions',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
     const result = await findGroupCompetitions(id);
-    const response = result.map(c => formatCompetitionResponse(c.competition, c.group));
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(c => formatCompetitionResponse(c.competition, c.group));
 
     res.status(200).json(response);
   })
@@ -364,24 +420,104 @@ router.get(
   '/groups/:id/gained',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: z
       .object({
-        metric: z.nativeEnum(Metric),
-        period: z.optional(z.nativeEnum(Period).or(z.string())),
-        startDate: z.optional(getDateSchema('startDate')),
-        endDate: z.optional(getDateSchema('endDate'))
+        metric: z.nativeEnum(Metric)
       })
-      .merge(getPaginationSchema(100_000))
+      .and(
+        z.union([
+          z.object({
+            period: z.nativeEnum(Period).or(z.string())
+          }),
+          z.object({
+            startDate: getDateSchema('startDate'),
+            endDate: getDateSchema('endDate')
+          })
+        ])
+      )
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-    const { metric, period, startDate, endDate, limit, offset } = req.query;
+    const { metric } = req.query;
 
-    const results = await findGroupDeltas(id, metric, period, startDate, endDate, { limit, offset });
+    const result = await findGroupDeltas(
+      id,
+      metric,
+      'period' in req.query
+        ? req.query
+        : {
+            minDate: req.query.startDate,
+            maxDate: req.query.endDate
+          }
+    );
 
-    const response = results.map(r => ({
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'INVALID_PERIOD':
+        case 'INVALID_DATE_RANGE':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const response = result.value.map(r => ({
+      player: formatPlayerResponse(r.player),
+      startDate: r.startDate,
+      endDate: r.endDate,
+      data: r.data
+    }));
+
+    res.status(200).json(response);
+  })
+);
+
+router.get(
+  '/groups/:id/bulk-gained',
+  validateRequest({
+    params: z.object({
+      id: idSchema
+    }),
+    query: z.union([
+      z.object({
+        period: z.nativeEnum(Period).or(z.string())
+      }),
+      z.object({
+        startDate: getDateSchema('startDate'),
+        endDate: getDateSchema('endDate')
+      })
+    ])
+  }),
+  executeRequest(async (req, res) => {
+    const { id } = req.params;
+
+    const result = await findBulkGroupDeltas(
+      id,
+      'period' in req.query
+        ? req.query
+        : {
+            minDate: req.query.startDate,
+            maxDate: req.query.endDate
+          }
+    );
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'INVALID_PERIOD':
+        case 'INVALID_DATE_RANGE':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const response = result.value.map(r => ({
       player: formatPlayerResponse(r.player),
       startDate: r.startDate,
       endDate: r.endDate,
@@ -396,7 +532,7 @@ router.get(
   '/groups/:id/records',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: z
       .object({
@@ -424,7 +560,7 @@ router.get(
   '/groups/:id/achievements',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: getPaginationSchema()
   }),
@@ -434,7 +570,16 @@ router.get(
 
     const result = await findGroupAchievements(id, { limit, offset });
 
-    const response = result.map(a => ({
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(a => ({
       ...formatAchievementResponse(a.achievement),
       player: formatPlayerResponse(a.player)
     }));
@@ -447,7 +592,7 @@ router.get(
   '/groups/:id/name-changes',
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     }),
     query: getPaginationSchema()
   }),
@@ -471,13 +616,26 @@ router.post(
   checkGroupVerificationCode,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const outdatedCount = await updateAllMembers(id);
+    const result = await updateAllMembers(id);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'NO_OUTDATED_MEMBERS':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const outdatedCount = result.value;
 
     res.status(200).json({
       count: outdatedCount,
@@ -491,7 +649,7 @@ router.put(
   checkAdminPermission,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {
@@ -507,7 +665,7 @@ router.put(
   checkAdminPermission,
   validateRequest({
     params: z.object({
-      id: z.coerce.number().int().positive()
+      id: idSchema
     })
   }),
   executeRequest(async (req, res) => {

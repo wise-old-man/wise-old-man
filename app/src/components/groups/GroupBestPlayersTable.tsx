@@ -45,7 +45,7 @@ export function GroupBestPlayersTable(props: GroupBestPlayersTableProps) {
       accessorKey: "player",
       header: "Player",
       cell: ({ row }) => {
-        if (!row.original.player) return "none";
+        if (!row.original.player) return <span className="text-gray-300">---</span>;
         return <PlayerIdentity player={row.original.player} />;
       },
     },
@@ -76,14 +76,18 @@ export function GroupBestPlayersTable(props: GroupBestPlayersTableProps) {
           value = row.original.value;
         }
 
-        return value === -1 ? "---" : <FormattedNumber value={value} />;
+        return value === -1 ? (
+          <span className="text-gray-300">---</span>
+        ) : (
+          <FormattedNumber value={value} />
+        );
       },
     },
     {
       accessorKey: "rank",
       header: "Global Rank",
       cell: ({ row }) => {
-        if (row.original.rank === -1) return "---";
+        if (row.original.rank === -1) return <span className="text-gray-300">---</span>;
         return <FormattedNumber value={row.original.rank} />;
       },
     },

@@ -23,8 +23,10 @@ const envVariablesSchema = z.object({
   REDIS_HOST: z.string().trim().min(1),
   REDIS_PASSWORD: z.string().trim().min(1),
   REDIS_PORT: z.coerce.number().positive().int(),
-  // Prisma Database URL
+  // Prisma Database URL (routed through PgBouncer)
   SERVER_CORE_DATABASE_URL: z.string().trim().min(1),
+  // Prisma Direct Database URL (bypasses PgBouncer, used for migrations)
+  SERVER_CORE_DATABASE_DIRECT_URL: z.string().trim().min(1),
   // Port for the API to run on
   SERVER_API_PORT: z.optional(z.coerce.number().positive().int()),
   // Sentry (for error tracking)
@@ -38,7 +40,7 @@ const envVariablesSchema = z.object({
   // Openai API Key
   SERVER_OPENAI_API_KEY: z.string().trim().min(1).startsWith('sk-'),
   // Abuse Protection Configs
-  SERVER_API_ABUSE_PROTECTED_PLAYERS_LIST: z.optional(z.string().trim()),
+  SERVER_ABUSE_PROTECTED_PLAYERS_LIST: z.string().trim(),
   // Feature Flags
   SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS: z.optional(z.string()),
   // Admin Password (For moderation operations)
@@ -55,6 +57,7 @@ type EnvKey = keyof typeof envVariablesSchema.shape;
 const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
   [ServerType.API]: [
     'SERVER_CORE_DATABASE_URL',
+    'SERVER_CORE_DATABASE_DIRECT_URL',
     'REDIS_HOST',
     'REDIS_PORT',
     'REDIS_PASSWORD',
@@ -65,6 +68,7 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
   ],
   [ServerType.JOB_RUNNER]: [
     'SERVER_CORE_DATABASE_URL',
+    'SERVER_CORE_DATABASE_DIRECT_URL',
     'REDIS_PORT',
     'REDIS_HOST',
     'REDIS_PASSWORD',
@@ -73,7 +77,7 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
     'SERVER_PATREON_BEARER_TOKEN',
     'SERVER_DISCORD_PATREON_WEBHOOK_URL',
     'SERVER_OPENAI_API_KEY',
-    'SERVER_API_ABUSE_PROTECTED_PLAYERS_LIST'
+    'SERVER_ABUSE_PROTECTED_PLAYERS_LIST'
   ],
   [ServerType.BULL_BOARD]: [
     //
@@ -84,6 +88,7 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
   [ServerType.DEV]: [
     //
     'SERVER_CORE_DATABASE_URL',
+    'SERVER_CORE_DATABASE_DIRECT_URL',
     'REDIS_PORT',
     'REDIS_HOST',
     'REDIS_PASSWORD',

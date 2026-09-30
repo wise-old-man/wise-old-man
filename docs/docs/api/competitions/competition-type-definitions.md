@@ -53,11 +53,11 @@ sidebar_position: 1
 
 ### `(Object)` Competition Delta
 
-| Field  | Type                                                                                                           | Description                                                                                                                                                                                            |
-| :----- | :------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| metric | [Metric](/api/global-type-definitions#enum-metric) \| `"total"`                                                | The metric this delta is for, or `"total"` for the combined delta across all of the competition's metrics. (Only present in competitions with multiple metrics, or when previewing a different metric) |
-| values | [CompetitionProgress](/api/competitions/competition-type-definitions#object-competition-progress)              | The player's progress for this metric.                                                                                                                                                                 |
-| levels | [CompetitionLevelsProgress](/api/competitions/competition-type-definitions#object-competition-levels-progress) | The player's levels progress for this metric.                                                                                                                                                          |
+| Field  | Type                                                                                                           | Description                                                                                                                                                                    |
+| :----- | :------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| metric | [Metric](/api/global-type-definitions#enum-metric) \| `"total"`                                                | The metric this delta is for, or `"total"` for the combined delta across all the selected metrics. (The `"total"` entry is only present when more than one metric is selected) |
+| values | [CompetitionProgress](/api/competitions/competition-type-definitions#object-competition-progress)              | The player's progress for this metric.                                                                                                                                         |
+| levels | [CompetitionLevelsProgress](/api/competitions/competition-type-definitions#object-competition-levels-progress) | The player's levels progress for this metric.                                                                                                                                  |
 
 <br />
 
@@ -143,9 +143,9 @@ Returned in player-centric endpoints.
 
 | Field    | Type                                                                                                           | Description                                                                                                                                               |
 | :------- | :------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| deltas   | [CompetitionDelta](/api/competitions/competition-type-definitions#object-competition-delta)[]                  | The player's progress, broken down by metric. Includes a `"total"` entry for competitions with multiple metrics (or when previewing a different metric).  |
-| progress | [CompetitionProgress](/api/competitions/competition-type-definitions#object-competition-player-progress)       | **(⚠️ Deprecated, use `deltas` instead)** The player's progress in the competition's (or previewed) metric.                                               |
-| levels   | [CompetitionLevelProgress](/api/competitions/competition-type-definitions#object-competition-levels-progress)? | **(⚠️ Deprecated, use `deltas` instead)** The player's levels progress in the competition's (or previewed) metric. (Only exists in skilling competitions) |
+| deltas   | [CompetitionDelta](/api/competitions/competition-type-definitions#object-competition-delta)[]                  | The player's progress, broken down by metric. Includes a `"total"` entry when more than one metric is selected.                                           |
+| progress | [CompetitionProgress](/api/competitions/competition-type-definitions#object-competition-player-progress)       | **(⚠️ Deprecated, use `deltas` instead)** The player's progress in the metric the competition is ranked by.                                               |
+| levels   | [CompetitionLevelProgress](/api/competitions/competition-type-definitions#object-competition-levels-progress)? | **(⚠️ Deprecated, use `deltas` instead)** The player's levels progress in the metric the competition is ranked by. (Only exists in skilling competitions) |
 
 <br />
 

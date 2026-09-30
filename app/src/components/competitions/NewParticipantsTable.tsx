@@ -1,0 +1,382 @@
+"use client";
+
+import { useMutation } from "@tanstack/react-query";
+import { ColumnDef } from "@tanstack/react-table";
+import { CompetitionDetailsResponse, Metric, PlayerResponse, PlayerStatus } from "@wise-old-man/utils";
+import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
+import ArrowUpIcon from "~/assets/arrow_up.svg";
+import { useCompetitionTimeMachine } from "~/hooks/useCompetitionTimeMachine";
+import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
+import { sortParticipations } from "~/utils/competitions";
+import { timeago } from "~/utils/dates";
+import { cn } from "~/utils/styling";
+import { Button } from "../Button";
+import { DataTable } from "../DataTable";
+import { FormattedNumber } from "../FormattedNumber";
+import { PlayerIdentity } from "../PlayerIdentity";
+import { QueryLink } from "../QueryLink";
+import { TableSortButton, TableTitle } from "../Table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
+import { useCompetitionPageContext } from "./CompetitionPageContext";
+import {
+  ColumnsSelector,
+  EMPTY_CELL,
+  ParticipantView,
+  useParticipantTableViews,
+} from "./useParticipantTableViews";
+
+import ExportIcon from "~/assets/export.svg";
+import LoadingIcon from "~/assets/loading.svg";
+import SyncIcon from "~/assets/sync.svg";
+
+export function NewParticipantsTable({ teamName }: { teamName?: string }) {
+  const { competition, selectedMetric } = useCompetitionPageContext();
+
+  const searchParams = useSearchParams();
+
+  // The API only sorts the standings by one metric (the competition's "total", or the previewed metric).
+  // Switching metric tabs doesn't refetch, so the rows have to be re-sorted client-side.
+  const sortedParticipations = useMemo(
+    () => sortParticipations(competition.participations, selectedMetric),
+    [competition.participations, selectedMetric],
+  );
+
+  // Ranks are always relative to the whole competition, even when the table is filtered
+  // down to a single team (or to the outdated participants).
+  const ranks = useMemo(() => {
+    return new Map(sortedParticipations.map((p, index) => [p.player.id, index + 1]));
+  }, [sortedParticipations]);
+
+  const { views, options } = useParticipantTableViews();
+
+  const columns = useColumnDefinition(ranks, views);
+
+  const rows = useMemo(() => {
+    if (!teamName) return sortedParticipations;
+    return sortedParticipations.filter((p) => p.teamName === teamName);
+  }, [sortedParticipations, teamName]);
+
+  const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
+  const showOnlyOutdated = searchParams.get("filter") === "outdated";
+
+  const outdatedParticipants = rows.filter(
+    (p) => !p.player.updatedAt || p.player.updatedAt < competition.startsAt,
+  );
+
+  return (
+    <DataTable
+      columns={columns}
+      data={showOnlyOutdated ? outdatedParticipants : rows}
+      enablePagination
+      defaultPageSize={teamName === undefined ? 20 : 100_000}
+      // The default columns are shown or hidden based on the table's width
+      containerClassName="@container"
+      headerSlot={
+        <TableTitle className="flex-col p-0">
+          <div className="flex w-full items-center justify-between px-5 py-4">
+            {teamName ? (
+              <TeamHeader teamName={teamName} selectedMetric={selectedMetric} participants={rows} />
+            ) : (
+              <h3 className="text-h3 font-medium text-white">Participants</h3>
+            )}
+
+            <div className="flex items-center gap-x-2">
+              <QueryLink
+                query={{
+                  dialog: "export",
+                  team: teamName ? encodeURI(teamName) : undefined,
+                }}
+              >
+                <Button className="text-gray-100">
+                  <ExportIcon className="-ml-1 h-4 w-4" />
+                  Export
+                </Button>
+              </QueryLink>
+              <ColumnsSelector options={options} />
+            </div>
+          </div>
+          {showOnlyOutdated ? (
+            <div className="flex w-full gap-x-1 border-t border-gray-500 px-5 py-3">
+              <span className="text-xs text-gray-200">
+                Showing only outdated or invalid participants.
+              </span>
+              <QueryLink
+                query={{ filter: null }}
+                className="text-xs font-medium text-white hover:underline"
+              >
+                Show all
+              </QueryLink>
+            </div>
+          ) : (
+            <>
+              {isOngoing && outdatedParticipants && outdatedParticipants.length > 0 && (
+                <div className="flex w-full border-t border-gray-500 px-5 py-3">
+                  <QueryLink
+                    query={{ filter: "outdated" }}
+                    className="text-xs font-medium text-gray-200 hover:underline"
+                  >
+                    {outdatedParticipants.length} outdated or invalid participants.
+                  </QueryLink>
+                </div>
+              )}
+            </>
+          )}
+        </TableTitle>
+      }
+    />
+  );
+}
+
+function TeamHeader({
+  teamName,
+  selectedMetric,
+  participants,
+}: {
+  teamName: string;
+  selectedMetric: Metric | "total";
+  participants: CompetitionDetailsResponse["participations"];
+}) {
+  const totalGained = participants.reduce(
+    (acc, curr) => acc + (curr.deltas.find((d) => d.metric === selectedMetric)?.values.gained ?? 0),
+    0,
+  );
+
+  const avgGained = Math.floor(totalGained / participants.length);
+
+  return (
+    <div>
+      <h3 className="mb-1 text-h3 font-medium text-white">{teamName}</h3>
+      <span className="text-sm text-gray-200">
+        <span>
+          {participants.length} {participants.length === 1 ? "player" : "players"}
+        </span>
+        <span className="px-3">|</span>
+        <span>
+          Total: <FormattedNumber colored value={totalGained} />
+        </span>
+        <span className="px-3">|</span>
+        <span>
+          Avg: <FormattedNumber colored value={avgGained} />
+        </span>
+      </span>
+    </div>
+  );
+}
+
+type Participation = CompetitionDetailsResponse["participations"][number];
+
+function useColumnDefinition(ranks: Map<number, number>, views: ParticipantView[]) {
+  const { competition, selectedMetric } = useCompetitionPageContext();
+  const { getPlayerRankDiff, isLoading } = useCompetitionTimeMachine();
+
+  const hasEnded = competition.endsAt.getTime() <= new Date().getTime();
+
+  const columns: ColumnDef<Participation>[] = [
+    {
+      id: "rank",
+      header: ({ column }) => {
+        return <TableSortButton column={column}>Rank</TableSortButton>;
+      },
+      accessorFn: (row) => {
+        return ranks.get(row.player.id) ?? Infinity;
+      },
+      cell: ({ row }) => {
+        const rankDiff = getPlayerRankDiff(row.original.player.username, selectedMetric);
+
+        return (
+          <div className="flex items-center gap-x-2 tabular-nums">
+            {row.getValue("rank")}
+            {!hasEnded && (
+              <>
+                {isLoading ? (
+                  <div className="h-3 w-9 animate-pulse rounded-full bg-gray-700" />
+                ) : (
+                  <>{rankDiff !== undefined && <RankDiff diff={rankDiff} />}</>
+                )}
+              </>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "player",
+      header: ({ column }) => {
+        return <TableSortButton column={column}>Player</TableSortButton>;
+      },
+      cell: ({ row }) => {
+        const params = new URLSearchParams();
+
+        if (selectedMetric !== "total") {
+          params.set("metric", selectedMetric);
+        }
+
+        params.set("startDate", competition.startsAt.toISOString());
+        params.set("endDate", competition.endsAt.toISOString());
+
+        return (
+          <PlayerIdentity
+            player={row.original.player}
+            href={`/players/${row.original.player.username}/gained?${params.toString()}`}
+          />
+        );
+      },
+      sortingFn: (rowA, rowB) => {
+        return rowA.original.player.displayName.localeCompare(rowB.original.player.displayName);
+      },
+    },
+    ...views.map(
+      (view): ColumnDef<Participation> => ({
+        id: view.key,
+        accessorFn: view.accessorFn,
+        sortUndefined: 1,
+        meta: {
+          className: view.className,
+        },
+        header: ({ column }) => {
+          return <TableSortButton column={column}>{view.label}</TableSortButton>;
+        },
+        cell: ({ row, getValue }) => {
+          const value = getValue() as number | undefined;
+          return value === undefined ? EMPTY_CELL : view.cell(row.original, value);
+        },
+      }),
+    ),
+    {
+      id: "updatedAt",
+      accessorFn: (row) => row.player.updatedAt,
+      header: ({ column }) => {
+        return <TableSortButton column={column}>Updated</TableSortButton>;
+      },
+      cell: ({ row }) => {
+        return <UpdateParticipantCell player={row.original.player} competition={competition} />;
+      },
+    },
+  ];
+
+  return columns;
+}
+
+function UpdateParticipantCell(props: {
+  player: PlayerResponse;
+  competition: CompetitionDetailsResponse;
+}) {
+  const { player, competition } = props;
+
+  const toast = useToast();
+  const client = useWOMClient();
+  const [hasUpdated, setHasUpdated] = useState(false);
+
+  const updateMutation = useMutation({
+    mutationFn: () => {
+      return client.players.updatePlayer(player.username);
+    },
+    onSuccess: () => {
+      toast.toast({
+        variant: "success",
+        title: `Updated ${player.displayName}`,
+      });
+
+      setHasUpdated(true);
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.toast({
+          variant: "error",
+          title: error.message,
+        });
+      }
+    },
+  });
+
+  const isUpdating = updateMutation.isPending;
+  const hasEnded = competition.endsAt <= new Date();
+  const hasStarted = competition.startsAt <= new Date();
+  const hasStartingValue = player.updatedAt && player.updatedAt >= competition.startsAt;
+
+  return (
+    <div
+      className={cn(
+        "flex w-full items-center justify-between gap-x-2",
+        !hasUpdated && !hasStartingValue && hasStarted && "text-red-500",
+      )}
+    >
+      {!hasEnded && hasUpdated ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="text-gray-200">Refresh to apply</span>
+          </TooltipTrigger>
+          <TooltipContent>Refresh the page to view the updated data.</TooltipContent>
+        </Tooltip>
+      ) : (
+        <>
+          {player.updatedAt ? timeago.format(player.updatedAt) : "---"}
+          {!hasEnded && player.status !== PlayerStatus.ARCHIVED && (
+            <Button
+              size="sm"
+              iconButton
+              className="h-6 p-1"
+              disabled={isUpdating}
+              onClick={() => updateMutation.mutate()}
+            >
+              {isUpdating ? (
+                <LoadingIcon className="h-4 w-4 animate-spin text-gray-200" />
+              ) : (
+                <SyncIcon className="h-4 w-4 text-gray-200" />
+              )}
+            </Button>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function RankDiff({ diff }: { diff: number }) {
+  if (diff === 0) {
+    return (
+      <Tooltip>
+        <TooltipTrigger className="flex text-gray-300">
+          <span>(--)</span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <div>Mantained their rank in the past 24h.</div>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  const absDiff = Math.abs(diff);
+
+  if (diff > 0) {
+    return (
+      <Tooltip>
+        <TooltipTrigger className="flex text-gray-200">
+          {"("}
+          <ArrowUpIcon className={"-mx-0.5 h-4 w-4 text-green-500"} />
+          {absDiff}
+          {")"}
+        </TooltipTrigger>
+        <TooltipContent>
+          <div>{`Gained ${absDiff} ${absDiff === 1 ? "rank" : "ranks"} in the past 24h.`}</div>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger className="flex">
+        {"("}
+        <ArrowUpIcon className={"-mx-0.5 h-4 w-4 rotate-180 text-red-500"} />
+        <span className="text-gray-200">{absDiff}</span>
+        {")"}
+      </TooltipTrigger>
+      <TooltipContent>
+        <div>{`Lost ${absDiff} ${absDiff === 1 ? "rank" : "ranks"} in the past 24h.`}</div>
+      </TooltipContent>
+    </Tooltip>
+  );
+}

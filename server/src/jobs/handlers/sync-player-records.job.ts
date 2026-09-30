@@ -1,14 +1,21 @@
 import { POST_RELEASE_HISCORE_ADDITIONS } from '../../api/modules/snapshots/snapshot.utils';
-import prisma, { PrismaTypes } from '../../prisma';
+import prisma from '../../prisma';
 import { Metric, METRICS, Period } from '../../types';
 import { getMetricValueKey } from '../../utils/get-metric-value-key.util';
-import { getRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
+import { selectRequiredSnapshotFields } from '../../utils/get-required-snapshot-fields.util';
 import { prepareDecimalValue } from '../../utils/prepare-decimal-value.util';
 import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
   username: string;
   period: Period;
+
+  startSnapshotDate: Date;
+
+  deltas: Array<{
+    metric: Metric;
+    value: number;
+  }>;
 }
 
 export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
@@ -21,37 +28,31 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
   },
 
   async execute(payload: Payload) {
-    const currentDeltas = await prisma.cachedDelta.findMany({
-      where: {
-        player: {
-          username: payload.username
-        },
-        period: payload.period
-      }
+    const player = await prisma.player.findFirst({
+      where: { username: payload.username },
+      select: { id: true }
     });
 
-    if (currentDeltas.length === 0) {
+    if (player === null) {
       return;
     }
 
-    const playerId = currentDeltas[0].playerId;
-
     const [currentRecords, previousSnapshot] = await Promise.all([
       prisma.record.findMany({
+        select: {
+          metric: true,
+          value: true
+        },
         where: {
-          playerId,
+          playerId: player.id,
           period: payload.period
         }
       }),
       prisma.snapshot.findFirst({
-        select: {
-          playerId: true,
-          createdAt: true,
-          ...getRequiredSnapshotFields(METRICS) // Only select value fields, not ranks
-        },
+        select: selectRequiredSnapshotFields(METRICS), // Only select value fields, not ranks
         where: {
-          playerId,
-          createdAt: currentDeltas[0].startedAt
+          playerId: player.id,
+          createdAt: payload.startSnapshotDate
         }
       })
     ]);
@@ -60,11 +61,10 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
       return;
     }
 
-    const currentDeltasMap = new Map(currentDeltas.map(d => [d.metric, d]));
+    const currentDeltasMap = new Map(payload.deltas.map(d => [d.metric, d]));
     const currentRecordsMap = new Map(currentRecords.map(r => [r.metric, r]));
 
-    const toCreate: PrismaTypes.RecordCreateManyInput[] = [];
-    const toUpdate: { metric: Metric; newValue: number }[] = [];
+    const toUpsert: { metric: Metric; value: number }[] = [];
 
     for (const metric of METRICS) {
       const metricDelta = currentDeltasMap.get(metric);
@@ -87,55 +87,29 @@ export const SyncPlayerRecordsJobHandler: JobHandler<Payload> = {
 
       const metricRecord = currentRecordsMap.get(metric);
 
-      // No record exists for this period and metric, create a new one.
-      if (metricRecord === undefined) {
-        toCreate.push({
-          playerId,
-          period: payload.period,
+      // Either no record exists for this period and metric, or one existed before
+      // and should be updated with a new and greater value.
+      if (metricRecord === undefined || value > metricRecord.value) {
+        toUpsert.push({
           metric,
           value: prepareDecimalValue(metric, value)
         });
-        continue;
-      }
-
-      // A record existed before, and should be updated with a new and greater value
-      if (value > metricRecord.value) {
-        toUpdate.push({
-          metric,
-          newValue: prepareDecimalValue(metric, value)
-        });
       }
     }
 
-    if (toCreate.length === 0 && toUpdate.length === 0) {
+    if (toUpsert.length === 0) {
       return;
     }
 
-    await prisma.$transaction(async tx => {
-      if (toUpdate.length > 0) {
-        await tx.record.deleteMany({
-          where: {
-            playerId,
-            period: payload.period,
-            metric: { in: toUpdate.map(u => u.metric) }
-          }
-        });
-      }
-
-      if (toCreate.length > 0 || toUpdate.length > 0) {
-        await tx.record.createMany({
-          data: [
-            ...toCreate,
-            ...toUpdate.map(u => ({
-              playerId,
-              period: payload.period,
-              metric: u.metric,
-              value: u.newValue
-            }))
-          ],
-          skipDuplicates: true
-        });
-      }
-    });
+    await prisma.$executeRaw`
+      INSERT INTO public.records ("playerId", "period", "metric", "value", "updatedAt")
+      SELECT ${player.id}, ${payload.period}::period, r.metric, r.value, NOW()
+      FROM UNNEST(
+        ${toUpsert.map(u => u.metric)}::metric[],
+        ${toUpsert.map(u => u.value)}::bigint[]
+      ) AS r(metric, value)
+      ON CONFLICT ("playerId", "period", "metric")
+      DO UPDATE SET "value" = EXCLUDED."value", "updatedAt" = NOW()
+    `;
   }
 };

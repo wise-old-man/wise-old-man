@@ -88,7 +88,7 @@ async function fetchPlayersList(
     const playerQuery: PrismaTypes.PlayerWhereInput = {
       type: playerType,
       build: playerBuild,
-      status: { not: PlayerStatus.ARCHIVED }
+      status: { notIn: [PlayerStatus.ARCHIVED, PlayerStatus.BANNED] }
     };
 
     // When filtering by player type, the ironman filter should include UIM and HCIM
@@ -136,7 +136,7 @@ async function fetchPlayersList(
       lastChangedAt: p.lastChangedAt ? new Date(p.lastChangedAt) : null,
       lastImportedAt: p.lastImportedAt ? new Date(p.lastImportedAt) : null
     }))
-    .filter(p => p.status !== PlayerStatus.ARCHIVED);
+    .filter(p => p.status !== PlayerStatus.ARCHIVED && p.status !== PlayerStatus.BANNED);
 }
 
 export { findEfficiencyLeaderboards };

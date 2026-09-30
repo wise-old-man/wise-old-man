@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription } from "../Alert";
+import { Alert, AlertDescription, AlertTitle } from "../Alert";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../Accordion";
 
 const FAQ = {
@@ -47,20 +47,21 @@ export function CompetitionStatusWarning(props: CompetitionStatusWarningProps) {
 
   return (
     <Alert className="border-yellow-600 bg-yellow-900/10">
+      <AlertTitle className="mb-0">
+        {status === "ending" ? "Competition Ending Soon" : "Competition Starting Soon"}
+      </AlertTitle>
       <AlertDescription>
         {status === "ending" ? (
-          <>
-            This competition is ending soon. This is a reminder that in order for gains to be correctly
-            calculated, participants must be updated&nbsp;
+          <p>
+            Reminder: In order for gains to be correctly calculated, participants must be updated&nbsp;
             <span className="text-white">before the competition ends</span>.
-          </>
+          </p>
         ) : (
-          <>
-            This competition is starting soon. This is a reminder that in order for gains to be correctly
-            calculated, participants must be updated&nbsp;
+          <p>
+            Reminder: In order for gains to be correctly calculated, participants must be updated&nbsp;
             <span className="text-white">after the competition has started</span>, and then at least once
             again <span className="text-white">before it ends</span>.
-          </>
+          </p>
         )}
       </AlertDescription>
       <Accordion className="mt-5" type="single" collapsible>

@@ -1,7 +1,7 @@
 import { isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
-import { Group, GroupRole, PlayerAnnotationType } from '../../../../types';
+import { Group, GroupMemberInput, GroupRole, PlayerAnnotationType } from '../../../../types';
 import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
 import { BadRequestError, ForbiddenError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
@@ -13,7 +13,7 @@ interface CreateGroupPayload {
   clanChat?: string;
   homeworld?: number;
   description?: string;
-  members: Array<{ username: string; role: GroupRole }>;
+  members: Array<GroupMemberInput>;
 }
 
 async function createGroup(

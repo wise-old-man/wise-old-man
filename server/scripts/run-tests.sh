@@ -14,10 +14,12 @@ fail() {
 setup() {
     # Reset the test database
     export SERVER_CORE_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/wise-old-man_TEST?schema=public
+    export SERVER_CORE_DATABASE_DIRECT_URL=postgresql://postgres:postgres@localhost:5432/wise-old-man_TEST?schema=public
     export SHARED_ADMIN_PASSWORD=password123_the_most_hackable_pw_ever
     export NODE_ENV=test
     export SERVER_TYPE=dev
     export TZ=UTC;
+    export PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=yes
     prisma migrate reset --force;
 }
 

@@ -1,7 +1,6 @@
 export enum JobType {
   ADD_PLAYERS_TO_GROUP_COMPETITIONS = 'add-players-to-group-competitions',
   ASSERT_PLAYER_TYPE = 'assert-player-type',
-  BACKFILL_COMPETITION_TIME_EVENTS = 'backfill-competition-time-events',
   CALCULATE_COMPUTED_RANK_TABLES = 'calculate-computed-rank-tables',
   CHECK_CREATION_SPAM = 'check-creation-spam',
   CHECK_INAPPROPRIATE_CONTENT = 'check-inappropriate-content',
@@ -30,7 +29,6 @@ export enum JobType {
   REMOVE_PLAYERS_FROM_GROUP_COMPETITIONS = 'remove-players-from-group-competitions',
   REVIEW_NAME_CHANGE = 'review-name-change',
   SCHEDULE_BANNED_PLAYER_CHECKS = 'schedule-banned-player-checks',
-  SCHEDULE_COMPETITION_EVENTS = 'schedule-competition-events',
   SCHEDULE_COMPETITION_SCORE_UPDATES = 'schedule-competition-score-updates',
   SCHEDULE_FLAGGED_PLAYER_REVIEW = 'schedule-flagged-player-review',
   SCHEDULE_GROUP_SCORE_UPDATES = 'schedule-group-score-updates',

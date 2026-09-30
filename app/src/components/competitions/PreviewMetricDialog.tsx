@@ -40,13 +40,13 @@ export function PreviewMetricDialog(props: PreviewMetricDialogProps) {
   const searchParams = useSearchParams();
 
   const isOpen = searchParams.get("dialog") === "preview";
-  const metric = getMetricParam(searchParams.get("preview")) || Metric.OVERALL;
+  const metric = getMetricParam(searchParams.get("metric")) || Metric.OVERALL;
 
   const [selectedMetric, setSelectedMetric] = useState<Metric>(metric);
 
   function handleReset() {
     const nextParams = new URLSearchParams(searchParams);
-    nextParams.delete("preview");
+    nextParams.delete("metric");
     nextParams.delete("dialog");
 
     router.push(`${pathname}?${nextParams.toString()}`);
@@ -54,7 +54,7 @@ export function PreviewMetricDialog(props: PreviewMetricDialogProps) {
 
   function handleSubmit() {
     const nextParams = new URLSearchParams(searchParams);
-    nextParams.set("preview", selectedMetric);
+    nextParams.set("metric", selectedMetric);
     nextParams.delete("dialog");
 
     router.push(`${pathname}?${nextParams.toString()}`);

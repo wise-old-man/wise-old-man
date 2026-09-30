@@ -26,7 +26,7 @@ export default class WOMClient extends BaseAPIClient {
   constructor(options?: WOMClientOptions) {
     const baseApiUrl = options?.baseAPIUrl || config.baseAPIUrl;
     const headers = {
-      'x-user-agent': options?.userAgent || config.defaultUserAgent
+      'x-user-agent': options?.userAgent || config.defaultUserAgent()
     };
 
     if (options?.apiKey) {

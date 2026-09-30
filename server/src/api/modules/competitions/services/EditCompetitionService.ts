@@ -136,6 +136,7 @@ export async function editCompetition(
 
   const updateResult = await executeUpdate(
     id,
+    competition.groupId,
     competitionUpdatePayload,
     payload.metrics,
     participationsResult.value
@@ -160,7 +161,11 @@ export async function editCompetition(
   if (competition.startsAt.getTime() !== updatedCompetition.startsAt.getTime()) {
     if (updatedCompetition.startsAt.getTime() < Date.now()) {
       // if new start date is in the past
-      await recalculateParticipationsStart(competition.id, updatedCompetition.startsAt);
+      await recalculateParticipationsStart(
+        competition.id,
+        updatedCompetition.startsAt,
+        updatedCompetition.endsAt
+      );
     } else if (competition.startsAt.getTime() < Date.now()) {
       // if had already started and new start date is in the future
       await invalidateParticipations(competition.id);
@@ -172,7 +177,7 @@ export async function editCompetition(
     competition.endsAt.getTime() !== updatedCompetition.endsAt.getTime() &&
     (competition.endsAt.getTime() < Date.now() || updatedCompetition.endsAt.getTime() < Date.now())
   ) {
-    await recalculateParticipationsEnd(competition.id, updatedCompetition.endsAt);
+    await recalculateParticipationsEnd(competition.id, competition.startsAt, updatedCompetition.endsAt);
   }
 
   eventEmitter.emit(EventType.COMPETITION_UPDATED, { competitionId: id });
@@ -190,7 +195,7 @@ async function invalidateParticipations(competitionId: number) {
   });
 }
 
-async function recalculateParticipationsStart(competitionId: number, startDate: Date) {
+async function recalculateParticipationsStart(competitionId: number, startDate: Date, endDate: Date) {
   // Fetch the player IDs of all the participants
   const playerIds = (
     await prisma.participation.findMany({
@@ -200,7 +205,12 @@ async function recalculateParticipationsStart(competitionId: number, startDate: 
   ).map(p => p.playerId);
 
   // Find everyone's first snapshot AFTER the new start date
-  const playerSnapshots = await findGroupSnapshots(playerIds, { minDate: startDate });
+  const playerSnapshots = await findGroupSnapshots(playerIds, {
+    pick: 'first',
+    select: ['playerId', 'createdAt'], // Index only scan
+    minDate: startDate,
+    maxDate: endDate
+  });
 
   // Map these snapshots for O(1) lookups
   const snapshotMap = new Map(playerSnapshots.map(s => [s.playerId, s]));
@@ -218,7 +228,7 @@ async function recalculateParticipationsStart(competitionId: number, startDate: 
   });
 }
 
-async function recalculateParticipationsEnd(competitionId: number, endDate: Date) {
+async function recalculateParticipationsEnd(competitionId: number, startDate: Date, endDate: Date) {
   // Fetch the player IDs of all the participants
   const playerIds = (
     await prisma.participation.findMany({
@@ -228,7 +238,12 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
   ).map(p => p.playerId);
 
   // Find everyone's last snapshot BEFORE the new end date
-  const playerSnapshots = await findGroupSnapshots(playerIds, { maxDate: endDate });
+  const playerSnapshots = await findGroupSnapshots(playerIds, {
+    pick: 'last',
+    select: ['playerId', 'createdAt'], // Index only scan
+    minDate: startDate,
+    maxDate: endDate
+  });
 
   // Map these snapshots for O(1) lookups
   const snapshotMap = new Map(playerSnapshots.map(s => [s.playerId, s]));
@@ -248,6 +263,7 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
 
 async function executeUpdate(
   competitionId: number,
+  groupId: number | null,
   competitionUpdatePayload: PrismaTypes.CompetitionUpdateInput,
   nextMetrics: Metric[] | undefined,
   nextParticipations: PartialParticipation[] | undefined
@@ -332,7 +348,7 @@ async function executeUpdate(
       );
 
       if (missingParticipations.length > 0) {
-        const optOuts = await transaction.playerAnnotation.findMany({
+        let optOuts = await transaction.playerAnnotation.findMany({
           where: {
             player: {
               username: { in: missingParticipations.map(m => m.username) }
@@ -347,6 +363,27 @@ async function executeUpdate(
             }
           }
         });
+
+        if (groupId !== null && optOuts.length > 0) {
+          const memberships = await transaction.membership.findMany({
+            where: {
+              groupId,
+              playerId: {
+                in: missingParticipations.map(m => m.playerId)
+              }
+            }
+          });
+
+          // Players who opted out after joining the group are grandfathered in and may still participate.
+          optOuts = optOuts.filter(o => {
+            if (o.type === PlayerAnnotationType.OPT_OUT) return true;
+
+            const membership = memberships.find(m => m.playerId === o.playerId);
+            if (!membership) return true;
+
+            return o.createdAt <= membership.createdAt;
+          });
+        }
 
         if (optOuts.length > 0) {
           // Throw here to rollback the transaction

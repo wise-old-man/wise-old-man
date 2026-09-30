@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getPageParam } from "~/utils/params";
 import { Pagination } from "~/components/Pagination";
 import { getGroupAchievements, getGroupDetails } from "~/services/wiseoldman";
@@ -15,14 +16,17 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = props.params;
 
   const group = await getGroupDetails(id);
 
   return {
-    title: `Recent achievements: ${group.name}`,
-    description: group.description,
+    title: `${group.name} Achievements`,
+    description: `The latest achievements for ${group.name} members`,
+    alternates: {
+      canonical: `/groups/${id}/achievements`,
+    },
   };
 }
 

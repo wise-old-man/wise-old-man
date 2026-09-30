@@ -57,10 +57,11 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
             {icon}
           </div>
         </TooltipTrigger>
-        <div className="ml-3 flex flex-col">
+        <div className="ml-3 flex min-w-0 flex-col">
           <TooltipTrigger asChild>
             <Link
               prefetch={false}
+              rel={href?.includes("gained") ? "nofollow" : undefined}
               href={href || `/players/${player.username}`}
               className={cn(
                 "line-clamp-1 text-sm font-medium hover:underline",
@@ -70,7 +71,7 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
               {player.status === PlayerStatus.ARCHIVED ? "[Archived]" : player.displayName}
             </Link>
           </TooltipTrigger>
-          {caption && <span className="text-xs text-gray-200">{caption}</span>}
+          {caption && <span className="truncate text-xs text-gray-200">{caption}</span>}
         </div>
       </div>
       {renderTooltip && (

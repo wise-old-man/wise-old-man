@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { CompetitionStatus } from "@wise-old-man/utils";
+import { buildPlayerMetadata } from "~/utils/metadata";
 import { Label } from "~/components/Label";
 import { CompetitionsList } from "~/components/competitions/CompetitionsList";
 import { getCompetitionStatus, getPlayerCompetitions, getPlayerDetails } from "~/services/wiseoldman";
@@ -12,11 +14,13 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const player = await getPlayerDetails(decodeURI(props.params.username));
 
   return {
-    title: `Competitions: ${player.displayName}`,
+    ...buildPlayerMetadata(player, "/competitions"),
+    title: `${player.displayName}'s Competitions`,
+    description: `Every OSRS competition ${player.displayName} has participated in - ongoing, upcoming and finished`,
   };
 }
 

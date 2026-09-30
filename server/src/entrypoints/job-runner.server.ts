@@ -3,6 +3,7 @@
  */
 import '../env';
 
+import * as Sentry from '@sentry/node';
 import { eventEmitter } from '../api/events';
 import { jobManager } from '../jobs';
 import prometheusService from '../services/prometheus.service';
@@ -10,6 +11,11 @@ import { redisClient } from '../services/redis.service';
 import { handleServerInit } from '../utils/handle-server-init.util';
 
 handleServerInit('Job Runner Server', async () => {
+  Sentry.init({
+    dsn: process.env.SERVER_SENTRY_DSN,
+    tracesSampleRate: 0.01
+  });
+
   jobManager.initQueues();
 
   prometheusService.init();

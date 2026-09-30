@@ -1,28 +1,28 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { PlayerAnnotation, PlayerAnnotationType } from '../../../../types';
-import { NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../player.utils';
 
-async function deletePlayerAnnotation(
+export async function deletePlayerAnnotation(
   username: string,
   annotationType: PlayerAnnotationType
-): Promise<PlayerAnnotation> {
+): AsyncResult<PlayerAnnotation, { code: 'PLAYER_NOT_FOUND' } | { code: 'PLAYER_ANNOTATION_NOT_FOUND' }> {
   const player = await prisma.player.findUnique({
     where: { username: standardizeUsername(username) },
     include: { annotations: true }
   });
 
-  if (!player) {
-    throw new NotFoundError(`Player: ${username} not found`);
+  if (player === null) {
+    return errored({ code: 'PLAYER_NOT_FOUND' });
   }
 
   const existingAnnotation = player.annotations.find(a => a.type === annotationType);
 
-  if (!existingAnnotation) {
-    throw new NotFoundError(`${annotationType} does not exist for ${username}.`);
+  if (existingAnnotation === undefined) {
+    return errored({ code: 'PLAYER_ANNOTATION_NOT_FOUND' });
   }
 
-  return prisma.playerAnnotation.delete({
+  const result = await prisma.playerAnnotation.delete({
     where: {
       playerId_type: {
         playerId: player.id,
@@ -30,6 +30,6 @@ async function deletePlayerAnnotation(
       }
     }
   });
-}
 
-export { deletePlayerAnnotation };
+  return complete(result);
+}

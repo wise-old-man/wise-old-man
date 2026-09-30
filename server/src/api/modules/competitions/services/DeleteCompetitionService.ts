@@ -1,22 +1,26 @@
+import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { Competition } from '../../../../types';
-import { NotFoundError, ServerError } from '../../../errors';
 
-async function deleteCompetition(id: number): Promise<Competition> {
-  try {
-    const deletedCompetition = await prisma.competition.delete({
+export async function deleteCompetition(
+  id: number
+): AsyncResult<Competition, { code: 'COMPETITION_NOT_FOUND' } | { code: 'FAILED_TO_DELETE_COMPETITION' }> {
+  const updateResult = await fromPromise(
+    prisma.competition.delete({
       where: { id }
-    });
+    })
+  );
 
-    return deletedCompetition as Competition;
-  } catch (error) {
-    if (error instanceof PrismaTypes.PrismaClientKnownRequestError && error.code === 'P2025') {
-      // Failed to find competition with that id
-      throw new NotFoundError('Competition not found.');
+  if (isErrored(updateResult)) {
+    if (
+      updateResult.error instanceof PrismaTypes.PrismaClientKnownRequestError &&
+      updateResult.error.code === 'P2025'
+    ) {
+      return errored({ code: 'COMPETITION_NOT_FOUND' });
     }
 
-    throw new ServerError('Failed to delete competition.');
+    return errored({ code: 'FAILED_TO_DELETE_COMPETITION' });
   }
-}
 
-export { deleteCompetition };
+  return complete(updateResult.value);
+}

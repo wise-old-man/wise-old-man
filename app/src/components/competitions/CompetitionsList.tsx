@@ -71,7 +71,7 @@ function CompetitionTableRow(props: { competition: CompetitionResponse; showHost
     <ListTableRow key={competition.id}>
       <ListTableCell>
         <div className="flex items-center gap-x-4">
-          <MetricAvatarGroup metrics={competition.metrics.map((m) => m.metric)} maxCount={2} />
+          <MetricAvatarGroup metrics={competition.metrics.map((m) => m.metric)} />
           <div className="flex flex-col">
             <Link
               prefetch={false}
@@ -100,7 +100,7 @@ function CompetitionCard(props: { competition: CompetitionResponse; showHost?: b
   return (
     <div className="flex flex-col gap-y-4 rounded-md border border-gray-500 bg-gray-800 px-4 py-3 shadow-sm">
       <div className="flex items-center gap-x-4">
-        <MetricAvatarGroup metrics={competition.metrics.map((m) => m.metric)} maxCount={2} />
+        <MetricAvatarGroup metrics={competition.metrics.map((m) => m.metric)} />
         <div className="flex flex-col overflow-hidden">
           <Link
             prefetch={false}

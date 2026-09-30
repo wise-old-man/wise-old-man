@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getPageParam } from "~/utils/params";
 import { Pagination } from "~/components/Pagination";
 import { getGroupDetails, getGroupNameChanges } from "~/services/wiseoldman";
@@ -17,14 +18,17 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = props.params;
 
   const group = await getGroupDetails(id);
 
   return {
-    title: `Recent name changes: ${group.name}`,
-    description: group.description,
+    title: `${group.name} Name Changes`,
+    description: `Recent name changes for all ${group.name} members`,
+    alternates: {
+      canonical: `/groups/${id}/name-changes`,
+    },
   };
 }
 

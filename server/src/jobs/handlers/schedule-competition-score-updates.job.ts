@@ -1,6 +1,6 @@
+import { createId } from '@paralleldrive/cuid2';
+import ms from 'ms';
 import prisma from '../../prisma';
-import { Period } from '../../types';
-import { PeriodProps } from '../../utils/shared';
 import { JobHandler } from '../types/job-handler.type';
 import { JobType } from '../types/job-type.enum';
 
@@ -14,11 +14,19 @@ export const ScheduleCompetitionScoreUpdatesJobHandler: JobHandler = {
     });
 
     // Distribute these evenly throughout the 24h, with a variable cooldown between each
-    const cooldown = Math.floor(PeriodProps[Period.DAY].milliseconds / competitions.length);
+    const cooldown = Math.floor(ms('1 day') / competitions.length);
 
     for (let i = 0; i < competitions.length; i++) {
       const competitionId = competitions[i].id;
-      context.jobManager.add(JobType.UPDATE_COMPETITION_SCORE, { competitionId }, { delay: i * cooldown });
+
+      context.jobManager.add(
+        JobType.UPDATE_COMPETITION_SCORE,
+        { competitionId },
+        {
+          delay: i * cooldown,
+          jobId: createId() // unique to avoid deduping
+        }
+      );
     }
   }
 };

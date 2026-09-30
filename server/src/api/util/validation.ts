@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { z } from 'zod';
-import { GroupRole } from '../../types';
+import { GroupRole, Metric } from '../../types';
 
 function enumErrorMap(path: Array<string | number>, options: Array<string | number>) {
   if (path.length === 1 && path[0] === 'country') {
@@ -70,6 +70,20 @@ z.setErrorMap((baseIssue, ctx) => {
   return { message: ctx.defaultError };
 });
 
+// The maximum value for a PostgreSQL `integer` (int4) column. Resource ids and
+// other int4-backed fields must not exceed this, otherwise the query throws a
+// "value out of range for type integer" error at the database layer (500).
+export const MAX_INT_4 = 2147483647;
+
+// Shared schema for validating resource ids (and other int4-backed numeric
+// fields). Coerces strings from path/query params, and enforces the int4 upper
+// bound so out-of-range values are rejected as 400s instead of crashing.
+export const idSchema = z.coerce
+  .number()
+  .int()
+  .positive()
+  .max(MAX_INT_4, `Parameter 'id' must be a valid integer.`);
+
 export type PaginationOptions = {
   limit: number;
   offset: number;
@@ -121,7 +135,8 @@ const groupRoleSchema = z.nativeEnum(GroupRole);
 export const memberSchema = z.object(
   {
     username: z.string(),
-    role: z.optional(groupRoleSchema).default(GroupRole.MEMBER) as unknown as typeof groupRoleSchema
+    role: z.optional(groupRoleSchema).default(GroupRole.MEMBER) as unknown as typeof groupRoleSchema,
+    clientSyncJoinedAt: z.optional(getDateSchema('clientSyncJoinedAt'))
   },
   {
     invalid_type_error: 'Invalid members list. Must be an array of { username: string; role?: string; }.'
@@ -140,6 +155,19 @@ export const socialLinksSchema = z.object({
   twitch: z.optional(urlSchema),
   youtube: z.optional(urlSchema)
 });
+
+export const queryParamStringArray = z.preprocess(
+  val => (typeof val === 'string' ? [val] : val),
+  z.array(z.string()).nonempty()
+) as unknown as z.ZodType<string[]>;
+
+export const queryParamMetricsArray = z.preprocess(
+  v => (typeof v === 'string' ? [v] : v),
+  z
+    .array(z.nativeEnum(Metric))
+    .nonempty()
+    .transform(metrics => Array.from(new Set(metrics)))
+) as unknown as z.ZodArray<z.ZodNativeEnum<typeof Metric>>;
 
 export function getDateSchema(propName: string) {
   return z

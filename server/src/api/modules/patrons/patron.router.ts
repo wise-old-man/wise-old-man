@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { Router } from 'express';
 import { executeRequest, validateRequest } from '../../util/routing';
+import { idSchema } from '../../util/validation';
 import { claimPatreonBenefits } from './services/ClaimPatreonBenefitsService';
 import { checkAdminPermission } from '../../util/middlewares';
 
@@ -15,7 +16,7 @@ router.put(
     }),
     body: z.object({
       username: z.optional(z.string()),
-      groupId: z.optional(z.number().int().positive())
+      groupId: z.optional(idSchema)
     })
   }),
   executeRequest(async (req, res) => {

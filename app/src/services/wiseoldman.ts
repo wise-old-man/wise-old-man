@@ -53,12 +53,12 @@ export function getCompetitionStatus<T extends Pick<CompetitionResponse, "starts
 
 // Cached functions
 
-export const getCompetitionDetails = cache((id: number, previewMetric?: Metric) => {
-  return handleNotFound(apiClient.competitions.getCompetitionDetails(id, previewMetric));
+export const getCompetitionDetails = cache((id: number, metrics?: Array<Metric>) => {
+  return handleNotFound(apiClient.competitions.getCompetitionDetails(id, metrics));
 });
 
-export const getCompetitionTopHistory = cache((id: number, previewMetric?: Metric) => {
-  return handleNotFound(apiClient.competitions.getCompetitionTopHistory(id, previewMetric));
+export const getCompetitionTopHistory = cache((id: number, metrics?: Array<Metric>, limit?: number) => {
+  return handleNotFound(apiClient.competitions.getCompetitionTopHistory(id, metrics, limit));
 });
 
 export const getDeltaLeaderboard = cache(
@@ -101,22 +101,18 @@ export const getGroupDetails = cache((id: number) => {
   return handleNotFound(apiClient.groups.getGroupDetails(id));
 });
 
-export const getGroupGainsByPeriod = cache(
-  (id: number, metric: Metric, period: Period, limit: number, offset: number) => {
-    return handleNotFound(apiClient.groups.getGroupGains(id, { period, metric }, { limit, offset }));
-  },
-);
+export const getGroupGainsByPeriod = cache((id: number, metric: Metric, period: Period) => {
+  return handleNotFound(apiClient.groups.getGroupGains(id, { period, metric }));
+});
 
 export const getGroupGainsByDates = cache(
-  (id: number, metric: Metric, startDate: Date, endDate: Date, limit: number, offset: number) => {
-    return handleNotFound(
-      apiClient.groups.getGroupGains(id, { startDate, endDate, metric }, { limit, offset }),
-    );
+  (id: number, metric: Metric, startDate: Date, endDate: Date) => {
+    return handleNotFound(apiClient.groups.getGroupGains(id, { startDate, endDate, metric }));
   },
 );
 
-export const getGroupHiscores = cache((id: number, metric: Metric, limit: number, offset: number) => {
-  return handleNotFound(apiClient.groups.getGroupHiscores(id, metric, { limit, offset }));
+export const getGroupHiscores = cache((id: number, metric: Metric) => {
+  return handleNotFound(apiClient.groups.getGroupHiscores(id, metric));
 });
 
 export const getGroupNameChanges = cache((id: number, limit: number, offset: number) => {

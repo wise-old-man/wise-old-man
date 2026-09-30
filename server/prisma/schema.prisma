@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("SERVER_CORE_DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("SERVER_CORE_DATABASE_URL")
+  directUrl = env("SERVER_CORE_DATABASE_DIRECT_URL")
 }
 
 model ApiKey {
@@ -180,11 +181,12 @@ model GroupRoleOrder {
 }
 
 model Membership {
-  playerId  Int
-  groupId   Int
-  role      GroupRole @default(member)
-  createdAt DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime  @updatedAt @db.Timestamptz(6)
+  playerId           Int
+  groupId            Int
+  role               GroupRole @default(member)
+  clientSyncJoinedAt DateTime? @db.Timestamptz(6)
+  createdAt          DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime  @updatedAt @db.Timestamptz(6)
 
   // Relations
   group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -490,6 +492,10 @@ model Snapshot {
   kril_tsutsarothKills                  Int       @default(-1)
   lunar_chestsRank                      Int       @default(-1)
   lunar_chestsKills                     Int       @default(-1)
+  mad_angelRank                         Int       @default(-1)
+  mad_angelKills                        Int       @default(-1)
+  maggot_kingRank                       Int       @default(-1)
+  maggot_kingKills                      Int       @default(-1)
   mimicRank                             Int       @default(-1)
   mimicKills                            Int       @default(-1)
   nightmareRank                         Int       @default(-1)
@@ -607,7 +613,7 @@ model MemberActivity {
 
 model Patron {
   id        String   @id
-  name      String
+  name      String?
   email     String?
   discordId String?
   groupId   Int?
@@ -1329,6 +1335,8 @@ enum Metric {
   kreearra
   kril_tsutsaroth
   lunar_chests
+  mad_angel
+  maggot_king
   mimic
   nex
   nightmare

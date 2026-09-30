@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { GroupBestPlayersTable } from "~/components/groups/GroupBestPlayersTable";
 import { getGroupDetails, getGroupStatistics } from "~/services/wiseoldman";
 
@@ -10,14 +11,17 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = props.params;
 
   const group = await getGroupDetails(id);
 
   return {
-    title: `Statistics (Best Players): ${group.name}`,
-    description: group.description,
+    title: `${group.name} Statistics - Best Players`,
+    description: `${group.name}'s top players in every OSRS skill, boss and activity`,
+    alternates: {
+      canonical: `/groups/${id}/statistics/best`,
+    },
   };
 }
 

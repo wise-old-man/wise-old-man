@@ -8,11 +8,9 @@ import {
   MetricProps,
   isActivity,
   isBoss,
-  isSkill,
-  ParticipationResponse,
-  PlayerResponse,
   padNumber,
   formatNumber,
+  MetricType,
 } from "@wise-old-man/utils";
 import { useTicker } from "~/hooks/useTicker";
 import { convertToUTC, durationBetween } from "~/utils/dates";
@@ -39,12 +37,12 @@ type TopParticipantSorting = "by_value" | "by_percent";
 type TopParticipant = CompetitionDetailsResponse["participations"][number];
 
 interface CompetitionWidgetsProps {
-  metric: Metric;
+  focusedMetric: Metric | "total";
   competition: CompetitionDetailsResponse;
 }
 
 export function CompetitionWidgets(props: CompetitionWidgetsProps) {
-  const { metric, competition } = props;
+  const { focusedMetric, competition } = props;
   const { startsAt, endsAt, participations } = competition;
 
   const [showUTC, setShowUTC] = useState(false);
@@ -52,7 +50,12 @@ export function CompetitionWidgets(props: CompetitionWidgetsProps) {
   const [topParticipantSorting, setTopParticipantSorting] = useState<TopParticipantSorting>("by_value");
 
   const isUpcoming = startsAt.getTime() > Date.now();
-  const topParticipant = getTopParticipant(topParticipantSorting, metric, participations);
+  const topParticipant = getTopParticipant(topParticipantSorting, participations, focusedMetric);
+
+  const metricType =
+    focusedMetric === "total"
+      ? MetricProps[competition.metrics[0].metric].type
+      : MetricProps[focusedMetric].type;
 
   return (
     <div className="grid grid-cols-1 gap-x-3 gap-y-7 md:grid-cols-2 xl:grid-cols-4">
@@ -71,23 +74,32 @@ export function CompetitionWidgets(props: CompetitionWidgetsProps) {
           sorting={topParticipantSorting}
           onSortingChanged={setTopParticipantSorting}
         />
-        <TopParticipantWidget metric={metric} topParticipant={topParticipant} />
+        <TopParticipantWidget
+          focusedMetric={focusedMetric}
+          metricType={metricType}
+          topParticipant={topParticipant}
+        />
       </div>
       <div>
         <AverageSelector showAverage={showAverage} onShowAverageChanged={setShowAverage} />
-        <GainedWidget metric={metric} participations={participations} showAverage={showAverage} />
+        <GainedWidget
+          focusedMetric={focusedMetric}
+          participations={participations}
+          showAverage={showAverage}
+        />
       </div>
     </div>
   );
 }
 
 interface TopParticipantWidgetrops {
-  metric: Metric;
+  focusedMetric: Metric | "total";
+  metricType: MetricType;
   topParticipant: TopParticipant | null;
 }
 
 function TopParticipantWidget(props: TopParticipantWidgetrops) {
-  const { metric, topParticipant } = props;
+  const { focusedMetric, metricType, topParticipant } = props;
 
   if (!topParticipant) {
     return (
@@ -97,24 +109,25 @@ function TopParticipantWidget(props: TopParticipantWidgetrops) {
     );
   }
 
-  const hasGains = topParticipant.progress.gained > 0;
+  const { player, deltas } = topParticipant;
 
-  const { player, progress } = topParticipant;
+  const values = deltas.find((d) => d.metric === focusedMetric)?.values;
+  const gained = values?.gained ?? 0;
 
   return (
     <div className="flex h-24 w-full items-center overflow-hidden rounded-lg border border-gray-500 bg-gray-800 px-5 shadow-md">
       <div className="flex w-full items-end justify-between">
         <div className="flex flex-col gap-y-px">
           <span className="text-base font-medium text-white">{player.displayName}</span>
-          <span className={cn("text-sm font-medium", hasGains && "text-green-500")}>
-            {hasGains ? "+" : ""}
-            {formattedGained(progress.gained, metric)}
+          <span className={cn("text-sm font-medium", gained > 0 && "text-green-500")}>
+            {gained > 0 ? "+" : ""}
+            {formattedGained(gained, metricType)}
           </span>
         </div>
-        {hasGains && (
+        {gained > 0 && (
           <Badge variant="success">
             <ArrowUpIcon className="-ml-1 h-5 w-5" />
-            {Math.floor(getPercentGained(metric, progress) * 100)}%
+            {Math.floor(getPercentGained(focusedMetric, values) * 100)}%
           </Badge>
         )}
       </div>
@@ -123,30 +136,45 @@ function TopParticipantWidget(props: TopParticipantWidgetrops) {
 }
 
 interface GainedWidgetProps {
-  metric: Metric;
+  focusedMetric: Metric | "total";
   showAverage: boolean;
   participations: TopParticipant[];
 }
 
 function GainedWidget(props: GainedWidgetProps) {
-  const { metric, showAverage, participations } = props;
+  const { focusedMetric, showAverage, participations } = props;
 
-  const total = participations.reduce((acc, p) => acc + p.progress.gained, 0);
-  const value = showAverage ? Math.floor(total / participations.length) : total;
+  const sum = participations.reduce(
+    (acc, p) => acc + (p.deltas.find((d) => d.metric === focusedMetric)?.values.gained ?? 0),
+    0,
+  );
+
+  const value = showAverage ? Math.floor(sum / participations.length) : sum;
 
   return (
-    <div className="relative flex h-24 w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-500 px-6">
-      <ImageWithFallback
-        alt={metric}
-        fill
-        className="pointer-events-none z-0 object-cover"
-        src={`/img/backgrounds/${metric}.png`}
-      />
-      <div className="z-1 relative mr-2 scale-150">
-        <MetricIcon metric={metric} />
-      </div>
+    <div
+      className={cn(
+        "relative flex h-24 w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-500 px-6",
+        focusedMetric === "total" && "bg-gray-800",
+      )}
+    >
+      {focusedMetric !== "total" && (
+        <>
+          <ImageWithFallback
+            alt={focusedMetric}
+            fill
+            className="pointer-events-none z-0 object-cover"
+            src={`/img/backgrounds/${focusedMetric}.png`}
+          />
+          <div className="z-1 relative mr-2 scale-150">
+            <MetricIcon metric={focusedMetric} />
+          </div>
+        </>
+      )}
       <div className="z-1 relative flex flex-col gap-y-0.5">
-        <span className="text-xs text-gray-100">{MetricProps[metric].name}</span>
+        <span className="text-xs text-gray-100">
+          {focusedMetric === "total" ? "Total" : MetricProps[focusedMetric].name}
+        </span>
         <span className="text-xl font-medium">{formatNumber(value)}</span>
       </div>
     </div>
@@ -353,31 +381,33 @@ function TimezoneSelector(props: TimezoneSelectorProps) {
 
 function getTopParticipant(
   sorting: TopParticipantSorting,
-  metric: Metric,
   participations: TopParticipant[],
+  focusedMetric: Metric | "total",
 ) {
   if (participations.length === 0) return null;
   if (sorting === "by_value") return participations[0];
 
   return [...participations].sort(
-    (a, b) => getPercentGained(metric, b.progress) - getPercentGained(metric, a.progress),
+    (a, b) =>
+      getPercentGained(focusedMetric, b.deltas.find((d) => d.metric === focusedMetric)?.values) -
+      getPercentGained(focusedMetric, a.deltas.find((d) => d.metric === focusedMetric)?.values),
   )[0];
 }
 
-function formattedGained(value: number, metric: Metric) {
-  if (isSkill(metric)) {
+function formattedGained(value: number, metricType: MetricType) {
+  if (metricType === MetricType.SKILL) {
     return `${formatNumber(value, true)} exp.`;
   }
 
-  if (isBoss(metric)) {
+  if (metricType === MetricType.BOSS) {
     return `${formatNumber(value)} kills`;
   }
 
   return formatNumber(value);
 }
 
-function getPercentGained(metric: Metric, progress: MetricDelta) {
-  if (progress.gained === 0) return 0;
+function getPercentGained(metric: Metric | "total", delta: MetricDelta | undefined) {
+  if (delta === undefined || delta.gained === 0) return 0;
 
   let minimum = 0;
 
@@ -385,11 +415,11 @@ function getPercentGained(metric: Metric, progress: MetricDelta) {
     minimum = MetricProps[metric].minimumValue - 1;
   }
 
-  const start = progress.start === -1 ? Math.max(minimum, progress.start) : progress.start;
+  const start = delta.start === -1 ? Math.max(minimum, delta.start) : delta.start;
 
   if (start === 0) return 1;
 
-  return (progress.end - start) / start;
+  return (delta.end - start) / start;
 }
 
 function getProgress(startsAt: Date, endsAt: Date) {

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import {
   Metric,
   MetricMeasure,
@@ -12,6 +13,7 @@ import {
   isSkill,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
+import { buildPlayerMetadata } from "~/utils/metadata";
 import { getMetricParam, getTimeRangeFilterParams } from "~/utils/params";
 import {
   TimeRangeFilter,
@@ -53,11 +55,13 @@ interface PageProps {
   };
 }
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const player = await getPlayerDetails(decodeURI(props.params.username));
 
   return {
-    title: `Gained: ${player.displayName}`,
+    ...buildPlayerMetadata(player, "/gained"),
+    title: `${player.displayName}'s XP Gains - Daily, Weekly & Monthly`,
+    description: `Track ${player.displayName}'s OSRS progress over time - their exp, kill count and score gains in every skill, boss and activity`,
   };
 }
 

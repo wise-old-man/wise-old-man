@@ -15,22 +15,22 @@ export function CompetitionPreviewWarning(props: CompetitionPreviewWarningProps)
   const { trueMetric } = props;
 
   const searchParams = useSearchParams();
-  const preview = searchParams.get("preview");
+  const metric = searchParams.get("metric");
 
-  if (!preview || !isMetric(preview)) return null;
+  if (!metric || !isMetric(metric)) return null;
 
   return (
     <Alert className="mb-7 flex flex-col items-start justify-between gap-5 md:flex-row md:items-center">
       <div>
         <AlertTitle>
           <div className="mr-1">
-            <MetricIconSmall metric={preview} />
+            <MetricIconSmall metric={metric} />
           </div>
-          Previewing as {MetricProps[preview].name}
+          Previewing as {MetricProps[metric].name}
         </AlertTitle>
         <AlertDescription>
           Although this is a {MetricProps[trueMetric].name} competition, you are currently previewing all
-          calculations as if it were a {MetricProps[preview].name} competition.
+          calculations as if it were a {MetricProps[metric].name} competition.
         </AlertDescription>
       </div>
       <div className="whitespace-nowrap">

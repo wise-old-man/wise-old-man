@@ -68,13 +68,14 @@ sidebar_position: 1
 
 ### `(Object)` Membership
 
-| Field     | Type                                                             | Description                                                      |
-| :-------- | :--------------------------------------------------------------- | :--------------------------------------------------------------- |
-| playerId  | integer                                                          | The player's ID.                                                 |
-| groupId   | integer                                                          | The group's ID.                                                  |
-| role      | [GroupRole](/api/groups/group-type-definitions#enum-group-role)? | The player's role (rank) in the group.                           |
-| createdAt | date                                                             | The date at which the player was added as a member to the group. |
-| updatedAt | date                                                             | The date at which the membership was updated.                    |
+| Field              | Type                                                             | Description                                                      |
+| :----------------- | :--------------------------------------------------------------- | :--------------------------------------------------------------- |
+| playerId           | integer                                                          | The player's ID.                                                 |
+| groupId            | integer                                                          | The group's ID.                                                  |
+| role               | [GroupRole](/api/groups/group-type-definitions#enum-group-role)? | The player's role (rank) in the group.                           |
+| clientSyncJoinedAt | date                                                             | The date at which the player joined the in-game clan.            |
+| createdAt          | date                                                             | The date at which the player was added as a member to the group. |
+| updatedAt          | date                                                             | The date at which the membership was updated.                    |
 
 <br />
 

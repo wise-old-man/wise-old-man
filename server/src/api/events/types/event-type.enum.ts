@@ -1,10 +1,6 @@
 export enum EventType {
   COMPETITION_CREATED = 'competition-created',
-  COMPETITION_ENDED = 'competition-ended',
-  COMPETITION_ENDING = 'competition-ending',
   COMPETITION_PARTICIPANTS_JOINED = 'competition-participants-joined',
-  COMPETITION_STARTED = 'competition-started',
-  COMPETITION_STARTING = 'competition-starting',
   COMPETITION_UPDATED = 'competition-updated',
   GROUP_CREATED = 'group-created',
   GROUP_MEMBERS_JOINED = 'group-members-joined',
@@ -14,7 +10,6 @@ export enum EventType {
   NAME_CHANGE_CREATED = 'name-change-created',
   PLAYER_ACHIEVEMENTS_CREATED = 'player-achievements-created',
   PLAYER_ARCHIVED = 'player-archived',
-  PLAYER_DELTA_UPDATED = 'player-delta-updated',
   PLAYER_FLAGGED = 'player-flagged',
   PLAYER_NAME_CHANGED = 'player-name-changed',
   PLAYER_TYPE_CHANGED = 'player-type-changed',

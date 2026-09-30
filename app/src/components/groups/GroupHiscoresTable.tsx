@@ -24,7 +24,6 @@ import { MetricIconSmall } from "../Icon";
 import { PlayerIdentity } from "../PlayerIdentity";
 import { FormattedNumber } from "../FormattedNumber";
 import { timeago } from "~/utils/dates";
-import { getPageParam } from "~/utils/params";
 import {
   Combobox,
   ComboboxButton,
@@ -36,6 +35,7 @@ import {
   ComboboxItem,
   ComboboxSeparator,
 } from "../Combobox";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 type GroupHiscoresSkillItem = Extract<GroupHiscoresEntryResponse["data"], { type: "skill" }>;
 type GroupHiscoresBossItem = Extract<GroupHiscoresEntryResponse["data"], { type: "boss" }>;
@@ -54,14 +54,10 @@ export function GroupHiscoresTable(props: GroupHiscoresTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const page = getPageParam(searchParams.get("page")) || 1;
-  const columns = getColumnDefinitions(page, metric);
+  const columns = getColumnDefinitions(metric);
 
   function handleMetricChanged(metric: Metric) {
     const nextParams = new URLSearchParams(searchParams);
-
-    // Reset pagination if params change
-    nextParams.delete("page");
 
     if (metric) {
       nextParams.set("metric", metric);
@@ -84,8 +80,7 @@ export function GroupHiscoresTable(props: GroupHiscoresTableProps) {
               <div>
                 <h3 className="text-h3 font-medium text-white">Hiscores</h3>
                 <p className="text-body text-gray-200">
-                  {MetricProps[metric].name} hiscores for {group.name} members{" "}
-                  {page > 1 ? `(page ${page})` : ""}
+                  {MetricProps[metric].name} hiscores for {group.name} members
                 </p>
               </div>
               <MetricSelect metric={metric} onMetricSelected={handleMetricChanged} />
@@ -97,14 +92,12 @@ export function GroupHiscoresTable(props: GroupHiscoresTableProps) {
   );
 }
 
-function getColumnDefinitions(page: number, metric: Metric) {
+function getColumnDefinitions(metric: Metric) {
   const columns: ColumnDef<GroupHiscoresEntryResponse>[] = [
     {
       id: "rank",
       header: "Rank",
-      accessorFn: (_, index) => {
-        return index + 1 + (page - 1) * 20;
-      },
+      accessorFn: (_, index) => index + 1,
     },
     {
       accessorKey: "player",
@@ -151,7 +144,18 @@ function getColumnDefinitions(page: number, metric: Metric) {
       accessorFn: (row) => (row.data as GroupHiscoresBossItem).kills,
       header: "Kills",
       cell: ({ row }) => {
-        return <FormattedNumber value={(row.original.data as GroupHiscoresBossItem).kills} />;
+        const kills = (row.original.data as GroupHiscoresBossItem).kills;
+        if (kills === -1) {
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-gray-300">---</span>
+              </TooltipTrigger>
+              <TooltipContent>This player is unranked in {MetricProps[metric].name}.</TooltipContent>
+            </Tooltip>
+          );
+        }
+        return <FormattedNumber value={kills} />;
       },
     });
   } else if (isActivity(metric)) {
@@ -160,7 +164,18 @@ function getColumnDefinitions(page: number, metric: Metric) {
       accessorFn: (row) => (row.data as GroupHiscoresActivityItem).score,
       header: "Score",
       cell: ({ row }) => {
-        return <FormattedNumber value={(row.original.data as GroupHiscoresActivityItem).score} />;
+        const score = (row.original.data as GroupHiscoresActivityItem).score;
+        if (score === -1) {
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-gray-300">---</span>
+              </TooltipTrigger>
+              <TooltipContent>This player is unranked in {MetricProps[metric].name}.</TooltipContent>
+            </Tooltip>
+          );
+        }
+        return <FormattedNumber value={score} />;
       },
     });
   } else if (isComputedMetric(metric)) {
@@ -179,7 +194,18 @@ function getColumnDefinitions(page: number, metric: Metric) {
     accessorFn: (row) => row.data.rank,
     header: "Global Rank",
     cell: ({ row }) => {
-      return <FormattedNumber value={row.original.data.rank} />;
+      const rank = row.original.data.rank;
+      if (rank === -1) {
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-gray-300">---</span>
+            </TooltipTrigger>
+            <TooltipContent>This player is unranked in {MetricProps[metric].name}.</TooltipContent>
+          </Tooltip>
+        );
+      }
+      return <FormattedNumber value={rank} />;
     },
   });
 

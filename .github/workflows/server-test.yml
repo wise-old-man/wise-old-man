@@ -41,6 +41,7 @@ jobs:
       REDIS_PORT: 6379
       REDIS_PASSWORD: redis
       SERVER_CORE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ci-database
+      SERVER_CORE_DATABASE_DIRECT_URL: postgresql://postgres:postgres@localhost:5432/ci-database
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

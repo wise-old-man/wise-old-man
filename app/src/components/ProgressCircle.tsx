@@ -3,7 +3,6 @@ import { cn } from "~/utils/styling";
 interface ProgressCircleProps {
   radius: number;
   percentage: number;
-  color?: string;
   strokeWidth?: number;
   className?: string;
 }

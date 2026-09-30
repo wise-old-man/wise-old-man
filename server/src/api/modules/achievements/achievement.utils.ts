@@ -1,7 +1,7 @@
 import prisma from '../../../prisma';
 import { AchievementDefinition, Snapshot } from '../../../types';
 import { getMetricValueKey } from '../../../utils/get-metric-value-key.util';
-import { getRequiredSnapshotFields } from '../../../utils/get-required-snapshot-fields.util';
+import { selectRequiredSnapshotFields } from '../../../utils/get-required-snapshot-fields.util';
 import { getExpForLevel, getLevel, isMetric, MetricProps } from '../../../utils/shared';
 import { formatNumber } from '../../../utils/shared/format-number.util';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
@@ -135,10 +135,7 @@ export async function findMissingAchievementDates(playerId: number, definitions:
     // Overfetch by 1 so consecutive batches share a boundary snapshot,
     // allowing "findAchievementActivationDates" to detect crossings at batch edges.
     const batchSnapshots = await prisma.snapshot.findMany({
-      select: {
-        createdAt: true,
-        ...getRequiredSnapshotFields(remainingDefMetrics)
-      },
+      select: selectRequiredSnapshotFields(remainingDefMetrics),
       where: { playerId },
       orderBy: { createdAt: 'desc' },
       take: batchSize + 1,

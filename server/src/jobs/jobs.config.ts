@@ -1,6 +1,5 @@
 import { AddPlayersToGroupCompetitionsJobHandler } from './handlers/add-players-to-group-competitions.job';
 import { AssertPlayerTypeJobHandler } from './handlers/assert-player-type.job';
-import { BackfillCompetitionTimeEventsJobHandler } from './handlers/backfill-competition-time-events.job';
 import { CalculateComputedRankTablesJobHandler } from './handlers/calculate-computed-rank-tables.job';
 import { CheckCreationSpamJobHandler } from './handlers/check-creation-spam.job';
 import { CheckInappropriateContentJobHandler } from './handlers/check-inappropriate-content.job';
@@ -29,7 +28,6 @@ import { RecalculatePlayerAchievementsJobHandler } from './handlers/recalculate-
 import { RemovePlayersFromGroupCompetitionsJobHandler } from './handlers/remove-players-from-group-competitions.job';
 import { ReviewNameChangeJobHandler } from './handlers/review-name-change.job';
 import { ScheduleBannedPlayerChecksJobHandler } from './handlers/schedule-banned-player-checks.job';
-import { ScheduleCompetitionEventsJobHandler } from './handlers/schedule-competition-events.job';
 import { ScheduleCompetitionScoreUpdatesJobHandler } from './handlers/schedule-competition-score-updates.job';
 import { ScheduleFlaggedPlayerReviewJobHandler } from './handlers/schedule-flagged-player-review.job';
 import { ScheduleGroupScoreUpdatesJobHandler } from './handlers/schedule-group-score-updates.job';
@@ -55,7 +53,6 @@ import { JobType } from './types/job-type.enum';
 export const JOB_HANDLER_MAP = {
   [JobType.ADD_PLAYERS_TO_GROUP_COMPETITIONS]: AddPlayersToGroupCompetitionsJobHandler,
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypeJobHandler,
-  [JobType.BACKFILL_COMPETITION_TIME_EVENTS]: BackfillCompetitionTimeEventsJobHandler,
   [JobType.CALCULATE_COMPUTED_RANK_TABLES]: CalculateComputedRankTablesJobHandler,
   [JobType.CHECK_CREATION_SPAM]: CheckCreationSpamJobHandler,
   [JobType.CHECK_INAPPROPRIATE_CONTENT]: CheckInappropriateContentJobHandler,
@@ -84,7 +81,6 @@ export const JOB_HANDLER_MAP = {
   [JobType.REMOVE_PLAYERS_FROM_GROUP_COMPETITIONS]: RemovePlayersFromGroupCompetitionsJobHandler,
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangeJobHandler,
   [JobType.SCHEDULE_BANNED_PLAYER_CHECKS]: ScheduleBannedPlayerChecksJobHandler,
-  [JobType.SCHEDULE_COMPETITION_EVENTS]: ScheduleCompetitionEventsJobHandler,
   [JobType.SCHEDULE_COMPETITION_SCORE_UPDATES]: ScheduleCompetitionScoreUpdatesJobHandler,
   [JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW]: ScheduleFlaggedPlayerReviewJobHandler,
   [JobType.SCHEDULE_GROUP_SCORE_UPDATES]: ScheduleGroupScoreUpdatesJobHandler,
@@ -111,7 +107,6 @@ export const CRON_CONFIG = [
   { interval: '* * * * *', type: JobType.CHECK_CREATION_SPAM },
   { interval: '* * * * *', type: JobType.CHECK_PROTECED_PLAYERS_SPAM },
   { interval: '* * * * *', type: JobType.ENQUEUE_COMPETITION_TIME_EVENTS },
-  { interval: '* * * * *', type: JobType.SCHEDULE_COMPETITION_EVENTS },
   { interval: '* * * * *', type: JobType.SYNC_API_KEYS },
   { interval: '* * * * *', type: JobType.SYNC_PATRONS },
   { interval: '* * * * *', type: JobType.UPDATE_QUEUE_METRICS },
@@ -120,7 +115,6 @@ export const CRON_CONFIG = [
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
   // every hour
-  { interval: '0 * * * *', type: JobType.BACKFILL_COMPETITION_TIME_EVENTS },
   { interval: '0 * * * *', type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW },
   // every 6 hours
   { interval: '0 */6 * * *', type: JobType.INVALIDATE_DELTAS },

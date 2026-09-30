@@ -3,10 +3,15 @@ import { Metric, Player, Snapshot } from '../../../../types';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 
-async function fetchCompetitionTopHistory(
-  id: number,
-  metric?: Metric
-): Promise<
+export async function fetchCompetitionTopHistory({
+  id,
+  metrics,
+  limit
+}: {
+  id: number;
+  metrics?: Metric[];
+  limit: number;
+}): Promise<
   Array<{
     player: Player;
     history: Array<{
@@ -15,17 +20,22 @@ async function fetchCompetitionTopHistory(
     }>;
   }>
 > {
-  const { competition, metrics, participations } = await fetchCompetitionDetails(id, metric);
+  const {
+    competition,
+    participations,
+    metrics: competitionMetrics
+  } = await fetchCompetitionDetails({
+    id,
+    metrics
+  });
 
-  const top5Players = participations.slice(0, 5).map(p => p.player);
-
-  const selectedMetrics = metric !== undefined ? [metric] : metrics.map(m => m.metric);
-  const metricValueKeys = selectedMetrics.map(m => getMetricValueKey(m));
+  const topPlayers = participations.slice(0, limit).map(p => p.player);
+  const metricValueKeys = (metrics ?? competitionMetrics.map(m => m.metric)).map(getMetricValueKey);
 
   const snapshots = (await prisma.snapshot.findMany({
     where: {
       playerId: {
-        in: top5Players.map(t => t.id)
+        in: topPlayers.map(t => t.id)
       },
       createdAt: {
         gte: competition.startsAt,
@@ -50,7 +60,7 @@ async function fetchCompetitionTopHistory(
     }
   });
 
-  return top5Players.map(player => {
+  return topPlayers.map(player => {
     const snapshots = playerSnapshotMap.get(player.id) || [];
 
     const history = snapshots
@@ -82,5 +92,3 @@ async function fetchCompetitionTopHistory(
     return { player, history };
   });
 }
-
-export { fetchCompetitionTopHistory };

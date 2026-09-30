@@ -1,9 +1,11 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Achievement } from '../../../../types';
-import { NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 
-async function findPlayerAchievements(username: string): Promise<Achievement[]> {
+export async function findPlayerAchievements(
+  username: string
+): AsyncResult<Achievement[], { code: 'PLAYER_NOT_FOUND' }> {
   const achievements = await prisma.achievement.findMany({
     where: {
       player: {
@@ -17,12 +19,10 @@ async function findPlayerAchievements(username: string): Promise<Achievement[]> 
       where: { username: standardizeUsername(username) }
     });
 
-    if (!player) {
-      throw new NotFoundError('Player not found.');
+    if (player === null) {
+      return errored({ code: 'PLAYER_NOT_FOUND' });
     }
   }
 
-  return achievements;
+  return complete(achievements);
 }
-
-export { findPlayerAchievements };

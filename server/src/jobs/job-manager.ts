@@ -86,7 +86,9 @@ class JobManager {
 
     const handler = JOB_HANDLER_MAP[type];
 
-    if (payload !== undefined && handler.generateUniqueJobId !== undefined) {
+    // An explicitly provided jobId takes precedence over the handler's default one.
+    // Without this, callers can't opt out of the handler's deduplication scheme.
+    if (opts.jobId === undefined && payload !== undefined && handler.generateUniqueJobId !== undefined) {
       // @ts-expect-error -- 🤷‍♂️
       opts.jobId = handler.generateUniqueJobId(payload);
     }

@@ -191,9 +191,9 @@ function MetricSelect(props: MetricSelectProps) {
       }}
     >
       <ComboboxButton isPending={isTransitioning}>
-        <div className="flex items-center gap-x-2">
+        <div className="flex min-w-0 flex-1 items-center gap-x-2">
           <MetricIconSmall metric={metric} />
-          <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
+          <span className="truncate text-left">{MetricProps[metric].name} </span>
         </div>
       </ComboboxButton>
       <ComboboxContent>
@@ -349,11 +349,9 @@ function CountrySelect(props: CountrySelectProps) {
       }}
     >
       <ComboboxButton isPending={isTransitioning}>
-        <div className={cn("flex items-center gap-x-2", !country && "text-gray-200")}>
+        <div className={cn("flex min-w-0 flex-1 items-center gap-x-2", !country && "text-gray-200")}>
           {country && <CountryIcon country={country} />}
-          <span className="line-clamp-1 text-left">
-            {country ? CountryProps[country].name : "Country"}
-          </span>
+          <span className="truncate text-left">{country ? CountryProps[country].name : "Country"}</span>
         </div>
       </ComboboxButton>
       <ComboboxContent className="w-80" align="end">
