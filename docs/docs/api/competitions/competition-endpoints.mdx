@@ -27,14 +27,14 @@ Searches for competitions that match a title, type, metric and status filter. Re
 
 **Query Params**
 
-| Field  | Type                                                                                        | Required | Description                                                        |
-| ------ | ------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------ |
-| title  | string                                                                                      | `false`  | The partial title for the competition you're trying to search for. |
-| type   | [CompetitionType](/api/competitions/competition-type-definitions#enum-competition-type)     | `false`  | The type to filter the competitions by.                            |
-| status | [CompetitionStatus](/api/competitions/competition-type-definitions#enum-competition-status) | `false`  | The status to filter the competitions by.                          |
-| metric | [Metric](/api/global-type-definitions#enum-metric)                                          | `false`  | The metric to filter the competitions by.                          |
-| limit  | integer                                                                                     | `false`  | The pagination limit. See [Pagination](/#pagination)               |
-| offset | integer                                                                                     | `false`  | The pagination offset. See [Pagination](/#pagination)              |
+| Field   | Type                                                                                        | Required | Description                                                                                                                      |
+| ------- | ------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| title   | string                                                                                      | `false`  | The partial title for the competition you're trying to search for.                                                               |
+| type    | [CompetitionType](/api/competitions/competition-type-definitions#enum-competition-type)     | `false`  | The type to filter the competitions by.                                                                                          |
+| status  | [CompetitionStatus](/api/competitions/competition-type-definitions#enum-competition-status) | `false`  | The status to filter the competitions by.                                                                                        |
+| metrics | [Metric](/api/global-type-definitions#enum-metric)[]                                        | `false`  | (chain multiple with ?metrics=A&metrics=B&metrics=C) Filters the results down to competitions that contain ALL of these metrics. |
+| limit   | integer                                                                                     | `false`  | The pagination limit. See [Pagination](/#pagination)                                                                             |
+| offset  | integer                                                                                     | `false`  | The pagination offset. See [Pagination](/#pagination)                                                                            |
 
 <br />
 
