@@ -80,6 +80,11 @@ const nextConfig = withBundleAnalyzer(
       return [
         ...externalRedirects,
         {
+          source: "/c/:path*",
+          destination: "/:path*",
+          permanent: true,
+        },
+        {
           source: "/leaderboards",
           destination: "/leaderboards/top",
           permanent: true,

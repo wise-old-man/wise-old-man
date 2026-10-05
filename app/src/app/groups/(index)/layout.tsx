@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { PropsWithChildren } from "react";
 import { Container } from "~/components/Container";
 import { GroupsFilters } from "~/components/groups/GroupsFilters";

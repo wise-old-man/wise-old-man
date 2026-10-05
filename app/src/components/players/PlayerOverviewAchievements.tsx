@@ -1,5 +1,5 @@
 import { PlayerResponse, SKILL_EXP_AT_99, isSkill } from "@wise-old-man/utils";
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { Label } from "../Label";
 import { AchievementListItem } from "../AchievementListItem";
 import { getPlayerAchievementProgress } from "~/services/wiseoldman";

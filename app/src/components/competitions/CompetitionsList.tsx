@@ -1,5 +1,5 @@
 import { CompetitionResponse, CompetitionTypeProps } from "@wise-old-man/utils";
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { timeago } from "~/utils/dates";
 import { Badge } from "../Badge";
 import { ListTable, ListTableCell, ListTableRow } from "../ListTable";

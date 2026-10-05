@@ -7,7 +7,7 @@ import {
   formatNumber,
 } from "@wise-old-man/utils";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { Suspense } from "react";
 import { MetricIcon, MetricIconSmall } from "~/components/Icon";
 import { getCompetitionStatus, getGroupCompetitions } from "~/services/wiseoldman";

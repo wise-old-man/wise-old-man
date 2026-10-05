@@ -33,6 +33,21 @@ export default defineConfig([
       },
     },
     name: "wise-old-man/app",
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [{ name: "next/link", message: 'Use `Link` from "~/components/Link" instead.' }],
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/components/Link.tsx"],
+    name: "wise-old-man/app-link",
+    rules: {
+      "no-restricted-imports": "off",
+    },
   },
   {
     ...prettierConfig,

@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { CompetitionDetailsResponse, Metric } from "@wise-old-man/utils";
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { Button } from "../Button";
 import { DataTable } from "../DataTable";
 import { FormattedNumber } from "../FormattedNumber";

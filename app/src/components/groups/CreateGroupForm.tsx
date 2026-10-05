@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { CreateGroupPayload, GROUP_ROLES, GroupRole, GroupRoleProps } from "@wise-old-man/utils";
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { cn } from "~/utils/styling";
 import { useToast } from "~/hooks/useToast";
 import { useWOMClient } from "~/hooks/useWOMClient";

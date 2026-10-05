@@ -5,7 +5,6 @@ import {
   CompetitionType,
   MetricProps,
 } from "@wise-old-man/utils";
-import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import { Button } from "~/components/Button";
@@ -23,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/Dropdown";
 import { MetricAvatarGroup } from "~/components/MetricAvatarGroup";
+import { Link } from "~/components/Link";
 import { QueryLink } from "~/components/QueryLink";
 import { getCompetitionDetails, getCompetitionStatus } from "~/services/wiseoldman";
 import { cn } from "~/utils/styling";
