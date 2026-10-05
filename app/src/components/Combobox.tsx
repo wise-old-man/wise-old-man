@@ -253,7 +253,7 @@ export function ComboboxButton(props: PropsWithChildren<ComboboxButtonProps>) {
         disabled={isPending}
         className={cn("flex w-auto justify-between px-3 font-normal text-gray-100", className)}
       >
-        {children}
+        <div className="min-w-0 whitespace-normal">{children}</div>
         {isPending ? (
           <LoadingIcon className="ml-5 h-4 w-4 shrink-0 animate-spin" />
         ) : (
