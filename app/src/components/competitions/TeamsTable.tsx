@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { ColumnDef } from "@tanstack/react-table";
 import { CompetitionDetailsResponse, Metric } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";

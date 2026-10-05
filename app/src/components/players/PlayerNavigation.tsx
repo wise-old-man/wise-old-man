@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { Tabs, TabsList, TabsTrigger } from "../Tabs";
 import { usePathname } from "next/navigation";
 

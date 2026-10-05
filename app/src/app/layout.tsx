@@ -10,6 +10,7 @@ import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { ReactQueryProvider } from "~/components/ReactQueryProvider";
 import { NavigationLoadingBar } from "~/components/NavigationLoadingBar";
 import { TopBanner } from "~/components/TopBanner";
+import { LinkChallengerProvider } from "~/components/LinkChallenger";
 
 import { MAINTENANCE_MODE, ANNOUNCEMENT_BANNER } from "../../config";
 
@@ -42,31 +43,33 @@ function RootLayout(props: PropsWithChildren) {
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        <NavigationLoadingBar />
+        <LinkChallengerProvider>
+          <NavigationLoadingBar />
 
-        {ANNOUNCEMENT_BANNER.enabled && ANNOUNCEMENT_BANNER.message && (
-          <TopBanner
-            body={<>{ANNOUNCEMENT_BANNER.message}</>}
-            color={ANNOUNCEMENT_BANNER.color as any}
-          />
-        )}
+          {ANNOUNCEMENT_BANNER.enabled && ANNOUNCEMENT_BANNER.message && (
+            <TopBanner
+              body={<>{ANNOUNCEMENT_BANNER.message}</>}
+              color={ANNOUNCEMENT_BANNER.color as any}
+            />
+          )}
 
-        <TooltipProvider delayDuration={300}>
-          <ReactQueryProvider>
-            {MAINTENANCE_MODE.enabled ? (
-              <>{children}</>
-            ) : (
-              <>
-                <Navigation>
-                  {children}
-                  <Footer />
-                </Navigation>
-              </>
-            )}
-          </ReactQueryProvider>
-        </TooltipProvider>
-        <TailwindIndicator />
-        <ToastManager />
+          <TooltipProvider delayDuration={300}>
+            <ReactQueryProvider>
+              {MAINTENANCE_MODE.enabled ? (
+                <>{children}</>
+              ) : (
+                <>
+                  <Navigation>
+                    {children}
+                    <Footer />
+                  </Navigation>
+                </>
+              )}
+            </ReactQueryProvider>
+          </TooltipProvider>
+          <TailwindIndicator />
+          <ToastManager />
+        </LinkChallengerProvider>
       </body>
     </html>
   );

@@ -5,7 +5,7 @@ import {
   CompetitionType,
   Metric,
 } from "@wise-old-man/utils";
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { Button } from "~/components/Button";
 import { Container } from "~/components/Container";
 import {

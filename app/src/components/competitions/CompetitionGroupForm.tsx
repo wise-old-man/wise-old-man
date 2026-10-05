@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { GroupResponse } from "@wise-old-man/utils";

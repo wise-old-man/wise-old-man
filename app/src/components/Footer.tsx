@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { Container } from "./Container";
 
 import GitHubIcon from "~/assets/github.svg";

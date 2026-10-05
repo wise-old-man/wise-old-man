@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { Fragment } from "react";
 import { usePathname } from "next/navigation";
 import { Dialog as HeadlessDialog, Transition } from "@headlessui/react";
 import { cn } from "~/utils/styling";
 import useChangelog from "~/hooks/useChangelog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
+import { Link } from "./Link";
 
 import Logo from "~/assets/logo.svg";
 import TagIcon from "~/assets/tag.svg";
@@ -136,7 +136,6 @@ function SideBar(props: SideBarProps) {
       <Link
         href="/"
         aria-label="Home"
-        prefetch={false}
         className="block outline-none ring-0 lg:hidden"
         onClick={onRouteSelected}
       >
@@ -147,7 +146,6 @@ function SideBar(props: SideBarProps) {
           <li key={link.href}>
             <Link
               href={link.href}
-              prefetch={false}
               className={cn(
                 "flex items-center px-5 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700",
                 currentRouteHref === link.href &&

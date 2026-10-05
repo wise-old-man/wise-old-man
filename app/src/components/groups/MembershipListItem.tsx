@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { GroupResponse, GroupRoleProps, MembershipResponse } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { GroupRoleIcon } from "../Icon";
