@@ -2186,6 +2186,56 @@ describe('Competition API', () => {
       expect(response.body.filter(c => !!c.verificationHash).length).toBe(0);
     });
 
+    it('should search competitions (w/ multiple metrics filter)', async () => {
+      const comp123 = await prisma.competition.create({
+        data: {
+          title: 'Test123',
+          startsAt: new Date(),
+          endsAt: new Date(),
+          verificationHash: '123',
+          metrics: {
+            createMany: {
+              data: [{ metric: 'abyssal_sire' }, { metric: 'zulrah' }, { metric: 'kalphite_queen' }]
+            }
+          }
+        }
+      });
+
+      const comp456 = await prisma.competition.create({
+        data: {
+          title: 'Test456',
+          startsAt: new Date(),
+          endsAt: new Date(),
+          verificationHash: '456',
+          metrics: {
+            createMany: {
+              data: [{ metric: 'kalphite_queen' }, { metric: 'king_black_dragon' }]
+            }
+          }
+        }
+      });
+
+      const firstResponse = await api.get('/competitions').query({
+        metric: 'kalphite_queen'
+      });
+
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body.length).toBe(2);
+
+      const secondResponse = await api.get('/competitions').query({
+        metrics: ['kalphite_queen', 'abyssal_sire']
+      });
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.length).toBe(1);
+
+      await prisma.competition.deleteMany({
+        where: {
+          id: { in: [comp123.id, comp456.id] }
+        }
+      });
+    });
+
     it('should search competitions (w/ type filter)', async () => {
       const response = await api.get('/competitions').query({ type: 'team' });
 

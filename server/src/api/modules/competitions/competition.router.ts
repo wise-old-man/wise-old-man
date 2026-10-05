@@ -43,16 +43,32 @@ router.get(
     query: z
       .object({
         title: z.optional(z.string()),
+        /**
+         * @deprecated Use `metrics` instead
+         */
         metric: z.optional(z.nativeEnum(Metric)),
+        metrics: z.optional(queryParamMetricsArray),
         type: z.optional(z.nativeEnum(CompetitionType)),
         status: z.optional(z.nativeEnum(CompetitionStatus))
       })
       .merge(getPaginationSchema())
   }),
   executeRequest(async (req, res) => {
-    const { title, metric, type, status, limit, offset } = req.query;
+    const { title, metric, metrics, type, status, limit, offset } = req.query;
 
-    const result = await searchCompetitions(title, metric, type, status, { limit, offset });
+    const result = await searchCompetitions(
+      {
+        title,
+        metrics: metric ? [metric] : metrics,
+        type,
+        status
+      },
+      {
+        limit,
+        offset
+      }
+    );
+
     const response = result.map(c => formatCompetitionResponse(c.competition, c.group));
 
     res.status(200).json(response);

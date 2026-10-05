@@ -9,11 +9,13 @@ import {
 } from '../../../../types';
 import { PaginationOptions } from '../../../util/validation';
 
-async function searchCompetitions(
-  title: string | undefined,
-  metric: Metric | undefined,
-  type: CompetitionType | undefined,
-  status: CompetitionStatus | undefined,
+export async function searchCompetitions(
+  filter: {
+    title: string | undefined;
+    metrics: Array<Metric> | undefined;
+    type: CompetitionType | undefined;
+    status: CompetitionStatus | undefined;
+  },
   pagination: PaginationOptions
 ): Promise<
   Array<{
@@ -21,42 +23,56 @@ async function searchCompetitions(
     group: (Group & { memberCount: number }) | null;
   }>
 > {
-  const query: PrismaTypes.CompetitionWhereInput = {};
+  const conditions: Array<PrismaTypes.CompetitionWhereInput> = [];
 
-  if (type) {
-    query.type = type;
+  if (filter.type) {
+    conditions.push({
+      type: filter.type
+    });
   }
 
-  if (metric) {
-    query.metrics = {
-      some: {
-        metric
+  if (filter.metrics) {
+    for (const metric of filter.metrics) {
+      conditions.push({
+        metrics: {
+          some: {
+            metric
+          }
+        }
+      });
+    }
+  }
+
+  if (filter.title) {
+    conditions.push({
+      title: {
+        contains: filter.title.trim(),
+        mode: 'insensitive'
       }
-    };
+    });
   }
 
-  if (title) {
-    query.title = {
-      contains: title.trim(),
-      mode: 'insensitive'
-    };
-  }
-
-  if (status) {
+  if (filter.status) {
     const now = new Date();
 
-    if (status === CompetitionStatus.FINISHED) {
-      query.endsAt = { lt: now };
-    } else if (status === CompetitionStatus.UPCOMING) {
-      query.startsAt = { gt: now };
-    } else if (status === CompetitionStatus.ONGOING) {
-      query.startsAt = { lt: now };
-      query.endsAt = { gt: now };
+    if (filter.status === CompetitionStatus.FINISHED) {
+      conditions.push({
+        endsAt: { lt: now }
+      });
+    } else if (filter.status === CompetitionStatus.UPCOMING) {
+      conditions.push({
+        startsAt: { gt: now }
+      });
+    } else if (filter.status === CompetitionStatus.ONGOING) {
+      conditions.push({
+        startsAt: { lt: now },
+        endsAt: { gt: now }
+      });
     }
   }
 
   const competitions = await prisma.competition.findMany({
-    where: { ...query },
+    where: { AND: conditions },
     include: {
       group: {
         include: {
@@ -111,5 +127,3 @@ async function searchCompetitions(
     };
   });
 }
-
-export { searchCompetitions };

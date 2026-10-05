@@ -23,7 +23,7 @@ export default class CompetitionsClient extends BaseAPIClient {
   searchCompetitions(
     filter: {
       title?: string;
-      metric?: Metric;
+      metrics?: Metric[];
       type?: CompetitionType;
       status?: CompetitionStatus;
     },
