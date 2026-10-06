@@ -165,8 +165,9 @@ type ComboboxProps = PopoverPrimitive.PopoverProps &
         onValueChanged?: (value: string | undefined) => void;
       }
     | {
-        // Multi-select mode: items toggle, and the popover stays open
+        // Multi-select mode: items toggle, and the popover stays open (unless closeOnSelect is set)
         multiple: true;
+        closeOnSelect?: boolean;
         value: string[];
         onValueChanged: (value: string[]) => void;
       }
@@ -184,6 +185,7 @@ export function Combobox(props: ComboboxProps) {
         isSelected: (val) => val !== undefined && props.value.includes(val),
         onItemSelected: (val) => {
           if (val === undefined) return;
+          if (props.closeOnSelect) setOpen(false);
           props.onValueChanged(
             props.value.includes(val) ? props.value.filter((v) => v !== val) : [...props.value, val],
           );
