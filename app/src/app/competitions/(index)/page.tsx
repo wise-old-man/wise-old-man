@@ -48,7 +48,7 @@ export default async function CompetitionsPage(props: PageProps) {
 
   const data = await searchCompetitions(
     search,
-    metric,
+    metric ? [metric] : undefined,
     type,
     status,
     RESULTS_PER_PAGE,

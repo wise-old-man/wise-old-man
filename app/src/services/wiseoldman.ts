@@ -196,13 +196,16 @@ export const getRecordLeaderboard = cache(
 export const searchCompetitions = cache(
   (
     title: string | undefined,
-    metric: Metric | undefined,
+    metrics: Array<Metric> | undefined,
     type: CompetitionType | undefined,
     status: CompetitionStatus | undefined,
     limit: number,
     offset: number,
   ) => {
-    return apiClient.competitions.searchCompetitions({ title, metric, type, status }, { limit, offset });
+    return apiClient.competitions.searchCompetitions(
+      { title, metrics, type, status },
+      { limit, offset },
+    );
   },
 );
 
