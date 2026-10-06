@@ -10,7 +10,6 @@ import {
   useDatePicker,
   useDateSegment,
   useInteractOutside,
-  useLocale,
   useTimeField,
 } from "react-aria";
 import {
@@ -112,7 +111,7 @@ export const DateTimePicker = forwardRef<
 DateTimePicker.displayName = "DateTimePicker";
 
 export function DateField(props: AriaDatePickerProps<DateValue> & { isSegmented?: boolean }) {
-  const { locale } = useLocale();
+  const locale = "en-GB";
   const state = useDateFieldState({ ...props, locale, createCalendar });
 
   const ref = useRef(null);
@@ -137,7 +136,6 @@ export function DateField(props: AriaDatePickerProps<DateValue> & { isSegmented?
 }
 
 export function TimeField(props: AriaTimeFieldProps<TimeValue>) {
-  // const { locale } = useLocale();
   const locale = "en-GB";
   const state = useTimeFieldState({ ...props, locale });
 
@@ -191,8 +189,13 @@ export function toCalendarDate(date: Date) {
   );
 }
 
+export function isValidDate(calendarDate: DateValue | null): boolean {
+  if (!calendarDate) return false;
+  return String(calendarDate.year).length === 4;
+}
+
 export function toDate(calendarDate: DateValue, time?: TimeValue) {
-  const date = new Date(calendarDate.year, calendarDate.month - 1, calendarDate.day);
+  const date = new Date(calendarDate?.year, calendarDate?.month - 1, calendarDate?.day);
   if (time) {
     date.setHours(time.hour);
     date.setMinutes(time.minute);

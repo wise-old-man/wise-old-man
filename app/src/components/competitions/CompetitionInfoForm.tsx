@@ -26,7 +26,7 @@ import {
   ComboboxSeparator,
   ComboboxTrigger,
 } from "../Combobox";
-import { DateTimePicker, TimeField, toCalendarDate, toDate } from "../DatePicker";
+import { DateTimePicker, isValidDate, TimeField, toCalendarDate, toDate } from "../DatePicker";
 import { MetricIconSmall } from "../Icon";
 import { Input } from "../Input";
 import { Label } from "../Label";
@@ -85,11 +85,15 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
     timezone,
   );
 
-  const hasPastStartDate = toDate(startDate, startTime).getTime() < Date.now();
-  const hasPastEndDate = toDate(endDate, endTime).getTime() < Date.now();
+  const isStartDateValid = isValidDate(startDate);
+  const isEndDateValid = isValidDate(endDate);
+  const hasPastStartDate = isStartDateValid && toDate(startDate, startTime).getTime() < Date.now();
+  const hasPastEndDate = isEndDateValid && toDate(endDate, endTime).getTime() < Date.now();
 
   const isEndDateAfterStartDate =
-    toDate(endDate, endTime).getTime() > toDate(startDate, startTime).getTime();
+    isStartDateValid && isEndDateValid
+      ? toDate(endDate, endTime).getTime() > toDate(startDate, startTime).getTime()
+      : true;
 
   function handleSubmit() {
     const startsAt = new Date(toDate(startDate, startTime).getTime() + timezoneOffset);
@@ -157,10 +161,17 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
               <TimeField value={startTime} onChange={setStartTime} />
             </div>
           </div>
-          {mode === "create" && hasPastStartDate && (
+          {mode === "create" && isStartDateValid && hasPastStartDate && (
             <Alert className="mt-3 px-4 py-3" variant="error">
               <AlertDescription className="text-white">
-                The start date and time you selected is in the past. Please select a future date.
+                The start date/time you selected is in the past. Please select a future date.
+              </AlertDescription>
+            </Alert>
+          )}
+          {!isStartDateValid && (
+            <Alert className="mt-3 px-4 py-3" variant="error">
+              <AlertDescription className="text-white">
+                Please enter a valid start date.
               </AlertDescription>
             </Alert>
           )}
@@ -174,11 +185,16 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
               <TimeField value={endTime} onChange={setEndTime} />
             </div>
           </div>
-          {mode === "create" && hasPastEndDate && (
+          {mode === "create" && isEndDateValid && hasPastEndDate && (
             <Alert className="mt-3 px-4 py-3" variant="error">
               <AlertDescription className="text-white">
                 The end date/time you selected is in the past. Please select a future date.
               </AlertDescription>
+            </Alert>
+          )}
+          {!isEndDateValid && (
+            <Alert className="mt-3 px-4 py-3" variant="error">
+              <AlertDescription className="text-white">Please enter a valid end date.</AlertDescription>
             </Alert>
           )}
           {!isEndDateAfterStartDate && (
@@ -194,7 +210,9 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
       {props.formActions(
         title.length === 0 ||
           !isEndDateAfterStartDate ||
-          (mode === "create" && (hasPastStartDate || hasPastEndDate)),
+          (mode === "edit" && (!isStartDateValid || !isEndDateValid)) ||
+          (mode === "create" &&
+            (!isStartDateValid || !isEndDateValid || hasPastStartDate || hasPastEndDate)),
         hasUnsavedChanges,
       )}
     </form>
