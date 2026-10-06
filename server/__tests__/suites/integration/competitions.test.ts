@@ -2236,6 +2236,34 @@ describe('Competition API', () => {
       });
     });
 
+    it('should search competitions (w/ metrics filter, ignoring soft-deleted metrics)', async () => {
+      const comp = await prisma.competition.create({
+        data: {
+          title: 'Test789',
+          startsAt: new Date(),
+          endsAt: new Date(),
+          verificationHash: '789',
+          metrics: {
+            createMany: {
+              data: [{ metric: 'abyssal_sire' }, { metric: 'king_black_dragon', deletedAt: new Date() }]
+            }
+          }
+        }
+      });
+
+      const firstResponse = await api.get('/competitions').query({ metrics: ['abyssal_sire'] });
+
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body.map(c => c.id)).toContain(comp.id);
+
+      const secondResponse = await api.get('/competitions').query({ metrics: ['king_black_dragon'] });
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.map(c => c.id)).not.toContain(comp.id);
+
+      await prisma.competition.delete({ where: { id: comp.id } });
+    });
+
     it('should search competitions (w/ type filter)', async () => {
       const response = await api.get('/competitions').query({ type: 'team' });
 

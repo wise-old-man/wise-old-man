@@ -36,7 +36,8 @@ export async function searchCompetitions(
       conditions.push({
         metrics: {
           some: {
-            metric
+            metric,
+            deletedAt: null
           }
         }
       });
