@@ -32,6 +32,7 @@ export enum JobType {
   SCHEDULE_COMPETITION_SCORE_UPDATES = 'schedule-competition-score-updates',
   SCHEDULE_FLAGGED_PLAYER_REVIEW = 'schedule-flagged-player-review',
   SCHEDULE_GROUP_SCORE_UPDATES = 'schedule-group-score-updates',
+  SCHEDULE_LEAGUE_RANKING_UPDATES = 'schedule-league-ranking-updates',
   SCHEDULE_NAME_CHANGE_REVIEWS = 'schedule-name-change-reviews',
   SCHEDULE_PATRON_GROUP_UPDATES = 'schedule-patron-group-updates',
   SCHEDULE_PATRON_PLAYER_UPDATES = 'schedule-patron-player-updates',

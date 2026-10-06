@@ -33,6 +33,7 @@ import { ScheduleCompetitionEventsJobHandler } from './handlers/schedule-competi
 import { ScheduleCompetitionScoreUpdatesJobHandler } from './handlers/schedule-competition-score-updates.job';
 import { ScheduleFlaggedPlayerReviewJobHandler } from './handlers/schedule-flagged-player-review.job';
 import { ScheduleGroupScoreUpdatesJobHandler } from './handlers/schedule-group-score-updates.job';
+import { ScheduleLeagueRankingUpdatesJobHandler } from './handlers/schedule-league-ranking-updates.job';
 import { ScheduleNameChangeReviewsJobHandler } from './handlers/schedule-name-change-reviews.job';
 import { SchedulePatronGroupUpdatesJobHandler } from './handlers/schedule-patron-group-updates.job';
 import { SchedulePatronPlayerUpdatesJobHandler } from './handlers/schedule-patron-player-updates.job';
@@ -86,6 +87,7 @@ export const JOB_HANDLER_MAP = {
   [JobType.SCHEDULE_COMPETITION_SCORE_UPDATES]: ScheduleCompetitionScoreUpdatesJobHandler,
   [JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW]: ScheduleFlaggedPlayerReviewJobHandler,
   [JobType.SCHEDULE_GROUP_SCORE_UPDATES]: ScheduleGroupScoreUpdatesJobHandler,
+  [JobType.SCHEDULE_LEAGUE_RANKING_UPDATES]: ScheduleLeagueRankingUpdatesJobHandler,
   [JobType.SCHEDULE_NAME_CHANGE_REVIEWS]: ScheduleNameChangeReviewsJobHandler,
   [JobType.SCHEDULE_PATRON_GROUP_UPDATES]: SchedulePatronGroupUpdatesJobHandler,
   [JobType.SCHEDULE_PATRON_PLAYER_UPDATES]: SchedulePatronPlayerUpdatesJobHandler,
@@ -112,6 +114,8 @@ export const CRON_CONFIG = [
   { interval: '* * * * *', type: JobType.SCHEDULE_COMPETITION_EVENTS },
   { interval: '* * * * *', type: JobType.SYNC_PATRONS },
   { interval: '* * * * *', type: JobType.UPDATE_QUEUE_METRICS },
+  // every 2 mins
+  { interval: '*/2 * * * *', type: JobType.SCHEDULE_LEAGUE_RANKING_UPDATES },
   // every 5 mins
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_GROUP_UPDATES },
   { interval: '*/5 * * * *', type: JobType.SCHEDULE_PATRON_PLAYER_UPDATES },
