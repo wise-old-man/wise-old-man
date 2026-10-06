@@ -204,17 +204,6 @@ function SideBar(props: SideBarProps) {
 function SocialLinks() {
   return (
     <div className="mx-5 mb-5 flex flex-col pt-10">
-      <div className="league-shimmer-border mb-4 rounded-md p-px">
-        <a
-          href="https://league.wiseoldman.net"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex w-full items-center justify-between rounded-md bg-gray-700 px-3 py-2 text-sm font-medium text-gray-100 shadow-sm hover:bg-gray-600 hover:text-white"
-        >
-          Demonic Pacts Edition
-          <ExternalIcon className="h-4 w-4" />
-        </a>
-      </div>
       <ul className="flex justify-between">
         {SOCIAL_LINKS.map((link) => (
           <li key={link.href}>
