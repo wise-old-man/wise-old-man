@@ -41,8 +41,6 @@ const envVariablesSchema = z.object({
   SERVER_OPENAI_API_KEY: z.string().trim().min(1).startsWith('sk-'),
   // Abuse Protection Configs
   SERVER_ABUSE_PROTECTED_PLAYERS_LIST: z.string().trim(),
-  // Feature Flags
-  SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS: z.optional(z.string()),
   // Admin Password (For moderation operations)
   SHARED_ADMIN_PASSWORD: z.string().trim().min(1),
   // Our Prometheus metrics aggregator service URL
@@ -63,8 +61,7 @@ const REQUIRED_VARS_BY_SERVER_TYPE: Record<ServerType, EnvKey[]> = {
     'REDIS_PASSWORD',
     'PROMETHEUS_METRICS_SERVICE_URL',
     'SHARED_ADMIN_PASSWORD',
-    'SERVER_SENTRY_DSN',
-    'SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS'
+    'SERVER_SENTRY_DSN'
   ],
   [ServerType.JOB_RUNNER]: [
     'SERVER_CORE_DATABASE_URL',
