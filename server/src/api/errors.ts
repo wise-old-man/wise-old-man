@@ -32,7 +32,6 @@ const ErrorMessageMap = {
   MISSING_ADMIN_PASSWORD: `Required parameter 'adminPassword' is undefined`,
   MISSING_GROUP_VERIFICATION_CODE: `Required parameter 'groupVerificationCode' is undefined`,
   MISSING_VERIFICATION_CODE: `Required parameter 'verificationCode' is undefined`,
-  MULTI_METRIC_COMPETITIONS_NOT_ENABLED: `Creating multi-metric competitions is not enabled yet.`,
   NAME_CHANGE_NOT_FOUND: `Name change not found`,
   NO_OUTDATED_MEMBERS: `This group has no outdated members (updated over 24h ago)`,
   NO_OUTDATED_PARTICIPANTS: `This competition has no outdated participants`,
