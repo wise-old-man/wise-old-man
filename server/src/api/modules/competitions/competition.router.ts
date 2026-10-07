@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { logger } from '../../../services/logger.service';
 import { CompetitionCSVTableType, CompetitionStatus, CompetitionType, Metric } from '../../../types';
 import { assertNever } from '../../../utils/assert-never.util';
-import { BadRequestError, BadRequestErrorZ, ForbiddenErrorZ, NotFoundErrorZ } from '../../errors';
+import { BadRequestErrorZ, ForbiddenErrorZ, NotFoundErrorZ } from '../../errors';
 import {
   formatCompetitionDetailsResponse,
   formatCompetitionResponse,
@@ -122,13 +122,6 @@ router.post(
   executeRequest(async (req, res) => {
     const ipHash = getRequestIpHash(req);
 
-    if (
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS !== 'true' &&
-      req.body.metrics.length > 1
-    ) {
-      throw new BadRequestError('Creating multi-metric competitions is not enabled yet.');
-    }
-
     const createResult = await createCompetition(req.body, ipHash);
 
     if (isErrored(createResult)) {
@@ -237,14 +230,6 @@ router.put(
   }),
   executeRequest(async (req, res) => {
     const { id } = req.params;
-
-    if (
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS !== 'true' &&
-      req.body.metrics !== undefined &&
-      req.body.metrics.length > 1
-    ) {
-      throw new BadRequestError('Creating multi-metric competitions is not enabled yet.');
-    }
 
     const updateResult = await editCompetition(id, req.body);
 
