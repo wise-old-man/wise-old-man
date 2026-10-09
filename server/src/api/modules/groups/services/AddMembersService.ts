@@ -1,7 +1,7 @@
 import prisma from '../../../../prisma';
 import { logger } from '../../../../services/logger.service';
 import { MemberActivityType, PlayerAnnotationType, GroupMemberInput } from '../../../../types';
-import { BadRequestError, ForbiddenError, ServerError } from '../../../errors';
+import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { isValidUsername, standardizeUsername } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -15,6 +15,14 @@ async function addMembers(groupId: number, members: Array<GroupMemberInput>): Pr
        contain no special characters, and/or contain no space at the beginning or end of the name.`,
       invalidUsernames
     );
+  }
+
+  const group = await prisma.group.findFirst({
+    where: { id: groupId, deletedAt: null }
+  });
+
+  if (!group) {
+    throw new NotFoundError('Group not found.');
   }
 
   // Find all existing members' ids

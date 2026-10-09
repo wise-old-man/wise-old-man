@@ -1,7 +1,7 @@
 import prisma from '../../../../prisma';
 import { logger } from '../../../../services/logger.service';
 import { GroupRole, MemberActivityType, Membership, Player } from '../../../../types';
-import { BadRequestError, ServerError } from '../../../errors';
+import { BadRequestError, ServerError, NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 import { standardizeUsername } from '../../players/player.utils';
 
@@ -10,6 +10,15 @@ async function changeMemberRole(
   username: string,
   newRole: GroupRole
 ): Promise<{ updatedMembership: Membership; player: Player }> {
+  const group = await prisma.group.findFirst({
+    where: { id: groupId },
+    select: { name: true }
+  });
+
+  if (!group) {
+    throw new NotFoundError('Group not found.');
+  }
+
   const membership = await prisma.membership.findFirst({
     where: {
       groupId,
@@ -18,15 +27,7 @@ async function changeMemberRole(
   });
 
   if (!membership) {
-    const group = await prisma.group.findFirst({
-      where: { id: groupId }
-    });
-
-    if (group) {
-      throw new BadRequestError(`${username} is not a member of ${group.name}.`);
-    } else {
-      throw new ServerError('Failed to change member role.');
-    }
+    throw new BadRequestError(`${username} is not a member of ${group.name}.`);
   }
 
   if (membership.role === newRole) {

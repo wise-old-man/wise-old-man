@@ -33,6 +33,14 @@ export async function fetchGroupHiscores(
   groupId: number,
   metric: Metric
 ): AsyncResult<Array<{ player: Player; data: EntryType }>, { code: 'GROUP_NOT_FOUND' }> {
+  const group = await prisma.group.findFirst({
+    where: { id: groupId, deletedAt: null }
+  });
+
+  if (group === null) {
+    return errored({ code: 'GROUP_NOT_FOUND' });
+  }
+
   const memberships = await prisma.membership.findMany({
     where: { groupId },
     include: {
@@ -45,14 +53,6 @@ export async function fetchGroupHiscores(
   });
 
   if (memberships.length === 0) {
-    const group = await prisma.group.findFirst({
-      where: { id: groupId }
-    });
-
-    if (group === null) {
-      return errored({ code: 'GROUP_NOT_FOUND' });
-    }
-
     return complete([]);
   }
 
