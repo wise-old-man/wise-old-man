@@ -42,6 +42,7 @@ interface LineChartProps {
   xAxisLabelFormatter?: (label: string, index: number) => string;
   tooltipLabelFormatter?: (label: string) => string;
   tooltipValueFormatter?: (value: number) => string;
+  showDelta?: boolean;
 }
 
 export default function LineChart(props: LineChartProps) {
@@ -56,6 +57,7 @@ export default function LineChart(props: LineChartProps) {
     yAxisValueFormatter,
     tooltipLabelFormatter,
     tooltipValueFormatter,
+    showDelta
   } = props;
 
   const chartElementRef = useRef<HTMLDivElement>(null);
@@ -190,13 +192,15 @@ export default function LineChart(props: LineChartProps) {
               const valueFormatter = tooltipValueFormatter || defaultTooltipValueFormatter;
 
               const { name, value, stroke } = payload[0];
-
+              const firstDataPointValue = datasets[0].data[datasets[0].data.length-1].value
+              const delta = showDelta ? (value - firstDataPointValue) : undefined;
               return (
                 <ChartTooltip
                   stroke={stroke}
                   name={String(name) || "Value"}
                   value={valueFormatter(Number(value))}
                   label={labelFormatter(label)}
+                  delta={delta && valueFormatter(delta) || undefined}
                 />
               );
             }}
@@ -307,11 +311,11 @@ interface ChartTooltipProps {
   label: string;
   value: string;
   stroke?: string;
+  delta?: numeric;
 }
 
 function ChartTooltip(props: ChartTooltipProps) {
-  const { label, value, name, stroke } = props;
-
+  const { label, value, name, stroke, delta } = props;
   return (
     <div className="flex flex-col overflow-hidden rounded border border-gray-500 bg-gray-700 shadow-lg outline-none">
       <div className="border-b border-gray-500 px-3 py-2 text-sm text-gray-200">{label}</div>
@@ -322,6 +326,12 @@ function ChartTooltip(props: ChartTooltipProps) {
         </div>
         <span>{value}</span>
       </div>
+      {delta && <div className="flex px-3 py-2 text-sm">
+        <div className="flex items-center gap-x-2">
+          <span className="mr-2 text-gray-200">Delta Change:</span>
+        </div>
+        <span>{delta}</span>
+      </div>}
     </div>
   );
 }
