@@ -1,9 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { PropsWithChildren } from "react";
-import { useWOMClient } from "~/hooks/useWOMClient";
-import { convertToDiffTimeseries } from "~/utils/calcs";
+import { useCompetitionTopHistory } from "~/hooks/useCompetitionTopHistory";
 import SparklineChart from "../SparklineChart";
 import { useCompetitionPageContext } from "./CompetitionPageContext";
 import { Button } from "../Button";
@@ -12,24 +10,7 @@ import { QueryLink } from "../QueryLink";
 import ExpandIcon from "~/assets/expand.svg";
 
 function Chart() {
-  const { selectedMetric, competition } = useCompetitionPageContext();
-
-  const client = useWOMClient();
-
-  const {
-    data: topHistory,
-    isPending,
-    isError,
-  } = useQuery({
-    queryKey: ["competition-top-history", competition.id, selectedMetric, 3],
-    queryFn: () =>
-      client.competitions.getCompetitionTopHistory(
-        competition.id,
-        selectedMetric === "total" ? undefined : [selectedMetric],
-        3,
-      ),
-    staleTime: 60_000,
-  });
+  const { data: datasets, isPending, isError } = useCompetitionTopHistory({ limit: 3 });
 
   if (isPending) {
     return (
@@ -42,11 +23,6 @@ function Chart() {
   if (isError) {
     return <Message>Failed to load history</Message>;
   }
-
-  const datasets = topHistory.map((p) => ({
-    name: p.player.displayName,
-    data: convertToDiffTimeseries(selectedMetric === "total" ? undefined : selectedMetric, p.history),
-  }));
 
   if (!datasets.some((d) => d.data.length > 0)) {
     return <Message>No history yet</Message>;
