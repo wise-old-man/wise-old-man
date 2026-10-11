@@ -28,6 +28,7 @@ import {
 } from "../Combobox";
 import { DateTimePicker, TimeField, toCalendarDate, toDate } from "../DatePicker";
 import { MetricIcon, MetricIconSmall } from "../Icon";
+import { MetricAvatarGroup } from "../MetricAvatarGroup";
 import { Input } from "../Input";
 import { Label } from "../Label";
 
@@ -35,6 +36,14 @@ import ChevronDownIcon from "~/assets/chevron_down.svg";
 import CloseIcon from "~/assets/close.svg";
 import LoadingIcon from "~/assets/loading.svg";
 import PlusIcon from "~/assets/plus.svg";
+import { METRIC_COMBINATION_PRESETS } from "~/utils/metric-combination-presets";
+
+const PRESET_GROUPS = [
+  { type: MetricType.SKILL, label: "Skills" },
+  { type: MetricType.BOSS, label: "Bosses" },
+  { type: MetricType.ACTIVITY, label: "Activities" },
+  { type: MetricType.COMPUTED, label: "Computed" },
+];
 
 const MAX_NAME_LENGTH = 50;
 
@@ -280,57 +289,141 @@ function MetricDropdown(
   const { metrics, onMetricsSelected } = props;
   const metricType = MetricProps[metrics[0]]?.type;
 
+  const [open, setOpen] = useState(false);
+  const [page, setPage] = useState<"root" | "presets">("root");
+  const [search, setSearch] = useState("");
+
+  function goToPage(newPage: "root" | "presets") {
+    setPage(newPage);
+    setSearch("");
+  }
+
   return (
     <Combobox
       multiple
       closeOnSelect
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (o) goToPage("root");
+      }}
       value={metrics}
       onValueChanged={(val) => onMetricsSelected(val as Metric[])}
     >
       <ComboboxTrigger asChild>{props.children}</ComboboxTrigger>
-      <ComboboxContent className="max-h-64" align="end">
-        <ComboboxInput placeholder="Search metrics..." />
+      <ComboboxContent
+        className="w-72"
+        align="end"
+        onEscapeKeyDown={(e) => {
+          // On the presets page, escape goes back instead of closing the popover
+          if (page === "presets") {
+            e.preventDefault();
+            goToPage("root");
+          }
+        }}
+      >
+        <ComboboxInput
+          placeholder={page === "presets" ? "Search presets..." : "Search metrics..."}
+          value={search}
+          onValueChange={setSearch}
+          onKeyDown={(e) => {
+            if (page === "presets" && e.key === "Backspace" && search === "") {
+              e.preventDefault();
+              goToPage("root");
+            }
+          }}
+        />
         <ComboboxEmpty>No results were found</ComboboxEmpty>
         <ComboboxItemsContainer>
-          {(metricType === undefined || metricType === MetricType.SKILL) && (
-            <ComboboxItemGroup label="Skills">
-              {SKILLS.map((skill) => (
-                <ComboboxItem key={skill} value={skill}>
-                  <MetricIconSmall metric={skill} />
-                  {MetricProps[skill].name}
+          {page === "presets" ? (
+            <>
+              <ComboboxItemGroup>
+                <ComboboxItem value="back" onSelect={() => goToPage("root")}>
+                  <ChevronDownIcon className="h-4 w-4 rotate-90" />
+                  Back
                 </ComboboxItem>
-              ))}
-            </ComboboxItemGroup>
-          )}
-          {(metricType === undefined || metricType === MetricType.BOSS) && (
-            <ComboboxItemGroup label="Bosses">
-              {BOSSES.map((boss) => (
-                <ComboboxItem key={boss} value={boss}>
-                  <MetricIconSmall metric={boss} />
-                  {MetricProps[boss].name}
+              </ComboboxItemGroup>
+              {PRESET_GROUPS.map((group) => {
+                const presets = METRIC_COMBINATION_PRESETS.filter(
+                  (preset) => preset.type === group.type,
+                );
+
+                if (presets.length === 0) return null;
+
+                return (
+                  <ComboboxItemGroup key={group.type} label={group.label}>
+                    {presets.map((preset) => (
+                      <ComboboxItem
+                        key={preset.name}
+                        value={preset.name}
+                        onSelect={() => {
+                          onMetricsSelected(preset.metrics);
+                          setOpen(false);
+                        }}
+                        className="flex justify-between"
+                      >
+                        {preset.name}
+                        <MetricAvatarGroup
+                          size="sm"
+                          maxCount={3}
+                          metrics={preset.metrics}
+                          avatarClassname="ml-auto"
+                        />
+                      </ComboboxItem>
+                    ))}
+                  </ComboboxItemGroup>
+                );
+              })}
+            </>
+          ) : (
+            <>
+              <ComboboxItemGroup>
+                <ComboboxItem value="presets" onSelect={() => goToPage("presets")}>
+                  Browse presets
+                  <ChevronDownIcon className="ml-auto h-4 w-4 -rotate-90" />
                 </ComboboxItem>
-              ))}
-            </ComboboxItemGroup>
-          )}
-          {(metricType === undefined || metricType === MetricType.ACTIVITY) && (
-            <ComboboxItemGroup label="Activities">
-              {ACTIVITIES.map((activity) => (
-                <ComboboxItem key={activity} value={activity}>
-                  <MetricIconSmall metric={activity} />
-                  {MetricProps[activity].name}
-                </ComboboxItem>
-              ))}
-            </ComboboxItemGroup>
-          )}
-          {(metricType === undefined || metricType === MetricType.COMPUTED) && (
-            <ComboboxItemGroup label="Computed">
-              {COMPUTED_METRICS.map((computed) => (
-                <ComboboxItem key={computed} value={computed}>
-                  <MetricIconSmall metric={computed} />
-                  {MetricProps[computed].name}
-                </ComboboxItem>
-              ))}
-            </ComboboxItemGroup>
+              </ComboboxItemGroup>
+              {(metricType === undefined || metricType === MetricType.SKILL) && (
+                <ComboboxItemGroup label="Skills">
+                  {SKILLS.map((skill) => (
+                    <ComboboxItem key={skill} value={skill}>
+                      <MetricIconSmall metric={skill} />
+                      {MetricProps[skill].name}
+                    </ComboboxItem>
+                  ))}
+                </ComboboxItemGroup>
+              )}
+              {(metricType === undefined || metricType === MetricType.BOSS) && (
+                <ComboboxItemGroup label="Bosses">
+                  {BOSSES.map((boss) => (
+                    <ComboboxItem key={boss} value={boss}>
+                      <MetricIconSmall metric={boss} />
+                      {MetricProps[boss].name}
+                    </ComboboxItem>
+                  ))}
+                </ComboboxItemGroup>
+              )}
+              {(metricType === undefined || metricType === MetricType.ACTIVITY) && (
+                <ComboboxItemGroup label="Activities">
+                  {ACTIVITIES.map((activity) => (
+                    <ComboboxItem key={activity} value={activity}>
+                      <MetricIconSmall metric={activity} />
+                      {MetricProps[activity].name}
+                    </ComboboxItem>
+                  ))}
+                </ComboboxItemGroup>
+              )}
+              {(metricType === undefined || metricType === MetricType.COMPUTED) && (
+                <ComboboxItemGroup label="Computed">
+                  {COMPUTED_METRICS.map((computed) => (
+                    <ComboboxItem key={computed} value={computed}>
+                      <MetricIconSmall metric={computed} />
+                      {MetricProps[computed].name}
+                    </ComboboxItem>
+                  ))}
+                </ComboboxItemGroup>
+              )}
+            </>
           )}
         </ComboboxItemsContainer>
       </ComboboxContent>
