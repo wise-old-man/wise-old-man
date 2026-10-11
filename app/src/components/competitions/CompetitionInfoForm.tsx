@@ -216,51 +216,56 @@ function CompetitionFormMetricPicker(props: {
   }
 
   return (
-    <div className="overflow-hidden rounded-md border border-gray-500">
-      <div className="flex items-center justify-between border-b border-gray-500 p-4">
-        <div className="flex flex-col gap-1">
-          <Label>Metrics</Label>
-          <span className="text-body text-gray-200">Choose what participants will compete in.</span>
-        </div>
-        <MetricDropdown metrics={props.metrics} onMetricsSelected={props.onMetricsChanged}>
-          <Button>
-            <PlusIcon className="-ml-1.5 h-4 w-4" />
-            Add metric
-          </Button>
-        </MetricDropdown>
+    <div>
+      <div className="-mb-2 flex justify-center rounded-md bg-blue-500 pb-4 pt-2 text-xs text-white">
+        🎉 New! You can now select multiple skills, bosses or activities in the same competition
       </div>
-      <div>
-        {props.metrics.length === 0 ? (
-          <div className="flex justify-center py-8">
-            <p className="text-body text-gray-200">
-              No metrics selected yet. Add a skill, boss or activity to get started.
-            </p>
+      <div className="overflow-hidden rounded-md border border-gray-500 bg-gray-900">
+        <div className="flex items-center justify-between border-b border-gray-500 p-4">
+          <div className="flex flex-col gap-1">
+            <Label>Metrics</Label>
+            <span className="text-body text-gray-200">Choose what participants will compete in.</span>
           </div>
-        ) : (
-          <div>
-            <ul>
-              {props.metrics.map((m) => (
-                <li
-                  key={m}
-                  className="flex items-center justify-between border-b border-gray-500 px-4 py-3 last:border-b-0"
-                >
-                  <div className="flex h-8 items-center gap-x-3">
-                    <MetricIcon metric={m} />
-                    <span className="text-sm font-semibold">{MetricProps[m].name}</span>
-                  </div>
-                  <button
-                    type="button"
-                    aria-label={`Remove ${MetricProps[m].name}`}
-                    className="rounded p-1 hover:bg-gray-500"
-                    onClick={() => handleRemoveMetric(m)}
+          <MetricDropdown metrics={props.metrics} onMetricsSelected={props.onMetricsChanged}>
+            <Button>
+              <PlusIcon className="-ml-1.5 h-4 w-4" />
+              Add metric
+            </Button>
+          </MetricDropdown>
+        </div>
+        <div>
+          {props.metrics.length === 0 ? (
+            <div className="flex justify-center py-8">
+              <p className="text-body text-gray-200">
+                No metrics selected yet. Add a skill, boss or activity to get started.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <ul>
+                {props.metrics.map((m) => (
+                  <li
+                    key={m}
+                    className="flex items-center justify-between border-b border-gray-500 px-4 py-3 last:border-b-0"
                   >
-                    <CloseIcon className="h-4 w-4 text-gray-200" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+                    <div className="flex h-8 items-center gap-x-3">
+                      <MetricIcon metric={m} />
+                      <span className="text-sm font-semibold">{MetricProps[m].name}</span>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label={`Remove ${MetricProps[m].name}`}
+                      className="rounded p-1 hover:bg-gray-500"
+                      onClick={() => handleRemoveMetric(m)}
+                    >
+                      <CloseIcon className="h-4 w-4 text-gray-200" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
