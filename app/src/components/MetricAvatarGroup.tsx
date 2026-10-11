@@ -1,5 +1,5 @@
 import { Metric, MetricProps } from "@wise-old-man/utils";
-import { MetricIcon } from "./Icon";
+import { MetricIcon, MetricIconSmall } from "./Icon";
 import { cn } from "~/utils/styling";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
@@ -65,10 +65,10 @@ export function MetricAvatarGroup({
             </div>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            <div className="flex flex-col gap-y-1">
+            <div className="flex flex-col gap-y-1.5">
               {metrics.slice(displayCount).map((metric) => (
                 <div key={metric} className="flex items-center gap-x-2">
-                  <MetricIcon metric={metric} />
+                  <MetricIconSmall metric={metric} />
                   <span>{MetricProps[metric].name}</span>
                 </div>
               ))}
