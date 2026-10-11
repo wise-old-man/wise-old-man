@@ -1,11 +1,9 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { MetricProps, formatNumber } from "@wise-old-man/utils";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useWOMClient } from "~/hooks/useWOMClient";
-import { convertToDiffTimeseries } from "~/utils/calcs";
+import { useCompetitionTopHistory } from "~/hooks/useCompetitionTopHistory";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../Dialog";
 import { useCompetitionPageContext } from "./CompetitionPageContext";
 
@@ -52,25 +50,7 @@ export function CompetitionTopHistoryChartDialog() {
 }
 
 function Chart({ enabled }: { enabled: boolean }) {
-  const { competition, selectedMetric } = useCompetitionPageContext();
-
-  const client = useWOMClient();
-
-  const {
-    data: topHistory,
-    isPending,
-    isError,
-  } = useQuery({
-    queryKey: ["competition-top-history", competition.id, selectedMetric, 5],
-    queryFn: () =>
-      client.competitions.getCompetitionTopHistory(
-        competition.id,
-        selectedMetric === "total" ? undefined : [selectedMetric],
-        5,
-      ),
-    staleTime: 60_000,
-    enabled,
-  });
+  const { data: datasets, isPending, isError } = useCompetitionTopHistory({ limit: 5, enabled });
 
   if (isPending) {
     return <div className="aspect-video w-full animate-pulse rounded-md bg-gray-700" />;
@@ -79,11 +59,6 @@ function Chart({ enabled }: { enabled: boolean }) {
   if (isError) {
     return <ChartMessage>Failed to load history</ChartMessage>;
   }
-
-  const datasets = topHistory.map((p) => ({
-    name: p.player.displayName,
-    data: convertToDiffTimeseries(selectedMetric === "total" ? undefined : selectedMetric, p.history),
-  }));
 
   if (!datasets.some((d) => d.data.length > 0)) {
     return <ChartMessage>No history yet</ChartMessage>;
