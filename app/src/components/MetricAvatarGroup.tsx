@@ -11,17 +11,17 @@ export function MetricAvatarGroup({
 }: {
   metrics: Metric[];
   maxCount?: number;
-  size?: "md" | "lg";
+  size?: "sm" | "md" | "lg";
   avatarClassname?: string;
 }) {
   const showOverflow = metrics.length > maxCount;
   const displayCount = showOverflow ? maxCount - 1 : metrics.length;
   const overflowCount = showOverflow ? metrics.length - displayCount : 0;
 
-  const singleSize = size === "md" ? 48 : 56;
-  const multipleSize = size === "md" ? 36 : 48;
+  const singleSize = { sm: 24, md: 48, lg: 56 }[size];
+  const multipleSize = { sm: 24, md: 36, lg: 48 }[size];
 
-  const itemOffset = size === "md" ? 24 : 32;
+  const itemOffset = { sm: 16, md: 24, lg: 32 }[size];
   const itemSize = metrics.length > 1 ? multipleSize : singleSize;
   const itemCount = displayCount + (showOverflow ? 1 : 0);
 
@@ -43,7 +43,7 @@ export function MetricAvatarGroup({
             left: index * itemOffset,
           }}
         >
-          <MetricIcon metric={metric} />
+          {size === "sm" ? <MetricIconSmall metric={metric} /> : <MetricIcon metric={metric} />}
         </div>
       ))}
       {overflowCount > 0 && (
@@ -51,7 +51,8 @@ export function MetricAvatarGroup({
           <TooltipTrigger asChild>
             <div
               className={cn(
-                "absolute flex shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200",
+                "absolute flex shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-gray-200",
+                size === "sm" ? "text-[0.625rem]" : "text-xs",
                 avatarClassname,
               )}
               style={{
