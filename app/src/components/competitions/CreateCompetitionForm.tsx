@@ -46,9 +46,11 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
 
   const [type, setType] = useState<CompetitionType>(CompetitionType.CLASSIC);
 
-  const [competition, setCompetition] = useState<CreateCompetitionPayload>({
+  const [competition, setCompetition] = useState<
+    Extract<CreateCompetitionPayload, { metrics: Metric[] }> // TODO: can remove this Extract when this payload no longer has a union of (metric | metrics)
+  >({
     title: "",
-    metric: Metric.OVERALL,
+    metrics: [],
     startsAt: getDefaultStartDate(),
     endsAt: getDefaultEndDate(),
     participants: [],
@@ -115,7 +117,12 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
           <CompetitionInfoForm
             mode="create"
             timezone={timezone}
-            competition={competition}
+            competition={{
+              title: competition.title,
+              metrics: competition.metrics,
+              startsAt: competition.startsAt,
+              endsAt: competition.endsAt,
+            }}
             onTimezoneChanged={(tz) => {
               setTimezone(tz);
             }}

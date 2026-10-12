@@ -8,37 +8,51 @@ import {
   CreateCompetitionPayload,
   Metric,
   MetricProps,
+  MetricType,
   SKILLS,
-  isMetric,
 } from "@wise-old-man/utils";
-import { useMemo, useState } from "react";
+import { PropsWithChildren, useMemo, useState } from "react";
 import { DateValue, TimeValue } from "react-aria";
 import { useHasMounted } from "~/hooks/useHasMounted";
+import { Alert, AlertDescription } from "../Alert";
+import { Button } from "../Button";
 import {
   Combobox,
-  ComboboxButton,
   ComboboxContent,
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
   ComboboxItemGroup,
   ComboboxItemsContainer,
-  ComboboxSeparator,
   ComboboxTrigger,
 } from "../Combobox";
 import { DateTimePicker, TimeField, toCalendarDate, toDate } from "../DatePicker";
-import { MetricIconSmall } from "../Icon";
+import { MetricIcon, MetricIconSmall } from "../Icon";
+import { MetricAvatarGroup } from "../MetricAvatarGroup";
 import { Input } from "../Input";
 import { Label } from "../Label";
-import { Alert, AlertDescription } from "../Alert";
 
-import LoadingIcon from "~/assets/loading.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
+import CloseIcon from "~/assets/close.svg";
+import LoadingIcon from "~/assets/loading.svg";
+import PlusIcon from "~/assets/plus.svg";
+import { METRIC_COMBINATION_PRESETS } from "~/utils/metric-combination-presets";
+
+const PRESET_GROUPS = [
+  { type: MetricType.SKILL, label: "Skills" },
+  { type: MetricType.BOSS, label: "Bosses" },
+  { type: MetricType.ACTIVITY, label: "Activities" },
+  { type: MetricType.COMPUTED, label: "Computed" },
+];
 
 const MAX_NAME_LENGTH = 50;
 
 type TimezoneOption = "utc" | "local";
-type Payload = Pick<CreateCompetitionPayload, "title" | "metric" | "startsAt" | "endsAt">;
+
+type Payload = Pick<
+  Extract<CreateCompetitionPayload, { metrics: Metric[] }>, // TODO: can remove this Extract when this payload no longer has a union of (metric | metrics)
+  "title" | "metrics" | "startsAt" | "endsAt"
+>;
 
 interface CompetitionInfoFormProps {
   mode: "create" | "edit";
@@ -58,7 +72,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
   const hasMounted = useHasMounted();
 
   const [title, setTitle] = useState(competition.title);
-  const [metric, setMetric] = useState(competition.metric);
+  const [metrics, setMetrics] = useState(competition.metrics);
 
   const timezoneOffset = useMemo(() => {
     return timezone === "utc" ? new Date().getTimezoneOffset() * 60_000 : 0;
@@ -81,7 +95,12 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
 
   const hasUnsavedChanges = checkUnsavedChanges(
     competition,
-    { title, metric, startsAt: toDate(startDate, startTime), endsAt: toDate(endDate, endTime) },
+    {
+      title,
+      metrics,
+      startsAt: toDate(startDate, startTime),
+      endsAt: toDate(endDate, endTime),
+    },
     timezone,
   );
 
@@ -95,7 +114,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
     const startsAt = new Date(toDate(startDate, startTime).getTime() + timezoneOffset);
     const endsAt = new Date(toDate(endDate, endTime).getTime() + timezoneOffset);
 
-    onCompetitionChanged({ ...competition, title, metric, startsAt, endsAt });
+    onCompetitionChanged({ ...competition, title, metrics, startsAt, endsAt });
   }
 
   if (!hasMounted) {
@@ -132,13 +151,8 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
           }
         />
       </div>
-      <div>
-        <Label htmlFor="title" className="mb-2 block text-xs text-gray-200">
-          Metric
-        </Label>
-        <MetricSelect metric={metric} onMetricSelected={setMetric} />
-      </div>
-      <div className="overflow-hidden rounded-md border border-gray-500 bg-gray-800">
+      <CompetitionFormMetricPicker metrics={metrics} onMetricsChanged={setMetrics} />
+      <div className="overflow-hidden rounded-md border border-gray-500">
         <div className="border-b border-gray-500 p-4">
           <TimezoneSelector timezone={timezone} onTimezoneChanged={onTimezoneChanged} />
           <span className="text-body text-gray-200">
@@ -193,11 +207,227 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
       {/* Allow the parent pages to render what they need on the actions slot (Previous/Next or Save) */}
       {props.formActions(
         title.length === 0 ||
+          metrics.length === 0 ||
           !isEndDateAfterStartDate ||
           (mode === "create" && (hasPastStartDate || hasPastEndDate)),
         hasUnsavedChanges,
       )}
     </form>
+  );
+}
+
+function CompetitionFormMetricPicker(props: {
+  metrics: Metric[];
+  onMetricsChanged: (metrics: Metric[]) => void;
+}) {
+  function handleRemoveMetric(metric: Metric) {
+    props.onMetricsChanged(props.metrics.filter((m) => m !== metric));
+  }
+
+  return (
+    <div>
+      <div className="-mb-2 flex justify-center rounded-md bg-blue-500 pb-4 pt-2 text-xs text-white">
+        🎉 New! You can now select multiple skills, bosses or activities in the same competition
+      </div>
+      <div className="overflow-hidden rounded-md border border-gray-500 bg-gray-900">
+        <div className="flex items-center justify-between border-b border-gray-500 p-4">
+          <div className="flex flex-col gap-1">
+            <Label>Metrics</Label>
+            <span className="text-body text-gray-200">Choose what participants will compete in.</span>
+          </div>
+          <MetricDropdown metrics={props.metrics} onMetricsSelected={props.onMetricsChanged}>
+            <Button>
+              <PlusIcon className="-ml-1.5 h-4 w-4" />
+              Add metric
+            </Button>
+          </MetricDropdown>
+        </div>
+        <div>
+          {props.metrics.length === 0 ? (
+            <div className="flex justify-center py-8">
+              <p className="text-body text-gray-200">
+                No metrics selected yet. Add a skill, boss or activity to get started.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <ul>
+                {props.metrics.map((m) => (
+                  <li
+                    key={m}
+                    className="flex items-center justify-between border-b border-gray-500 px-4 py-3 last:border-b-0"
+                  >
+                    <div className="flex h-8 items-center gap-x-3">
+                      <MetricIcon metric={m} />
+                      <span className="text-sm font-semibold">{MetricProps[m].name}</span>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label={`Remove ${MetricProps[m].name}`}
+                      className="rounded p-1 hover:bg-gray-500"
+                      onClick={() => handleRemoveMetric(m)}
+                    >
+                      <CloseIcon className="h-4 w-4 text-gray-200" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MetricDropdown(
+  props: PropsWithChildren<{
+    metrics: Metric[];
+    onMetricsSelected: (metric: Metric[]) => void;
+  }>,
+) {
+  const { metrics, onMetricsSelected } = props;
+  const metricType = MetricProps[metrics[0]]?.type;
+
+  const [open, setOpen] = useState(false);
+  const [page, setPage] = useState<"root" | "presets">("root");
+  const [search, setSearch] = useState("");
+
+  function goToPage(newPage: "root" | "presets") {
+    setPage(newPage);
+    setSearch("");
+  }
+
+  return (
+    <Combobox
+      multiple
+      closeOnSelect
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (o) goToPage("root");
+      }}
+      value={metrics}
+      onValueChanged={(val) => onMetricsSelected(val as Metric[])}
+    >
+      <ComboboxTrigger asChild>{props.children}</ComboboxTrigger>
+      <ComboboxContent
+        className="w-72"
+        align="end"
+        onEscapeKeyDown={(e) => {
+          // On the presets page, escape goes back instead of closing the popover
+          if (page === "presets") {
+            e.preventDefault();
+            goToPage("root");
+          }
+        }}
+      >
+        <ComboboxInput
+          placeholder={page === "presets" ? "Search presets..." : "Search metrics..."}
+          value={search}
+          onValueChange={setSearch}
+          onKeyDown={(e) => {
+            if (page === "presets" && e.key === "Backspace" && search === "") {
+              e.preventDefault();
+              goToPage("root");
+            }
+          }}
+        />
+        <ComboboxEmpty>No results were found</ComboboxEmpty>
+        <ComboboxItemsContainer>
+          {page === "presets" ? (
+            <>
+              <ComboboxItemGroup>
+                <ComboboxItem value="back" onSelect={() => goToPage("root")}>
+                  <ChevronDownIcon className="h-4 w-4 rotate-90" />
+                  Back
+                </ComboboxItem>
+              </ComboboxItemGroup>
+              {PRESET_GROUPS.map((group) => {
+                const presets = METRIC_COMBINATION_PRESETS.filter(
+                  (preset) => preset.type === group.type,
+                );
+
+                if (presets.length === 0) return null;
+
+                return (
+                  <ComboboxItemGroup key={group.type} label={group.label}>
+                    {presets.map((preset) => (
+                      <ComboboxItem
+                        key={preset.name}
+                        value={preset.name}
+                        onSelect={() => {
+                          onMetricsSelected(preset.metrics);
+                          setOpen(false);
+                        }}
+                        className="flex justify-between"
+                      >
+                        {preset.name}
+                        <MetricAvatarGroup
+                          size="sm"
+                          maxCount={3}
+                          metrics={preset.metrics}
+                          avatarClassname="ml-auto"
+                        />
+                      </ComboboxItem>
+                    ))}
+                  </ComboboxItemGroup>
+                );
+              })}
+            </>
+          ) : (
+            <>
+              <ComboboxItemGroup>
+                <ComboboxItem value="presets" onSelect={() => goToPage("presets")}>
+                  Browse presets
+                  <ChevronDownIcon className="ml-auto h-4 w-4 -rotate-90" />
+                </ComboboxItem>
+              </ComboboxItemGroup>
+              {(metricType === undefined || metricType === MetricType.SKILL) && (
+                <ComboboxItemGroup label="Skills">
+                  {SKILLS.map((skill) => (
+                    <ComboboxItem key={skill} value={skill}>
+                      <MetricIconSmall metric={skill} />
+                      {MetricProps[skill].name}
+                    </ComboboxItem>
+                  ))}
+                </ComboboxItemGroup>
+              )}
+              {(metricType === undefined || metricType === MetricType.BOSS) && (
+                <ComboboxItemGroup label="Bosses">
+                  {BOSSES.map((boss) => (
+                    <ComboboxItem key={boss} value={boss}>
+                      <MetricIconSmall metric={boss} />
+                      {MetricProps[boss].name}
+                    </ComboboxItem>
+                  ))}
+                </ComboboxItemGroup>
+              )}
+              {(metricType === undefined || metricType === MetricType.ACTIVITY) && (
+                <ComboboxItemGroup label="Activities">
+                  {ACTIVITIES.map((activity) => (
+                    <ComboboxItem key={activity} value={activity}>
+                      <MetricIconSmall metric={activity} />
+                      {MetricProps[activity].name}
+                    </ComboboxItem>
+                  ))}
+                </ComboboxItemGroup>
+              )}
+              {(metricType === undefined || metricType === MetricType.COMPUTED) && (
+                <ComboboxItemGroup label="Computed">
+                  {COMPUTED_METRICS.map((computed) => (
+                    <ComboboxItem key={computed} value={computed}>
+                      <MetricIconSmall metric={computed} />
+                      {MetricProps[computed].name}
+                    </ComboboxItem>
+                  ))}
+                </ComboboxItemGroup>
+              )}
+            </>
+          )}
+        </ComboboxItemsContainer>
+      </ComboboxContent>
+    </Combobox>
   );
 }
 
@@ -234,77 +464,6 @@ function TimezoneSelector(props: TimezoneSelectorProps) {
   );
 }
 
-interface MetricSelectProps {
-  metric: Metric;
-  onMetricSelected: (metric: Metric) => void;
-}
-
-function MetricSelect(props: MetricSelectProps) {
-  const { metric, onMetricSelected } = props;
-
-  return (
-    <>
-      <Combobox
-        value={metric}
-        onValueChanged={(val) => {
-          if (val === undefined) {
-            onMetricSelected(Metric.OVERALL);
-          } else if (isMetric(val)) {
-            onMetricSelected(val);
-          }
-        }}
-      >
-        <ComboboxButton className="w-full bg-gray-800 hover:bg-gray-700">
-          <div className="flex items-center gap-x-2">
-            <MetricIconSmall metric={metric} />
-            <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
-          </div>
-        </ComboboxButton>
-        <ComboboxContent className="max-h-64">
-          <ComboboxInput placeholder="Search metrics..." />
-          <ComboboxEmpty>No results were found</ComboboxEmpty>
-          <ComboboxItemsContainer>
-            <ComboboxItemGroup label="Skills">
-              {SKILLS.map((skill) => (
-                <ComboboxItem key={skill} value={skill}>
-                  <MetricIconSmall metric={skill} />
-                  {MetricProps[skill].name}
-                </ComboboxItem>
-              ))}
-            </ComboboxItemGroup>
-            <ComboboxSeparator />
-            <ComboboxItemGroup label="Bosses">
-              {BOSSES.map((boss) => (
-                <ComboboxItem key={boss} value={boss}>
-                  <MetricIconSmall metric={boss} />
-                  {MetricProps[boss].name}
-                </ComboboxItem>
-              ))}
-            </ComboboxItemGroup>
-            <ComboboxSeparator />
-            <ComboboxItemGroup label="Activities">
-              {ACTIVITIES.map((activity) => (
-                <ComboboxItem key={activity} value={activity}>
-                  <MetricIconSmall metric={activity} />
-                  {MetricProps[activity].name}
-                </ComboboxItem>
-              ))}
-            </ComboboxItemGroup>
-            <ComboboxItemGroup label="Computed">
-              {COMPUTED_METRICS.map((computed) => (
-                <ComboboxItem key={computed} value={computed}>
-                  <MetricIconSmall metric={computed} />
-                  {MetricProps[computed].name}
-                </ComboboxItem>
-              ))}
-            </ComboboxItemGroup>
-          </ComboboxItemsContainer>
-        </ComboboxContent>
-      </Combobox>
-    </>
-  );
-}
-
 function getTimezoneNameAndOffset() {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const offset = new Date().getTimezoneOffset() / -60;
@@ -327,8 +486,13 @@ function checkUnsavedChanges(previous: Payload, next: Payload, timezone: Timezon
 
   return (
     previous.title !== next.title ||
-    previous.metric !== next.metric ||
+    !hasSameMetrics(previous.metrics, next.metrics) ||
     previous.startsAt.getTime() !== startsAt.getTime() ||
     previous.endsAt.getTime() !== endsAt.getTime()
   );
+}
+
+function hasSameMetrics(previous: Metric[], next: Metric[]) {
+  const nextSet = new Set(next);
+  return previous.every((metric) => nextSet.has(metric)) && previous.length === next.length;
 }

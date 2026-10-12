@@ -178,7 +178,7 @@ function GeneralSection(props: EditCompetitionFormProps & { verificationCode: st
   const [timezone, setTimezone] = useState<TimezoneOption>("local");
 
   const editGeneralMutation = useMutation({
-    mutationFn: (payload: { title: string; metric: Metric; startsAt: Date; endsAt: Date }) => {
+    mutationFn: (payload: { title: string; metrics: Metric[]; startsAt: Date; endsAt: Date }) => {
       return client.competitions.editCompetition(competition.id, payload, verificationCode);
     },
     onSuccess: () => {
@@ -199,13 +199,18 @@ function GeneralSection(props: EditCompetitionFormProps & { verificationCode: st
       <CompetitionInfoForm
         mode="edit"
         timezone={timezone}
-        competition={competition}
+        competition={{
+          title: competition.title,
+          metrics: competition.metrics.map((m) => m.metric),
+          startsAt: competition.startsAt,
+          endsAt: competition.endsAt,
+        }}
         onTimezoneChanged={(tz) => {
           setTimezone(tz);
         }}
         onCompetitionChanged={(payload) => {
-          const { title, metric, startsAt, endsAt } = payload;
-          editGeneralMutation.mutate({ title, metric, startsAt, endsAt });
+          const { title, metrics, startsAt, endsAt } = payload;
+          editGeneralMutation.mutate({ title, metrics, startsAt, endsAt });
         }}
         formActions={(disabled, hasUnsavedChanges) => (
           <div className={cn("flex", hasUnsavedChanges ? "justify-between" : "justify-end")}>

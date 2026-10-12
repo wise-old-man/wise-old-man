@@ -110,7 +110,13 @@ const CommandItem = forwardRef<
   return (
     <CommandPrimitive.Item
       ref={ref}
-      onSelect={() => {
+      onSelect={(val) => {
+        // Items with their own onSelect handler (e.g. navigation items) skip the selection logic
+        if (onSelect) {
+          onSelect(val);
+          return;
+        }
+
         // In multi-select mode, selecting a selected item toggles it off
         if (isMultiple || !selected) {
           onItemSelected(props.value);
@@ -174,9 +180,15 @@ type ComboboxProps = PopoverPrimitive.PopoverProps &
   );
 
 export function Combobox(props: ComboboxProps) {
-  const { multiple, value, onValueChanged, onOpenChange, ...otherProps } = props;
+  const { multiple, value, onValueChanged, open: openProp, onOpenChange, ...otherProps } = props;
 
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = openProp ?? internalOpen;
+
+  function setOpen(o: boolean) {
+    setInternalOpen(o);
+    if (onOpenChange) onOpenChange(o);
+  }
 
   // Built from "props" (not the destructured values) so that TS can narrow on "multiple"
   const context: ComboboxContextValue = props.multiple
@@ -201,14 +213,7 @@ export function Combobox(props: ComboboxProps) {
       };
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={(o) => {
-        setOpen(o);
-        if (onOpenChange) onOpenChange(o);
-      }}
-      {...otherProps}
-    >
+    <Popover open={open} onOpenChange={setOpen} {...otherProps}>
       <ComboboxContext.Provider value={context}>{props.children}</ComboboxContext.Provider>
     </Popover>
   );
@@ -224,7 +229,14 @@ export const ComboboxSeparator = CommandSeparator;
 export function ComboboxItemsContainer(props: { className?: string } & PropsWithChildren) {
   return (
     <div
-      className={cn("custom-scroll max-h-[16rem] overflow-y-auto overflow-x-hidden", props.className)}
+      className={cn(
+        "custom-scroll max-h-[16rem] overflow-y-auto overflow-x-hidden",
+        // Firefox only supports scrollbar-color, but setting it disables the webkit scrollbar styles in Chrome
+        "[scrollbar-color:theme(colors.gray-400)_theme(colors.gray-600)]",
+        "supports-[selector(::-webkit-scrollbar)]:[scrollbar-color:auto]",
+        "[&::-webkit-scrollbar-track]:rounded [&::-webkit-scrollbar-track]:bg-gray-600",
+        props.className,
+      )}
     >
       {props.children}
     </div>
