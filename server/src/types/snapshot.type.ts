@@ -280,6 +280,9 @@ export interface Snapshot {
   the_corrupted_gauntletRank: number;
   the_corrupted_gauntletKills: number;
 
+  the_fractured_archiveRank: number;
+  the_fractured_archiveKills: number;
+
   the_hueycoatlRank: number;
   the_hueycoatlKills: number;
 

@@ -97,6 +97,7 @@ export const Boss = {
   TEMPOROSS: 'tempoross',
   THE_GAUNTLET: 'the_gauntlet',
   THE_CORRUPTED_GAUNTLET: 'the_corrupted_gauntlet',
+  THE_FRACTURED_ARCHIVE: 'the_fractured_archive',
   THE_HUEYCOATL: 'the_hueycoatl',
   THE_LEVIATHAN: 'the_leviathan',
   THE_ROYAL_TITANS: 'the_royal_titans',
