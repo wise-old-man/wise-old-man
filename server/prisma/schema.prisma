@@ -522,6 +522,8 @@ model Snapshot {
   the_gauntletKills                     Int       @default(-1)
   the_corrupted_gauntletKills           Int       @default(-1)
   the_corrupted_gauntletRank            Int       @default(-1)
+  the_fractured_archiveKills            Int       @default(-1)
+  the_fractured_archiveRank             Int       @default(-1)
   the_hueycoatlRank                     Int       @default(-1)
   the_hueycoatlKills                    Int       @default(-1)
   the_leviathanRank                     Int       @default(-1)
@@ -1352,6 +1354,7 @@ enum Metric {
   the_gauntlet
   the_hueycoatl
   the_corrupted_gauntlet
+  the_fractured_archive
   the_leviathan
   the_royal_titans
   the_whisperer
