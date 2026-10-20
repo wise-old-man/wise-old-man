@@ -38,7 +38,7 @@ import ChevronDownIcon from "~/assets/chevron_down.svg";
 const MAX_NAME_LENGTH = 50;
 
 type TimezoneOption = "utc" | "local";
-type Payload = Pick<CreateCompetitionPayload, "title" | "metric" | "startsAt" | "endsAt">;
+type Payload = Pick<CreateCompetitionPayload, "title" | "startsAt" | "endsAt"> & { metric: Metric };
 
 interface CompetitionInfoFormProps {
   mode: "create" | "edit";
