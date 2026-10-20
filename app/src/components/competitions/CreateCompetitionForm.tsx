@@ -46,7 +46,7 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
 
   const [type, setType] = useState<CompetitionType>(CompetitionType.CLASSIC);
 
-  const [competition, setCompetition] = useState<CreateCompetitionPayload>({
+  const [competition, setCompetition] = useState<CreateCompetitionPayload & { metric: Metric }>({
     title: "",
     metric: Metric.OVERALL,
     startsAt: getDefaultStartDate(),
