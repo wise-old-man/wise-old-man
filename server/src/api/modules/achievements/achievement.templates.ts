@@ -434,6 +434,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [100, 200, 1000, 2000]
   },
   {
+    name: '{threshold} The Fractured Archive kills',
+    metric: Metric.THE_FRACTURED_ARCHIVE,
+    thresholds: [100, 500, 1000, 5000]
+  },
+  {
     name: '{threshold} The Leviathan kills',
     metric: Metric.THE_LEVIATHAN,
     thresholds: [500, 1000, 5000, 10_000]
