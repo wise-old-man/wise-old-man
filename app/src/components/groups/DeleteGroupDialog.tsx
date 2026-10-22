@@ -15,6 +15,7 @@ import InfoIcon from "~/assets/info.svg";
 
 interface DeleteGroupDialogProps {
   groupId: number;
+  groupName: string;
 }
 
 export function DeleteGroupDialog(props: DeleteGroupDialogProps) {
@@ -47,6 +48,7 @@ export function DeleteGroupDialog(props: DeleteGroupDialogProps) {
         </DialogHeader>
         <DeleteGroupForm
           groupId={props.groupId}
+          groupName={props.groupName}
           onQuit={() => handleClose()}
           onSubmitted={() => router.push("/groups")}
         />
@@ -61,12 +63,15 @@ interface DeleteGroupFormProps extends DeleteGroupDialogProps {
 }
 
 function DeleteGroupForm(props: DeleteGroupFormProps) {
-  const { groupId, onQuit, onSubmitted } = props;
+  const { groupId, groupName, onQuit, onSubmitted } = props;
 
   const toast = useToast();
   const client = useWOMClient();
 
   const [verificationCode, setVerificationCode] = useState("");
+  const [confirmedName, setConfirmedName] = useState("");
+
+  const hasConfirmedName = confirmedName.trim() === groupName.trim();
 
   const deleteMutation = useMutation({
     mutationFn: () => {
@@ -85,12 +90,27 @@ function DeleteGroupForm(props: DeleteGroupFormProps) {
 
   return (
     <form
-      className="mt-2 flex flex-col gap-y-2"
+      className="mt-2 flex flex-col gap-y-5"
       onSubmit={(e) => {
         e.preventDefault();
+        if (!hasConfirmedName) return;
         deleteMutation.mutate();
       }}
     >
+      <div className="flex flex-col">
+        <Label className="mb-2 text-xs font-normal text-gray-200" htmlFor="confirmedName">
+          Type <span className="font-medium text-white">{groupName}</span> to confirm
+        </Label>
+        <Input
+          id="confirmedName"
+          autoFocus
+          name="confirmedName"
+          autoComplete="off"
+          placeholder="Enter the group name"
+          value={confirmedName}
+          onChange={(e) => setConfirmedName(e.target.value)}
+        />
+      </div>
       <div className="flex flex-col">
         <div className="mb-2 flex items-center">
           <Label className="text-xs font-normal text-gray-200" htmlFor="verificationCode">
@@ -117,7 +137,6 @@ function DeleteGroupForm(props: DeleteGroupFormProps) {
         </div>
         <Input
           id="verificationCode"
-          autoFocus
           type="password"
           name="verificationCode"
           autoComplete="verificationCode"
@@ -132,7 +151,7 @@ function DeleteGroupForm(props: DeleteGroupFormProps) {
           <Button
             variant="red"
             type="submit"
-            disabled={verificationCode.length === 0 || deleteMutation.isPending}
+            disabled={!hasConfirmedName || verificationCode.length === 0 || deleteMutation.isPending}
           >
             {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>
