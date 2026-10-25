@@ -5,16 +5,16 @@ import { assertNever } from '../../../utils/assert-never.util';
 import { NotFoundErrorZ } from '../../errors';
 import { checkAdminPermission } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
-import { createAPIKey } from './services/CreateAPIKeyService';
-import { revokeAPIKey } from './services/RevokeAPIKeyService';
-import { fetchTableCounts } from './services/FetchTableCountsService';
-import { blockUserActions } from './services/BlockUserActionsService';
 import { allowUserActions } from './services/AllowUserActionsService';
+import { blockUserActions } from './services/BlockUserActionsService';
+import { createAPIKey } from './services/CreateAPIKeyService';
+import { fetchTableCounts } from './services/FetchTableCountsService';
+import { revokeAPIKey } from './services/RevokeAPIKeyService';
 
 const router = Router();
 
 router.post(
-  '/api-key',
+  '/api-keys',
   checkAdminPermission,
   validateRequest({
     body: z.object({
@@ -31,7 +31,7 @@ router.post(
 );
 
 router.put(
-  '/api-key/:id/revoke',
+  '/api-keys/:id/revoke',
   checkAdminPermission,
   validateRequest({
     params: z.object({

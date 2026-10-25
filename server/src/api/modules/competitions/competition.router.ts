@@ -33,8 +33,8 @@ import { removeParticipants } from './services/RemoveParticipantsService';
 import { removeTeams } from './services/RemoveTeamsService';
 import { resetCompetitionCode } from './services/ResetCompetitionCodeService';
 import { searchCompetitions } from './services/SearchCompetitionsService';
+import { toggleCompetitionVisibility } from './services/ToggleCompetitionVisibilityService';
 import { updateAllParticipants } from './services/UpdateAllParticipantsService';
-import { updateCompetitionVisibility } from './services/UpdateCompetitionVisibilityService';
 
 const router = Router();
 
@@ -627,13 +627,10 @@ router.put(
   validateRequest({
     params: z.object({
       id: idSchema
-    }),
-    body: z.object({
-      visible: z.boolean()
     })
   }),
   executeRequest(async (req, res) => {
-    const result = await updateCompetitionVisibility(req.params.id, req.body.visible);
+    const result = await toggleCompetitionVisibility(req.params.id);
 
     if (isErrored(result)) {
       switch (result.error.code) {
@@ -646,7 +643,7 @@ router.put(
       }
     }
 
-    const action = req.body.visible ? 'unhid' : 'hid';
+    const action = result.value.visible ? 'unhid' : 'hid';
 
     res.status(200).json({ message: `Successfully ${action} competition: ${result.value.title}` });
   })

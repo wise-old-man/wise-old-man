@@ -1,28 +1,32 @@
 import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
-import prisma, { PrismaTypes } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { Group } from '../../../../types';
 import { eventEmitter, EventType } from '../../../events';
 
-export async function updateGroupVisibility(
-  groupId: number,
-  visible: boolean
+export async function toggleGroupVisibility(
+  groupId: number
 ): AsyncResult<Group, { code: 'GROUP_NOT_FOUND' } | { code: 'FAILED_TO_UPDATE_GROUP'; subError: unknown }> {
+  const group = await prisma.group.findFirst({
+    where: { id: groupId },
+    select: { visible: true }
+  });
+
+  if (group === null) {
+    return errored({ code: 'GROUP_NOT_FOUND' });
+  }
+
   const updateResult = await fromPromise(
     prisma.group.update({
       where: { id: groupId },
-      data: { visible }
+      data: { visible: !group.visible }
     })
   );
 
   if (isErrored(updateResult)) {
-    if (
-      updateResult.error instanceof PrismaTypes.PrismaClientKnownRequestError &&
-      updateResult.error.code === 'P2025'
-    ) {
-      return errored({ code: 'GROUP_NOT_FOUND' });
-    }
-
-    return errored({ code: 'FAILED_TO_UPDATE_GROUP', subError: updateResult.error });
+    return errored({
+      code: 'FAILED_TO_UPDATE_GROUP',
+      subError: updateResult.error
+    });
   }
 
   // Group score depends on visibility

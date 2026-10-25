@@ -3065,7 +3065,7 @@ describe('Group API', () => {
 
   describe('18 - Visibility', () => {
     it('should not change group visibility (invalid admin password)', async () => {
-      const response = await api.put(`/groups/100000/visibility`).send({ visible: false });
+      const response = await api.put(`/groups/100000/visibility`).send({});
 
       expect(response.status).toBe(400);
       expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
@@ -3073,7 +3073,6 @@ describe('Group API', () => {
 
     it('should not change group visibility (incorrect admin password)', async () => {
       const response = await api.put(`/groups/100000/visibility`).send({
-        visible: false,
         adminPassword: 'abcdef'
       });
 
@@ -3081,18 +3080,8 @@ describe('Group API', () => {
       expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
-    it('should not change group visibility (undefined visible)', async () => {
-      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/visibility`).send({
-        adminPassword: process.env.SHARED_ADMIN_PASSWORD
-      });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'visible' is undefined.");
-    });
-
     it('should not change group visibility (group not found)', async () => {
       const response = await api.put(`/groups/100000/visibility`).send({
-        visible: false,
         adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
@@ -3102,7 +3091,6 @@ describe('Group API', () => {
 
     it('should hide group', async () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/visibility`).send({
-        visible: false,
         adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
@@ -3118,7 +3106,6 @@ describe('Group API', () => {
 
     it('should unhide group', async () => {
       const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/visibility`).send({
-        visible: true,
         adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 

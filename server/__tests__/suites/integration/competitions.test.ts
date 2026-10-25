@@ -6337,7 +6337,7 @@ describe('Competition API', () => {
 
   describe('18 - Visibility', () => {
     it('should not change competition visibility (invalid admin password)', async () => {
-      const response = await api.put(`/competitions/100000/visibility`).send({ visible: false });
+      const response = await api.put(`/competitions/100000/visibility`).send({});
 
       expect(response.status).toBe(400);
       expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
@@ -6345,7 +6345,6 @@ describe('Competition API', () => {
 
     it('should not change competition visibility (incorrect admin password)', async () => {
       const response = await api.put(`/competitions/100000/visibility`).send({
-        visible: false,
         adminPassword: 'abcdef'
       });
 
@@ -6353,18 +6352,8 @@ describe('Competition API', () => {
       expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
-    it('should not change competition visibility (undefined visible)', async () => {
-      const response = await api.put(`/competitions/100000/visibility`).send({
-        adminPassword: process.env.SHARED_ADMIN_PASSWORD
-      });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'visible' is undefined.");
-    });
-
     it('should not change competition visibility (competition not found)', async () => {
       const response = await api.put(`/competitions/100000/visibility`).send({
-        visible: false,
         adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
@@ -6383,7 +6372,6 @@ describe('Competition API', () => {
       });
 
       const hideResponse = await api.put(`/competitions/${competition.id}/visibility`).send({
-        visible: false,
         adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 
@@ -6399,7 +6387,6 @@ describe('Competition API', () => {
       ).toBe(false);
 
       const unhideResponse = await api.put(`/competitions/${competition.id}/visibility`).send({
-        visible: true,
         adminPassword: process.env.SHARED_ADMIN_PASSWORD
       });
 

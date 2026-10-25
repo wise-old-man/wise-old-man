@@ -51,8 +51,8 @@ import { fetchGroupMembersCSV } from './services/FetchMembersCSVService';
 import { removeMembers } from './services/RemoveMembersService';
 import { resetGroupCode } from './services/ResetGroupCodeService';
 import { searchGroups } from './services/SearchGroupsService';
+import { toggleGroupVisibility } from './services/ToggleGroupVisibilityService';
 import { updateAllMembers } from './services/UpdateAllMembersService';
-import { updateGroupVisibility } from './services/UpdateGroupVisibilityService';
 import { verifyGroup } from './services/VerifyGroupService';
 
 const router = Router();
@@ -685,13 +685,10 @@ router.put(
   validateRequest({
     params: z.object({
       id: idSchema
-    }),
-    body: z.object({
-      visible: z.boolean()
     })
   }),
   executeRequest(async (req, res) => {
-    const result = await updateGroupVisibility(req.params.id, req.body.visible);
+    const result = await toggleGroupVisibility(req.params.id);
 
     if (isErrored(result)) {
       switch (result.error.code) {
@@ -704,7 +701,7 @@ router.put(
       }
     }
 
-    const action = req.body.visible ? 'unhid' : 'hid';
+    const action = result.value.visible ? 'unhid' : 'hid';
 
     res.status(200).json({ message: `Successfully ${action} group: ${result.value.name}` });
   })
