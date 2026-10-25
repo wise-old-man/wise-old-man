@@ -34,6 +34,7 @@ import { removeTeams } from './services/RemoveTeamsService';
 import { resetCompetitionCode } from './services/ResetCompetitionCodeService';
 import { searchCompetitions } from './services/SearchCompetitionsService';
 import { updateAllParticipants } from './services/UpdateAllParticipantsService';
+import { updateCompetitionVisibility } from './services/UpdateCompetitionVisibilityService';
 
 const router = Router();
 
@@ -617,6 +618,37 @@ router.put(
 
     const result = await resetCompetitionCode(id);
     res.status(200).json(result);
+  })
+);
+
+router.put(
+  '/competitions/:id/visibility',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      id: idSchema
+    }),
+    body: z.object({
+      visible: z.boolean()
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const result = await updateCompetitionVisibility(req.params.id, req.body.visible);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'FAILED_TO_UPDATE_COMPETITION':
+          throw result.error;
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const action = req.body.visible ? 'unhid' : 'hid';
+
+    res.status(200).json({ message: `Successfully ${action} competition: ${result.value.title}` });
   })
 );
 

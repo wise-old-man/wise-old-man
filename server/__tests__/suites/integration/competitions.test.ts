@@ -6334,4 +6334,85 @@ describe('Competition API', () => {
       expect(fetchCompetitionConfirmResponse.body.message).toBe('Competition not found.');
     });
   });
+
+  describe('18 - Visibility', () => {
+    it('should not change competition visibility (invalid admin password)', async () => {
+      const response = await api.put(`/competitions/100000/visibility`).send({ visible: false });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+    });
+
+    it('should not change competition visibility (incorrect admin password)', async () => {
+      const response = await api.put(`/competitions/100000/visibility`).send({
+        visible: false,
+        adminPassword: 'abcdef'
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+    });
+
+    it('should not change competition visibility (undefined visible)', async () => {
+      const response = await api.put(`/competitions/100000/visibility`).send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'visible' is undefined.");
+    });
+
+    it('should not change competition visibility (competition not found)', async () => {
+      const response = await api.put(`/competitions/100000/visibility`).send({
+        visible: false,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
+    });
+
+    it('should hide and unhide competition', async () => {
+      const competition = await prisma.competition.create({
+        data: {
+          title: 'Visibility Test',
+          verificationHash: 'hash',
+          startsAt: new Date(Date.now() + 1_200_000),
+          endsAt: new Date(Date.now() + 1_200_000 + 604_800_000)
+        }
+      });
+
+      const hideResponse = await api.put(`/competitions/${competition.id}/visibility`).send({
+        visible: false,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(hideResponse.status).toBe(200);
+      expect(hideResponse.body.message).toBe('Successfully hid competition: Visibility Test');
+
+      expect(
+        (
+          await prisma.competition.findFirst({
+            where: { id: competition.id }
+          })
+        )?.visible
+      ).toBe(false);
+
+      const unhideResponse = await api.put(`/competitions/${competition.id}/visibility`).send({
+        visible: true,
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(unhideResponse.status).toBe(200);
+      expect(unhideResponse.body.message).toBe('Successfully unhid competition: Visibility Test');
+
+      expect(
+        (
+          await prisma.competition.findFirst({
+            where: { id: competition.id }
+          })
+        )?.visible
+      ).toBe(true);
+    });
+  });
 });
