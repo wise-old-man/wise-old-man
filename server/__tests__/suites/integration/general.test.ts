@@ -204,6 +204,99 @@ describe('General API', () => {
       expect(rateLimitedCount).toBe(200);
     });
 
+    it('should report the minute window in rate limit headers (no API key)', async () => {
+      // Flush redis to reset rate limits
+      await redisClient.flushall();
+
+      // Rate limits are disabled in testing mode, so simulate production mode for a sec
+      process.env.NODE_ENV = 'production';
+
+      const response = await api.get('/');
+
+      process.env.NODE_ENV = 'test';
+
+      expect(response.status).toBe(200);
+      expect(response.headers['ratelimit-limit']).toBe('20');
+      expect(response.headers['ratelimit-remaining']).toBe('19');
+      expect(Number(response.headers['ratelimit-reset'])).toBeLessThanOrEqual(60);
+    });
+
+    it('should not allow more than 500 requests per hour (no API key)', async () => {
+      // Flush redis to reset rate limits
+      await redisClient.flushall();
+
+      const ip = '1.2.3.4';
+
+      let successCount = 0;
+      let rateLimitedCount = 0;
+      let lastResponse: supertest.Response | undefined;
+
+      // Rate limits are disabled in testing mode, so simulate production mode for a sec
+      process.env.NODE_ENV = 'production';
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for (const i of Array.from(Array(26).keys())) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const j of Array.from(Array(20).keys())) {
+          lastResponse = await api.get('/').set({ 'cf-connecting-ip': ip });
+
+          if (lastResponse.status === 200) successCount++;
+          else if (lastResponse.status === 429) rateLimitedCount++;
+        }
+
+        // Reset the minute window, so that only the hourly window can be exhausted
+        await redisClient.del(buildCompoundRedisKey('rl', 'default', 'minute', ip));
+      }
+
+      process.env.NODE_ENV = 'test';
+
+      expect(successCount).toBe(500);
+      expect(rateLimitedCount).toBe(20);
+
+      expect(lastResponse?.headers['ratelimit-limit']).toBe('500');
+      expect(lastResponse?.headers['ratelimit-remaining']).toBe('0');
+      expect(Number(lastResponse?.headers['retry-after'])).toBeGreaterThan(60);
+    });
+
+    it('should not allow more than 20000 requests per day (with API key)', async () => {
+      // Flush redis to reset rate limits
+      await redisClient.flushall();
+
+      // Create new API key
+      const apiKeyResponse = await api.post(`/api-key`).send({
+        application: 'daily-limit',
+        developer: 'psikoi',
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+      expect(apiKeyResponse.status).toBe(201);
+
+      await sleep(100);
+
+      // Simulate 19999 requests already made today
+      await redisClient.set(
+        buildCompoundRedisKey('rl', 'trusted', 'day', apiKeyResponse.body.id),
+        19_999,
+        'EX',
+        24 * 60 * 60
+      );
+
+      // Rate limits are disabled in testing mode, so simulate production mode for a sec
+      process.env.NODE_ENV = 'production';
+
+      const lastAllowedResponse = await api.get('/').set({ 'x-api-key': apiKeyResponse.body.id });
+      const rateLimitedResponse = await api.get('/').set({ 'x-api-key': apiKeyResponse.body.id });
+
+      process.env.NODE_ENV = 'test';
+
+      expect(lastAllowedResponse.status).toBe(200);
+      expect(lastAllowedResponse.headers['ratelimit-limit']).toBe('20000');
+      expect(lastAllowedResponse.headers['ratelimit-remaining']).toBe('0');
+
+      expect(rateLimitedResponse.status).toBe(429);
+      expect(rateLimitedResponse.headers['ratelimit-limit']).toBe('20000');
+      expect(Number(rateLimitedResponse.headers['retry-after'])).toBeGreaterThan(60 * 60);
+    });
+
     it('should allow more than 100 requests per minute (with master API key)', async () => {
       // Flush redis to reset rate limits
       await redisClient.flushall();
