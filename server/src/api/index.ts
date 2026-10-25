@@ -2,37 +2,20 @@ import * as Sentry from '@sentry/node';
 import cors from 'cors';
 import express, { Express } from 'express';
 import userAgent from 'express-useragent';
-import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
-import { logger } from '../services/logger.service';
 import { buildCompoundRedisKey, redisClient } from '../services/redis.service';
 import prometheus from './../services/prometheus.service';
 import router from './routing';
+import { RateLimiter } from './util/rate-limiter';
 import { getRequestIp, getRequestIpHash } from './util/request';
 import { parseUserAgent } from './util/user-agents';
 
-const RATE_LIMIT_MAX_REQUESTS = 20;
-const RATE_LIMIT_DURATION_SECONDS = 60;
-
-const defaultRateLimiter = new RateLimiterRedis({
-  points: RATE_LIMIT_MAX_REQUESTS,
-  duration: RATE_LIMIT_DURATION_SECONDS,
-  storeClient: redisClient,
-  keyPrefix: 'rl:default'
-});
-
-// Registered Developer API Keys are allowed 5x more requests per minute
-const trustedRateLimiter = new RateLimiterRedis({
-  points: RATE_LIMIT_MAX_REQUESTS * 5,
-  duration: RATE_LIMIT_DURATION_SECONDS,
-  storeClient: redisClient,
-  keyPrefix: 'rl:trusted'
-});
-
 class APIInstance {
   express: Express;
+  rateLimiter: RateLimiter;
 
   constructor() {
     this.express = express();
+    this.rateLimiter = new RateLimiter();
   }
 
   init() {
@@ -113,7 +96,7 @@ class APIInstance {
 
         if (activeKey === null) {
           return res.status(403).json({
-            message: 'Invalid API Key. Please check https://docs.wiseoldman.net/#rate-limits--api-keys'
+            message: 'Invalid API Key. Please check https://docs.wiseoldman.net/api#rate-limits--api-keys'
           });
         }
 
@@ -137,37 +120,20 @@ class APIInstance {
         });
       }
 
-      const limiter = isTrustedOrigin ? trustedRateLimiter : defaultRateLimiter;
+      const { isAllowed, headers } = await this.rateLimiter.consume(
+        consumerId,
+        isTrustedOrigin ? 'trusted' : 'default'
+      );
 
-      limiter
-        .consume(consumerId, 1)
-        .then(response => {
-          res.set({
-            'RateLimit-Limit': limiter.points,
-            'RateLimit-Remaining': response.remainingPoints,
-            'RateLimit-Reset': Math.ceil(response.msBeforeNext / 1000)
-          });
+      res.set(headers);
 
-          return next();
-        })
-        .catch(error => {
-          if (!(error instanceof RateLimiterRes)) {
-            Sentry.captureException(error);
-            logger.error('Error consuming rate limiter points', { error });
-            return next();
-          }
-
-          res.set({
-            'RateLimit-Limit': limiter.points,
-            'RateLimit-Remaining': 0,
-            'RateLimit-Reset': Math.ceil(error.msBeforeNext / 1000),
-            'Retry-After': Math.ceil(error.msBeforeNext / 1000)
-          });
-
-          res.status(429).json({
-            message: 'Too Many Requests. Please check https://docs.wiseoldman.net/#rate-limits--api-keys.'
-          });
+      if (!isAllowed) {
+        return res.status(429).json({
+          message: 'Too Many Requests. Please check https://docs.wiseoldman.net/api#rate-limits--api-keys.'
         });
+      }
+
+      next();
     });
   }
 

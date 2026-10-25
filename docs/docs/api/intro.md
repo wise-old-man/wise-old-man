@@ -37,11 +37,10 @@ This documentation website will provide examples for each request using **cURL**
 
 ### 3rd party libraries
 
-| Library  | Language | Maintainer   | Links                                                                                            |
-| -------- | -------- | ------------ | ------------------------------------------------------------------------------------------------ |
-| `wom.py` | Python3  | `@jonxslays` | [Docs](https://jonxslays.github.io/wom.py/stable) \| [Repo](https://github.com/jonxslays/wom.py) |
-| `wom-php` (🚧 WIP) | PHP | `@xgerhard` | [Docs](https://github.com/xgerhard/wom-php/blob/main/docs/index.md) \| [Repo](https://github.com/xgerhard/wom-php) |
-
+| Library            | Language | Maintainer   | Links                                                                                                              |
+| ------------------ | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `wom.py`           | Python3  | `@jonxslays` | [Docs](https://jonxslays.github.io/wom.py/stable) \| [Repo](https://github.com/jonxslays/wom.py)                   |
+| `wom-php` (🚧 WIP) | PHP      | `@xgerhard`  | [Docs](https://github.com/xgerhard/wom-php/blob/main/docs/index.md) \| [Repo](https://github.com/xgerhard/wom-php) |
 
 :::caution
 Support for 3rd party libraries **may be limited** depending on the availability of the maintainer.
@@ -65,7 +64,15 @@ Example: <br />
 
 ### Rate Limits & API Keys
 
-There is a maximum of 20 requests per 60 seconds, however, this can be increased (to 100) if you register for an **API key**.
+Rate limits are applied per IP address, or per **API key** if you have one. Registering for an API key gives you **higher limits**.
+
+| Window     | Without API key | With API key |
+| ---------- | --------------- | ------------ |
+| Per minute | 20              | 100          |
+| Per hour   | 500             | (no limit)   |
+| Per day    | 3,000           | 20,000       |
+
+All windows apply at the same time, and exceeding any of them will result in a `429` response until that window resets.
 
 <br />
 
@@ -87,9 +94,9 @@ Feel free to reach out to us on Discord if you are unsure about the best approac
 
 **API Keys** help us keep track of who is actually using our API, and what resources they need the most, and can be really helpful for us to know how to contact our API consumers.
 
-**If you want an API key, or just want to be notified of API changes, just send us a message on [our discord](https://wiseoldman.net/discord) and we'll help you.**
+**If you want an API key, you can ask for one on our Discord [#support channel](https://discord.gg/twmgEevbs2).**
 
-Alternatively, you can add a user agent header to your requests, which would help us identify who you are, however, this does not increase API rate limits.
+Alternatively, you can add a user agent header to your requests, which would help us know who to reach out to if needed, however, this does not increase API rate limits.
 
 :::info
 If you do not provide us with a user agent that we can use to potentially contact you if you are found to be abusing our API, we have no other choice but to IP ban you.
@@ -99,17 +106,21 @@ If you do not provide us with a user agent that we can use to potentially contac
 
 Every API response includes headers to help you track your current rate limit usage:
 
-| Header              | Description                                              |
-| ------------------- | -------------------------------------------------------- |
-| `RateLimit-Limit`     | The maximum number of requests allowed in the current window |
-| `RateLimit-Remaining` | The number of requests remaining in the current window   |
-| `RateLimit-Reset`     | The number of seconds until the current window resets    |
+| Header                | Description                                                   |
+| --------------------- | ------------------------------------------------------------- |
+| `RateLimit-Limit`     | The maximum number of requests allowed in the reported window |
+| `RateLimit-Remaining` | The number of requests remaining in the reported window       |
+| `RateLimit-Reset`     | The number of seconds until the reported window resets        |
+
+Since multiple windows apply at once, these headers report the window with the fewest requests remaining. On a `429` response, they report the exceeded window that takes the longest to reset.
 
 When you exceed the rate limit and receive a `429` response, an additional header is included:
 
-| Header        | Description                                     |
-| ------------- | ----------------------------------------------- |
-| `Retry-After` | The number of seconds to wait before retrying   |
+| Header        | Description                                   |
+| ------------- | --------------------------------------------- |
+| `Retry-After` | The number of seconds to wait before retrying |
+
+If more than one window has been exceeded, `Retry-After` reports the one that takes the longest to reset.
 
 You can use these headers to implement backoff logic in your application and avoid hitting the rate limit.
 
