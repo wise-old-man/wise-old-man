@@ -12,6 +12,7 @@ datasource db {
 model ApiKey {
   id          String  @id @default(cuid())
   master      Boolean @default(false)
+  active      Boolean @default(true)
   developer   String
   application String
 

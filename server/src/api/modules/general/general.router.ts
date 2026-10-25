@@ -1,8 +1,12 @@
+import { isErrored } from '@attio/fetchable';
 import { Router } from 'express';
 import { z } from 'zod';
+import { assertNever } from '../../../utils/assert-never.util';
+import { NotFoundErrorZ } from '../../errors';
 import { checkAdminPermission } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { createAPIKey } from './services/CreateAPIKeyService';
+import { revokeAPIKey } from './services/RevokeAPIKeyService';
 import { fetchTableCounts } from './services/FetchTableCountsService';
 import { blockUserActions } from './services/BlockUserActionsService';
 import { allowUserActions } from './services/AllowUserActionsService';
@@ -23,6 +27,32 @@ router.post(
     const key = await createAPIKey(application, developer);
 
     res.status(201).json(key);
+  })
+);
+
+router.put(
+  '/api-key/:id/revoke',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      id: z.string()
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const result = await revokeAPIKey(req.params.id);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'API_KEY_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'FAILED_TO_REVOKE_API_KEY':
+          throw result.error;
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    res.status(200).json(result.value);
   })
 );
 

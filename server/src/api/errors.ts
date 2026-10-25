@@ -1,5 +1,6 @@
 const ErrorMessageMap = {
   ALL_PLAYERS_ALREADY_COMPETING: `All players are already competing in this competition`,
+  API_KEY_NOT_FOUND: `API key not found`,
   CANNOT_ADD_PARTICIPANTS_TO_TEAM_COMPETITION: `Cannot add participants to a team competition`,
   CANNOT_ADD_TEAMS_TO_CLASSIC_COMPETITION: `Cannot add teams to a classic competition`,
   CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION: `Cannot view team/teams table on a classic competition`,
