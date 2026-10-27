@@ -7,6 +7,14 @@ async function fetchGroupActivity(
   groupId: number,
   pagination: PaginationOptions
 ): Promise<Array<{ activity: MemberActivity; player: Player }>> {
+  const group = await prisma.group.findFirst({
+    where: { id: groupId, deletedAt: null }
+  });
+
+  if (!group) {
+    throw new NotFoundError('Group not found.');
+  }
+
   const activities = await prisma.memberActivity.findMany({
     where: { groupId },
     include: {
@@ -18,13 +26,6 @@ async function fetchGroupActivity(
   });
 
   if (!activities || activities.length === 0) {
-    const group = await prisma.group.findFirst({
-      where: { id: groupId }
-    });
-
-    if (!group) {
-      throw new NotFoundError('Group not found.');
-    }
     return [];
   }
 

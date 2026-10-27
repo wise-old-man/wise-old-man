@@ -5,17 +5,8 @@ import { sortMembers } from '../group.utils';
 import { Membership, Player } from '../../../../types';
 
 async function fetchGroupMembersCSV(groupId: number): Promise<string> {
-  const memberships = await prisma.membership.findMany({
-    where: {
-      groupId
-    },
-    include: {
-      player: true
-    }
-  });
-
   const group = await prisma.group.findFirst({
-    where: { id: groupId },
+    where: { id: groupId, deletedAt: null },
     include: {
       roleOrders: true
     }
@@ -24,6 +15,15 @@ async function fetchGroupMembersCSV(groupId: number): Promise<string> {
   if (!group) {
     throw new NotFoundError('Group not found.');
   }
+
+  const memberships = await prisma.membership.findMany({
+    where: {
+      groupId
+    },
+    include: {
+      player: true
+    }
+  });
 
   if (!memberships || memberships.length === 0) {
     throw new BadRequestError('Group has no members.');
