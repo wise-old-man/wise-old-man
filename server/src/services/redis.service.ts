@@ -1,4 +1,5 @@
 import IORedis, { RedisOptions } from 'ioredis';
+import '../env';
 
 export const REDIS_CONFIG: RedisOptions = {
   host: process.env.REDIS_HOST,

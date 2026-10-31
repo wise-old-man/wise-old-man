@@ -3062,4 +3062,61 @@ describe('Group API', () => {
       });
     });
   });
+
+  describe('18 - Visibility', () => {
+    it('should not change group visibility (invalid admin password)', async () => {
+      const response = await api.put(`/groups/100000/visibility`).send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+    });
+
+    it('should not change group visibility (incorrect admin password)', async () => {
+      const response = await api.put(`/groups/100000/visibility`).send({
+        adminPassword: 'abcdef'
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+    });
+
+    it('should not change group visibility (group not found)', async () => {
+      const response = await api.put(`/groups/100000/visibility`).send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toMatchObject({ code: 'GROUP_NOT_FOUND' });
+    });
+
+    it('should hide group', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/visibility`).send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toMatch('Successfully hid group:');
+
+      const group = await prisma.group.findFirst({
+        where: { id: globalData.testGroupOneLeader.id }
+      });
+
+      expect(group?.visible).toBe(false);
+    });
+
+    it('should unhide group', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/visibility`).send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toMatch('Successfully unhid group:');
+
+      const group = await prisma.group.findFirst({
+        where: { id: globalData.testGroupOneLeader.id }
+      });
+
+      expect(group?.visible).toBe(true);
+    });
+  });
 });

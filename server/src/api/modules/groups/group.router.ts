@@ -51,6 +51,7 @@ import { fetchGroupMembersCSV } from './services/FetchMembersCSVService';
 import { removeMembers } from './services/RemoveMembersService';
 import { resetGroupCode } from './services/ResetGroupCodeService';
 import { searchGroups } from './services/SearchGroupsService';
+import { toggleGroupVisibility } from './services/ToggleGroupVisibilityService';
 import { updateAllMembers } from './services/UpdateAllMembersService';
 import { verifyGroup } from './services/VerifyGroupService';
 
@@ -675,6 +676,34 @@ router.put(
     const response = formatGroupResponse(group, memberCount);
 
     res.status(200).json(response);
+  })
+);
+
+router.put(
+  '/groups/:id/visibility',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      id: idSchema
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const result = await toggleGroupVisibility(req.params.id);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'FAILED_TO_UPDATE_GROUP':
+          throw result.error;
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const action = result.value.visible ? 'unhid' : 'hid';
+
+    res.status(200).json({ message: `Successfully ${action} group: ${result.value.name}` });
   })
 );
 

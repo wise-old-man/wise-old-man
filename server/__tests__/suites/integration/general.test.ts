@@ -6,7 +6,8 @@ import prisma from '../../../src/prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
 import { resetDatabase, sleep } from '../../utils';
 
-const api = supertest(new APIInstance().init().express);
+const server = new APIInstance().init().express.listen(0);
+const api = supertest(server);
 
 beforeAll(async () => {
   eventEmitter.init();
@@ -17,6 +18,7 @@ beforeAll(async () => {
 afterAll(() => {
   jest.useRealTimers();
   redisClient.quit();
+  server.close();
 });
 
 describe('General API', () => {
@@ -84,21 +86,21 @@ describe('General API', () => {
 
   describe('Create API key', () => {
     it('should not create API key (invalid admin password)', async () => {
-      const response = await api.post(`/api-key`).send({});
+      const response = await api.post(`/api-keys`).send({});
 
       expect(response.status).toBe(400);
       expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not create API key (incorrect admin password)', async () => {
-      const response = await api.post(`/api-key`).send({ adminPassword: 'abc' });
+      const response = await api.post(`/api-keys`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
       expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not create API key (undefined application name)', async () => {
-      const response = await api.post(`/api-key`).send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+      const response = await api.post(`/api-keys`).send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'application' is undefined.");
@@ -106,7 +108,7 @@ describe('General API', () => {
 
     it('should not create API key (undefined developer name)', async () => {
       const response = await api
-        .post(`/api-key`)
+        .post(`/api-keys`)
         .send({ application: 'Some Website', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
@@ -114,7 +116,7 @@ describe('General API', () => {
     });
 
     it('should create API key', async () => {
-      const response = await api.post(`/api-key`).send({
+      const response = await api.post(`/api-keys`).send({
         application: 'Some Website',
         developer: 'aluminoti',
         adminPassword: process.env.SHARED_ADMIN_PASSWORD
@@ -130,8 +132,73 @@ describe('General API', () => {
 
       await sleep(100);
 
-      // Make sure it's been stored in redis memory
+      // Make sure it's been stored in redis memory, with an expiration
       expect(await redisClient.get(buildCompoundRedisKey('api_key', response.body.id))).toBe('false');
+      expect(await redisClient.ttl(buildCompoundRedisKey('api_key', response.body.id))).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Revoke API key', () => {
+    it('should not revoke API key (invalid admin password)', async () => {
+      const response = await api.put(`/api-keys/abc/revoke`).send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+    });
+
+    it('should not revoke API key (incorrect admin password)', async () => {
+      const response = await api.put(`/api-keys/abc/revoke`).send({ adminPassword: 'abc' });
+
+      expect(response.status).toBe(403);
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+    });
+
+    it('should not revoke API key (key not found)', async () => {
+      const response = await api
+        .put(`/api-keys/abc/revoke`)
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toMatchObject({ code: 'API_KEY_NOT_FOUND' });
+    });
+
+    it('should revoke API key', async () => {
+      const createResponse = await api.post(`/api-keys`).send({
+        application: 'Abusive App',
+        developer: 'someone',
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(createResponse.status).toBe(201);
+
+      const keyId = createResponse.body.id;
+
+      await sleep(100);
+      expect(await redisClient.get(buildCompoundRedisKey('api_key', keyId))).toBe('false');
+
+      const response = await api
+        .put(`/api-keys/${keyId}/revoke`)
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        id: keyId,
+        application: 'Abusive App',
+        developer: 'someone',
+        active: false
+      });
+
+      await sleep(100);
+
+      // Removed from redis, so requests with it are rejected
+      expect(await redisClient.get(buildCompoundRedisKey('api_key', keyId))).toBeNull();
+
+      process.env.NODE_ENV = 'production';
+      const rejectedResponse = await api.get('/').set({ 'x-api-key': keyId });
+      process.env.NODE_ENV = 'test';
+
+      expect(rejectedResponse.status).toBe(403);
+      expect(rejectedResponse.body.message).toMatch('Invalid API Key.');
     });
   });
 
@@ -175,7 +242,7 @@ describe('General API', () => {
       await redisClient.flushall();
 
       // Create new API key
-      const apiKeyResponse = await api.post(`/api-key`).send({
+      const apiKeyResponse = await api.post(`/api-keys`).send({
         application: '123456',
         developer: 'psikoi',
         adminPassword: process.env.SHARED_ADMIN_PASSWORD
@@ -263,7 +330,7 @@ describe('General API', () => {
       await redisClient.flushall();
 
       // Create new API key
-      const apiKeyResponse = await api.post(`/api-key`).send({
+      const apiKeyResponse = await api.post(`/api-keys`).send({
         application: 'daily-limit',
         developer: 'psikoi',
         adminPassword: process.env.SHARED_ADMIN_PASSWORD
@@ -302,7 +369,7 @@ describe('General API', () => {
       await redisClient.flushall();
 
       // Create new API key
-      const apiKeyResponse = await api.post(`/api-key`).send({
+      const apiKeyResponse = await api.post(`/api-keys`).send({
         application: 'xyzxyz',
         developer: 'Rorro',
         adminPassword: process.env.SHARED_ADMIN_PASSWORD
