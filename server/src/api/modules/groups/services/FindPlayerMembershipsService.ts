@@ -19,7 +19,8 @@ async function findPlayerMemberships(
         username: standardizeUsername(username)
       },
       group: {
-        visible: true
+        visible: true,
+        deletedAt: null
       }
     },
     include: {

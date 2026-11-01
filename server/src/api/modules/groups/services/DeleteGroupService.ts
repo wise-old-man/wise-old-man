@@ -4,8 +4,9 @@ import { NotFoundError, ServerError } from '../../../errors';
 
 async function deleteGroup(id: number): Promise<Group> {
   try {
-    const deletedGroup = await prisma.group.delete({
-      where: { id }
+    const deletedGroup = await prisma.group.update({
+      where: { id },
+      data: { deletedAt: new Date() }
     });
 
     return deletedGroup as Group;

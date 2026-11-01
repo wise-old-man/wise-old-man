@@ -59,10 +59,15 @@ async function removeMembers(groupId: number, members: string[]): Promise<{ coun
         throw new Error();
       }
 
-      await transaction.group.update({
+      const updatedGroup = await transaction.group.update({
         where: { id: groupId },
-        data: { updatedAt: new Date() }
+        data: { updatedAt: new Date() },
+        select: { deletedAt: true }
       });
+
+      if (updatedGroup.deletedAt) {
+        throw new Error('Cannot remove members from a deleted group.');
+      }
 
       await transaction.memberActivity.createMany({ data: newActivites });
 

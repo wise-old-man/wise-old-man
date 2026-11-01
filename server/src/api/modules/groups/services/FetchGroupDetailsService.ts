@@ -11,7 +11,7 @@ async function fetchGroupDetails(id: number): Promise<{
   memberships: Array<{ membership: Membership; player: Player }>;
 }> {
   const group = await prisma.group.findFirst({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       memberships: {
         include: { player: true }

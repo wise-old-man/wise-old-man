@@ -76,7 +76,7 @@ export async function editGroup(
   }
 
   const group = await prisma.group.findFirst({
-    where: { id: groupId }
+    where: { id: groupId, deletedAt: null }
   });
 
   if (group === null) {
