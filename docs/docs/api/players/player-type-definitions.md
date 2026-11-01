@@ -117,7 +117,7 @@ sidebar_position: 1
 | id             | integer | The annotation's unique ID.        |
 | playerId       | integer | The annotation's parent player ID. |
 | createdAt      | date    | The annotation's creation date.    |
-| annotationType | Enum    | The annotation0s type.             |
+| annotationType | Enum    | The annotation's type.             |
 
 <br />
 
