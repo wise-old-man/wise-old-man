@@ -164,7 +164,7 @@ export function CompetitionsListSkeleton(props: { count: number }) {
               style={{ opacity: 1 - i * (1 / count) }}
             >
               <ListTableCell className="flex items-center gap-x-3">
-                <div className="h-6 w-6 animate-pulse rounded-full bg-gray-700" />
+                <div className="h-12 w-12 animate-pulse rounded-full bg-gray-700" />
                 <div className="flex flex-col gap-y-2 py-1">
                   <div className="h-4 w-60 animate-pulse rounded-lg bg-gray-700" />
                   <div className="h-3 w-28 animate-pulse rounded-lg bg-gray-700" />
