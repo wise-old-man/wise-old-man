@@ -1,33 +1,37 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { NameChange, NameChangeStatus, Player, PlayerAnnotationType } from '../../../../types';
-import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 
-async function findGroupNameChanges(
+export async function findGroupNameChanges(
   groupId: number,
   pagination: PaginationOptions
-): Promise<Array<{ nameChange: NameChange; player: Player }>> {
-  // Fetch this group and all of its memberships
+): AsyncResult<
+  Array<{
+    nameChange: NameChange;
+    player: Player;
+  }>,
+  { code: 'GROUP_NOT_FOUND' }
+> {
   const groupAndMemberships = await prisma.group.findFirst({
     where: { id: groupId },
     include: { memberships: { select: { playerId: true } } }
   });
 
-  if (!groupAndMemberships) {
-    throw new NotFoundError('Group not found.');
+  if (groupAndMemberships === null) {
+    return errored({ code: 'GROUP_NOT_FOUND' });
   }
 
-  // Convert the memberships to an array of player IDs
-  const playerIds = groupAndMemberships.memberships.map(m => m.playerId);
-
-  if (playerIds.length === 0) {
-    return [];
+  if (groupAndMemberships.memberships.length === 0) {
+    return complete([]);
   }
 
   // Fetch all name changes for these player IDs
   const nameChanges = await prisma.nameChange.findMany({
     where: {
-      playerId: { in: playerIds },
+      playerId: {
+        in: groupAndMemberships.memberships.map(m => m.playerId)
+      },
       status: NameChangeStatus.APPROVED,
       player: {
         annotations: {
@@ -43,10 +47,10 @@ async function findGroupNameChanges(
     skip: pagination.offset
   });
 
-  return nameChanges.map(({ player, ...nameChange }) => ({
-    nameChange: nameChange as NameChange,
-    player
-  }));
+  return complete(
+    nameChanges.map(({ player, ...nameChange }) => ({
+      nameChange: nameChange as NameChange,
+      player
+    }))
+  );
 }
-
-export { findGroupNameChanges };

@@ -1,3 +1,4 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import {
   Competition,
@@ -14,7 +15,6 @@ import {
   getRequiredSnapshotFields,
   selectRequiredSnapshotFields
 } from '../../../../utils/get-required-snapshot-fields.util';
-import { BadRequestError, NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 import { findGroupSnapshots } from '../../snapshots/services/FindGroupSnapshotsService';
 
@@ -24,15 +24,7 @@ type Filter = {
   maxDate?: Date;
 };
 
-export async function fetchCompetitionDetails({
-  id,
-  metrics,
-  filter = {}
-}: {
-  id: number;
-  metrics?: Metric[];
-  filter?: Filter;
-}): Promise<{
+type ReturnType = {
   competition: Competition;
   metrics: CompetitionMetric[];
   group: (Group & { memberCount: number }) | null;
@@ -45,9 +37,19 @@ export async function fetchCompetitionDetails({
       levels: MetricDelta;
     }>;
   }>;
-}> {
+};
+
+export async function fetchCompetitionDetails({
+  id,
+  metrics,
+  filter = {}
+}: {
+  id: number;
+  metrics?: Metric[];
+  filter?: Filter;
+}): AsyncResult<ReturnType, { code: 'COMPETITION_NOT_FOUND' } | { code: 'INVALID_DATE_RANGE' }> {
   if (filter.minDate && filter.maxDate && filter.minDate >= filter.maxDate) {
-    throw new BadRequestError('Min date must be before the max date.');
+    return errored({ code: 'INVALID_DATE_RANGE' });
   }
 
   const competition = await prisma.competition.findFirst({
@@ -75,8 +77,8 @@ export async function fetchCompetitionDetails({
     }
   });
 
-  if (!competition) {
-    throw new NotFoundError('Competition not found.');
+  if (competition === null) {
+    return errored({ code: 'COMPETITION_NOT_FOUND' });
   }
 
   // Deltas can only be calculated from within the competition's own period, so a filter
@@ -85,7 +87,7 @@ export async function fetchCompetitionDetails({
     (filter.minDate && filter.minDate >= competition.endsAt) ||
     (filter.maxDate && filter.maxDate <= competition.startsAt)
   ) {
-    throw new BadRequestError("The given date range does not overlap with the competition's period.");
+    return errored({ code: 'INVALID_DATE_RANGE' });
   }
 
   const selectedMetrics = metrics ?? competition.metrics.map(m => m.metric);
@@ -102,7 +104,7 @@ export async function fetchCompetitionDetails({
       a.player.id - b.player.id
   );
 
-  return {
+  return complete({
     competition,
     metrics: competition.metrics,
     group: competition.group
@@ -112,7 +114,7 @@ export async function fetchCompetitionDetails({
         }
       : null,
     participations: sortedStandings
-  };
+  });
 }
 
 async function fetchParticipantData(

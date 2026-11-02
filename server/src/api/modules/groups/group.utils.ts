@@ -1,16 +1,15 @@
 import { GroupRoleOrder, Membership } from '../../../types';
 import { PRIVILEGED_GROUP_ROLES } from '../../../utils/shared';
 
-function sortMembers<M extends { membership: Membership }>(
+export function sortMembers<M extends { membership: Membership }>(
   memberships: Array<M>,
   roleOrders?: Array<GroupRoleOrder>
 ): Array<M> {
   if (roleOrders && roleOrders.length) {
-    const roleOrderMap = new Map(roleOrders.map(r => [r.role, r.index]));
+    const map = new Map(roleOrders.map(r => [r.role, r.index]));
     // this assumes roleOrders is sorted by index ascending out of the database
     return [...memberships].sort(
-      (a, b) =>
-        (roleOrderMap.get(a.membership.role) ?? 10000) - (roleOrderMap.get(b.membership.role) ?? 10000)
+      (a, b) => (map.get(a.membership.role) ?? 10000) - (map.get(b.membership.role) ?? 10000)
     );
   }
 
@@ -23,4 +22,3 @@ function sortMembers<M extends { membership: Membership }>(
       a.membership.role.localeCompare(b.membership.role)
   );
 }
-export { sortMembers };

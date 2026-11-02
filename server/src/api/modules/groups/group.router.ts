@@ -97,11 +97,20 @@ router.post(
       ipHash
     });
 
-    const details = await fetchGroupDetails(createResult.group.id);
+    const detailsResult = await fetchGroupDetails(createResult.group.id);
+
+    if (isErrored(detailsResult)) {
+      switch (detailsResult.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(detailsResult.error);
+        default:
+          assertNever(detailsResult.error.code);
+      }
+    }
 
     const response = {
       verificationCode: createResult.verificationCode,
-      group: formatGroupDetailsResponse(details)
+      group: formatGroupDetailsResponse(detailsResult.value)
     };
 
     res.status(201).json(response);
@@ -159,8 +168,18 @@ router.put(
       ipHash: getRequestIpHash(req)
     });
 
-    const details = await fetchGroupDetails(updateResult.value.id);
-    const response = formatGroupDetailsResponse(details);
+    const detailsResult = await fetchGroupDetails(updateResult.value.id);
+
+    if (isErrored(detailsResult)) {
+      switch (detailsResult.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(detailsResult.error);
+        default:
+          assertNever(detailsResult.error.code);
+      }
+    }
+
+    const response = formatGroupDetailsResponse(detailsResult.value);
 
     res.status(200).json(response);
   })
@@ -176,8 +195,18 @@ router.get(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const details = await fetchGroupDetails(id);
-    const response = formatGroupDetailsResponse(details);
+    const detailsResult = await fetchGroupDetails(id);
+
+    if (isErrored(detailsResult)) {
+      switch (detailsResult.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(detailsResult.error);
+        default:
+          assertNever(detailsResult.error.code);
+      }
+    }
+
+    const response = formatGroupDetailsResponse(detailsResult.value);
 
     res.status(200).json(response);
   })
@@ -195,7 +224,21 @@ router.delete(
     const { id } = req.params;
 
     const result = await deleteGroup(id);
-    res.status(200).json({ message: `Successfully deleted group: ${result.name}` });
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'FAILED_TO_DELETE_GROUP':
+          throw result.error;
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    res.status(200).json({
+      message: `Successfully deleted group: ${result.value.name}`
+    });
   })
 );
 
@@ -285,7 +328,17 @@ router.get(
     const { id } = req.params;
 
     const result = await fetchGroupMembersCSV(id);
-    res.status(200).end(result);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    res.status(200).end(result.value);
   })
 );
 
@@ -364,9 +417,21 @@ router.get(
     const { id } = req.params;
     const { limit, offset } = req.query;
 
-    const result = await fetchGroupActivity(id, { limit, offset });
+    const result = await fetchGroupActivity(id, {
+      limit,
+      offset
+    });
 
-    const response = result.map(a => ({
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(a => ({
       ...formatMemberActivityResponse(a.activity),
       player: formatPlayerResponse(a.player)
     }));
@@ -386,7 +451,19 @@ router.get(
     const { id } = req.params;
 
     const result = await fetchGroupStatistics(id);
-    res.status(200).json(result);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'GROUP_HAS_NO_MEMBERS':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    res.status(200).json(result.value);
   })
 );
 
@@ -548,7 +625,16 @@ router.get(
 
     const result = await findGroupRecords(id, metric, period, { limit, offset });
 
-    const response = result.map(r => ({
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(r => ({
       ...formatRecordResponse(r.record),
       player: formatPlayerResponse(r.player)
     }));
@@ -601,9 +687,18 @@ router.get(
     const { id } = req.params;
     const { limit, offset } = req.query;
 
-    const nameChanges = await findGroupNameChanges(id, { limit, offset });
+    const result = await findGroupNameChanges(id, { limit, offset });
 
-    const response = nameChanges.map(n => ({
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(n => ({
       ...formatNameChangeResponse(n.nameChange),
       player: formatPlayerResponse(n.player)
     }));
@@ -657,7 +752,20 @@ router.put(
     const { id } = req.params;
 
     const result = await resetGroupCode(id);
-    res.status(200).json(result);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'FAILED_TO_RESET_GROUP_CODE':
+        case 'FAILED_TO_GENERATE_VERIFICATION_CODE':
+          throw result.error;
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    res.status(200).json(result.value);
   })
 );
 
@@ -672,7 +780,20 @@ router.put(
   executeRequest(async (req, res) => {
     const { id } = req.params;
 
-    const { group, memberCount } = await verifyGroup(id);
+    const result = await verifyGroup(id);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'GROUP_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'FAILED_TO_VERIFY_GROUP':
+          throw result.error;
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const { group, memberCount } = result.value;
     const response = formatGroupResponse(group, memberCount);
 
     res.status(200).json(response);

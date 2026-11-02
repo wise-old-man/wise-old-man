@@ -1,3 +1,4 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import {
   ACTIVITIES,
@@ -13,7 +14,6 @@ import {
 import { getMetricRankKey } from '../../../../utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
 import { getLevel, REAL_SKILLS } from '../../../../utils/shared';
-import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import {
   formatPlayerResponse,
   formatSnapshotResponse,
@@ -28,21 +28,23 @@ import {
   getTotalLevel
 } from '../../snapshots/snapshot.utils';
 
-async function fetchGroupStatistics(groupId: number): Promise<GroupStatisticsResponse> {
+export async function fetchGroupStatistics(
+  groupId: number
+): AsyncResult<GroupStatisticsResponse, { code: 'GROUP_NOT_FOUND' } | { code: 'GROUP_HAS_NO_MEMBERS' }> {
   const memberships = await prisma.membership.findMany({
     where: { groupId }
   });
 
-  if (!memberships || memberships.length === 0) {
+  if (memberships.length === 0) {
     const group = await prisma.group.findFirst({
       where: { id: groupId }
     });
 
-    if (!group) {
-      throw new NotFoundError('Group not found.');
+    if (group === null) {
+      return errored({ code: 'GROUP_NOT_FOUND' });
     }
 
-    throw new BadRequestError("Couldn't find any stats for this group.");
+    return errored({ code: 'GROUP_HAS_NO_MEMBERS' });
   }
 
   const players = (
@@ -58,8 +60,8 @@ async function fetchGroupStatistics(groupId: number): Promise<GroupStatisticsRes
 
   const allSnapshots = players.map(p => p.latestSnapshot).filter(Boolean);
 
-  if (!players || players.length === 0) {
-    throw new BadRequestError("Couldn't find any stats for this group.");
+  if (players.length === 0) {
+    return errored({ code: 'GROUP_HAS_NO_MEMBERS' });
   }
 
   const maxedCombatCount = allSnapshots.filter(s => getCombatLevelFromSnapshot(s) === 126).length;
@@ -73,25 +75,16 @@ async function fetchGroupStatistics(groupId: number): Promise<GroupStatisticsRes
     build: PlayerBuild.MAIN
   });
 
-  const metricLeaders = await getMetricLeaders(players, allSnapshots);
-
-  return {
+  return complete({
     maxedCombatCount,
     maxedTotalCount,
     maxed200msCount,
     averageStats: formatSnapshotResponse(averageSnapshot, averageEfficiencyMap),
-    metricLeaders
-  };
+    metricLeaders: getMetricLeaders(players, allSnapshots)
+  });
 }
 
-async function getMetricLeaders(
-  players: Player[],
-  snapshots: Snapshot[]
-): Promise<GroupMetricLeadersResponse> {
-  if (!snapshots || snapshots.length === 0) {
-    throw new ServerError('Invalid snapshots list. Failed to find metric leaders.');
-  }
-
+function getMetricLeaders(players: Player[], snapshots: Snapshot[]): GroupMetricLeadersResponse {
   const playerMap = new Map<number, Player>(players.map(p => [p.id, p]));
 
   const metricLeaders = {
@@ -167,5 +160,3 @@ async function getMetricLeaders(
 
   return metricLeaders;
 }
-
-export { fetchGroupStatistics };

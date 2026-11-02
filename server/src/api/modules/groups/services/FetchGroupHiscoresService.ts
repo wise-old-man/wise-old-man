@@ -32,7 +32,13 @@ type EntryType =
 export async function fetchGroupHiscores(
   groupId: number,
   metric: Metric
-): AsyncResult<Array<{ player: Player; data: EntryType }>, { code: 'GROUP_NOT_FOUND' }> {
+): AsyncResult<
+  Array<{
+    player: Player;
+    data: EntryType;
+  }>,
+  { code: 'GROUP_NOT_FOUND' }
+> {
   const memberships = await prisma.membership.findMany({
     where: { groupId },
     include: {

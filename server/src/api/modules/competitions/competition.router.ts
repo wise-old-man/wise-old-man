@@ -181,11 +181,22 @@ router.post(
       ipHash
     });
 
-    const details = await fetchCompetitionDetails({ id: competition.id });
+    const detailsResult = await fetchCompetitionDetails({ id: competition.id });
+
+    if (isErrored(detailsResult)) {
+      switch (detailsResult.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(detailsResult.error);
+        case 'INVALID_DATE_RANGE':
+          throw new BadRequestErrorZ(detailsResult.error);
+        default:
+          assertNever(detailsResult.error);
+      }
+    }
 
     const response = {
       verificationCode: verificationCode,
-      competition: formatCompetitionDetailsResponse(details)
+      competition: formatCompetitionDetailsResponse(detailsResult.value)
     };
 
     res.status(201).json(response);
@@ -277,8 +288,20 @@ router.put(
       ipHash: getRequestIpHash(req)
     });
 
-    const details = await fetchCompetitionDetails({ id: updateResult.value.id });
-    const response = formatCompetitionDetailsResponse(details);
+    const detailsResult = await fetchCompetitionDetails({ id: updateResult.value.id });
+
+    if (isErrored(detailsResult)) {
+      switch (detailsResult.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(detailsResult.error);
+        case 'INVALID_DATE_RANGE':
+          throw new BadRequestErrorZ(detailsResult.error);
+        default:
+          assertNever(detailsResult.error);
+      }
+    }
+
+    const response = formatCompetitionDetailsResponse(detailsResult.value);
 
     res.status(200).json(response);
   })
@@ -307,7 +330,7 @@ router.get(
     const { id } = req.params;
     const { metric, metrics, usernames, minDate, maxDate } = req.query;
 
-    const details = await fetchCompetitionDetails({
+    const detailsResult = await fetchCompetitionDetails({
       id,
       metrics: metric ? [metric] : metrics,
       filter: {
@@ -317,7 +340,18 @@ router.get(
       }
     });
 
-    const response = formatCompetitionDetailsResponse(details);
+    if (isErrored(detailsResult)) {
+      switch (detailsResult.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(detailsResult.error);
+        case 'INVALID_DATE_RANGE':
+          throw new BadRequestErrorZ(detailsResult.error);
+        default:
+          assertNever(detailsResult.error);
+      }
+    }
+
+    const response = formatCompetitionDetailsResponse(detailsResult.value);
 
     res.status(200).json(response);
   })
@@ -352,6 +386,9 @@ router.get(
 
     if (isErrored(result)) {
       switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'INVALID_DATE_RANGE':
         case 'CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION':
         case 'TEAM_NAME_IS_REQUIRED':
           throw new BadRequestErrorZ(result.error);
@@ -383,13 +420,26 @@ router.get(
     const { id } = req.params;
     const { metric, metrics, limit } = req.query;
 
-    const results = await fetchCompetitionTopHistory({
+    const result = await fetchCompetitionTopHistory({
       id,
       metrics: metric ? [metric] : metrics,
       limit: limit ?? 5
     });
 
-    const response = results.map(({ player, history }) => formatParticipantHistoryResponse(player, history));
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'INVALID_DATE_RANGE':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const response = result.value.map(({ player, history }) =>
+      formatParticipantHistoryResponse(player, history)
+    );
 
     res.status(200).json(response);
   })
@@ -562,7 +612,21 @@ router.delete(
     const { id } = req.params;
     const { teamNames } = req.body;
 
-    const { count } = await removeTeams(id, teamNames);
+    const result = await removeTeams(id, teamNames);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'NO_VALID_PARTICIPANTS':
+        case 'CANNOT_REMOVE_TEAMS_FROM_CLASSIC_COMPETITION':
+          throw new BadRequestErrorZ(result.error);
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    const { count } = result.value;
 
     res.status(200).json({
       count,
@@ -617,7 +681,21 @@ router.put(
     const { id } = req.params;
 
     const result = await resetCompetitionCode(id);
-    res.status(200).json(result);
+
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'COMPETITION_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        case 'CANNOT_RESET_GROUP_COMPETITION_CODE':
+          throw new BadRequestErrorZ(result.error);
+        case 'FAILED_TO_GENERATE_VERIFICATION_CODE':
+          throw result.error;
+        default:
+          assertNever(result.error);
+      }
+    }
+
+    res.status(200).json(result.value);
   })
 );
 

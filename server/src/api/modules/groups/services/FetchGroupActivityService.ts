@@ -1,34 +1,46 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { MemberActivity, Player } from '../../../../types';
-import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 
-async function fetchGroupActivity(
+export async function fetchGroupActivity(
   groupId: number,
   pagination: PaginationOptions
-): Promise<Array<{ activity: MemberActivity; player: Player }>> {
+): AsyncResult<
+  Array<{
+    activity: MemberActivity;
+    player: Player;
+  }>,
+  { code: 'GROUP_NOT_FOUND' }
+> {
   const activities = await prisma.memberActivity.findMany({
-    where: { groupId },
+    where: {
+      groupId
+    },
     include: {
       player: true
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: {
+      createdAt: 'desc'
+    },
     take: pagination.limit,
     skip: pagination.offset
   });
 
-  if (!activities || activities.length === 0) {
+  if (activities.length === 0) {
     const group = await prisma.group.findFirst({
       where: { id: groupId }
     });
 
-    if (!group) {
-      throw new NotFoundError('Group not found.');
+    if (group === null) {
+      return errored({ code: 'GROUP_NOT_FOUND' });
     }
-    return [];
   }
 
-  return activities.map(({ player, ...activity }) => ({ activity, player }));
+  return complete(
+    activities.map(({ player, ...activity }) => ({
+      activity,
+      player
+    }))
+  );
 }
-
-export { fetchGroupActivity };

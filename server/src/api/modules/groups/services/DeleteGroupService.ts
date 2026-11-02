@@ -1,22 +1,29 @@
+import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { Group } from '../../../../types';
-import { NotFoundError, ServerError } from '../../../errors';
 
-async function deleteGroup(id: number): Promise<Group> {
-  try {
-    const deletedGroup = await prisma.group.delete({
+export async function deleteGroup(
+  id: number
+): AsyncResult<Group, { code: 'GROUP_NOT_FOUND' } | { code: 'FAILED_TO_DELETE_GROUP'; subError: unknown }> {
+  const deleteResult = await fromPromise(
+    prisma.group.delete({
       where: { id }
-    });
+    })
+  );
 
-    return deletedGroup as Group;
-  } catch (error) {
-    if (error instanceof PrismaTypes.PrismaClientKnownRequestError && error.code === 'P2025') {
-      // Failed to find group with that id
-      throw new NotFoundError('Group not found.');
+  if (isErrored(deleteResult)) {
+    if (
+      deleteResult.error instanceof PrismaTypes.PrismaClientKnownRequestError &&
+      deleteResult.error.code === 'P2025'
+    ) {
+      return errored({ code: 'GROUP_NOT_FOUND' });
     }
 
-    throw new ServerError('Failed to delete group.');
+    return errored({
+      code: 'FAILED_TO_DELETE_GROUP',
+      subError: deleteResult.error
+    });
   }
-}
 
-export { deleteGroup };
+  return complete(deleteResult.value);
+}

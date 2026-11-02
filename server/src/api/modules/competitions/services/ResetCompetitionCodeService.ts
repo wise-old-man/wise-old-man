@@ -1,28 +1,34 @@
-import { isErrored } from '@attio/fetchable';
+import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
-import { BadRequestError, NotFoundError } from '../../../errors';
 
-async function resetCompetitionCode(id: number): Promise<{ newCode: string }> {
+export async function resetCompetitionCode(
+  id: number
+): AsyncResult<
+  { newCode: string },
+  | { code: 'COMPETITION_NOT_FOUND' }
+  | { code: 'CANNOT_RESET_GROUP_COMPETITION_CODE' }
+  | { code: 'FAILED_TO_GENERATE_VERIFICATION_CODE'; subError: unknown }
+> {
   const competition = await prisma.competition.findFirst({
     where: { id }
   });
 
-  if (!competition) {
-    throw new NotFoundError('Competition not found.');
+  if (competition === null) {
+    return errored({ code: 'COMPETITION_NOT_FOUND' });
   }
 
   if (competition.groupId) {
-    throw new BadRequestError(
-      'Cannot reset competition codes for group competitions. Please reset the group code instead.'
-    );
+    return errored({ code: 'CANNOT_RESET_GROUP_COMPETITION_CODE' });
   }
 
   const generateVerificationResult = await cryptService.generateVerification();
 
   if (isErrored(generateVerificationResult)) {
-    // TODO: When this file returns a fetchable, stop throwing here and just return the error
-    throw generateVerificationResult.error.subError;
+    return errored({
+      code: 'FAILED_TO_GENERATE_VERIFICATION_CODE',
+      subError: generateVerificationResult.error
+    });
   }
 
   const { code, hash } = generateVerificationResult.value;
@@ -32,7 +38,5 @@ async function resetCompetitionCode(id: number): Promise<{ newCode: string }> {
     data: { verificationHash: hash }
   });
 
-  return { newCode: code };
+  return complete({ newCode: code });
 }
-
-export { resetCompetitionCode };

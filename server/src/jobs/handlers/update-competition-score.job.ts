@@ -1,3 +1,4 @@
+import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import { fetchCompetitionDetails } from '../../api/modules/competitions/services/FetchCompetitionDetailsService';
 import prisma from '../../prisma';
 import { Competition, Metric } from '../../types';
@@ -27,9 +28,17 @@ export const UpdateCompetitionScoreJobHandler: JobHandler<Payload> = {
     }
 
     const currentScore = competition.score;
-    const newScore = await calculateScore(competition);
+    const newScoreResult = await calculateScore(competition);
 
-    if (newScore === currentScore) return;
+    if (isErrored(newScoreResult)) {
+      return;
+    }
+
+    const newScore = newScoreResult.value;
+
+    if (newScore === currentScore) {
+      return;
+    }
 
     await prisma.competition.update({
       where: { id: competition.id },
@@ -38,18 +47,25 @@ export const UpdateCompetitionScoreJobHandler: JobHandler<Payload> = {
   }
 };
 
-async function calculateScore(competition: Competition): Promise<number> {
+async function calculateScore(
+  competition: Competition
+): AsyncResult<number, { code: 'FAILED_TO_FETCH_COMPETITION_DETAILS' }> {
   const now = new Date();
   let score = 0;
 
-  // If has ended
   if (competition.endsAt < now || !competition.visible) {
-    return score;
+    return complete(score);
   }
 
-  const { group, metrics, participations } = await fetchCompetitionDetails({
+  const detailsResult = await fetchCompetitionDetails({
     id: competition.id
   });
+
+  if (isErrored(detailsResult)) {
+    return errored({ code: 'FAILED_TO_FETCH_COMPETITION_DETAILS' });
+  }
+
+  const { metrics, group, participations } = detailsResult.value;
 
   const activeParticipants = participations.filter(p => p.deltas[0].values.gained > 0);
 
@@ -139,5 +155,5 @@ async function calculateScore(competition: Competition): Promise<number> {
     score += 30;
   }
 
-  return Math.max(0, score);
+  return complete(Math.max(0, score));
 }

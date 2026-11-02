@@ -3378,7 +3378,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot remove teams from a classic competition.');
+      expect(response.body.code).toBe('CANNOT_REMOVE_TEAMS_FROM_CLASSIC_COMPETITION');
     });
 
     it('should not remove teams (no teams found)', async () => {
@@ -3388,7 +3388,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('No players were removed from the competition.');
+      expect(response.body.code).toBe('NO_VALID_PARTICIPANTS');
     });
 
     it('should remove teams', async () => {
@@ -3422,7 +3422,7 @@ describe('Competition API', () => {
       const response = await api.get(`/competitions/100000`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Competition not found.');
+      expect(response.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should not view details (invalid metric)', async () => {
@@ -4210,7 +4210,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Min date must be before the max date.');
+      expect(response.body.code).toBe('INVALID_DATE_RANGE');
     });
 
     it('should view details filtered by usernames and date range (ignores usernames not competing)', async () => {
@@ -4429,9 +4429,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        "The given date range does not overlap with the competition's period."
-      );
+      expect(response.body.code).toBe('INVALID_DATE_RANGE');
     });
 
     it('should not view details (date range sits entirely before the competition)', async () => {
@@ -4446,9 +4444,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        "The given date range does not overlap with the competition's period."
-      );
+      expect(response.body.code).toBe('INVALID_DATE_RANGE');
     });
 
     it('should not view details (minDate sits on the competition end)', async () => {
@@ -4461,9 +4457,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        "The given date range does not overlap with the competition's period."
-      );
+      expect(response.body.code).toBe('INVALID_DATE_RANGE');
     });
 
     it('should view details filtered by a maxDate that goes past the competition end', async () => {
@@ -4572,7 +4566,7 @@ describe('Competition API', () => {
       const response = await api.get(`/competitions/100000/top-history`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Competition not found.');
+      expect(response.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should not view top 5 snapshots (invalid metric)', async () => {
@@ -4922,7 +4916,7 @@ describe('Competition API', () => {
       const response = await api.get(`/competitions/100000/csv`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Competition not found.');
+      expect(response.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should not view CSV export (invalid metric)', async () => {
@@ -5305,7 +5299,7 @@ describe('Competition API', () => {
         .query({ status: 'ongoing' });
 
       expect(usernameResponse.status).toBe(404);
-      expect(usernameResponse.body.message).toMatch('Player not found.');
+      expect(usernameResponse.body.code).toBe('PLAYER_NOT_FOUND');
     });
 
     it('should not list player competition standings (undefined competition status)', async () => {
@@ -5952,7 +5946,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should not reset code (group competition)', async () => {
@@ -5963,7 +5957,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot reset competition codes for group competitions.');
+      expect(response.body.code).toBe('CANNOT_RESET_GROUP_COMPETITION_CODE');
     });
 
     it('should reset code', async () => {
@@ -6060,7 +6054,7 @@ describe('Competition API', () => {
 
       const fetchConfirmResponse = await api.get(`/competitions/${globalData.testCompetitionOngoing.id}`);
       expect(fetchConfirmResponse.status).toBe(404);
-      expect(fetchConfirmResponse.body.message).toBe('Competition not found.');
+      expect(fetchConfirmResponse.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should delete (with group code)', async () => {
@@ -6074,7 +6068,7 @@ describe('Competition API', () => {
       const fetchConfirmResponse = await api.get(`/competitions/${globalData.testCompetitionWithGroup.id}`);
 
       expect(fetchConfirmResponse.status).toBe(404);
-      expect(fetchConfirmResponse.body.message).toBe('Competition not found.');
+      expect(fetchConfirmResponse.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should delete (admin override)', async () => {
@@ -6323,7 +6317,7 @@ describe('Competition API', () => {
       // Confirm the group was successfully deleted
       const fetchGroupConfirmResponse = await api.get(`/groups/${createGroupResponse.body.group.id}`);
       expect(fetchGroupConfirmResponse.status).toBe(404);
-      expect(fetchGroupConfirmResponse.body.message).toBe('Group not found.');
+      expect(fetchGroupConfirmResponse.body.code).toBe('GROUP_NOT_FOUND');
 
       // Confirm the competition was deleted as a side effect
       const fetchCompetitionConfirmResponse = await api.get(
@@ -6331,7 +6325,7 @@ describe('Competition API', () => {
       );
 
       expect(fetchCompetitionConfirmResponse.status).toBe(404);
-      expect(fetchCompetitionConfirmResponse.body.message).toBe('Competition not found.');
+      expect(fetchCompetitionConfirmResponse.body.code).toBe('COMPETITION_NOT_FOUND');
     });
   });
 

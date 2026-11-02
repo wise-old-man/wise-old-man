@@ -1,14 +1,17 @@
-import prisma from '../../../../prisma';
+import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
+import prisma, { PrismaTypes } from '../../../../prisma';
 import { Group } from '../../../../types';
-import { NotFoundError } from '../../../errors';
 import { eventEmitter, EventType } from '../../../events';
 
-async function verifyGroup(groupId: number): Promise<{
-  group: Group;
-  memberCount: number;
-}> {
-  try {
-    const updatedGroup = await prisma.group.update({
+export async function verifyGroup(groupId: number): AsyncResult<
+  {
+    group: Group;
+    memberCount: number;
+  },
+  { code: 'GROUP_NOT_FOUND' } | { code: 'FAILED_TO_VERIFY_GROUP'; subError: unknown }
+> {
+  const updateResult = await fromPromise(
+    prisma.group.update({
       where: { id: groupId },
       data: { verified: true },
       include: {
@@ -18,18 +21,27 @@ async function verifyGroup(groupId: number): Promise<{
           }
         }
       }
+    })
+  );
+
+  if (isErrored(updateResult)) {
+    if (
+      updateResult.error instanceof PrismaTypes.PrismaClientKnownRequestError &&
+      updateResult.error.code === 'P2025'
+    ) {
+      return errored({ code: 'GROUP_NOT_FOUND' });
+    }
+
+    return errored({
+      code: 'FAILED_TO_VERIFY_GROUP',
+      subError: updateResult.error
     });
-
-    eventEmitter.emit(EventType.GROUP_UPDATED, { groupId });
-
-    return {
-      group: updatedGroup,
-      memberCount: updatedGroup._count.memberships
-    };
-  } catch (_error) {
-    // Failed to find group with that id
-    throw new NotFoundError('Group not found.');
   }
-}
 
-export { verifyGroup };
+  eventEmitter.emit(EventType.GROUP_UPDATED, { groupId });
+
+  return complete({
+    group: updateResult.value,
+    memberCount: updateResult.value._count.memberships
+  });
+}
