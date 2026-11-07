@@ -95,39 +95,6 @@ export default async function CompetitionPage(props: PageProps) {
   return (
     <CompetitionPageProvider competition={competition} previewMetrics={previewMetrics}>
       <Container>
-        <div className="mb-8">
-          <Alert className="border-blue-700 bg-blue-900/10 px-4 py-3">
-            <AlertTitle className="mb-0">
-              You&apos;re looking at a half-baked new competition page!
-            </AlertTitle>
-            <AlertDescription>
-              <p>
-                Along with other smaller features, this new page layout will allow for &quot;multiple
-                metric&quot; competitions{" "}
-                {parseInt(String(id)) !== 104505 && (
-                  <Link
-                    rel="nofollow"
-                    href={`/competitions/new/104505`}
-                    className="text-white underline"
-                  >
-                    (example here)
-                  </Link>
-                )}{" "}
-                which has been a highly requested feature for a long time - Still a work in progress,
-                please share any feedback and bugs you find with us on{" "}
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href="https://wiseoldman.net/discord"
-                  className="text-white underline"
-                >
-                  our Discord
-                </a>
-                {". "}
-              </p>
-            </AlertDescription>
-          </Alert>
-        </div>
         {!competition.visible && (
           <div className="mb-7">
             <CompetitionLimitedVisibilityAlert />
@@ -146,7 +113,7 @@ export default async function CompetitionPage(props: PageProps) {
         <div className="flex flex-col gap-y-10 border-b border-gray-600 pb-6">
           <Header competitionDetails={competition} />
         </div>
-        <div className="mt-6 flex flex-col gap-6 md:flex-row">
+        <div className="mt-5 flex flex-col gap-6 md:flex-row">
           <div className="flex w-full shrink-0 flex-col gap-y-5 md:w-[320px]">
             <CompetitionTimeRangePicker />
             <div className="flex gap-x-4">
