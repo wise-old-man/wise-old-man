@@ -26,7 +26,7 @@ interface MomentumEntry {
   previousGap: number;
 }
 
-export function Inner() {
+function Inner() {
   const { competition, selectedMetric } = useCompetitionPageContext();
   const { currentStandings, previousStandings, isLoading, isError } = useCompetitionTimeMachine();
 

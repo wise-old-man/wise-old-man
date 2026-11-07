@@ -32,7 +32,6 @@
     "class-variance-authority": "^0.5.2",
     "clsx": "^1.2.1",
     "cmdk": "^0.2.0",
-    "dayjs": "^1.11.7",
     "javascript-time-ago": "^2.5.9",
     "next": "14.2.23",
     "next-nprogress-bar": "^2.1.2",

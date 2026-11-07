@@ -81,5 +81,3 @@ export function CompetitionTypeSelector(props: CompetitionTypeSelectorProps) {
     </RadioGroup>
   );
 }
-
-export { RadioGroup, RadioGroupItem };
