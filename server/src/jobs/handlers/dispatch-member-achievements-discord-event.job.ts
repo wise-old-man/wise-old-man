@@ -1,7 +1,6 @@
 import { isErrored } from '@attio/fetchable';
 import prisma from '../../prisma';
 import { DiscordBotEventType, dispatchDiscordBotEvent } from '../../services/discord.service';
-import prometheus from '../../services/prometheus.service';
 import { Metric } from '../../types';
 import { JobHandler } from '../types/job-handler.type';
 
@@ -46,7 +45,6 @@ export const DispatchMemberAchievementsDiscordEventJobHandler: JobHandler<Payloa
     const recentAchievements = achievements.filter(a => Date.now() - a.createdAt.getTime() < 3_600_000);
 
     if (recentAchievements.length === 0) {
-      prometheus.trackGenericMetric('test-dispatching-failed-30s');
       return;
     }
 
