@@ -2,7 +2,7 @@ import * as React from "react";
 import { VariantProps, cva } from "class-variance-authority";
 import { cn } from "~/utils/styling";
 
-export const buttonVariants = cva(
+const buttonVariants = cva(
   "relative inline-flex gap-x-2 items-center whitespace-nowrap justify-between duration-75 font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none shadow-button",
   {
     variants: {
@@ -28,8 +28,7 @@ export const buttonVariants = cva(
   },
 );
 
-export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
-  VariantProps<typeof buttonVariants>;
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants>;
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, children, variant, iconButton, size, ...props }, ref) => {
