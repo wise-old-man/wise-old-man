@@ -879,7 +879,7 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch("Parameter 'metrics' must have a minimum of 1 element(s).");
     });
 
-    it('should NOT create with mixed metric types', async () => {
+    it('should create with mixed metric types', async () => {
       const response = await api.post('/competitions').send({
         title: 'Test',
         metrics: ['hunter', 'zulrah'],
@@ -887,8 +887,18 @@ describe('Competition API', () => {
         endsAt: VALID_END_DATE
       });
 
-      expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
+      expect(response.status).toBe(201);
+      expect(response.body.competition).toMatchObject({
+        metric: 'hunter',
+        metrics: [
+          expect.objectContaining({ metric: 'hunter' }),
+          expect.objectContaining({ metric: 'zulrah' })
+        ]
+      });
+
+      await prisma.competition.delete({
+        where: { id: response.body.competition.id }
+      });
     });
 
     it('should create with multiple metrics', async () => {
@@ -1834,7 +1844,7 @@ describe('Competition API', () => {
       expect(deleteResponse.status).toBe(200);
     });
 
-    it('should NOT edit with mixed metric types', async () => {
+    it('should edit with mixed metric types', async () => {
       const createResponse = await api.post('/competitions').send({
         title: 'Test Metrics',
         startsAt: new Date(Date.now() + 1_200_000),
@@ -1848,8 +1858,11 @@ describe('Competition API', () => {
         verificationCode: createResponse.body.verificationCode,
         metrics: ['agility', 'zulrah']
       });
-      expect(editResponse.status).toBe(400);
-      expect(editResponse.body).toMatchObject({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
+      expect(editResponse.status).toBe(200);
+      expect(editResponse.body.metrics).toEqual([
+        expect.objectContaining({ metric: 'agility' }),
+        expect.objectContaining({ metric: 'zulrah' })
+      ]);
 
       const deleteResponse = await api
         .delete(`/competitions/${createResponse.body.competition.id}`)

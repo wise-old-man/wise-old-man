@@ -1,8 +1,8 @@
 import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import { fetchCompetitionDetails } from '../../api/modules/competitions/services/FetchCompetitionDetailsService';
 import prisma from '../../prisma';
-import { Competition, Metric } from '../../types';
-import { isActivity, isBoss, isSkill } from '../../utils/shared';
+import { Competition, Metric, MetricType } from '../../types';
+import { MetricProps } from '../../utils/shared';
 import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
@@ -104,7 +104,10 @@ async function calculateScore(
     }
   }
 
-  if (isSkill(metrics[0].metric)) {
+  const metricTypes = new Set(metrics.map(m => MetricProps[m.metric].type));
+  const metricType = metricTypes.size === 1 ? MetricProps[metrics[0].metric].type : null;
+
+  if (metricType === MetricType.SKILL) {
     // If the average active participant has gained > 10k exp
     if (averageGained > 10_000) {
       score += 30;
@@ -116,7 +119,7 @@ async function calculateScore(
     }
   }
 
-  if (isBoss(metrics[0].metric)) {
+  if (metricType === MetricType.BOSS) {
     // If the average active participant has gained > 5 kc
     if (averageGained > 5) {
       score += 30;
@@ -128,7 +131,7 @@ async function calculateScore(
     }
   }
 
-  if (isActivity(metrics[0].metric)) {
+  if (metricType === MetricType.ACTIVITY) {
     // If the average active participant has gained > 5 score
     if (averageGained > 5) {
       score += 30;

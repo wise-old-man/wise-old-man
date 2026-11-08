@@ -27,7 +27,7 @@ const METRIC_TYPE_LABELS = {
 };
 
 export function CompetitionPreviewMetricDialog() {
-  const { competition, effectiveMetrics } = useCompetitionPageContext();
+  const { effectiveMetrics } = useCompetitionPageContext();
 
   const router = useRouter();
   const pathname = usePathname();
@@ -37,13 +37,7 @@ export function CompetitionPreviewMetricDialog() {
 
   const isOpen = searchParams.get("dialog") === "preview";
 
-  // Every metric in a competition is of the same type, so only metrics of that same type
-  // (and that aren't already being shown) can be previewed.
-  const competitionMetricType = MetricProps[competition.metrics[0].metric].type;
-
-  const previewableMetrics = METRICS.filter(
-    (metric) => MetricProps[metric].type === competitionMetricType && !effectiveMetrics.includes(metric),
-  );
+  const previewableMetrics = METRICS.filter((metric) => !effectiveMetrics.includes(metric));
 
   const [selectedMetric, setSelectedMetric] = useState<Metric | undefined>(previewableMetrics[0]);
 
@@ -98,7 +92,6 @@ export function CompetitionPreviewMetricDialog() {
           <Label className="text-xs font-normal text-gray-200">Metric</Label>
           <MetricSelect
             metric={selectedMetric}
-            metricType={competitionMetricType}
             options={previewableMetrics}
             onMetricSelected={setSelectedMetric}
           />
@@ -119,13 +112,12 @@ export function CompetitionPreviewMetricDialog() {
 
 interface MetricSelectProps {
   metric: Metric | undefined;
-  metricType: MetricType;
   options: Array<Metric>;
   onMetricSelected: (metric: Metric | undefined) => void;
 }
 
 function MetricSelect(props: MetricSelectProps) {
-  const { metric, metricType, options, onMetricSelected } = props;
+  const { metric, options, onMetricSelected } = props;
 
   return (
     <Combobox
@@ -154,14 +146,22 @@ function MetricSelect(props: MetricSelectProps) {
         <ComboboxInput placeholder="Search metrics..." />
         <ComboboxEmpty>No results were found</ComboboxEmpty>
         <ComboboxItemsContainer>
-          <ComboboxItemGroup label={METRIC_TYPE_LABELS[metricType]}>
-            {options.map((option) => (
-              <ComboboxItem key={option} value={option}>
-                <MetricIconSmall metric={option} />
-                {MetricProps[option].name}
-              </ComboboxItem>
-            ))}
-          </ComboboxItemGroup>
+          {Object.values(MetricType).map((type) => {
+            const typeOptions = options.filter((option) => MetricProps[option].type === type);
+
+            if (typeOptions.length === 0) return null;
+
+            return (
+              <ComboboxItemGroup key={type} label={METRIC_TYPE_LABELS[type]}>
+                {typeOptions.map((option) => (
+                  <ComboboxItem key={option} value={option}>
+                    <MetricIconSmall metric={option} />
+                    {MetricProps[option].name}
+                  </ComboboxItem>
+                ))}
+              </ComboboxItemGroup>
+            );
+          })}
         </ComboboxItemsContainer>
       </ComboboxContent>
     </Combobox>

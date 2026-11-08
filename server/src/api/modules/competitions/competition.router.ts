@@ -129,7 +129,6 @@ router.post(
       switch (createResult.error.code) {
         case 'COMPETITION_START_DATE_AFTER_END_DATE':
         case 'COMPETITION_DATES_IN_THE_PAST':
-        case 'METRICS_MUST_BE_OF_SAME_TYPE':
         case 'PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE':
         case 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE':
           throw new BadRequestErrorZ(createResult.error);
@@ -250,7 +249,6 @@ router.put(
         case 'COMPETITION_NOT_FOUND':
           throw new NotFoundErrorZ(updateResult.error);
         case 'NOTHING_TO_UPDATE':
-        case 'METRICS_MUST_BE_OF_SAME_TYPE':
         case 'COMPETITION_TYPE_CANNOT_BE_CHANGED':
         case 'COMPETITION_START_DATE_AFTER_END_DATE':
         case 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE':
