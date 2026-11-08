@@ -11,7 +11,6 @@ import {
   PlayerAnnotationType
 } from '../../../../types';
 import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
-import { MetricProps } from '../../../../utils/shared';
 import { eventEmitter, EventType } from '../../../events';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
 import {
@@ -42,7 +41,6 @@ export async function createCompetition(
   },
   | { code: 'COMPETITION_START_DATE_AFTER_END_DATE' }
   | { code: 'COMPETITION_DATES_IN_THE_PAST' }
-  | { code: 'METRICS_MUST_BE_OF_SAME_TYPE' }
   | { code: 'PARTICIPANTS_AND_GROUP_MUTUALLY_EXCLUSIVE' }
   | { code: 'PARTICIPANTS_AND_TEAMS_MUTUALLY_EXCLUSIVE' }
   | { code: 'OPTED_OUT_PARTICIPANTS_FOUND'; data: string[] }
@@ -77,10 +75,6 @@ export async function createCompetition(
 
   if (startsAt.getTime() < Date.now() || endsAt.getTime() < Date.now()) {
     return errored({ code: 'COMPETITION_DATES_IN_THE_PAST' });
-  }
-
-  if (new Set(metrics.map(m => MetricProps[m].type)).size > 1) {
-    return errored({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
   }
 
   const participationsResult = await getValidatedParticipations(payload);

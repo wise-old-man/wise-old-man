@@ -287,7 +287,6 @@ function MetricDropdown(
   }>,
 ) {
   const { metrics, onMetricsSelected } = props;
-  const metricType = MetricProps[metrics[0]]?.type;
 
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState<"root" | "presets">("root");
@@ -383,46 +382,38 @@ function MetricDropdown(
                   <ChevronDownIcon className="ml-auto h-4 w-4 -rotate-90" />
                 </ComboboxItem>
               </ComboboxItemGroup>
-              {(metricType === undefined || metricType === MetricType.SKILL) && (
-                <ComboboxItemGroup label="Skills">
-                  {SKILLS.map((skill) => (
-                    <ComboboxItem key={skill} value={skill}>
-                      <MetricIconSmall metric={skill} />
-                      {MetricProps[skill].name}
-                    </ComboboxItem>
-                  ))}
-                </ComboboxItemGroup>
-              )}
-              {(metricType === undefined || metricType === MetricType.BOSS) && (
-                <ComboboxItemGroup label="Bosses">
-                  {BOSSES.map((boss) => (
-                    <ComboboxItem key={boss} value={boss}>
-                      <MetricIconSmall metric={boss} />
-                      {MetricProps[boss].name}
-                    </ComboboxItem>
-                  ))}
-                </ComboboxItemGroup>
-              )}
-              {(metricType === undefined || metricType === MetricType.ACTIVITY) && (
-                <ComboboxItemGroup label="Activities">
-                  {ACTIVITIES.map((activity) => (
-                    <ComboboxItem key={activity} value={activity}>
-                      <MetricIconSmall metric={activity} />
-                      {MetricProps[activity].name}
-                    </ComboboxItem>
-                  ))}
-                </ComboboxItemGroup>
-              )}
-              {(metricType === undefined || metricType === MetricType.COMPUTED) && (
-                <ComboboxItemGroup label="Computed">
-                  {COMPUTED_METRICS.map((computed) => (
-                    <ComboboxItem key={computed} value={computed}>
-                      <MetricIconSmall metric={computed} />
-                      {MetricProps[computed].name}
-                    </ComboboxItem>
-                  ))}
-                </ComboboxItemGroup>
-              )}
+              <ComboboxItemGroup label="Skills">
+                {SKILLS.map((skill) => (
+                  <ComboboxItem key={skill} value={skill}>
+                    <MetricIconSmall metric={skill} />
+                    {MetricProps[skill].name}
+                  </ComboboxItem>
+                ))}
+              </ComboboxItemGroup>
+              <ComboboxItemGroup label="Bosses">
+                {BOSSES.map((boss) => (
+                  <ComboboxItem key={boss} value={boss}>
+                    <MetricIconSmall metric={boss} />
+                    {MetricProps[boss].name}
+                  </ComboboxItem>
+                ))}
+              </ComboboxItemGroup>
+              <ComboboxItemGroup label="Activities">
+                {ACTIVITIES.map((activity) => (
+                  <ComboboxItem key={activity} value={activity}>
+                    <MetricIconSmall metric={activity} />
+                    {MetricProps[activity].name}
+                  </ComboboxItem>
+                ))}
+              </ComboboxItemGroup>
+              <ComboboxItemGroup label="Computed">
+                {COMPUTED_METRICS.map((computed) => (
+                  <ComboboxItem key={computed} value={computed}>
+                    <MetricIconSmall metric={computed} />
+                    {MetricProps[computed].name}
+                  </ComboboxItem>
+                ))}
+              </ComboboxItemGroup>
             </>
           )}
         </ComboboxItemsContainer>

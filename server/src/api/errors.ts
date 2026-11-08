@@ -32,7 +32,6 @@ const ErrorMessageMap = {
   INVALID_PERIOD: `Invalid period`,
   INVALID_USERNAME: `Invalid username`,
   INVALID_USERNAMES_FOUND: `Invalid player usernames found`,
-  METRICS_MUST_BE_OF_SAME_TYPE: `All metrics must be of the same type`,
   MISSING_ADMIN_PASSWORD: `Required parameter 'adminPassword' is undefined`,
   MISSING_GROUP_VERIFICATION_CODE: `Required parameter 'groupVerificationCode' is undefined`,
   MISSING_VERIFICATION_CODE: `Required parameter 'verificationCode' is undefined`,

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  CompetitionDetailsResponse,
-  formatNumber,
-  Metric,
-  MetricProps,
-  MetricType,
-} from "@wise-old-man/utils";
+import { CompetitionDetailsResponse, formatNumber, isSkill, Metric } from "@wise-old-man/utils";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { sortParticipations } from "~/utils/competitions";
@@ -31,10 +25,12 @@ import TableCogIcon from "~/assets/table_cog.svg";
  * Resolves the optional table columns ("views") selected in the "view" search param.
  */
 export function useParticipantTableViews() {
-  const { competition, selectedMetric } = useCompetitionPageContext();
+  const { competition, effectiveMetrics, selectedMetric } = useCompetitionPageContext();
   const searchParams = useSearchParams();
 
-  const isSkillingCompetition = MetricProps[competition.metrics[0].metric].type === MetricType.SKILL;
+  // Only skills have levels, so a total that includes other metric types has no full level count.
+  const hasLevels =
+    selectedMetric === "total" ? effectiveMetrics.every(isSkill) : isSkill(selectedMetric);
 
   // Gap and performance are relative to the whole competition, not to the filtered rows.
   // Calculated for every metric in the deltas, so that the tooltips can show the per-metric breakdown.
@@ -54,7 +50,7 @@ export function useParticipantTableViews() {
 
   const definitions = getViewDefinitions(selectedMetric, competition, stats);
 
-  const availableViews = VIEW_KEYS.filter((v) => v !== "levels" || isSkillingCompetition);
+  const availableViews = VIEW_KEYS.filter((v) => v !== "levels" || hasLevels);
   const requestedViews = availableViews.filter((v) => searchParams.getAll("view").includes(v));
 
   // With no views in the URL, the default views are shown, as many as the table's width allows
@@ -234,7 +230,11 @@ function getViewDefinitions(
                 <span>{gained}</span>
               </TooltipTrigger>
               <TooltipContent>
-                <MetricDeltasTooltip deltas={row.deltas} type="levels" field="gained" />
+                <MetricDeltasTooltip
+                  deltas={row.deltas.filter((d) => d.metric === "total" || isSkill(d.metric))}
+                  type="levels"
+                  field="gained"
+                />
               </TooltipContent>
             </Tooltip>
           </span>
