@@ -36,7 +36,7 @@ export function CompetitionValueDistribution() {
   const mappedEntries = Array.from(aggregates.entries())
     .sort((a, b) => b[1] - a[1])
     .map(([metric, value]) => ({
-      percent: Math.round((value / total) * 100),
+      percent: total > 0 ? (value / total) * 100 : 0,
       metric,
       value,
     }));
@@ -82,7 +82,7 @@ export function CompetitionValueDistribution() {
                 <span className="shrink-0 text-xs font-medium tabular-nums text-white">
                   {formatNumber(e.value, true)}
                   <span className="ml-1.5 font-normal text-gray-200">
-                    ({((e.value / total) * 100).toFixed(1)}%
+                    ({e.percent.toFixed(1)}%
                     <span className="mx-1 text-base" style={{ color: METRIC_COLOR_MAP[e.metric] }}>
                       ●
                     </span>
