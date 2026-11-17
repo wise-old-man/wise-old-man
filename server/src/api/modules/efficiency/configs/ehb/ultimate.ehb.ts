@@ -57,6 +57,7 @@ export default [
   { boss: Boss.THE_WHISPERER, rate: 20 },
   { boss: Boss.THEATRE_OF_BLOOD_HARD_MODE, rate: 2.6 },
   { boss: Boss.THEATRE_OF_BLOOD, rate: 2.9 },
+  { boss: Boss.THE_FRACTURED_ARCHIVE, rate: 3 },
   { boss: Boss.THERMONUCLEAR_SMOKE_DEVIL, rate: 88 },
   { boss: Boss.TOMBS_OF_AMASCUT_EXPERT, rate: 2.5 },
   { boss: Boss.TOMBS_OF_AMASCUT, rate: 3 },
