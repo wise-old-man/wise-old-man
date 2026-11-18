@@ -6,7 +6,7 @@ import { redisClient } from '../../../src/services/redis.service';
 const server = new APIInstance().init().express.listen(0);
 const api = supertest(server);
 const developer = 'Lookup test / exact';
-const discordId = '123456789012345678';
+const discordId = '223456789012345678';
 const developerEndpoint = `/api-keys?developer=${encodeURIComponent(developer)}`;
 const discordEndpoint = `/api-keys?developerDiscordId=${discordId}`;
 const keys: Awaited<ReturnType<typeof prisma.apiKey.create>>[] = [];

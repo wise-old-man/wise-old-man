@@ -219,7 +219,7 @@ describe('General API', () => {
       expect(incorrect.body.code).toBe('INCORRECT_ADMIN_PASSWORD');
     });
 
-    it.each([undefined, null, '', 'username', 123456789012345678, '123abc', ' 123', '12.3'])(
+    it.each([undefined, null, '', 'username', 123, '123abc', ' 123', '12.3'])(
       'should reject invalid Discord ID %p',
       async invalidId => {
         const response = await api.put(endpoint).send({
