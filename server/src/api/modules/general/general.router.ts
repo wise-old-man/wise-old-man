@@ -9,6 +9,7 @@ import { allowUserActions } from './services/AllowUserActionsService';
 import { blockUserActions } from './services/BlockUserActionsService';
 import { createAPIKey } from './services/CreateAPIKeyService';
 import { fetchTableCounts } from './services/FetchTableCountsService';
+import { findDeveloperAPIKeys } from './services/FindDeveloperAPIKeysService';
 import { revokeAPIKey } from './services/RevokeAPIKeyService';
 import { updateDeveloperAPIKeys } from './services/UpdateDeveloperAPIKeysService';
 
@@ -54,6 +55,25 @@ router.put(
     }
 
     res.status(200).json(result.value);
+  })
+);
+
+router.get(
+  '/api-keys',
+  checkAdminPermission,
+  validateRequest({
+    query: z
+      .object({
+        developer: z.optional(z.string().min(1)),
+        developerDiscordId: z.optional(z.string().regex(/^\d+$/))
+      })
+      .refine(query => query.developer !== undefined || query.developerDiscordId !== undefined, {
+        message: 'Provide developer or developerDiscordId.'
+      })
+  }),
+  executeRequest(async (req, res) => {
+    const keys = await findDeveloperAPIKeys(req.query);
+    res.status(200).json(keys);
   })
 );
 
