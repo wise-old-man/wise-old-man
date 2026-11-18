@@ -205,7 +205,7 @@ describe('General API', () => {
     });
   });
 
-  describe('Link developer API keys', () => {
+  describe('Update developer API keys', () => {
     const endpoint = '/api-keys/developer/kaithorpe';
     const developerDiscordId = '123456789012345678';
 
@@ -269,6 +269,68 @@ describe('General API', () => {
           ...key,
           developerDiscordId: key.developer === 'kaithorpe' ? developerDiscordId : null
         });
+      }
+    });
+
+    it.each([{}, { active: false }, { createdAt: '' }, { createdAt: 'invalid-date' }, { createdAt: 123 }])(
+      'should reject missing or invalid update fields %p',
+      async fields => {
+        const response = await api.put(endpoint).send({
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+          ...fields
+        });
+        expect(response.status).toBe(400);
+        expect(response.body.code).toBe('VALIDATION_ERROR');
+      }
+    );
+
+    it('should return 404 for a creation date update with no matching developer', async () => {
+      const response = await api.put('/api-keys/developer/nonexistent-developer').send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+        createdAt: '2025-01-02T03:04:05.000Z'
+      });
+      expect(response.status).toBe(404);
+      expect(response.body.code).toBe('API_KEY_NOT_FOUND');
+    });
+
+    it('should update or clear creation dates and optionally update Discord IDs', async () => {
+      const developer = 'creation-date-test';
+      const originalDate = new Date('2024-01-01T00:00:00.000Z');
+      const keys = await Promise.all(
+        [
+          { developer, active: true },
+          { developer, active: false },
+          { developer: 'Creation-date-test', active: true }
+        ].map(data =>
+          prisma.apiKey.create({
+            data: { ...data, application: 'Creation date test', createdAt: originalDate, developerDiscordId }
+          })
+        )
+      );
+
+      for (const fields of [
+        { createdAt: '2025-01-02T03:04:05.000Z' },
+        { createdAt: '2025-02-03T04:05:06.000Z', developerDiscordId: '456' },
+        { createdAt: null }
+      ]) {
+        const response = await api.put(`/api-keys/developer/${developer}`).send({
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+          ...fields,
+          active: false,
+          master: true,
+          application: 'Must not change'
+        });
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ updatedCount: 2 });
+
+        for (const key of keys) {
+          const matches = key.developer === developer;
+          if (matches) {
+            key.createdAt = fields.createdAt === null ? null : new Date(fields.createdAt);
+            if (fields.developerDiscordId !== undefined) key.developerDiscordId = fields.developerDiscordId;
+          }
+          expect(await prisma.apiKey.findUnique({ where: { id: key.id } })).toEqual(key);
+        }
       }
     });
   });

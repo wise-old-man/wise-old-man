@@ -5,6 +5,7 @@ import { assertNever } from '../../../utils/assert-never.util';
 import { NotFoundErrorZ } from '../../errors';
 import { checkAdminPermission } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
+import { getDateSchema } from '../../util/validation';
 import { allowUserActions } from './services/AllowUserActionsService';
 import { blockUserActions } from './services/BlockUserActionsService';
 import { createAPIKey } from './services/CreateAPIKeyService';
@@ -65,14 +66,26 @@ router.get(
     query: z
       .object({
         developer: z.optional(z.string().min(1)),
-        developerDiscordId: z.optional(z.string().regex(/^\d+$/))
+        application: z.optional(z.string().min(1)),
+        developerDiscordId: z.optional(z.string().regex(/^\d+$/)),
+        createdAt: z.optional(getDateSchema('createdAt')),
+        master: z.optional(z.enum(['true', 'false'])),
+        active: z.optional(z.enum(['true', 'false']))
       })
-      .refine(query => query.developer !== undefined || query.developerDiscordId !== undefined, {
-        message: 'Provide developer or developerDiscordId.'
+      .refine(query => Object.values(query).some(value => value !== undefined), {
+        message: 'Provide at least one API key filter.'
       })
   }),
   executeRequest(async (req, res) => {
-    const keys = await findDeveloperAPIKeys(req.query);
+    const { developer, application, developerDiscordId, createdAt, master, active } = req.query;
+    const keys = await findDeveloperAPIKeys({
+      developer,
+      application,
+      developerDiscordId,
+      createdAt,
+      master: master === undefined ? undefined : master === 'true',
+      active: active === undefined ? undefined : active === 'true'
+    });
     res.status(200).json(keys);
   })
 );
@@ -84,12 +97,18 @@ router.put(
     params: z.object({
       developer: z.string().min(1)
     }),
-    body: z.object({
-      developerDiscordId: z.string().regex(/^\d+$/)
-    })
+    body: z
+      .object({
+        developerDiscordId: z.optional(z.string().regex(/^\d+$/)),
+        createdAt: z.optional(getDateSchema('createdAt').nullable())
+      })
+      .refine(body => body.developerDiscordId !== undefined || body.createdAt !== undefined, {
+        message: 'Provide developerDiscordId or createdAt.'
+      })
   }),
   executeRequest(async (req, res) => {
-    const result = await updateDeveloperAPIKeys(req.params.developer, req.body.developerDiscordId);
+    const { developerDiscordId, createdAt } = req.body;
+    const result = await updateDeveloperAPIKeys(req.params.developer, { developerDiscordId, createdAt });
 
     if (result.updatedCount === 0) {
       throw new NotFoundErrorZ({ code: 'API_KEY_NOT_FOUND' });
