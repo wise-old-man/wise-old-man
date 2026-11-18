@@ -205,6 +205,92 @@ describe('General API', () => {
     });
   });
 
+  describe('Revoke Discord developer API keys', () => {
+    const developerDiscordId = '323456789012345678';
+    const endpoint = `/api-keys/developer-discord/${developerDiscordId}/revoke`;
+
+    it('should require admin authentication', async () => {
+      const missing = await api.put(endpoint).send({});
+      expect(missing.status).toBe(400);
+      expect(missing.body.code).toBe('MISSING_ADMIN_PASSWORD');
+
+      const incorrect = await api.put(endpoint).send({ adminPassword: 'incorrect' });
+      expect(incorrect.status).toBe(403);
+      expect(incorrect.body.code).toBe('INCORRECT_ADMIN_PASSWORD');
+    });
+
+    it.each(['username', '123abc', ' 123', '12.3', '-1'])(
+      'should reject malformed Discord ID %s',
+      async id => {
+        const response = await api
+          .put(`/api-keys/developer-discord/${encodeURIComponent(id)}/revoke`)
+          .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+        expect(response.status).toBe(400);
+        expect(response.body.code).toBe('VALIDATION_ERROR');
+      }
+    );
+
+    it('should return zero when no keys match', async () => {
+      const response = await api.put(endpoint).send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ revokedCount: 0 });
+    });
+
+    it('should revoke all linked active keys, invalidate their cache, and allow repeated calls', async () => {
+      const keys = await Promise.all(
+        [
+          { developerDiscordId, developer: 'Bulk revoke developer', active: true, master: false },
+          { developerDiscordId, developer: 'Another developer name', active: true, master: true },
+          { developerDiscordId, developer: 'Already revoked developer', active: false, master: false },
+          { developerDiscordId: null, developer: 'Bulk revoke developer', active: true, master: false },
+          {
+            developerDiscordId: '423456789012345678',
+            developer: 'Bulk revoke developer',
+            active: true,
+            master: false
+          }
+        ].map(data => prisma.apiKey.create({ data: { ...data, application: 'Bulk revoke test' } }))
+      );
+
+      for (const key of keys) {
+        await redisClient.set(buildCompoundRedisKey('api_key', key.id), String(key.master));
+      }
+
+      for (const revokedCount of [2, 0]) {
+        const response = await api.put(endpoint).send({
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+          active: true,
+          developerDiscordId: '423456789012345678'
+        });
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ revokedCount });
+
+        for (const key of keys) {
+          const matches = key.developerDiscordId === developerDiscordId;
+          expect(await prisma.apiKey.findUnique({ where: { id: key.id } })).toEqual({
+            ...key,
+            active: matches ? false : key.active
+          });
+          expect(await redisClient.get(buildCompoundRedisKey('api_key', key.id))).toBe(
+            matches ? null : String(key.master)
+          );
+          expect(response.text).not.toContain(key.id);
+        }
+      }
+
+      process.env.NODE_ENV = 'production';
+      try {
+        for (const key of keys.slice(0, 2)) {
+          const response = await api.get('/').set('x-api-key', key.id);
+          expect(response.status).toBe(403);
+          expect(response.body.message).toMatch('Invalid API Key.');
+        }
+      } finally {
+        process.env.NODE_ENV = 'test';
+      }
+    });
+  });
+
   describe('Update developer API keys', () => {
     const endpoint = '/api-keys/developer/kaithorpe';
     const developerDiscordId = '123456789012345678';

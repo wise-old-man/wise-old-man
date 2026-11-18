@@ -12,6 +12,7 @@ import { createAPIKey } from './services/CreateAPIKeyService';
 import { fetchTableCounts } from './services/FetchTableCountsService';
 import { findDeveloperAPIKeys } from './services/FindDeveloperAPIKeysService';
 import { revokeAPIKey } from './services/RevokeAPIKeyService';
+import { revokeDiscordDeveloperAPIKeys } from './services/RevokeDiscordDeveloperAPIKeysService';
 import { updateDeveloperAPIKeys } from './services/UpdateDeveloperAPIKeysService';
 
 const router = Router();
@@ -56,6 +57,20 @@ router.put(
     }
 
     res.status(200).json(result.value);
+  })
+);
+
+router.put(
+  '/api-keys/developer-discord/:developerDiscordId/revoke',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      developerDiscordId: z.string().regex(/^\d+$/)
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const result = await revokeDiscordDeveloperAPIKeys(req.params.developerDiscordId);
+    res.status(200).json(result);
   })
 );
 
