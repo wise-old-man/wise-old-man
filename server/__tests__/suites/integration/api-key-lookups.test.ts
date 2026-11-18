@@ -17,9 +17,21 @@ beforeAll(async () => {
   for (const data of [
     { developer, developerDiscordId: discordId, active: true, master: true, createdAt: null },
     { developer, developerDiscordId: discordId, active: false, createdAt: new Date(createdAt) },
-    { developer: 'Another lookup developer', developerDiscordId: discordId },
-    { developer: developer.toLowerCase(), developerDiscordId: null },
-    { developer: 'Unrelated lookup developer', developerDiscordId: '999999999999999999' }
+    {
+      developer: 'Another lookup developer',
+      developerDiscordId: discordId,
+      createdAt: new Date('2025-06-01T00:00:00.000Z')
+    },
+    {
+      developer: developer.toLowerCase(),
+      developerDiscordId: null,
+      createdAt: new Date('2025-01-01T00:00:00.000Z')
+    },
+    {
+      developer: 'Unrelated lookup developer',
+      developerDiscordId: '999999999999999999',
+      createdAt: new Date('2026-01-01T00:00:00.000Z')
+    }
   ]) {
     keys.push(await prisma.apiKey.create({ data: { ...data, application } }));
   }
@@ -92,6 +104,15 @@ describe('API key lookup results', () => {
     { developerDiscordId: '' },
     { application: '' },
     { createdAt: 'invalid-date' },
+    { createdAfter: 'invalid-date' },
+    { createdBefore: '' },
+    { createdAfter: ['2025-01-01', '2025-02-01'] },
+    { createdAfter: '2026-01-01T00:00:00.000Z', createdBefore: '2025-01-01T00:00:00.000Z' },
+    { hasCreatedAt: '' },
+    { hasCreatedAt: 'null' },
+    { hasCreatedAt: ['true', 'false'] },
+    { hasCreatedAt: 'false', createdAfter: createdAt },
+    { hasCreatedAt: 'false', createdBefore: createdAt },
     { master: '1' },
     { active: 'FALSE' },
     { active: '' },
@@ -110,13 +131,35 @@ describe('API key lookup results', () => {
 
   it.each([
     [{ application }, [0, 1, 2, 3, 4]],
+    [{ application, hasCreatedAt: 'false' }, [0]],
+    [{ application, hasCreatedAt: 'true' }, [1, 2, 3, 4]],
+    [{ application, hasCreatedAt: 'false', active: 'false' }, []],
+    [{ application, hasCreatedAt: 'true', createdBefore: createdAt }, [1, 3]],
     [{ developer, active: 'false' }, [1]],
     [{ developer, active: 'true' }, [0]],
     [{ developer, master: 'true' }, [0]],
     [{ developer, master: 'false' }, [1]],
-    [{ createdAt }, [1]],
+    [{ application, createdAfter: createdAt }, [1, 2, 4]],
+    [{ application, createdBefore: createdAt }, [1, 3]],
+    [{ createdAfter: createdAt, createdBefore: createdAt }, [1]],
     [
-      { developer, application, developerDiscordId: discordId, createdAt, active: 'false', master: 'false' },
+      { application, createdAfter: '2025-05-01T00:00:00.000Z', createdBefore: '2025-06-01T00:00:00.000Z' },
+      [1, 2]
+    ],
+    [
+      { application, createdAfter: '2024-01-01T00:00:00.000Z', createdBefore: '2024-12-31T23:59:59.999Z' },
+      []
+    ],
+    [
+      {
+        developer,
+        application,
+        developerDiscordId: discordId,
+        createdAfter: '2025-05-01T00:00:00.000Z',
+        createdBefore: '2025-06-01T00:00:00.000Z',
+        active: 'false',
+        master: 'false'
+      },
       [1]
     ],
     [{ developer, active: 'false', master: 'true' }, []],
@@ -144,6 +187,20 @@ describe('API key lookup results', () => {
     expect(response.body.length).toBeGreaterThan(0);
     for (const key of response.body) {
       expect(key.active).toBe(active === 'true');
+      expect(key).not.toHaveProperty('id');
+      expect(key.keySuffix).toHaveLength(4);
+    }
+  });
+
+  it.each(['true', 'false'])('allows hasCreatedAt=%s as the only filter', async hasCreatedAt => {
+    const response = await api
+      .get('/api-keys')
+      .query({ hasCreatedAt })
+      .set('x-admin-password', process.env.SHARED_ADMIN_PASSWORD!);
+    expect(response.status).toBe(200);
+    expect(response.body.length).toBeGreaterThan(0);
+    for (const key of response.body) {
+      expect(key.createdAt !== null).toBe(hasCreatedAt === 'true');
       expect(key).not.toHaveProperty('id');
       expect(key.keySuffix).toHaveLength(4);
     }

@@ -68,21 +68,43 @@ router.get(
         developer: z.optional(z.string().min(1)),
         application: z.optional(z.string().min(1)),
         developerDiscordId: z.optional(z.string().regex(/^\d+$/)),
-        createdAt: z.optional(getDateSchema('createdAt')),
+        createdAfter: z.optional(getDateSchema('createdAfter')),
+        createdBefore: z.optional(getDateSchema('createdBefore')),
+        hasCreatedAt: z.optional(z.enum(['true', 'false'])),
         master: z.optional(z.enum(['true', 'false'])),
         active: z.optional(z.enum(['true', 'false']))
       })
       .refine(query => Object.values(query).some(value => value !== undefined), {
         message: 'Provide at least one API key filter.'
       })
+      .refine(
+        query => !query.createdAfter || !query.createdBefore || query.createdAfter <= query.createdBefore,
+        {
+          message: 'createdAfter must be on or before createdBefore.'
+        }
+      )
+      .refine(query => query.hasCreatedAt !== 'false' || (!query.createdAfter && !query.createdBefore), {
+        message: 'hasCreatedAt=false cannot be combined with a creation date range.'
+      })
   }),
   executeRequest(async (req, res) => {
-    const { developer, application, developerDiscordId, createdAt, master, active } = req.query;
+    const {
+      developer,
+      application,
+      developerDiscordId,
+      createdAfter,
+      createdBefore,
+      hasCreatedAt,
+      master,
+      active
+    } = req.query;
     const keys = await findDeveloperAPIKeys({
       developer,
       application,
       developerDiscordId,
-      createdAt,
+      createdAfter,
+      createdBefore,
+      hasCreatedAt: hasCreatedAt === undefined ? undefined : hasCreatedAt === 'true',
       master: master === undefined ? undefined : master === 'true',
       active: active === undefined ? undefined : active === 'true'
     });
