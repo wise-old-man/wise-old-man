@@ -47,7 +47,9 @@ export async function detectRuneLiteNameChange(req: unknown, res: Response, next
 }
 
 export function checkAdminPermission(req: unknown, _res: Response, next: NextFunction) {
-  const { adminPassword } = (req as Request).body;
+  const request = req as Request;
+  const adminPassword =
+    request.method === 'GET' ? request.get('x-admin-password') : request.body.adminPassword;
 
   if (!adminPassword) {
     return next(new BadRequestErrorZ({ code: 'MISSING_ADMIN_PASSWORD' }));

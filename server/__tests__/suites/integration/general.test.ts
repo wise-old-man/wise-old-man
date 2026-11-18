@@ -129,6 +129,9 @@ describe('General API', () => {
         master: false
       });
       expect(isCuid(response.body.id)).toBe(true);
+      expect(response.body.developerDiscordId).toBeNull();
+      expect(typeof response.body.createdAt).toBe('string');
+      expect(Number.isNaN(Date.parse(response.body.createdAt))).toBe(false);
 
       await sleep(100);
 
@@ -199,6 +202,222 @@ describe('General API', () => {
 
       expect(rejectedResponse.status).toBe(403);
       expect(rejectedResponse.body.message).toMatch('Invalid API Key.');
+    });
+  });
+
+  describe('Revoke Discord developer API keys', () => {
+    const developerDiscordId = '323456789012345678';
+    const endpoint = `/api-keys/developer-discord/${developerDiscordId}/revoke`;
+
+    it('should require admin authentication', async () => {
+      const missing = await api.put(endpoint).send({});
+      expect(missing.status).toBe(400);
+      expect(missing.body.code).toBe('MISSING_ADMIN_PASSWORD');
+
+      const incorrect = await api.put(endpoint).send({ adminPassword: 'incorrect' });
+      expect(incorrect.status).toBe(403);
+      expect(incorrect.body.code).toBe('INCORRECT_ADMIN_PASSWORD');
+    });
+
+    it.each(['username', '123abc', ' 123', '12.3', '-1'])(
+      'should reject malformed Discord ID %s',
+      async id => {
+        const response = await api
+          .put(`/api-keys/developer-discord/${encodeURIComponent(id)}/revoke`)
+          .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+        expect(response.status).toBe(400);
+        expect(response.body.code).toBe('VALIDATION_ERROR');
+      }
+    );
+
+    it('should return zero when no keys match', async () => {
+      const response = await api.put(endpoint).send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ revokedCount: 0 });
+    });
+
+    it('should revoke all linked active keys, invalidate their cache, and allow repeated calls', async () => {
+      const keys = await Promise.all(
+        [
+          { developerDiscordId, developer: 'Bulk revoke developer', active: true, master: false },
+          { developerDiscordId, developer: 'Another developer name', active: true, master: true },
+          { developerDiscordId, developer: 'Already revoked developer', active: false, master: false },
+          { developerDiscordId: null, developer: 'Bulk revoke developer', active: true, master: false },
+          {
+            developerDiscordId: '423456789012345678',
+            developer: 'Bulk revoke developer',
+            active: true,
+            master: false
+          }
+        ].map(data => prisma.apiKey.create({ data: { ...data, application: 'Bulk revoke test' } }))
+      );
+
+      for (const key of keys) {
+        await redisClient.set(buildCompoundRedisKey('api_key', key.id), String(key.master));
+      }
+
+      for (const revokedCount of [2, 0]) {
+        const response = await api.put(endpoint).send({
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+          active: true,
+          developerDiscordId: '423456789012345678'
+        });
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ revokedCount });
+
+        for (const key of keys) {
+          const matches = key.developerDiscordId === developerDiscordId;
+          expect(await prisma.apiKey.findUnique({ where: { id: key.id } })).toEqual({
+            ...key,
+            active: matches ? false : key.active
+          });
+          expect(await redisClient.get(buildCompoundRedisKey('api_key', key.id))).toBe(
+            matches ? null : String(key.master)
+          );
+          expect(response.text).not.toContain(key.id);
+        }
+      }
+
+      process.env.NODE_ENV = 'production';
+      try {
+        for (const key of keys.slice(0, 2)) {
+          const response = await api.get('/').set('x-api-key', key.id);
+          expect(response.status).toBe(403);
+          expect(response.body.message).toMatch('Invalid API Key.');
+        }
+      } finally {
+        process.env.NODE_ENV = 'test';
+      }
+    });
+  });
+
+  describe('Update developer API keys', () => {
+    const endpoint = '/api-keys/developer/kaithorpe';
+    const developerDiscordId = '123456789012345678';
+
+    it('should require admin authentication', async () => {
+      const missing = await api.put(endpoint).send({ developerDiscordId });
+      expect(missing.status).toBe(400);
+      expect(missing.body.code).toBe('MISSING_ADMIN_PASSWORD');
+
+      const incorrect = await api.put(endpoint).send({ developerDiscordId, adminPassword: 'incorrect' });
+      expect(incorrect.status).toBe(403);
+      expect(incorrect.body.code).toBe('INCORRECT_ADMIN_PASSWORD');
+    });
+
+    it.each([undefined, null, '', 'username', 123, '123abc', ' 123', '12.3'])(
+      'should reject invalid Discord ID %p',
+      async invalidId => {
+        const response = await api.put(endpoint).send({
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+          developerDiscordId: invalidId
+        });
+        expect(response.status).toBe(400);
+      }
+    );
+
+    it.each(['123', developerDiscordId, '1234567890123456789012345'])(
+      'should accept digit strings of any length and return 404 when no keys match (%s)',
+      async validId => {
+        const response = await api.put('/api-keys/developer/nonexistent-developer').send({
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+          developerDiscordId: validId
+        });
+        expect(response.status).toBe(404);
+        expect(response.body.code).toBe('API_KEY_NOT_FOUND');
+      }
+    );
+
+    it('should link all exact matches including revoked keys and preserve other fields', async () => {
+      const keys = await Promise.all(
+        [
+          { developer: 'kaithorpe', active: true },
+          { developer: 'kaithorpe', active: false },
+          { developer: 'Kaithorpe', active: true },
+          { developer: 'another-developer', active: true }
+        ].map(data => prisma.apiKey.create({ data: { ...data, application: 'Link test' } }))
+      );
+
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const response = await api.put(endpoint).send({
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+          developerDiscordId,
+          active: false,
+          master: true,
+          application: 'Must not change'
+        });
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ updatedCount: 2 });
+      }
+
+      for (const key of keys) {
+        expect(await prisma.apiKey.findUnique({ where: { id: key.id } })).toEqual({
+          ...key,
+          developerDiscordId: key.developer === 'kaithorpe' ? developerDiscordId : null
+        });
+      }
+    });
+
+    it.each([{}, { active: false }, { createdAt: '' }, { createdAt: 'invalid-date' }, { createdAt: 123 }])(
+      'should reject missing or invalid update fields %p',
+      async fields => {
+        const response = await api.put(endpoint).send({
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+          ...fields
+        });
+        expect(response.status).toBe(400);
+        expect(response.body.code).toBe('VALIDATION_ERROR');
+      }
+    );
+
+    it('should return 404 for a creation date update with no matching developer', async () => {
+      const response = await api.put('/api-keys/developer/nonexistent-developer').send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+        createdAt: '2025-01-02T03:04:05.000Z'
+      });
+      expect(response.status).toBe(404);
+      expect(response.body.code).toBe('API_KEY_NOT_FOUND');
+    });
+
+    it('should update or clear creation dates and optionally update Discord IDs', async () => {
+      const developer = 'creation-date-test';
+      const originalDate = new Date('2024-01-01T00:00:00.000Z');
+      const keys = await Promise.all(
+        [
+          { developer, active: true },
+          { developer, active: false },
+          { developer: 'Creation-date-test', active: true }
+        ].map(data =>
+          prisma.apiKey.create({
+            data: { ...data, application: 'Creation date test', createdAt: originalDate, developerDiscordId }
+          })
+        )
+      );
+
+      for (const fields of [
+        { createdAt: '2025-01-02T03:04:05.000Z' },
+        { createdAt: '2025-02-03T04:05:06.000Z', developerDiscordId: '456' },
+        { createdAt: null }
+      ]) {
+        const response = await api.put(`/api-keys/developer/${developer}`).send({
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+          ...fields,
+          active: false,
+          master: true,
+          application: 'Must not change'
+        });
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ updatedCount: 2 });
+
+        for (const key of keys) {
+          const matches = key.developer === developer;
+          if (matches) {
+            key.createdAt = fields.createdAt === null ? null : new Date(fields.createdAt);
+            if (fields.developerDiscordId !== undefined) key.developerDiscordId = fields.developerDiscordId;
+          }
+          expect(await prisma.apiKey.findUnique({ where: { id: key.id } })).toEqual(key);
+        }
+      }
     });
   });
 

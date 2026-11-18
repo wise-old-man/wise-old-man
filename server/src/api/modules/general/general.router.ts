@@ -5,11 +5,15 @@ import { assertNever } from '../../../utils/assert-never.util';
 import { NotFoundErrorZ } from '../../errors';
 import { checkAdminPermission } from '../../util/middlewares';
 import { executeRequest, validateRequest } from '../../util/routing';
+import { getDateSchema } from '../../util/validation';
 import { allowUserActions } from './services/AllowUserActionsService';
 import { blockUserActions } from './services/BlockUserActionsService';
 import { createAPIKey } from './services/CreateAPIKeyService';
 import { fetchTableCounts } from './services/FetchTableCountsService';
+import { findDeveloperAPIKeys } from './services/FindDeveloperAPIKeysService';
 import { revokeAPIKey } from './services/RevokeAPIKeyService';
+import { revokeDiscordDeveloperAPIKeys } from './services/RevokeDiscordDeveloperAPIKeysService';
+import { updateDeveloperAPIKeys } from './services/UpdateDeveloperAPIKeysService';
 
 const router = Router();
 
@@ -53,6 +57,101 @@ router.put(
     }
 
     res.status(200).json(result.value);
+  })
+);
+
+router.put(
+  '/api-keys/developer-discord/:developerDiscordId/revoke',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      developerDiscordId: z.string().regex(/^\d+$/)
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const result = await revokeDiscordDeveloperAPIKeys(req.params.developerDiscordId);
+    res.status(200).json(result);
+  })
+);
+
+router.get(
+  '/api-keys',
+  checkAdminPermission,
+  validateRequest({
+    query: z
+      .object({
+        developer: z.optional(z.string().min(1)),
+        application: z.optional(z.string().min(1)),
+        developerDiscordId: z.optional(z.string().regex(/^\d+$/)),
+        createdAfter: z.optional(getDateSchema('createdAfter')),
+        createdBefore: z.optional(getDateSchema('createdBefore')),
+        hasCreatedAt: z.optional(z.enum(['true', 'false'])),
+        master: z.optional(z.enum(['true', 'false'])),
+        active: z.optional(z.enum(['true', 'false']))
+      })
+      .refine(query => Object.values(query).some(value => value !== undefined), {
+        message: 'Provide at least one API key filter.'
+      })
+      .refine(
+        query => !query.createdAfter || !query.createdBefore || query.createdAfter <= query.createdBefore,
+        {
+          message: 'createdAfter must be on or before createdBefore.'
+        }
+      )
+      .refine(query => query.hasCreatedAt !== 'false' || (!query.createdAfter && !query.createdBefore), {
+        message: 'hasCreatedAt=false cannot be combined with a creation date range.'
+      })
+  }),
+  executeRequest(async (req, res) => {
+    const {
+      developer,
+      application,
+      developerDiscordId,
+      createdAfter,
+      createdBefore,
+      hasCreatedAt,
+      master,
+      active
+    } = req.query;
+    const keys = await findDeveloperAPIKeys({
+      developer,
+      application,
+      developerDiscordId,
+      createdAfter,
+      createdBefore,
+      hasCreatedAt: hasCreatedAt === undefined ? undefined : hasCreatedAt === 'true',
+      master: master === undefined ? undefined : master === 'true',
+      active: active === undefined ? undefined : active === 'true'
+    });
+    res.status(200).json(keys);
+  })
+);
+
+router.put(
+  '/api-keys/developer/:developer',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      developer: z.string().min(1)
+    }),
+    body: z
+      .object({
+        developerDiscordId: z.optional(z.string().regex(/^\d+$/)),
+        createdAt: z.optional(getDateSchema('createdAt').nullable())
+      })
+      .refine(body => body.developerDiscordId !== undefined || body.createdAt !== undefined, {
+        message: 'Provide developerDiscordId or createdAt.'
+      })
+  }),
+  executeRequest(async (req, res) => {
+    const { developerDiscordId, createdAt } = req.body;
+    const result = await updateDeveloperAPIKeys(req.params.developer, { developerDiscordId, createdAt });
+
+    if (result.updatedCount === 0) {
+      throw new NotFoundErrorZ({ code: 'API_KEY_NOT_FOUND' });
+    }
+
+    res.status(200).json(result);
   })
 );
 
