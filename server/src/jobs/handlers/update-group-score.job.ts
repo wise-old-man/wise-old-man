@@ -1,6 +1,8 @@
+import { isErrored } from '@attio/fetchable';
 import { fetchGroupDetails } from '../../api/modules/groups/services/FetchGroupDetailsService';
 import prisma from '../../prisma';
 import { Competition, Group, Membership, Player } from '../../types';
+import { assertNever } from '../../utils/assert-never.util';
 import { PRIVILEGED_GROUP_ROLES } from '../../utils/shared';
 import { JobHandler } from '../types/job-handler.type';
 
@@ -18,8 +20,18 @@ export const UpdateGroupScoreJobHandler: JobHandler<Payload> = {
       return;
     }
 
-    const { group, memberships } = await fetchGroupDetails(payload.groupId);
+    const detailsResult = await fetchGroupDetails(payload.groupId);
 
+    if (isErrored(detailsResult)) {
+      switch (detailsResult.error.code) {
+        case 'GROUP_NOT_FOUND':
+          return;
+        default:
+          assertNever(detailsResult.error.code);
+      }
+    }
+
+    const { group, memberships } = detailsResult.value;
     const currentScore = group.score;
 
     const competitions = await prisma.competition.findMany({

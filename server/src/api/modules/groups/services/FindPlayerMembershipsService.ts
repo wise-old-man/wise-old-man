@@ -1,17 +1,18 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Group, Membership } from '../../../../types';
-import { NotFoundError } from '../../../errors';
 import { PaginationOptions } from '../../../util/validation';
 import { standardizeUsername } from '../../players/player.utils';
 
-async function findPlayerMemberships(
+export async function findPlayerMemberships(
   username: string,
   pagination: PaginationOptions
-): Promise<
+): AsyncResult<
   Array<{
     membership: Membership;
     group: Group & { memberCount: number };
-  }>
+  }>,
+  { code: 'PLAYER_NOT_FOUND' }
 > {
   const memberships = await prisma.membership.findMany({
     where: {
@@ -43,20 +44,20 @@ async function findPlayerMemberships(
       where: { username: standardizeUsername(username) }
     });
 
-    if (!player) {
-      throw new NotFoundError('Player not found.');
+    if (player === null) {
+      return errored({ code: 'PLAYER_NOT_FOUND' });
     }
   }
 
-  return memberships.map(membership => {
-    return {
-      membership,
-      group: {
-        ...membership.group,
-        memberCount: membership.group._count.memberships
-      }
-    };
-  });
+  return complete(
+    memberships.map(membership => {
+      return {
+        membership,
+        group: {
+          ...membership.group,
+          memberCount: membership.group._count.memberships
+        }
+      };
+    })
+  );
 }
-
-export { findPlayerMemberships };

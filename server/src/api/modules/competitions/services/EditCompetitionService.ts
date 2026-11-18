@@ -11,7 +11,6 @@ import {
   PlayerAnnotationType
 } from '../../../../types';
 import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
-import { MetricProps } from '../../../../utils/shared';
 import { eventEmitter, EventType } from '../../../events';
 import { standardizeUsername } from '../../players/player.utils';
 import { findOrCreatePlayers } from '../../players/services/FindOrCreatePlayersService';
@@ -48,7 +47,6 @@ export async function editCompetition(
   | { code: 'COMPETITION_NOT_FOUND' }
   | { code: 'COMPETITION_START_DATE_AFTER_END_DATE' }
   | { code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' }
-  | { code: 'METRICS_MUST_BE_OF_SAME_TYPE' }
   | { code: 'OPTED_OUT_PARTICIPANTS_FOUND'; data: string[] }
   | { code: 'FAILED_TO_UPDATE_COMPETITION' }
   | {
@@ -118,10 +116,6 @@ export async function editCompetition(
     payload.participants.length > 0
   ) {
     return errored({ code: 'COMPETITION_TYPE_CANNOT_BE_CHANGED' });
-  }
-
-  if (payload.metrics !== undefined && new Set(payload.metrics.map(m => MetricProps[m].type)).size > 1) {
-    return errored({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
   }
 
   const participationsResult = await getValidatedParticipations(competition, payload);

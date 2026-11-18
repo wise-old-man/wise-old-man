@@ -6,7 +6,7 @@ import { cn } from "~/utils/styling";
 import {
   getCompetitionStatusParam,
   getCompetitionTypeParam,
-  getMetricParam,
+  getMetricsParam,
   getSearchParam,
 } from "~/utils/params";
 import useDebounceCallback from "~/hooks/useDebouncedCallback";
@@ -45,7 +45,7 @@ export function CompetitionsFilters() {
   const searchParams = useSearchParams();
 
   const search = getSearchParam(searchParams.get("search"));
-  const metric = getMetricParam(searchParams.get("metric"));
+  const metrics = getMetricsParam(searchParams.getAll("metrics"));
   const type = getCompetitionTypeParam(searchParams.get("type"));
   const status = getCompetitionStatusParam(searchParams.get("status"));
 
@@ -60,6 +60,18 @@ export function CompetitionsFilters() {
     } else {
       nextParams.delete(paramName);
     }
+
+    router.replace(`/competitions?${nextParams.toString()}`, { scroll: false });
+  }
+
+  function handleMetricsChanged(metrics: Metric[]) {
+    const nextParams = new URLSearchParams(searchParams);
+
+    // Reset pagination if params change
+    nextParams.delete("page");
+
+    nextParams.delete("metrics");
+    metrics.forEach((m) => nextParams.append("metrics", m));
 
     router.replace(`/competitions?${nextParams.toString()}`, { scroll: false });
   }
@@ -82,10 +94,7 @@ export function CompetitionsFilters() {
   return (
     <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
       <SearchInput search={search} onSearchChanged={handleSearchChanged} />
-      <MetricSelect
-        metric={metric}
-        onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
-      />
+      <MetricSelect metrics={metrics} onMetricsSelected={handleMetricsChanged} />
       <StatusSelect
         status={status}
         onStatusSelected={(newStatus) => handleParamChanged("status", newStatus)}
@@ -131,30 +140,46 @@ function SearchInput(props: SearchInputProps) {
 }
 
 interface MetricSelectProps {
-  metric: Metric | undefined;
-  onMetricSelected: (metric: Metric | undefined) => void;
+  metrics: Metric[];
+  onMetricsSelected: (metrics: Metric[]) => void;
 }
 
+const ANY_METRIC = "__any__";
+
 function MetricSelect(props: MetricSelectProps) {
-  const { metric, onMetricSelected } = props;
+  const { metrics, onMetricsSelected } = props;
 
   const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
-      value={metric}
-      onValueChanged={(val) => {
-        if (val === undefined || isMetric(val)) {
-          startTransition(() => {
-            onMetricSelected(val);
-          });
-        }
+      multiple
+      closeOnSelect
+      value={metrics}
+      onValueChanged={(values) => {
+        startTransition(() => {
+          onMetricsSelected(values.includes(ANY_METRIC) ? [] : values.filter(isMetric));
+        });
       }}
     >
       <ComboboxButton className="py-5" isPending={isTransitioning}>
-        <div className={cn("flex items-center gap-x-2", !metric && "text-gray-200")}>
-          {metric && <MetricIconSmall metric={metric} />}
-          <span className="line-clamp-1 text-left">{metric ? MetricProps[metric].name : "Metric"} </span>
+        <div className={cn("flex items-center gap-x-2", metrics.length === 0 && "text-gray-200")}>
+          {metrics.length > 0 && (
+            <>
+              {metrics.length === 1 ? (
+                <MetricIconSmall metric={metrics[0]} />
+              ) : (
+                <div>
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+                    {metrics.length}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+          <span className="line-clamp-1 text-left">
+            {metrics.length > 0 ? metrics.map((m) => MetricProps[m].name).join(", ") : "Metrics"}
+          </span>
         </div>
       </ComboboxButton>
       <ComboboxContent>
@@ -162,7 +187,7 @@ function MetricSelect(props: MetricSelectProps) {
         <ComboboxEmpty>No results were found</ComboboxEmpty>
         <ComboboxItemsContainer>
           <ComboboxItemGroup label="Skills">
-            <ComboboxItem>Any metric</ComboboxItem>
+            <ComboboxItem value={ANY_METRIC}>Any metric</ComboboxItem>
             {SKILLS.map((skill) => (
               <ComboboxItem key={skill} value={skill}>
                 <MetricIconSmall metric={skill} />

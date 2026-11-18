@@ -10,7 +10,7 @@ import {
   MembershipResponse,
   PlayerResponse,
 } from "@wise-old-man/utils";
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useToast } from "~/hooks/useToast";

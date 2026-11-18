@@ -15,6 +15,7 @@ class PrometheusService {
   private eventCounter: Counter<'eventType'>;
   private jagexServiceHistogram: Histogram<'service' | 'status'>;
   private genericCounter: Counter<'metric'>;
+  private leaderboardCounter: Counter<'board' | 'period' | 'metric' | 'filters' | 'source'>;
 
   private pushInterval: NodeJS.Timeout | null = null;
 
@@ -81,6 +82,12 @@ class PrometheusService {
       labelNames: ['metric']
     });
 
+    this.leaderboardCounter = new prometheus.Counter({
+      name: 'leaderboard_requests_total',
+      help: 'Count of leaderboard requests, by board, period and filter mix',
+      labelNames: ['board', 'period', 'metric', 'filters', 'source']
+    });
+
     this.registry.registerMetric(this.jobHistogram);
     this.registry.registerMetric(this.jobQueueGauge);
     this.registry.registerMetric(this.jobQueueLatencyHistogram);
@@ -88,6 +95,7 @@ class PrometheusService {
     this.registry.registerMetric(this.eventCounter);
     this.registry.registerMetric(this.jagexServiceHistogram);
     this.registry.registerMetric(this.genericCounter);
+    this.registry.registerMetric(this.leaderboardCounter);
   }
 
   init() {
@@ -171,6 +179,31 @@ class PrometheusService {
 
   trackGenericMetric(metric: string, incrementBy = 1) {
     this.genericCounter.inc({ metric }, incrementBy);
+  }
+
+  trackLeaderboardRequest(
+    board: 'deltas' | 'records',
+    userAgent: string,
+    query: {
+      period: string;
+      metric: string;
+      country?: string;
+      playerType?: string;
+      playerBuild?: string;
+    }
+  ) {
+    // Server-side and client-side user agents of our website (see app/src)
+    const websiteUserAgents = ['Wise Old Man App (v2)', 'WiseOldMan - App v2 (Client Side)'];
+
+    const filters = (['country', 'playerType', 'playerBuild'] as const).filter(f => query[f]);
+
+    this.leaderboardCounter.inc({
+      board,
+      period: query.period,
+      metric: query.metric,
+      filters: filters.join('+') || 'none',
+      source: websiteUserAgents.includes(userAgent) ? 'website' : 'external'
+    });
   }
 
   updateQueueMetrics(queueName: string, counts: Record<string, number>) {

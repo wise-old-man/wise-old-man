@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { CompetitionDetailsResponse, Metric } from "@wise-old-man/utils";
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { Button } from "../Button";
 import { DataTable } from "../DataTable";
 import { FormattedNumber } from "../FormattedNumber";
@@ -79,6 +79,13 @@ function getTeams(competition: CompetitionDetailsResponse, selectedMetric: Metri
         )
       );
     });
+}
+
+function getTeamMVP(participations: Team["participations"], selectedMetric: Metric | "total") {
+  const getGained = (p: Team["participations"][number]) =>
+    p.deltas.find((d) => d.metric === selectedMetric)?.values.gained ?? 0;
+
+  return [...participations].sort((a, b) => getGained(b) - getGained(a))[0];
 }
 
 function getTeamAggregateDeltas(
@@ -200,7 +207,7 @@ function getColumnDefinitions(selectedMetric: Metric | "total"): ColumnDef<Team>
       id: "mvp",
       header: "MVP",
       accessorFn: (row) => {
-        return row.participations[0];
+        return getTeamMVP(row.participations, selectedMetric);
       },
       cell: ({ row }) => {
         const mvp = row.getValue("mvp") as CompetitionDetailsResponse["participations"][number];

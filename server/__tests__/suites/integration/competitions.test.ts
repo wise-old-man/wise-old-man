@@ -879,21 +879,7 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch("Parameter 'metrics' must have a minimum of 1 element(s).");
     });
 
-    it('should NOT create with multiple metrics (temporary)', async () => {
-      const response = await api.post('/competitions').send({
-        title: 'Test',
-        metrics: ['hunter', 'fishing'],
-        startsAt: VALID_START_DATE,
-        endsAt: VALID_END_DATE
-      });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Creating multi-metric competitions is not enabled yet.');
-    });
-
-    it('should NOT create with mixed metric types', async () => {
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
-
+    it('should create with mixed metric types', async () => {
       const response = await api.post('/competitions').send({
         title: 'Test',
         metrics: ['hunter', 'zulrah'],
@@ -901,15 +887,21 @@ describe('Competition API', () => {
         endsAt: VALID_END_DATE
       });
 
-      expect(response.status).toBe(400);
-      expect(response.body).toMatchObject({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
+      expect(response.status).toBe(201);
+      expect(response.body.competition).toMatchObject({
+        metric: 'hunter',
+        metrics: [
+          expect.objectContaining({ metric: 'hunter' }),
+          expect.objectContaining({ metric: 'zulrah' })
+        ]
+      });
 
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      await prisma.competition.delete({
+        where: { id: response.body.competition.id }
+      });
     });
 
     it('should create with multiple metrics', async () => {
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
-
       const response = await api.post('/competitions').send({
         title: 'Test',
         metrics: ['hunter', 'fishing'],
@@ -925,8 +917,6 @@ describe('Competition API', () => {
           expect.objectContaining({ metric: 'fishing' })
         ]
       });
-
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       await prisma.competition.delete({
         where: { id: response.body.competition.id }
@@ -1740,8 +1730,6 @@ describe('Competition API', () => {
         expect.objectContaining({ metric: 'agility' })
       ]);
 
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
-
       const firstUpdateResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode,
         metrics: ['hunter', 'firemaking']
@@ -1825,8 +1813,6 @@ describe('Competition API', () => {
         deletedAt: null
       });
 
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
-
       const deleteResponse = await api
         .delete(`/competitions/${createResponse.body.competition.id}`)
         .send({ verificationCode: createResponse.body.verificationCode });
@@ -1858,7 +1844,7 @@ describe('Competition API', () => {
       expect(deleteResponse.status).toBe(200);
     });
 
-    it('should NOT edit with multiple metrics', async () => {
+    it('should edit with mixed metric types', async () => {
       const createResponse = await api.post('/competitions').send({
         title: 'Test Metrics',
         startsAt: new Date(Date.now() + 1_200_000),
@@ -1867,41 +1853,16 @@ describe('Competition API', () => {
       });
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition.metric).toBe('agility');
-
-      const editResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
-        verificationCode: createResponse.body.verificationCode,
-        metrics: ['agility', 'hunter']
-      });
-      expect(editResponse.status).toBe(400);
-      expect(editResponse.body.message).toBe('Creating multi-metric competitions is not enabled yet.');
-
-      const deleteResponse = await api
-        .delete(`/competitions/${createResponse.body.competition.id}`)
-        .send({ verificationCode: createResponse.body.verificationCode });
-
-      expect(deleteResponse.status).toBe(200);
-    });
-
-    it('should NOT edit with mixed metric types', async () => {
-      const createResponse = await api.post('/competitions').send({
-        title: 'Test Metrics',
-        startsAt: new Date(Date.now() + 1_200_000),
-        endsAt: new Date(Date.now() + 2_400_000),
-        metrics: ['agility']
-      });
-      expect(createResponse.status).toBe(201);
-      expect(createResponse.body.competition.metric).toBe('agility');
-
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
 
       const editResponse = await api.put(`/competitions/${createResponse.body.competition.id}`).send({
         verificationCode: createResponse.body.verificationCode,
         metrics: ['agility', 'zulrah']
       });
-      expect(editResponse.status).toBe(400);
-      expect(editResponse.body).toMatchObject({ code: 'METRICS_MUST_BE_OF_SAME_TYPE' });
-
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
+      expect(editResponse.status).toBe(200);
+      expect(editResponse.body.metrics).toEqual([
+        expect.objectContaining({ metric: 'agility' }),
+        expect.objectContaining({ metric: 'zulrah' })
+      ]);
 
       const deleteResponse = await api
         .delete(`/competitions/${createResponse.body.competition.id}`)
@@ -2184,6 +2145,84 @@ describe('Competition API', () => {
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(c => !!c.verificationHash).length).toBe(0);
+    });
+
+    it('should search competitions (w/ multiple metrics filter)', async () => {
+      const comp123 = await prisma.competition.create({
+        data: {
+          title: 'Test123',
+          startsAt: new Date(),
+          endsAt: new Date(),
+          verificationHash: '123',
+          metrics: {
+            createMany: {
+              data: [{ metric: 'abyssal_sire' }, { metric: 'zulrah' }, { metric: 'kalphite_queen' }]
+            }
+          }
+        }
+      });
+
+      const comp456 = await prisma.competition.create({
+        data: {
+          title: 'Test456',
+          startsAt: new Date(),
+          endsAt: new Date(),
+          verificationHash: '456',
+          metrics: {
+            createMany: {
+              data: [{ metric: 'kalphite_queen' }, { metric: 'king_black_dragon' }]
+            }
+          }
+        }
+      });
+
+      const firstResponse = await api.get('/competitions').query({
+        metric: 'kalphite_queen'
+      });
+
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body.length).toBe(2);
+
+      const secondResponse = await api.get('/competitions').query({
+        metrics: ['kalphite_queen', 'abyssal_sire']
+      });
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.length).toBe(1);
+
+      await prisma.competition.deleteMany({
+        where: {
+          id: { in: [comp123.id, comp456.id] }
+        }
+      });
+    });
+
+    it('should search competitions (w/ metrics filter, ignoring soft-deleted metrics)', async () => {
+      const comp = await prisma.competition.create({
+        data: {
+          title: 'Test789',
+          startsAt: new Date(),
+          endsAt: new Date(),
+          verificationHash: '789',
+          metrics: {
+            createMany: {
+              data: [{ metric: 'abyssal_sire' }, { metric: 'king_black_dragon', deletedAt: new Date() }]
+            }
+          }
+        }
+      });
+
+      const firstResponse = await api.get('/competitions').query({ metrics: ['abyssal_sire'] });
+
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body.map(c => c.id)).toContain(comp.id);
+
+      const secondResponse = await api.get('/competitions').query({ metrics: ['king_black_dragon'] });
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.map(c => c.id)).not.toContain(comp.id);
+
+      await prisma.competition.delete({ where: { id: comp.id } });
     });
 
     it('should search competitions (w/ type filter)', async () => {
@@ -3352,7 +3391,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot remove teams from a classic competition.');
+      expect(response.body.code).toBe('CANNOT_REMOVE_TEAMS_FROM_CLASSIC_COMPETITION');
     });
 
     it('should not remove teams (no teams found)', async () => {
@@ -3362,7 +3401,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('No players were removed from the competition.');
+      expect(response.body.code).toBe('NO_VALID_PARTICIPANTS');
     });
 
     it('should remove teams', async () => {
@@ -3396,7 +3435,7 @@ describe('Competition API', () => {
       const response = await api.get(`/competitions/100000`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Competition not found.');
+      expect(response.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should not view details (invalid metric)', async () => {
@@ -3878,7 +3917,6 @@ describe('Competition API', () => {
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 10_000 + 604_800_000);
 
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
       const createResponse = await api.post('/competitions').send({
         title: 'Test',
         metrics: ['hunter', 'fishing'],
@@ -3886,7 +3924,6 @@ describe('Competition API', () => {
         endsAt: endDate,
         participants: ['sue', 'reed', 'johnny', 'ben']
       });
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition).toMatchObject({
@@ -4186,7 +4223,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Min date must be before the max date.');
+      expect(response.body.code).toBe('INVALID_DATE_RANGE');
     });
 
     it('should view details filtered by usernames and date range (ignores usernames not competing)', async () => {
@@ -4405,9 +4442,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        "The given date range does not overlap with the competition's period."
-      );
+      expect(response.body.code).toBe('INVALID_DATE_RANGE');
     });
 
     it('should not view details (date range sits entirely before the competition)', async () => {
@@ -4422,9 +4457,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        "The given date range does not overlap with the competition's period."
-      );
+      expect(response.body.code).toBe('INVALID_DATE_RANGE');
     });
 
     it('should not view details (minDate sits on the competition end)', async () => {
@@ -4437,9 +4470,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        "The given date range does not overlap with the competition's period."
-      );
+      expect(response.body.code).toBe('INVALID_DATE_RANGE');
     });
 
     it('should view details filtered by a maxDate that goes past the competition end', async () => {
@@ -4548,7 +4579,7 @@ describe('Competition API', () => {
       const response = await api.get(`/competitions/100000/top-history`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Competition not found.');
+      expect(response.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should not view top 5 snapshots (invalid metric)', async () => {
@@ -4754,7 +4785,6 @@ describe('Competition API', () => {
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 10_000 + 604_800_000);
 
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
       const createResponse = await api.post('/competitions').send({
         title: 'Test',
         metrics: ['hunter', 'fishing'],
@@ -4762,7 +4792,6 @@ describe('Competition API', () => {
         endsAt: endDate,
         participants: ['toblink', 'tobilical', 'tobicula', 'tobinky']
       });
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition).toMatchObject({
@@ -4900,7 +4929,7 @@ describe('Competition API', () => {
       const response = await api.get(`/competitions/100000/csv`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Competition not found.');
+      expect(response.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should not view CSV export (invalid metric)', async () => {
@@ -5283,7 +5312,7 @@ describe('Competition API', () => {
         .query({ status: 'ongoing' });
 
       expect(usernameResponse.status).toBe(404);
-      expect(usernameResponse.body.message).toMatch('Player not found.');
+      expect(usernameResponse.body.code).toBe('PLAYER_NOT_FOUND');
     });
 
     it('should not list player competition standings (undefined competition status)', async () => {
@@ -5501,7 +5530,6 @@ describe('Competition API', () => {
       const startDate = new Date(Date.now() + 10_000);
       const endDate = new Date(Date.now() + 10_000 + 604_800_000);
 
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'true';
       const createResponse = await api.post('/competitions').send({
         title: 'Test',
         metrics: ['hunter', 'fishing'],
@@ -5509,7 +5537,6 @@ describe('Competition API', () => {
         endsAt: endDate,
         participants: ['morticia', 'gomez', 'thing', 'fester']
       });
-      process.env.SERVER_API_FEATURE_FLAG_MULTI_METRIC_COMPETITIONS = 'false';
 
       expect(createResponse.status).toBe(201);
       expect(createResponse.body.competition).toMatchObject({
@@ -5932,7 +5959,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition not found.');
+      expect(response.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should not reset code (group competition)', async () => {
@@ -5943,7 +5970,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Cannot reset competition codes for group competitions.');
+      expect(response.body.code).toBe('CANNOT_RESET_GROUP_COMPETITION_CODE');
     });
 
     it('should reset code', async () => {
@@ -6040,7 +6067,7 @@ describe('Competition API', () => {
 
       const fetchConfirmResponse = await api.get(`/competitions/${globalData.testCompetitionOngoing.id}`);
       expect(fetchConfirmResponse.status).toBe(404);
-      expect(fetchConfirmResponse.body.message).toBe('Competition not found.');
+      expect(fetchConfirmResponse.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should delete (with group code)', async () => {
@@ -6054,7 +6081,7 @@ describe('Competition API', () => {
       const fetchConfirmResponse = await api.get(`/competitions/${globalData.testCompetitionWithGroup.id}`);
 
       expect(fetchConfirmResponse.status).toBe(404);
-      expect(fetchConfirmResponse.body.message).toBe('Competition not found.');
+      expect(fetchConfirmResponse.body.code).toBe('COMPETITION_NOT_FOUND');
     });
 
     it('should delete (admin override)', async () => {
@@ -6303,7 +6330,7 @@ describe('Competition API', () => {
       // Confirm the group was successfully deleted
       const fetchGroupConfirmResponse = await api.get(`/groups/${createGroupResponse.body.group.id}`);
       expect(fetchGroupConfirmResponse.status).toBe(404);
-      expect(fetchGroupConfirmResponse.body.message).toBe('Group not found.');
+      expect(fetchGroupConfirmResponse.body.code).toBe('GROUP_NOT_FOUND');
 
       // Confirm the competition was deleted as a side effect
       const fetchCompetitionConfirmResponse = await api.get(
@@ -6311,7 +6338,75 @@ describe('Competition API', () => {
       );
 
       expect(fetchCompetitionConfirmResponse.status).toBe(404);
-      expect(fetchCompetitionConfirmResponse.body.message).toBe('Competition not found.');
+      expect(fetchCompetitionConfirmResponse.body.code).toBe('COMPETITION_NOT_FOUND');
+    });
+  });
+
+  describe('18 - Visibility', () => {
+    it('should not change competition visibility (invalid admin password)', async () => {
+      const response = await api.put(`/competitions/100000/visibility`).send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+    });
+
+    it('should not change competition visibility (incorrect admin password)', async () => {
+      const response = await api.put(`/competitions/100000/visibility`).send({
+        adminPassword: 'abcdef'
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+    });
+
+    it('should not change competition visibility (competition not found)', async () => {
+      const response = await api.put(`/competitions/100000/visibility`).send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toMatchObject({ code: 'COMPETITION_NOT_FOUND' });
+    });
+
+    it('should hide and unhide competition', async () => {
+      const competition = await prisma.competition.create({
+        data: {
+          title: 'Visibility Test',
+          verificationHash: 'hash',
+          startsAt: new Date(Date.now() + 1_200_000),
+          endsAt: new Date(Date.now() + 1_200_000 + 604_800_000)
+        }
+      });
+
+      const hideResponse = await api.put(`/competitions/${competition.id}/visibility`).send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(hideResponse.status).toBe(200);
+      expect(hideResponse.body.message).toBe('Successfully hid competition: Visibility Test');
+
+      expect(
+        (
+          await prisma.competition.findFirst({
+            where: { id: competition.id }
+          })
+        )?.visible
+      ).toBe(false);
+
+      const unhideResponse = await api.put(`/competitions/${competition.id}/visibility`).send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(unhideResponse.status).toBe(200);
+      expect(unhideResponse.body.message).toBe('Successfully unhid competition: Visibility Test');
+
+      expect(
+        (
+          await prisma.competition.findFirst({
+            where: { id: competition.id }
+          })
+        )?.visible
+      ).toBe(true);
     });
   });
 });

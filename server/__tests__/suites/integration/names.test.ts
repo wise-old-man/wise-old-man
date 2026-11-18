@@ -1460,7 +1460,7 @@ describe('Names API', () => {
       const fetchResponse = await api.get(`/groups/2000000000/name-changes`);
 
       expect(fetchResponse.status).toBe(404);
-      expect(fetchResponse.body.message).toBe('Group not found.');
+      expect(fetchResponse.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should not fetch (negative pagination limit)', async () => {

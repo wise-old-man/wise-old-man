@@ -1919,7 +1919,7 @@ describe('Group API', () => {
       const usernameResponse = await api.get(`/players/raaandooom/groups`);
 
       expect(usernameResponse.status).toBe(404);
-      expect(usernameResponse.body.message).toMatch('Player not found.');
+      expect(usernameResponse.body.code).toBe('PLAYER_NOT_FOUND');
     });
 
     it('should not list player groups (negative offset)', async () => {
@@ -2233,7 +2233,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should not delete (invalid verification code)', async () => {
@@ -2281,7 +2281,7 @@ describe('Group API', () => {
 
       const fetchConfirmResponse = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(fetchConfirmResponse.status).toBe(404);
-      expect(fetchConfirmResponse.body.message).toBe('Group not found.');
+      expect(fetchConfirmResponse.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should delete (admin override)', async () => {
@@ -2311,7 +2311,7 @@ describe('Group API', () => {
       const response = await api.get('/groups/9999');
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should not view details (id out of integer range)', async () => {
@@ -2444,14 +2444,15 @@ describe('Group API', () => {
       const response = await api.get('/groups/9999/csv');
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Group not found');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should not view members CSV (empty group)', async () => {
       const response = await api.get(`/groups/${globalData.testGroupNoMembers.id}/csv`);
+      expect(response.status).toBe(200);
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Group has no members.');
+      const rows = response.text.split('\n');
+      expect(rows.length).toBe(1); // only table headers
     });
 
     it('should view members CSV', async () => {
@@ -2696,7 +2697,7 @@ describe('Group API', () => {
       const response = await api.get(`/groups/100000/activity`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should view group activity (empty)', async () => {
@@ -2786,14 +2787,14 @@ describe('Group API', () => {
       const response = await api.get(`/groups/100000/statistics`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should not view statistics (empty group)', async () => {
       const response = await api.get(`/groups/${globalData.testGroupNoMembers.id}/statistics`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Couldn't find any stats for this group.");
+      expect(response.body.code).toBe('GROUP_HAS_NO_MEMBERS');
     });
 
     it('should view statistics', async () => {
@@ -2992,7 +2993,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should reset code', async () => {
@@ -3046,7 +3047,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should verify group', async () => {
@@ -3060,6 +3061,63 @@ describe('Group API', () => {
         id: globalData.testGroupOneLeader.id,
         verified: true
       });
+    });
+  });
+
+  describe('18 - Visibility', () => {
+    it('should not change group visibility (invalid admin password)', async () => {
+      const response = await api.put(`/groups/100000/visibility`).send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+    });
+
+    it('should not change group visibility (incorrect admin password)', async () => {
+      const response = await api.put(`/groups/100000/visibility`).send({
+        adminPassword: 'abcdef'
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+    });
+
+    it('should not change group visibility (group not found)', async () => {
+      const response = await api.put(`/groups/100000/visibility`).send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toMatchObject({ code: 'GROUP_NOT_FOUND' });
+    });
+
+    it('should hide group', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/visibility`).send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toMatch('Successfully hid group:');
+
+      const group = await prisma.group.findFirst({
+        where: { id: globalData.testGroupOneLeader.id }
+      });
+
+      expect(group?.visible).toBe(false);
+    });
+
+    it('should unhide group', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/visibility`).send({
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toMatch('Successfully unhid group:');
+
+      const group = await prisma.group.findFirst({
+        where: { id: globalData.testGroupOneLeader.id }
+      });
+
+      expect(group?.visible).toBe(true);
     });
   });
 });

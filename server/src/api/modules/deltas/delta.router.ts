@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { Country, Metric, Period, PlayerBuild, PlayerType } from '../../../types';
 import { formatPlayerResponse } from '../../responses';
+import prometheus from '../../../services/prometheus.service';
 import { executeRequest, validateRequest } from '../../util/routing';
 import { findDeltaLeaderboards } from './services/FindDeltaLeaderboardsService';
 
@@ -20,6 +21,8 @@ router.get(
   }),
   executeRequest(async (req, res) => {
     const { period, metric, country, playerType, playerBuild } = req.query;
+
+    prometheus.trackLeaderboardRequest('deltas', res.locals.userAgent, req.query);
 
     const results = await findDeltaLeaderboards(period, metric, {
       country,

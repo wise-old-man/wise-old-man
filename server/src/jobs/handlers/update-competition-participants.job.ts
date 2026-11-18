@@ -1,3 +1,4 @@
+import { isErrored } from '@attio/fetchable';
 import { fetchCompetitionDetails } from '../../api/modules/competitions/services/FetchCompetitionDetailsService';
 import prisma, { PrismaTypes } from '../../prisma';
 import { JobHandler } from '../types/job-handler.type';
@@ -16,11 +17,15 @@ export const UpdateCompetitionParticipantsJobHandler: JobHandler<Payload> = {
     }
 
     if (payload.trigger === 'competition-ending-2h') {
-      const { participations } = await fetchCompetitionDetails({
+      const detailsResult = await fetchCompetitionDetails({
         id: payload.competitionId
       });
 
-      participations
+      if (isErrored(detailsResult)) {
+        return;
+      }
+
+      detailsResult.value.participations
         .filter(p => p.deltas[0].values.gained > 0) // Only update players that have gained xp
         .forEach(p => {
           context.jobManager.add(JobType.UPDATE_PLAYER, {

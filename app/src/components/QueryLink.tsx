@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { Link } from "./Link";
 
 interface QueryLinkProps extends Omit<React.ComponentPropsWithoutRef<typeof Link>, "href"> {
   query: {
@@ -32,7 +32,6 @@ export function QueryLink(props: QueryLinkProps) {
 
   return (
     <Link
-      prefetch={false}
       href={`${pathname}?${nextParams.toString()}`}
       rel="nofollow"
       onClick={(e) => {

@@ -21,6 +21,11 @@ export function getMetricParam(param: string | undefined | null) {
   return param;
 }
 
+export function getMetricsParam(param: string | string[] | undefined | null) {
+  if (!param) return [];
+  return [...new Set(Array.isArray(param) ? param : [param])].filter(isMetric);
+}
+
 export function getPlayerTypeParam(param: string | undefined | null) {
   if (!param || !isPlayerType(param)) return undefined;
   return param;

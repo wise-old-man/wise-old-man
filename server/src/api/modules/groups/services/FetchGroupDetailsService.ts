@@ -1,15 +1,18 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Group, GroupRoleOrder, GroupSocialLinks, Membership, Player } from '../../../../types';
-import { NotFoundError } from '../../../errors';
 import { sortMembers } from '../group.utils';
 
-async function fetchGroupDetails(id: number): Promise<{
-  group: Group;
-  socialLinks: GroupSocialLinks | null;
-  roleOrders: Array<GroupRoleOrder>;
-  memberCount: number;
-  memberships: Array<{ membership: Membership; player: Player }>;
-}> {
+export async function fetchGroupDetails(id: number): AsyncResult<
+  {
+    group: Group;
+    socialLinks: GroupSocialLinks | null;
+    roleOrders: Array<GroupRoleOrder>;
+    memberCount: number;
+    memberships: Array<{ membership: Membership; player: Player }>;
+  },
+  { code: 'GROUP_NOT_FOUND' }
+> {
   const group = await prisma.group.findFirst({
     where: { id },
     include: {
@@ -25,21 +28,23 @@ async function fetchGroupDetails(id: number): Promise<{
     }
   });
 
-  if (!group) {
-    throw new NotFoundError('Group not found.');
+  if (group === null) {
+    return errored({ code: 'GROUP_NOT_FOUND' });
   }
 
-  return {
+  // Sort the members list by role
+  const sortedMembers = sortMembers(
+    group.memberships.map(({ player, ...membership }) => ({ membership, player })),
+    group.roleOrders
+  );
+
+  return complete({
     group,
     memberCount: group.memberships.length,
     socialLinks: group.socialLinks[0] ?? buildDefaultSocialLinks(group.id),
     roleOrders: group.roleOrders,
-    // Sort the members list by role
-    memberships: sortMembers(
-      group.memberships.map(({ player, ...membership }) => ({ membership, player })),
-      group.roleOrders
-    )
-  };
+    memberships: sortedMembers
+  });
 }
 
 function buildDefaultSocialLinks(groupId: number): GroupSocialLinks {
@@ -54,5 +59,3 @@ function buildDefaultSocialLinks(groupId: number): GroupSocialLinks {
     updatedAt: new Date()
   };
 }
-
-export { fetchGroupDetails };

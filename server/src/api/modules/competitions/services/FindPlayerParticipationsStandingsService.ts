@@ -1,10 +1,10 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation } from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
 import { calculateCompetitionDelta } from '../../../../utils/calculate-competition-delta.util';
 import { selectRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
 import { uniqueBy } from '../../../../utils/unique-by.util';
-import { NotFoundError } from '../../../errors';
 import { standardizeUsername } from '../../players/player.utils';
 
 type ReturnType = {
@@ -16,18 +16,18 @@ type ReturnType = {
   rank: number;
 };
 
-async function findPlayerParticipationsStandings(
+export async function findPlayerParticipationsStandings(
   username: string,
   status: CompetitionStatus.ONGOING | CompetitionStatus.FINISHED
-): Promise<Array<ReturnType>> {
+): AsyncResult<Array<ReturnType>, { code: 'PLAYER_NOT_FOUND' }> {
   const player = await prisma.player.findFirst({
     where: {
       username: standardizeUsername(username)
     }
   });
 
-  if (!player) {
-    throw new NotFoundError('Player not found.');
+  if (player === null) {
+    return errored({ code: 'PLAYER_NOT_FOUND' });
   }
 
   const now = new Date();
@@ -66,7 +66,7 @@ async function findPlayerParticipationsStandings(
   });
 
   if (playerParticipations.length === 0) {
-    return [];
+    return complete([]);
   }
 
   // Find all other players in those same competitions
@@ -280,17 +280,17 @@ async function findPlayerParticipationsStandings(
     });
   }
 
-  return results.sort((a, b) => {
-    if (status === CompetitionStatus.FINISHED) {
-      return b.competition.endsAt.getTime() - a.competition.endsAt.getTime();
-    } else {
-      return a.competition.endsAt.getTime() - b.competition.endsAt.getTime();
-    }
-  });
+  return complete(
+    results.sort((a, b) => {
+      if (status === CompetitionStatus.FINISHED) {
+        return b.competition.endsAt.getTime() - a.competition.endsAt.getTime();
+      } else {
+        return a.competition.endsAt.getTime() - b.competition.endsAt.getTime();
+      }
+    })
+  );
 }
 
 function getSnapshotUniqueKey(playerId: number, createdAt: Date) {
   return `${playerId}_${createdAt.getTime()}`;
 }
-
-export { findPlayerParticipationsStandings };

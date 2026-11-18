@@ -1,7 +1,8 @@
+import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import { fetchCompetitionDetails } from '../../api/modules/competitions/services/FetchCompetitionDetailsService';
 import prisma from '../../prisma';
-import { Competition, Metric } from '../../types';
-import { isActivity, isBoss, isSkill } from '../../utils/shared';
+import { Competition, Metric, MetricType } from '../../types';
+import { MetricProps } from '../../utils/shared';
 import { JobHandler } from '../types/job-handler.type';
 
 interface Payload {
@@ -27,9 +28,17 @@ export const UpdateCompetitionScoreJobHandler: JobHandler<Payload> = {
     }
 
     const currentScore = competition.score;
-    const newScore = await calculateScore(competition);
+    const newScoreResult = await calculateScore(competition);
 
-    if (newScore === currentScore) return;
+    if (isErrored(newScoreResult)) {
+      return;
+    }
+
+    const newScore = newScoreResult.value;
+
+    if (newScore === currentScore) {
+      return;
+    }
 
     await prisma.competition.update({
       where: { id: competition.id },
@@ -38,18 +47,25 @@ export const UpdateCompetitionScoreJobHandler: JobHandler<Payload> = {
   }
 };
 
-async function calculateScore(competition: Competition): Promise<number> {
+async function calculateScore(
+  competition: Competition
+): AsyncResult<number, { code: 'FAILED_TO_FETCH_COMPETITION_DETAILS' }> {
   const now = new Date();
   let score = 0;
 
-  // If has ended
   if (competition.endsAt < now || !competition.visible) {
-    return score;
+    return complete(score);
   }
 
-  const { group, metrics, participations } = await fetchCompetitionDetails({
+  const detailsResult = await fetchCompetitionDetails({
     id: competition.id
   });
+
+  if (isErrored(detailsResult)) {
+    return errored({ code: 'FAILED_TO_FETCH_COMPETITION_DETAILS' });
+  }
+
+  const { metrics, group, participations } = detailsResult.value;
 
   const activeParticipants = participations.filter(p => p.deltas[0].values.gained > 0);
 
@@ -88,7 +104,10 @@ async function calculateScore(competition: Competition): Promise<number> {
     }
   }
 
-  if (isSkill(metrics[0].metric)) {
+  const metricTypes = new Set(metrics.map(m => MetricProps[m.metric].type));
+  const metricType = metricTypes.size === 1 ? MetricProps[metrics[0].metric].type : null;
+
+  if (metricType === MetricType.SKILL) {
     // If the average active participant has gained > 10k exp
     if (averageGained > 10_000) {
       score += 30;
@@ -100,7 +119,7 @@ async function calculateScore(competition: Competition): Promise<number> {
     }
   }
 
-  if (isBoss(metrics[0].metric)) {
+  if (metricType === MetricType.BOSS) {
     // If the average active participant has gained > 5 kc
     if (averageGained > 5) {
       score += 30;
@@ -112,7 +131,7 @@ async function calculateScore(competition: Competition): Promise<number> {
     }
   }
 
-  if (isActivity(metrics[0].metric)) {
+  if (metricType === MetricType.ACTIVITY) {
     // If the average active participant has gained > 5 score
     if (averageGained > 5) {
       score += 30;
@@ -139,5 +158,5 @@ async function calculateScore(competition: Competition): Promise<number> {
     score += 30;
   }
 
-  return Math.max(0, score);
+  return complete(Math.max(0, score));
 }

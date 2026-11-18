@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { ColumnDef } from "@tanstack/react-table";
 import { GroupResponse } from "@wise-old-man/utils";
 import { standardizeUsername } from "~/utils/strings";

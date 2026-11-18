@@ -1,19 +1,27 @@
+import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../types';
 import { sanitizeWhitespace } from '../../../../utils/sanitize-whitespace.util';
-import { BadRequestError, NotFoundError } from '../../../errors';
 
-async function removeTeams(id: number, teamNames: string[]): Promise<{ count: number }> {
+export async function removeTeams(
+  id: number,
+  teamNames: string[]
+): AsyncResult<
+  { count: number },
+  | { code: 'COMPETITION_NOT_FOUND' }
+  | { code: 'NO_VALID_PARTICIPANTS' }
+  | { code: 'CANNOT_REMOVE_TEAMS_FROM_CLASSIC_COMPETITION' }
+> {
   const competition = await prisma.competition.findFirst({
     where: { id }
   });
 
-  if (!competition) {
-    throw new NotFoundError('Competition not found.');
+  if (competition === null) {
+    return errored({ code: 'COMPETITION_NOT_FOUND' });
   }
 
   if (competition.type === CompetitionType.CLASSIC) {
-    throw new BadRequestError('Cannot remove teams from a classic competition.');
+    return errored({ code: 'CANNOT_REMOVE_TEAMS_FROM_CLASSIC_COMPETITION' });
   }
 
   const { count } = await prisma.participation.deleteMany({
@@ -23,8 +31,8 @@ async function removeTeams(id: number, teamNames: string[]): Promise<{ count: nu
     }
   });
 
-  if (!count) {
-    throw new BadRequestError('No players were removed from the competition.');
+  if (count === 0) {
+    return errored({ code: 'NO_VALID_PARTICIPANTS' });
   }
 
   await prisma.competition.update({
@@ -32,7 +40,5 @@ async function removeTeams(id: number, teamNames: string[]): Promise<{ count: nu
     data: { updatedAt: new Date() }
   });
 
-  return { count };
+  return complete({ count });
 }
-
-export { removeTeams };

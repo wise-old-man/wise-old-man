@@ -6,7 +6,8 @@ import prisma from '../../../src/prisma';
 import { buildCompoundRedisKey, redisClient } from '../../../src/services/redis.service';
 import { resetDatabase, sleep } from '../../utils';
 
-const api = supertest(new APIInstance().init().express);
+const server = new APIInstance().init().express.listen(0);
+const api = supertest(server);
 
 beforeAll(async () => {
   eventEmitter.init();
@@ -17,6 +18,7 @@ beforeAll(async () => {
 afterAll(() => {
   jest.useRealTimers();
   redisClient.quit();
+  server.close();
 });
 
 describe('General API', () => {
@@ -84,21 +86,21 @@ describe('General API', () => {
 
   describe('Create API key', () => {
     it('should not create API key (invalid admin password)', async () => {
-      const response = await api.post(`/api-key`).send({});
+      const response = await api.post(`/api-keys`).send({});
 
       expect(response.status).toBe(400);
       expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
     });
 
     it('should not create API key (incorrect admin password)', async () => {
-      const response = await api.post(`/api-key`).send({ adminPassword: 'abc' });
+      const response = await api.post(`/api-keys`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
       expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
     });
 
     it('should not create API key (undefined application name)', async () => {
-      const response = await api.post(`/api-key`).send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+      const response = await api.post(`/api-keys`).send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'application' is undefined.");
@@ -106,7 +108,7 @@ describe('General API', () => {
 
     it('should not create API key (undefined developer name)', async () => {
       const response = await api
-        .post(`/api-key`)
+        .post(`/api-keys`)
         .send({ application: 'Some Website', adminPassword: process.env.SHARED_ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
@@ -114,7 +116,7 @@ describe('General API', () => {
     });
 
     it('should create API key', async () => {
-      const response = await api.post(`/api-key`).send({
+      const response = await api.post(`/api-keys`).send({
         application: 'Some Website',
         developer: 'aluminoti',
         adminPassword: process.env.SHARED_ADMIN_PASSWORD
@@ -130,8 +132,73 @@ describe('General API', () => {
 
       await sleep(100);
 
-      // Make sure it's been stored in redis memory
+      // Make sure it's been stored in redis memory, with an expiration
       expect(await redisClient.get(buildCompoundRedisKey('api_key', response.body.id))).toBe('false');
+      expect(await redisClient.ttl(buildCompoundRedisKey('api_key', response.body.id))).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Revoke API key', () => {
+    it('should not revoke API key (invalid admin password)', async () => {
+      const response = await api.put(`/api-keys/abc/revoke`).send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({ code: 'MISSING_ADMIN_PASSWORD' });
+    });
+
+    it('should not revoke API key (incorrect admin password)', async () => {
+      const response = await api.put(`/api-keys/abc/revoke`).send({ adminPassword: 'abc' });
+
+      expect(response.status).toBe(403);
+      expect(response.body).toMatchObject({ code: 'INCORRECT_ADMIN_PASSWORD' });
+    });
+
+    it('should not revoke API key (key not found)', async () => {
+      const response = await api
+        .put(`/api-keys/abc/revoke`)
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toMatchObject({ code: 'API_KEY_NOT_FOUND' });
+    });
+
+    it('should revoke API key', async () => {
+      const createResponse = await api.post(`/api-keys`).send({
+        application: 'Abusive App',
+        developer: 'someone',
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+
+      expect(createResponse.status).toBe(201);
+
+      const keyId = createResponse.body.id;
+
+      await sleep(100);
+      expect(await redisClient.get(buildCompoundRedisKey('api_key', keyId))).toBe('false');
+
+      const response = await api
+        .put(`/api-keys/${keyId}/revoke`)
+        .send({ adminPassword: process.env.SHARED_ADMIN_PASSWORD });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        id: keyId,
+        application: 'Abusive App',
+        developer: 'someone',
+        active: false
+      });
+
+      await sleep(100);
+
+      // Removed from redis, so requests with it are rejected
+      expect(await redisClient.get(buildCompoundRedisKey('api_key', keyId))).toBeNull();
+
+      process.env.NODE_ENV = 'production';
+      const rejectedResponse = await api.get('/').set({ 'x-api-key': keyId });
+      process.env.NODE_ENV = 'test';
+
+      expect(rejectedResponse.status).toBe(403);
+      expect(rejectedResponse.body.message).toMatch('Invalid API Key.');
     });
   });
 
@@ -175,7 +242,7 @@ describe('General API', () => {
       await redisClient.flushall();
 
       // Create new API key
-      const apiKeyResponse = await api.post(`/api-key`).send({
+      const apiKeyResponse = await api.post(`/api-keys`).send({
         application: '123456',
         developer: 'psikoi',
         adminPassword: process.env.SHARED_ADMIN_PASSWORD
@@ -204,12 +271,105 @@ describe('General API', () => {
       expect(rateLimitedCount).toBe(200);
     });
 
+    it('should report the minute window in rate limit headers (no API key)', async () => {
+      // Flush redis to reset rate limits
+      await redisClient.flushall();
+
+      // Rate limits are disabled in testing mode, so simulate production mode for a sec
+      process.env.NODE_ENV = 'production';
+
+      const response = await api.get('/');
+
+      process.env.NODE_ENV = 'test';
+
+      expect(response.status).toBe(200);
+      expect(response.headers['ratelimit-limit']).toBe('20');
+      expect(response.headers['ratelimit-remaining']).toBe('19');
+      expect(Number(response.headers['ratelimit-reset'])).toBeLessThanOrEqual(60);
+    });
+
+    it('should not allow more than 500 requests per hour (no API key)', async () => {
+      // Flush redis to reset rate limits
+      await redisClient.flushall();
+
+      const ip = '1.2.3.4';
+
+      let successCount = 0;
+      let rateLimitedCount = 0;
+      let lastResponse: supertest.Response | undefined;
+
+      // Rate limits are disabled in testing mode, so simulate production mode for a sec
+      process.env.NODE_ENV = 'production';
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for (const i of Array.from(Array(26).keys())) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const j of Array.from(Array(20).keys())) {
+          lastResponse = await api.get('/').set({ 'cf-connecting-ip': ip });
+
+          if (lastResponse.status === 200) successCount++;
+          else if (lastResponse.status === 429) rateLimitedCount++;
+        }
+
+        // Reset the minute window, so that only the hourly window can be exhausted
+        await redisClient.del(buildCompoundRedisKey('rl', 'default', 'minute', ip));
+      }
+
+      process.env.NODE_ENV = 'test';
+
+      expect(successCount).toBe(500);
+      expect(rateLimitedCount).toBe(20);
+
+      expect(lastResponse?.headers['ratelimit-limit']).toBe('500');
+      expect(lastResponse?.headers['ratelimit-remaining']).toBe('0');
+      expect(Number(lastResponse?.headers['retry-after'])).toBeGreaterThan(60);
+    });
+
+    it('should not allow more than 20000 requests per day (with API key)', async () => {
+      // Flush redis to reset rate limits
+      await redisClient.flushall();
+
+      // Create new API key
+      const apiKeyResponse = await api.post(`/api-keys`).send({
+        application: 'daily-limit',
+        developer: 'psikoi',
+        adminPassword: process.env.SHARED_ADMIN_PASSWORD
+      });
+      expect(apiKeyResponse.status).toBe(201);
+
+      await sleep(100);
+
+      // Simulate 19999 requests already made today
+      await redisClient.set(
+        buildCompoundRedisKey('rl', 'trusted', 'day', apiKeyResponse.body.id),
+        19_999,
+        'EX',
+        24 * 60 * 60
+      );
+
+      // Rate limits are disabled in testing mode, so simulate production mode for a sec
+      process.env.NODE_ENV = 'production';
+
+      const lastAllowedResponse = await api.get('/').set({ 'x-api-key': apiKeyResponse.body.id });
+      const rateLimitedResponse = await api.get('/').set({ 'x-api-key': apiKeyResponse.body.id });
+
+      process.env.NODE_ENV = 'test';
+
+      expect(lastAllowedResponse.status).toBe(200);
+      expect(lastAllowedResponse.headers['ratelimit-limit']).toBe('20000');
+      expect(lastAllowedResponse.headers['ratelimit-remaining']).toBe('0');
+
+      expect(rateLimitedResponse.status).toBe(429);
+      expect(rateLimitedResponse.headers['ratelimit-limit']).toBe('20000');
+      expect(Number(rateLimitedResponse.headers['retry-after'])).toBeGreaterThan(60 * 60);
+    });
+
     it('should allow more than 100 requests per minute (with master API key)', async () => {
       // Flush redis to reset rate limits
       await redisClient.flushall();
 
       // Create new API key
-      const apiKeyResponse = await api.post(`/api-key`).send({
+      const apiKeyResponse = await api.post(`/api-keys`).send({
         application: 'xyzxyz',
         developer: 'Rorro',
         adminPassword: process.env.SHARED_ADMIN_PASSWORD

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { cn } from "~/utils/styling";
 import { getPlayerGroups } from "~/services/wiseoldman";
 import { Label } from "../Label";

@@ -1,6 +1,7 @@
 export * from './achievement-definition.type';
 export * from './achievement-measure.enum';
 export * from './achievement.type';
+export * from './api-key.type';
 export * from './boss-meta-config.type';
 export * from './cached-delta.type';
 export * from './competition-csv-table-type.enum';

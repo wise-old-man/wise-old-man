@@ -15,7 +15,8 @@ export function CompetitionValueDistribution() {
     return null;
   }
 
-  const metricType = MetricProps[competition.metrics[0].metric].type;
+  const metricTypes = new Set(effectiveMetrics.map((m) => MetricProps[m].type));
+  const metricType = metricTypes.size === 1 ? MetricProps[effectiveMetrics[0]].type : null;
 
   let total = 0;
   const aggregates = new Map<Metric, number>();
@@ -101,8 +102,13 @@ export function CompetitionValueDistribution() {
   );
 }
 
-function getLabels(metricType: MetricType) {
+function getLabels(metricType: MetricType | null) {
   switch (metricType) {
+    case null:
+      return {
+        title: "Gains distribution",
+        description: "Which metrics the gains came from.",
+      };
     case MetricType.SKILL:
       return {
         title: "Exp distribution",

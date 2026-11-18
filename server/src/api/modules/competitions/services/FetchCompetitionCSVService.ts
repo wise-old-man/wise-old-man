@@ -1,4 +1,4 @@
-import { AsyncResult, complete, errored } from '@attio/fetchable';
+import { AsyncResult, complete, errored, isErrored } from '@attio/fetchable';
 import dayjs from 'dayjs';
 import { CompetitionCSVTableType, CompetitionType, Metric } from '../../../../types';
 import { CompetitionDetailsResponse, formatCompetitionDetailsResponse } from '../../../responses';
@@ -18,10 +18,18 @@ async function fetchCompetitionCSV({
   teamName?: string;
 }): AsyncResult<
   string,
-  { code: 'TEAM_NAME_IS_REQUIRED' } | { code: 'CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION' }
+  | { code: 'COMPETITION_NOT_FOUND' }
+  | { code: 'INVALID_DATE_RANGE' }
+  | { code: 'TEAM_NAME_IS_REQUIRED' }
+  | { code: 'CANNOT_VIEW_TEAM_TABLES_FOR_CLASSIC_COMPETITION' }
 > {
-  const details = await fetchCompetitionDetails({ id, metrics });
-  const competitionDetailsResponse = formatCompetitionDetailsResponse(details);
+  const detailsResult = await fetchCompetitionDetails({ id, metrics });
+
+  if (isErrored(detailsResult)) {
+    return detailsResult;
+  }
+
+  const competitionDetailsResponse = formatCompetitionDetailsResponse(detailsResult.value);
 
   if (table === CompetitionCSVTableType.PARTICIPANTS) {
     return complete(getParticipantsCSV(competitionDetailsResponse));

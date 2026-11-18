@@ -2487,7 +2487,7 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Player annotation not found');
+      expect(response.body.code).toBe('PLAYER_ANNOTATION_NOT_FOUND');
     });
 
     it('should throw conflit error 409 to create', async () => {
@@ -2503,7 +2503,7 @@ describe('Player API', () => {
       });
 
       expect(response.status).toBe(409);
-      expect(response.body.message).toBe('Cannot add duplicate player annotations');
+      expect(response.body.code).toBe('DUPLICATE_PLAYER_ANNOTATION');
     });
   });
 

@@ -92,6 +92,7 @@ export const METRIC_COLOR_MAP: Record<Metric, string> = {
   [Metric.STRENGTH]: "#04955a",
   [Metric.TEMPOROSS]: "#3b959c",
   [Metric.THE_CORRUPTED_GAUNTLET]: "#ea3b2b",
+  [Metric.THE_FRACTURED_ARCHIVE]: "#609538",
   [Metric.THE_GAUNTLET]: "#2ed5ba",
   [Metric.THE_HUEYCOATL]: "#ab403b",
   [Metric.THE_LEVIATHAN]: "#b35431",

@@ -1,3 +1,4 @@
+import { AsyncResult, complete, isErrored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
 import { Metric, Player, Snapshot } from '../../../../types';
 import { getMetricValueKey } from '../../../../utils/get-metric-value-key.util';
@@ -11,23 +12,26 @@ export async function fetchCompetitionTopHistory({
   id: number;
   metrics?: Metric[];
   limit: number;
-}): Promise<
+}): AsyncResult<
   Array<{
     player: Player;
     history: Array<{
       value: number;
       date: Date;
     }>;
-  }>
+  }>,
+  { code: 'COMPETITION_NOT_FOUND' } | { code: 'INVALID_DATE_RANGE' }
 > {
-  const {
-    competition,
-    participations,
-    metrics: competitionMetrics
-  } = await fetchCompetitionDetails({
+  const detailsResult = await fetchCompetitionDetails({
     id,
     metrics
   });
+
+  if (isErrored(detailsResult)) {
+    return detailsResult;
+  }
+
+  const { competition, participations, metrics: competitionMetrics } = detailsResult.value;
 
   const topPlayers = participations.slice(0, limit).map(p => p.player);
   const metricValueKeys = (metrics ?? competitionMetrics.map(m => m.metric)).map(getMetricValueKey);
@@ -60,35 +64,37 @@ export async function fetchCompetitionTopHistory({
     }
   });
 
-  return topPlayers.map(player => {
-    const snapshots = playerSnapshotMap.get(player.id) || [];
+  return complete(
+    topPlayers.map(player => {
+      const snapshots = playerSnapshotMap.get(player.id) || [];
 
-    const history = snapshots
-      .map(s => {
-        let value = 0;
+      const history = snapshots
+        .map(s => {
+          let value = 0;
 
-        for (const valueKey of metricValueKeys) {
-          const metricValue = s[valueKey] ?? 0;
+          for (const valueKey of metricValueKeys) {
+            const metricValue = s[valueKey] ?? 0;
 
-          if (metricValue === -1) {
-            continue;
+            if (metricValue === -1) {
+              continue;
+            }
+
+            value += metricValue;
           }
 
-          value += metricValue;
-        }
+          // If unranked in all metrics, show as -1 (unranked)
+          if (value === 0) {
+            value = -1;
+          }
 
-        // If unranked in all metrics, show as -1 (unranked)
-        if (value === 0) {
-          value = -1;
-        }
+          return {
+            value,
+            date: s.createdAt
+          };
+        })
+        .sort((a, b) => b.date.getTime() - a.date.getTime());
 
-        return {
-          value,
-          date: s.createdAt
-        };
-      })
-      .sort((a, b) => b.date.getTime() - a.date.getTime());
-
-    return { player, history };
-  });
+      return { player, history };
+    })
+  );
 }

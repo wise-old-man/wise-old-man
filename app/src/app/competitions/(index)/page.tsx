@@ -4,7 +4,7 @@ import { CompetitionsList } from "~/components/competitions/CompetitionsList";
 import {
   getCompetitionStatusParam,
   getCompetitionTypeParam,
-  getMetricParam,
+  getMetricsParam,
   getPageParam,
   getSearchParam,
 } from "~/utils/params";
@@ -18,21 +18,20 @@ interface PageProps {
     search?: string;
     type?: string;
     status?: string;
-    metric?: string;
+    metrics?: string | string[];
   };
 }
 
 export function generateMetadata(props: PageProps) {
   const { searchParams } = props;
 
-  const page = getPageParam(searchParams.page) || 1;
   const search = getSearchParam(searchParams.search);
 
   if (search && search.length > 0) {
-    return { title: `Competition search results for "${search}" (Page ${page})` };
+    return { title: `Competition search results for "${search}"` };
   }
 
-  return { title: `Competitions (Page ${page})` };
+  return { title: `Competitions` };
 }
 
 export default async function CompetitionsPage(props: PageProps) {
@@ -40,7 +39,7 @@ export default async function CompetitionsPage(props: PageProps) {
 
   const page = getPageParam(searchParams.page) || 1;
   const search = getSearchParam(searchParams.search);
-  const metric = getMetricParam(searchParams.metric);
+  const metrics = getMetricsParam(searchParams.metrics);
   const type = getCompetitionTypeParam(searchParams.type);
   const status = getCompetitionStatusParam(searchParams.status);
 
@@ -48,7 +47,7 @@ export default async function CompetitionsPage(props: PageProps) {
 
   const data = await searchCompetitions(
     search,
-    metric,
+    metrics.length > 0 ? metrics : undefined,
     type,
     status,
     RESULTS_PER_PAGE,

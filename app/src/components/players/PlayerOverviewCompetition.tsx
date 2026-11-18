@@ -1,6 +1,6 @@
 import { CompetitionResponse, CompetitionStatus, CompetitionStatusProps } from "@wise-old-man/utils";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { getCompetitionStatus, getPlayerCompetitions } from "~/services/wiseoldman";
 import { timeago } from "~/utils/dates";
 import { cn } from "~/utils/styling";

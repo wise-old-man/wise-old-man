@@ -510,9 +510,18 @@ router.get(
     const { username } = req.params;
     const { limit, offset } = req.query;
 
-    const memberships = await findPlayerMemberships(username, { limit, offset });
+    const result = await findPlayerMemberships(username, { limit, offset });
 
-    const response = memberships.map(m => ({
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(m => ({
       ...formatMembershipResponse(m.membership),
       group: formatGroupResponse(m.group, m.group.memberCount)
     }));
@@ -569,9 +578,18 @@ router.get(
     const { username } = req.params;
     const { status } = req.query;
 
-    const standings = await findPlayerParticipationsStandings(username, status);
+    const result = await findPlayerParticipationsStandings(username, status);
 
-    const response = standings.map(s =>
+    if (isErrored(result)) {
+      switch (result.error.code) {
+        case 'PLAYER_NOT_FOUND':
+          throw new NotFoundErrorZ(result.error);
+        default:
+          assertNever(result.error.code);
+      }
+    }
+
+    const response = result.value.map(s =>
       formatPlayerCompetitionStandingResponse(
         s.participation,
         s.competition,

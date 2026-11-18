@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "../ToggleTabs";
+import { Link } from "../Link";
 
 export function GroupLeaderboardsNavigation() {
   const id = useParams().id;

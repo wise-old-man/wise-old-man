@@ -33,9 +33,7 @@ export function CompetitionTotalGained() {
         </div>
       )}
       <div className="z-1 relative flex flex-col gap-y-0.5">
-        <span className="line-clamp-1 text-xs text-gray-100">
-          {selectedMetric === "total" ? "Total gained" : MetricProps[selectedMetric].name}
-        </span>
+        <span className="line-clamp-1 text-xs text-gray-100">Total gained</span>
         <span className="line-clamp-1 text-xl font-medium">{formatNumber(sum)}</span>
       </div>
     </div>

@@ -273,7 +273,7 @@ describe('Records API', () => {
         .query({ metric: 'zulrah', period: 'week' });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
+      expect(response.body.code).toBe('GROUP_NOT_FOUND');
     });
 
     it('should not fetch records (invalid period)', async () => {

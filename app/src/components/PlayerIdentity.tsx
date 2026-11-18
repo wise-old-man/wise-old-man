@@ -8,7 +8,7 @@ import {
   PlayerType,
   PlayerTypeProps,
 } from "@wise-old-man/utils";
-import Link from "next/link";
+import { Link } from "~/components/Link";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
 import { Flag, PlayerTypeIcon } from "./Icon";

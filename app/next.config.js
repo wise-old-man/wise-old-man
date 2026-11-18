@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const { MAINTENANCE_MODE } = require("./config");
-const { withSentryConfig } = require("@sentry/nextjs");
 
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -80,6 +79,11 @@ const nextConfig = withBundleAnalyzer(
       return [
         ...externalRedirects,
         {
+          source: "/c/:path*",
+          destination: "/:path*",
+          permanent: true,
+        },
+        {
           source: "/leaderboards",
           destination: "/leaderboards/top",
           permanent: true,
@@ -106,18 +110,3 @@ const nextConfig = withBundleAnalyzer(
 );
 
 module.exports = nextConfig;
-
-// Sentry configuration
-module.exports = withSentryConfig(module.exports, {
-  org: "wise-old-man",
-  project: "app",
-  silent: !process.env.CI,
-  widenClientFileUpload: true,
-  reactComponentAnnotation: {
-    enabled: true,
-  },
-  tunnelRoute: "/monitoring",
-  hideSourceMaps: true,
-  disableLogger: true,
-  automaticVercelMonitors: true,
-});

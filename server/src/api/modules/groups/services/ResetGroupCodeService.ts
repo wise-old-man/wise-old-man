@@ -1,29 +1,50 @@
-import { isErrored } from '@attio/fetchable';
-import prisma from '../../../../prisma';
+import { AsyncResult, complete, errored, fromPromise, isErrored } from '@attio/fetchable';
+import prisma, { PrismaTypes } from '../../../../prisma';
 import * as cryptService from '../../../../services/crypt.service';
-import { NotFoundError } from '../../../errors';
 
-async function resetGroupCode(groupId: number): Promise<{ newCode: string }> {
+export async function resetGroupCode(
+  groupId: number
+): AsyncResult<
+  { newCode: string },
+  | { code: 'GROUP_NOT_FOUND' }
+  | { code: 'FAILED_TO_RESET_GROUP_CODE'; subError: unknown }
+  | { code: 'FAILED_TO_GENERATE_VERIFICATION_CODE'; subError: unknown }
+> {
   const generateVerificationResult = await cryptService.generateVerification();
 
   if (isErrored(generateVerificationResult)) {
-    // TODO: When this file returns a fetchable, stop throwing here and just return the error
-    throw generateVerificationResult.error.subError;
+    return errored({
+      code: 'FAILED_TO_GENERATE_VERIFICATION_CODE',
+      subError: generateVerificationResult.error
+    });
   }
 
   const { code, hash } = generateVerificationResult.value;
 
-  try {
-    await prisma.group.update({
-      where: { id: groupId },
-      data: { verificationHash: hash }
+  const updateResult = await fromPromise(
+    prisma.group.update({
+      where: {
+        id: groupId
+      },
+      data: {
+        verificationHash: hash
+      }
+    })
+  );
+
+  if (isErrored(updateResult)) {
+    if (
+      updateResult.error instanceof PrismaTypes.PrismaClientKnownRequestError &&
+      updateResult.error.code === 'P2025'
+    ) {
+      return errored({ code: 'GROUP_NOT_FOUND' });
+    }
+
+    return errored({
+      code: 'FAILED_TO_RESET_GROUP_CODE',
+      subError: updateResult.error
     });
-
-    return { newCode: code };
-  } catch (_error) {
-    // Failed to find group with that id
-    throw new NotFoundError('Group not found.');
   }
-}
 
-export { resetGroupCode };
+  return complete({ newCode: code });
+}
