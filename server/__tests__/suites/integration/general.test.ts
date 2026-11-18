@@ -129,6 +129,9 @@ describe('General API', () => {
         master: false
       });
       expect(isCuid(response.body.id)).toBe(true);
+      expect(response.body.developerDiscordId).toBeNull();
+      expect(typeof response.body.createdAt).toBe('string');
+      expect(Number.isNaN(Date.parse(response.body.createdAt))).toBe(false);
 
       await sleep(100);
 
@@ -199,6 +202,74 @@ describe('General API', () => {
 
       expect(rejectedResponse.status).toBe(403);
       expect(rejectedResponse.body.message).toMatch('Invalid API Key.');
+    });
+  });
+
+  describe('Link developer API keys', () => {
+    const endpoint = '/api-keys/developer/kaithorpe';
+    const developerDiscordId = '123456789012345678';
+
+    it('should require admin authentication', async () => {
+      const missing = await api.put(endpoint).send({ developerDiscordId });
+      expect(missing.status).toBe(400);
+      expect(missing.body.code).toBe('MISSING_ADMIN_PASSWORD');
+
+      const incorrect = await api.put(endpoint).send({ developerDiscordId, adminPassword: 'incorrect' });
+      expect(incorrect.status).toBe(403);
+      expect(incorrect.body.code).toBe('INCORRECT_ADMIN_PASSWORD');
+    });
+
+    it.each([undefined, null, '', 'username', 123456789012345678, '123abc', ' 123', '12.3'])(
+      'should reject invalid Discord ID %p',
+      async invalidId => {
+        const response = await api.put(endpoint).send({
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+          developerDiscordId: invalidId
+        });
+        expect(response.status).toBe(400);
+      }
+    );
+
+    it.each(['123', developerDiscordId, '1234567890123456789012345'])(
+      'should accept digit strings of any length and return 404 when no keys match (%s)',
+      async validId => {
+        const response = await api.put('/api-keys/developer/nonexistent-developer').send({
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+          developerDiscordId: validId
+        });
+        expect(response.status).toBe(404);
+        expect(response.body.code).toBe('API_KEY_NOT_FOUND');
+      }
+    );
+
+    it('should link all exact matches including revoked keys and preserve other fields', async () => {
+      const keys = await Promise.all(
+        [
+          { developer: 'kaithorpe', active: true },
+          { developer: 'kaithorpe', active: false },
+          { developer: 'Kaithorpe', active: true },
+          { developer: 'another-developer', active: true }
+        ].map(data => prisma.apiKey.create({ data: { ...data, application: 'Link test' } }))
+      );
+
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const response = await api.put(endpoint).send({
+          adminPassword: process.env.SHARED_ADMIN_PASSWORD,
+          developerDiscordId,
+          active: false,
+          master: true,
+          application: 'Must not change'
+        });
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ updatedCount: 2 });
+      }
+
+      for (const key of keys) {
+        expect(await prisma.apiKey.findUnique({ where: { id: key.id } })).toEqual({
+          ...key,
+          developerDiscordId: key.developer === 'kaithorpe' ? developerDiscordId : null
+        });
+      }
     });
   });
 

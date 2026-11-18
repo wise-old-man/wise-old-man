@@ -10,6 +10,7 @@ import { blockUserActions } from './services/BlockUserActionsService';
 import { createAPIKey } from './services/CreateAPIKeyService';
 import { fetchTableCounts } from './services/FetchTableCountsService';
 import { revokeAPIKey } from './services/RevokeAPIKeyService';
+import { updateDeveloperAPIKeys } from './services/UpdateDeveloperAPIKeysService';
 
 const router = Router();
 
@@ -53,6 +54,28 @@ router.put(
     }
 
     res.status(200).json(result.value);
+  })
+);
+
+router.put(
+  '/api-keys/developer/:developer',
+  checkAdminPermission,
+  validateRequest({
+    params: z.object({
+      developer: z.string().min(1)
+    }),
+    body: z.object({
+      developerDiscordId: z.string().regex(/^\d+$/)
+    })
+  }),
+  executeRequest(async (req, res) => {
+    const result = await updateDeveloperAPIKeys(req.params.developer, req.body.developerDiscordId);
+
+    if (result.updatedCount === 0) {
+      throw new NotFoundErrorZ({ code: 'API_KEY_NOT_FOUND' });
+    }
+
+    res.status(200).json(result);
   })
 );
 
