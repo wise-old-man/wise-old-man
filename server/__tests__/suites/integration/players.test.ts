@@ -2331,7 +2331,7 @@ describe('Player API', () => {
       const response = await api.get(`/players/alexsuperfly/archives`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Player not found.');
+      expect(response.body.message).toMatch('Player not found');
     });
 
     it('should fetch archives', async () => {

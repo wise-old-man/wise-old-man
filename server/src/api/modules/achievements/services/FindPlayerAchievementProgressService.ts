@@ -1,6 +1,12 @@
 import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { Achievement, AchievementDefinition, Metric, MetricMeasure } from '../../../../types';
+import {
+  Achievement,
+  AchievementDefinition,
+  Metric,
+  MetricMeasure,
+  PlayerAnnotationType
+} from '../../../../types';
 import { omit } from '../../../../utils/omit.util';
 import { pick } from '../../../../utils/pick.util';
 import { roundNumber } from '../../../../utils/shared/round-number.util';
@@ -18,19 +24,24 @@ export async function findPlayerAchievementProgress(username: string): AsyncResu
     absoluteProgress: number;
     relativeProgress: number;
   }>,
-  { code: 'PLAYER_NOT_FOUND' }
+  { code: 'PLAYER_NOT_FOUND' } | { code: 'PLAYER_OPTED_OUT' }
 > {
   const player = await prisma.player.findFirst({
     where: {
       username: standardizeUsername(username)
     },
     include: {
-      latestSnapshot: true
+      latestSnapshot: true,
+      annotations: true
     }
   });
 
   if (player === null) {
     return errored({ code: 'PLAYER_NOT_FOUND' });
+  }
+
+  if (player.annotations.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    return errored({ code: 'PLAYER_OPTED_OUT' });
   }
 
   let latestSnapshot = player.latestSnapshot;

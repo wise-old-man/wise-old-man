@@ -1,6 +1,13 @@
 import { AsyncResult, complete, errored } from '@attio/fetchable';
 import prisma from '../../../../prisma';
-import { Competition, CompetitionMetric, CompetitionStatus, Group, Participation } from '../../../../types';
+import {
+  Competition,
+  CompetitionMetric,
+  CompetitionStatus,
+  Group,
+  Participation,
+  PlayerAnnotationType
+} from '../../../../types';
 import { MetricDelta } from '../../../../types/metric-delta.type';
 import { calculateCompetitionDelta } from '../../../../utils/calculate-competition-delta.util';
 import { selectRequiredSnapshotFields } from '../../../../utils/get-required-snapshot-fields.util';
@@ -19,15 +26,20 @@ type ReturnType = {
 export async function findPlayerParticipationsStandings(
   username: string,
   status: CompetitionStatus.ONGOING | CompetitionStatus.FINISHED
-): AsyncResult<Array<ReturnType>, { code: 'PLAYER_NOT_FOUND' }> {
+): AsyncResult<Array<ReturnType>, { code: 'PLAYER_NOT_FOUND' } | { code: 'PLAYER_OPTED_OUT' }> {
   const player = await prisma.player.findFirst({
     where: {
       username: standardizeUsername(username)
-    }
+    },
+    include: { annotations: true }
   });
 
-  if (player === null) {
+  if (!player) {
     return errored({ code: 'PLAYER_NOT_FOUND' });
+  }
+
+  if (player.annotations?.some(a => a.type === PlayerAnnotationType.OPT_OUT)) {
+    return errored({ code: 'PLAYER_OPTED_OUT' });
   }
 
   const now = new Date();

@@ -11,7 +11,14 @@ import { Metric, Period, PlayerType, SKILLS, Snapshot } from '../../../src/types
 import { getMetricRankKey } from '../../../src/utils/get-metric-rank-key.util';
 import { getMetricValueKey } from '../../../src/utils/get-metric-value-key.util';
 import { PeriodProps } from '../../../src/utils/shared';
-import { modifyRawHiscoresData, readFile, registerHiscoresMock, resetDatabase } from '../../utils';
+import {
+  assertComplete,
+  modifyRawHiscoresData,
+  readFile,
+  registerHiscoresMock,
+  resetDatabase
+} from '../../utils';
+import { isErrored } from '@attio/fetchable';
 
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
@@ -19,6 +26,7 @@ const globalData = {
   hiscoresRawDataP: '',
   hiscoresRawDataLT: '',
   testPlayerId: -1,
+  testPlayerName: '',
   secondaryPlayerId: -1,
   testGroupId: -1,
   testGroupCode: '',
@@ -124,6 +132,7 @@ describe('Snapshots API', () => {
       });
 
       globalData.testPlayerId = player.id;
+      globalData.testPlayerName = player.username;
 
       const snapshots = [
         {
@@ -285,44 +294,54 @@ describe('Snapshots API', () => {
 
   describe('3 - Get Player Snapshots', () => {
     it('should not fetch all (player not found)', async () => {
-      const result = await findPlayerSnapshots(2_000_000);
-      expect(result.length).toBe(0);
+      const result = await findPlayerSnapshots('2_000_000');
+      expect(isErrored(result)).toBe(true);
+      if (isErrored(result)) {
+        expect(result.error.code).toBe('PLAYER_NOT_FOUND');
+      }
     });
 
     it('should fetch all snapshots (limited)', async () => {
-      const result = await findPlayerSnapshots(globalData.testPlayerId, undefined, undefined, undefined, {
+      const result = await findPlayerSnapshots(globalData.testPlayerName, undefined, undefined, undefined, {
         limit: 10,
         offset: 0
       });
 
-      expect(result.length).toBe(3);
-      expect(result.filter(r => r.importedAt === null).length).toBe(3);
-      expect(result.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
-      expect(result[0].createdAt.getTime() - Date.now()).toBeLessThan(365_000);
-      expect(result[0].zulrahKills).toBe(1646);
+      assertComplete(result);
+      const { snapshots } = result.value;
+
+      expect(snapshots.length).toBe(3);
+      expect(snapshots.filter(r => r.importedAt === null).length).toBe(3);
+      expect(snapshots.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
+      expect(snapshots[0].createdAt.getTime() - Date.now()).toBeLessThan(365_000);
+      expect(snapshots[0].zulrahKills).toBe(1646);
 
       // Ensure the list is sorted by "createdAt" descending
-      for (let i = 0; i < result.length; i++) {
+      for (let i = 0; i < snapshots.length; i++) {
         if (i === 0) continue;
-        expect(result[i].createdAt < result[i - 1].createdAt).toBe(true);
+        expect(snapshots[i].createdAt < snapshots[i - 1].createdAt).toBe(true);
       }
     });
 
     it('should not fetch snapshots between (player not found)', async () => {
       const result = await findPlayerSnapshots(
-        2_000_000,
+        '2_000_000',
         undefined,
         new Date('2019-07-03T21:13:56.000Z'),
         new Date('2020-04-14T21:08:55.000Z')
       );
 
-      expect(result.length).toBe(0);
+      expect(isErrored(result)).toBe(true);
+
+      if (isErrored(result)) {
+        expect(result.error.code).toBe('PLAYER_NOT_FOUND');
+      }
     });
 
     it('should not fetch snapshots between (min date greater than max date)', async () => {
       await expect(
         findPlayerSnapshots(
-          2_000_000,
+          '2_000_000',
           undefined,
           new Date('2020-04-14T21:08:55.000Z'),
           new Date('2019-07-03T21:13:56.000Z')
@@ -334,56 +353,65 @@ describe('Snapshots API', () => {
       const startDate = new Date(Date.now() - PeriodProps[Period.DAY].milliseconds * 2);
       const endDate = new Date();
 
-      const result = await findPlayerSnapshots(globalData.testPlayerId, undefined, startDate, endDate);
+      const result = await findPlayerSnapshots(globalData.testPlayerName, undefined, startDate, endDate);
 
-      expect(result.length).toBe(2);
-      expect(result.filter(r => r.createdAt >= startDate && r.createdAt <= endDate).length).toBe(2);
-      expect(result.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
+      assertComplete(result);
+      const { snapshots } = result.value;
+
+      expect(snapshots.length).toBe(2);
+      expect(snapshots.filter(r => r.createdAt >= startDate && r.createdAt <= endDate).length).toBe(2);
+      expect(snapshots.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
 
       // Ensure the list is sorted by "createdAt" descending
-      for (let i = 0; i < result.length; i++) {
+      for (let i = 0; i < snapshots.length; i++) {
         if (i === 0) continue;
-        expect(result[i].createdAt <= result[i - 1].createdAt).toBe(true);
+        expect(snapshots[i].createdAt <= snapshots[i - 1].createdAt).toBe(true);
       }
     });
 
     it('should not fetch period snapshots (invalid period)', async () => {
-      await expect(findPlayerSnapshots(globalData.testPlayerId, 'idk')).rejects.toThrow(
+      await expect(findPlayerSnapshots(globalData.testPlayerName, 'idk')).rejects.toThrow(
         'Invalid period: idk.'
       );
     });
 
     it('should fetch period snapshots (common period)', async () => {
       const now = new Date();
-      const results = await findPlayerSnapshots(globalData.testPlayerId, 'week');
+      const results = await findPlayerSnapshots(globalData.testPlayerName, 'week');
 
-      expect(results.length).toBe(3);
-      expect((Date.now() - results[2].createdAt.getTime()) / 86_400_000).toBeCloseTo(5);
-      expect(results.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
-      expect(results.filter(r => r.createdAt > now).length).toBe(0);
-      expect(results.filter(r => now.getTime() - r.createdAt.getTime() > 604_800_000).length).toBe(0); // no snapshots over a week old
+      assertComplete(results);
+      const { snapshots } = results.value;
+
+      expect(snapshots.length).toBe(3);
+      expect((Date.now() - snapshots[2].createdAt.getTime()) / 86_400_000).toBeCloseTo(5);
+      expect(snapshots.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
+      expect(snapshots.filter(r => r.createdAt > now).length).toBe(0);
+      expect(snapshots.filter(r => now.getTime() - r.createdAt.getTime() > 604_800_000).length).toBe(0); // no snapshots over a week old
 
       // Ensure the list is sorted by "createdAt" descending
-      for (let i = 0; i < results.length; i++) {
+      for (let i = 0; i < snapshots.length; i++) {
         if (i === 0) continue;
-        expect(results[i].createdAt < results[i - 1].createdAt).toBe(true);
+        expect(snapshots[i].createdAt < snapshots[i - 1].createdAt).toBe(true);
       }
     });
 
     it('should fetch period snapshots (custom period)', async () => {
       const now = new Date();
-      const results = await findPlayerSnapshots(globalData.testPlayerId, '2d3h');
+      const results = await findPlayerSnapshots(globalData.testPlayerName, '2d3h');
 
-      expect(results.length).toBe(2);
-      expect((Date.now() - results[1].createdAt.getTime()) / 86_400_000).toBeCloseTo(1);
-      expect(results.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
-      expect(results.filter(r => r.createdAt > now).length).toBe(0);
-      expect(results.filter(r => now.getTime() - r.createdAt.getTime() > 183_600_000).length).toBe(0); // no snapshots over 51 hours old
+      assertComplete(results);
+      const { snapshots } = results.value;
+
+      expect(snapshots.length).toBe(2);
+      expect((Date.now() - snapshots[1].createdAt.getTime()) / 86_400_000).toBeCloseTo(1);
+      expect(snapshots.filter(r => r.playerId !== globalData.testPlayerId).length).toBe(0);
+      expect(snapshots.filter(r => r.createdAt > now).length).toBe(0);
+      expect(snapshots.filter(r => now.getTime() - r.createdAt.getTime() > 183_600_000).length).toBe(0); // no snapshots over 51 hours old
 
       // Ensure the list is sorted by "createdAt" descending
-      for (let i = 0; i < results.length; i++) {
+      for (let i = 0; i < snapshots.length; i++) {
         if (i === 0) continue;
-        expect(results[i].createdAt < results[i - 1].createdAt).toBe(true);
+        expect(snapshots[i].createdAt < snapshots[i - 1].createdAt).toBe(true);
       }
     });
   });
