@@ -568,6 +568,11 @@ export default [
     bonuses: []
   },
   {
+    skill: Skill.SLAYER,
+    methods: [{ startExp: 0, rate: 40_000, description: 'Partner slayer' }],
+    bonuses: []
+  },
+  {
     skill: Skill.FARMING,
     methods: [
       {
