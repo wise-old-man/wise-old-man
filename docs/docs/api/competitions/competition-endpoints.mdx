@@ -535,13 +535,19 @@ Creates a new competition. Returns the new [CompetitionWithParticipations](/api/
 | Field                 | Type                                                                  | Required | Description                                       |
 | --------------------- | --------------------------------------------------------------------- | -------- | ------------------------------------------------- |
 | title                 | string                                                                | `true`   | The competition's title.                          |
-| metric                | [Metric](/api/global-type-definitions#enum-metric)                    | `true`   | The competition's metric.                         |
+| metric                | [Metric](/api/global-type-definitions#enum-metric)?                   | `false`  | Deprecated. Use Metrics instead.                  |
+| metrics               | [Metric](/api/global-type-definitions#enum-metric)[]                  | `true`   | The competition's metrics.                        |
 | startsAt              | date                                                                  | `true`   | The competition's start date.                     |
 | endsAt                | date                                                                  | `true`   | The competition's end date.                       |
 | groupId               | integer?                                                              | `false`  | The competition's host group ID.                  |
 | groupVerificationCode | string?                                                               | `false`  | The competition's host group's verification code. |
 | participants          | string[]?                                                             | `false`  | The usernames of all the starting participants.   |
 | teams                 | [Team](/api/competitions/competition-type-definitions#object-team)[]? | `false`  | The competition's starting teams.                 |
+
+:::warning
+`metric` is deprecated. Use `metrics` instead. It is kept for backwards compatibility and will be removed in a future version. When both are provided,
+`metrics` takes precedence. Equivalent to `metrics[0]`.
+:::
 
 :::info
 The parameters `groupId`, `participants` and `teams` are mutually exclusive.
@@ -563,7 +569,7 @@ curl -X POST https://api.wiseoldman.net/v2/competitions \
  -H "Content-type: application/json" \
  -d '{
 	"title": "Smithing SOTW",
-	"metric": "smithing",
+	"metrics": ["smithing"],
     "startsAt": "2022-12-19T10:00:00.000Z",
     "endsAt": "2022-12-26T10:00:00.000Z",
 	"participants": ["psikoi", "usbc", "sethmare"]
@@ -577,7 +583,7 @@ const client = new WOMClient();
 
 const newCompetition = await client.competitions.createCompetition({
   title: 'Smithing SOTW',
-  metric: Metric.SMITHING,
+  metrics: [Metric.SMITHING],
   startsAt: '2022-12-19T10:00:00.000Z',
   endsAt: '2022-12-26T10:00:00.000Z',
   participants: ['psikoi', 'usbc', 'sethmare']
@@ -720,12 +726,18 @@ Edits an existing competition. Returns the updated [CompetitionWithParticipation
 | Field            | Type                                                                  | Required | Description                                                                                        |
 | ---------------- | --------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------- |
 | title            | string?                                                               | `false`  | The competition's title.                                                                           |
-| metric           | [Metric](/api/global-type-definitions#enum-metric)?                   | `false`  | The competition's metric.                                                                          |
+| metric           | [Metric](/api/global-type-definitions#enum-metric)?                   | `false`  | Deprecated. Use Metrics instead.                                                                   |
+| metrics          | [Metric](/api/global-type-definitions#enum-metric)[]?                 | `false`  | The competition's metrics.                                                                         |
 | startsAt         | date?                                                                 | `false`  | The competition's start date.                                                                      |
 | endsAt           | date?                                                                 | `false`  | The competition's end date.                                                                        |
 | participants     | string[]?                                                             | `false`  | The usernames of all the new participants.                                                         |
 | teams            | [Team](/api/competitions/competition-type-definitions#object-team)[]? | `false`  | The competition's new teams.                                                                       |
 | verificationCode | string                                                                | `true`   | The competition's verification code (Or the host group's verification code, if linked to a group). |
+
+:::warning
+`metric` is deprecated. Use `metrics` instead. It is kept for backwards compatibility and will be removed in a future version. When both are provided,
+`metrics` takes precedence. Equivalent to `metrics[0]`.
+:::
 
 :::info
 Only the fields provided in the body params are updated.
